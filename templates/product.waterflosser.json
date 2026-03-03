@@ -114,80 +114,6 @@
             "custom_js": ""
           }
         },
-        "description": {
-          "type": "description",
-          "settings": {
-            "is_open": true,
-            "icon": "none"
-          }
-        },
-        "collapsible_tab_Q7UFgL": {
-          "type": "collapsible_tab",
-          "settings": {
-            "heading": "Benefits",
-            "content": "<ul><li>Removes up to 99.9% of plaque with 1,600 pulsations per minute</li><li>Reaches 6mm subgingivally — deeper than any toothbrush or string floss</li><li>4 pressure modes: Gentle, Clean, Pulse, Turbo</li><li>360ml water tank — covers a full session without refilling</li><li>IPX7 waterproof — safe for shower use</li><li>30-day battery life on a single USB-C charge</li><li>Designed to be used before your CALQIX enamel tablet for maximum remineralisation</li></ul>",
-            "metafield_variables": "",
-            "page": "",
-            "icon": "eye"
-          }
-        },
-        "separator_gDwzxi": {
-          "type": "separator",
-          "settings": {
-            "show-separator-line": true,
-            "color-background": "#e4e4e0",
-            "margin-top": 0,
-            "margin-bottom": 0
-          }
-        },
-        "collapsible_tab_3rErRt": {
-          "type": "collapsible_tab",
-          "settings": {
-            "heading": "How to Use",
-            "content": "<ol><li>Fill the 360ml tank with lukewarm water</li><li>Select your pressure mode — start with Gentle if you're new to water flossing</li><li>Guide the tip along your gumline at a 90° angle, pausing 1–2 seconds between teeth</li><li>Empty and rinse the tank after every use</li><li>Follow immediately with your CALQIX enamel tablet for the rebuild phase</li></ol>",
-            "metafield_variables": "",
-            "page": "",
-            "icon": "check_mark"
-          }
-        },
-        "separator_pEEMHg": {
-          "type": "separator",
-          "settings": {
-            "show-separator-line": true,
-            "color-background": "#e4e4e0",
-            "margin-top": 0,
-            "margin-bottom": 0
-          }
-        },
-        "collapsible_tab_cAT6Ne": {
-          "type": "collapsible_tab",
-          "settings": {
-            "heading": "In the Box",
-            "content": "<ul><li>1× FlowCore device</li><li>4× replacement nozzles (standard, orthodontic, periodontal, tongue cleaner)</li><li>1× USB-C charging cable</li><li>1× travel pouch</li><li>Quick-start guide</li></ul>",
-            "metafield_variables": "",
-            "page": "",
-            "icon": "box"
-          }
-        },
-        "separator_teAXQX": {
-          "type": "separator",
-          "settings": {
-            "show-separator-line": true,
-            "color-background": "#e4e4e0",
-            "margin-top": 0,
-            "margin-bottom": 0
-          }
-        },
-        "collapsible_tab_shipping": {
-          "type": "collapsible_tab",
-          "settings": {
-            "heading": "Shipping & Returns",
-            "content": "<p><strong>Netherlands:</strong> 1–2 business days — free above €80<br><strong>Belgium \\/ Germany:</strong> 2–3 business days — free above €80<br><strong>Rest of EU:</strong> 3–5 business days — flat rate €5,95</p><p><strong>30-day returns</strong> — unused and in original packaging.<br><strong>2-year warranty</strong> on all FlowCore devices.</p>",
-            "metafield_variables": "",
-            "page": "",
-            "icon": "truck"
-          }
-        },
         "video_reels_cJKbXC": {
           "type": "video_reels",
           "disabled": true,
@@ -215,14 +141,6 @@
         "price",
         "buy_buttons",
         "calqix_trust_badges_i3QXMQ",
-        "description",
-        "collapsible_tab_Q7UFgL",
-        "separator_gDwzxi",
-        "collapsible_tab_3rErRt",
-        "separator_pEEMHg",
-        "collapsible_tab_cAT6Ne",
-        "separator_teAXQX",
-        "collapsible_tab_shipping",
         "video_reels_cJKbXC"
       ],
       "custom_css": [
@@ -661,11 +579,86 @@
         "color_arrow_hover_bg": "#1a3b5c",
         "color_arrow_hover_icon": "#ffffff"
       }
+    },
+    "calqix_product_accordions_main": {
+      "type": "calqix-product-accordions",
+      "name": "CALQIX Product Accordions",
+      "blocks": {
+        "acc_description": {
+          "type": "accordion",
+          "settings": {
+            "title": "Description",
+            "content": "<p><strong>Before your enamel can rebuild, it needs a clean surface.</strong></p><p>Nano-hydroxyapatite works by bonding directly to tooth enamel. But plaque, bacteria, and debris block that contact. The FlowCore removes the barrier — reaching 40% deeper into the spaces between teeth than a toothbrush alone, clearing the path so remineralisation can actually do its job.</p><p>This is Step 1 of the CALQIX clinical routine.</p>",
+            "force_open": true
+          }
+        },
+        "acc_benefits": {
+          "type": "accordion",
+          "settings": {
+            "title": "Benefits",
+            "content": "<ul><li>Removes up to 99.9% of plaque with 1,600 pulsations per minute</li><li>Reaches 6mm subgingivally — deeper than any toothbrush or string floss</li><li>4 pressure modes: Gentle, Clean, Pulse, Turbo</li><li>360ml water tank — covers a full session without refilling</li><li>IPX7 waterproof — safe for shower use</li><li>30-day battery life on a single USB-C charge</li><li>Designed to be used before your CALQIX enamel tablet for maximum remineralisation</li></ul>",
+            "force_open": false
+          }
+        },
+        "acc_how_to_use": {
+          "type": "accordion",
+          "settings": {
+            "title": "How to Use",
+            "content": "<ol><li>Fill the 360ml tank with lukewarm water</li><li>Select your pressure mode — start with Gentle if you're new to water flossing</li><li>Guide the tip along your gumline at a 90° angle, pausing 1–2 seconds between teeth</li><li>Empty and rinse the tank after every use</li><li>Follow immediately with your CALQIX enamel tablet for the rebuild phase</li></ol>",
+            "force_open": false
+          }
+        },
+        "acc_in_the_box": {
+          "type": "accordion",
+          "settings": {
+            "title": "In the Box",
+            "content": "<ul><li>1× FlowCore device</li><li>4× replacement nozzles (standard, orthodontic, periodontal, tongue cleaner)</li><li>1× USB-C charging cable</li><li>1× travel pouch</li><li>Quick-start guide</li></ul>",
+            "force_open": false
+          }
+        },
+        "acc_shipping_returns": {
+          "type": "accordion",
+          "settings": {
+            "title": "Shipping & Returns",
+            "content": "<p><strong>Netherlands:</strong> 1–2 business days — free above €80<br><strong>Belgium / Germany:</strong> 2–3 business days — free above €80<br><strong>Rest of EU:</strong> 3–5 business days — flat rate €5,95</p><p><strong>30-day returns</strong> — unused and in original packaging.<br><strong>2-year warranty</strong> on all FlowCore devices.</p>",
+            "force_open": false
+          }
+        }
+      },
+      "block_order": [
+        "acc_description",
+        "acc_benefits",
+        "acc_how_to_use",
+        "acc_in_the_box",
+        "acc_shipping_returns"
+      ],
+      "settings": {
+        "first_open": true,
+        "allow_multiple": false,
+        "animation_speed": 500,
+        "border_color": "#e4e4e0",
+        "trigger_color": "#1a3b5c",
+        "icon_color": "#c9a84c",
+        "content_color": "#9b9b9b",
+        "accent_color": "#c9a84c",
+        "navy_color": "#1a3b5c",
+        "trigger_font_size": 14,
+        "trigger_weight": "600",
+        "content_font_size": 14,
+        "line_height": 18,
+        "trigger_padding": 18,
+        "padding_vertical": 0,
+        "padding_horizontal": 0,
+        "max_width": 1400,
+        "custom_css": ".cqa-content p:first-child, .cqa-content ul:first-child, .cqa-content ol:first-child { margin-top: 0; }",
+        "custom_js": ""
+      }
     }
   },
   "order": [
     "breadcrumbs",
     "main",
+    "calqix_product_accordions_main",
     "calqix_colour_switcher",
     "calqix_trust_badges",
     "calqix_science_strip_kzQwKf",

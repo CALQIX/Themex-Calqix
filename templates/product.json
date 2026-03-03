@@ -95,70 +95,6 @@
             "background_color": "#4caf50"
           }
         },
-        "description": {
-          "type": "description",
-          "settings": {
-            "is_open": false,
-            "icon": "none"
-          }
-        },
-        "collapsible_tab_Q7UFgL": {
-          "type": "collapsible_tab",
-          "settings": {
-            "heading": "Benefits",
-            "content": "<ul><li><strong>Supports Healthy Skin</strong>: Boosts skin elasticity, hydration, and firmness, helping to reduce the appearance of wrinkles and promote a youthful glow.</li><li><strong>Strengthens Hair and Nails</strong>: Encourages healthier, stronger hair growth and helps to reduce brittle nails, giving you a polished look from within.</li><li><strong>Promotes Joint Health</strong>: Enhances joint flexibility and reduces discomfort, supporting an active lifestyle and overall mobility.</li><li><strong>Improves Bone Density</strong>: Aids in maintaining strong and healthy bones by supporting bone structure and density.</li><li><strong>Enhances Muscle Recovery</strong>: Assists in muscle repair and recovery, making it an excellent supplement for active individuals and athletes.</li></ul>",
-            "metafield_variables": "",
-            "page": "",
-            "icon": "eye"
-          }
-        },
-        "separator_gDwzxi": {
-          "type": "separator",
-          "settings": {
-            "show-separator-line": true,
-            "color-background": "#ffffff",
-            "margin-top": 0,
-            "margin-bottom": 0
-          }
-        },
-        "collapsible_tab_3rErRt": {
-          "type": "collapsible_tab",
-          "settings": {
-            "heading": "How to take supplement?",
-            "content": "<ol><li>Recommended Dosage: Take 1 capsules daily, preferably with water or your favorite beverage.</li><li>Best Time to Take: For optimal results, consume the supplement in the morning on an empty stomach or as advised by your healthcare professional.</li><li>Consistency is Key: Incorporate the supplement into your daily routine to maximize its benefits.</li><li>Optional Pairing: Pair with a balanced diet and a healthy lifestyle to enhance the effects.</li><li>Always read the product label for specific instructions and consult your healthcare provider if you are pregnant, nursing, or taking medications.<br/>This is demo store, this information are only for demo purpose</li></ol>",
-            "metafield_variables": "",
-            "page": "",
-            "icon": "none"
-          }
-        },
-        "separator_pEEMHg": {
-          "type": "separator",
-          "settings": {
-            "show-separator-line": true,
-            "color-background": "#ffffff",
-            "margin-top": 0,
-            "margin-bottom": 0
-          }
-        },
-        "collapsible_tab_cAT6Ne": {
-          "type": "collapsible_tab",
-          "settings": {
-            "heading": "Ingrediënts",
-            "content": "<ul><li><strong>Protein</strong></li><li><strong>Vitamin C</strong> (as L-Ascorbic Acid)</li><li><strong>Vitamin E</strong> (as D-Alpha Tocopherol Succinate)</li><li><strong>Hydrolysed Collagen</strong> (from Bovine)</li></ul>",
-            "metafield_variables": "",
-            "page": "",
-            "icon": "none"
-          }
-        },
-        "separator_teAXQX": {
-          "type": "separator",
-          "settings": {
-            "show-separator-line": true,
-            "color-background": "#ffffff",
-            "margin-top": 0,
-            "margin-bottom": 0
-          }
-        },
         "video_reels_cJKbXC": {
           "type": "video_reels",
           "disabled": true,
@@ -186,13 +122,6 @@
         "price",
         "buy_buttons",
         "promo_wBVFy3",
-        "description",
-        "collapsible_tab_Q7UFgL",
-        "separator_gDwzxi",
-        "collapsible_tab_3rErRt",
-        "separator_pEEMHg",
-        "collapsible_tab_cAT6Ne",
-        "separator_teAXQX",
         "video_reels_cJKbXC"
       ],
       "custom_css": [
@@ -534,11 +463,77 @@
         "margin-top": 44,
         "margin-bottom": 52
       }
+    },
+    "calqix_product_accordions_main": {
+      "type": "calqix-product-accordions",
+      "name": "CALQIX Product Accordions",
+      "blocks": {
+        "acc_description": {
+          "type": "accordion",
+          "settings": {
+            "title": "Description",
+            "content": "<p>Supplement details and product information.</p>",
+            "force_open": false
+          }
+        },
+        "acc_benefits": {
+          "type": "accordion",
+          "settings": {
+            "title": "Benefits",
+            "content": "<ul><li><strong>Supports Healthy Skin</strong>: Boosts skin elasticity, hydration, and firmness, helping to reduce the appearance of wrinkles and promote a youthful glow.</li><li><strong>Strengthens Hair and Nails</strong>: Encourages healthier, stronger hair growth and helps to reduce brittle nails, giving you a polished look from within.</li><li><strong>Promotes Joint Health</strong>: Enhances joint flexibility and reduces discomfort, supporting an active lifestyle and overall mobility.</li><li><strong>Improves Bone Density</strong>: Aids in maintaining strong and healthy bones by supporting bone structure and density.</li><li><strong>Enhances Muscle Recovery</strong>: Assists in muscle repair and recovery, making it an excellent supplement for active individuals and athletes.</li></ul>",
+            "force_open": false
+          }
+        },
+        "acc_how_to_use": {
+          "type": "accordion",
+          "settings": {
+            "title": "How to take supplement?",
+            "content": "<ol><li>Recommended Dosage: Take 1 capsules daily, preferably with water or your favorite beverage.</li><li>Best Time to Take: For optimal results, consume the supplement in the morning on an empty stomach or as advised by your healthcare professional.</li><li>Consistency is Key: Incorporate the supplement into your daily routine to maximize its benefits.</li><li>Optional Pairing: Pair with a balanced diet and a healthy lifestyle to enhance the effects.</li><li>Always read the product label for specific instructions and consult your healthcare provider if you are pregnant, nursing, or taking medications.<br>This is demo store, this information are only for demo purpose</li></ol>",
+            "force_open": false
+          }
+        },
+        "acc_ingredients": {
+          "type": "accordion",
+          "settings": {
+            "title": "Ingrediënts",
+            "content": "<ul><li><strong>Protein</strong></li><li><strong>Vitamin C</strong> (as L-Ascorbic Acid)</li><li><strong>Vitamin E</strong> (as D-Alpha Tocopherol Succinate)</li><li><strong>Hydrolysed Collagen</strong> (from Bovine)</li></ul>",
+            "force_open": false
+          }
+        }
+      },
+      "block_order": [
+        "acc_description",
+        "acc_benefits",
+        "acc_how_to_use",
+        "acc_ingredients"
+      ],
+      "settings": {
+        "first_open": false,
+        "allow_multiple": false,
+        "animation_speed": 500,
+        "border_color": "#e4e4e0",
+        "trigger_color": "#1a3b5c",
+        "icon_color": "#c9a84c",
+        "content_color": "#9b9b9b",
+        "accent_color": "#c9a84c",
+        "navy_color": "#1a3b5c",
+        "trigger_font_size": 14,
+        "trigger_weight": "600",
+        "content_font_size": 14,
+        "line_height": 18,
+        "trigger_padding": 18,
+        "padding_vertical": 0,
+        "padding_horizontal": 0,
+        "max_width": 800,
+        "custom_css": ".cqa-content p:first-child, .cqa-content ul:first-child, .cqa-content ol:first-child { margin-top: 0; }",
+        "custom_js": ""
+      }
     }
   },
   "order": [
     "breadcrumbs",
     "main",
+    "calqix_product_accordions_main",
     "benefits_product_RArPDt",
     "rich_text_YecVJk",
     "collapsible_menu_WraA7j",

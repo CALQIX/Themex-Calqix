@@ -1917,12 +1917,18 @@ body.no-focus-visible .form-checkbox__input:focus-visible ~ .input-decorator {
   transition: grid-template-rows 500ms;
   font-size: var(--font-base-size);
 }
+.wt-collapse__target > * {
+  min-height: 0;
+}
 .wt-collapse__target--v2 {
   overflow: hidden;
   display: grid;
   max-height: unset;
   grid-template-rows: 0fr;
   transition: grid-template-rows 500ms;
+}
+.wt-collapse__target--v2 > * {
+  min-height: 0;
 }
 .wt-collapse__target--text {
   overflow: hidden;

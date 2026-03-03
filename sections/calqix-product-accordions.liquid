@@ -77,10 +77,11 @@
     max-height: 0;
     overflow: hidden;
     transition: max-height {{ section.settings.animation_speed }}ms ease;
+    will-change: max-height;
   }
 
   #calqix-accordions-{{ section.id }} .cqa-body.open {
-    max-height: 1200px;
+    max-height: 0;
   }
 
   #calqix-accordions-{{ section.id }} .cqa-content {
@@ -192,7 +193,7 @@
           {{ block.settings.title }}
           <span class="cqa-icon" aria-hidden="true">+</span>
         </button>
-        <div class="cqa-body {% if is_default_open %}open{% endif %}" role="region">
+        <div class="cqa-body {% if is_default_open %}open{% endif %}" role="region" aria-hidden="{% if is_default_open %}false{% else %}true{% endif %}">
           <div class="cqa-content">
             {{ block.settings.content }}
           </div>
@@ -216,27 +217,61 @@
 
     var allowMultiple = {{ section.settings.allow_multiple | json }};
 
+    var speed = {{ section.settings.animation_speed | json }};
+
+    function setOpen(item, shouldOpen) {
+      var body = item.querySelector('.cqa-body');
+      var trig = item.querySelector('.cqa-trigger');
+      if (!body || !trig) return;
+
+      if (shouldOpen) {
+        item.classList.add('open');
+        body.classList.add('open');
+        trig.setAttribute('aria-expanded', 'true');
+        body.setAttribute('aria-hidden', 'false');
+        body.style.maxHeight = body.scrollHeight + 'px';
+      } else {
+        item.classList.remove('open');
+        body.classList.remove('open');
+        trig.setAttribute('aria-expanded', 'false');
+        body.setAttribute('aria-hidden', 'true');
+        body.style.maxHeight = '0px';
+      }
+    }
+
+    function syncOpenHeights() {
+      container.querySelectorAll('.cqa-item.open .cqa-body').forEach(function(body) {
+        body.style.maxHeight = body.scrollHeight + 'px';
+      });
+    }
+
+    container.querySelectorAll('.cqa-item').forEach(function(item) {
+      var isOpen = item.classList.contains('open');
+      setOpen(item, isOpen);
+    });
+
     container.querySelectorAll('.cqa-trigger').forEach(function(trigger) {
       trigger.addEventListener('click', function() {
         var item = this.closest('.cqa-item');
-        var body = item.querySelector('.cqa-body');
+        if (!item) return;
         var isOpen = item.classList.contains('open');
 
         if (!allowMultiple) {
-          // close all
-          container.querySelectorAll('.cqa-item').forEach(function(i) {
-            i.classList.remove('open');
-            i.querySelector('.cqa-body').classList.remove('open');
-            i.querySelector('.cqa-trigger').setAttribute('aria-expanded', 'false');
+          container.querySelectorAll('.cqa-item.open').forEach(function(openItem) {
+            if (openItem !== item) setOpen(openItem, false);
           });
         }
 
+        setOpen(item, !isOpen);
+
         if (!isOpen) {
-          item.classList.add('open');
-          body.classList.add('open');
-          trigger.setAttribute('aria-expanded', 'true');
+          window.setTimeout(syncOpenHeights, speed + 20);
         }
       });
+    });
+
+    window.addEventListener('resize', function() {
+      syncOpenHeights();
     });
 
     {% if section.settings.custom_js != blank %}
