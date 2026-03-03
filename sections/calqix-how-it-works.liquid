@@ -66,13 +66,15 @@
 
   #calqix-hiw-{{ section.id }} .chiw-grid {
     display: grid;
-    grid-template-columns: repeat({{ cols }}, 1fr);
+    grid-template-columns: repeat({{ cols }}, minmax(0, 1fr));
     gap: {{ gap_px }}px;
   }
 
   #calqix-hiw-{{ section.id }} .chiw-card {
     background: {{ card_bg }};
     padding: {{ section.settings.card_padding }}px;
+    min-width: 0;
+    transition: transform 0.45s ease, opacity 0.45s ease, box-shadow 0.45s ease;
   }
 
   #calqix-hiw-{{ section.id }} .chiw-step-num {
@@ -110,9 +112,106 @@
     padding: 4px 12px;
   }
 
+  #calqix-hiw-{{ section.id }} .chiw-mobile-nav {
+    display: none;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-mobile-dot {
+    width: 8px;
+    height: 8px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(26, 59, 92, 0.2);
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-mobile-dot.is-active {
+    transform: scale(1.2);
+    background: {{ label_col }};
+  }
+
+  @keyframes chiw-step-pop {
+    0% { transform: scale(0.7); opacity: 0.2; }
+    55% { transform: scale(1.16); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes chiw-step-spin {
+    0% { transform: rotate(-24deg) scale(0.75); opacity: 0.15; }
+    70% { transform: rotate(4deg) scale(1.08); opacity: 1; }
+    100% { transform: rotate(0deg) scale(1); opacity: 1; }
+  }
+
+  @keyframes chiw-step-rise {
+    0% { transform: translateY(12px) scale(0.75); opacity: 0.2; }
+    60% { transform: translateY(-4px) scale(1.1); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-card.is-active[data-step-anim="1"] .chiw-step-num {
+    animation: chiw-step-pop 0.72s ease both;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-card.is-active[data-step-anim="2"] .chiw-step-num {
+    animation: chiw-step-spin 0.8s ease both;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-card.is-active[data-step-anim="3"] .chiw-step-num {
+    animation: chiw-step-rise 0.74s ease both;
+  }
+
   @media (max-width: 768px) {
     #calqix-hiw-{{ section.id }} .chiw-grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    #calqix-hiw-{{ section.id }} .chiw-grid {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 6px;
+    }
+
+    #calqix-hiw-{{ section.id }} .chiw-grid::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    #calqix-hiw-{{ section.id }} .chiw-grid::-webkit-scrollbar-thumb {
+      background: rgba(26, 59, 92, 0.24);
+      border-radius: 999px;
+    }
+
+    #calqix-hiw-{{ section.id }} .chiw-card {
+      flex: 0 0 calc(100% - 18px);
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      opacity: 0.4;
+      transform: translateX(18px) scale(0.97);
+      box-shadow: 0 10px 24px rgba(15, 36, 56, 0.08);
+    }
+
+    #calqix-hiw-{{ section.id }} .chiw-card.is-visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    #calqix-hiw-{{ section.id }} .chiw-card.is-active {
+      box-shadow: 0 14px 34px rgba(15, 36, 56, 0.13);
+      border: 1px solid rgba(232, 201, 106, 0.35);
+    }
+
+    #calqix-hiw-{{ section.id }} .chiw-mobile-nav {
+      display: flex;
     }
   }
 
@@ -139,7 +238,8 @@
     {% if section.blocks.size > 0 %}
       <div class="chiw-grid">
         {% for block in section.blocks %}
-          <div class="chiw-card" {{ block.shopify_attributes }}>
+          {% assign anim_index = forloop.index0 | modulo: 3 | plus: 1 %}
+          <div class="chiw-card" data-step-anim="{{ anim_index }}" {{ block.shopify_attributes }}>
 
             {% if block.settings.show_number %}
               <div class="chiw-step-num">
@@ -167,6 +267,7 @@
           </div>
         {% endfor %}
       </div>
+      <div class="chiw-mobile-nav" aria-hidden="true"></div>
     {% else %}
       <div style="padding: 40px; text-align: center; color: #9B9B9B; font-size: 13px; background: rgba(0,0,0,0.03);">
         Voeg stappen toe via "Block toevoegen" in de Theme Customizer.
@@ -175,6 +276,109 @@
 
   </div>
 </section>
+
+<script>
+  (function() {
+    var section = document.getElementById('calqix-hiw-{{ section.id }}');
+    if (!section) return;
+    var grid = section.querySelector('.chiw-grid');
+    if (!grid) return;
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.chiw-card'));
+    if (!cards.length) return;
+    var nav = section.querySelector('.chiw-mobile-nav');
+    var dots = [];
+    var observer;
+
+    function setActive(index) {
+      cards.forEach(function(card, i) {
+        card.classList.toggle('is-active', i === index);
+      });
+      dots.forEach(function(dot, i) {
+        dot.classList.toggle('is-active', i === index);
+      });
+    }
+
+    function getCenterIndex() {
+      var rect = grid.getBoundingClientRect();
+      var center = rect.left + rect.width * 0.5;
+      var best = 0;
+      var bestDist = Infinity;
+      cards.forEach(function(card, i) {
+        var cardRect = card.getBoundingClientRect();
+        var cardCenter = cardRect.left + cardRect.width * 0.5;
+        var dist = Math.abs(center - cardCenter);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = i;
+        }
+      });
+      return best;
+    }
+
+    function onScroll() {
+      if (!window.matchMedia('(max-width: 600px)').matches) return;
+      setActive(getCenterIndex());
+    }
+
+    function desktopMode() {
+      cards.forEach(function(card) {
+        card.classList.add('is-visible');
+        card.classList.remove('is-active');
+      });
+      if (nav) nav.style.display = 'none';
+      grid.removeEventListener('scroll', onScroll);
+      if (observer) observer.disconnect();
+    }
+
+    function mobileMode() {
+      if (nav) nav.style.display = 'flex';
+
+      if (nav && !dots.length) {
+        cards.forEach(function(_, i) {
+          var dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = 'chiw-mobile-dot' + (i === 0 ? ' is-active' : '');
+          dot.setAttribute('aria-label', 'Go to step ' + (i + 1));
+          dot.addEventListener('click', function() {
+            cards[i].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+            setActive(i);
+          });
+          nav.appendChild(dot);
+          dots.push(dot);
+        });
+      }
+
+      cards.forEach(function(card, i) {
+        card.classList.toggle('is-visible', i === 0);
+      });
+
+      if (observer) observer.disconnect();
+      observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          var idx = cards.indexOf(entry.target);
+          if (idx > -1) setActive(idx);
+        });
+      }, { root: grid, threshold: 0.55 });
+
+      cards.forEach(function(card) { observer.observe(card); });
+      grid.addEventListener('scroll', onScroll, { passive: true });
+      setActive(0);
+    }
+
+    function updateMode() {
+      if (window.matchMedia('(max-width: 600px)').matches) {
+        mobileMode();
+      } else {
+        desktopMode();
+      }
+    }
+
+    updateMode();
+    window.addEventListener('resize', updateMode);
+  })();
+</script>
 
 {% if section.settings.custom_js != blank %}
   <script>

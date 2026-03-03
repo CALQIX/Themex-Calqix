@@ -46,6 +46,7 @@
 {% if bundle_url == blank %}
   {% assign bundle_url = '/collections/bundles' %}
 {% endif %}
+{% assign bundle_sold_out = true %}
 
 <style>
   #calqix-routine-{{ section.id }} {
@@ -255,6 +256,185 @@
     background: {{ btn_hover }};
   }
 
+  #calqix-routine-{{ section.id }} .crb-btn.is-soldout {
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.78);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-soldout-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(232, 201, 106, 0.35);
+    color: #E8C96A;
+    background: rgba(232, 201, 106, 0.1);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile {
+    display: none;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-track {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-track::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-track::-webkit-scrollbar-thumb {
+    background: rgba(26, 59, 92, 0.25);
+    border-radius: 999px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-slide {
+    flex: 0 0 calc(100% - 18px);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    background: #ffffff;
+    border: 1px solid {{ bdr_col }};
+    padding: 22px 18px;
+    opacity: 0.4;
+    transform: translateX(18px) scale(0.97);
+    transition: opacity 0.45s ease, transform 0.45s ease, box-shadow 0.45s ease;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-slide.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-slide.is-active {
+    box-shadow: 0 14px 32px rgba(15, 36, 56, 0.14);
+    border-color: rgba(232, 201, 106, 0.38);
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-step-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid rgba(232, 201, 106, 0.4);
+    color: {{ title_col }};
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    background: rgba(232, 201, 106, 0.12);
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-step-icon {
+    width: {{ section.settings.icon_size }}px;
+    height: {{ section.settings.icon_size }}px;
+    background: {{ step_icon_bg }};
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: {{ section.settings.icon_font_size }}px;
+    flex: 0 0 {{ section.settings.icon_size }}px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-step-title {
+    font-size: {{ section.settings.step_heading_size }}px;
+    color: {{ step_head }};
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-step-desc {
+    font-size: {{ section.settings.step_body_size }}px;
+    color: {{ step_body }};
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-slide--bundle {
+    background: {{ bg_card }};
+    color: #fff;
+    border-color: rgba(232, 201, 106, 0.2);
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-slide--bundle .crb-mobile-step-num {
+    color: #E8C96A;
+    border-color: rgba(232, 201, 106, 0.45);
+    background: rgba(232, 201, 106, 0.15);
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-nav {
+    display: none;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-dot {
+    width: 8px;
+    height: 8px;
+    border: 0;
+    padding: 0;
+    border-radius: 999px;
+    background: rgba(26, 59, 92, 0.2);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-dot.is-active {
+    transform: scale(1.2);
+    background: {{ label_col }};
+  }
+
+  @keyframes crb-mobile-bob {
+    0% { transform: translateY(10px) scale(0.8); opacity: 0.2; }
+    55% { transform: translateY(-3px) scale(1.1); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+
+  @keyframes crb-mobile-spin {
+    0% { transform: rotate(-18deg) scale(0.75); opacity: 0.25; }
+    65% { transform: rotate(5deg) scale(1.1); opacity: 1; }
+    100% { transform: rotate(0deg) scale(1); opacity: 1; }
+  }
+
+  @keyframes crb-mobile-pop {
+    0% { transform: scale(0.7); opacity: 0.25; }
+    60% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-slide.is-active[data-step-anim="1"] .crb-mobile-step-icon {
+    animation: crb-mobile-bob 0.72s ease both;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-slide.is-active[data-step-anim="2"] .crb-mobile-step-icon {
+    animation: crb-mobile-spin 0.78s ease both;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-mobile-slide.is-active[data-step-anim="3"] .crb-mobile-step-icon {
+    animation: crb-mobile-pop 0.7s ease both;
+  }
+
   @media (max-width: 768px) {
     #calqix-routine-{{ section.id }} .crb-inner {
       grid-template-columns: 1fr;
@@ -264,6 +444,20 @@
     #calqix-routine-{{ section.id }} .crb-left,
     #calqix-routine-{{ section.id }} .crb-right {
       direction: ltr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    #calqix-routine-{{ section.id }} .crb-inner {
+      display: none;
+    }
+
+    #calqix-routine-{{ section.id }} .crb-mobile {
+      display: block;
+    }
+
+    #calqix-routine-{{ section.id }} .crb-mobile-nav {
+      display: flex;
     }
   }
 
@@ -313,6 +507,10 @@
           <div class="crb-card-deco"></div>
         {% endif %}
 
+        {% if bundle_sold_out %}
+          <div class="crb-soldout-badge">Uitverkocht</div>
+        {% endif %}
+
         {% if section.settings.card_label != blank %}
           <div class="crb-card-label">{{ section.settings.card_label }}</div>
         {% endif %}
@@ -347,14 +545,192 @@
           </div>
         </div>
 
-        <a href="{{ bundle_url }}" class="crb-btn">
-          {{ section.settings.button_text }}
-        </a>
+        {% if bundle_sold_out %}
+          <span class="crb-btn is-soldout" role="status" aria-live="polite">Uitverkocht</span>
+        {% else %}
+          <a href="{{ bundle_url }}" class="crb-btn">
+            {{ section.settings.button_text }}
+          </a>
+        {% endif %}
       </div>
     </div>
 
   </div>
+
+  <div class="crb-mobile">
+    {% if section.settings.label != blank %}
+      <div class="crb-label">{{ section.settings.label }}</div>
+    {% endif %}
+    {% if section.settings.title != blank %}
+      <h2 class="crb-title">{{ section.settings.title }}</h2>
+    {% endif %}
+    {% if section.settings.subtitle != blank %}
+      <p class="crb-sub">{{ section.settings.subtitle }}</p>
+    {% endif %}
+
+    <div class="crb-mobile-track">
+      {% for block in section.blocks %}
+        {% assign step_anim = forloop.index0 | modulo: 3 | plus: 1 %}
+        <article class="crb-mobile-slide" data-step-anim="{{ step_anim }}" {{ block.shopify_attributes }}>
+          <div class="crb-mobile-step-top">
+            <span class="crb-mobile-step-num">{{ forloop.index }}</span>
+            {% if block.settings.icon != blank %}
+              <span class="crb-mobile-step-icon">{{ block.settings.icon }}</span>
+            {% endif %}
+          </div>
+          {% if block.settings.title != blank %}
+            <h3 class="crb-mobile-step-title">{{ block.settings.title }}</h3>
+          {% endif %}
+          {% if block.settings.description != blank %}
+            <p class="crb-mobile-step-desc">{{ block.settings.description }}</p>
+          {% endif %}
+        </article>
+      {% endfor %}
+
+      <article class="crb-mobile-slide crb-mobile-slide--bundle" data-step-anim="4">
+        <div class="crb-mobile-step-top">
+          <span class="crb-mobile-step-num">4</span>
+          <span class="crb-soldout-badge">Uitverkocht</span>
+        </div>
+
+        {% if section.settings.card_label != blank %}
+          <div class="crb-card-label">{{ section.settings.card_label }}</div>
+        {% endif %}
+        {% if section.settings.card_title != blank %}
+          <h3 class="crb-card-title">{{ section.settings.card_title }}</h3>
+        {% endif %}
+        {% if section.settings.card_quote != blank %}
+          <p class="crb-card-body">{{ section.settings.card_quote }}</p>
+        {% endif %}
+
+        {% unless section.settings.item_1 == blank and section.settings.item_2 == blank and section.settings.item_3 == blank and section.settings.item_4 == blank %}
+          <ul class="crb-items">
+            {% if section.settings.item_1 != blank %}<li>{{ section.settings.item_1 }}</li>{% endif %}
+            {% if section.settings.item_2 != blank %}<li>{{ section.settings.item_2 }}</li>{% endif %}
+            {% if section.settings.item_3 != blank %}<li>{{ section.settings.item_3 }}</li>{% endif %}
+            {% if section.settings.item_4 != blank %}<li>{{ section.settings.item_4 }}</li>{% endif %}
+            {% if section.settings.item_5 != blank %}<li>{{ section.settings.item_5 }}</li>{% endif %}
+          </ul>
+        {% endunless %}
+
+        <div class="crb-price-row">
+          <div class="crb-price">{{ section.settings.bundle_price }}</div>
+          <div>
+            {% if section.settings.old_price != blank %}
+              <div class="crb-old-price">{{ section.settings.old_price }}</div>
+            {% endif %}
+            {% if section.settings.save_text != blank %}
+              <span class="crb-save">{{ section.settings.save_text }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <span class="crb-btn is-soldout" role="status" aria-live="polite">Uitverkocht</span>
+      </article>
+    </div>
+
+    <div class="crb-mobile-nav" aria-hidden="true"></div>
+  </div>
 </section>
+
+<script>
+  (function() {
+    var section = document.getElementById('calqix-routine-{{ section.id }}');
+    if (!section) return;
+    var track = section.querySelector('.crb-mobile-track');
+    if (!track) return;
+    var slides = Array.prototype.slice.call(track.querySelectorAll('.crb-mobile-slide'));
+    if (!slides.length) return;
+    var nav = section.querySelector('.crb-mobile-nav');
+    var dots = [];
+    var observer;
+
+    function setActive(index) {
+      slides.forEach(function(slide, i) {
+        slide.classList.toggle('is-active', i === index);
+      });
+      dots.forEach(function(dot, i) {
+        dot.classList.toggle('is-active', i === index);
+      });
+    }
+
+    function centerIndex() {
+      var rect = track.getBoundingClientRect();
+      var center = rect.left + rect.width * 0.5;
+      var bestIndex = 0;
+      var bestDist = Infinity;
+      slides.forEach(function(slide, i) {
+        var sRect = slide.getBoundingClientRect();
+        var sCenter = sRect.left + sRect.width * 0.5;
+        var dist = Math.abs(center - sCenter);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestIndex = i;
+        }
+      });
+      return bestIndex;
+    }
+
+    function onScroll() {
+      if (!window.matchMedia('(max-width: 600px)').matches) return;
+      setActive(centerIndex());
+    }
+
+    function desktopMode() {
+      slides.forEach(function(slide) {
+        slide.classList.remove('is-active');
+        slide.classList.add('is-visible');
+      });
+      track.removeEventListener('scroll', onScroll);
+      if (observer) observer.disconnect();
+    }
+
+    function mobileMode() {
+      if (nav && !dots.length) {
+        slides.forEach(function(_, i) {
+          var dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = 'crb-mobile-dot' + (i === 0 ? ' is-active' : '');
+          dot.setAttribute('aria-label', 'Go to routine slide ' + (i + 1));
+          dot.addEventListener('click', function() {
+            slides[i].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+            setActive(i);
+          });
+          nav.appendChild(dot);
+          dots.push(dot);
+        });
+      }
+
+      slides.forEach(function(slide, i) {
+        slide.classList.toggle('is-visible', i === 0);
+      });
+
+      if (observer) observer.disconnect();
+      observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          var idx = slides.indexOf(entry.target);
+          if (idx > -1) setActive(idx);
+        });
+      }, { root: track, threshold: 0.55 });
+
+      slides.forEach(function(slide) { observer.observe(slide); });
+      track.addEventListener('scroll', onScroll, { passive: true });
+      setActive(0);
+    }
+
+    function updateMode() {
+      if (window.matchMedia('(max-width: 600px)').matches) {
+        mobileMode();
+      } else {
+        desktopMode();
+      }
+    }
+
+    updateMode();
+    window.addEventListener('resize', updateMode);
+  })();
+</script>
 
 {% if section.settings.custom_js != blank %}
   <script>

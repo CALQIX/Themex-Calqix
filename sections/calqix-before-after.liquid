@@ -75,6 +75,10 @@
       transform: none;
     }
 
+    #cba-{{ section.id }} .cba-col.is-active {
+      transform: scale(1.01);
+    }
+
     #cba-{{ section.id }} .cba-grid::-webkit-scrollbar {
       height: 6px;
     }
@@ -162,6 +166,12 @@
       flex: 0 0 8px;
       position: relative;
       z-index: 2;
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    #cba-{{ section.id }} .cba-col.is-active .cba-step-dot {
+      transform: scale(1.35);
+      box-shadow: 0 0 0 6px rgba(232, 201, 106, 0.18);
     }
 
     #cba-{{ section.id }} .cba-col:not(:last-child) .cba-step-row::after {
@@ -216,6 +226,29 @@
       overflow-wrap: anywhere;
     }
 
+    #cba-{{ section.id }} .cba-mobile-nav {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    #cba-{{ section.id }} .cba-mobile-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 0;
+      padding: 0;
+      background: rgba(255, 255, 255, 0.24);
+      cursor: pointer;
+      transition: transform 0.25s ease, background 0.25s ease;
+    }
+
+    #cba-{{ section.id }} .cba-mobile-dot.is-active {
+      background: var(--cba-accent);
+      transform: scale(1.2);
+    }
+
     @media (min-width: 601px) and (max-width: 768px) {
       #cba-{{ section.id }} {
         --cba-gap: 18px;
@@ -232,6 +265,10 @@
         gap: var(--cba-gap);
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      #cba-{{ section.id }} .cba-mobile-nav {
+        display: none;
       }
 
       #cba-{{ section.id }} .cba-col {
@@ -267,6 +304,10 @@
         gap: var(--cba-gap);
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      #cba-{{ section.id }} .cba-mobile-nav {
+        display: none;
       }
 
       #cba-{{ section.id }} .cba-col {
@@ -356,6 +397,7 @@
         {% endif %}
       {% endfor %}
     </div>
+    <div class="cba-mobile-nav" aria-hidden="true"></div>
   </div>
 
   <script>
@@ -366,20 +408,75 @@
       if (!slider) return;
       var cards = Array.prototype.slice.call(section.querySelectorAll('.cba-col'));
       if (!cards.length) return;
+      var nav = section.querySelector('.cba-mobile-nav');
+      var navDots = [];
 
       var observer;
+      function syncActive(index) {
+        cards.forEach(function(card, i) {
+          card.classList.toggle('is-active', i === index);
+        });
+        navDots.forEach(function(dot, i) {
+          dot.classList.toggle('is-active', i === index);
+        });
+      }
+
+      function nearestCardIndex() {
+        var sliderRect = slider.getBoundingClientRect();
+        var center = sliderRect.left + sliderRect.width * 0.5;
+        var bestIndex = 0;
+        var bestDistance = Infinity;
+
+        cards.forEach(function(card, index) {
+          var rect = card.getBoundingClientRect();
+          var cardCenter = rect.left + rect.width * 0.5;
+          var distance = Math.abs(center - cardCenter);
+          if (distance < bestDistance) {
+            bestDistance = distance;
+            bestIndex = index;
+          }
+        });
+
+        return bestIndex;
+      }
+
+      function onSliderScroll() {
+        if (!window.matchMedia('(max-width: 600px)').matches) return;
+        syncActive(nearestCardIndex());
+      }
+
       function resetDesktopState() {
         cards.forEach(function(card) {
           card.classList.add('is-visible');
+          card.classList.remove('is-active');
         });
+        if (nav) nav.style.display = 'none';
         if (observer) observer.disconnect();
+        slider.removeEventListener('scroll', onSliderScroll);
       }
 
       function setMobileState() {
+        if (nav) nav.style.display = 'flex';
         cards.forEach(function(card, index) {
           card.classList.remove('is-visible');
+          card.classList.toggle('is-active', index === 0);
           if (index === 0) card.classList.add('is-visible');
         });
+
+        if (nav && !navDots.length) {
+          cards.forEach(function(_, index) {
+            var dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = 'cba-mobile-dot' + (index === 0 ? ' is-active' : '');
+            dot.setAttribute('aria-label', 'Go to slide ' + (index + 1));
+            dot.addEventListener('click', function() {
+              cards[index].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+              syncActive(index);
+            });
+            nav.appendChild(dot);
+            navDots.push(dot);
+          });
+        }
 
         if (observer) observer.disconnect();
         observer = new IntersectionObserver(
@@ -387,6 +484,8 @@
             entries.forEach(function(entry) {
               if (entry.isIntersecting) {
                 entry.target.classList.add('is-visible');
+                var idx = cards.indexOf(entry.target);
+                if (idx > -1) syncActive(idx);
               }
             });
           },
@@ -396,6 +495,9 @@
         cards.forEach(function(card) {
           observer.observe(card);
         });
+
+        slider.addEventListener('scroll', onSliderScroll, { passive: true });
+        syncActive(0);
       }
 
       function updateMode() {
