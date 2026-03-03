@@ -1,0 +1,511 @@
+<section id="cba-{{ section.id }}" class="cba-section">
+  <style>
+    #cba-{{ section.id }} {
+      --cba-bg: {{ section.settings.background_color }};
+      --cba-accent: {{ section.settings.accent_color }};
+      --cba-heading: {{ section.settings.heading_color }};
+      --cba-body: {{ section.settings.body_text_color }};
+      --cba-border: rgba(255, 255, 255, 0.07);
+      --cba-gap: 28px;
+      --cba-radius: 8px;
+      background: var(--cba-bg);
+      padding: {{ section.settings.section_padding_vertical }}px 0;
+      color: var(--cba-heading);
+      overflow-x: clip;
+    }
+
+    #cba-{{ section.id }} * {
+      box-sizing: border-box;
+    }
+
+    #cba-{{ section.id }} .cba-inner {
+      width: min(100%, 1200px);
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    #cba-{{ section.id }} .cba-head {
+      margin-bottom: 26px;
+    }
+
+    #cba-{{ section.id }} .cba-eyebrow {
+      margin: 0 0 8px;
+      color: var(--cba-accent);
+      font-family: "DM Sans", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    #cba-{{ section.id }} .cba-title {
+      margin: 0;
+      color: var(--cba-heading);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(28px, 5vw, 40px);
+      line-height: 1.12;
+      font-weight: 700;
+    }
+
+    #cba-{{ section.id }} .cba-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--cba-gap);
+    }
+
+    #cba-{{ section.id }} .cba-col {
+      position: relative;
+      min-width: 0;
+    }
+
+    #cba-{{ section.id }} .cba-media {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      border: 1px solid var(--cba-border);
+      border-radius: var(--cba-radius);
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.02);
+      margin-bottom: 14px;
+    }
+
+    #cba-{{ section.id }} .cba-media-link {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    #cba-{{ section.id }} .cba-media-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    #cba-{{ section.id }} .cba-media-fallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      color: #E8C96A;
+      border: 1px dashed rgba(232, 201, 106, 0.24);
+      border-radius: var(--cba-radius);
+      font-family: "DM Sans", sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      background: #0F2438;
+    }
+
+    #cba-{{ section.id }} .cba-media-fallback-symbol {
+      font-size: 32px;
+      line-height: 1;
+      color: #E8C96A;
+    }
+
+    #cba-{{ section.id }} .cba-media-fallback-step {
+      line-height: 1;
+      color: #E8C96A;
+    }
+
+    #cba-{{ section.id }} .cba-step-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 12px;
+      min-height: 28px;
+      padding-left: 0;
+      z-index: 1;
+    }
+
+    #cba-{{ section.id }} .cba-step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cba-accent);
+      flex: 0 0 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    #cba-{{ section.id }} .cba-col:not(:last-child) .cba-step-row::after {
+      content: "";
+      position: absolute;
+      left: 9px;
+      top: 22px;
+      width: 1px;
+      height: calc(100% + var(--cba-gap) + 90px);
+      background: var(--cba-accent);
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    #cba-{{ section.id }} .cba-step-number {
+      color: var(--cba-accent);
+      font-family: "DM Sans", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      line-height: 1;
+      min-width: 22px;
+      position: relative;
+      z-index: 2;
+    }
+
+    #cba-{{ section.id }} .cba-badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid color-mix(in srgb, var(--cba-accent) 72%, transparent);
+      border-radius: 999px;
+      color: var(--cba-accent);
+      background: transparent;
+      font-family: "DM Sans", sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      padding: 6px 10px;
+    }
+
+    #cba-{{ section.id }} .cba-heading {
+      margin: 0 0 8px;
+      color: var(--cba-heading);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(22px, 5.6vw, 30px);
+      font-weight: 700;
+      line-height: 1.16;
+    }
+
+    #cba-{{ section.id }} .cba-body {
+      margin: 0;
+      color: var(--cba-body);
+      font-family: "DM Sans", sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.7;
+      max-width: 44ch;
+      overflow-wrap: anywhere;
+    }
+
+    @media (min-width: 601px) and (max-width: 768px) {
+      #cba-{{ section.id }} {
+        --cba-gap: 18px;
+      }
+
+      #cba-{{ section.id }} .cba-inner {
+        padding: 0 14px;
+      }
+
+      #cba-{{ section.id }} .cba-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      #cba-{{ section.id }} .cba-heading {
+        font-size: 24px;
+      }
+
+      #cba-{{ section.id }} .cba-body {
+        font-size: 13px;
+      }
+    }
+
+    @media (min-width: 769px) {
+      #cba-{{ section.id }} {
+        --cba-gap: 28px;
+        --cba-connector-top: 287px;
+      }
+
+      #cba-{{ section.id }} .cba-inner {
+        padding: 0 20px;
+      }
+
+      #cba-{{ section.id }} .cba-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      #cba-{{ section.id }} .cba-grid::before {
+        content: "";
+        position: absolute;
+        left: calc(100% / 6);
+        right: calc(100% / 6);
+        top: var(--cba-connector-top);
+        height: 1px;
+        background: var(--cba-accent);
+        opacity: 0.45;
+        pointer-events: none;
+      }
+
+      #cba-{{ section.id }} .cba-col:not(:last-child) .cba-step-row::after {
+        display: none;
+      }
+    }
+
+    {% if section.settings.custom_css != blank %}
+      {{ section.settings.custom_css }}
+    {% endif %}
+  </style>
+
+  <div class="cba-inner">
+    {% if section.settings.eyebrow != blank or section.settings.title != blank %}
+      <div class="cba-head">
+        {% if section.settings.eyebrow != blank %}
+          <p class="cba-eyebrow">{{ section.settings.eyebrow }}</p>
+        {% endif %}
+        {% if section.settings.title != blank %}
+          <h2 class="cba-title">{{ section.settings.title }}</h2>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="cba-grid">
+      {% for i in (1..3) %}
+        {% assign show_key = 'col' | append: i | append: '_show' %}
+        {% assign image_key = 'col' | append: i | append: '_image' %}
+        {% assign number_key = 'col' | append: i | append: '_step_number' %}
+        {% assign badge_key = 'col' | append: i | append: '_badge_text' %}
+        {% assign heading_key = 'col' | append: i | append: '_heading' %}
+        {% assign body_key = 'col' | append: i | append: '_body' %}
+        {% assign url_key = 'col' | append: i | append: '_url' %}
+
+        {% if section.settings[show_key] %}
+          <article class="cba-col">
+            <div class="cba-media">
+              {% if section.settings[url_key] != blank %}<a class="cba-media-link" href="{{ section.settings[url_key] }}">{% endif %}
+                {% if section.settings[image_key] != blank %}
+                  {{
+                    section.settings[image_key]
+                    | image_url: width: 1200
+                    | image_tag:
+                      class: 'cba-media-image',
+                      loading: 'lazy',
+                      widths: '400, 600, 800, 1000, 1200',
+                      sizes: '(max-width: 600px) 100vw, (max-width: 1200px) 33vw, 380px',
+                      alt: section.settings[heading_key]
+                  }}
+                {% else %}
+                  <div class="cba-media-fallback">
+                    <span class="cba-media-fallback-symbol">⬡</span>
+                    <span class="cba-media-fallback-step">{{ section.settings[number_key] }}</span>
+                  </div>
+                {% endif %}
+              {% if section.settings[url_key] != blank %}</a>{% endif %}
+            </div>
+
+            <div class="cba-step-row">
+              <span class="cba-step-dot" aria-hidden="true"></span>
+              <span class="cba-step-number">{{ section.settings[number_key] }}</span>
+              <span class="cba-badge">{{ section.settings[badge_key] }}</span>
+            </div>
+
+            <h3 class="cba-heading">{{ section.settings[heading_key] }}</h3>
+            <p class="cba-body">{{ section.settings[body_key] }}</p>
+          </article>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "CALQIX — Before After",
+  "tag": "section",
+  "class": "cba-root-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Section eyebrow",
+      "default": "The CALQIX Journey"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section title",
+      "default": "Before. In Action. After."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#0F2438"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#E8C96A"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "body_text_color",
+      "label": "Body text color",
+      "default": "#AFC1D2"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_vertical",
+      "label": "Section vertical padding (px)",
+      "min": 20,
+      "max": 140,
+      "step": 4,
+      "default": 72
+    },
+    {
+      "type": "header",
+      "content": "Column 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "col1_show",
+      "label": "Show column 1",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "col1_image",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "col1_url",
+      "label": "Image link URL"
+    },
+    {
+      "type": "text",
+      "id": "col1_step_number",
+      "label": "Step number",
+      "default": "01"
+    },
+    {
+      "type": "text",
+      "id": "col1_badge_text",
+      "label": "Badge text",
+      "default": "Day 0"
+    },
+    {
+      "type": "text",
+      "id": "col1_heading",
+      "label": "Heading",
+      "default": "Before"
+    },
+    {
+      "type": "textarea",
+      "id": "col1_body",
+      "label": "Body",
+      "default": "Plaque and bacteria accumulate between teeth and below the gumline. Enamel cannot remineralise through biofilm — the barrier must be removed first."
+    },
+    {
+      "type": "header",
+      "content": "Column 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "col2_show",
+      "label": "Show column 2",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "col2_image",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "col2_url",
+      "label": "Image link URL"
+    },
+    {
+      "type": "text",
+      "id": "col2_step_number",
+      "label": "Step number",
+      "default": "02"
+    },
+    {
+      "type": "text",
+      "id": "col2_badge_text",
+      "label": "Badge text",
+      "default": "60 seconds"
+    },
+    {
+      "type": "text",
+      "id": "col2_heading",
+      "label": "Heading",
+      "default": "In Action"
+    },
+    {
+      "type": "textarea",
+      "id": "col2_body",
+      "label": "Body",
+      "default": "The FlowCore delivers 1,400 pulsations per minute, reaching 6mm below the gumline. Plaque, debris and bacteria are flushed from areas a toothbrush cannot reach."
+    },
+    {
+      "type": "header",
+      "content": "Column 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "col3_show",
+      "label": "Show column 3",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "col3_image",
+      "label": "Image"
+    },
+    {
+      "type": "url",
+      "id": "col3_url",
+      "label": "Image link URL"
+    },
+    {
+      "type": "text",
+      "id": "col3_step_number",
+      "label": "Step number",
+      "default": "03"
+    },
+    {
+      "type": "text",
+      "id": "col3_badge_text",
+      "label": "Badge text",
+      "default": "Day 30+"
+    },
+    {
+      "type": "text",
+      "id": "col3_heading",
+      "label": "Heading",
+      "default": "After"
+    },
+    {
+      "type": "textarea",
+      "id": "col3_body",
+      "label": "Body",
+      "default": "Clean enamel. Healthy gum tissue. With the surface barrier removed, nano-HA from your CALQIX tablet can now bind directly to enamel and remineralise."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS"
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX — Before After"
+    }
+  ]
+}
+{% endschema %}
