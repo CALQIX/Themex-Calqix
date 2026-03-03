@@ -16,20 +16,44 @@
 {% assign content_col = section.settings.content_color %}
 {% assign accent_col  = section.settings.accent_color %}
 {% assign navy_col    = section.settings.navy_color %}
-{% assign pad_v       = section.settings.padding_vertical %}
-{% assign pad_h       = section.settings.padding_horizontal %}
+{% assign pad_v_desktop = section.settings.padding_vertical_desktop | default: section.settings.padding_vertical %}
+{% assign pad_h_desktop = section.settings.padding_horizontal_desktop | default: section.settings.padding_horizontal %}
+{% assign max_w_desktop = section.settings.max_width_desktop | default: section.settings.max_width %}
+{% assign mar_t_desktop = section.settings.margin_top_desktop | default: 0 %}
+{% assign mar_b_desktop = section.settings.margin_bottom_desktop | default: 0 %}
+
+{% assign pad_v_tablet = section.settings.padding_vertical_tablet | default: pad_v_desktop %}
+{% assign pad_h_tablet = section.settings.padding_horizontal_tablet | default: pad_h_desktop %}
+{% assign max_w_tablet = section.settings.max_width_tablet | default: max_w_desktop %}
+{% assign mar_t_tablet = section.settings.margin_top_tablet | default: mar_t_desktop %}
+{% assign mar_b_tablet = section.settings.margin_bottom_tablet | default: mar_b_desktop %}
+
+{% assign pad_v_mobile = section.settings.padding_vertical_mobile | default: pad_v_tablet %}
+{% assign pad_h_mobile = section.settings.padding_horizontal_mobile | default: pad_h_tablet %}
+{% assign max_w_mobile = section.settings.max_width_mobile | default: max_w_tablet %}
+{% assign mar_t_mobile = section.settings.margin_top_mobile | default: mar_t_tablet %}
+{% assign mar_b_mobile = section.settings.margin_bottom_mobile | default: mar_b_tablet %}
 {% assign trigger_sz  = section.settings.trigger_font_size %}
 {% assign content_sz  = section.settings.content_font_size %}
 
 <style>
   #calqix-accordions-{{ section.id }} {
-    padding: {{ pad_v }}px {{ pad_h }}px;
-    max-width: {{ section.settings.max_width }}px;
-    margin: 0 auto;
+    box-sizing: border-box;
+    width: 100%;
+    padding: {{ pad_v_desktop }}px {{ pad_h_desktop }}px;
+    max-width: min(100%, {{ max_w_desktop }}px);
+    margin: {{ mar_t_desktop }}px auto {{ mar_b_desktop }}px;
+    overflow-x: clip;
+  }
+  #calqix-accordions-{{ section.id }} *,
+  #calqix-accordions-{{ section.id }} *::before,
+  #calqix-accordions-{{ section.id }} *::after {
+    box-sizing: border-box;
   }
 
   #calqix-accordions-{{ section.id }} .cqa-wrap {
     border-top: 1px solid {{ border_col }};
+    min-width: 0;
   }
 
   #calqix-accordions-{{ section.id }} .cqa-item {
@@ -38,6 +62,7 @@
 
   #calqix-accordions-{{ section.id }} .cqa-trigger {
     width: 100%;
+    min-width: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -89,11 +114,14 @@
   }
 
   #calqix-accordions-{{ section.id }} .cqa-content {
+    min-width: 0;
     padding: 0 0 {{ section.settings.trigger_padding }}px;
     font-size: {{ content_sz }}px;
     color: {{ content_col }};
     line-height: calc({{ section.settings.line_height }} / 10);
     font-weight: 300;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   #calqix-accordions-{{ section.id }} .cqa-content > *:first-child {
     margin-top: 0;
@@ -151,6 +179,20 @@
     color: {{ accent_col }};
     text-decoration: underline;
   }
+  #calqix-accordions-{{ section.id }} .cqa-content img,
+  #calqix-accordions-{{ section.id }} .cqa-content video,
+  #calqix-accordions-{{ section.id }} .cqa-content iframe,
+  #calqix-accordions-{{ section.id }} .cqa-content svg {
+    max-width: 100%;
+    height: auto;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-content table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
   /* Specs grid (optioneel binnen content) */
   #calqix-accordions-{{ section.id }} .cqa-specs-grid {
@@ -181,10 +223,18 @@
     font-weight: 500;
   }
 
+  @media (max-width: 1023px) {
+    #calqix-accordions-{{ section.id }} {
+      padding: {{ pad_v_tablet }}px {{ pad_h_tablet }}px;
+      max-width: min(100%, {{ max_w_tablet }}px);
+      margin: {{ mar_t_tablet }}px auto {{ mar_b_tablet }}px;
+    }
+  }
   @media (max-width: 749px) {
     #calqix-accordions-{{ section.id }} {
-      padding-left: 0;
-      padding-right: 0;
+      padding: {{ pad_v_mobile }}px {{ pad_h_mobile }}px;
+      max-width: min(100%, {{ max_w_mobile }}px);
+      margin: {{ mar_t_mobile }}px auto {{ mar_b_mobile }}px;
     }
     #calqix-accordions-{{ section.id }} .cqa-trigger {
       padding-top: {{ section.settings.trigger_padding | minus: 2 }}px;
@@ -407,7 +457,7 @@
 
     {
       "type": "header",
-      "content": "Typografie & Spacing"
+      "content": "Typografie"
     },
     {
       "type": "range",
@@ -456,6 +506,153 @@
       "max": 32,
       "step": 2,
       "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Responsive Layout (PC / Tablet / Mobiel)"
+    },
+    {
+      "type": "paragraph",
+      "content": "Gebruik deze instellingen voor marge, padding en max-breedte per device."
+    },
+    {
+      "type": "range",
+      "id": "margin_top_desktop",
+      "label": "PC: marge boven (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom_desktop",
+      "label": "PC: marge onder (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical_desktop",
+      "label": "PC: verticale padding (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal_desktop",
+      "label": "PC: horizontale padding (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "max_width_desktop",
+      "label": "PC: max breedte (px)",
+      "min": 320,
+      "max": 1600,
+      "step": 20,
+      "default": 800
+    },
+    {
+      "type": "range",
+      "id": "margin_top_tablet",
+      "label": "Tablet: marge boven (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom_tablet",
+      "label": "Tablet: marge onder (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical_tablet",
+      "label": "Tablet: verticale padding (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal_tablet",
+      "label": "Tablet: horizontale padding (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "max_width_tablet",
+      "label": "Tablet: max breedte (px)",
+      "min": 280,
+      "max": 1200,
+      "step": 20,
+      "default": 900
+    },
+    {
+      "type": "range",
+      "id": "margin_top_mobile",
+      "label": "Mobiel: marge boven (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom_mobile",
+      "label": "Mobiel: marge onder (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical_mobile",
+      "label": "Mobiel: verticale padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal_mobile",
+      "label": "Mobiel: horizontale padding (px)",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "max_width_mobile",
+      "label": "Mobiel: max breedte (px)",
+      "min": 240,
+      "max": 640,
+      "step": 10,
+      "default": 480
+    },
+    {
+      "type": "header",
+      "content": "Legacy Spacing (fallback)"
     },
     {
       "type": "range",
