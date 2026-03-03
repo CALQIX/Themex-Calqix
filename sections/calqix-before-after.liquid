@@ -49,14 +49,44 @@
 
     #cba-{{ section.id }} .cba-grid {
       position: relative;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: var(--cba-gap);
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 6px;
     }
 
     #cba-{{ section.id }} .cba-col {
       position: relative;
       min-width: 0;
+      flex: 0 0 calc(100% - 22px);
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      opacity: 0.3;
+      transform: translateX(20px) scale(0.97);
+      transition: opacity 0.5s ease, transform 0.55s ease;
+      will-change: opacity, transform;
+    }
+
+    #cba-{{ section.id }} .cba-col.is-visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    #cba-{{ section.id }} .cba-grid::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    #cba-{{ section.id }} .cba-grid::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+    }
+
+    #cba-{{ section.id }} .cba-grid::-webkit-scrollbar-thumb {
+      background: rgba(232, 201, 106, 0.45);
+      border-radius: 999px;
     }
 
     #cba-{{ section.id }} .cba-media {
@@ -135,15 +165,7 @@
     }
 
     #cba-{{ section.id }} .cba-col:not(:last-child) .cba-step-row::after {
-      content: "";
-      position: absolute;
-      left: 9px;
-      top: 22px;
-      width: 1px;
-      height: calc(100% + var(--cba-gap) + 90px);
-      background: var(--cba-accent);
-      opacity: 0.45;
-      pointer-events: none;
+      display: none;
     }
 
     #cba-{{ section.id }} .cba-step-number {
@@ -204,7 +226,19 @@
       }
 
       #cba-{{ section.id }} .cba-grid {
+        overflow: visible;
+        scroll-snap-type: none;
+        padding-bottom: 0;
+        gap: var(--cba-gap);
+        display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      #cba-{{ section.id }} .cba-col {
+        flex: initial;
+        opacity: 1;
+        transform: none;
+        scroll-snap-align: none;
       }
 
       #cba-{{ section.id }} .cba-heading {
@@ -227,7 +261,19 @@
       }
 
       #cba-{{ section.id }} .cba-grid {
+        overflow: visible;
+        scroll-snap-type: none;
+        padding-bottom: 0;
+        gap: var(--cba-gap);
+        display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      #cba-{{ section.id }} .cba-col {
+        flex: initial;
+        opacity: 1;
+        transform: none;
+        scroll-snap-align: none;
       }
 
       #cba-{{ section.id }} .cba-grid::before {
@@ -311,6 +357,59 @@
       {% endfor %}
     </div>
   </div>
+
+  <script>
+    (function() {
+      var section = document.getElementById('cba-{{ section.id }}');
+      if (!section) return;
+      var slider = section.querySelector('.cba-grid');
+      if (!slider) return;
+      var cards = Array.prototype.slice.call(section.querySelectorAll('.cba-col'));
+      if (!cards.length) return;
+
+      var observer;
+      function resetDesktopState() {
+        cards.forEach(function(card) {
+          card.classList.add('is-visible');
+        });
+        if (observer) observer.disconnect();
+      }
+
+      function setMobileState() {
+        cards.forEach(function(card, index) {
+          card.classList.remove('is-visible');
+          if (index === 0) card.classList.add('is-visible');
+        });
+
+        if (observer) observer.disconnect();
+        observer = new IntersectionObserver(
+          function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+              }
+            });
+          },
+          { root: slider, threshold: 0.55 }
+        );
+
+        cards.forEach(function(card) {
+          observer.observe(card);
+        });
+      }
+
+      function updateMode() {
+        if (window.matchMedia('(max-width: 600px)').matches) {
+          setMobileState();
+        } else {
+          resetDesktopState();
+        }
+      }
+
+      updateMode();
+      window.addEventListener('resize', updateMode);
+    })();
+  </script>
 </section>
 
 {% schema %}
