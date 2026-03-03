@@ -153,25 +153,9 @@
       align-items: center;
       gap: 10px;
       margin: 0 0 12px;
-      min-height: 28px;
+      min-height: 30px;
       padding-left: 0;
       z-index: 1;
-    }
-
-    #cba-{{ section.id }} .cba-step-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--cba-accent);
-      flex: 0 0 8px;
-      position: relative;
-      z-index: 2;
-      transition: transform 0.35s ease, box-shadow 0.35s ease;
-    }
-
-    #cba-{{ section.id }} .cba-col.is-active .cba-step-dot {
-      transform: scale(1.35);
-      box-shadow: 0 0 0 6px rgba(232, 201, 106, 0.18);
     }
 
     #cba-{{ section.id }} .cba-col:not(:last-child) .cba-step-row::after {
@@ -179,16 +163,30 @@
     }
 
     #cba-{{ section.id }} .cba-step-number {
+      width: 30px;
+      height: 30px;
+      min-width: 30px;
+      border-radius: 50%;
+      border: 1px solid color-mix(in srgb, var(--cba-accent) 65%, transparent);
+      background: color-mix(in srgb, var(--cba-accent) 14%, transparent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       color: var(--cba-accent);
       font-family: "DM Sans", sans-serif;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       line-height: 1;
-      min-width: 22px;
       position: relative;
       z-index: 2;
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    #cba-{{ section.id }} .cba-col.is-active .cba-step-number {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 6px rgba(232, 201, 106, 0.18);
     }
 
     #cba-{{ section.id }} .cba-badge {
@@ -386,7 +384,6 @@
             </div>
 
             <div class="cba-step-row">
-              <span class="cba-step-dot" aria-hidden="true"></span>
               <span class="cba-step-number">{{ section.settings[number_key] }}</span>
               <span class="cba-badge">{{ section.settings[badge_key] }}</span>
             </div>

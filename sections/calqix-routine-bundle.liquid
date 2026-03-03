@@ -285,6 +285,7 @@
 
   #calqix-routine-{{ section.id }} .crb-mobile-track {
     display: flex;
+    align-items: flex-start;
     gap: 12px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -304,6 +305,8 @@
 
   #calqix-routine-{{ section.id }} .crb-mobile-slide {
     flex: 0 0 calc(100% - 18px);
+    height: auto;
+    align-self: flex-start;
     scroll-snap-align: start;
     scroll-snap-stop: always;
     background: #ffffff;
