@@ -1,0 +1,345 @@
+{% comment %}
+  CALQIX — Science Strip
+  Bestandsnaam: sections/calqix-science-strip.liquid
+  
+  Volledig aanpasbaar via Shopify Theme Customizer:
+  - Achtergrondkleur
+  - Alle 4 statistieken (getal + label + beschrijving)
+  - Accentkleur
+  - Padding / spacing
+  - Custom CSS override
+  - Custom JS inject
+{% endcomment %}
+
+{% assign bg      = section.settings.background_color %}
+{% assign accent  = section.settings.accent_color %}
+{% assign text_h  = section.settings.heading_color %}
+{% assign text_s  = section.settings.subtext_color %}
+{% assign divider = section.settings.divider_color %}
+{% assign pad_v   = section.settings.padding_vertical %}
+{% assign pad_h   = section.settings.padding_horizontal %}
+{% assign max_w   = section.settings.max_width %}
+
+<style>
+  #calqix-science-strip-{{ section.id }} {
+    background: {{ bg }};
+    padding: {{ pad_v }}px {{ pad_h }}px;
+  }
+
+  #calqix-science-strip-{{ section.id }} .cssi-inner {
+    max-width: {{ max_w }}px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+
+  #calqix-science-strip-{{ section.id }} .cssi-point {
+    padding: 0 32px;
+    border-right: 1px solid {{ divider }};
+    text-align: center;
+  }
+
+  #calqix-science-strip-{{ section.id }} .cssi-point:first-child { padding-left: 0; }
+  #calqix-science-strip-{{ section.id }} .cssi-point:last-child  { border-right: none; padding-right: 0; }
+
+  #calqix-science-strip-{{ section.id }} .cssi-num {
+    font-family: {{ section.settings.number_font }};
+    font-size: {{ section.settings.number_size }}px;
+    color: {{ accent }};
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+
+  #calqix-science-strip-{{ section.id }} .cssi-heading {
+    font-size: 13px;
+    font-weight: 700;
+    color: {{ text_h }};
+    margin-bottom: 6px;
+  }
+
+  #calqix-science-strip-{{ section.id }} .cssi-sub {
+    font-size: 12px;
+    color: {{ text_s }};
+    line-height: 1.55;
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    #calqix-science-strip-{{ section.id }} .cssi-inner {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+    }
+    #calqix-science-strip-{{ section.id }} .cssi-point {
+      border-right: none;
+      padding: 0;
+    }
+  }
+
+  {% if section.settings.custom_css != blank %}
+    {{ section.settings.custom_css }}
+  {% endif %}
+</style>
+
+<div id="calqix-science-strip-{{ section.id }}" class="calqix-science-strip">
+  <div class="cssi-inner">
+
+    {% for i in (1..4) %}
+      {% assign num_key   = 'stat_' | append: i | append: '_number' %}
+      {% assign head_key  = 'stat_' | append: i | append: '_heading' %}
+      {% assign sub_key   = 'stat_' | append: i | append: '_subtext' %}
+      {% assign show_key  = 'stat_' | append: i | append: '_show' %}
+
+      {% if section.settings[show_key] %}
+        <div class="cssi-point">
+          <div class="cssi-num">{{ section.settings[num_key] }}</div>
+          <div class="cssi-heading">{{ section.settings[head_key] }}</div>
+          <div class="cssi-sub">{{ section.settings[sub_key] }}</div>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+  </div>
+</div>
+
+{% if section.settings.custom_js != blank %}
+  <script>
+    (function() {
+      var sectionId = '{{ section.id }}';
+      var section   = document.getElementById('calqix-science-strip-' + sectionId);
+      {{ section.settings.custom_js }}
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "CALQIX — Science Strip",
+  "tag": "section",
+  "class": "calqix-science-strip-section",
+  "settings": [
+
+    {
+      "type": "header",
+      "content": "Layout & Kleuren"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Achtergrondkleur",
+      "default": "#0F2438"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accentkleur (statistiek cijfers)",
+      "default": "#E8C96A"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Tekstkleur (koppen)",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "subtext_color",
+      "label": "Tekstkleur (subtekst)",
+      "default": "#6B8FAA"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Scheidingslijn kleur",
+      "default": "#1E3A54"
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "label": "Verticale padding (px)",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Horizontale padding (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max breedte (px)",
+      "min": 800,
+      "max": 1600,
+      "step": 40,
+      "default": 1200
+    },
+    {
+      "type": "select",
+      "id": "number_font",
+      "label": "Font voor statistieken",
+      "options": [
+        { "value": "Georgia, serif", "label": "Georgia (Serif)" },
+        { "value": "'DM Serif Display', serif", "label": "DM Serif Display" },
+        { "value": "'Playfair Display', serif", "label": "Playfair Display" },
+        { "value": "var(--font-heading--family)", "label": "Thema heading font" }
+      ],
+      "default": "Georgia, serif"
+    },
+    {
+      "type": "range",
+      "id": "number_size",
+      "label": "Cijfer grootte (px)",
+      "min": 28,
+      "max": 72,
+      "step": 2,
+      "default": 42
+    },
+
+    {
+      "type": "header",
+      "content": "Statistiek 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "stat_1_show",
+      "label": "Statistiek 1 tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "stat_1_number",
+      "label": "Getal / Waarde",
+      "default": "99.9%"
+    },
+    {
+      "type": "text",
+      "id": "stat_1_heading",
+      "label": "Kop",
+      "default": "Plaque Removal"
+    },
+    {
+      "type": "textarea",
+      "id": "stat_1_subtext",
+      "label": "Subtekst / Bronvermelding",
+      "default": "In clinical testing vs. brushing alone. Journal of Clinical Dentistry, 2019."
+    },
+
+    {
+      "type": "header",
+      "content": "Statistiek 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "stat_2_show",
+      "label": "Statistiek 2 tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "stat_2_number",
+      "label": "Getal / Waarde",
+      "default": "6mm"
+    },
+    {
+      "type": "text",
+      "id": "stat_2_heading",
+      "label": "Kop",
+      "default": "Subgingival Reach"
+    },
+    {
+      "type": "textarea",
+      "id": "stat_2_subtext",
+      "label": "Subtekst / Bronvermelding",
+      "default": "Below the gumline — where periodontal disease begins."
+    },
+
+    {
+      "type": "header",
+      "content": "Statistiek 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "stat_3_show",
+      "label": "Statistiek 3 tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "stat_3_number",
+      "label": "Getal / Waarde",
+      "default": "51%"
+    },
+    {
+      "type": "text",
+      "id": "stat_3_heading",
+      "label": "Kop",
+      "default": "Better Than String Floss"
+    },
+    {
+      "type": "textarea",
+      "id": "stat_3_subtext",
+      "label": "Subtekst / Bronvermelding",
+      "default": "Reduction in whole-mouth bleeding. Cochrane Systematic Review, 2021."
+    },
+
+    {
+      "type": "header",
+      "content": "Statistiek 4"
+    },
+    {
+      "type": "checkbox",
+      "id": "stat_4_show",
+      "label": "Statistiek 4 tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "stat_4_number",
+      "label": "Getal / Waarde",
+      "default": "40%"
+    },
+    {
+      "type": "text",
+      "id": "stat_4_heading",
+      "label": "Kop",
+      "default": "Deeper Cleaning"
+    },
+    {
+      "type": "textarea",
+      "id": "stat_4_subtext",
+      "label": "Subtekst / Bronvermelding",
+      "default": "Further into interdental spaces than a toothbrush alone. ADA, 2020."
+    },
+
+    {
+      "type": "header",
+      "content": "⚙️ Custom Code"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Wordt geladen na de sectie stijlen. Gebruik #calqix-science-strip-{{ section.id }} als selector voor specifiekheid."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_js",
+      "label": "Custom JavaScript",
+      "info": "Wordt uitgevoerd na het laden van de sectie. 'section' variabele verwijst naar het sectie element. 'sectionId' bevat het unieke sectie ID."
+    }
+
+  ],
+  "presets": [
+    {
+      "name": "CALQIX — Science Strip"
+    }
+  ]
+}
+{% endschema %}

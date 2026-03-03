@@ -1,0 +1,50 @@
+<drawer-cart-note class="wt-cart__giftnote giftnote">
+  <a href="#" role="button" tabindex="-1" class="giftnote__drawercart__item giftnote__drawercart__addnote">
+    {{ 'sections.cart.note' | t }}
+  </a>
+
+  <div class="wt-cart__giftnote__body giftnote__body">
+    <button
+      aria-label="{{ 'aria-label.video-reels-toggle-sound' | t }}"
+      class="giftnote__body__close"
+      tabindex="-1"
+    >
+      {% render 'icons', id: 'close' %}
+    </button>
+    <label class="giftnote__body__headline" for="cart-drawer-order-note">
+      {{ 'sections.cart.note' | t }}
+    </label>
+    <textarea
+      rows="3"
+      name="note"
+      id="CartDrawer-note"
+      class="giftnote__textarea"
+      placeholder="{{ 'sections.cart.note_placeholder' | t }}"
+      aria-label="Note"
+      tabindex="-1"
+    >{{ cart.note }}</textarea>
+    <button
+      aria-label="{{ 'save' | t }}"
+      class="giftnote__save"
+      tabindex="-1"
+    >
+      {{ 'save' | t }}
+    </button>
+  </div>
+  <div class="giftnote__overlay"></div>
+</drawer-cart-note>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const textarea = document.getElementById('CartDrawer-note');
+    const noteLink = document.querySelector('.giftnote__drawercart__addnote');
+
+    textarea.addEventListener('input', function () {
+      if (textarea.value.length > 0) {
+        noteLink.innerHTML = "{{ 'sections.cart.edit_note' | t }}";
+      } else {
+        noteLink.innerHTML = "{{ 'sections.cart.note' | t }}";
+      }
+    });
+  });
+</script>

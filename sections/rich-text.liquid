@@ -1,0 +1,344 @@
+{% assign background_rgb = section.settings.background_color | color_to_rgb %}
+{% assign text_rgb = section.settings['color-body-text'] | color_to_rgb %}
+
+<style>
+      [data-section-id="{{ section.id }}"]
+      {
+          {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+          --color-custom-background: {{ section.settings.background_color }};
+          {% endif %}
+
+          {% if section.settings.margin-top %}
+              --section-gap-top: {{ section.settings.margin-top }}px;
+          {% endif %}
+
+          {% if section.settings.margin-bottom %}
+              --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+          {% endif %}
+
+          {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+            --color-custom-text: {{ section.settings.color-body-text }};
+          {% endif %}
+      }
+
+  {%- for block in section.blocks -%}
+      [data-block-id="{{ block.id }}"]
+      {
+        --font-headline-scale-desk: {{ block.settings.size_heading | divided_by: 100.0 }};
+
+        --font-headline-scale: {{ block.settings.size_heading_mobile | divided_by: 100.0 }};
+
+        {% if block.type == 'countdown_timer' %}
+          --font-timer-scale-desk: {{ block.settings.scale_timer | divided_by: 100.0 }};
+          --font-timer-scale: {{ block.settings.scale_timer_mobile | divided_by: 100.0 }};
+          --font-timer: {% if block.settings.timer_style == 'headline' %}var(--font-headline){% endif %}
+        {% endif %}
+      }
+  {%- endfor -%}
+</style>
+
+<div
+  data-section-id="{{ section.id }}"
+  class="{% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %} rich-text"
+>
+  <div class="hero__wrapper">
+    {% assign classname = '' %}
+    {% if section.settings.section_width == 'short' %}
+      {% assign classname = 'rich-text--short' %}
+    {% endif %}
+
+    {% render 'hero',
+      type: 'blocks',
+      classname: classname,
+      desktop_text_horizontal_position: section.settings.desktop_text_horizontal_position,
+      desktop_text_vertical_position: 'center',
+      blocks: section.blocks
+    %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.rich-text.name",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "options": [
+        {
+          "value": "regular",
+          "label": "t:sections.rich-text.settings.section_width.regular.label"
+        },
+        {
+          "value": "short",
+          "label": "t:sections.rich-text.settings.section_width.short.label"
+        }
+      ],
+      "default": "regular",
+      "label": "t:sections.rich-text.settings.section_width.label"
+    },
+    {
+      "type": "select",
+      "id": "desktop_text_horizontal_position",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.rich-text.settings.desktop_text_horizontal_position.left.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.rich-text.settings.desktop_text_horizontal_position.center.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.rich-text.settings.desktop_text_horizontal_position.right.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.rich-text.settings.desktop_text_horizontal_position.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "color-body-text",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.text-color.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.background-color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.section_spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin-top",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 20,
+      "label": "t:sections.settings.settings.distance-top.label"
+    },
+    {
+      "type": "range",
+      "id": "margin-bottom",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 20,
+      "label": "t:sections.settings.settings.distance-bottom.label",
+      "info": "t:sections.settings.settings.distance-bottom.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "t:sections.rich-text.blocks.heading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "heading",
+          "default": "Talk about your brand",
+          "label": "t:sections.settings.settings.heading.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_on_mobile",
+          "label": "t:sections.global.disable_on_mobile",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "size_heading",
+          "min": 50,
+          "max": 500,
+          "step": 10,
+          "default": 100,
+          "label": "t:sections.settings.settings.size-heading.label",
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "size_heading_mobile",
+          "min": 80,
+          "max": 300,
+          "step": 10,
+          "default": 100,
+          "label": "t:sections.settings.settings.size-heading-mobile.label",
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.rich-text.blocks.text.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Share information about your brand with your customers. Describe a product, make annuncements, or welcome customers to your store.</p>",
+          "label": "t:sections.settings.settings.text.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_on_mobile",
+          "label": "t:sections.global.disable_on_mobile",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "t:sections.image-banner.button.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "button_select",
+          "options": [
+            {
+              "value": "primary",
+              "label": "t:sections.settings.settings.button_select.primary.label"
+            },
+            {
+              "value": "secondary",
+              "label": "t:sections.settings.settings.button_select.secondary.label"
+            },
+            {
+              "value": "link",
+              "label": "t:sections.settings.settings.button_select.link.label"
+            }
+          ],
+          "default": "primary",
+          "label": "t:sections.settings.settings.button_select.default.label"
+        },
+        {
+          "id": "button_label",
+          "type": "text",
+          "default": "Button label",
+          "label": "t:sections.settings.settings.button_label.label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "t:sections.settings.settings.link.label",
+          "default": "/"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_on_mobile",
+          "label": "t:sections.global.disable_on_mobile",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "countdown_timer",
+      "name": "t:blocks.countdown_timer.name",
+      "limit": 1,
+      "settings": [
+        {
+          "id": "end_datetime",
+          "type": "text",
+          "label": "t:blocks.countdown_timer.settings.end_date.label",
+          "default": "2025-12-31 23:59",
+          "placeholder": "YYYY-MM-DD HH:MM",
+          "info": "t:blocks.countdown_timer.settings.end_date.info"
+        },
+        {
+          "id": "expired_message",
+          "type": "text",
+          "label": "t:blocks.countdown_timer.settings.expired_message.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "labels_below",
+          "label": "t:blocks.countdown_timer.settings.labels.below.label",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "timer_style",
+          "label": "t:blocks.countdown_timer.settings.style.label",
+          "options": [
+            {
+              "value": "headline",
+              "label": "t:blocks.countdown_timer.settings.style.headline"
+            },
+            {
+              "value": "text",
+              "label": "t:blocks.countdown_timer.settings.style.text"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "scale_timer",
+          "min": 100,
+          "max": 500,
+          "step": 10,
+          "default": 100,
+          "label": "t:blocks.countdown_timer.settings.scale.desktop.label",
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "scale_timer_mobile",
+          "min": 80,
+          "max": 300,
+          "step": 10,
+          "default": 100,
+          "label": "t:blocks.countdown_timer.settings.scale.mobile.label",
+          "unit": "%"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.rich-text.presets.name",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "button"
+        }
+      ]
+    },
+    {
+      "name": "t:sections.rich-text.presets.name__2",
+      "blocks": [
+        {
+          "type": "countdown_timer"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "button"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

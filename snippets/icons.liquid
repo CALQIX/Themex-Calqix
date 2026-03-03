@@ -1,0 +1,44 @@
+{% if settings.iconset == 'option_1' %}
+  {% render 'icon-set_1',
+    id: id,
+    style: style,
+    icon_id: icon_id,
+    icon_class: icon_class,
+    url: url,
+    link_class: link_class,
+    tabindex: tabindex
+  %}
+
+{% elsif settings.iconset == 'option_2' %}
+  {% render 'icon-set_2',
+    id: id,
+    style: style,
+    icon_id: icon_id,
+    icon_class: icon_class,
+    url: url,
+    link_class: link_class,
+    tabindex: tabindex
+  %}
+
+{% elsif settings.iconset == 'option_3' %}
+  {% render 'icon-set_3',
+    id: id,
+    style: style,
+    icon_id: icon_id,
+    icon_class: icon_class,
+    url: url,
+    link_class: link_class,
+    tabindex: tabindex
+  %}
+
+{% elsif settings.iconset == 'option_4' %}
+  {% render 'icon-set_4',
+    id: id,
+    style: style,
+    icon_id: icon_id,
+    icon_class: icon_class,
+    url: url,
+    link_class: link_class,
+    tabindex: tabindex
+  %}
+{% endif %}

@@ -1,0 +1,520 @@
+{% comment %}
+  CALQIX — How It Works
+  Bestandsnaam: sections/calqix-how-it-works.liquid
+  
+  Volledig aanpasbaar via Shopify Theme Customizer:
+  - Section label, titel, subtekst
+  - Onbeperkte stap-blokken via blocks (add / remove / reorder)
+  - Elke stap: nummer, titel, beschrijving, badge
+  - Kleuren, layout, typografie, spacing
+  - Custom CSS + JS
+{% endcomment %}
+
+{% assign bg         = section.settings.background_color %}
+{% assign card_bg    = section.settings.card_background %}
+{% assign label_col  = section.settings.label_color %}
+{% assign title_col  = section.settings.title_color %}
+{% assign sub_col    = section.settings.subtitle_color %}
+{% assign num_col    = section.settings.number_color %}
+{% assign head_col   = section.settings.card_heading_color %}
+{% assign body_col   = section.settings.card_body_color %}
+{% assign badge_col  = section.settings.badge_color %}
+{% assign badge_bg   = section.settings.badge_background %}
+{% assign badge_bdr  = section.settings.badge_border %}
+{% assign gap_px     = section.settings.card_gap %}
+{% assign cols       = section.settings.columns %}
+{% assign pad_v      = section.settings.padding_vertical %}
+{% assign pad_h      = section.settings.padding_horizontal %}
+
+<style>
+  #calqix-hiw-{{ section.id }} {
+    background: {{ bg }};
+    padding: {{ pad_v }}px {{ pad_h }}px;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-inner {
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-label {
+    font-size: {{ section.settings.label_size }}px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: {{ label_col }};
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-title {
+    font-family: {{ section.settings.title_font }};
+    font-size: {{ section.settings.title_size }}px;
+    color: {{ title_col }};
+    margin-bottom: 12px;
+    line-height: 1.15;
+    font-weight: 400;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-sub {
+    font-size: {{ section.settings.subtitle_size }}px;
+    color: {{ sub_col }};
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: {{ section.settings.header_gap }}px;
+    font-weight: 300;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-grid {
+    display: grid;
+    grid-template-columns: repeat({{ cols }}, 1fr);
+    gap: {{ gap_px }}px;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-card {
+    background: {{ card_bg }};
+    padding: {{ section.settings.card_padding }}px;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-step-num {
+    font-family: {{ section.settings.title_font }};
+    font-size: {{ section.settings.number_size }}px;
+    color: {{ num_col }};
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-step-title {
+    font-size: {{ section.settings.card_heading_size }}px;
+    font-weight: 700;
+    color: {{ head_col }};
+    margin-bottom: 10px;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-step-desc {
+    font-size: {{ section.settings.card_body_size }}px;
+    color: {{ body_col }};
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  #calqix-hiw-{{ section.id }} .chiw-badge {
+    display: inline-block;
+    margin-top: 16px;
+    background: {{ badge_bg }};
+    border: 1px solid {{ badge_bdr }};
+    color: {{ badge_col }};
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 4px 12px;
+  }
+
+  @media (max-width: 768px) {
+    #calqix-hiw-{{ section.id }} .chiw-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  {% if section.settings.custom_css != blank %}
+    {{ section.settings.custom_css }}
+  {% endif %}
+</style>
+
+<section id="calqix-hiw-{{ section.id }}" class="calqix-how-it-works">
+  <div class="chiw-inner">
+
+    {% if section.settings.label != blank %}
+      <div class="chiw-label">{{ section.settings.label }}</div>
+    {% endif %}
+
+    {% if section.settings.title != blank %}
+      <h2 class="chiw-title">{{ section.settings.title }}</h2>
+    {% endif %}
+
+    {% if section.settings.subtitle != blank %}
+      <p class="chiw-sub">{{ section.settings.subtitle }}</p>
+    {% endif %}
+
+    {% if section.blocks.size > 0 %}
+      <div class="chiw-grid">
+        {% for block in section.blocks %}
+          <div class="chiw-card" {{ block.shopify_attributes }}>
+
+            {% if block.settings.show_number %}
+              <div class="chiw-step-num">
+                {% if block.settings.custom_number != blank %}
+                  {{ block.settings.custom_number }}
+                {% else %}
+                  {% assign num = forloop.index %}
+                  {% if num < 10 %}0{% endif %}{{ num }}
+                {% endif %}
+              </div>
+            {% endif %}
+
+            {% if block.settings.title != blank %}
+              <h3 class="chiw-step-title">{{ block.settings.title }}</h3>
+            {% endif %}
+
+            {% if block.settings.description != blank %}
+              <p class="chiw-step-desc">{{ block.settings.description }}</p>
+            {% endif %}
+
+            {% if block.settings.badge != blank %}
+              <span class="chiw-badge">{{ block.settings.badge }}</span>
+            {% endif %}
+
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="padding: 40px; text-align: center; color: #9B9B9B; font-size: 13px; background: rgba(0,0,0,0.03);">
+        Voeg stappen toe via "Block toevoegen" in de Theme Customizer.
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% if section.settings.custom_js != blank %}
+  <script>
+    (function() {
+      var sectionId = '{{ section.id }}';
+      var section   = document.getElementById('calqix-hiw-' + sectionId);
+      {{ section.settings.custom_js }}
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "CALQIX — How It Works",
+  "tag": "section",
+  "class": "calqix-hiw-section",
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Stap",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_number",
+          "label": "Stapnummer tonen",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "custom_number",
+          "label": "Aangepast nummer / label",
+          "info": "Leeg laten voor automatisch 01, 02, 03…"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Stap titel",
+          "default": "Stap titel"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Beschrijving",
+          "default": "Beschrijf hier wat er in deze stap gebeurt en waarom het belangrijk is voor de gebruiker."
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge tekst (optioneel)",
+          "info": "Bijv. '1,600 Pulses/min' of 'Peer-reviewed'. Leeg laten om badge te verbergen."
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Sectie header"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Label (boven de titel)",
+      "default": "The Technology"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Titel",
+      "default": "How the FlowCore works."
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtekst",
+      "default": "Water flossing is not just pressure. It's a combination of pulsation frequency and precise targeting — two things string floss physically cannot replicate."
+    },
+    {
+      "type": "range",
+      "id": "header_gap",
+      "label": "Ruimte onder header (px)",
+      "min": 16,
+      "max": 80,
+      "step": 4,
+      "default": 48
+    },
+
+    {
+      "type": "header",
+      "content": "Grid layout"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Kolommen (desktop)",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "label": "Ruimte tussen kaarten (px)",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "label": "Kaart binnenruimte (px)",
+      "min": 16,
+      "max": 64,
+      "step": 4,
+      "default": 40
+    },
+
+    {
+      "type": "header",
+      "content": "Kleuren"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Sectie achtergrond",
+      "default": "#F7F5F2"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Kaart achtergrond",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label kleur",
+      "default": "#C9A84C"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Titel kleur",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtekst kleur",
+      "default": "#9B9B9B"
+    },
+    {
+      "type": "color",
+      "id": "number_color",
+      "label": "Stapnummer kleur",
+      "default": "#E4E4E0"
+    },
+    {
+      "type": "color",
+      "id": "card_heading_color",
+      "label": "Kaart kop kleur",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "card_body_color",
+      "label": "Kaart tekst kleur",
+      "default": "#9B9B9B"
+    },
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "Badge tekstkleur",
+      "default": "#C9A84C"
+    },
+    {
+      "type": "color",
+      "id": "badge_background",
+      "label": "Badge achtergrond",
+      "default": "rgba(201,168,76,0.08)"
+    },
+    {
+      "type": "color",
+      "id": "badge_border",
+      "label": "Badge rand",
+      "default": "rgba(201,168,76,0.25)"
+    },
+
+    {
+      "type": "header",
+      "content": "Typografie"
+    },
+    {
+      "type": "select",
+      "id": "title_font",
+      "label": "Titel / nummer font",
+      "options": [
+        { "value": "Georgia, serif", "label": "Georgia (Serif)" },
+        { "value": "'DM Serif Display', serif", "label": "DM Serif Display" },
+        { "value": "'Playfair Display', serif", "label": "Playfair Display" },
+        { "value": "var(--font-heading--family)", "label": "Thema heading font" }
+      ],
+      "default": "Georgia, serif"
+    },
+    {
+      "type": "range",
+      "id": "label_size",
+      "label": "Label grootte (px)",
+      "min": 9,
+      "max": 16,
+      "step": 1,
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Titel grootte (px)",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "label": "Subtekst grootte (px)",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "number_size",
+      "label": "Stapnummer grootte (px)",
+      "min": 28,
+      "max": 80,
+      "step": 4,
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "card_heading_size",
+      "label": "Kaart kop grootte (px)",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "card_body_size",
+      "label": "Kaart tekst grootte (px)",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "default": 14
+    },
+
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "label": "Verticale padding (px)",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Horizontale padding (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max breedte (px)",
+      "min": 800,
+      "max": 1600,
+      "step": 40,
+      "default": 1200
+    },
+
+    {
+      "type": "header",
+      "content": "⚙️ Custom Code"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Gebruik #calqix-hiw-{{ section.id }} als selector voor specifiekheid."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_js",
+      "label": "Custom JavaScript",
+      "info": "'section' = sectie element, 'sectionId' = uniek ID."
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX — How It Works",
+      "blocks": [
+        {
+          "type": "step",
+          "settings": {
+            "title": "Pulsating Pressure",
+            "description": "At 1,600 pulses per minute, the FlowCore creates a hydrodynamic zone between teeth that dislodges biofilm — the sticky layer of bacteria that causes plaque and gum inflammation.",
+            "badge": "1,600 Pulses/min"
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Subgingival Access",
+            "description": "The precision nozzle reaches up to 6mm below the gumline — the critical zone for periodontal health. String floss reaches approximately 2–3mm. The difference matters at the cellular level.",
+            "badge": "6mm Depth"
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Surface Preparation",
+            "description": "By removing the plaque barrier, the FlowCore prepares clean enamel for nano-HA contact. Remineralisation is a surface-bonding process — it requires direct access. This is why sequence matters.",
+            "badge": "The CALQIX Method"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

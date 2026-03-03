@@ -1,0 +1,195 @@
+.wt-mosaic {
+  background-color: var(--color-background);
+}
+.wt-mosaic__container {
+  max-width: var(--site-max-width);
+  padding-left: calc(var(--gap, 8px) * 2);
+  padding-right: calc(var(--gap, 8px) * 2);
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 1200px) {
+  .wt-mosaic__container {
+    padding-left: calc(calc(var(--gap, 8px) * 2) + calc(var(--gap, 8px) * 2));
+    padding-right: calc(calc(var(--gap, 8px) * 2) + calc(var(--gap, 8px) * 2));
+  }
+}
+@media (min-width: 1800px) {
+  .wt-mosaic__container {
+    max-width: var(--site-max-width-big);
+  }
+}
+@media (min-width: 1200px) {
+  .wt-mosaic__container {
+    flex-direction: row;
+    justify-content: space-between;
+    height: 42vw;
+  }
+}
+@media (min-width: 1400px) {
+  .wt-mosaic__container {
+    height: 60.48rem;
+  }
+}
+@media (min-width: 1800px) {
+  .wt-mosaic__container {
+    height: 67.2rem;
+  }
+}
+.wt-mosaic__container--reversed {
+  flex-direction: column-reverse;
+}
+@media (max-width: 1199px) {
+  .wt-mosaic__container--reversed .wt-mosaic__aside {
+    margin-bottom: calc(var(--gap, 8px) * 2);
+  }
+}
+.wt-mosaic__container--reversed .wt-mosaic__main:not(:last-child) {
+  margin-bottom: 0;
+}
+@media (min-width: 1200px) {
+  .wt-mosaic__container--reversed {
+    flex-direction: row-reverse;
+  }
+}
+.wt-mosaic__container--full {
+  max-width: none;
+  padding: 0;
+  justify-content: center;
+}
+.wt-mosaic__container--full .hero {
+  border-radius: 0;
+}
+.wt-mosaic__container--full .wt-mosaic__main:not(:last-child),
+.wt-mosaic__container--full .wt-mosaic__aside__item:not(:last-child),
+.wt-mosaic__container--full .wt-mosaic__aside {
+  margin-bottom: 0;
+}
+@media (min-width: 600px) {
+  .wt-mosaic__container--full .wt-mosaic__aside__item {
+    width: 50%;
+  }
+}
+@media (min-width: 1200px) {
+  .wt-mosaic__container--full .wt-mosaic__main {
+    width: 66.66%;
+  }
+  .wt-mosaic__container--full .wt-mosaic__aside {
+    width: 33.34%;
+  }
+  .wt-mosaic__container--full .wt-mosaic__aside__item {
+    width: 100%;
+    height: 50%;
+  }
+}
+.wt-mosaic__main:not(:last-child), .wt-mosaic__aside:not(:last-child), .wt-mosaic__aside__item:not(:last-child) {
+  margin-bottom: calc(var(--gap, 8px) * 2);
+}
+@media (min-width: 1200px) {
+  .wt-mosaic__main:not(:last-child), .wt-mosaic__aside:not(:last-child), .wt-mosaic__aside__item:not(:last-child) {
+    margin-bottom: 0;
+  }
+}
+.wt-mosaic__main, .wt-mosaic__aside__item {
+  min-height: 60vw;
+  display: flex;
+  align-items: stretch;
+}
+.wt-mosaic__main--single, .wt-mosaic__aside__item--single {
+  min-height: initial;
+  width: 100%;
+  height: 100%;
+}
+.wt-mosaic__main {
+  flex-direction: column;
+}
+@media (max-width: 1199px) {
+  .wt-mosaic--reversed .wt-mosaic__main:not(:last-child) {
+    margin-top: calc(var(--gap, 8px) * 2);
+    margin-bottom: 0;
+  }
+}
+@media (min-width: 1200px) {
+  .wt-mosaic__main {
+    width: calc(66.66% - var(--gap));
+    min-height: initial;
+    display: flex;
+  }
+  .wt-mosaic__main--one {
+    width: 100%;
+    height: 100%;
+  }
+}
+.wt-mosaic__main .hero {
+  display: flex;
+  flex-grow: 1;
+}
+@media (min-width: 600px) {
+  .wt-mosaic__main .hero {
+    height: 100%;
+    width: 100%;
+  }
+}
+.wt-mosaic__main .hero__pic {
+  width: 100%;
+}
+.wt-mosaic__aside {
+  display: flex;
+  flex-direction: column;
+}
+.wt-mosaic__aside__item:not(:last-child) {
+  margin-bottom: calc(var(--gap, 8px) * 2);
+}
+@media (min-width: 600px) {
+  .wt-mosaic__aside__item:not(:last-child) {
+    margin-bottom: 0;
+  }
+}
+.wt-mosaic__aside__item:not(:last-child) .hero {
+  width: 100%;
+}
+.wt-mosaic__aside__item .hero {
+  width: 100%;
+}
+@media (min-width: 600px) {
+  .wt-mosaic__aside__item .hero__overlay {
+    padding: calc(var(--gap, 8px) * 3);
+  }
+}
+@media (min-width: 600px) {
+  .wt-mosaic__aside {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .wt-mosaic__aside__item {
+    width: calc(50% - var(--gap));
+    min-height: 30vw;
+  }
+}
+@media (min-width: 1200px) {
+  .wt-mosaic__aside {
+    flex-direction: column;
+    justify-content: space-between;
+    width: calc(33.33% - var(--gap));
+  }
+  .wt-mosaic__aside__item {
+    min-height: initial;
+    width: 100%;
+    height: calc(50% - var(--gap));
+  }
+}
+@media (min-width: 600px) {
+  .wt-mosaic__aside .hero__overlay__content {
+    width: 100%;
+  }
+}
+.wt-mosaic .hero__img {
+  height: 100%;
+  object-fit: cover;
+}
+.wt-mosaic .hero__button--no {
+  display: none;
+}
+/*# sourceMappingURL=collage.css.map */

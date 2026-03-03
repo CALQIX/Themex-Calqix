@@ -1,0 +1,27 @@
+<quantity-counter class="counter-wrapper">
+  <div class="counter">
+    <button
+      aria-label="{{ 'aria-label.component-counter-counter-decrease' | t }}"
+      type="button"
+      class="js-counter-decrease"
+    >
+      {% render 'icons', id: 'minus' %}
+    </button>
+    <input
+      type="text"
+      name="quantity"
+      value="1"
+      min="1"
+      max="999"
+      class="js-counter-quantity"
+      aria-label="{{ 'aria-label.component-counter-counter-quantity' | t }}"
+    >
+    <button
+      aria-label="{{ 'aria-label.component-counter-counter-increase' | t }}"
+      type="button"
+      class="js-counter-increase"
+    >
+      {% render 'icons', id: 'plus' %}
+    </button>
+  </div>
+</quantity-counter>

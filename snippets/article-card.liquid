@@ -1,0 +1,104 @@
+
+<style>
+  [aria-labelledby="Article-{{ article.id }}"] .hero__img{
+    {% if article.image and media_aspect_ratio == 'portrait' %}
+      --aspect-ratio: var(--aspect-ratio-portait);
+    {% elsif article.image and media_aspect_ratio == 'adapt' %}
+      --aspect-ratio: {{article.image.aspect_ratio}};
+    {% elsif article.image and media_aspect_ratio == 'square' %}
+      --aspect-ratio: 1/1;
+    {% else %}
+      --aspect-ratio: auto;
+    {% endif %}
+  }
+
+  aspect: var(--aspect-ratio-portait);
+</style>
+
+
+<article
+  class="article-card{% if article.image == blank or show_image == false %} article-card--no-image{% endif %} {{ classname }}"
+  aria-labelledby="Article-{{ article.id }}"
+>
+  <div class="card__badges {% if show_image != true or hide_badge %} hidden {% endif %}">
+    <div class="card__badges--item" data-custom-badge="{{ settings.custom-badge-1-input }}">
+      {{ 'blogs.article.blog' | t }}
+    </div>
+  </div>
+  <a href="{{ article.url }}" class="article-content motion-reduce">
+    {% assign button_link = article.url %}
+    {% if article.image == blank %}
+      {% assign placeholder = 'product-apparel-1' %}
+    {% endif %}
+    <div class="article-card__image-wrapper  {% if make_full_width %} article-card__image-wrapper--full-width {% endif %} {% if search %} search {% endif %} {% if show_image != true %} hidden {% endif %}">
+      {% render 'picture', desktop_image: article.image, mobile_image: article.image, placeholder: placeholder %}
+    </div>
+  </a>
+  <div class="article-card__info {% if make_full_width %} article-card__info--full-width {% endif %}">
+    <header
+      class="article-card__header wt-blog__content {% if search %} wt-blog__content--search {% endif %}"
+      {{ block.shopify_attributes }}
+    >
+      {% if block.settings.show_author or show_author or block.settings.show_date or show_date %}
+        <div class="wt-blog__date-author {% if search %} wt-blog__date-author--search {% endif %}">
+          {%- if section.settings.show_date or show_date -%}
+            <span
+              class="
+                circle-divider caption-with-letter-spacing date card__subtitle
+                {%- if block.settings.show_author or show_author -%} date card__subtitle--right-border {% endif %}
+              "
+            >
+              {{ article.published_at | date: '%B %d, %Y' }}
+            </span>
+          {%- endif -%}
+
+          {%- if block.settings.show_author or show_author -%}
+            <span class="caption-with-letter-spacing wt-blog__show--author card__subtitle">
+              {{- article.author -}}
+            </span>
+          {%- endif -%}
+        </div>
+      {% endif %}
+
+      {% if search %}
+        <a href="{{ article.url }}">
+          {{ article.title | escape }}
+        </a>
+      {% else %}
+        <h3 class="hero__title " id="Article-{{ article.id }}">
+          <a href="{{ article.url }}">
+            {{ article.title | escape }}
+          </a>
+        </h3>
+      {% endif %}
+    </header>
+    {%- if article.excerpt.size > 0 or article.content.size > 0 -%}
+      <div class="hero__text hero__text--search">
+        <p class="article-card__excerpt rte-width" {{ block.shopify_attributes }}>
+          {%- if article.excerpt.size > 0 -%}
+            {{ article.excerpt | strip_html | truncatewords: 30 }}
+          {%- else -%}
+            {{ article.content | strip_html | truncatewords: 30 }}
+          {%- endif -%}
+        </p>
+      </div>
+    {%- endif -%}
+    {%- if article.comments_count > 0 and blog.comments_enabled? -%}
+      <div class="article-card__comments">
+        <span>{{ 'blogs.article.comments' | t: count: article.comments_count }}</span>
+      </div>
+    {%- endif -%}
+    <div class="wt-blog__read article-card__footer" {{ block.shopify_attributes }}>
+      <a href="{{ article.url }}"
+        ><button
+          aria-label="{{ 'blogs.article.read_more_title' | t: title: article.title | escape }}"
+          class="hero__button {% if button_disable_on_mobile %}hero__button--mobile {% endif %} hero__button--primary {% if block.settings.button_select == 'secondary' or button_type == 'secondary' %} hero__button--secondary{% endif %}{% if block.settings.button_select == 'link' or button_type == 'link' %} hero__button--link{% endif %}"
+        >
+          <span>
+            {{ 'blogs.article.read_more' | t }}
+          </span>
+        </button></a
+      >
+    </div>
+  </div>
+</article>

@@ -1,0 +1,69 @@
+.wt-scrolling-text-banner {
+  display: block;
+}
+.wt-scrolling-text-banner .hero__overlay {
+  padding-inline: 0 !important;
+  width: 100%;
+}
+.wt-scrolling-text-banner .hero__overlay__content {
+  width: 100%;
+  padding-inline: 0 !important;
+  border-radius: 0 !important;
+}
+.wt-scrolling-text-banner .hero__overlay__content .hero__button {
+  margin-inline: calc(var(--gap, 8px) * 2);
+}
+@media (min-width: 900px) {
+  .wt-scrolling-text-banner .hero__overlay__content .hero__button {
+    margin-inline: calc(var(--gap, 8px) * 4);
+  }
+}
+.wt-scrolling-text-banner .hero__pic--no-img {
+  height: var(--section-height, 100%);
+  display: block !important;
+}
+@media (min-width: 900px) {
+  .wt-scrolling-text-banner .hero__pic--no-img {
+    height: var(--section-height-desk, 100%);
+  }
+}
+.wt-scrolling-text-banner .hero__title {
+  display: flex;
+  border-radius: 0 !important;
+  max-width: 100% !important;
+}
+.wt-scrolling-text-banner .hero__title {
+  position: relative;
+  overflow: hidden; /* Hide overflowing content */
+  width: 100%;
+}
+.wt-scrolling-text-banner .scrolling-wrapper {
+  display: flex; /* Ensure inline layout */
+  animation: scroll-left linear infinite; /* Base animation */
+  will-change: transform; /* Optimize performance */
+}
+.wt-scrolling-text-banner .hero__title {
+  overflow: hidden;
+  position: relative;
+}
+.wt-scrolling-text-banner .scrolling-container {
+  display: flex;
+  position: relative;
+}
+.wt-scrolling-text-banner .scrolling-wrapper {
+  display: flex;
+  flex-shrink: 0;
+  animation: scroll-left linear infinite;
+}
+.wt-scrolling-text-banner .scrolling-text {
+  white-space: nowrap;
+}
+@keyframes scroll-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+/*# sourceMappingURL=section-scrolling-text-banner.css.map */

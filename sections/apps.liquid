@@ -1,0 +1,33 @@
+{{ 'section-apps.css' | asset_url | stylesheet_tag }}
+
+<div class="{% if section.settings.include_margins %}{% else %}wt-apps__wrapper--compact {% endif %} {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}{% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %} wt-apps__wrapper">
+  {%- for block in section.blocks -%}
+    {% render block %}
+  {%- endfor -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.apps.name",
+  "tag": "section",
+  "class": "wt-apps",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "include_margins",
+      "default": true,
+      "label": "t:sections.apps.settings.include_margins.label"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.apps.presets.name"
+    }
+  ]
+}
+{% endschema %}

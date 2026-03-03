@@ -1,0 +1,103 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "header",
+  "name": "Header Group",
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "announcement_DKVb4L": {
+          "type": "announcement",
+          "settings": {
+            "text": "Free shipping on orders over €80",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "announcement_DKVb4L"
+      ],
+      "settings": {
+        "marquee": true,
+        "animation_speed": "100",
+        "checkbox_close_announcement": true,
+        "color-body-text": "#ffffff",
+        "background_color": "#1a3b5c"
+      }
+    },
+    "header": {
+      "type": "page-header",
+      "blocks": {
+        "column_yVYQQ3": {
+          "type": "column",
+          "settings": {
+            "title": "shop",
+            "promo_section_width": 6,
+            "stack_view": true,
+            "image_ratio": "adapt",
+            "heading_1": "",
+            "text_1": "View All Products",
+            "link_1": "",
+            "heading_2": "",
+            "text_2": "Women's Multi Capsules",
+            "link_2": "",
+            "heading_3": "",
+            "text_3": "Immunity Boost Capsules",
+            "link_3": "",
+            "heading_4": "",
+            "text_4": "Natural Collagen Capsules",
+            "link_4": "",
+            "heading_5": "",
+            "text_5": "Boost Energy Capsules",
+            "link_5": "",
+            "heading_6": "",
+            "text_6": "Men's Multi Capsules",
+            "link_6": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_yVYQQ3"
+      ],
+      "settings": {
+        "layout": "option_5",
+        "sticky_header": true,
+        "sticky_header_always": false,
+        "header_bg_opacity": 44,
+        "header_bg_blur": 30,
+        "header_always_blurred": true,
+        "show_line_separator": true,
+        "show_shadow": true,
+        "logo": "shopify://shop_images/Master_logo_TBG.png",
+        "large_screen_logo_width": 160,
+        "mobile_screen_logo_width": 120,
+        "menu": "main-menu",
+        "mobile_footer_menu": "",
+        "teaser_menu": "main-menu",
+        "teaser_menu_limit": 3,
+        "transparent_header_color": "rgba(0,0,0,0)",
+        "show_country_selector": true,
+        "show_country_selector_label": false,
+        "show_country_selector_flag": true,
+        "show_language_selector": true,
+        "drawer_title": "Welcome to CALQIX",
+        "enable_submenu_link_in_drawer": true,
+        "typing_search": "Search...",
+        "suggestions_title": "most popular",
+        "suggestions_menu": ""
+      }
+    }
+  },
+  "order": [
+    "announcement-bar",
+    "header"
+  ]
+}

@@ -1,0 +1,14 @@
+<button
+  class="wt-localization-trigger wt-localization-trigger--local {{ custom_class }}"
+  data-open-drawer="country"
+>
+  <span class="wt-localization-trigger__label">
+    {% if show_country_flag %}
+      {% render 'flag-icon', country_code: localization.country.iso_code, alt: localization.country.name %}
+    {% endif %}
+    {% if show_country_code %}{{- localization.country.iso_code }} /{% endif -%}
+    {{ localization.country.currency.iso_code -}}
+    {% comment %}{{ localization.country.currency.symbol -}}{% endcomment %}
+  </span>
+  {% render 'icons', id: 'arrow-down' %}
+</button>

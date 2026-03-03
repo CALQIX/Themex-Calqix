@@ -1,0 +1,5 @@
+{% render 'icons', id: 'bag' %}
+{% if cart.item_count > 0 %}
+    <span class="wt-header__panel__counter">{{ cart.item_count }}</span> 
+{% endif %}
+<span class="wt-header__panel__label">Cart</span>

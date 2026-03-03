@@ -1,0 +1,144 @@
+{% assign background_rgb = block.settings.color-overlay | color_to_rgb %}
+{% assign text_rgb = block.settings.color-body-text | color_to_rgb %}
+
+{%- liquid
+    assign ratio = auto
+    if media_aspect_ratio == 'portrait'
+      assign ratio = 0.8
+    elsif card_product.featured_media and media_aspect_ratio == 'adapt'
+      assign ratio = card_product.featured_media.aspect_ratio
+    elsif media_aspect_ratio == 'square'
+      assign ratio = '1/1'
+    else
+        assign ratio = 'auto'
+    endif
+%}
+
+<style>
+    .grid-banner[data-block-id="{{ block.id }}"] {
+        --mobile-text-vertical: {{  block.settings.mobile_text_vertical_position }};
+        --mobile-text-horizontal: {{  block.settings.mobile_text_horizontal_position }};
+        
+        --desktop-text-vertical: {{  block.settings.desktop_text_vertical_position }};
+        --desktop-text-horizontal: {{  block.settings.desktop_text_horizontal_position }};
+
+        --font-text-scale-desk: {{ block.settings.text_size_desktop | divided_by: 100.0 }};
+        --font-text-scale: {{ block.settings.text_size_mobile | divided_by: 100.0 }};
+
+        --aspect-ratio: {{ ratio }};
+        {% if block.settings.mobile_video_hosted %}
+            --media-aspect-ratio: {{ block.settings.mobile_video_hosted.aspect_ratio }};
+        {% elsif block.settings.mobile_image %}
+            --media-aspect-ratio: {{ block.settings.mobile_image.aspect_ratio }};
+        {% else %}
+            --media-aspect-ratio: 3/4;
+        {% endif %}
+
+        {% if block.settings.desktop_video_hosted %}
+            --media-aspect-ratio-desk: {{ block.settings.desktop_video_hosted.aspect_ratio }};
+        {% elsif block.settings.desktop_image %}
+            --media-aspect-ratio-desk: {{ block.settings.desktop_image.aspect_ratio }};
+        {% else %}
+            --media-aspect-ratio-desk: 4/3;
+        {% endif %}
+        
+        {% if block.settings.text_style == 'headline' %}
+            --font-base: var(--font-headline);
+            --font-base-weight: var(--font-headline-weight);
+            --font-base-letter-spacing: var(--font-headline-letter-spacing);
+            --font-base-line-height: var(--font-headline-line-height);
+        {% endif %}
+
+        {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+            --color-body-text: {{ block.settings.color-body-text }};
+            --color-custom-text: {{ block.settings.color-body-text }};
+        {% endif %}
+        
+        {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+            --color-overlay: {{ block.settings.color-overlay }};
+            --color-overlay-opacity: {{ block.settings.color-overlay-opacity | divided_by: 100.0 }};
+        {% endif %}
+        
+    }
+</style>
+
+<div class="grid-banner
+    {% if block.settings.column_number_mobile == '2' %}
+     grid-banner--mobile-2
+     {% endif %}
+      {% if block.settings.column_number_desktop == '2' %}
+     grid-banner--desktop-2
+     {% endif %}
+    " data-block-id="{{ block.id }}">
+    {% if block.settings.banner_link %}
+        <a href="{{ block.settings.banner_link }}">
+    {% endif %}
+        <div class="grid-banner__media">
+        <div class="grid-banner__media-mobile">
+        {% if block.settings.mobile_video_hosted %}
+            {{ block.settings.mobile_video_hosted | video_tag:
+                autoplay: true,
+                loop: true,
+                muted: true,
+                controls: false,
+                image_size: '600x' 
+            }}  
+        {% elsif block.settings.mobile_image %}
+            {{
+                block.settings.mobile_image
+                | image_url: width: block.settings.mobile_image.width, height: block.settings.mobile_image.height
+                | image_tag: alt: block.settings.mobile_image.alt, loading: 'lazy'
+            }}
+        {% else %}
+            {{ 'product-apparel-1' | placeholder_svg_tag: '' }}
+        {% endif %}
+        </div>
+        <div class="grid-banner__media-desktop">
+        {% if block.settings.desktop_video_hosted %}
+            {{ block.settings.desktop_video_hosted | video_tag:
+                autoplay: true,
+                loop: true,
+                muted: true,
+                controls: false,
+                image_size: '600x' 
+            }}  
+        {% elsif block.settings.desktop_image %}
+            {{
+                block.settings.desktop_image
+                | image_url: width: block.settings.desktop_image.width, height: block.settings.desktop_image.height
+                | image_tag: alt: block.settings.desktop_image.alt, loading: 'lazy'
+            }}
+        {% else %}
+            {{ 'product-apparel-1' | placeholder_svg_tag: '' }}
+        {% endif %}
+        </div>
+        <div class="grid-banner__media-overlay">
+        </div>
+        
+        </div>
+
+        <div class="grid-banner__media-content">
+            <div class="grid-banner__media-text">
+                {% if block.settings.text != blank %}
+                    <div class="grid-banner__media-text-content">
+                        {{ block.settings.text | newline_to_br }}
+                    </div>
+                {% endif %}
+                {% if block.settings.button_label != blank %}
+                    <div class="hero__button--gap">
+                    <button
+                        aria-label="{{ block.settings.button_label }}"
+                        class="hero__button hero__button--primary {% if block.settings.button_select != 'primary' %} hero__button--secondary {% endif %}{% if block.settings.button_select == 'link' %} hero__button--link {% endif %}"
+                        name="commit"
+                    >
+                        <span class="wt-newsletter__send__text">{{ block.settings.button_label }}</span>
+                    </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    {% if block.settings.banner_link %}
+        </a>
+    {% endif %}
+</div>

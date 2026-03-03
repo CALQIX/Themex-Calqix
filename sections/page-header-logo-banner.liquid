@@ -1,0 +1,343 @@
+{% if template == 'index' %}
+  <script src="{{ 'page-header-logo-banner.js' | asset_url }}" defer="defer"></script>
+
+  {{ 'section-video.css' | asset_url | stylesheet_tag }}
+  {{ 'section-logo-banner.css' | asset_url | stylesheet_tag }}
+
+  {% assign background_rgb = section.settings['color-overlay'] | color_to_rgb %}
+  {% assign text_rgb = section.settings['color-body-text'] | color_to_rgb %}
+
+  <style>
+    [data-section-id="{{ section.id }}"] {
+      --image-overlay-opacity: {{ section.settings.image_hosted_opacity | divided_by: 100.0 }};
+      --image-overlay-mobile-opacity: {{ section.settings.image_hosted_mobile_opacity | divided_by: 100.0 }};
+
+    {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+      --color-custom-text: {{ section.settings.color-body-text }};
+    {% endif %}
+    {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+      --color-overlay-rgb: {{ section.settings.color-overlay | color_to_rgb | remove: 'rgb(' | remove: ')' }};
+      --color-overlay-opacity: {{ section.settings.color-overlay-opacity | divided_by: 100.0 }};
+    {% endif %}
+    }
+  </style>
+
+  {% assign width_line = 'wt-section__wrapper' %}
+
+  {%- liquid
+    assign video_id = section.settings.video.id | default: section.settings.video_url.id
+  -%}
+
+  <script src="{{ 'low-power-video.js' | asset_url }}" defer="defer"></script>
+
+  <page-header-logo-banner
+    class="{{ width_line }} "
+    data-section-id="{{ section.id }}"
+    {% if request.design_mode %}
+      data-design-mode="true"
+    {% endif %}
+  >
+    {% if section.settings.layout == 'video_first' %}
+      {% assign class_name = 'wt-video--rev' %}
+    {% else %}
+      {% assign class_name = '' %}
+    {% endif %}
+    <low-power-video>
+      <div
+        class="wt-video {{ class_name }}"
+        data-section-id="{{ section.id }}"
+        data-mobile="{{ section.settings.layout_mobile }}"
+        data-height="{{ section.settings.slide_height }}"
+      >
+        <picture class="wt-logo-banner__picture">
+          <div
+            class="wt-logo-banner__img-wrapper {% if section.settings.logo_image == nil %} wt-logo-banner__img-wrapper--placeholder {% endif %}"
+            {% comment %} style="--logo-width-mobile: {{ settings.mobile_screen_logo_width }}px; --logo-width-desk: {{ settings.large_screen_logo_width }}px" {% endcomment %}
+          >
+            {%- assign large_image_size = 250 -%}
+            {%- assign large_image_size_double = large_image_size | times: 2 -%}
+
+            {%- assign logo_image_size = section.settings.logo_image.width -%}
+            {%- assign logo_image_size_double = logo_image_size | times: 2 -%}
+
+            {% if section.settings.logo_image != blank %}
+              <img
+                srcset="{{ section.settings.logo_image | image_url: width: logo_image_size }} 1x, {{ section.settings.logo_image | image_url: width: logo_image_size_double }} 2x"
+                src="{{ section.settings.logo_image | image_url: width: logo_image_size }}"
+                loading="lazy"
+                width="{{ section.settings.logo_image.width}}"
+                height="{{ section.settings.logo_image.height }}"
+                class="wt-logo-banner__logo"
+                alt="{{ section.settings.logo_image.alt | default: shop.name | escape }}"
+                data-nominal-width="{{ large_image_size }}"
+                data-nominal-width-mobile="{{ settings.mobile_screen_logo_width }}"
+              >
+            {% else %}
+              <p class="wt-logo-banner__logo wt-logo-banner__logo--placeholder">LOGO</p>
+            {% endif %}
+          </div>
+        </picture>
+
+        {% if section.settings.additional_text != blank or section.settings.button_label != blank %}
+          <div class="wt-logo-banner__additional">
+            {% if section.settings.button_label != blank %}
+              <a
+                href="{{ section.settings.button_link }}"
+                {% if section.settings.button_link_in_new_window %}
+                  target="_blank" rel="noreferrer noopener"
+                {% endif %}
+                tabindex="0"
+                aria-label="{{ section.settings.button_label }}"
+                class="
+                  hero__button
+                  {% if section.settings.button_disable_on_mobile %}hero__button--mobile {% endif %}
+                  {% if section.settings.button_style == 'primary' %}hero__button--primary {% endif %}
+                  {% if section.settings.button_style == 'secondary' %} hero__button--secondary{% endif %}
+                  {% if section.settings.button_style == 'link' %} hero__button--link{% endif %}
+                "
+              >
+                <span>{{ section.settings.button_label }}</span>
+              </a>
+            {% endif %}
+            <p class="wt-logo-banner__additional__text">{{ section.settings.additional_text }}</p>
+            <div class="wt-logo-banner__additional__icon">
+              {% render 'icons', id: 'arrow-down' %}
+            </div>
+          </div>
+        {% endif %}
+
+        {%- if section.settings.video_hosted_mobile -%}
+          <div class="wt-video__movie wt-video__movie--shopify-video wt-video__item wt-video__item--mobile-only">
+            {{
+              section.settings.video_hosted_mobile
+              | video_tag: autoplay: true, loop: true, muted: true, controls: false, image_size: '2400x'
+            }}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.video_hosted -%}
+          <div class="wt-video__movie wt-video__movie--shopify-video wt-video__item">
+            {{
+              section.settings.video_hosted
+              | video_tag: autoplay: true, loop: true, muted: true, controls: false, image_size: '2400x'
+            }}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.video_hosted == null -%}
+          <div class="wt-video__movie wt-video__movie--shopify-video wt-video__item wt-video__image">
+            {% if section.settings.image_hosted_mobile and section.settings.image_hosted == null %}
+              {{ section.settings.image_hosted_mobile | image_url: width: '2000x' | image_tag: width: null }}
+            {% elsif section.settings.image_hosted and section.settings.image_hosted_mobile %}
+              {{
+                section.settings.image_hosted_mobile
+                | image_url: width: '2000x'
+                | image_tag: width: null, class: 'wt-video__image-mobile'
+              }}
+              {{ section.settings.image_hosted | image_url: width: '2000x' | image_tag: width: null }}
+            {% elsif section.settings.image_hosted and section.settings.image_hosted_mobile == null %}
+              {{ section.settings.image_hosted | image_url: width: '2000x' | image_tag: width: null }}
+            {% else %}
+              {{ 'hero-apparel-1' | placeholder_svg_tag: 'wt-logo-banner__img-placeholder' }}
+            {% endif %}
+          </div>
+        {%- endif -%}
+      </div>
+    </low-power-video>
+  </page-header-logo-banner>
+
+  <script>
+    (() => {
+      const currentSection = document.querySelector('section.wt-logo-banner');
+
+      function calculateOffset() {
+        function isValidSectionsOrder() {
+          const pageHeader = document.body.querySelector('header.page-header');
+
+          if (pageHeader && currentSection) {
+            let sibling = pageHeader.nextElementSibling;
+            while (sibling && sibling.tagName.toLowerCase() !== 'section') {
+              sibling = sibling.nextElementSibling;
+            }
+            return sibling === currentSection;
+          }
+          return false;
+        }
+
+        function isTransparentHeaderEnabled() {
+          const header = document.querySelector('.wt-header');
+          return header.dataset.transparent && isValidSectionsOrder() && header.classList.contains('wt-header--v3');
+        }
+
+        const header = document.querySelector('header');
+        const headerHeight = header.offsetHeight;
+
+        const announcement = document.querySelector('.wt-announcement');
+        const announcementHeight = announcement ? announcement.offsetHeight : 0;
+        const offset = isTransparentHeaderEnabled() ? headerHeight + announcementHeight : 0;
+
+        return offset;
+      }
+
+      function setTopMargin() {
+        const offset = calculateOffset();
+        currentSection.style.marginTop = `-${offset}px`;
+      }
+
+      setTopMargin();
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Logo banner (Homepage)",
+  "tag": "section",
+  "class": "wt-video__section wt-logo-banner",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.logo-banner.settings.important-information.content",
+      "info": "t:sections.logo-banner.settings.important-information.info"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_image",
+      "label": "t:sections.logo-banner.settings.logo-image.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.video",
+      "info": "t:sections.background-video.settings.video.info"
+    },
+    {
+      "type": "video",
+      "id": "video_hosted",
+      "label": "t:sections.logo-banner.settings.video-hosted.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.video_mobile",
+      "info": "t:sections.background-video.settings.video.info"
+    },
+    {
+      "type": "video",
+      "id": "video_hosted_mobile",
+      "label": "t:sections.logo-banner.settings.video-hosted.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.desktop_version"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_hosted",
+      "label": "t:sections.logo-banner.settings.background-image.label",
+      "info": "t:sections.global.video_url_info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.mobile_version"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_hosted_mobile",
+      "label": "t:sections.logo-banner.settings.background-image.label",
+      "info": "t:sections.global.video_url_info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.logo-banner.settings.additional-text.label"
+    },
+    {
+      "type": "textarea",
+      "id": "additional_text",
+      "label": "t:sections.logo-banner.settings.additional-text.label",
+      "default": "Scroll down to see more"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.logo-banner.settings.button.label"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.logo-banner.settings.button.style_label",
+      "options": [
+        {
+          "value": "primary",
+          "label": "t:sections.logo-banner.settings.button.options.primary"
+        },
+        {
+          "value": "secondary",
+          "label": "t:sections.logo-banner.settings.button.options.secondary"
+        },
+        {
+          "value": "link",
+          "label": "t:sections.logo-banner.settings.button.options.link"
+        }
+      ],
+      "default": "primary"
+    },
+    {
+      "id": "button_label",
+      "type": "text",
+      "default": "Button label",
+      "label": "t:sections.settings.settings.button_label.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "button_disable_on_mobile",
+      "label": "t:sections.global.disable_on_mobile",
+      "default": false
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "t:sections.settings.settings.link.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "button_link_in_new_window",
+      "label": "t:sections.global.button_link_in_new_window",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "color-body-text",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.text-color.label"
+    },
+    {
+      "type": "color",
+      "id": "color-overlay",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.background-color.label"
+    },
+    {
+      "type": "range",
+      "id": "color-overlay-opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 0,
+      "label": "t:sections.settings.settings.background-opacity.label"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Logo banner for transparent header"
+    }
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  }
+}
+{% endschema %}

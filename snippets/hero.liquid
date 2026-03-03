@@ -1,0 +1,368 @@
+{% if type == 'blocks' %}
+  {% assign button_link = false %}
+  {% assign button_label = blank %}
+
+  {%- for block in section.blocks -%}
+    {% if block.type == 'button' %}
+      {% if block.settings.button_link %}
+        {% assign button_link = block.settings.button_link %}
+      {% endif %}
+      {% if block.settings.button_label != blank %}
+        {% assign button_label = block.settings.button_label %}
+      {% endif %}
+      {% if block.settings.second_button_link %}
+        {% assign second_button_link = block.settings.second_button_link %}
+      {% endif %}
+      {% if block.settings.second_button_label != blank %}
+        {% assign second_button_label = block.settings.second_button_label %}
+      {% endif %}
+    {%- endif -%}
+  {%- endfor -%}
+{% endif %}
+
+{%- liquid
+  # --------------------------------
+  # Basics / defaults
+  # --------------------------------
+  assign video_id     = video.id | default: video_url.id
+  assign hide_picture = hide_image | default: false
+
+  if autoplay == null
+    assign autoplay = true
+  endif
+
+  # --------------------------------
+  # Control buttons
+  # --------------------------------
+  assign play_pause_button = false
+  assign unmute_button     = false
+
+  if video_controls == false and video_custom_play_controls == true
+    assign play_pause_button = true
+  endif
+  if video_controls == false and video_custom_mute_controls == true
+    assign unmute_button = true
+  endif
+
+  # --------------------------------
+  # Presence flags
+  # --------------------------------
+  assign has_desktop_image = false
+  if desktop_image != blank
+    assign has_desktop_image = true
+  endif
+
+  assign has_mobile_image = false
+  if mobile_image != blank
+    assign has_mobile_image = true
+  endif
+
+  assign has_desktop_video = false
+  if video != blank
+    assign has_desktop_video = true
+  endif
+
+  assign has_mobile_video = false
+  if mobile_video != blank
+    assign has_mobile_video = true
+  endif
+
+  # --------------------------------
+  # Visibility classes (exclusive cases)
+  # --------------------------------
+  assign video_class              = ''
+  assign mobile_video_class       = ''
+  assign video_visibility_class   = ''
+  assign picture_visibility_class = ''
+
+  # CASE 1: desktop video only + mobile image -> hide video on mobile, picture on desktop
+  if has_desktop_video and has_mobile_video == false and has_mobile_image
+    assign video_class              = 'wt-mobile-hidden'
+    assign video_visibility_class   = 'wt-mobile-hidden'
+    assign picture_visibility_class = 'wt-desktop-hidden'
+
+    # CASE 2: mobile video only + desktop image -> hide mobile video on desktop, picture on mobile
+  elsif has_mobile_video and has_desktop_video == false and has_desktop_image
+    assign mobile_video_class       = 'wt-desktop-hidden'
+    assign video_visibility_class   = 'wt-desktop-hidden'
+    assign picture_visibility_class = 'wt-mobile-hidden'
+
+    # CASE 3: both videos exist -> split by viewport, hide picture entirely
+  elsif has_desktop_video and has_mobile_video
+    assign video_class              = 'wt-mobile-hidden'
+    assign mobile_video_class       = 'wt-desktop-hidden'
+    assign picture_visibility_class = 'wt-hidden'
+    assign video_visibility_class   = ''
+  endif
+-%}
+
+
+<div class="hero hero--video-background {{ classname }} {%- if section.settings.video_type == 'yt' -%}hero__video__yt-wrapper{%- endif -%}">
+
+  {% if video_url != blank or video or mobile_video %}
+    {% if video or mobile_video %}
+      <div
+          class="wt-video__movie wt-video__movie--shopify-video wt-video__item
+            {% if settings.animations %} scroll-trigger animate--slide-in {% endif %}
+            {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}
+            {% if enable_full_screen_mode %}wt-video--fullscreen{% endif %}
+            {{ video_visibility_class }}
+      ">
+        {%- liquid
+          if has_desktop_video and has_mobile_video == false
+            assign video_class = ''
+          endif
+          if has_mobile_video and has_desktop_video == false
+            assign mobile_video_class = ''
+          endif
+        -%}
+
+        {% if mobile_video %}
+          {% if button_link and button_label == blank or button_link and link_image %}
+            <a
+              href="{{ button_link }}"
+              aria-label="{{ button_label }}"
+              {% if button_link_in_new_window %}
+                target="_blank" rel="noreferrer noopener"
+              {% endif %}
+            >
+          {% endif %}
+
+          {% if mobile_video %}
+            {% if play_pause_button %}
+              <video-controls class="{{ mobile_video_class }}">
+                {% render 'play-pause-button', classname: mobile_video_class %}
+            {% endif %}
+
+            {% if unmute_button %}
+              {% render 'unmute-button' %}
+            {% endif %}
+
+            {{
+              mobile_video
+              | video_tag:
+                autoplay: autoplay,
+                loop: true,
+                muted: true,
+                controls: video_controls,
+                image_size: '600x',
+                class: mobile_video_class
+            }}
+
+            {% if play_pause_button %}
+              </video-controls>
+            {% endif %}
+          {% else %}
+            {% assign video_class = '' %}
+          {% endif %}
+        {%  endif %}
+
+        {% if video %}
+          {% if play_pause_button %}
+            <video-controls class="{{ video_class }}">
+              {% render 'play-pause-button', classname: video_class %}
+          {% endif %}
+
+          {% if unmute_button %}
+            {% render 'unmute-button' %}
+          {% endif %}
+
+          {{
+            video
+            | video_tag:
+              autoplay: autoplay,
+              loop: true,
+              muted: true,
+              controls: video_controls,
+              image_size: '600x',
+              class: video_class
+          }}
+
+          {% if play_pause_button %}
+            </video-controls>
+          {% endif %}
+        {% endif %}
+
+        {% if button_link and button_label == blank or button_link and link_image %}
+          </a>
+        {% endif %}
+      </div>
+    {% else %}
+      {%- if video_url.type == 'youtube' -%}
+        <iframe
+          src="https://www.youtube.com/embed/{{ video_id }}?autoplay=1&mute=1&controls=0"
+          frameborder="0"
+          class="wt-video__movie wt-video__item wt-video__item--bg"
+          allow="autoplay; encrypted-media"
+          title="{{ 'aria-label.hero-yt' | t }}"
+        ></iframe>
+      {%- elsif video_url.type == 'vimeo' -%}
+        <iframe
+          src="https://player.vimeo.com/video/{{ video_id }}?transparent=0&controls=0&autoplay=1&loop=1&muted=1&playsinline=1"
+          frameborder="0"
+          class="js-vimeo wt-video__movie wt-video__item wt-video__item--bg"
+          allow="autoplay; encrypted-media"
+          style="background-color:  black;"
+          title="{{ 'aria-label.hero-vimeo' | t }}"
+        ></iframe>
+      {%- endif -%}
+    {% endif %}
+
+
+
+    {%- if hide_picture == false -%}
+      {%  if has_desktop_image or has_mobile_image %}
+        <div class="{{ picture_visibility_class }} hero__pic-wrapper">
+        {% render 'picture',
+                desktop_image: desktop_image,
+                mobile_image: mobile_image,
+                placeholder: placeholder,
+                button_link: button_link,
+                button_label: button_label,
+                button_link_in_new_window: button_link_in_new_window,
+                loader: loader,
+                loading_option: loading_option,
+                block: block,
+                link_image: link_image,
+                lcp_optimized: lcp_optimized
+        %}
+        </div>
+      {%  endif %}
+    {%  endif %}
+
+
+  {% elsif before_after %}
+    {% render 'before-after-comparison' %}
+  {% else %}
+    {%- if hide_picture == false -%}
+      {% render 'picture',
+        desktop_image: desktop_image,
+        mobile_image: mobile_image,
+        placeholder: placeholder,
+        button_link: button_link,
+        button_label: button_label,
+        button_link_in_new_window: button_link_in_new_window,
+        loader: loader,
+        loading_option: loading_option,
+        block: block,
+        link_image: link_image,
+        lcp_optimized: lcp_optimized
+      %}
+    {%- else -%}
+      <div class="hero__pic hero__pic--no-img"></div>
+    {%- endif -%}
+  {% endif %}
+
+  {% if button_link and link_only_on_button %}
+    {% assign overlay_tag = 'div' %}
+  {% elsif button_link
+    and button_label == blank
+    or button_link
+    and button_disable_on_mobile
+    or section_link
+    and second_button_link == null
+  %}
+    {% assign overlay_tag = 'js-link' %}
+  {% else %}
+    {% assign overlay_tag = 'div' %}
+  {% endif %}
+
+  <{{ overlay_tag }}
+    {% if button_link and link_only_on_button != true %}
+      href="{{ button_link }}"
+    {% endif %}
+    {% if button_link_in_new_window %}
+      target="_blank" rel="noreferrer noopener"
+    {% endif %}
+    class="
+      hero__overlay
+      hero__overlay--{{ desktop_text_horizontal_position }}
+      hero__overlay--{{ desktop_text_vertical_position }}
+      hero__overlay--mobile--{{ mobile_text_horizontal_position }}
+      hero__overlay--mobile--{{ mobile_text_vertical_position }}
+    "
+    {% if button_disable_on_mobile and is_multicolumn_section %}
+      data-mobile="true"
+    {% endif %}
+  >
+    <div class="hero__overlay__content hero__overlay__content--{{ desktop_text_horizontal_position }} hero__overlay__content--mobile--{{ mobile_text_horizontal_position }} rte">
+      {% if blocks %}
+        {% render 'simple-block', prefix: 'hero', blocks: blocks, rich_text_with_image: rich_text_with_image %}
+      {% else %}
+        {% if review_star_rating != blank %}
+          <div class="hero__star-rating">
+            {% if review_star_rating == '80' %}
+              {% render 'rating-stars', percent: review_star_rating, icon_class: 'wt-test__icon' %}
+            {% endif %}
+            {% if review_star_rating == '90' %}
+              {% render 'rating-stars', percent: review_star_rating, icon_class: 'wt-test__icon' %}
+            {% endif %}
+            {% if review_star_rating == '100' %}
+              {% render 'rating-stars', percent: review_star_rating, icon_class: 'wt-test__icon' %}
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if subheading != blank %}
+          <div class="hero__subheading {% if subheading_disable_on_mobile %}hero__subheading--mobile{% endif %}">
+            {{ subheading }}
+          </div>
+        {% endif %}
+
+        {% if heading_h1 != blank %}
+          <h1 class="hero__title {% if heading_disable_on_mobile %}hero__title--mobile{% endif %}">
+            {{ heading_h1 }}
+          </h1>
+        {% endif %}
+
+        {% if heading != blank %}
+          <h2 class="hero__title {% if heading_disable_on_mobile %}hero__title--mobile{% endif %}">
+            {{ heading | newline_to_br }}
+          </h2>
+        {% endif %}
+
+        {% if text != blank and show_collection_description != false %}
+          <div class="hero__text hero__richtext rte {% if text_disable_on_mobile %}hero__text--mobile{% endif %}">
+            {{ text }}
+          </div>
+        {% endif %}
+        {% if author != blank %}
+          <div class="hero__subheading {% if subheading_disable_on_mobile %}hero__subheading--mobile{% endif %}">
+            {{ author | newline_to_br }}
+          </div>
+        {% endif %}
+        {% if button_label != blank or second_button_label != blank %}
+          <div class="hero__button--gap">
+            {% if button_label != blank %}
+              <a
+                href="{{ button_link }}"
+                {% if button_link_in_new_window %}
+                  target="_blank" rel="noreferrer noopener"
+                {% endif %}
+                tabindex="0"
+                aria-label="{{ button_label }}"
+                class="hero__button {% if button_disable_on_mobile %}hero__button--mobile {% endif %} hero__button--primary {% if button_select != 'primary' %} hero__button--secondary{% endif %}{% if button_select == 'link' %} hero__button--link{% endif %}"
+              >
+                <span>{{ button_label }}</span>
+              </a>
+            {% endif %}
+
+            {% if second_button_label != blank %}
+              <a
+                href="{{ second_button_link }}"
+                {% if button_link_in_new_window %}
+                  target="_blank" rel="noreferrer noopener"
+                {% endif %}
+                tabindex="0"
+                aria-label="{{ second_button_label }}"
+                class="hero__button {% if button_disable_on_mobile_second %}hero__button--mobile {% endif %} hero__button--primary {% if second_button_select != 'primary' %} hero__button--secondary{% endif %}{% if second_button_select == 'link' %} hero__button--link{% endif %}"
+              >
+                <span>{{ second_button_label }}</span>
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </{{ overlay_tag }}>
+</div>

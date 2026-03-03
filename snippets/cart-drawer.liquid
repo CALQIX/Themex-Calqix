@@ -1,0 +1,95 @@
+<script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'cart-drawer-note.js' | asset_url }}" defer="defer"></script>
+
+{% if settings.enable_cross_sells %}
+  <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{% endif %}
+
+<cart-drawer
+  class="wt-cart {% if cart == empty %}wt-cart--empty{% endif %}"
+  data-toggle-tabindex=".wt-cart__drawer__close--button,.button--continue-shopping,.giftnote__drawercart__addnote,.wt-cart__item__remove, .js-counter-button, .js-counter-quantity, .wt-cart__cta, .wt-cart__item__link, .wt-cart__login__text a, .policy-link, .wt-cart__show-cart"
+  data-cart-type="{{ settings.cart_type }}"
+>
+  <div class="page-overlay-cart"></div>
+  <div id="CartDrawer" class="cart-drawer wt-cart__drawer">
+    <div
+      class="wt-cart__drawer__inner drawer__inner"
+      role="dialog"
+      aria-modal="true"
+      aria-label="{{ 'sections.cart.title' | t }}"
+      tabindex="-1"
+    >
+      <header class="wt-cart__drawer__header">
+        <div id="CartDrawer-TotalQty" class="wt-drawer__title__text">
+          {{ 'sections.cart.title' | t }}
+          {% if cart.item_count > 0 %}
+            ({{ cart.item_count }})
+          {% endif %}
+        </div>
+        <a
+          class="wt-cart__drawer__close wt-cart__drawer__close--button"
+          role="button"
+          aria-label="{{ 'accessibility.close' | t }}"
+          tabindex="-1"
+          href="#"
+        >
+          {% render 'icons', id: 'close', icon_class: 'wt-cart__drawer__close' %}
+        </a>
+      </header>
+      <div class="wt-cart__drawer__body">
+        {% if settings.enable_free_shipping_bar and cart != empty %}
+          {% render 'cart-free-shipping-bar' %}
+        {% endif %}
+
+        <cart-drawer-items class="wt-cart__drawer__items">
+          <form
+            action="{{ routes.cart_url }}"
+            id="CartDrawer-Form"
+            class="cart__contents cart-drawer__form wt-cart__drawer__form"
+            method="post"
+          >
+            <div id="CartDrawer-CartItems" class="drawer__contents js-contents wt-cart__drawer__content">
+              {%- if cart != empty -%}
+                <ul class="wt-cart__list">
+                  {%- for item in cart.items -%}
+                    {% render 'cart-item', item: item %}
+                  {%- endfor -%}
+                </ul>
+              {%- else -%}
+                {% render 'cart-empty' %}
+              {%- endif -%}
+
+              <p id="CartDrawer-LiveRegionText" class="visually-hidden" role="status"></p>
+              <p id="CartDrawer-LineItemStatus" class="visually-hidden" aria-hidden="true" role="status">
+                {{ 'accessibility.loading' | t }}
+              </p>
+            </div>
+            <div id="CartDrawer-CartErrors" role="alert"></div>
+          </form>
+        </cart-drawer-items>
+      </div>
+      {% if settings.enable_cross_sells and cart != empty %}
+        {% render 'cart-cross-sell' %}
+      {% endif %}
+
+      {% if cart != empty %}
+        <footer class="wt-cart__drawer__footer">
+          <div class="wt-cart__subtitle">
+            {% if settings.cart_show_additional_service %}
+              {% render 'cart-checkbox' %}
+            {% endif %}
+
+            {% if settings.cart_show_order_note %}
+              {% render 'cart-note' %}
+            {% endif %}
+          </div>
+
+          {% render 'cart-footer' %}
+          <div id="cart-errors"></div>
+        </footer>
+      {% endif %}
+    </div>
+  </div>
+</cart-drawer>

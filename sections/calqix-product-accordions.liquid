@@ -1,0 +1,493 @@
+{% comment %}
+  CALQIX — Product Accordions
+  Bestandsnaam: sections/calqix-product-accordions.liquid
+  
+  Volledig aanpasbaar via Shopify Theme Customizer:
+  - Onbeperkte accordions via blocks (voeg toe / verwijder / herorden via drag & drop)
+  - Elke accordion: titel, content (rich text), standaard open/dicht
+  - Kleuren, typografie, spacing allemaal instelbaar
+  - Eerste accordion standaard open (instelbaar)
+  - Custom CSS + JS per sectie
+{% endcomment %}
+
+{% assign border_col  = section.settings.border_color %}
+{% assign trigger_col = section.settings.trigger_color %}
+{% assign icon_col    = section.settings.icon_color %}
+{% assign content_col = section.settings.content_color %}
+{% assign accent_col  = section.settings.accent_color %}
+{% assign navy_col    = section.settings.navy_color %}
+{% assign pad_v       = section.settings.padding_vertical %}
+{% assign pad_h       = section.settings.padding_horizontal %}
+{% assign trigger_sz  = section.settings.trigger_font_size %}
+{% assign content_sz  = section.settings.content_font_size %}
+
+<style>
+  #calqix-accordions-{{ section.id }} {
+    padding: {{ pad_v }}px {{ pad_h }}px;
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-wrap {
+    border-top: 1px solid {{ border_col }};
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-item {
+    border-bottom: 1px solid {{ border_col }};
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-trigger {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: {{ section.settings.trigger_padding }}px 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: {{ trigger_sz }}px;
+    font-weight: {{ section.settings.trigger_weight }};
+    color: {{ trigger_col }};
+    letter-spacing: 0.02em;
+    text-align: left;
+    transition: color 0.2s;
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-trigger:hover {
+    color: {{ accent_col }};
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-icon {
+    font-size: 22px;
+    color: {{ icon_col }};
+    font-weight: 300;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-left: 16px;
+    transition: transform 0.3s ease;
+    display: inline-block;
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-item.open .cqa-icon {
+    transform: rotate(45deg);
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height {{ section.settings.animation_speed }}ms ease;
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-body.open {
+    max-height: 1200px;
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-content {
+    padding: 0 0 {{ section.settings.trigger_padding }}px;
+    font-size: {{ content_sz }}px;
+    color: {{ content_col }};
+    line-height: calc({{ section.settings.line_height }} / 10);
+    font-weight: 300;
+  }
+
+  /* Rich text resets */
+  #calqix-accordions-{{ section.id }} .cqa-content p {
+    margin-bottom: 12px;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-content p:last-child {
+    margin-bottom: 0;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-content ul,
+  #calqix-accordions-{{ section.id }} .cqa-content ol {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-content li {
+    padding-left: 20px;
+    position: relative;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-content ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: {{ accent_col }};
+    font-weight: 600;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-content ol {
+    counter-reset: cqa-counter;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-content ol li {
+    counter-increment: cqa-counter;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-content ol li::before {
+    content: counter(cqa-counter) '.';
+    position: absolute;
+    left: 0;
+    color: {{ accent_col }};
+    font-weight: 700;
+    font-size: 11px;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-content strong {
+    color: {{ navy_col }};
+    font-weight: 600;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-content a {
+    color: {{ accent_col }};
+    text-decoration: underline;
+  }
+
+  /* Specs grid (optioneel binnen content) */
+  #calqix-accordions-{{ section.id }} .cqa-specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-spec-row {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 16px 10px 0;
+    border-bottom: 1px solid {{ border_col }};
+  }
+  #calqix-accordions-{{ section.id }} .cqa-spec-row:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-spec-key {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9B9B9B;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-spec-val {
+    font-size: {{ content_sz }}px;
+    color: {{ navy_col }};
+    font-weight: 500;
+  }
+
+  {% if section.settings.custom_css != blank %}
+    {{ section.settings.custom_css }}
+  {% endif %}
+</style>
+
+<div id="calqix-accordions-{{ section.id }}" class="calqix-accordions">
+  <div class="cqa-wrap">
+
+    {% for block in section.blocks %}
+      {% assign is_default_open = false %}
+      {% if forloop.first and section.settings.first_open %}
+        {% assign is_default_open = true %}
+      {% endif %}
+      {% if block.settings.force_open %}
+        {% assign is_default_open = true %}
+      {% endif %}
+
+      <div class="cqa-item {% if is_default_open %}open{% endif %}" {{ block.shopify_attributes }}>
+        <button class="cqa-trigger" type="button" aria-expanded="{% if is_default_open %}true{% else %}false{% endif %}">
+          {{ block.settings.title }}
+          <span class="cqa-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="cqa-body {% if is_default_open %}open{% endif %}" role="region">
+          <div class="cqa-content">
+            {{ block.settings.content }}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+    {% if section.blocks.size == 0 %}
+      <div style="padding: 24px 0; color: #9B9B9B; font-size: 13px; text-align: center;">
+        Voeg accordions toe via de Theme Customizer → "Block toevoegen"
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+  (function() {
+    var container = document.getElementById('calqix-accordions-{{ section.id }}');
+    if (!container) return;
+
+    var allowMultiple = {{ section.settings.allow_multiple | json }};
+
+    container.querySelectorAll('.cqa-trigger').forEach(function(trigger) {
+      trigger.addEventListener('click', function() {
+        var item = this.closest('.cqa-item');
+        var body = item.querySelector('.cqa-body');
+        var isOpen = item.classList.contains('open');
+
+        if (!allowMultiple) {
+          // close all
+          container.querySelectorAll('.cqa-item').forEach(function(i) {
+            i.classList.remove('open');
+            i.querySelector('.cqa-body').classList.remove('open');
+            i.querySelector('.cqa-trigger').setAttribute('aria-expanded', 'false');
+          });
+        }
+
+        if (!isOpen) {
+          item.classList.add('open');
+          body.classList.add('open');
+          trigger.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+
+    {% if section.settings.custom_js != blank %}
+    (function() {
+      var section = container;
+      var sectionId = '{{ section.id }}';
+      {{ section.settings.custom_js }}
+    })();
+    {% endif %}
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "CALQIX Accordions",
+  "tag": "section",
+  "class": "calqix-accordions-section",
+  "blocks": [
+    {
+      "type": "accordion",
+      "name": "Accordion item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Titel",
+          "default": "Accordion titel"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Inhoud",
+          "default": "<p>Voeg hier je inhoud toe. Je kunt <strong>vet</strong>, <em>cursief</em>, lijsten en links gebruiken.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "force_open",
+          "label": "Standaard open",
+          "default": false,
+          "info": "Overschrijft de 'Eerste standaard open' instelling voor dit specifieke blok"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Gedrag"
+    },
+    {
+      "type": "checkbox",
+      "id": "first_open",
+      "label": "Eerste accordion standaard open",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "allow_multiple",
+      "label": "Meerdere accordions tegelijk open",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "animation_speed",
+      "label": "Animatiesnelheid (ms)",
+      "min": 100,
+      "max": 800,
+      "step": 50,
+      "default": 350
+    },
+
+    {
+      "type": "header",
+      "content": "Layout & Kleuren"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Scheidingslijn",
+      "default": "#E4E4E0"
+    },
+    {
+      "type": "color",
+      "id": "trigger_color",
+      "label": "Trigger tekstkleur",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon (+) kleur",
+      "default": "#C9A84C"
+    },
+    {
+      "type": "color",
+      "id": "content_color",
+      "label": "Content tekstkleur",
+      "default": "#6B6B6B"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accentkleur (lijststreepjes, links)",
+      "default": "#C9A84C"
+    },
+    {
+      "type": "color",
+      "id": "navy_color",
+      "label": "Kleur voor <strong> tekst",
+      "default": "#1A3B5C"
+    },
+
+    {
+      "type": "header",
+      "content": "Typografie & Spacing"
+    },
+    {
+      "type": "range",
+      "id": "trigger_font_size",
+      "label": "Trigger font grootte (px)",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "trigger_weight",
+      "label": "Trigger font gewicht",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "range",
+      "id": "content_font_size",
+      "label": "Content font grootte (px)",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "line_height",
+      "label": "Regelafstand (x10, bijv. 18 = 1.8)",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "trigger_padding",
+      "label": "Trigger padding (px)",
+      "min": 10,
+      "max": 32,
+      "step": 2,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "label": "Sectie verticale padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Sectie horizontale padding (px)",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max breedte (px)",
+      "min": 400,
+      "max": 1400,
+      "step": 40,
+      "default": 800
+    },
+
+    {
+      "type": "header",
+      "content": "⚙️ Custom Code"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Gebruik #calqix-accordions-{{ section.id }} voor specifiekheid. Wordt na sectie stijlen geladen."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_js",
+      "label": "Custom JavaScript",
+      "info": "'section' = het sectie element, 'sectionId' = uniek ID. Wordt uitgevoerd na accordion initialisatie."
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX Accordions",
+      "blocks": [
+        {
+          "type": "accordion",
+          "settings": {
+            "title": "Description",
+            "force_open": true,
+            "content": "<p><strong>Before your enamel can rebuild, it needs a clean surface.</strong></p><p>Nano-hydroxyapatite works by bonding directly to tooth enamel. But plaque, bacteria, and debris block that contact. The FlowCore removes the barrier — reaching 40% deeper into the spaces between teeth than a toothbrush alone, clearing the path so remineralisation can actually do its job.</p><p>This is Step 1 of the CALQIX clinical routine.</p><ul><li>3 pressure modes — gentle, standard, pulse</li><li>IPX7 waterproof — use it in the shower</li><li>USB-C rechargeable — up to 14 days battery life</li><li>200ml removable water tank</li><li>4 replacement nozzles included</li><li>Reaches up to 6mm below the gumline</li></ul>"
+          }
+        },
+        {
+          "type": "accordion",
+          "settings": {
+            "title": "Specifications",
+            "content": "<p><strong>Pressure Range:</strong> 200 – 900 PSI<br><strong>Modes:</strong> 3 (Gentle / Standard / Pulse)<br><strong>Pulse Frequency:</strong> 1,600 pulses/min<br><strong>Tank Capacity:</strong> 200ml (removable)<br><strong>Battery Life:</strong> Up to 14 days<br><strong>Charge Time:</strong> ~4 hours via USB-C<br><strong>Waterproof Rating:</strong> IPX7<br><strong>Tips Included:</strong> 4 standard nozzles<br><strong>Warranty:</strong> 2 years</p>"
+          }
+        },
+        {
+          "type": "accordion",
+          "settings": {
+            "title": "How to Use",
+            "content": "<ol><li><strong>Fill the tank</strong> with lukewarm water. You can add a small amount of non-alcoholic mouthwash.</li><li><strong>Select mode 1 (Gentle)</strong> for your first week. Work up to Standard after 7–10 days.</li><li><strong>Lean over the sink</strong> and close lips lightly around the nozzle. Aim between teeth and along the gumline.</li><li><strong>Work systematically</strong> — upper inside, upper outside, lower inside, lower outside. 60–90 seconds total.</li><li><strong>Follow immediately with your CALQIX enamel tablet.</strong> This is the sequence that matters.</li></ol>"
+          }
+        },
+        {
+          "type": "accordion",
+          "settings": {
+            "title": "In the Box",
+            "content": "<ul><li>1× FlowCore Cordless Water Flosser</li><li>4× Standard replacement nozzles</li><li>1× USB-C charging cable</li><li>1× Travel pouch</li><li>Quick-start guide (EN / NL)</li></ul>"
+          }
+        },
+        {
+          "type": "accordion",
+          "settings": {
+            "title": "Shipping & Returns",
+            "content": "<ul><li><strong>NL / BE / DE:</strong> 2–4 business days</li><li><strong>Rest of EU:</strong> 4–7 business days</li><li><strong>Free shipping</strong> on all orders over €80</li><li><strong>30-day satisfaction guarantee</strong> — unused items in original packaging</li><li><strong>2-year warranty</strong> against manufacturing defects</li></ul>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

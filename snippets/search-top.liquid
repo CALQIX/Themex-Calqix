@@ -1,0 +1,36 @@
+<div class="search-result-top">
+<div class="search-result-top__title">{{ section.settings.suggestions_title }}</div>
+
+<ul class="search-result-top__list collection-list">
+  {%- for link in section.settings.suggestions_menu.links -%}
+    <li class="search-result-top__item {% if link.links.size > 0 %}search-result-top__item--row {% endif %} collection-list__item">
+      {% if link.links.size > 0 %}
+        <a class="headline__title" href="{{ link.url }}"> {{ link.title }}</a>
+        <div class="search-result-top__item__sublinks">
+          {% for sublink in link.links %}
+            <div class="search-result-top__item__sublink">
+              {% if sublink.type == 'product_link' or sublink.type == 'collection_link' %}
+                {% render 'card',
+                  img: sublink.object.featured_image,
+                  url: sublink.object.url,
+                  title: sublink.object.title,
+                  title_tag: 'div',
+                  product: nil
+                %}
+              {% else %}
+                <a class="card__title" href="{{ sublink.url }}"> {{ sublink.title }}</a>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        {% if link.type == 'product_link' or link.type == 'collection_link' %}
+          {% render 'card', img: link.object.featured_image, url: link.object.url, title: link.object.title, product: nil %}
+        {% else %}
+          <a class="card__title" href="{{ link.url }}"> {{ link.title }}</a>
+        {% endif %}
+      {% endif %}
+    </li>
+  {%- endfor -%}
+</ul>
+</div>

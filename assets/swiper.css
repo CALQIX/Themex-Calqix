@@ -1,0 +1,1404 @@
+/**
+ * Swiper 7.4.1
+ * Most modern mobile touch slider and framework with hardware accelerated transitions
+ * https://swiperjs.com
+ *
+ * Copyright 2014-2022 Vladimir Kharlampidi
+ *
+ * Released under the MIT License
+ *
+ * Released on: January 14, 2022
+ */
+@font-face {
+  font-family: swiper-icons-v7;
+  src: url("data:application/font-woff;charset=utf-8;base64, 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");
+  font-weight: 400;
+  font-style: normal;
+}
+:root {
+  --swiper-theme-color: #007aff;
+}
+:root .wt-slider,
+:root .wt-slider__container {
+  --swiper-navigation-size: 44px;
+}
+
+main .swiper,
+shopify-editor .swiper,
+.wt-cart .swiper {
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  overflow: hidden;
+  list-style: none;
+  padding: 0;
+  z-index: 1;
+}
+main .swiper-vertical > .swiper-wrapper,
+shopify-editor .swiper-vertical > .swiper-wrapper,
+.wt-cart .swiper-vertical > .swiper-wrapper {
+  flex-direction: column;
+}
+main .swiper-wrapper,
+shopify-editor .swiper-wrapper,
+.wt-cart .swiper-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: flex;
+  transition-property: transform;
+  box-sizing: content-box;
+}
+main .swiper-android .swiper-slide,
+main .swiper-wrapper,
+shopify-editor .swiper-android .swiper-slide,
+shopify-editor .swiper-wrapper,
+.wt-cart .swiper-android .swiper-slide,
+.wt-cart .swiper-wrapper {
+  transform: translate3d(0px, 0, 0);
+}
+main .swiper-pointer-events,
+shopify-editor .swiper-pointer-events,
+.wt-cart .swiper-pointer-events {
+  touch-action: pan-y;
+}
+main .swiper-pointer-events.swiper-vertical,
+shopify-editor .swiper-pointer-events.swiper-vertical,
+.wt-cart .swiper-pointer-events.swiper-vertical {
+  touch-action: pan-x;
+}
+main .swiper-slide,
+shopify-editor .swiper-slide,
+.wt-cart .swiper-slide {
+  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition-property: transform;
+}
+main .swiper-slide-invisible-blank,
+shopify-editor .swiper-slide-invisible-blank,
+.wt-cart .swiper-slide-invisible-blank {
+  visibility: hidden;
+}
+main .swiper-autoheight,
+main .swiper-autoheight .swiper-slide,
+shopify-editor .swiper-autoheight,
+shopify-editor .swiper-autoheight .swiper-slide,
+.wt-cart .swiper-autoheight,
+.wt-cart .swiper-autoheight .swiper-slide {
+  height: auto;
+}
+main .swiper-autoheight .swiper-wrapper,
+shopify-editor .swiper-autoheight .swiper-wrapper,
+.wt-cart .swiper-autoheight .swiper-wrapper {
+  align-items: flex-start;
+  transition-property: transform, height;
+}
+main .swiper-3d,
+main .swiper-3d.swiper-css-mode .swiper-wrapper,
+shopify-editor .swiper-3d,
+shopify-editor .swiper-3d.swiper-css-mode .swiper-wrapper,
+.wt-cart .swiper-3d,
+.wt-cart .swiper-3d.swiper-css-mode .swiper-wrapper {
+  perspective: 1200px;
+}
+main .swiper-3d .swiper-cube-shadow,
+main .swiper-3d .swiper-slide,
+main .swiper-3d .swiper-slide-shadow,
+main .swiper-3d .swiper-slide-shadow-bottom,
+main .swiper-3d .swiper-slide-shadow-left,
+main .swiper-3d .swiper-slide-shadow-right,
+main .swiper-3d .swiper-slide-shadow-top,
+main .swiper-3d .swiper-wrapper,
+shopify-editor .swiper-3d .swiper-cube-shadow,
+shopify-editor .swiper-3d .swiper-slide,
+shopify-editor .swiper-3d .swiper-slide-shadow,
+shopify-editor .swiper-3d .swiper-slide-shadow-bottom,
+shopify-editor .swiper-3d .swiper-slide-shadow-left,
+shopify-editor .swiper-3d .swiper-slide-shadow-right,
+shopify-editor .swiper-3d .swiper-slide-shadow-top,
+shopify-editor .swiper-3d .swiper-wrapper,
+.wt-cart .swiper-3d .swiper-cube-shadow,
+.wt-cart .swiper-3d .swiper-slide,
+.wt-cart .swiper-3d .swiper-slide-shadow,
+.wt-cart .swiper-3d .swiper-slide-shadow-bottom,
+.wt-cart .swiper-3d .swiper-slide-shadow-left,
+.wt-cart .swiper-3d .swiper-slide-shadow-right,
+.wt-cart .swiper-3d .swiper-slide-shadow-top,
+.wt-cart .swiper-3d .swiper-wrapper {
+  transform-style: preserve-3d;
+}
+main .swiper-3d .swiper-slide-shadow,
+main .swiper-3d .swiper-slide-shadow-bottom,
+main .swiper-3d .swiper-slide-shadow-left,
+main .swiper-3d .swiper-slide-shadow-right,
+main .swiper-3d .swiper-slide-shadow-top,
+shopify-editor .swiper-3d .swiper-slide-shadow,
+shopify-editor .swiper-3d .swiper-slide-shadow-bottom,
+shopify-editor .swiper-3d .swiper-slide-shadow-left,
+shopify-editor .swiper-3d .swiper-slide-shadow-right,
+shopify-editor .swiper-3d .swiper-slide-shadow-top,
+.wt-cart .swiper-3d .swiper-slide-shadow,
+.wt-cart .swiper-3d .swiper-slide-shadow-bottom,
+.wt-cart .swiper-3d .swiper-slide-shadow-left,
+.wt-cart .swiper-3d .swiper-slide-shadow-right,
+.wt-cart .swiper-3d .swiper-slide-shadow-top {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+main .swiper-3d .swiper-slide-shadow,
+shopify-editor .swiper-3d .swiper-slide-shadow,
+.wt-cart .swiper-3d .swiper-slide-shadow {
+  background: rgba(0, 0, 0, 0.15);
+}
+main .swiper-3d .swiper-slide-shadow-left,
+shopify-editor .swiper-3d .swiper-slide-shadow-left,
+.wt-cart .swiper-3d .swiper-slide-shadow-left {
+  background-image: linear-gradient(to left, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+}
+main .swiper-3d .swiper-slide-shadow-right,
+shopify-editor .swiper-3d .swiper-slide-shadow-right,
+.wt-cart .swiper-3d .swiper-slide-shadow-right {
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+}
+main .swiper-3d .swiper-slide-shadow-top,
+shopify-editor .swiper-3d .swiper-slide-shadow-top,
+.wt-cart .swiper-3d .swiper-slide-shadow-top {
+  background-image: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+}
+main .swiper-3d .swiper-slide-shadow-bottom,
+shopify-editor .swiper-3d .swiper-slide-shadow-bottom,
+.wt-cart .swiper-3d .swiper-slide-shadow-bottom {
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+}
+main .swiper-css-mode > .swiper-wrapper,
+shopify-editor .swiper-css-mode > .swiper-wrapper,
+.wt-cart .swiper-css-mode > .swiper-wrapper {
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+main .swiper-css-mode > .swiper-wrapper::-webkit-scrollbar,
+shopify-editor .swiper-css-mode > .swiper-wrapper::-webkit-scrollbar,
+.wt-cart .swiper-css-mode > .swiper-wrapper::-webkit-scrollbar {
+  display: none;
+}
+main .swiper-css-mode > .swiper-wrapper > .swiper-slide,
+shopify-editor .swiper-css-mode > .swiper-wrapper > .swiper-slide,
+.wt-cart .swiper-css-mode > .swiper-wrapper > .swiper-slide {
+  scroll-snap-align: start start;
+}
+main .swiper-horizontal.swiper-css-mode > .swiper-wrapper,
+shopify-editor .swiper-horizontal.swiper-css-mode > .swiper-wrapper,
+.wt-cart .swiper-horizontal.swiper-css-mode > .swiper-wrapper {
+  scroll-snap-type: x mandatory;
+}
+main .swiper-vertical.swiper-css-mode > .swiper-wrapper,
+shopify-editor .swiper-vertical.swiper-css-mode > .swiper-wrapper,
+.wt-cart .swiper-vertical.swiper-css-mode > .swiper-wrapper {
+  scroll-snap-type: y mandatory;
+}
+main .swiper-centered > .swiper-wrapper::before,
+shopify-editor .swiper-centered > .swiper-wrapper::before,
+.wt-cart .swiper-centered > .swiper-wrapper::before {
+  content: "";
+  flex-shrink: 0;
+  order: 9999;
+}
+main .swiper-centered.swiper-horizontal > .swiper-wrapper > .swiper-slide:first-child,
+shopify-editor .swiper-centered.swiper-horizontal > .swiper-wrapper > .swiper-slide:first-child,
+.wt-cart .swiper-centered.swiper-horizontal > .swiper-wrapper > .swiper-slide:first-child {
+  margin-inline-start: var(--swiper-centered-offset-before);
+}
+main .swiper-centered.swiper-horizontal > .swiper-wrapper::before,
+shopify-editor .swiper-centered.swiper-horizontal > .swiper-wrapper::before,
+.wt-cart .swiper-centered.swiper-horizontal > .swiper-wrapper::before {
+  height: 100%;
+  min-height: 1px;
+  width: var(--swiper-centered-offset-after);
+}
+main .swiper-centered.swiper-vertical > .swiper-wrapper > .swiper-slide:first-child,
+shopify-editor .swiper-centered.swiper-vertical > .swiper-wrapper > .swiper-slide:first-child,
+.wt-cart .swiper-centered.swiper-vertical > .swiper-wrapper > .swiper-slide:first-child {
+  margin-block-start: var(--swiper-centered-offset-before);
+}
+main .swiper-centered.swiper-vertical > .swiper-wrapper::before,
+shopify-editor .swiper-centered.swiper-vertical > .swiper-wrapper::before,
+.wt-cart .swiper-centered.swiper-vertical > .swiper-wrapper::before {
+  width: 100%;
+  min-width: 1px;
+  height: var(--swiper-centered-offset-after);
+}
+main .swiper-centered > .swiper-wrapper > .swiper-slide,
+shopify-editor .swiper-centered > .swiper-wrapper > .swiper-slide,
+.wt-cart .swiper-centered > .swiper-wrapper > .swiper-slide {
+  scroll-snap-align: center center;
+}
+main .swiper-virtual.swiper-css-mode .swiper-wrapper::after,
+shopify-editor .swiper-virtual.swiper-css-mode .swiper-wrapper::after,
+.wt-cart .swiper-virtual.swiper-css-mode .swiper-wrapper::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+main .swiper-virtual.swiper-css-mode.swiper-horizontal .swiper-wrapper::after,
+shopify-editor .swiper-virtual.swiper-css-mode.swiper-horizontal .swiper-wrapper::after,
+.wt-cart .swiper-virtual.swiper-css-mode.swiper-horizontal .swiper-wrapper::after {
+  height: 1px;
+  width: var(--swiper-virtual-size);
+}
+main .swiper-virtual.swiper-css-mode.swiper-vertical .swiper-wrapper::after,
+shopify-editor .swiper-virtual.swiper-css-mode.swiper-vertical .swiper-wrapper::after,
+.wt-cart .swiper-virtual.swiper-css-mode.swiper-vertical .swiper-wrapper::after {
+  width: 1px;
+  height: var(--swiper-virtual-size);
+}
+main .swiper-button-next,
+main .swiper-button-prev,
+shopify-editor .swiper-button-next,
+shopify-editor .swiper-button-prev,
+.wt-cart .swiper-button-next,
+.wt-cart .swiper-button-prev {
+  position: absolute;
+  top: 50%;
+  width: var(--swiper-navigation-size);
+  height: var(--swiper-navigation-size);
+  margin-top: calc(0px - var(--swiper-navigation-size) / 2);
+  z-index: 10;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--swiper-navigation-color, var(--swiper-theme-color));
+}
+main .swiper-button-next.swiper-button-disabled,
+main .swiper-button-prev.swiper-button-disabled,
+shopify-editor .swiper-button-next.swiper-button-disabled,
+shopify-editor .swiper-button-prev.swiper-button-disabled,
+.wt-cart .swiper-button-next.swiper-button-disabled,
+.wt-cart .swiper-button-prev.swiper-button-disabled {
+  opacity: 0.35;
+  cursor: auto;
+  pointer-events: none;
+}
+main .swiper-button-next:after,
+main .swiper-button-prev:after,
+shopify-editor .swiper-button-next:after,
+shopify-editor .swiper-button-prev:after,
+.wt-cart .swiper-button-next:after,
+.wt-cart .swiper-button-prev:after {
+  font-family: swiper-icons-v7;
+  font-size: var(--swiper-navigation-size);
+  text-transform: none !important;
+  letter-spacing: 0;
+  text-transform: none;
+  font-variant: initial;
+  line-height: 1;
+}
+main .swiper-button-prev,
+main .swiper-rtl .swiper-button-next,
+shopify-editor .swiper-button-prev,
+shopify-editor .swiper-rtl .swiper-button-next,
+.wt-cart .swiper-button-prev,
+.wt-cart .swiper-rtl .swiper-button-next {
+  left: 10px;
+  right: auto;
+}
+main .swiper-button-prev:after,
+main .swiper-rtl .swiper-button-next:after,
+shopify-editor .swiper-button-prev:after,
+shopify-editor .swiper-rtl .swiper-button-next:after,
+.wt-cart .swiper-button-prev:after,
+.wt-cart .swiper-rtl .swiper-button-next:after {
+  content: "prev";
+}
+main .swiper-button-next,
+main .swiper-rtl .swiper-button-prev,
+shopify-editor .swiper-button-next,
+shopify-editor .swiper-rtl .swiper-button-prev,
+.wt-cart .swiper-button-next,
+.wt-cart .swiper-rtl .swiper-button-prev {
+  right: 10px;
+  left: auto;
+}
+main .swiper-button-next:after,
+main .swiper-rtl .swiper-button-prev:after,
+shopify-editor .swiper-button-next:after,
+shopify-editor .swiper-rtl .swiper-button-prev:after,
+.wt-cart .swiper-button-next:after,
+.wt-cart .swiper-rtl .swiper-button-prev:after {
+  content: "next";
+}
+main .swiper-button-lock,
+shopify-editor .swiper-button-lock,
+.wt-cart .swiper-button-lock {
+  display: none;
+}
+main .swiper-pagination,
+shopify-editor .swiper-pagination,
+.wt-cart .swiper-pagination {
+  position: absolute;
+  text-align: center;
+  transition: 0.3s opacity;
+  transform: translate3d(0, 0, 0);
+  z-index: 10;
+}
+main .swiper-pagination.swiper-pagination-hidden,
+shopify-editor .swiper-pagination.swiper-pagination-hidden,
+.wt-cart .swiper-pagination.swiper-pagination-hidden {
+  opacity: 0;
+}
+main .swiper-horizontal > .swiper-pagination-bullets,
+main .swiper-pagination-bullets.swiper-pagination-horizontal,
+main .swiper-pagination-custom,
+main .swiper-pagination-fraction,
+shopify-editor .swiper-horizontal > .swiper-pagination-bullets,
+shopify-editor .swiper-pagination-bullets.swiper-pagination-horizontal,
+shopify-editor .swiper-pagination-custom,
+shopify-editor .swiper-pagination-fraction,
+.wt-cart .swiper-horizontal > .swiper-pagination-bullets,
+.wt-cart .swiper-pagination-bullets.swiper-pagination-horizontal,
+.wt-cart .swiper-pagination-custom,
+.wt-cart .swiper-pagination-fraction {
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+}
+main .swiper-pagination-bullets-dynamic,
+shopify-editor .swiper-pagination-bullets-dynamic,
+.wt-cart .swiper-pagination-bullets-dynamic {
+  overflow: hidden;
+  font-size: 0;
+}
+main .swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+shopify-editor .swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+.wt-cart .swiper-pagination-bullets-dynamic .swiper-pagination-bullet {
+  transform: scale(0.33);
+  position: relative;
+}
+main .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active,
+shopify-editor .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active,
+.wt-cart .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active {
+  transform: scale(1);
+}
+main .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-main,
+shopify-editor .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-main,
+.wt-cart .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-main {
+  transform: scale(1);
+}
+main .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-prev,
+shopify-editor .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-prev,
+.wt-cart .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-prev {
+  transform: scale(0.66);
+}
+main .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-prev-prev,
+shopify-editor .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-prev-prev,
+.wt-cart .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-prev-prev {
+  transform: scale(0.33);
+}
+main .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-next,
+shopify-editor .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-next,
+.wt-cart .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-next {
+  transform: scale(0.66);
+}
+main .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-next-next,
+shopify-editor .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-next-next,
+.wt-cart .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-next-next {
+  transform: scale(0.33);
+}
+main .swiper-pagination-bullet,
+shopify-editor .swiper-pagination-bullet,
+.wt-cart .swiper-pagination-bullet {
+  width: var(--swiper-pagination-bullet-width, var(--swiper-pagination-bullet-size, 8px));
+  height: var(--swiper-pagination-bullet-height, var(--swiper-pagination-bullet-size, 8px));
+  display: inline-block;
+  border-radius: 50%;
+  background: var(--swiper-pagination-bullet-inactive-color, #000);
+  opacity: var(--swiper-pagination-bullet-inactive-opacity, 0.2);
+}
+main button.swiper-pagination-bullet,
+shopify-editor button.swiper-pagination-bullet,
+.wt-cart button.swiper-pagination-bullet {
+  border: none;
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+main .swiper-pagination-clickable .swiper-pagination-bullet,
+shopify-editor .swiper-pagination-clickable .swiper-pagination-bullet,
+.wt-cart .swiper-pagination-clickable .swiper-pagination-bullet {
+  cursor: pointer;
+}
+main .swiper-pagination-bullet:only-child,
+shopify-editor .swiper-pagination-bullet:only-child,
+.wt-cart .swiper-pagination-bullet:only-child {
+  display: none !important;
+}
+main .swiper-pagination-bullet-active,
+shopify-editor .swiper-pagination-bullet-active,
+.wt-cart .swiper-pagination-bullet-active {
+  opacity: var(--swiper-pagination-bullet-opacity, 1);
+  background: var(--swiper-pagination-color, var(--swiper-theme-color));
+}
+main .swiper-pagination-vertical.swiper-pagination-bullets,
+main .swiper-vertical > .swiper-pagination-bullets,
+shopify-editor .swiper-pagination-vertical.swiper-pagination-bullets,
+shopify-editor .swiper-vertical > .swiper-pagination-bullets,
+.wt-cart .swiper-pagination-vertical.swiper-pagination-bullets,
+.wt-cart .swiper-vertical > .swiper-pagination-bullets {
+  right: 10px;
+  top: 50%;
+  transform: translate3d(0px, -50%, 0);
+}
+main .swiper-pagination-vertical.swiper-pagination-bullets .swiper-pagination-bullet,
+main .swiper-vertical > .swiper-pagination-bullets .swiper-pagination-bullet,
+shopify-editor .swiper-pagination-vertical.swiper-pagination-bullets .swiper-pagination-bullet,
+shopify-editor .swiper-vertical > .swiper-pagination-bullets .swiper-pagination-bullet,
+.wt-cart .swiper-pagination-vertical.swiper-pagination-bullets .swiper-pagination-bullet,
+.wt-cart .swiper-vertical > .swiper-pagination-bullets .swiper-pagination-bullet {
+  margin: var(--swiper-pagination-bullet-vertical-gap, 6px) 0;
+  display: block;
+}
+main .swiper-pagination-vertical.swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
+main .swiper-vertical > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
+shopify-editor .swiper-pagination-vertical.swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
+shopify-editor .swiper-vertical > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
+.wt-cart .swiper-pagination-vertical.swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
+.wt-cart .swiper-vertical > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+}
+main .swiper-pagination-vertical.swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+main .swiper-vertical > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+shopify-editor .swiper-pagination-vertical.swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+shopify-editor .swiper-vertical > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+.wt-cart .swiper-pagination-vertical.swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+.wt-cart .swiper-vertical > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet {
+  display: inline-block;
+  transition: 0.2s transform, 0.2s top;
+}
+main .swiper-horizontal > .swiper-pagination-bullets .swiper-pagination-bullet,
+main .swiper-pagination-horizontal.swiper-pagination-bullets .swiper-pagination-bullet,
+shopify-editor .swiper-horizontal > .swiper-pagination-bullets .swiper-pagination-bullet,
+shopify-editor .swiper-pagination-horizontal.swiper-pagination-bullets .swiper-pagination-bullet,
+.wt-cart .swiper-horizontal > .swiper-pagination-bullets .swiper-pagination-bullet,
+.wt-cart .swiper-pagination-horizontal.swiper-pagination-bullets .swiper-pagination-bullet {
+  margin: 0 var(--swiper-pagination-bullet-horizontal-gap, 4px);
+}
+main .swiper-horizontal > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
+main .swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
+shopify-editor .swiper-horizontal > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
+shopify-editor .swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
+.wt-cart .swiper-horizontal > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic,
+.wt-cart .swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic {
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+main .swiper-horizontal > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+main .swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+shopify-editor .swiper-horizontal > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+shopify-editor .swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+.wt-cart .swiper-horizontal > .swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+.wt-cart .swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet {
+  transition: 0.2s transform, 0.2s left;
+}
+main .swiper-horizontal.swiper-rtl > .swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+shopify-editor .swiper-horizontal.swiper-rtl > .swiper-pagination-bullets-dynamic .swiper-pagination-bullet,
+.wt-cart .swiper-horizontal.swiper-rtl > .swiper-pagination-bullets-dynamic .swiper-pagination-bullet {
+  transition: 0.2s transform, 0.2s right;
+}
+main .swiper-pagination-progressbar,
+shopify-editor .swiper-pagination-progressbar,
+.wt-cart .swiper-pagination-progressbar {
+  background: rgba(0, 0, 0, 0.25);
+  position: absolute;
+}
+main .swiper-pagination-progressbar .swiper-pagination-progressbar-fill,
+shopify-editor .swiper-pagination-progressbar .swiper-pagination-progressbar-fill,
+.wt-cart .swiper-pagination-progressbar .swiper-pagination-progressbar-fill {
+  background: var(--swiper-pagination-color, var(--swiper-theme-color));
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transform: scale(0);
+  transform-origin: left top;
+}
+main .swiper-rtl .swiper-pagination-progressbar .swiper-pagination-progressbar-fill,
+shopify-editor .swiper-rtl .swiper-pagination-progressbar .swiper-pagination-progressbar-fill,
+.wt-cart .swiper-rtl .swiper-pagination-progressbar .swiper-pagination-progressbar-fill {
+  transform-origin: right top;
+}
+main .swiper-horizontal > .swiper-pagination-progressbar,
+main .swiper-pagination-progressbar.swiper-pagination-horizontal,
+main .swiper-pagination-progressbar.swiper-pagination-vertical.swiper-pagination-progressbar-opposite,
+main .swiper-vertical > .swiper-pagination-progressbar.swiper-pagination-progressbar-opposite,
+shopify-editor .swiper-horizontal > .swiper-pagination-progressbar,
+shopify-editor .swiper-pagination-progressbar.swiper-pagination-horizontal,
+shopify-editor .swiper-pagination-progressbar.swiper-pagination-vertical.swiper-pagination-progressbar-opposite,
+shopify-editor .swiper-vertical > .swiper-pagination-progressbar.swiper-pagination-progressbar-opposite,
+.wt-cart .swiper-horizontal > .swiper-pagination-progressbar,
+.wt-cart .swiper-pagination-progressbar.swiper-pagination-horizontal,
+.wt-cart .swiper-pagination-progressbar.swiper-pagination-vertical.swiper-pagination-progressbar-opposite,
+.wt-cart .swiper-vertical > .swiper-pagination-progressbar.swiper-pagination-progressbar-opposite {
+  width: 100%;
+  height: 4px;
+  left: 0;
+  top: 0;
+}
+main .swiper-horizontal > .swiper-pagination-progressbar.swiper-pagination-progressbar-opposite,
+main .swiper-pagination-progressbar.swiper-pagination-horizontal.swiper-pagination-progressbar-opposite,
+main .swiper-pagination-progressbar.swiper-pagination-vertical,
+main .swiper-vertical > .swiper-pagination-progressbar,
+shopify-editor .swiper-horizontal > .swiper-pagination-progressbar.swiper-pagination-progressbar-opposite,
+shopify-editor .swiper-pagination-progressbar.swiper-pagination-horizontal.swiper-pagination-progressbar-opposite,
+shopify-editor .swiper-pagination-progressbar.swiper-pagination-vertical,
+shopify-editor .swiper-vertical > .swiper-pagination-progressbar,
+.wt-cart .swiper-horizontal > .swiper-pagination-progressbar.swiper-pagination-progressbar-opposite,
+.wt-cart .swiper-pagination-progressbar.swiper-pagination-horizontal.swiper-pagination-progressbar-opposite,
+.wt-cart .swiper-pagination-progressbar.swiper-pagination-vertical,
+.wt-cart .swiper-vertical > .swiper-pagination-progressbar {
+  width: 4px;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+main .swiper-pagination-lock,
+shopify-editor .swiper-pagination-lock,
+.wt-cart .swiper-pagination-lock {
+  display: none;
+}
+main .swiper-scrollbar,
+shopify-editor .swiper-scrollbar,
+.wt-cart .swiper-scrollbar {
+  border-radius: 10px;
+  position: relative;
+  -ms-touch-action: none;
+  background: rgba(0, 0, 0, 0.1);
+}
+main .swiper-horizontal > .swiper-scrollbar,
+shopify-editor .swiper-horizontal > .swiper-scrollbar,
+.wt-cart .swiper-horizontal > .swiper-scrollbar {
+  position: absolute;
+  left: 1%;
+  bottom: 3px;
+  z-index: 50;
+  height: 5px;
+  width: 98%;
+}
+main .swiper-vertical > .swiper-scrollbar,
+shopify-editor .swiper-vertical > .swiper-scrollbar,
+.wt-cart .swiper-vertical > .swiper-scrollbar {
+  position: absolute;
+  right: 3px;
+  top: 1%;
+  z-index: 50;
+  width: 5px;
+  height: 98%;
+}
+main .swiper-scrollbar-drag,
+shopify-editor .swiper-scrollbar-drag,
+.wt-cart .swiper-scrollbar-drag {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  left: 0;
+  top: 0;
+}
+main .swiper-scrollbar-cursor-drag,
+shopify-editor .swiper-scrollbar-cursor-drag,
+.wt-cart .swiper-scrollbar-cursor-drag {
+  cursor: move;
+}
+main .swiper-scrollbar-lock,
+shopify-editor .swiper-scrollbar-lock,
+.wt-cart .swiper-scrollbar-lock {
+  display: none;
+}
+main .swiper-zoom-container,
+shopify-editor .swiper-zoom-container,
+.wt-cart .swiper-zoom-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+main .swiper-zoom-container > canvas,
+main .swiper-zoom-container > img,
+main .swiper-zoom-container > svg,
+shopify-editor .swiper-zoom-container > canvas,
+shopify-editor .swiper-zoom-container > img,
+shopify-editor .swiper-zoom-container > svg,
+.wt-cart .swiper-zoom-container > canvas,
+.wt-cart .swiper-zoom-container > img,
+.wt-cart .swiper-zoom-container > svg {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+main .swiper-slide-zoomed,
+shopify-editor .swiper-slide-zoomed,
+.wt-cart .swiper-slide-zoomed {
+  cursor: move;
+}
+main .swiper-lazy-preloader,
+shopify-editor .swiper-lazy-preloader,
+.wt-cart .swiper-lazy-preloader {
+  width: 42px;
+  height: 42px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -21px;
+  margin-top: -21px;
+  z-index: 10;
+  transform-origin: 50%;
+  animation: swiper-preloader-spin 1s infinite linear;
+  box-sizing: border-box;
+  border: 4px solid var(--swiper-preloader-color, var(--swiper-theme-color));
+  border-radius: 50%;
+  border-top-color: transparent;
+}
+main .swiper-lazy-preloader-white,
+shopify-editor .swiper-lazy-preloader-white,
+.wt-cart .swiper-lazy-preloader-white {
+  --swiper-preloader-color: #fff;
+}
+main .swiper-lazy-preloader-black,
+shopify-editor .swiper-lazy-preloader-black,
+.wt-cart .swiper-lazy-preloader-black {
+  --swiper-preloader-color: #000;
+}
+@keyframes swiper-preloader-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+main .swiper .swiper-notification,
+shopify-editor .swiper .swiper-notification,
+.wt-cart .swiper .swiper-notification {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: -1000;
+}
+main .swiper-free-mode > .swiper-wrapper,
+shopify-editor .swiper-free-mode > .swiper-wrapper,
+.wt-cart .swiper-free-mode > .swiper-wrapper {
+  transition-timing-function: ease-out;
+  margin: 0 auto;
+}
+main .swiper-grid > .swiper-wrapper,
+shopify-editor .swiper-grid > .swiper-wrapper,
+.wt-cart .swiper-grid > .swiper-wrapper {
+  flex-wrap: wrap;
+}
+main .swiper-grid-column > .swiper-wrapper,
+shopify-editor .swiper-grid-column > .swiper-wrapper,
+.wt-cart .swiper-grid-column > .swiper-wrapper {
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+main .swiper-fade.swiper-free-mode .swiper-slide,
+shopify-editor .swiper-fade.swiper-free-mode .swiper-slide,
+.wt-cart .swiper-fade.swiper-free-mode .swiper-slide {
+  transition-timing-function: ease-out;
+}
+main .swiper-fade .swiper-slide,
+shopify-editor .swiper-fade .swiper-slide,
+.wt-cart .swiper-fade .swiper-slide {
+  pointer-events: none;
+  transition-property: opacity;
+}
+main .swiper-fade .swiper-slide .swiper-slide,
+shopify-editor .swiper-fade .swiper-slide .swiper-slide,
+.wt-cart .swiper-fade .swiper-slide .swiper-slide {
+  pointer-events: none;
+}
+main .swiper-fade .swiper-slide-active,
+main .swiper-fade .swiper-slide-active .swiper-slide-active,
+shopify-editor .swiper-fade .swiper-slide-active,
+shopify-editor .swiper-fade .swiper-slide-active .swiper-slide-active,
+.wt-cart .swiper-fade .swiper-slide-active,
+.wt-cart .swiper-fade .swiper-slide-active .swiper-slide-active {
+  pointer-events: auto;
+}
+main .swiper-cube,
+shopify-editor .swiper-cube,
+.wt-cart .swiper-cube {
+  overflow: visible;
+}
+main .swiper-cube .swiper-slide,
+shopify-editor .swiper-cube .swiper-slide,
+.wt-cart .swiper-cube .swiper-slide {
+  pointer-events: none;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  z-index: 1;
+  visibility: hidden;
+  transform-origin: 0 0;
+  width: 100%;
+  height: 100%;
+}
+main .swiper-cube .swiper-slide .swiper-slide,
+shopify-editor .swiper-cube .swiper-slide .swiper-slide,
+.wt-cart .swiper-cube .swiper-slide .swiper-slide {
+  pointer-events: none;
+}
+main .swiper-cube.swiper-rtl .swiper-slide,
+shopify-editor .swiper-cube.swiper-rtl .swiper-slide,
+.wt-cart .swiper-cube.swiper-rtl .swiper-slide {
+  transform-origin: 100% 0;
+}
+main .swiper-cube .swiper-slide-active,
+main .swiper-cube .swiper-slide-active .swiper-slide-active,
+shopify-editor .swiper-cube .swiper-slide-active,
+shopify-editor .swiper-cube .swiper-slide-active .swiper-slide-active,
+.wt-cart .swiper-cube .swiper-slide-active,
+.wt-cart .swiper-cube .swiper-slide-active .swiper-slide-active {
+  pointer-events: auto;
+}
+main .swiper-cube .swiper-slide-active,
+main .swiper-cube .swiper-slide-next,
+main .swiper-cube .swiper-slide-next + .swiper-slide,
+main .swiper-cube .swiper-slide-prev,
+shopify-editor .swiper-cube .swiper-slide-active,
+shopify-editor .swiper-cube .swiper-slide-next,
+shopify-editor .swiper-cube .swiper-slide-next + .swiper-slide,
+shopify-editor .swiper-cube .swiper-slide-prev,
+.wt-cart .swiper-cube .swiper-slide-active,
+.wt-cart .swiper-cube .swiper-slide-next,
+.wt-cart .swiper-cube .swiper-slide-next + .swiper-slide,
+.wt-cart .swiper-cube .swiper-slide-prev {
+  pointer-events: auto;
+  visibility: visible;
+}
+main .swiper-cube .swiper-slide-shadow-bottom,
+main .swiper-cube .swiper-slide-shadow-left,
+main .swiper-cube .swiper-slide-shadow-right,
+main .swiper-cube .swiper-slide-shadow-top,
+shopify-editor .swiper-cube .swiper-slide-shadow-bottom,
+shopify-editor .swiper-cube .swiper-slide-shadow-left,
+shopify-editor .swiper-cube .swiper-slide-shadow-right,
+shopify-editor .swiper-cube .swiper-slide-shadow-top,
+.wt-cart .swiper-cube .swiper-slide-shadow-bottom,
+.wt-cart .swiper-cube .swiper-slide-shadow-left,
+.wt-cart .swiper-cube .swiper-slide-shadow-right,
+.wt-cart .swiper-cube .swiper-slide-shadow-top {
+  z-index: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+main .swiper-cube .swiper-cube-shadow,
+shopify-editor .swiper-cube .swiper-cube-shadow,
+.wt-cart .swiper-cube .swiper-cube-shadow {
+  position: absolute;
+  left: 0;
+  bottom: 0px;
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+  z-index: 0;
+}
+main .swiper-cube .swiper-cube-shadow:before,
+shopify-editor .swiper-cube .swiper-cube-shadow:before,
+.wt-cart .swiper-cube .swiper-cube-shadow:before {
+  content: "";
+  background: #000;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  filter: blur(50px);
+}
+main .swiper-flip,
+shopify-editor .swiper-flip,
+.wt-cart .swiper-flip {
+  overflow: visible;
+}
+main .swiper-flip .swiper-slide,
+shopify-editor .swiper-flip .swiper-slide,
+.wt-cart .swiper-flip .swiper-slide {
+  pointer-events: none;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  z-index: 1;
+}
+main .swiper-flip .swiper-slide .swiper-slide,
+shopify-editor .swiper-flip .swiper-slide .swiper-slide,
+.wt-cart .swiper-flip .swiper-slide .swiper-slide {
+  pointer-events: none;
+}
+main .swiper-flip .swiper-slide-active,
+main .swiper-flip .swiper-slide-active .swiper-slide-active,
+shopify-editor .swiper-flip .swiper-slide-active,
+shopify-editor .swiper-flip .swiper-slide-active .swiper-slide-active,
+.wt-cart .swiper-flip .swiper-slide-active,
+.wt-cart .swiper-flip .swiper-slide-active .swiper-slide-active {
+  pointer-events: auto;
+}
+main .swiper-flip .swiper-slide-shadow-bottom,
+main .swiper-flip .swiper-slide-shadow-left,
+main .swiper-flip .swiper-slide-shadow-right,
+main .swiper-flip .swiper-slide-shadow-top,
+shopify-editor .swiper-flip .swiper-slide-shadow-bottom,
+shopify-editor .swiper-flip .swiper-slide-shadow-left,
+shopify-editor .swiper-flip .swiper-slide-shadow-right,
+shopify-editor .swiper-flip .swiper-slide-shadow-top,
+.wt-cart .swiper-flip .swiper-slide-shadow-bottom,
+.wt-cart .swiper-flip .swiper-slide-shadow-left,
+.wt-cart .swiper-flip .swiper-slide-shadow-right,
+.wt-cart .swiper-flip .swiper-slide-shadow-top {
+  z-index: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+main .swiper-creative .swiper-slide,
+shopify-editor .swiper-creative .swiper-slide,
+.wt-cart .swiper-creative .swiper-slide {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  overflow: hidden;
+  transition-property: transform, opacity, height;
+}
+main .swiper-cards,
+shopify-editor .swiper-cards,
+.wt-cart .swiper-cards {
+  overflow: visible;
+}
+main .swiper-cards .swiper-slide,
+shopify-editor .swiper-cards .swiper-slide,
+.wt-cart .swiper-cards .swiper-slide {
+  transform-origin: center bottom;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+@-webkit-keyframes progress {
+  0% {
+    stroke-dashoffset: 75;
+    opacity: 1;
+  }
+  95% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+@-moz-keyframes progress {
+  0% {
+    stroke-dashoffset: 75;
+    opacity: 1;
+  }
+  95% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+@-o-keyframes progress {
+  0% {
+    stroke-dashoffset: 75;
+    opacity: 1;
+  }
+  95% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes progress {
+  0% {
+    stroke-dashoffset: 75;
+    opacity: 1;
+  }
+  95% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+main .wt-slider,
+shopify-editor .wt-slider,
+.wt-cart .wt-slider {
+  display: block;
+  overflow: hidden;
+}
+@media (max-width: 899px) {
+  main .wt-slider,
+  shopify-editor .wt-slider,
+  .wt-cart .wt-slider {
+    color: inherit;
+  }
+}
+main .wt-slider--wrapper,
+shopify-editor .wt-slider--wrapper,
+.wt-cart .wt-slider--wrapper {
+  background-color: var(--color-background);
+}
+main .wt-slider.wt-slider--full,
+shopify-editor .wt-slider.wt-slider--full,
+.wt-cart .wt-slider.wt-slider--full {
+  padding-inline: calc(var(--gap, 8px) * 2);
+}
+@media (max-width: 1199px) {
+  main .wt-slider.wt-slider--full,
+  shopify-editor .wt-slider.wt-slider--full,
+  .wt-cart .wt-slider.wt-slider--full {
+    overflow: hidden;
+  }
+}
+@media (min-width: 1200px) {
+  main .wt-slider.wt-slider--full,
+  shopify-editor .wt-slider.wt-slider--full,
+  .wt-cart .wt-slider.wt-slider--full {
+    padding-inline: calc(var(--gap, 8px) * 3);
+  }
+}
+main .wt-slider__nav-btn,
+shopify-editor .wt-slider__nav-btn,
+.wt-cart .wt-slider__nav-btn {
+  position: absolute;
+  top: 50%;
+  width: var(--swiper-navigation-size);
+  height: var(--swiper-navigation-size);
+  z-index: 10;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  color: var(--swiper-navigation-color, var(--swiper-theme-color));
+}
+[dir=rtl] main .wt-slider__nav-btn .svg-icon,
+[dir=rtl] shopify-editor .wt-slider__nav-btn .svg-icon,
+[dir=rtl] .wt-cart .wt-slider__nav-btn .svg-icon {
+  transform: rotate(180deg);
+}
+main .wt-slider__nav-btn:hover,
+shopify-editor .wt-slider__nav-btn:hover,
+.wt-cart .wt-slider__nav-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+main .wt-slider__nav-btn, main .wt-slider__nav-btn::before, main .wt-slider__nav-btn::after,
+shopify-editor .wt-slider__nav-btn,
+shopify-editor .wt-slider__nav-btn::before,
+shopify-editor .wt-slider__nav-btn::after,
+.wt-cart .wt-slider__nav-btn,
+.wt-cart .wt-slider__nav-btn::before,
+.wt-cart .wt-slider__nav-btn::after {
+  display: none;
+}
+main .wt-slider__wrapper,
+shopify-editor .wt-slider__wrapper,
+.wt-cart .wt-slider__wrapper {
+  flex-wrap: nowrap;
+  justify-content: initial;
+}
+main .wt-slider__wrapper--stack[data-swiper-container],
+shopify-editor .wt-slider__wrapper--stack[data-swiper-container],
+.wt-cart .wt-slider__wrapper--stack[data-swiper-container] {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-col-mobile, 2), minmax(0, 1fr));
+  place-items: center;
+  align-items: flex-start;
+  gap: 32px var(--grid-gap-mobile, 16px);
+}
+@media (min-width: 900px) {
+  main .wt-slider__wrapper--stack[data-swiper-container],
+  shopify-editor .wt-slider__wrapper--stack[data-swiper-container],
+  .wt-cart .wt-slider__wrapper--stack[data-swiper-container] {
+    grid-template-columns: repeat(var(--grid-col, 4), minmax(0, 1fr));
+    gap: calc(var(--grid-gap, 16px) + 12px) var(--grid-gap, 16px);
+  }
+}
+main .wt-slider__wrapper--stack[data-swiper-container] .card__img--empty,
+shopify-editor .wt-slider__wrapper--stack[data-swiper-container] .card__img--empty,
+.wt-cart .wt-slider__wrapper--stack[data-swiper-container] .card__img--empty {
+  min-height: 0;
+}
+main .wt-slider__wrapper--stack[data-swiper-container] .wt-slider__slide,
+shopify-editor .wt-slider__wrapper--stack[data-swiper-container] .wt-slider__slide,
+.wt-cart .wt-slider__wrapper--stack[data-swiper-container] .wt-slider__slide {
+  max-width: 620px;
+  width: 100%;
+  height: 100%;
+}
+main .wt-slider__wrapper--stack-2-col[data-swiper-container] .wt-slider__slide:nth-of-type(even),
+shopify-editor .wt-slider__wrapper--stack-2-col[data-swiper-container] .wt-slider__slide:nth-of-type(even),
+.wt-cart .wt-slider__wrapper--stack-2-col[data-swiper-container] .wt-slider__slide:nth-of-type(even) {
+  justify-self: self-start;
+}
+main .wt-slider__wrapper--stack-2-col[data-swiper-container] .wt-slider__slide:nth-of-type(odd),
+shopify-editor .wt-slider__wrapper--stack-2-col[data-swiper-container] .wt-slider__slide:nth-of-type(odd),
+.wt-cart .wt-slider__wrapper--stack-2-col[data-swiper-container] .wt-slider__slide:nth-of-type(odd) {
+  justify-self: self-end;
+}
+main .wt-slider__container,
+shopify-editor .wt-slider__container,
+.wt-cart .wt-slider__container {
+  box-sizing: border-box;
+  padding-bottom: calc(var(--gap, 8px) * 5);
+}
+@media (hover: hover) {
+  main .wt-slider__container:hover .wt-slider__scrollbar,
+  shopify-editor .wt-slider__container:hover .wt-slider__scrollbar,
+  .wt-cart .wt-slider__container:hover .wt-slider__scrollbar {
+    height: 4px;
+  }
+  main .wt-slider__container:hover .wt-slider__nav-btn,
+  shopify-editor .wt-slider__container:hover .wt-slider__nav-btn,
+  .wt-cart .wt-slider__container:hover .wt-slider__nav-btn {
+    display: flex;
+  }
+  main .wt-slider__container:hover .wt-slider__nav-btn.swiper-button-disabled,
+  shopify-editor .wt-slider__container:hover .wt-slider__nav-btn.swiper-button-disabled,
+  .wt-cart .wt-slider__container:hover .wt-slider__nav-btn.swiper-button-disabled {
+    display: none;
+  }
+  main .wt-slider__container:hover .swiper-button-next,
+  shopify-editor .wt-slider__container:hover .swiper-button-next,
+  .wt-cart .wt-slider__container:hover .swiper-button-next {
+    margin-right: calc(var(--gap, 8px) * 3);
+  }
+  main .wt-slider__container:hover .swiper-button-prev,
+  shopify-editor .wt-slider__container:hover .swiper-button-prev,
+  .wt-cart .wt-slider__container:hover .swiper-button-prev {
+    margin-left: calc(var(--gap, 8px) * 3);
+  }
+  main .wt-slider__container:hover .swiper-pagination-bullet-active .svg__circle,
+  shopify-editor .wt-slider__container:hover .swiper-pagination-bullet-active .svg__circle,
+  .wt-cart .wt-slider__container:hover .swiper-pagination-bullet-active .svg__circle {
+    display: none;
+    animation: step-end;
+    animation-play-state: paused;
+  }
+}
+main .wt-slider__container--hero,
+shopify-editor .wt-slider__container--hero,
+.wt-cart .wt-slider__container--hero {
+  --slideshow-height: var(--section-height);
+  --slide-ratio: var(--first-slide-ratio, 1);
+}
+@media (min-width: 900px) {
+  main .wt-slider__container--hero,
+  shopify-editor .wt-slider__container--hero,
+  .wt-cart .wt-slider__container--hero {
+    --slideshow-height: var(--section-height-desk);
+    --slide-ratio: var(--first-slide-ratio-desk, 1);
+  }
+}
+main .wt-slider__container--hero .hero,
+shopify-editor .wt-slider__container--hero .hero,
+.wt-cart .wt-slider__container--hero .hero {
+  margin: 0;
+  padding-left: 0;
+  padding-right: 0;
+  max-width: initial;
+}
+main .wt-slider__container--hero .hero__img,
+shopify-editor .wt-slider__container--hero .hero__img,
+.wt-cart .wt-slider__container--hero .hero__img {
+  height: var(--slideshow-height, auto);
+  aspect-ratio: var(--slide-ratio);
+}
+main .wt-slider__container--hero .hero__overlay,
+shopify-editor .wt-slider__container--hero .hero__overlay,
+.wt-cart .wt-slider__container--hero .hero__overlay {
+  left: 0;
+  right: 0;
+}
+@media (min-width: 1200px) {
+  main .wt-slider__container--hero .hero__overlay__content--left,
+  shopify-editor .wt-slider__container--hero .hero__overlay__content--left,
+  .wt-cart .wt-slider__container--hero .hero__overlay__content--left {
+    margin-inline: calc(var(--gap, 8px) * 10);
+  }
+  main .wt-slider__container--hero .hero__overlay__content--right,
+  shopify-editor .wt-slider__container--hero .hero__overlay__content--right,
+  .wt-cart .wt-slider__container--hero .hero__overlay__content--right {
+    margin-inline: calc(var(--gap, 8px) * 10);
+  }
+}
+main .wt-slider__container--featured, main .wt-slider__container--collection-list,
+shopify-editor .wt-slider__container--featured,
+shopify-editor .wt-slider__container--collection-list,
+.wt-cart .wt-slider__container--featured,
+.wt-cart .wt-slider__container--collection-list {
+  padding-bottom: calc(var(--gap, 8px) * 4);
+  max-width: var(--site-max-width);
+  padding-left: calc(var(--gap, 8px) * 2);
+  padding-right: calc(var(--gap, 8px) * 2);
+  margin-left: auto;
+  margin-right: auto;
+  overflow: visible;
+}
+@media (min-width: 1200px) {
+  main .wt-slider__container--featured, main .wt-slider__container--collection-list,
+  shopify-editor .wt-slider__container--featured,
+  shopify-editor .wt-slider__container--collection-list,
+  .wt-cart .wt-slider__container--featured,
+  .wt-cart .wt-slider__container--collection-list {
+    padding-left: calc(calc(var(--gap, 8px) * 2) + calc(var(--gap, 8px) * 2));
+    padding-right: calc(calc(var(--gap, 8px) * 2) + calc(var(--gap, 8px) * 2));
+  }
+}
+@media (min-width: 1800px) {
+  main .wt-slider__container--featured, main .wt-slider__container--collection-list,
+  shopify-editor .wt-slider__container--featured,
+  shopify-editor .wt-slider__container--collection-list,
+  .wt-cart .wt-slider__container--featured,
+  .wt-cart .wt-slider__container--collection-list {
+    max-width: var(--site-max-width-big);
+  }
+}
+main .wt-slider__container--featured,
+shopify-editor .wt-slider__container--featured,
+.wt-cart .wt-slider__container--featured {
+  padding-top: calc(var(--gap, 8px) * 0.75);
+}
+main .wt-slider__container--featured .swiper-slide,
+shopify-editor .wt-slider__container--featured .swiper-slide,
+.wt-cart .wt-slider__container--featured .swiper-slide {
+  height: auto;
+}
+main .wt-slider__container--featured .scroll-trigger,
+shopify-editor .wt-slider__container--featured .scroll-trigger,
+.wt-cart .wt-slider__container--featured .scroll-trigger {
+  height: 100%;
+}
+main .wt-slider__container--featured.wt-slider__container--full,
+shopify-editor .wt-slider__container--featured.wt-slider__container--full,
+.wt-cart .wt-slider__container--featured.wt-slider__container--full {
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: calc(var(--gap, 8px) * 0.75);
+}
+@media (max-width: 599px) {
+  main .wt-slider__container--featured .wt-slider__slide,
+  shopify-editor .wt-slider__container--featured .wt-slider__slide,
+  .wt-cart .wt-slider__container--featured .wt-slider__slide {
+    width: 70vw;
+  }
+}
+main .wt-slider__container--full,
+shopify-editor .wt-slider__container--full,
+.wt-cart .wt-slider__container--full {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: var(--hero-max-width);
+}
+@media (max-width: 599px) {
+  main .wt-slider__container--featured-2 .wt-slider__slide,
+  shopify-editor .wt-slider__container--featured-2 .wt-slider__slide,
+  .wt-cart .wt-slider__container--featured-2 .wt-slider__slide {
+    width: 40vw;
+  }
+}
+main .wt-slider__pagination,
+shopify-editor .wt-slider__pagination,
+.wt-cart .wt-slider__pagination {
+  bottom: 0;
+}
+html[lang] > body main .wt-slider__scrollbar,
+html[lang] > body shopify-editor .wt-slider__scrollbar,
+html[lang] > body .wt-cart .wt-slider__scrollbar {
+  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 3px;
+  bottom: 0px;
+}
+main .wt-slider__scrollbar .swiper-scrollbar-drag,
+shopify-editor .wt-slider__scrollbar .swiper-scrollbar-drag,
+.wt-cart .wt-slider__scrollbar .swiper-scrollbar-drag {
+  border-radius: 0px;
+  background-color: var(--swiper-theme-color);
+}
+main .wt-slider__slide,
+shopify-editor .wt-slider__slide,
+.wt-cart .wt-slider__slide {
+  width: 40vw;
+  flex-basis: initial;
+}
+@media (max-width: 399px) {
+  main .wt-slider__slide,
+  shopify-editor .wt-slider__slide,
+  .wt-cart .wt-slider__slide {
+    width: 70vw;
+  }
+}
+main .wt-slider__slide__content,
+shopify-editor .wt-slider__slide__content,
+.wt-cart .wt-slider__slide__content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0 white;
+  color: #ccc;
+  margin-bottom: calc(var(--gap, 8px) * 3);
+}
+main .wt-slider__slide__content img,
+shopify-editor .wt-slider__slide__content img,
+.wt-cart .wt-slider__slide__content img {
+  width: 100%;
+  height: auto;
+}
+main .wt-slider__slide .card__picture,
+shopify-editor .wt-slider__slide .card__picture,
+.wt-cart .wt-slider__slide .card__picture {
+  display: block;
+}
+main .wt-slider__card-wrapper,
+shopify-editor .wt-slider__card-wrapper,
+.wt-cart .wt-slider__card-wrapper {
+  height: 100%;
+}
+main .wt-slider--cross-sell.wt-slider,
+shopify-editor .wt-slider--cross-sell.wt-slider,
+.wt-cart .wt-slider--cross-sell.wt-slider {
+  background-color: initial;
+}
+main .wt-slider--cross-sell.wt-slider .wt-slider__slide,
+shopify-editor .wt-slider--cross-sell.wt-slider .wt-slider__slide,
+.wt-cart .wt-slider--cross-sell.wt-slider .wt-slider__slide {
+  width: auto;
+}
+main .wt-slider--cross-sell.wt-slider .wt-slider__container,
+shopify-editor .wt-slider--cross-sell.wt-slider .wt-slider__container,
+.wt-cart .wt-slider--cross-sell.wt-slider .wt-slider__container {
+  padding-bottom: 0;
+}
+@media (min-width: 900px) {
+  main .wt-slider--cross-sell.wt-slider .wt-slider__nav-btn,
+  shopify-editor .wt-slider--cross-sell.wt-slider .wt-slider__nav-btn,
+  .wt-cart .wt-slider--cross-sell.wt-slider .wt-slider__nav-btn {
+    --swiper-navigation-size: 30px;
+    --size-icon-desk: 22px;
+    transform: translateY(-50%);
+    margin-top: 0;
+  }
+}
+@media (max-width: 899px) {
+  main .wt-slider .hero__title,
+  shopify-editor .wt-slider .hero__title,
+  .wt-cart .wt-slider .hero__title {
+    color: inherit;
+  }
+}
+@media (max-width: 899px) {
+  main .wt-slider .hero__text,
+  shopify-editor .wt-slider .hero__text,
+  .wt-cart .wt-slider .hero__text {
+    color: inherit;
+  }
+}
+main .wt-slider .hero__img,
+shopify-editor .wt-slider .hero__img,
+.wt-cart .wt-slider .hero__img {
+  object-position: var(--image-object-position);
+}
+@media (min-width: 900px) {
+  main .wt-slider .hero__img,
+  shopify-editor .wt-slider .hero__img,
+  .wt-cart .wt-slider .hero__img {
+    object-position: var(--image-object-position-desktop);
+  }
+}
+
+main .swiper-horizontal > .swiper-pagination-bullets {
+  bottom: 0;
+}
+
+.swiper-pagination .swiper-pagination-bullet {
+  background-color: transparent;
+}
+.swiper-pagination .swiper-pagination-bullet--svg-animation {
+  width: 26px;
+  height: 26px;
+  margin: 0 0 !important;
+  display: inline-block;
+}
+.swiper-pagination .swiper-pagination-bullet--svg-animation svg {
+  -webkit-transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg);
+  -ms-transform: rotate(-90deg);
+  -o-transform: rotate(-90deg);
+  transform: rotate(-90deg);
+}
+.swiper-pagination .swiper-pagination-bullet--svg-animation .svg__circle-inner {
+  stroke: var(--swiper-navigation-color, var(--swiper-theme-color));
+  opacity: 0.7;
+  fill: var(--swiper-navigation-color, var(--swiper-theme-color));
+  -webkit-transition: all 0.7s ease;
+  -moz-transition: all 0.7s ease;
+  -ms-transition: all 0.7s ease;
+  -o-transition: all 0.7s ease;
+  transition: all 0.7s ease;
+}
+.swiper-pagination .swiper-pagination-bullet-active .svg__circle-inner {
+  fill: var(--swiper-navigation-color, var(--swiper-theme-color));
+  opacity: 1;
+}
+@media (min-width: 900px) {
+  .swiper-pagination--autoplay .swiper-pagination-bullet-active .svg__circle {
+    stroke: var(--swiper-navigation-color, var(--swiper-theme-color));
+    stroke-dasharray: 75;
+    stroke-dashoffset: 0;
+    -webkit-animation: progress 5s ease-in-out 1 forwards;
+    -moz-animation: progress 5s ease-in-out 1 forwards;
+    -ms-animation: progress 5s ease-in-out 1 forwards;
+    animation: progress 5s ease-in-out 1 forwards;
+  }
+}
+
+[data-swiper-container].loading {
+  display: flex;
+  width: 100%;
+}
+[data-swiper-container].loading [data-swiper-slide]:first-of-type {
+  width: 100%;
+}
+[data-swiper-container].loading [data-swiper-slide]:not(:first-of-type) {
+  opacity: 0;
+  width: 0;
+}
+/*# sourceMappingURL=swiper.css.map */

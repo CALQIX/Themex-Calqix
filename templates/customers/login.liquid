@@ -1,0 +1,144 @@
+{{ 'customers.css' | asset_url | stylesheet_tag }}
+
+<div class="wt-customer">
+  <div class="wt-customer__form--container">
+    <h2 id="recover" class="wt-customer__recover hero__title" tabindex="-1">
+      {{ 'customer.recover_password.title' | t }}
+    </h2>
+    <div>
+      <p class="wt-customer__text">
+        {{ 'customer.recover_password.subtext' | t }}
+      </p>
+
+      {%- form 'recover_customer_password' -%}
+        {% assign recover_success = form.posted_successfully? %}
+        {%- if form.errors -%}
+          <div class="form__error-field">
+            {{ form.errors.messages.form }}
+          </div>
+        {%- endif -%}
+        <label class="form__field form__field--email wt-customer__form--input-first" for="RecoverEmail">
+          <input
+            type="email"
+            value=""
+            name="email"
+            id="RecoverEmail"
+            class="form__field__input"
+            autocorrect="off"
+            autocapitalize="off"
+            autocomplete="email"
+            {% if form.errors %}
+              aria-invalid="true"
+              aria-describedby="RecoverEmail-email-error"
+              autofocus
+            {% endif %}
+            placeholder=" "
+          >
+          <span class="form__field__label"> Email </span>
+        </label>
+
+        <button
+          aria-label="{{ 'customer.login_page.submit' | t }}"
+          class="form__send__button wt-customer__submit"
+        >
+          {{ 'customer.login_page.submit' | t }}
+        </button>
+
+        <div class="wt-customer__cancel">
+          <a href="#login">
+            {{ 'customer.login_page.cancel' | t }}
+          </a>
+        </div>
+      {%- endform -%}
+    </div>
+
+    <h2 id="login" tabindex="-1" class="hero__title">
+      {{ 'customer.login_page.title' | t }}
+    </h2>
+    <div>
+      {%- if recover_success == true -%}
+        <div class="form__success-field">
+          {{ 'customer.recover_password.success' | t }}
+        </div>
+      {%- endif -%}
+
+      {%- form 'customer_login', novalidate: 'novalidate' -%}
+        <span class="visually-hidden">{{ 'accessibility.error' | t }} </span>
+        {% if form.errors %}
+          <div class="form__error-field">
+            {{ form.errors | default_errors }}
+          </div>
+        {% endif %}
+
+        <label class="form__field form__field--email wt-customer__form--input-first" for="CustomerEmail">
+          <input
+            type="email"
+            name="customer[email]"
+            id="CustomerEmail"
+            class="form__field__input"
+            autocomplete="email"
+            autocorrect="off"
+            autocapitalize="off"
+            {% if form.errors contains 'form' %}
+              aria-invalid="true"
+            {% endif %}
+            placeholder=" "
+          >
+          <span class="form__field__label"> Email </span>
+        </label>
+
+        {%- if form.password_needed -%}
+          <label class="form__field form__field--email" for="CustomerPassword">
+            <input
+              type="password"
+              value=""
+              name="customer[password]"
+              id="CustomerPassword"
+              class="form__field__input"
+              autocomplete="current-password"
+              {% if form.errors contains 'form' %}
+                aria-invalid="true"
+              {% endif %}
+              placeholder=" "
+            >
+            <span class="form__field__label"> Password </span>
+          </label>
+
+          <div class="wt-customer__forgot-pass">
+            <a href="#recover">
+              {{ 'customer.login_page.forgot_password' | t }}
+            </a>
+          </div>
+        {%- endif -%}
+
+        <button
+          aria-label="{{ 'customer.login_page.sign_in' | t }}"
+          class="form__send__button hero__button--primary "
+        >
+          {{ 'customer.login_page.sign_in' | t }}
+        </button>
+
+        <div class="wt-customer__create-account">
+          <a href="{{ routes.account_register_url }}">
+            {{ 'customer.login_page.create_account' | t }}
+          </a>
+        </div>
+      {%- endform -%}
+    </div>
+
+    {%- if shop.checkout.guest_login -%}
+      <div>
+        <hr>
+        <h2>{{ 'customer.login_page.guest_title' | t }}</h2>
+
+        {%- form 'guest_login' -%}
+          <button
+            aria-label="{{ 'customer.login_page.guest_continue' | t }}"
+          >
+            {{ 'customer.login_page.guest_continue' | t }}
+          </button>
+        {%- endform -%}
+      </div>
+    {%- endif -%}
+  </div>
+</div>

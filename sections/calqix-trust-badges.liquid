@@ -1,0 +1,494 @@
+{% comment %}
+  CALQIX — Trust Badges (App Block)
+  Bestandsnaam: blocks/calqix-trust-badges.liquid
+
+  Dit is een App Block — het plaatst zichzelf als block binnen
+  de ROOT 'Product Information' sectie via de front-end editor.
+
+  Toevoegen: Product Information → Add block → Apps → CALQIX Trust Badges
+
+  Ondersteunt tot 5 badges configureerbaar als vaste slots,
+  plus een optionele shipping balk eronder.
+{% endcomment %}
+
+{% assign b = block.settings %}
+
+<style>
+  #ctb-block-{{ block.id }} {
+    background: {{ b.background_color }};
+    padding: {{ b.padding_vertical }}px 0;
+    {% if b.show_border_top %}border-top: 1px solid {{ b.border_color }};{% endif %}
+    {% if b.show_border_bottom %}border-bottom: 1px solid {{ b.border_color }};{% endif %}
+    margin: {{ b.margin_vertical }}px 0;
+  }
+
+  #ctb-block-{{ block.id }} .ctb-grid {
+    display: grid;
+    grid-template-columns: repeat({{ b.columns }}, 1fr);
+    gap: 0;
+  }
+
+  #ctb-block-{{ block.id }} .ctb-badge {
+    display: flex;
+    flex-direction: {{ b.badge_direction }};
+    align-items: center;
+    gap: {{ b.badge_gap }}px;
+    text-align: center;
+    padding: {{ b.badge_padding }}px;
+    {% if b.badge_dividers %}border-right: 1px solid {{ b.border_color }};{% endif %}
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  #ctb-block-{{ block.id }} .ctb-badge:last-child {
+    {% if b.badge_dividers %}border-right: none;{% endif %}
+  }
+
+  #ctb-block-{{ block.id }} .ctb-badge:hover {
+    opacity: {% if b.badge_hover %}0.7{% else %}1{% endif %};
+  }
+
+  #ctb-block-{{ block.id }} .ctb-icon {
+    font-size: {{ b.icon_size }}px;
+    line-height: 1;
+  }
+
+  #ctb-block-{{ block.id }} .ctb-text {
+    font-size: {{ b.text_size }}px;
+    font-weight: {{ b.text_weight }};
+    color: {{ b.text_color }};
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.3;
+  }
+
+  #ctb-block-{{ block.id }} .ctb-shipping {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: {{ b.shipping_padding }}px 14px;
+    background: {{ b.shipping_background }};
+    margin-top: 8px;
+    font-size: {{ b.shipping_size }}px;
+    color: {{ b.shipping_text_color }};
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  #ctb-block-{{ block.id }} .ctb-shipping-icon {
+    font-size: {{ b.shipping_icon_size }}px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 600px) {
+    #ctb-block-{{ block.id }} .ctb-grid {
+      grid-template-columns: repeat({% if b.columns > 2 %}2{% else %}{{ b.columns }}{% endif %}, 1fr);
+    }
+  }
+
+  {% if b.custom_css != blank %}{{ b.custom_css }}{% endif %}
+</style>
+
+{%- comment -%} Count visible badges {%- endcomment -%}
+{% assign badge_count = 0 %}
+{% for i in (1..5) %}
+  {% assign text_key = 'badge_' | append: i | append: '_text' %}
+  {% if b[text_key] != blank %}{% assign badge_count = badge_count | plus: 1 %}{% endif %}
+{% endfor %}
+
+<div id="ctb-block-{{ block.id }}" class="calqix-trust-badges-block" {{ block.shopify_attributes }}>
+
+  {% if badge_count > 0 %}
+    <div class="ctb-grid">
+      {% for i in (1..5) %}
+        {% assign text_key = 'badge_' | append: i | append: '_text' %}
+        {% assign icon_key = 'badge_' | append: i | append: '_icon' %}
+        {% assign url_key  = 'badge_' | append: i | append: '_url' %}
+
+        {% assign badge_text = b[text_key] %}
+        {% assign badge_icon = b[icon_key] %}
+        {% assign badge_url  = b[url_key] %}
+
+        {% if badge_text != blank %}
+          {% if badge_url != blank %}
+            <a href="{{ badge_url }}" class="ctb-badge">
+          {% else %}
+            <div class="ctb-badge">
+          {% endif %}
+
+            {% if badge_icon != blank %}
+              <div class="ctb-icon">{{ badge_icon }}</div>
+            {% endif %}
+            <div class="ctb-text">{{ badge_text }}</div>
+
+          {% if badge_url != blank %}
+            </a>
+          {% else %}
+            </div>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if b.show_shipping %}
+    <div class="ctb-shipping">
+      {% if b.shipping_icon != blank %}
+        <span class="ctb-shipping-icon">{{ b.shipping_icon }}</span>
+      {% endif %}
+      <span>{{ b.shipping_text }}</span>
+    </div>
+  {% endif %}
+
+</div>
+
+{% if b.custom_js != blank %}
+  <script>
+    (function() {
+      var blockId = '{{ block.id }}';
+      var section = document.getElementById('ctb-block-' + blockId);
+      {{ b.custom_js }}
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "CALQIX Trust Badges",
+  "settings": [
+    {
+      "type": "header",
+      "content": "─── Badge 1"
+    },
+    {
+      "type": "text",
+      "id": "badge_1_icon",
+      "label": "Icon (emoji)",
+      "default": "🔬"
+    },
+    {
+      "type": "text",
+      "id": "badge_1_text",
+      "label": "Tekst",
+      "default": "Clinically Tested"
+    },
+    {
+      "type": "url",
+      "id": "badge_1_url",
+      "label": "Link (optioneel)"
+    },
+
+    {
+      "type": "header",
+      "content": "─── Badge 2"
+    },
+    {
+      "type": "text",
+      "id": "badge_2_icon",
+      "label": "Icon (emoji)",
+      "default": "🔒"
+    },
+    {
+      "type": "text",
+      "id": "badge_2_text",
+      "label": "Tekst",
+      "default": "Secure Checkout"
+    },
+    {
+      "type": "url",
+      "id": "badge_2_url",
+      "label": "Link (optioneel)"
+    },
+
+    {
+      "type": "header",
+      "content": "─── Badge 3"
+    },
+    {
+      "type": "text",
+      "id": "badge_3_icon",
+      "label": "Icon (emoji)",
+      "default": "↩️"
+    },
+    {
+      "type": "text",
+      "id": "badge_3_text",
+      "label": "Tekst",
+      "default": "30-Day Returns"
+    },
+    {
+      "type": "url",
+      "id": "badge_3_url",
+      "label": "Link (optioneel)"
+    },
+
+    {
+      "type": "header",
+      "content": "─── Badge 4"
+    },
+    {
+      "type": "text",
+      "id": "badge_4_icon",
+      "label": "Icon (emoji)",
+      "default": "🚚"
+    },
+    {
+      "type": "text",
+      "id": "badge_4_text",
+      "label": "Tekst",
+      "info": "Leeg laten om badge te verbergen"
+    },
+    {
+      "type": "url",
+      "id": "badge_4_url",
+      "label": "Link (optioneel)"
+    },
+
+    {
+      "type": "header",
+      "content": "─── Badge 5"
+    },
+    {
+      "type": "text",
+      "id": "badge_5_icon",
+      "label": "Icon (emoji)",
+      "default": "⭐"
+    },
+    {
+      "type": "text",
+      "id": "badge_5_text",
+      "label": "Tekst",
+      "info": "Leeg laten om badge te verbergen"
+    },
+    {
+      "type": "url",
+      "id": "badge_5_url",
+      "label": "Link (optioneel)"
+    },
+
+    {
+      "type": "header",
+      "content": "Grid layout"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Kolommen",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "badge_direction",
+      "label": "Badge lay-out",
+      "options": [
+        { "value": "column", "label": "Icon boven tekst" },
+        { "value": "row", "label": "Icon naast tekst" }
+      ],
+      "default": "column"
+    },
+    {
+      "type": "range",
+      "id": "badge_gap",
+      "label": "Ruimte icon-tekst (px)",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "badge_padding",
+      "label": "Badge binnenruimte (px)",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "checkbox",
+      "id": "badge_dividers",
+      "label": "Scheidingslijnen tussen badges",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "badge_hover",
+      "label": "Hover effect (dimmen)",
+      "default": false
+    },
+
+    {
+      "type": "header",
+      "content": "Kleuren"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Achtergrond",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Lijnkleur",
+      "default": "#E4E4E0"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Tekst kleur",
+      "default": "#1A3B5C"
+    },
+
+    {
+      "type": "header",
+      "content": "Typografie"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon grootte (px)",
+      "min": 14,
+      "max": 40,
+      "step": 2,
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Tekst grootte (px)",
+      "min": 9,
+      "max": 14,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "select",
+      "id": "text_weight",
+      "label": "Tekst gewicht",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "600", "label": "Semi-bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "700"
+    },
+
+    {
+      "type": "header",
+      "content": "Borders & Spacing"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_border_top",
+      "label": "Lijn boven tonen",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_border_bottom",
+      "label": "Lijn onder tonen",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "label": "Verticale padding (px)",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "margin_vertical",
+      "label": "Verticale marge (px)",
+      "min": 0,
+      "max": 32,
+      "step": 4,
+      "default": 0
+    },
+
+    {
+      "type": "header",
+      "content": "Shipping balk"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shipping",
+      "label": "Shipping balk tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "shipping_icon",
+      "label": "Shipping icon (emoji)",
+      "default": "📦"
+    },
+    {
+      "type": "text",
+      "id": "shipping_text",
+      "label": "Shipping tekst",
+      "default": "Free shipping on orders over €80 — ships within 2 business days."
+    },
+    {
+      "type": "color",
+      "id": "shipping_background",
+      "label": "Balk achtergrond",
+      "default": "#F7F5F2"
+    },
+    {
+      "type": "color",
+      "id": "shipping_text_color",
+      "label": "Balk tekst kleur",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "range",
+      "id": "shipping_size",
+      "label": "Shipping tekst grootte (px)",
+      "min": 11,
+      "max": 16,
+      "step": 1,
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "shipping_icon_size",
+      "label": "Shipping icon grootte (px)",
+      "min": 12,
+      "max": 24,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "shipping_padding",
+      "label": "Shipping padding (px)",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "default": 12
+    },
+
+    {
+      "type": "header",
+      "content": "⚙️ Custom Code"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_js",
+      "label": "Custom JavaScript"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,96 @@
+.wt-parallax {
+  min-height: 350vh;
+  position: relative;
+}
+.wt-parallax__content {
+  position: sticky;
+  height: 100vh;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--color-custom-background);
+  margin-top: var(--section-gap-top);
+  margin-bottom: var(--section-gap-bottom);
+}
+.wt-parallax__content .hero__button--gap {
+  margin-block: calc(var(--gap, 8px) * 2);
+}
+.wt-parallax__content .hero__button--gap:last-child {
+  margin-block-end: 0;
+}
+.wt-parallax__content .hero__button--gap:first-child {
+  margin-block-start: 0;
+}
+.wt-parallax__additional {
+  position: absolute;
+  bottom: calc(var(--gap, 8px) * 2);
+  width: 60%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: var(--color-custom-text, var(--color-text, inherit));
+  transition: opacity 1s ease;
+  z-index: 10;
+}
+@media (min-width: 1200px) {
+  .wt-parallax__additional {
+    bottom: calc(var(--gap, 8px) * 2);
+  }
+}
+@keyframes icon-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.wt-parallax__additional__icon {
+  animation: icon-bounce 1s ease-in-out infinite;
+}
+.wt-parallax__img {
+  display: block;
+  border-radius: var(--border-radius);
+  transition: transform 0.1s ease;
+  width: 60vw;
+  max-width: 460px;
+  height: auto;
+}
+@media (min-width: 900px) {
+  .wt-parallax__img {
+    width: 70vw;
+  }
+}
+.wt-parallax__gallery {
+  margin: auto;
+  padding: 20vh calc(var(--gap, 8px) * 4) 100vh;
+  overflow: hidden;
+}
+@media (min-width: 1800px) {
+  .wt-parallax__gallery {
+    max-width: var(--site-max-width);
+    overflow: visible;
+  }
+}
+.wt-parallax__gallery__list {
+  display: flex;
+  flex-direction: column;
+  gap: 50vh;
+}
+.wt-parallax__gallery__item {
+  display: flex;
+}
+[dir=rtl] .wt-parallax__gallery__item {
+  flex-direction: row-reverse;
+}
+.wt-parallax__gallery__item:nth-child(2n) {
+  justify-content: flex-end;
+}
+.wt-parallax .hero__text {
+  max-width: 800px;
+}
+.wt-parallax .scroll-trigger {
+  width: 100%;
+}
+/*# sourceMappingURL=section-parallax.css.map */

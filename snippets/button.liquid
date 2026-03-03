@@ -1,0 +1,9 @@
+<a href="{{ url }}" class="card hero__button hero__button--secondary card__button">
+  <h3 class="card__title">
+    {% if title %}
+      {{ title }}
+    {% else %}
+      {{ default_title }}
+    {% endif %}
+  </h3>
+</a>

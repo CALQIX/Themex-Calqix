@@ -1,0 +1,21 @@
+<div class="wt-cart__header wt-cart__header--empty">
+  <div class="wt-cart__header__icon">
+    {% render 'icons', id: 'bag', icon_class: 'wt-cart__header__icon-bag' %}
+  </div>
+  <p class="wt-drawer__title__text">{{ 'sections.cart.empty' | t }}</p>
+  <a
+    href="{{ routes.root_url }}"
+    class="button hero__button hero__button--primary button--continue-shopping "
+    tabindex="-1"
+  >
+    {{ 'general.continue_shopping' | t }}
+  </a>
+  {%- if shop.customer_accounts_enabled and customer == null -%}
+    <div class="wt-cart__login">
+      <h4 class="wt-cart__login__title">{{ 'sections.cart.login.title' | t }}</h4>
+      <p class="wt-cart__login__text">
+        {{ 'sections.cart.login.paragraph_html' | t: link: routes.account_login_url }}
+      </p>
+    </div>
+  {%- endif -%}
+</div>

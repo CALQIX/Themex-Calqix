@@ -1,0 +1,1199 @@
+{% comment %}
+  CALQIX — Science Deep Dive
+  Bestandsnaam: sections/calqix-science-deep.liquid
+  Plaatsen: direct onder calqix-science-strip
+
+  Inhoud:
+  - Sectie intro (kop + subtekst)
+  - 3 wetenschappelijke pilaren met icoon, kop, tekst en optionele bron
+  - Groot "mechanism" blok: hoe nano-HA werkt (visueel met stappen)
+  - Vergelijkingstabel: nano-HA vs fluoride vs niets
+  - Disclaimer / bronnenregel onderaan
+{% endcomment %}
+
+{%- assign bg        = section.settings.background_color -%}
+{%- assign bg2       = section.settings.card_background -%}
+{%- assign accent    = section.settings.accent_color -%}
+{%- assign col_head  = section.settings.heading_color -%}
+{%- assign col_body  = section.settings.body_color -%}
+{%- assign col_muted = section.settings.muted_color -%}
+{%- assign col_bdr   = section.settings.border_color -%}
+{%- assign pad_v     = section.settings.padding_vertical -%}
+{%- assign max_w     = section.settings.max_width -%}
+
+<style>
+  /* ── Root vars ── */
+  #csd-{{ section.id }} {
+    --csd-bg:      {{ bg }};
+    --csd-bg2:     {{ bg2 }};
+    --csd-accent:  {{ accent }};
+    --csd-head:    {{ col_head }};
+    --csd-body:    {{ col_body }};
+    --csd-muted:   {{ col_muted }};
+    --csd-bdr:     {{ col_bdr }};
+    --csd-maxw:    {{ max_w }}px;
+    background: var(--csd-bg);
+    padding: {{ pad_v }}px 24px;
+    font-family: var(--font-body--family, 'DM Sans', sans-serif);
+  }
+
+  #csd-{{ section.id }} * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .csd-inner {
+    max-width: var(--csd-maxw);
+    margin: 0 auto;
+  }
+
+  /* ── Section header ── */
+  .csd-header {
+    text-align: center;
+    margin-bottom: 72px;
+  }
+
+  .csd-eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--csd-accent);
+    margin-bottom: 16px;
+  }
+
+  .csd-title {
+    font-family: Georgia, 'DM Serif Display', serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 400;
+    color: var(--csd-head);
+    line-height: 1.2;
+    margin-bottom: 20px;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .csd-subtitle {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--csd-muted);
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* ── Pillar cards ── */
+  .csd-pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 80px;
+  }
+
+  .csd-pillar {
+    background: var(--csd-bg2);
+    border: 1px solid var(--csd-bdr);
+    border-radius: 4px;
+    padding: 36px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .csd-pillar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--csd-accent);
+    opacity: 0.6;
+  }
+
+  .csd-pillar-icon {
+    font-size: 28px;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .csd-pillar-num {
+    font-family: Georgia, serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--csd-accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .csd-pillar-heading {
+    font-family: Georgia, serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--csd-head);
+    line-height: 1.3;
+    margin-bottom: 14px;
+  }
+
+  .csd-pillar-body {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--csd-body);
+    margin-bottom: 20px;
+  }
+
+  .csd-pillar-source {
+    font-size: 11px;
+    color: var(--csd-muted);
+    border-top: 1px solid var(--csd-bdr);
+    padding-top: 14px;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* ── Mechanism block ── */
+  .csd-mechanism {
+    background: var(--csd-bg2);
+    border: 1px solid var(--csd-bdr);
+    border-radius: 4px;
+    padding: 56px 48px;
+    margin-bottom: 80px;
+  }
+
+  .csd-mech-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+    margin-bottom: 56px;
+  }
+
+  .csd-mech-title {
+    font-family: Georgia, serif;
+    font-size: clamp(22px, 3vw, 34px);
+    font-weight: 400;
+    color: var(--csd-head);
+    line-height: 1.25;
+  }
+
+  .csd-mech-title em {
+    color: var(--csd-accent);
+    font-style: italic;
+  }
+
+  .csd-mech-intro {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--csd-body);
+    padding-top: 6px;
+  }
+
+  .csd-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    position: relative;
+  }
+
+  .csd-steps::before {
+    content: '';
+    position: absolute;
+    top: 28px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--csd-accent), var(--csd-accent), transparent);
+    opacity: 0.3;
+  }
+
+  .csd-step {
+    text-align: center;
+    padding: 0 16px;
+    position: relative;
+  }
+
+  .csd-step-dot {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1px solid var(--csd-accent);
+    background: var(--csd-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-family: Georgia, serif;
+    font-size: 18px;
+    color: var(--csd-accent);
+    position: relative;
+    z-index: 1;
+  }
+
+  .csd-step-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--csd-head);
+    margin-bottom: 10px;
+  }
+
+  .csd-step-desc {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--csd-muted);
+  }
+
+  /* ── Comparison table ── */
+  .csd-compare-wrap {
+    margin-bottom: 56px;
+  }
+
+  .csd-compare-header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  .csd-compare-title {
+    font-family: Georgia, serif;
+    font-size: clamp(20px, 2.5vw, 30px);
+    font-weight: 400;
+    color: var(--csd-head);
+    margin-bottom: 10px;
+  }
+
+  .csd-compare-sub {
+    font-size: 14px;
+    color: var(--csd-muted);
+  }
+
+  .csd-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .csd-table th {
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--csd-muted);
+    border-bottom: 1px solid var(--csd-bdr);
+  }
+
+  .csd-table th.csd-th-highlight {
+    color: var(--csd-accent);
+    background: rgba(232, 201, 106, 0.06);
+  }
+
+  .csd-table td {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--csd-bdr);
+    color: var(--csd-body);
+    vertical-align: middle;
+    line-height: 1.5;
+  }
+
+  .csd-table td.csd-td-highlight {
+    background: rgba(232, 201, 106, 0.04);
+    color: var(--csd-head);
+    font-weight: 500;
+  }
+
+  .csd-table td:first-child {
+    font-weight: 600;
+    color: var(--csd-head);
+    font-size: 13px;
+  }
+
+  .csd-table tr:last-child td { border-bottom: none; }
+
+  .csd-check { color: #5BA17A; font-size: 16px; }
+  .csd-cross { color: #8B4A4A; font-size: 16px; }
+  .csd-partial { color: var(--csd-accent); font-size: 14px; }
+
+  /* ── Disclaimer ── */
+  .csd-disclaimer {
+    border-top: 1px solid var(--csd-bdr);
+    padding-top: 32px;
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--csd-muted);
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 900px) {
+    .csd-pillars {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .csd-mech-header {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .csd-mechanism {
+      padding: 36px 24px;
+    }
+    .csd-steps {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 36px;
+    }
+    .csd-steps::before { display: none; }
+  }
+
+  @media (max-width: 600px) {
+    #csd-{{ section.id }} { padding: {{ pad_v | divided_by: 1.5 | round }}px 20px; }
+    .csd-header { margin-bottom: 48px; }
+    .csd-pillars { margin-bottom: 48px; }
+    .csd-mechanism { margin-bottom: 48px; }
+    .csd-compare-wrap { margin-bottom: 40px; }
+    .csd-steps { grid-template-columns: 1fr; gap: 28px; }
+
+    /* Scrollable table on small screens */
+    .csd-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .csd-table { min-width: 540px; }
+  }
+
+  {% if section.settings.custom_css != blank %}
+    {{ section.settings.custom_css }}
+  {% endif %}
+</style>
+
+<div id="csd-{{ section.id }}">
+  <div class="csd-inner">
+
+    {%- comment -%} ── HEADER ── {%- endcomment -%}
+    {% if section.settings.show_header %}
+      <div class="csd-header">
+        {% if section.settings.eyebrow != blank %}
+          <span class="csd-eyebrow">{{ section.settings.eyebrow }}</span>
+        {% endif %}
+        {% if section.settings.title != blank %}
+          <h2 class="csd-title">{{ section.settings.title }}</h2>
+        {% endif %}
+        {% if section.settings.subtitle != blank %}
+          <p class="csd-subtitle">{{ section.settings.subtitle }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {%- comment -%} ── PILLAR CARDS ── {%- endcomment -%}
+    {% if section.settings.show_pillars %}
+      <div class="csd-pillars">
+        {% for i in (1..3) %}
+          {% assign p_show   = 'pillar_' | append: i | append: '_show' %}
+          {% assign p_icon   = 'pillar_' | append: i | append: '_icon' %}
+          {% assign p_head   = 'pillar_' | append: i | append: '_heading' %}
+          {% assign p_body   = 'pillar_' | append: i | append: '_body' %}
+          {% assign p_source = 'pillar_' | append: i | append: '_source' %}
+
+          {% if section.settings[p_show] %}
+            <div class="csd-pillar">
+              {% if section.settings[p_icon] != blank %}
+                <span class="csd-pillar-icon">{{ section.settings[p_icon] }}</span>
+              {% endif %}
+              <div class="csd-pillar-num">0{{ i }}</div>
+              {% if section.settings[p_head] != blank %}
+                <h3 class="csd-pillar-heading">{{ section.settings[p_head] }}</h3>
+              {% endif %}
+              {% if section.settings[p_body] != blank %}
+                <p class="csd-pillar-body">{{ section.settings[p_body] }}</p>
+              {% endif %}
+              {% if section.settings[p_source] != blank %}
+                <div class="csd-pillar-source">{{ section.settings[p_source] }}</div>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {%- comment -%} ── MECHANISM BLOCK ── {%- endcomment -%}
+    {% if section.settings.show_mechanism %}
+      <div class="csd-mechanism">
+        <div class="csd-mech-header">
+          <h2 class="csd-mech-title">{{ section.settings.mech_title }}</h2>
+          <p class="csd-mech-intro">{{ section.settings.mech_intro }}</p>
+        </div>
+
+        <div class="csd-steps">
+          {% for i in (1..4) %}
+            {% assign s_icon  = 'step_' | append: i | append: '_icon' %}
+            {% assign s_label = 'step_' | append: i | append: '_label' %}
+            {% assign s_desc  = 'step_' | append: i | append: '_desc' %}
+            {% assign s_show  = 'step_' | append: i | append: '_show' %}
+            {% if section.settings[s_show] %}
+              <div class="csd-step">
+                <div class="csd-step-dot">{{ section.settings[s_icon] }}</div>
+                <div class="csd-step-label">{{ section.settings[s_label] }}</div>
+                <p class="csd-step-desc">{{ section.settings[s_desc] }}</p>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {%- comment -%} ── COMPARISON TABLE ── {%- endcomment -%}
+    {% if section.settings.show_table %}
+      <div class="csd-compare-wrap">
+        <div class="csd-compare-header">
+          {% if section.settings.table_title != blank %}
+            <h2 class="csd-compare-title">{{ section.settings.table_title }}</h2>
+          {% endif %}
+          {% if section.settings.table_sub != blank %}
+            <p class="csd-compare-sub">{{ section.settings.table_sub }}</p>
+          {% endif %}
+        </div>
+
+        <div class="csd-table-scroll">
+          <table class="csd-table">
+            <thead>
+              <tr>
+                <th>{{ section.settings.col0_label }}</th>
+                <th class="csd-th-highlight">{{ section.settings.col1_label }}</th>
+                <th>{{ section.settings.col2_label }}</th>
+                <th>{{ section.settings.col3_label }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in (1..7) %}
+                {% assign r_show = 'row_' | append: i | append: '_show' %}
+                {% assign r_feat = 'row_' | append: i | append: '_feature' %}
+                {% assign r_c1   = 'row_' | append: i | append: '_c1' %}
+                {% assign r_c2   = 'row_' | append: i | append: '_c2' %}
+                {% assign r_c3   = 'row_' | append: i | append: '_c3' %}
+                {% if section.settings[r_show] %}
+                  <tr>
+                    <td>{{ section.settings[r_feat] }}</td>
+                    <td class="csd-td-highlight">
+                      {% assign val = section.settings[r_c1] %}
+                      {% if val == '✓' %}<span class="csd-check">✓</span>
+                      {% elsif val == '✗' %}<span class="csd-cross">✗</span>
+                      {% elsif val == '~' %}<span class="csd-partial">~</span>
+                      {% else %}{{ val }}{% endif %}
+                    </td>
+                    <td>
+                      {% assign val = section.settings[r_c2] %}
+                      {% if val == '✓' %}<span class="csd-check">✓</span>
+                      {% elsif val == '✗' %}<span class="csd-cross">✗</span>
+                      {% elsif val == '~' %}<span class="csd-partial">~</span>
+                      {% else %}{{ val }}{% endif %}
+                    </td>
+                    <td>
+                      {% assign val = section.settings[r_c3] %}
+                      {% if val == '✓' %}<span class="csd-check">✓</span>
+                      {% elsif val == '✗' %}<span class="csd-cross">✗</span>
+                      {% elsif val == '~' %}<span class="csd-partial">~</span>
+                      {% else %}{{ val }}{% endif %}
+                    </td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
+
+    {%- comment -%} ── DISCLAIMER ── {%- endcomment -%}
+    {% if section.settings.disclaimer != blank %}
+      <div class="csd-disclaimer">{{ section.settings.disclaimer }}</div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% if section.settings.custom_js != blank %}
+  <script>
+    (function() {
+      var sectionEl = document.getElementById('csd-{{ section.id }}');
+      {{ section.settings.custom_js }}
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "CALQIX — Science Deep",
+  "tag": "section",
+  "class": "calqix-science-deep-section",
+  "settings": [
+
+    {
+      "type": "header",
+      "content": "🎨 Layout & Kleuren"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Achtergrondkleur",
+      "default": "#081A2C"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Kaart achtergrond",
+      "default": "#0F2438"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accentkleur",
+      "default": "#E8C96A"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Kopkleur",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "body_color",
+      "label": "Bodytekst kleur",
+      "default": "#C8D8E4"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Muted / bron kleur",
+      "default": "#5A7A90"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border kleur",
+      "default": "#1A3550"
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "label": "Verticale padding (px)",
+      "min": 40,
+      "max": 160,
+      "step": 8,
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max breedte (px)",
+      "min": 800,
+      "max": 1600,
+      "step": 40,
+      "default": 1200
+    },
+
+    {
+      "type": "header",
+      "content": "📌 Sectie Header"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_header",
+      "label": "Header tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow tekst",
+      "default": "The Science"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Hoofdtitel",
+      "default": "Not a trend. A mineral your body already knows."
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitel",
+      "default": "Nano-hydroxyapatite is the same calcium-phosphate compound that makes up 97% of tooth enamel. CALQIX delivers it in particle sizes small enough to integrate directly into your enamel surface."
+    },
+
+    {
+      "type": "header",
+      "content": "🔬 Pilaar Kaarten"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pillars",
+      "label": "Pilaar kaarten tonen",
+      "default": true
+    },
+
+    {
+      "type": "header",
+      "content": "Pilaar 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "pillar_1_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "pillar_1_icon",
+      "label": "Icoon (emoji of tekst)",
+      "default": "⬡"
+    },
+    {
+      "type": "text",
+      "id": "pillar_1_heading",
+      "label": "Kop",
+      "default": "Biomimetic by nature"
+    },
+    {
+      "type": "textarea",
+      "id": "pillar_1_body",
+      "label": "Tekst",
+      "default": "Nano-HA mimics the exact mineral composition of tooth enamel. Unlike fluoride, which forms a foreign compound (fluorapatite), nano-HA integrates seamlessly — because it's chemically identical to what's already there."
+    },
+    {
+      "type": "text",
+      "id": "pillar_1_source",
+      "label": "Bronvermelding",
+      "default": "Tschoppe et al., Clinical Oral Investigations, 2011"
+    },
+
+    {
+      "type": "header",
+      "content": "Pilaar 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "pillar_2_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "pillar_2_icon",
+      "label": "Icoon (emoji of tekst)",
+      "default": "◎"
+    },
+    {
+      "type": "text",
+      "id": "pillar_2_heading",
+      "label": "Kop",
+      "default": "Proven remineralisation"
+    },
+    {
+      "type": "textarea",
+      "id": "pillar_2_body",
+      "label": "Tekst",
+      "default": "Clinical studies show nano-HA particles at 20–80nm penetrate micro-fissures in enamel and deposit a calcium-phosphate layer that measurably increases surface hardness — reversing early-stage demineralisation."
+    },
+    {
+      "type": "text",
+      "id": "pillar_2_source",
+      "label": "Bronvermelding",
+      "default": "Huang et al., Journal of Dentistry, 2011 · Pepla et al., Annali di Stomatologia, 2014"
+    },
+
+    {
+      "type": "header",
+      "content": "Pilaar 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "pillar_3_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "pillar_3_icon",
+      "label": "Icoon (emoji of tekst)",
+      "default": "✦"
+    },
+    {
+      "type": "text",
+      "id": "pillar_3_heading",
+      "label": "Kop",
+      "default": "Safe. Swallowable. Fluoride-free."
+    },
+    {
+      "type": "textarea",
+      "id": "pillar_3_body",
+      "label": "Tekst",
+      "default": "Nano-HA has GRAS (Generally Recognised as Safe) status and is approved for use in cosmetic products by the EU Scientific Committee. It carries no toxicity risk even if swallowed — making it the safe choice for children, pregnant women and fluoride-sensitive individuals."
+    },
+    {
+      "type": "text",
+      "id": "pillar_3_source",
+      "label": "Bronvermelding",
+      "default": "EU SCCS Opinion on nano-HA, 2021 · ECHA, 2019"
+    },
+
+    {
+      "type": "header",
+      "content": "⚙️ Mechanism of Action"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_mechanism",
+      "label": "Mechanisme sectie tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "mech_title",
+      "label": "Titel",
+      "default": "How nano-HA rebuilds enamel — <em>step by step</em>"
+    },
+    {
+      "type": "textarea",
+      "id": "mech_intro",
+      "label": "Intro tekst",
+      "default": "Enamel cannot regenerate on its own — it has no living cells. But it can remineralise when the right ions are present. CALQIX nano-HA tablets dissolve into a supersaturated mineral solution that drives this process from the first brush."
+    },
+
+    {
+      "type": "header",
+      "content": "Stap 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "step_1_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "step_1_icon",
+      "label": "Icoon",
+      "default": "1"
+    },
+    {
+      "type": "text",
+      "id": "step_1_label",
+      "label": "Label",
+      "default": "Dissolve"
+    },
+    {
+      "type": "textarea",
+      "id": "step_1_desc",
+      "label": "Beschrijving",
+      "default": "Tablet dissolves in saliva, releasing nano-HA particles at 20–80nm — small enough to enter enamel pores."
+    },
+
+    {
+      "type": "header",
+      "content": "Stap 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "step_2_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "step_2_icon",
+      "label": "Icoon",
+      "default": "2"
+    },
+    {
+      "type": "text",
+      "id": "step_2_label",
+      "label": "Label",
+      "default": "Adsorb"
+    },
+    {
+      "type": "textarea",
+      "id": "step_2_desc",
+      "label": "Beschrijving",
+      "default": "Particles adsorb onto the enamel surface and into micro-lesions, driven by electrostatic attraction to the calcium-deficient areas."
+    },
+
+    {
+      "type": "header",
+      "content": "Stap 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "step_3_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "step_3_icon",
+      "label": "Icoon",
+      "default": "3"
+    },
+    {
+      "type": "text",
+      "id": "step_3_label",
+      "label": "Label",
+      "default": "Integrate"
+    },
+    {
+      "type": "textarea",
+      "id": "step_3_desc",
+      "label": "Beschrijving",
+      "default": "Nano-HA crystallises into the enamel lattice, filling gaps and increasing surface microhardness measurably over 4 weeks."
+    },
+
+    {
+      "type": "header",
+      "content": "Stap 4"
+    },
+    {
+      "type": "checkbox",
+      "id": "step_4_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "step_4_icon",
+      "label": "Icoon",
+      "default": "4"
+    },
+    {
+      "type": "text",
+      "id": "step_4_label",
+      "label": "Label",
+      "default": "Protect"
+    },
+    {
+      "type": "textarea",
+      "id": "step_4_desc",
+      "label": "Beschrijving",
+      "default": "The rebuilt enamel layer resists acid attack and reduces sensitivity — with cumulative improvement over a 30-day routine."
+    },
+
+    {
+      "type": "header",
+      "content": "📊 Vergelijkingstabel"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_table",
+      "label": "Tabel tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "table_title",
+      "label": "Tabel titel",
+      "default": "Why nano-HA outperforms fluoride"
+    },
+    {
+      "type": "text",
+      "id": "table_sub",
+      "label": "Tabel subtitel",
+      "default": "A clinical comparison of the three most common approaches to enamel protection."
+    },
+    {
+      "type": "text",
+      "id": "col0_label",
+      "label": "Kolom 0 — Feature",
+      "default": "Feature"
+    },
+    {
+      "type": "text",
+      "id": "col1_label",
+      "label": "Kolom 1 — CALQIX",
+      "default": "CALQIX nano-HA"
+    },
+    {
+      "type": "text",
+      "id": "col2_label",
+      "label": "Kolom 2 — Fluoride",
+      "default": "Fluoride toothpaste"
+    },
+    {
+      "type": "text",
+      "id": "col3_label",
+      "label": "Kolom 3 — Geen",
+      "default": "No active ingredient"
+    },
+
+    {
+      "type": "header",
+      "content": "Rij 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_1_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "row_1_feature",
+      "label": "Feature",
+      "default": "Remineralises enamel"
+    },
+    {
+      "type": "text",
+      "id": "row_1_c1",
+      "label": "CALQIX",
+      "default": "✓"
+    },
+    {
+      "type": "text",
+      "id": "row_1_c2",
+      "label": "Fluoride",
+      "default": "~"
+    },
+    {
+      "type": "text",
+      "id": "row_1_c3",
+      "label": "Geen",
+      "default": "✗"
+    },
+
+    {
+      "type": "header",
+      "content": "Rij 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_2_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "row_2_feature",
+      "label": "Feature",
+      "default": "Biocompatible (body-identical)"
+    },
+    {
+      "type": "text",
+      "id": "row_2_c1",
+      "label": "CALQIX",
+      "default": "✓"
+    },
+    {
+      "type": "text",
+      "id": "row_2_c2",
+      "label": "Fluoride",
+      "default": "✗"
+    },
+    {
+      "type": "text",
+      "id": "row_2_c3",
+      "label": "Geen",
+      "default": "✗"
+    },
+
+    {
+      "type": "header",
+      "content": "Rij 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_3_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "row_3_feature",
+      "label": "Feature",
+      "default": "Safe if swallowed"
+    },
+    {
+      "type": "text",
+      "id": "row_3_c1",
+      "label": "CALQIX",
+      "default": "✓"
+    },
+    {
+      "type": "text",
+      "id": "row_3_c2",
+      "label": "Fluoride",
+      "default": "✗"
+    },
+    {
+      "type": "text",
+      "id": "row_3_c3",
+      "label": "Geen",
+      "default": "✓"
+    },
+
+    {
+      "type": "header",
+      "content": "Rij 4"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_4_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "row_4_feature",
+      "label": "Feature",
+      "default": "Reduces sensitivity"
+    },
+    {
+      "type": "text",
+      "id": "row_4_c1",
+      "label": "CALQIX",
+      "default": "✓"
+    },
+    {
+      "type": "text",
+      "id": "row_4_c2",
+      "label": "Fluoride",
+      "default": "~"
+    },
+    {
+      "type": "text",
+      "id": "row_4_c3",
+      "label": "Geen",
+      "default": "✗"
+    },
+
+    {
+      "type": "header",
+      "content": "Rij 5"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_5_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "row_5_feature",
+      "label": "Feature",
+      "default": "Fluoride-free"
+    },
+    {
+      "type": "text",
+      "id": "row_5_c1",
+      "label": "CALQIX",
+      "default": "✓"
+    },
+    {
+      "type": "text",
+      "id": "row_5_c2",
+      "label": "Fluoride",
+      "default": "✗"
+    },
+    {
+      "type": "text",
+      "id": "row_5_c3",
+      "label": "Geen",
+      "default": "✓"
+    },
+
+    {
+      "type": "header",
+      "content": "Rij 6"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_6_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "row_6_feature",
+      "label": "Feature",
+      "default": "Vegan & plastic-free"
+    },
+    {
+      "type": "text",
+      "id": "row_6_c1",
+      "label": "CALQIX",
+      "default": "✓"
+    },
+    {
+      "type": "text",
+      "id": "row_6_c2",
+      "label": "Fluoride",
+      "default": "✗"
+    },
+    {
+      "type": "text",
+      "id": "row_6_c3",
+      "label": "Geen",
+      "default": "~"
+    },
+
+    {
+      "type": "header",
+      "content": "Rij 7"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_7_show",
+      "label": "Tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "row_7_feature",
+      "label": "Feature",
+      "default": "Clinically studied"
+    },
+    {
+      "type": "text",
+      "id": "row_7_c1",
+      "label": "CALQIX",
+      "default": "✓"
+    },
+    {
+      "type": "text",
+      "id": "row_7_c2",
+      "label": "Fluoride",
+      "default": "✓"
+    },
+    {
+      "type": "text",
+      "id": "row_7_c3",
+      "label": "Geen",
+      "default": "✗"
+    },
+
+    {
+      "type": "header",
+      "content": "📝 Disclaimer"
+    },
+    {
+      "type": "textarea",
+      "id": "disclaimer",
+      "label": "Disclaimer / bronnenregel",
+      "default": "* These statements are based on peer-reviewed clinical research. CALQIX products are cosmetic products and are not intended to diagnose, treat, cure or prevent any disease. ✦ = partial benefit depending on formulation. Sources available on request."
+    },
+
+    {
+      "type": "header",
+      "content": "⚙️ Custom Code"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_js",
+      "label": "Custom JavaScript"
+    }
+
+  ],
+  "presets": [
+    {
+      "name": "CALQIX — Science Deep"
+    }
+  ]
+}
+{% endschema %}

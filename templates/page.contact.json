@@ -1,0 +1,61 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "settings": {
+        "compact-size-enabled": false,
+        "size_heading": 140,
+        "size_heading_mobile": 100,
+        "color-body-text": "rgba(0,0,0,0)",
+        "color-bg-overlay": "rgba(0,0,0,0)",
+        "color-overlay-opacity": 100,
+        "margin-top": 40,
+        "margin-bottom": 0
+      }
+    },
+    "form": {
+      "type": "contact-form",
+      "blocks": {
+        "f7540b5e-8608-433d-bf4e-2ca6b4e12cf1": {
+          "type": "heading",
+          "settings": {
+            "heading": "Heading",
+            "heading_disable_on_mobile": false,
+            "size_heading": 140,
+            "size_heading_mobile": 100
+          }
+        },
+        "e44258d7-7299-4647-b930-6950bb2f925b": {
+          "type": "email_form",
+          "settings": {
+            "button_select": "primary"
+          }
+        }
+      },
+      "block_order": [
+        "f7540b5e-8608-433d-bf4e-2ca6b4e12cf1",
+        "e44258d7-7299-4647-b930-6950bb2f925b"
+      ],
+      "disabled": true,
+      "settings": {
+        "color-body-text": "rgba(0,0,0,0)",
+        "background_color": "rgba(0,0,0,0)",
+        "margin-top": 0,
+        "margin-bottom": 56
+      }
+    }
+  },
+  "order": [
+    "main",
+    "form"
+  ]
+}

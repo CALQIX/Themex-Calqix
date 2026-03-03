@@ -1,0 +1,564 @@
+{% comment %}
+  CALQIX — Colour Switcher (App Block)
+  Bestandsnaam: blocks/calqix-colour-switcher.liquid
+
+  Dit is een App Block — het plaatst zichzelf als block binnen
+  de ROOT 'Product Information' sectie via de front-end editor.
+
+  Toevoegen: Product Information → Add block → Apps → CALQIX Colour Switcher
+
+  Ondersteunt tot 6 kleurvarianten (swatch 1–6), configureerbaar
+  per block via de Theme Customizer.
+{% endcomment %}
+
+{% assign b = block.settings %}
+{% assign bid = block.id | replace: '-', '_' %}
+
+<style>
+  #ccs-block-{{ block.id }} {
+    padding: {{ b.padding_vertical }}px 0;
+    {% if b.show_border_top %}border-top: 1px solid {{ b.border_color }};{% endif %}
+    {% if b.show_border_bottom %}border-bottom: 1px solid {{ b.border_color }};{% endif %}
+    margin: {{ b.margin_vertical }}px 0;
+  }
+
+  #ccs-block-{{ block.id }} .ccs-label {
+    font-size: {{ b.label_size }}px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: {{ b.label_color }};
+    margin-bottom: {{ b.label_gap }}px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  #ccs-block-{{ block.id }} .ccs-active-name {
+    font-weight: 400;
+    color: {{ b.name_color }};
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+
+  #ccs-block-{{ block.id }} .ccs-swatches {
+    display: flex;
+    gap: {{ b.swatch_gap }}px;
+    flex-wrap: wrap;
+  }
+
+  #ccs-block-{{ block.id }} .ccs-swatch {
+    display: block;
+    width: {{ b.swatch_size }}px;
+    height: {{ b.swatch_size }}px;
+    border-radius: {% if b.swatch_shape == 'round' %}50%{% elsif b.swatch_shape == 'rounded' %}6px{% else %}0{% endif %};
+    border: 2.5px solid transparent;
+    text-decoration: none;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  #ccs-block-{{ block.id }} .ccs-swatch:hover {
+    transform: scale(1.1);
+  }
+
+  #ccs-block-{{ block.id }} .ccs-swatch.ccs-active {
+    border-color: {{ b.active_border_color }};
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px {{ b.active_border_color }};
+  }
+
+  #ccs-block-{{ block.id }} .ccs-swatch--bordered {
+    border-width: 2px !important;
+    border-style: solid !important;
+  }
+
+  #ccs-block-{{ block.id }} .ccs-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: {{ b.tooltip_bg }};
+    color: {{ b.tooltip_color }};
+    font-size: {{ b.tooltip_size }}px;
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    font-family: inherit;
+    border-radius: 2px;
+    z-index: 10;
+  }
+
+  #ccs-block-{{ block.id }} .ccs-swatch:hover .ccs-tooltip {
+    opacity: 1;
+  }
+
+  {% if b.custom_css != blank %}{{ b.custom_css }}{% endif %}
+</style>
+
+{%- comment -%} Build array of active swatches from settings {%- endcomment -%}
+{% assign swatch_count = 0 %}
+{% for i in (1..6) %}
+  {% assign handle_key = 'swatch_' | append: i | append: '_handle' %}
+  {% assign handle_val = b[handle_key] %}
+  {% if handle_val != blank %}
+    {% assign swatch_count = swatch_count | plus: 1 %}
+  {% endif %}
+{% endfor %}
+
+{%- comment -%} Determine active swatch name {%- endcomment -%}
+{% assign active_name = '' %}
+{% for i in (1..6) %}
+  {% assign handle_key = 'swatch_' | append: i | append: '_handle' %}
+  {% assign name_key   = 'swatch_' | append: i | append: '_name' %}
+  {% if b[handle_key] == product.handle %}
+    {% assign active_name = b[name_key] %}
+  {% endif %}
+{% endfor %}
+{% if active_name == blank %}
+  {% assign active_name = b.swatch_1_name %}
+{% endif %}
+
+<div id="ccs-block-{{ block.id }}" class="calqix-colour-switcher-block" {{ block.shopify_attributes }}>
+
+  <div class="ccs-label">
+    {{ b.label_text }}
+    {% if b.show_active_name and active_name != blank %}
+      — <span class="ccs-active-name" id="ccs-name-{{ block.id }}">{{ active_name }}</span>
+    {% endif %}
+  </div>
+
+  <div class="ccs-swatches">
+    {% for i in (1..6) %}
+      {% assign handle_key = 'swatch_' | append: i | append: '_handle' %}
+      {% assign name_key   = 'swatch_' | append: i | append: '_name' %}
+      {% assign color_key  = 'swatch_' | append: i | append: '_color' %}
+      {% assign border_key = 'swatch_' | append: i | append: '_border' %}
+      {% assign bcolor_key = 'swatch_' | append: i | append: '_border_color' %}
+
+      {% assign sw_handle = b[handle_key] %}
+      {% assign sw_name   = b[name_key] %}
+      {% assign sw_color  = b[color_key] %}
+      {% assign sw_border = b[border_key] %}
+      {% assign sw_bcolor = b[bcolor_key] %}
+
+      {% if sw_handle != blank %}
+        {% assign is_active = false %}
+        {% if sw_handle == product.handle %}{% assign is_active = true %}{% endif %}
+
+        <a href="/products/{{ sw_handle }}"
+           class="ccs-swatch {% if is_active %}ccs-active{% endif %} {% if sw_border %}ccs-swatch--bordered{% endif %}"
+           style="background-color: {{ sw_color }};{% if sw_border %} border-color: {{ sw_bcolor }} !important;{% endif %}"
+           aria-label="{{ sw_name }}"
+           title="{{ sw_name }}">
+          <span class="ccs-tooltip">{{ sw_name }}</span>
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+</div>
+
+{% if b.custom_js != blank %}
+  <script>
+    (function() {
+      var blockId = '{{ block.id }}';
+      var section = document.getElementById('ccs-block-' + blockId);
+      {{ b.custom_js }}
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "CALQIX Colour Switcher",
+  "settings": [
+    {
+      "type": "header",
+      "content": "─── Swatch 1"
+    },
+    {
+      "type": "text",
+      "id": "swatch_1_name",
+      "label": "Naam",
+      "default": "Midnight Black"
+    },
+    {
+      "type": "text",
+      "id": "swatch_1_handle",
+      "label": "Product handle",
+      "info": "bijv. flowcore-midnight-black"
+    },
+    {
+      "type": "color",
+      "id": "swatch_1_color",
+      "label": "Kleur",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "checkbox",
+      "id": "swatch_1_border",
+      "label": "Rand tonen",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "swatch_1_border_color",
+      "label": "Rand kleur",
+      "default": "#CCCCCC"
+    },
+
+    {
+      "type": "header",
+      "content": "─── Swatch 2"
+    },
+    {
+      "type": "text",
+      "id": "swatch_2_name",
+      "label": "Naam",
+      "default": "Clinical White"
+    },
+    {
+      "type": "text",
+      "id": "swatch_2_handle",
+      "label": "Product handle",
+      "info": "Leeg laten om swatch te verbergen"
+    },
+    {
+      "type": "color",
+      "id": "swatch_2_color",
+      "label": "Kleur",
+      "default": "#F5F5F0"
+    },
+    {
+      "type": "checkbox",
+      "id": "swatch_2_border",
+      "label": "Rand tonen",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "swatch_2_border_color",
+      "label": "Rand kleur",
+      "default": "#CCCCCC"
+    },
+
+    {
+      "type": "header",
+      "content": "─── Swatch 3"
+    },
+    {
+      "type": "text",
+      "id": "swatch_3_name",
+      "label": "Naam",
+      "default": "Lime Green"
+    },
+    {
+      "type": "text",
+      "id": "swatch_3_handle",
+      "label": "Product handle",
+      "info": "Leeg laten om swatch te verbergen"
+    },
+    {
+      "type": "color",
+      "id": "swatch_3_color",
+      "label": "Kleur",
+      "default": "#7EC850"
+    },
+    {
+      "type": "checkbox",
+      "id": "swatch_3_border",
+      "label": "Rand tonen",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "swatch_3_border_color",
+      "label": "Rand kleur",
+      "default": "#CCCCCC"
+    },
+
+    {
+      "type": "header",
+      "content": "─── Swatch 4"
+    },
+    {
+      "type": "text",
+      "id": "swatch_4_name",
+      "label": "Naam",
+      "default": "Blush Pink"
+    },
+    {
+      "type": "text",
+      "id": "swatch_4_handle",
+      "label": "Product handle",
+      "info": "Leeg laten om swatch te verbergen"
+    },
+    {
+      "type": "color",
+      "id": "swatch_4_color",
+      "label": "Kleur",
+      "default": "#E8A0A0"
+    },
+    {
+      "type": "checkbox",
+      "id": "swatch_4_border",
+      "label": "Rand tonen",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "swatch_4_border_color",
+      "label": "Rand kleur",
+      "default": "#CCCCCC"
+    },
+
+    {
+      "type": "header",
+      "content": "─── Swatch 5"
+    },
+    {
+      "type": "text",
+      "id": "swatch_5_name",
+      "label": "Naam"
+    },
+    {
+      "type": "text",
+      "id": "swatch_5_handle",
+      "label": "Product handle",
+      "info": "Leeg laten om swatch te verbergen"
+    },
+    {
+      "type": "color",
+      "id": "swatch_5_color",
+      "label": "Kleur",
+      "default": "#AAAAAA"
+    },
+    {
+      "type": "checkbox",
+      "id": "swatch_5_border",
+      "label": "Rand tonen",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "swatch_5_border_color",
+      "label": "Rand kleur",
+      "default": "#CCCCCC"
+    },
+
+    {
+      "type": "header",
+      "content": "─── Swatch 6"
+    },
+    {
+      "type": "text",
+      "id": "swatch_6_name",
+      "label": "Naam"
+    },
+    {
+      "type": "text",
+      "id": "swatch_6_handle",
+      "label": "Product handle",
+      "info": "Leeg laten om swatch te verbergen"
+    },
+    {
+      "type": "color",
+      "id": "swatch_6_color",
+      "label": "Kleur",
+      "default": "#AAAAAA"
+    },
+    {
+      "type": "checkbox",
+      "id": "swatch_6_border",
+      "label": "Rand tonen",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "swatch_6_border_color",
+      "label": "Rand kleur",
+      "default": "#CCCCCC"
+    },
+
+    {
+      "type": "header",
+      "content": "Label"
+    },
+    {
+      "type": "text",
+      "id": "label_text",
+      "label": "Label tekst",
+      "default": "Colour"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_active_name",
+      "label": "Actieve kleurnaam tonen",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label kleur",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "name_color",
+      "label": "Actieve naam kleur",
+      "default": "#9B9B9B"
+    },
+    {
+      "type": "range",
+      "id": "label_size",
+      "label": "Label grootte (px)",
+      "min": 10,
+      "max": 16,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "label_gap",
+      "label": "Ruimte onder label (px)",
+      "min": 6,
+      "max": 24,
+      "step": 2,
+      "default": 12
+    },
+
+    {
+      "type": "header",
+      "content": "Swatches"
+    },
+    {
+      "type": "select",
+      "id": "swatch_shape",
+      "label": "Swatch vorm",
+      "options": [
+        { "value": "round", "label": "Rond" },
+        { "value": "rounded", "label": "Afgerond vierkant" },
+        { "value": "square", "label": "Vierkant" }
+      ],
+      "default": "round"
+    },
+    {
+      "type": "range",
+      "id": "swatch_size",
+      "label": "Swatch grootte (px)",
+      "min": 24,
+      "max": 60,
+      "step": 2,
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "swatch_gap",
+      "label": "Ruimte tussen swatches (px)",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "default": 10
+    },
+
+    {
+      "type": "header",
+      "content": "Actief effect"
+    },
+    {
+      "type": "color",
+      "id": "active_border_color",
+      "label": "Actieve rand kleur",
+      "default": "#1A3B5C"
+    },
+
+    {
+      "type": "header",
+      "content": "Tooltip"
+    },
+    {
+      "type": "color",
+      "id": "tooltip_bg",
+      "label": "Tooltip achtergrond",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "tooltip_color",
+      "label": "Tooltip tekst",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "range",
+      "id": "tooltip_size",
+      "label": "Tooltip font (px)",
+      "min": 9,
+      "max": 13,
+      "step": 1,
+      "default": 10
+    },
+
+    {
+      "type": "header",
+      "content": "Spacing & Borders"
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "label": "Verticale padding (px)",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "margin_vertical",
+      "label": "Verticale marge (px)",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "show_border_top",
+      "label": "Lijn boven tonen",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_border_bottom",
+      "label": "Lijn onder tonen",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Lijnkleur",
+      "default": "#E4E4E0"
+    },
+
+    {
+      "type": "header",
+      "content": "⚙️ Custom Code"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_js",
+      "label": "Custom JavaScript"
+    }
+  ]
+}
+{% endschema %}

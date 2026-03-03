@@ -1,0 +1,848 @@
+{% comment %}
+  CALQIX — Product Information Section
+  Bestandsnaam: sections/calqix-product-info.liquid
+
+  Een standalone sectie die de ROOT-thema Product Information block
+  nabootst, inclusief:
+  - Rating
+  - Titel + merk
+  - Prijs (met belasting-label)
+  - Product varianten / kleur-swatches
+  - Hoeveelheid + Add to Cart knop
+  - Promo balk
+  - Collapsible tabs (Description, Benefits, How to Use, Ingredients)
+  - Custom CSS + JS veld
+
+  Werkt met de native ROOT-thema JS via de bekende CSS-klassen:
+  collapsible-section, wt-collapse, wt-collapse__trigger, wt-collapse__target
+{% endcomment %}
+
+{%- assign product_form_id = 'calqix-pinfo-form-' | append: section.id -%}
+{%- assign selected_variant = product.selected_or_first_available_variant -%}
+
+<style>
+  #calqix-pinfo-{{ section.id }} {
+    --cpi-navy:       {{ section.settings.color_navy }};
+    --cpi-gold:       {{ section.settings.color_gold }};
+    --cpi-bg:         {{ section.settings.color_bg }};
+    --cpi-text:       {{ section.settings.color_text }};
+    --cpi-border:     {{ section.settings.color_border }};
+    --cpi-btn-bg:     {{ section.settings.color_btn_bg }};
+    --cpi-btn-text:   {{ section.settings.color_btn_text }};
+    --cpi-promo-bg:   {{ section.settings.color_promo_bg }};
+    --cpi-promo-text: {{ section.settings.color_promo_text }};
+    --cpi-gap:        {{ section.settings.padding_vertical }}px {{ section.settings.padding_horizontal }}px;
+    background-color: var(--cpi-bg);
+    color: var(--cpi-text);
+    padding: var(--cpi-gap);
+  }
+
+  /* ── Rating ── */
+  #calqix-pinfo-{{ section.id }} .cpi-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    opacity: .75;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-stars {
+    color: #f4b400;
+    letter-spacing: 1px;
+  }
+
+  /* ── Brand + Title ── */
+  #calqix-pinfo-{{ section.id }} .cpi-brand {
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    opacity: .55;
+    margin-bottom: 4px;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-title {
+    font-size: {{ section.settings.title_size }}px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0 0 14px;
+    color: var(--cpi-navy);
+  }
+
+  /* ── Price ── */
+  #calqix-pinfo-{{ section.id }} .cpi-price-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-price {
+    font-size: {{ section.settings.price_size }}px;
+    font-weight: 700;
+    color: var(--cpi-navy);
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-price-compare {
+    font-size: 15px;
+    text-decoration: line-through;
+    opacity: .45;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-tax-label {
+    font-size: 12px;
+    opacity: .5;
+    margin-bottom: 16px;
+  }
+
+  /* ── Variant Swatches ── */
+  #calqix-pinfo-{{ section.id }} .cpi-variants {
+    margin-bottom: 16px;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-variants__label {
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: .6;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-swatch {
+    width: {{ section.settings.swatch_size }}px;
+    height: {{ section.settings.swatch_size }}px;
+    border-radius: {% if section.settings.swatch_round %}50%{% else %}4px{% endif %};
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color .2s, transform .15s;
+    position: relative;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-swatch:hover {
+    transform: scale(1.08);
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-swatch.is-active {
+    border-color: var(--cpi-navy);
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--cpi-navy);
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-swatch__tooltip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--cpi-navy);
+    color: #fff;
+    font-size: 10px;
+    white-space: nowrap;
+    padding: 3px 7px;
+    border-radius: 3px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-swatch:hover .cpi-swatch__tooltip {
+    opacity: 1;
+  }
+
+  /* ── Qty + ATC ── */
+  #calqix-pinfo-{{ section.id }} .cpi-buy-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+    margin-bottom: 10px;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-qty {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--cpi-border);
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 110px;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-qty button {
+    background: none;
+    border: none;
+    width: 36px;
+    height: 100%;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--cpi-navy);
+    transition: background .15s;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-qty button:hover { background: rgba(0,0,0,.05); }
+  #calqix-pinfo-{{ section.id }} .cpi-qty__num {
+    flex: 1;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    color: var(--cpi-navy);
+    width: 38px;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-atc {
+    flex: 1;
+    background: var(--cpi-btn-bg);
+    color: var(--cpi-btn-text);
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    cursor: pointer;
+    padding: 0 20px;
+    height: 52px;
+    transition: opacity .2s;
+  }
+  #calqix-pinfo-{{ section.id }} .cpi-atc:hover { opacity: .88; }
+
+  /* ── Promo balk ── */
+  #calqix-pinfo-{{ section.id }} .cpi-promo {
+    background: var(--cpi-promo-bg);
+    color: var(--cpi-promo-text);
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+  }
+
+  /* ── Separator ── */
+  #calqix-pinfo-{{ section.id }} .cpi-sep {
+    border: none;
+    border-top: 1px solid var(--cpi-border);
+    margin: 0;
+  }
+
+  /* ── Collapsible tabs ── */
+  #calqix-pinfo-{{ section.id }} .wt-collapse {
+    border-bottom: 1px solid var(--cpi-border);
+  }
+  #calqix-pinfo-{{ section.id }} .wt-collapse__trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+  #calqix-pinfo-{{ section.id }} .wt-collapse__trigger__text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #calqix-pinfo-{{ section.id }} .wt-collapse__trigger__title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  #calqix-pinfo-{{ section.id }} .wt-icon {
+    font-size: 20px;
+    line-height: 1;
+    color: var(--cpi-navy);
+    transition: transform .25s;
+  }
+  #calqix-pinfo-{{ section.id }} .wt-collapse__trigger--active .wt-icon {
+    transform: rotate(45deg);
+  }
+  #calqix-pinfo-{{ section.id }} .wt-collapse__target {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height .3s ease;
+  }
+  #calqix-pinfo-{{ section.id }} .wt-collapse__target.is-open {
+    max-height: 600px;
+  }
+  #calqix-pinfo-{{ section.id }} .wt-collapse__target--text {
+    padding: 0 0 16px;
+    font-size: 14px;
+    line-height: 1.65;
+    opacity: .8;
+  }
+  #calqix-pinfo-{{ section.id }} .wt-collapse__target--text ul {
+    padding-left: 18px;
+    margin: 6px 0 0;
+  }
+  #calqix-pinfo-{{ section.id }} .wt-collapse__target--text li {
+    margin-bottom: 4px;
+  }
+
+  /* ── Custom CSS injection ── */
+  {% if section.settings.custom_css != blank %}
+    {{ section.settings.custom_css }}
+  {% endif %}
+</style>
+
+<div id="calqix-pinfo-{{ section.id }}">
+
+  {%- for block in section.blocks -%}
+    {%- case block.type -%}
+
+      {%- when 'rating' -%}
+        {%- if block.settings.show_rating -%}
+          <div class="cpi-rating" {{ block.shopify_attributes }}>
+            <span class="cpi-stars">
+              {%- assign rating = block.settings.rating_value -%}
+              {%- for i in (1..5) -%}
+                {%- if i <= rating -%}★{%- else -%}☆{%- endif -%}
+              {%- endfor -%}
+            </span>
+            <span>({{ block.settings.review_count }} {{ block.settings.review_label }})</span>
+          </div>
+        {%- endif -%}
+
+      {%- when 'title' -%}
+        {%- if block.settings.show_brand and block.settings.brand != blank -%}
+          <div class="cpi-brand" {{ block.shopify_attributes }}>{{ block.settings.brand }}</div>
+        {%- endif -%}
+        <h1 class="cpi-title">{{ product.title }}</h1>
+
+      {%- when 'price' -%}
+        <div class="cpi-price-wrap" {{ block.shopify_attributes }}>
+          <span class="cpi-price">
+            {{ selected_variant.price | money }}
+          </span>
+          {%- if selected_variant.compare_at_price > selected_variant.price -%}
+            <span class="cpi-price-compare">{{ selected_variant.compare_at_price | money }}</span>
+          {%- endif -%}
+        </div>
+        {%- if block.settings.show_tax_label -%}
+          <div class="cpi-tax-label">{{ block.settings.tax_label }}</div>
+        {%- endif -%}
+
+      {%- when 'variant_swatches' -%}
+        {%- if block.settings.swatch_label != blank -%}
+          <div class="cpi-variants" {{ block.shopify_attributes }}>
+            <div class="cpi-variants__label">{{ block.settings.swatch_label }}</div>
+            <ul class="cpi-swatches">
+              {%- for colour_block in section.blocks -%}
+                {%- if colour_block.type == 'swatch_item' -%}
+                  {%- assign is_active = false -%}
+                  {%- if colour_block.settings.product_handle == product.handle -%}
+                    {%- assign is_active = true -%}
+                  {%- endif -%}
+                  <li>
+                    <a href="/products/{{ colour_block.settings.product_handle }}"
+                       style="background-color: {{ colour_block.settings.swatch_color }}; display:block;"
+                       class="cpi-swatch {% if is_active %}is-active{% endif %}"
+                       title="{{ colour_block.settings.colour_name }}">
+                      <span class="cpi-swatch__tooltip">{{ colour_block.settings.colour_name }}</span>
+                    </a>
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+
+      {%- when 'swatch_item' -%}
+        {%- comment -%} Rendered via variant_swatches loop above {%- endcomment -%}
+
+      {%- when 'buy_buttons' -%}
+        <product-form class="cpi-form" {{ block.shopify_attributes }}>
+          {%- form 'product', product, id: product_form_id, class: 'cpi-form__inner', novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+            <input type="hidden" name="id" value="{{ selected_variant.id }}">
+            <div class="cpi-buy-row">
+              {%- if block.settings.show_qty -%}
+                <div class="cpi-qty">
+                  <button type="button" aria-label="Decrease quantity" onclick="
+                    var inp = this.parentNode.querySelector('.cpi-qty__num');
+                    if(parseInt(inp.value) > 1) inp.value = parseInt(inp.value) - 1;
+                  ">−</button>
+                  <input class="cpi-qty__num" type="number" name="quantity" value="1" min="1" max="99" aria-label="Quantity">
+                  <button type="button" aria-label="Increase quantity" onclick="
+                    var inp = this.parentNode.querySelector('.cpi-qty__num');
+                    inp.value = parseInt(inp.value) + 1;
+                  ">+</button>
+                </div>
+              {%- endif -%}
+              <button type="submit" name="add"
+                class="cpi-atc js-add-to-cart"
+                {% unless selected_variant.available %}disabled{% endunless %}>
+                {% if selected_variant.available %}
+                  {{ block.settings.atc_label }}
+                {% else %}
+                  {{ block.settings.sold_out_label }}
+                {% endif %}
+              </button>
+            </div>
+          {%- endform -%}
+        </product-form>
+
+      {%- when 'promo' -%}
+        {%- if block.settings.promo_text != blank -%}
+          <div class="cpi-promo" {{ block.shopify_attributes }}>
+            {{ block.settings.promo_text }}
+          </div>
+        {%- endif -%}
+
+      {%- when 'separator' -%}
+        <hr class="cpi-sep" {{ block.shopify_attributes }}>
+
+      {%- when 'collapsible_tab' -%}
+        {%- if block.settings.tab_heading != blank -%}
+          <collapsible-section
+            class="wt-collapse wt-collapse--always"
+            data-toggle-tabindex="button, [href], input, select"
+          >
+            <div
+              role="button"
+              tabindex="0"
+              class="wt-collapse__trigger{% if block.settings.is_open %} wt-collapse__trigger--active{% endif %}"
+              {% if block.settings.is_open %}data-open="true"{% endif %}
+              aria-expanded="{% if block.settings.is_open %}true{% else %}false{% endif %}"
+              aria-controls="CpiTab-{{ block.id }}"
+              {{ block.shopify_attributes }}
+            >
+              <div class="wt-collapse__trigger__text">
+                {%- if block.settings.tab_icon != blank -%}
+                  <span style="font-size:16px; line-height:1;">{{ block.settings.tab_icon }}</span>
+                {%- endif -%}
+                <div class="wt-collapse__trigger__title">{{ block.settings.tab_heading }}</div>
+              </div>
+              <div class="wt-icon" aria-hidden="true">+</div>
+            </div>
+            <div class="wt-collapse__target{% if block.settings.is_open %} is-open{% endif %}"
+                 id="CpiTab-{{ block.id }}">
+              <div class="wt-collapse__target--text rte">
+                {{ block.settings.tab_content }}
+              </div>
+            </div>
+          </collapsible-section>
+        {%- endif -%}
+
+    {%- endcase -%}
+  {%- endfor -%}
+
+</div>
+
+<script>
+(function() {
+  var section = document.getElementById('calqix-pinfo-{{ section.id }}');
+  if (!section) return;
+
+  /* ── Collapsible accordion (fallback als ROOT JS niet aanwezig is) ── */
+  section.querySelectorAll('.wt-collapse__trigger').forEach(function(trigger) {
+    trigger.addEventListener('click', function() {
+      var target = document.getElementById(trigger.getAttribute('aria-controls'));
+      var isOpen = trigger.getAttribute('aria-expanded') === 'true';
+
+      trigger.setAttribute('aria-expanded', !isOpen);
+      trigger.classList.toggle('wt-collapse__trigger--active', !isOpen);
+      if (target) target.classList.toggle('is-open', !isOpen);
+    });
+
+    trigger.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trigger.click(); }
+    });
+  });
+
+  {% if section.settings.custom_js != blank %}
+  (function() {
+    var sectionId = '{{ section.id }}';
+    {{ section.settings.custom_js }}
+  })();
+  {% endif %}
+})();
+</script>
+
+{% schema %}
+{
+  "name": "CALQIX Product Info",
+  "tag": "section",
+  "class": "calqix-product-info-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "🎨 Kleuren"
+    },
+    {
+      "type": "color",
+      "id": "color_navy",
+      "label": "Navy (hoofd kleur)",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "color_gold",
+      "label": "Goud (accent)",
+      "default": "#C9A84C"
+    },
+    {
+      "type": "color",
+      "id": "color_bg",
+      "label": "Achtergrond",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "Tekst kleur",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "color_border",
+      "label": "Border / scheidingslijn",
+      "default": "#E4E4E0"
+    },
+    {
+      "type": "color",
+      "id": "color_btn_bg",
+      "label": "Knop achtergrond",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "color_btn_text",
+      "label": "Knop tekst",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "color_promo_bg",
+      "label": "Promo balk achtergrond",
+      "default": "#2E7D32"
+    },
+    {
+      "type": "color",
+      "id": "color_promo_text",
+      "label": "Promo balk tekst",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "📐 Typografie & Spacing"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Titel font-size (px)",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "label": "Prijs font-size (px)",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "swatch_size",
+      "label": "Swatch grootte (px)",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "default": 36
+    },
+    {
+      "type": "checkbox",
+      "id": "swatch_round",
+      "label": "Ronde swatches",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "label": "Verticale padding (px)",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Horizontale padding (px)",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "⚙️ Custom Code"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Gebruik #calqix-pinfo-{{ section.id }} als selector."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_js",
+      "label": "Custom JavaScript",
+      "info": "'section' variabele verwijst naar het sectie-element, 'sectionId' naar het unieke ID."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "rating",
+      "name": "⭐ Rating",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_rating",
+          "label": "Toon rating",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "rating_value",
+          "label": "Sterren (1–5)",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "text",
+          "id": "review_count",
+          "label": "Aantal reviews (tekst)",
+          "default": "42"
+        },
+        {
+          "type": "text",
+          "id": "review_label",
+          "label": "Review label",
+          "default": "reviews"
+        }
+      ]
+    },
+    {
+      "type": "title",
+      "name": "T Titel",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_brand",
+          "label": "Toon merkname boven titel",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "brand",
+          "label": "Merknaam",
+          "default": "CALQIX"
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "💶 Prijs",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_tax_label",
+          "label": "Toon belasting-label",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "tax_label",
+          "label": "Belasting-label tekst",
+          "default": "Tax included."
+        }
+      ]
+    },
+    {
+      "type": "variant_swatches",
+      "name": "🎨 Kleur swatches label",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "swatch_label",
+          "label": "Label boven swatches",
+          "default": "Color"
+        }
+      ]
+    },
+    {
+      "type": "swatch_item",
+      "name": "🔵 Kleurvariant",
+      "settings": [
+        {
+          "type": "text",
+          "id": "colour_name",
+          "label": "Naam van de kleur",
+          "default": "Midnight Black"
+        },
+        {
+          "type": "color",
+          "id": "swatch_color",
+          "label": "Swatch kleur",
+          "default": "#1A1A1A"
+        },
+        {
+          "type": "text",
+          "id": "product_handle",
+          "label": "Product handle",
+          "info": "bijv. flowcore-midnight-black"
+        }
+      ]
+    },
+    {
+      "type": "buy_buttons",
+      "name": "🛒 Koop knoppen",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_qty",
+          "label": "Toon hoeveelheidskiezer",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "atc_label",
+          "label": "Add to Cart tekst",
+          "default": "Add to cart"
+        },
+        {
+          "type": "text",
+          "id": "sold_out_label",
+          "label": "Uitverkocht tekst",
+          "default": "Sold out"
+        }
+      ]
+    },
+    {
+      "type": "promo",
+      "name": "📢 Promo balk",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "promo_text",
+          "label": "Promo tekst",
+          "default": "+10.000 Happy Customers — Free shipping on orders over €80"
+        }
+      ]
+    },
+    {
+      "type": "separator",
+      "name": "— Scheidingslijn",
+      "settings": []
+    },
+    {
+      "type": "collapsible_tab",
+      "name": "📋 Inklapbare tab",
+      "settings": [
+        {
+          "type": "text",
+          "id": "tab_heading",
+          "label": "Tab titel",
+          "default": "Description"
+        },
+        {
+          "type": "text",
+          "id": "tab_icon",
+          "label": "Emoji icon (optioneel)",
+          "info": "bijv. 👁 💊 🚚 ✅"
+        },
+        {
+          "type": "richtext",
+          "id": "tab_content",
+          "label": "Tab inhoud",
+          "default": "<p>Voeg hier de inhoud van deze tab in.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "is_open",
+          "label": "Standaard open",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX Product Info",
+      "blocks": [
+        { "type": "rating" },
+        { "type": "title" },
+        { "type": "price" },
+        { "type": "variant_swatches" },
+        {
+          "type": "swatch_item",
+          "settings": {
+            "colour_name": "Midnight Black",
+            "swatch_color": "#1A1A1A",
+            "product_handle": "flowcore-midnight-black"
+          }
+        },
+        {
+          "type": "swatch_item",
+          "settings": {
+            "colour_name": "Clinical White",
+            "swatch_color": "#F0F0F0",
+            "product_handle": "flowcore-clinical-white"
+          }
+        },
+        {
+          "type": "swatch_item",
+          "settings": {
+            "colour_name": "Lime Green",
+            "swatch_color": "#7EC850",
+            "product_handle": "flowcore-lime-green"
+          }
+        },
+        {
+          "type": "swatch_item",
+          "settings": {
+            "colour_name": "Blush Pink",
+            "swatch_color": "#E8A0A0",
+            "product_handle": "flowcore-blush-pink"
+          }
+        },
+        { "type": "buy_buttons" },
+        { "type": "promo" },
+        { "type": "separator" },
+        {
+          "type": "collapsible_tab",
+          "settings": {
+            "tab_heading": "Description",
+            "tab_content": "<p>Before your enamel can rebuild, it needs a clean surface. The FlowCore removes up to 99.9% of plaque in seconds — preparing your teeth for maximum mineral absorption.</p>",
+            "is_open": true
+          }
+        },
+        {
+          "type": "collapsible_tab",
+          "settings": {
+            "tab_heading": "Benefits",
+            "tab_icon": "👁",
+            "tab_content": "<ul><li>1,600 pulsations per minute</li><li>Reaches 6mm below the gumline</li><li>4 pressure modes</li><li>IPX7 waterproof</li><li>30-day battery life</li></ul>"
+          }
+        },
+        {
+          "type": "collapsible_tab",
+          "settings": {
+            "tab_heading": "How to Use",
+            "tab_content": "<p>Fill tank, select mode, guide tip along gumline. Use before your CALQIX enamel tablet for maximum effect.</p>"
+          }
+        },
+        {
+          "type": "collapsible_tab",
+          "settings": {
+            "tab_heading": "In the Box",
+            "tab_content": "<ul><li>1× FlowCore device</li><li>4× replacement nozzles</li><li>1× USB-C charging cable</li><li>1× travel pouch</li><li>Quick-start guide</li></ul>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

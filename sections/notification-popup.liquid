@@ -1,0 +1,419 @@
+<script src="{{ 'notification-popup.js' | asset_url }}" defer="defer"></script>
+
+{% assign background_rgb = section.settings.background_color | color_to_rgb %}
+{% assign text_rgb = section.settings['color-body-text'] | color_to_rgb %}
+
+<style>
+    [data-section-id="{{ section.id }}"]
+    {
+      {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+        --color-background: {{ section.settings.background_color }};
+        {% endif %}
+
+        {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+            --color-custom-text: {{ section.settings.color-body-text }};
+        {% endif %}
+
+        {% if section.settings.margin-top %}
+            --section-gap-top: {{ section.settings.margin-top }}px;
+        {% endif %}
+
+        {% if section.settings.margin-bottom %}
+            --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+        {% endif %}
+
+    }
+
+  {%- for block in section.blocks -%}
+    [data-block-id="{{ block.id }}"]
+    {
+
+          --font-headline-scale-desk: {{ block.settings.size_heading | divided_by: 100.0 }};
+
+          --font-headline-scale: {{ block.settings.size_heading_mobile | divided_by: 100.0 }};
+
+    }
+  {%- endfor -%}
+
+  hr{
+    color: var(--color-border);
+  }
+
+  #shopify-section-{{ section.id }}{
+        --max-width: {{ section.settings.max_width }}px;
+
+        {% case section.settings.desktop_vertical_position %}
+            {% when 'top' %}
+                --top: 32px;
+            {% when 'center' %}
+                --top: 50%;
+                --translateY : -50%;
+            {% when 'bottom' %}
+                --bottom: 32px;
+            {% endcase %}
+
+            {% case section.settings.desktop_horizontal_position %}
+            {% when 'left' %}
+                --left: 32px;
+            {% when 'center' %}
+                --left: 50%;
+                --translateX: -50%;
+            {% when 'right' %}
+                --right: 32px;
+        {% endcase %}
+    }
+</style>
+
+{% assign has_subscription = false %}
+{% if customer.tags contains 'newsletter' %}
+  {% assign has_subscription = true %}
+{% endif %}
+
+<div
+  data-section-id="{{ section.id }}"
+  class="
+    newsletter newsletter--popup
+    newsletter--ver-{{ section.settings.desktop_vertical_position }}
+    newsletter--hor-{{ section.settings.desktop_horizontal_position }}
+    {% if section.settings.show_shadow %} newsletter--shadow{% endif %}
+    {% if section.settings.show_border %} newsletter--border{% endif %}
+  "
+>
+  <div class="newsletter__container">
+    {% if section.settings.desktop_image or section.settings.mobile_image %}
+      <div class="newsletter__image">
+        {% render 'picture',
+          desktop_image: section.settings.desktop_image,
+          mobile_image: section.settings.mobile_image,
+          loading_option: 'eager'
+        %}
+      </div>
+    {% endif %}
+
+    <div class="newsletter__wrapper--popup">
+      <notification-popup data-has-subscription="{{ has_subscription }}" data-delay="{{ section.settings.delay }}">
+        <nav class="newsletter__nav">
+          <a class="newsletter__close-btn" href="#">
+            {% render 'icons', id: 'close' %}
+          </a>
+        </nav>
+      </notification-popup>
+
+      <div class="newsletter__content">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when '@app' -%}
+              {% render block %}
+            {%- when 'custom_liquid' -%}
+              {{ block.settings.custom_liquid }}
+            {%- when 'heading' -%}
+              <h2
+                data-block-id="{{ block.id }}"
+                class="{% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %} hero__title {% if block.settings.heading_disable_on_mobile == true %} hero__title--mobile{% endif %}"
+              >
+                {% render 'headline', title: block.settings.heading %}
+              </h2>
+            {%- when 'paragraph' -%}
+              <div class="{% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %} hero__text newsletter__text{% if block.settings.text_disable_on_mobile == true %} hero__text--mobile{% endif %} rte">
+                {{ block.settings.paragraph }}
+              </div>
+            {%- when 'email_form' -%}
+              {% form 'customer', class: 'newsletter-form' %}
+                <input type="hidden" name="contact[email]" value="newsletter">
+
+                <div class="{% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %} wt-newsletter__fieldset {% if form.posted_successfully? %} hidden {% endif %}">
+                  <input
+                    id="NewsletterForm--{{ section.id }}"
+                    type="email"
+                    name="contact[email]"
+                    class="wt-newsletter__field"
+                    value="{{ form.email }}"
+                    aria-required="true"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    autocomplete="email"
+                    placeholder="{{ 'newsletter.label' | t }}"
+                    required
+                  >
+
+                  <button
+                    aria-label="{{ 'newsletter.button_label' | t }}"
+                    type="submit"
+                    class="wt-newsletter__send wt-newsletter__send--{{ block.settings.button_select }}"
+                    name="commit"
+                  >
+                    <span class="wt-newsletter__send__text">
+                      {{ 'newsletter.button_label' | t }}
+                    </span>
+                  </button>
+                </div>
+                {%- if form.errors -%}
+                <div class="form__message">
+                  <div class="form__error-field">
+                {% for error in form.errors %}
+                  <p id="Newsletter-error--{{ section.id }}">
+                    {% if error == 'form' %}
+                      {{ form.errors.messages[error] }}
+                    {% else %}
+                      {{ form.errors.translated_fields[error] }} - {{ form.errors.messages[error] }}
+                    {% endif %}
+                  </p>
+                {% endfor %}
+              </div>
+              </div>
+              {%- endif -%}
+
+                {%- if form.posted_successfully? -%}
+                  <div class="form__message">
+                    <div class="form__success-field" tabindex="-1" autofocus>
+                      <p>{{- 'newsletter.success' | t }}</p>
+                    </div>
+                  </div>
+                {%- endif -%}
+              {% endform %}
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.notification_popup.name",
+  "tag": "section",
+  "class": "spaced-section spaced-section--full-width not-pu-section hidden",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.notification_popup.settings.important-information.content",
+      "info": "t:sections.notification_popup.settings.important-information.info"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "t:sections.notification_popup.settings.max_width.label",
+      "min": 300,
+      "max": 800,
+      "step": 10,
+      "default": 450,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "delay",
+      "label": "t:sections.notification_popup.settings.delay.label",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "default": 0,
+      "unit": "s"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_border",
+      "label": "t:sections.notification_popup.settings.show_border.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shadow",
+      "label": "t:sections.header.settings.show_shadow.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.mobile_version"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "t:sections.settings.settings.image.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.desktop_version"
+    },
+    {
+      "type": "image_picker",
+      "id": "desktop_image",
+      "label": "t:sections.settings.settings.image.label"
+    },
+    {
+      "type": "select",
+      "id": "desktop_vertical_position",
+      "options": [
+        {
+          "value": "top",
+          "label": "t:sections.image-banner.settings.desktop_text_vertical_position.top.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.image-banner.settings.desktop_text_vertical_position.center.label"
+        },
+        {
+          "value": "bottom",
+          "label": "t:sections.image-banner.settings.desktop_text_vertical_position.bottom.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.notification_popup.settings.desktop_vertical_position.label"
+    },
+    {
+      "type": "select",
+      "id": "desktop_horizontal_position",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.image-banner.settings.desktop_text_horizontal_position.left.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.image-banner.settings.desktop_text_horizontal_position.center.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.image-banner.settings.desktop_text_horizontal_position.right.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.image-banner.settings.desktop_text_horizontal_position.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "color-body-text",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.text-color.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.background-color.label"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "custom_liquid",
+      "name": "t:sections.custom-liquid.name",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "t:sections.custom-liquid.settings.custom_liquid.label",
+          "info": "t:sections.custom-liquid.settings.custom_liquid.info"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "t:sections.newsletter.blocks.heading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "heading",
+          "default": "Subscribe to our emails",
+          "label": "t:sections.settings.settings.heading.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "heading_disable_on_mobile",
+          "label": "t:sections.global.disable_on_mobile",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "size_heading",
+          "min": 50,
+          "max": 500,
+          "step": 10,
+          "default": 100,
+          "label": "t:sections.settings.settings.size-heading.label",
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "size_heading_mobile",
+          "min": 80,
+          "max": 300,
+          "step": 10,
+          "default": 100,
+          "label": "t:sections.settings.settings.size-heading-mobile.label",
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "name": "t:sections.newsletter.blocks.paragraph.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "paragraph",
+          "default": "<p>Be the first to know about new collections and exclusive offers.</p>",
+          "label": "t:sections.settings.settings.text.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "text_disable_on_mobile",
+          "label": "t:sections.global.disable_on_mobile",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "email_form",
+      "name": "t:sections.newsletter.blocks.email_form.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "button_select",
+          "options": [
+            {
+              "value": "primary",
+              "label": "t:sections.settings.settings.button_select.primary.label"
+            },
+            {
+              "value": "secondary",
+              "label": "t:sections.settings.settings.button_select.secondary.label"
+            }
+          ],
+          "default": "primary",
+          "label": "t:sections.settings.settings.button_select.default.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.notification_popup.name",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "paragraph"
+        },
+        {
+          "type": "email_form"
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  }
+}
+{% endschema %}

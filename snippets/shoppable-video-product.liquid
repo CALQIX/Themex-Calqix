@@ -1,0 +1,81 @@
+<div class="shoppable-product-card{% if customClass != blank %} {{ customClass }}{% endif %}">
+  {% comment %}
+    <div class="shoppable-video__play-button-container">
+      <div class="shoppable-video__play-button" data-product-index="{{ forloop.index0 }}">
+        {% render 'icon-play' %}
+      </div>
+    </div>
+  {% endcomment %}
+  {%- if block.settings.featured_product != blank -%}
+    <a href="{{ block.settings.featured_product.url }}" class="wt-dot__link" tabindex="0">
+      <picture class="wt-dot__picture">
+        <img
+          srcset="
+            {% if block.settings.featured_product.featured_image.width >= 300 %}{{ block.settings.featured_product.featured_image | image_url: width: 300 }} 300w, {% endif %}
+            {% if block.settings.featured_product.featured_image.width >= 600 %}{{ block.settings.featured_product.featured_image | image_url: width: 600 }} 600w, {% endif %}
+            {% if block.settings.featured_product.featured_image.width >= 900 %}{{ block.settings.featured_product.featured_image | image_url: width: 900 }} 900w, {% endif %}
+            {{ block.settings.featured_product.featured_image | image_url: width: 300 }} 300w
+          "
+          sizes="(min-width: 900px) 300px, 100vw"
+          src="{{ block.settings.featured_product.featured_image | image_url: width: 300 }}"
+          alt="{{ block.settings.featured_product.featured_image.alt | escape }}"
+          class="wt-dot__image"
+          width="{{ block.settings.featured_product.featured_image.width }}"
+          height="{{ block.settings.featured_product.featured_image.height }}"
+          loading="lazy"
+        >
+      </picture>
+      <div class="wt-dot__body">
+        {% if hide_brand != true %}
+          <div class="wt-dot__brand">{{ block.settings.featured_product.vendor }}</div>
+        {% endif %}
+        <div class="wt-dot__title">{{ block.settings.featured_product.title }}</div>
+        <div class="wt-dot__price">
+          {% render 'price', product: block.settings.featured_product, show_compare_at_price: true, price_class: '' %}
+        </div>
+      </div>
+    </a>
+  {%- else -%}
+    <a href="#" class="wt-dot__link">
+      {% assign my_counter = my_counter | modulo: 3 | plus: 1 %}
+      <div class="wt-dot__img-placeholder">
+        {{ 'product-apparel-3' | placeholder_svg_tag: 'wt-dot__image' }}
+      </div>
+      <div class="wt-dot__body">
+        {% if hide_brand != true %}
+          <div class="wt-dot__brand">{{ 'shoppable_image.brand' | t }}</div>
+        {% endif %}
+        <div class="wt-dot__title">{{ 'shoppable_image.title' | t }}</div>
+        <div class="wt-dot__price">{{ 1999 | money }}</div>
+      </div>
+    </a>
+  {%- endif -%}
+  {%- if section.settings['quick-add-enabled'] or section.settings['rewind-enabled'] -%}
+    <div class="shoppable-video__buttons {% if section.settings.quick-add-enabled and section.settings.rewind-enabled %} shoppable-video__buttons--column {% endif %}">
+      {%- if section.settings['quick-add-enabled'] -%}
+        <quick-add data-product-handle="{{ block.settings.featured_product.handle }}">
+          <button
+            type="submit"
+            class="shoppable-video__add-button"
+            aria-label="Add to cart"
+            data-product-url="{{ block.settings.featured_product.url }}"
+            {% if block.settings.featured_product.url == null %}
+              disabled
+            {% endif %}
+          >
+            {% render 'icons', id: 'bag' %}
+          </button>
+        </quick-add>
+      {%- endif -%}
+      {%- if section.settings['rewind-enabled'] -%}
+        <button
+          class="shoppable-video__rewind-button"
+          aria-label="Rewind video"
+          data-product-index="{{ forloop.index }}"
+        >
+          {% render 'icon-rewind' %}
+        </button>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</div>

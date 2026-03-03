@@ -1,0 +1,30 @@
+<a href="{{ url }}" class="suggest-item">
+  {%- if product.featured_media != blank -%}
+    <figure class="wt-cart__item__thumb suggest-item__thumb">
+      <img
+        src="{{ featured_media | image_url: width: 150 }}"
+        alt="{{ featured_media.alt | escape }}"
+        loading="lazy"
+      >
+    </figure>
+  {%- endif -%}
+  <div class="wt-cart__item__body suggest-item__body">
+    <div class="wt-cart__item__data">
+      {%- if settings.show_product_vendor -%}
+        <div class="wt-cart__item__vendor">{{ product.vendor }}</div>
+      {% endif %}
+      <h3 class="wt-cart__item__name">{{ name }}</h3>
+
+      {%- if settings.show_product_price -%}
+        <div class="wt-cart__item__price">
+          {% render 'price', product: product, use_variant: true, show_badges: false %}
+        </div>
+      {% endif %}
+
+      {% if rating %}
+        {% assign rating_percent = rating.rating | times: 100.0 | divided_by: 5.0 %}
+        {% render 'rating-stars', percent: rating_percent %}
+      {% endif %}
+    </div>
+  </div>
+</a>

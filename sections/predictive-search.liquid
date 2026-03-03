@@ -1,0 +1,167 @@
+{% assign total_results = predictive_search.resources.products.size
+  | plus: predictive_search.resources.pages.size
+  | plus: predictive_search.resources.articles.size
+  | plus: predictive_search.resources.collections.size
+%}
+
+{%- if predictive_search.performed -%}
+  <div
+    id="predictive-search-results"
+    class="search-result {% if total_results == 0 %}search-result--no-results{% endif %}"
+  >
+    {%- if predictive_search.resources.products.size > 0 -%}
+      <div class="search-result-products">
+        <div id="predictive-search-products" class="search-result__title">
+          {{ 'templates.search.titles.products' | t }}
+        </div>
+        <ul
+          id="predictive-search-results-list"
+          class="search-result-list"
+          role="listbox"
+          aria-labelledby="predictive-search-products"
+        >
+          {%- for product in predictive_search.resources.products -%}
+            <li
+              id="predictive-search-option-{{ forloop.index }}"
+              class="search-result-list__item"
+              role="option"
+              aria-selected="false"
+            >
+              {% assign product_name = product.title | highlight: predictive_search.terms %}
+
+              {% render 'suggest-product-item',
+                url: product.url,
+                name: product_name,
+                featured_media: product.featured_media,
+                product: product,
+                rating: product.metafields.reviews.rating.value
+              %}
+
+              <a
+                href="{{ product.url }}"
+                class="predictive-search__item predictive-search__item--link link link--text"
+                tabindex="-1"
+                style="display: none;"
+              >
+                {%- if product.featured_media != blank -%}
+                  <img
+                    class="predictive-search__image"
+                    srcset="
+                      {% if product.featured_media.width >= 50 %}{{ product.featured_media | image_url: width: 50 }} 50w, {% endif %}
+                      {% if product.featured_media.width >= 100 %}{{ product.featured_media | image_url: width: 100 }} 100w, {% endif %}
+                      {% if product.featured_media.width >= 150 %}{{ product.featured_media | image_url: width: 150 }} 150w, {% endif %}
+                      {{ product.featured_media | image_url: width: 50 }} 50w
+                    "
+                    sizes="(min-width: 50px) 50px, 100vw"
+                    src="{{ product.featured_media | image_url: width: 50 }}"
+                    alt="{{ product.featured_media.alt }}"
+                    loading="lazy"
+                    width="50"
+                    height="{{ 50 | divided_by: product.featured_media.preview_image.aspect_ratio | ceil }}"
+                  >
+                {%- endif -%}
+
+                <div class="predictive-search__item-content{% unless settings.show_product_vendor or settings.show_product_price %} predictive-search__item-content--centered{% endunless %}">
+                  {%- if settings.show_product_vendor -%}
+                    <span class="visually-hidden">{{ 'accessibility.vendor' | t }}</span>
+                    <div class="predictive-search__item-vendor caption-with-letter-spacing">{{ product.vendor }}</div>
+                  {%- endif -%}
+
+                  <h3 class="predictive-search__item-heading h5">{{ product.title }}</h3>
+
+                  {%- if settings.show_product_price -%}
+                    {% render 'price', product: product, use_variant: true, show_badges: false %}
+                  {%- endif -%}
+                </div>
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        {% if total_results != 0 %}
+          <div
+            id="predictive-search-option-search-keywords"
+            class="search-result-more search-result-more--desktop"
+            role="option"
+          >
+            <button
+              aria-label="{{ 'templates.search.search_for' | t: terms: predictive_search.terms }}"
+              class="search-result-more__link"
+              tabindex="0"
+            >
+              {{ 'templates.search.search_for' | t: terms: predictive_search.terms }}
+            </button>
+          </div>
+        {% endif %}
+      </div>
+    {%- endif -%}
+
+    {%- if predictive_search.resources.pages.size > 0
+      or predictive_search.resources.articles.size > 0
+      or predictive_search.resources.collections.size > 0
+    -%}
+      <div class="search-result-pages">
+        {% if predictive_search.resources.queries.size > 0 and settings.enable_suggestions %}
+          <div class="search-result__title">{{ 'templates.search.titles.suggestions' | t }}</div>
+          <ul class="search-result-pages__list">
+            {%- for suggestion in predictive_search.resources.queries limit: 3 -%}
+              <li class="search-result-pages__item">
+                <a href="{{ suggestion.url }}">{{ suggestion.text | highlight: predictive_search.terms }}</a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {% endif %}
+        {% if predictive_search.resources.pages.size > 0 %}
+          <div class="search-result__title">{{ 'templates.search.titles.pages' | t }}</div>
+          <ul class="search-result-pages__list">
+            {%- for page in predictive_search.resources.pages limit: 3 -%}
+              <li class="search-result-pages__item">
+                <a href="{{ page.url }}">{{ page.title | highlight: predictive_search.terms }}</a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {% endif %}
+
+        {% if predictive_search.resources.articles.size > 0 %}
+          <div class="search-result__title">{{ 'templates.search.titles.articles' | t }}</div>
+          <ul class="search-result-pages__list">
+            {%- for post in predictive_search.resources.articles limit: 3 -%}
+              <li class="search-result-pages__item">
+                <a href="{{ post.url }}">{{ post.title | highlight: predictive_search.terms }}</a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {% endif %}
+
+        {% if predictive_search.resources.collections.size > 0 %}
+          <div class="search-result__title">{{ 'templates.search.titles.collections' | t }}</div>
+          <ul class="search-result-pages__list">
+            {%- for collection in predictive_search.resources.collections limit: 3 -%}
+              <li class="search-result-pages__item">
+                <a href="{{ collection.url }}">{{ collection.title | highlight: predictive_search.terms }}</a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        {% endif %}
+      </div>
+    {%- endif -%}
+  </div>
+
+  {% if total_results != 0 %}
+    <div id="predictive-search-option-search-keywords" class="search-result-more" role="option">
+      <button
+        aria-label="{{ 'templates.search.search_for' | t: terms: predictive_search.terms }}"
+        class="search-result-more__link"
+        tabindex="-1"
+      >
+        {{ 'templates.search.search_for' | t: terms: predictive_search.terms }}
+      </button>
+    </div>
+  {% endif %}
+
+  {%- if total_results == 0 -%}
+    <span class="" data-predictive-search-live-region-count-value>
+      {{ 'templates.search.no_results' | t: terms: predictive_search.terms }}
+    </span>
+  {%- endif -%}
+{%- endif -%}

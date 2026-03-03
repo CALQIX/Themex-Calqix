@@ -1,0 +1,178 @@
+{% assign product_options = product.options %}
+{% assign product_variants = product.variants %}
+{% assign is_active_value_selected = false %}
+
+{% if settings.variant_picture_swatch_names != blank %}
+  {% assign options_as_color_swatches = settings.variant_picture_swatch_names
+    | newline_to_br
+    | strip_newlines
+    | split: '<br />'
+    | uniq
+  %}
+  {% assign is_variant_picture = true %}
+{% else %}
+  {% assign options_as_color_swatches = settings.color_swatch_names
+    | newline_to_br
+    | strip_newlines
+    | split: '<br />'
+    | uniq
+  %}
+{% endif %}
+
+<div
+  class="
+    card__color-swatcher--container
+    {% if text_alignment == 'center' %} center {% endif %}
+    {% if settings.swatch_method == 'variant_image' %}variant-image{% endif %}
+  "
+  tabindex="-1"
+  data-options-as-color-swatches="{{ options_as_color_swatches | join: ',' }}"
+  data-omit-tabindex
+>
+  {%- comment -%}2. Iterate through colour‑option names{%- endcomment -%}
+  {% for color_swatch_option in options_as_color_swatches %}
+    {% assign downcase_color_swatch_option = color_swatch_option | downcase %}
+    {%- comment -%}Find real option name & its index (1/2/3){%- endcomment -%}
+    {% assign option_name = null %}
+    {% assign variant_color_position = null %}
+    {% for position in product_options %}
+      {% assign downcase_position = position | downcase %}
+      {% if downcase_position == downcase_color_swatch_option %}
+        {% assign option_name = position %}
+        {% assign variant_color_position = forloop.index %}
+        {% break %}
+      {% endif %}
+    {% endfor %}
+
+    {% unless option_name %}
+      {% continue %}
+    {% endunless %}
+
+    
+    {% assign current_active_filters = nil %}
+    {% assign cleaned_color_swatch_option = downcase_color_swatch_option | strip %}
+
+    {% for filter in collection.filters %}
+      {% assign downcase_filter_name = filter.label | downcase %}
+      {% if downcase_filter_name == cleaned_color_swatch_option %}
+        {% assign current_active_filters = filter.active_values %}
+        {% break %}
+      {% endif %}
+    {% endfor %}
+
+    {% assign option_has_swatch = nil %}
+    {% for color in product.options_by_name[option_name].values %}
+      {% if color.swatch %}
+        {% assign option_has_swatch = true %}
+        {% break %}
+      {% endif %}
+    {% endfor %}
+
+    
+
+    {%- comment -%}3. Loop through every colour value{%- endcomment -%}
+    {% for color in product.options_by_name[option_name].values %}
+      {% assign rep_variant = null %}
+      {% assign color_available = false %}
+
+      {% for variant in product_variants %}
+        {% if variant_color_position == 1 %}
+          {% assign variant_option = variant.option1 %}
+        {% elsif variant_color_position == 2 %}
+          {% assign variant_option = variant.option2 %}
+        {% else %}
+          {% assign variant_option = variant.option3 %}
+        {% endif %}
+
+        {% if variant_option == color %}
+          {% unless rep_variant %}
+            {% assign rep_variant = variant %}
+          {% endunless %}
+          {% if variant.available %}
+            {% assign rep_variant = variant %}
+            {% assign color_available = true %}
+            {% break %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      {% unless rep_variant %}
+        {% continue %}
+      {% endunless %}
+      
+      {% assign featured_media = rep_variant.featured_media.preview_image | default: product.featured_media.preview_image %}
+
+      {%- comment -%}Optional hover image{%- endcomment -%}
+      {% assign new_hover_image = null %}
+      {% for pic in product.images %}
+        {% assign hover_image = pic.alt | split: '#' %}
+        {% if hover_image[1] == color and pic.id != rep_variant.image.id %}
+          {% assign new_hover_image = pic %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+
+
+      {%- assign swatches_config = settings.swatches_config | newline_to_br | split: '<br />' -%}
+
+      {% assign active_color = nil %}
+      {% for active_filter in current_active_filters %}
+        {% if active_filter.label == color %}
+          {% assign active_color = active_filter.label %}
+        {% endif %}
+      {% endfor %}
+
+      
+      {%- comment -%}4. Render swatch{%- endcomment -%}
+      <div
+        class="
+        {{ active_color }}
+        color-swatcher--wrapper
+        {% if is_variant_picture %} variant-image {% endif %}
+        {% unless color_available %}unavailable{% endunless %}
+        {% if settings.enable_round_color_swatches %} rounded {% endif %}
+        "
+      >
+        <div
+          class="
+            color-swatcher
+            {% if is_variant_picture %} variant-image {% endif %}
+            {% unless color_available %}unavailable{% endunless %}
+            {% if settings.enable_round_color_swatches %} rounded {% endif %}
+          "
+          data-color="{{ color }}"
+          {%- if color.variant.matched and is_active_value_selected == false and are_filters_active == true -%} 
+            data-active-swatch 
+            {% assign is_active_value_selected = true %}
+          {%- endif -%}
+          data-img="{% if featured_media %}{{ featured_media | image_url: width: 1000 }}{% endif %}"
+          data-srcset="
+            {% if featured_media %}
+              {% if featured_media.width >= 375 %}{{ featured_media | image_url: width: 375 }} 375w,{% endif %}
+              {% if featured_media.width >= 750 %}{{ featured_media | image_url: width: 750 }} 750w,{% endif %}
+              {% if featured_media.width >= 1000 %}{{ featured_media | image_url: width: 1000 }} 1000w,{% endif %}
+              {% if featured_media.width >= 1440 %}{{ featured_media | image_url: width: 1440 }} 1440w,{% endif %}
+              {{ featured_media | image_url: width: 1000 }} 1000w
+            {% endif %}
+          "
+          data-href="{{ rep_variant.url }}"
+          data-hover="{% if new_hover_image %}{{ new_hover_image | image_url: width: 1000 }}{% endif %}"
+          style="
+            {% if is_variant_picture %}
+                    background-image: url({{ featured_media | image_url: width: 48 }});
+            {% else %}
+                {% render 'color-swatch-style', swatches_config: swatches_config, value: color %};
+            {% endif %}
+          "
+          tabindex="0"
+        ></div>
+
+        <span class="color-swatcher--tooltip hidden">{{ color }}</span>
+        {% unless color_available %}
+          <div class="unavailable-line"></div>
+        {% endunless %}
+      </div>
+    {% endfor %}
+  {% endfor %}
+  <span class="color-swatcher--counter"></span>
+</div>

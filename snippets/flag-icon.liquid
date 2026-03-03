@@ -1,0 +1,17 @@
+{%- assign code = country_code | default: 'xx' | downcase -%}
+{%- assign code_upcase = code | upcase -%}
+{%- assign flag_width = width | default: '24' -%}
+{%- assign flag_height = height | default: '18' -%}
+
+{%- assign default_alt = 'Flag of ' | append: code_upcase -%}
+
+{%- assign img_alt = alt | default: default_alt -%}
+
+<img
+  src="https://cdn.shopify.com/static/images/flags/{{ code }}.svg"
+  alt="{{ img_alt }}"
+  width="{{ flag_width }}"
+  height="{{ flag_height }}"
+  loading="lazy"
+  class="wt-flag-icon wt-flag-icon--{{ code }}"
+>

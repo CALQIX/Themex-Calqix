@@ -1,0 +1,353 @@
+{{ 'section-brands.css' | asset_url | stylesheet_tag }}
+{{ 'swiper.css' | asset_url | stylesheet_tag }}
+
+{% assign background_rgb = section.settings.background_color | color_to_rgb %}
+{% assign text_rgb = section.settings['color-body-text'] | color_to_rgb %}
+
+<style>
+  [data-section-id="{{ section.id }}"]
+  {
+  {% if section.settings.margin-top %}
+    --section-gap-top: {{ section.settings.margin-top }}px;
+  {% endif %}
+
+  {% if section.settings.margin-bottom %}
+    --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+  {% endif %}
+
+  {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+    --color-background: {{ section.settings.background_color }};
+  {% endif %}
+
+  {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+    --color-custom-text: {{ section.settings.color-body-text }};
+    {% comment %} --color-links-active: {{ section.settings.color-body-text }}; {% endcomment %}
+  {% endif %}
+  }
+</style>
+
+{% case section.settings.animation_speed %}
+  {% when '150' %}
+    {% assign speed = 30 | times: section.blocks.size | round %}
+  {% when '100' %}
+    {% assign speed = 16.6 | times: section.blocks.size | round %}
+  {% when '50' %}
+    {% assign speed = 8.3 | times: section.blocks.size | round %}
+{% endcase %}
+
+<div
+  data-section-id="{{ section.id }}"
+  class="wt-slider wt-brands__container{% if section.settings.animation == 'marquee' %} wt-brands__container--marquee{% endif %}"
+>
+  {% render 'headline', title: section.settings.heading %}
+
+  {% if section.settings.animation == 'swipe' %}
+    <script type="module" src="{{ 'slider.js' | asset_url }}" defer="defer"></script>
+    <slideshow-section class="wt-slider slide-in" data-brands="true">
+  {% endif %}
+
+  <div
+    {% if section.settings.animation == 'swipe' %}
+      data-swiper
+    {% endif %}
+    class="wt-slider__container--featured{% if section.settings.animation == 'marquee' %} wt-brands__marquee {% endif %}"
+    {% if section.settings.animation == 'marquee' %}
+      style="--time:{{ speed }}s"
+    {% endif %}
+  >
+    {% liquid
+      if section.blocks.size > 3
+        if section.settings.animation != 'swipe'
+          assign justify_class = 'wt-brands--many-items'
+        else
+          assign justify_class = 'wt-brands-many-items swiper'
+        endif
+      else
+        if section.settings.animation != 'swipe'
+          assign justify_class = 'wt-brands--few-items'
+        else
+          assign justify_class = 'wt-brands-few-items swiper'
+        endif
+      endif
+      if section.settings.animation == 'marquee'
+        assign multiply = 3
+      else
+        assign multiply = 1
+      endif
+    %}
+
+    <!-- Additional required wrapper -->
+    <div
+      {% if section.settings.animation == 'swipe' %}
+        data-swiper-container
+      {% endif %}
+      class="wt-brands {{ justify_class }} {% if section.settings.animation == 'swipe' %} wt-brands--swipe {% endif %}{% if section.settings.animation == 'marquee' %} wt-brands__marquee__content wt-brands__marquee__content--1 {% endif %}"
+    >
+      {% for i in (1..multiply) %}
+        {% for block in section.blocks %}
+          <div
+            {% if section.settings.animation == 'swipe' %}
+              data-swiper-slide
+            {% endif %}
+            class="wt-brands__item"
+          >
+            <div
+              {% if settings.animations %}
+                data-cascade
+                style="--animation-order: {{ forloop.index }};"
+              {% endif %}
+            >
+              <a
+                href="{{ block.settings.link | default: '#' }}"
+                class="wt-brands__link"
+                aria-label="{{ 'aria-label.brands-url' | t }}"
+                tabindex="{% if block.settings.link != nil and section.settings.animation == 'swipe' %}0{% else %}-1{% endif %}"
+              >
+                {% if block.settings.desktop_image != blank %}
+                  {% assign alt_text = block.settings.desktop_image.alt | escape %}
+                  {{
+                    block.settings.desktop_image
+                    | image_url: width: 280
+                    | image_tag:
+                      widths: '140, 280',
+                      sizes: '140px',
+                      alt: alt_text,
+                      loading: 'eager',
+                      class: 'wt-brands__image'
+                  }}
+                {% else %}
+                  <div class="wt-brands__image">
+                    {{ 'image' | placeholder_svg_tag: 'wt-brands__image--placeholder' }}
+                  </div>
+                {% endif %}
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+
+    {% if section.settings.animation == 'marquee' %}
+      <div class="wt-brands {{ justify_class }} wt-brands__marquee__content wt-brands__marquee__content--2 ">
+        {% for i in (1..multiply) %}
+          {% for block in section.blocks %}
+            <div class="wt-brands__item">
+              <div
+                {% if settings.animations %}
+                  data-cascade
+                  style="--animation-order: {{ forloop.index }};"
+                {% endif %}
+              >
+                <a
+                  href="{{ block.settings.link | default: '#' }}"
+                  class="wt-brands__link"
+                  aria-label="{{ 'aria-label.brands-url' | t }}"
+                  tabindex="-1"
+                >
+                  {% if block.settings.desktop_image != blank %}
+                    {% assign alt_text = block.settings.desktop_image.alt | escape %}
+
+                    {{
+                      block.settings.desktop_image
+                      | image_url: width: 280
+                      | image_tag:
+                        widths: '140, 280',
+                        sizes: '140px',
+                        alt: alt_text,
+                        loading: 'eager',
+                        class: 'wt-brands__image'
+                    }}
+                    <span class="hidden">{{ alt_text }}</span>
+                  {% else %}
+                    <div class="wt-brands__image">
+                      {{ 'collection-apparel-1' | placeholder_svg_tag: 'wt-brands__image--placeholder' }}
+                    </div>
+                  {% endif %}
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if section.settings.animation == 'swipe' %}
+      <div class="swiper-button-next wt-slider__nav-btn wt-slider__nav-next wt-slider__nav-next--featured">
+        {% render 'icons', id: 'arrow-right' %}
+      </div>
+      <div class="swiper-button-prev wt-slider__nav-btn wt-slider__nav-prev wt-slider__nav-prev--featured">
+        {% render 'icons', id: 'arrow-left' %}
+      </div>
+      <div class="swiper-pagination wt-slider__pagination"></div>
+    {% endif %}
+  </div>
+
+  {% if section.settings.animation == 'swipe' %}
+    <script data-swiper-configuration type="text/json">
+        {
+          "enableOnMedia": "(max-width: 900px)",
+          "spaceBetween": 8,
+          "freeMode": false,
+          "speed": 150,
+          "grabCursor": false,
+          "paginationType": "bullets",
+          "breakpoints": {
+            "320": {
+              "slidesPerView": {% if section.blocks.size <= 3 %}{{ section.blocks.size }}{% else %}3.1{% endif %},
+            "slidesPerGroup": {% if section.blocks.size <= 3 %}{{ section.blocks.size }}{% else %}3{% endif %},
+            "spaceBetween": 24
+          },
+          "600": {
+            "slidesPerView": {% if section.blocks.size <= 3 %}{{ section.blocks.size }}{% else %}3.5{% endif %},
+            "slidesPerGroup": {% if section.blocks.size <= 3 %}{{ section.blocks.size }}{% else %}3{% endif %},
+            "spaceBetween": 24
+          },
+          "900": {
+            "slidesPerView": {% if section.blocks.size <= 4 %}{{ section.blocks.size }}{% else %}4.1{% endif %},
+            "slidesPerGroup": {% if section.blocks.size <= 4 %}{{ section.blocks.size }}{% else %}4{% endif %},
+            "spaceBetween": 32
+          }
+        },
+        "navigation": {
+          "nextEl": ".wt-slider__nav-next--featured",
+          "prevEl": ".wt-slider__nav-prev--featured"
+        }
+      }
+    </script>
+    </slideshow-section>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.brands.name",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "t:sections.settings.settings.heading.label",
+      "default": "Brands"
+    },
+    {
+      "type": "select",
+      "id": "animation",
+      "options": [
+        {
+          "value": "swipe",
+          "label": "t:sections.brands.settings.animation-mode.swipe.label"
+        },
+        {
+          "value": "marquee",
+          "label": "t:sections.brands.settings.animation-mode.marquee.label"
+        }
+      ],
+      "label": "t:sections.brands.settings.animation-mode.label",
+      "default": "swipe",
+      "info": "t:sections.brands.settings.animation-mode.info"
+    },
+    {
+      "type": "select",
+      "id": "animation_speed",
+      "options": [
+        {
+          "value": "150",
+          "label": "t:sections.brands.settings.marquee-speed.slow.label"
+        },
+        {
+          "value": "100",
+          "label": "t:sections.brands.settings.marquee-speed.normal.label"
+        },
+        {
+          "value": "50",
+          "label": "t:sections.brands.settings.marquee-speed.fast.label"
+        }
+      ],
+      "label": "t:sections.brands.settings.marquee-speed.label",
+      "default": "100"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "color-body-text",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.text-color.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.background-color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.section_spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin-top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 20,
+      "unit": "px",
+      "label": "t:sections.settings.settings.distance-top.label"
+    },
+    {
+      "type": "range",
+      "id": "margin-bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 20,
+      "unit": "px",
+      "label": "t:sections.settings.settings.distance-bottom.label",
+      "info": "t:sections.settings.settings.distance-bottom.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "t:sections.brands.settings.image.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "desktop_image",
+          "label": "t:sections.settings.settings.image.label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.settings.settings.link.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.brands.settings.presets.name",
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

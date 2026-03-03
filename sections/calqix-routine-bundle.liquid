@@ -1,0 +1,909 @@
+{% comment %}
+  CALQIX — Routine + Bundle Upsell
+  Bestandsnaam: sections/calqix-routine-bundle.liquid
+  
+  Volledig aanpasbaar via Shopify Theme Customizer:
+  - Routine stappen via blocks (add / reorder / remove)
+  - Bundle card: alle tekst, prijs, oud prijs, besparing, button
+  - Bundle linkt naar een Shopify product (via handle) of custom URL
+  - Kleuren, layout, typografie, spacing
+  - Layout toggle: routine links + bundle rechts OF omgekeerd
+  - Custom CSS + JS
+{% endcomment %}
+
+{% assign bg_outer    = section.settings.background_color %}
+{% assign bg_card     = section.settings.card_background %}
+{% assign label_col   = section.settings.label_color %}
+{% assign title_col   = section.settings.title_color %}
+{% assign sub_col     = section.settings.subtitle_color %}
+{% assign step_icon_bg = section.settings.step_icon_background %}
+{% assign step_head   = section.settings.step_heading_color %}
+{% assign step_body   = section.settings.step_body_color %}
+{% assign bdr_col     = section.settings.border_color %}
+{% assign card_label  = section.settings.card_label_color %}
+{% assign card_title  = section.settings.card_title_color %}
+{% assign card_body   = section.settings.card_body_color %}
+{% assign card_item   = section.settings.card_item_color %}
+{% assign check_col   = section.settings.check_color %}
+{% assign price_col   = section.settings.price_color %}
+{% assign old_col     = section.settings.old_price_color %}
+{% assign save_bg     = section.settings.save_background %}
+{% assign save_col    = section.settings.save_color %}
+{% assign btn_bg      = section.settings.button_background %}
+{% assign btn_col     = section.settings.button_color %}
+{% assign btn_hover   = section.settings.button_hover %}
+{% assign pad_v       = section.settings.padding_vertical %}
+{% assign pad_h       = section.settings.padding_horizontal %}
+
+{% if section.settings.bundle_product_handle != blank %}
+  {% assign bundle_product = all_products[section.settings.bundle_product_handle] %}
+{% endif %}
+
+{% assign bundle_url = section.settings.bundle_url %}
+{% if bundle_product and bundle_url == blank %}
+  {% assign bundle_url = bundle_product.url %}
+{% endif %}
+{% if bundle_url == blank %}
+  {% assign bundle_url = '/collections/bundles' %}
+{% endif %}
+
+<style>
+  #calqix-routine-{{ section.id }} {
+    background: {{ bg_outer }};
+    padding: {{ pad_v }}px {{ pad_h }}px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-inner {
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: {{ section.settings.col_gap }}px;
+    align-items: center;
+    {% if section.settings.flip_layout %}direction: rtl;{% endif %}
+  }
+
+  #calqix-routine-{{ section.id }} .crb-left,
+  #calqix-routine-{{ section.id }} .crb-right {
+    {% if section.settings.flip_layout %}direction: ltr;{% endif %}
+  }
+
+  #calqix-routine-{{ section.id }} .crb-label {
+    font-size: {{ section.settings.label_size }}px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: {{ label_col }};
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-title {
+    font-family: {{ section.settings.title_font }};
+    font-size: {{ section.settings.title_size }}px;
+    color: {{ title_col }};
+    margin-bottom: 12px;
+    line-height: 1.15;
+    font-weight: 400;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-sub {
+    font-size: {{ section.settings.subtitle_size }}px;
+    color: {{ sub_col }};
+    line-height: 1.7;
+    margin-bottom: {{ section.settings.steps_gap_top }}px;
+    font-weight: 300;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-steps {
+    border-top: 1px solid {{ bdr_col }};
+  }
+
+  #calqix-routine-{{ section.id }} .crb-step {
+    display: flex;
+    gap: {{ section.settings.step_inner_gap }}px;
+    padding: {{ section.settings.step_padding }}px 0;
+    border-bottom: 1px solid {{ bdr_col }};
+    align-items: flex-start;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-step-icon {
+    width: {{ section.settings.icon_size }}px;
+    height: {{ section.settings.icon_size }}px;
+    background: {{ step_icon_bg }};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: {{ section.settings.icon_font_size }}px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-step h4 {
+    font-size: {{ section.settings.step_heading_size }}px;
+    font-weight: 700;
+    color: {{ step_head }};
+    margin-bottom: 6px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-step p {
+    font-size: {{ section.settings.step_body_size }}px;
+    color: {{ step_body }};
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  /* Bundle Card */
+  #calqix-routine-{{ section.id }} .crb-card {
+    background: {{ bg_card }};
+    padding: {{ section.settings.card_padding }}px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-card-deco {
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, {{ section.settings.card_deco_color }} 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-card-label {
+    font-size: {{ section.settings.label_size }}px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: {{ card_label }};
+    font-weight: 700;
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-card-title {
+    font-family: {{ section.settings.title_font }};
+    font-size: {{ section.settings.card_title_size }}px;
+    color: {{ card_title }};
+    margin-bottom: 16px;
+    line-height: 1.2;
+    font-weight: 400;
+    position: relative;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-card-body {
+    font-size: {{ section.settings.step_body_size }}px;
+    color: {{ card_body }};
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-style: italic;
+    position: relative;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-items {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-items li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    color: {{ card_item }};
+  }
+
+  #calqix-routine-{{ section.id }} .crb-items li::before {
+    content: '✓';
+    color: {{ check_col }};
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-price-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-price {
+    font-family: {{ section.settings.title_font }};
+    font-size: {{ section.settings.price_size }}px;
+    color: {{ price_col }};
+    line-height: 1;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-old-price {
+    font-size: {{ section.settings.old_price_size }}px;
+    color: {{ old_col }};
+    text-decoration: line-through;
+    margin-bottom: 4px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-save {
+    background: {{ save_bg }};
+    color: {{ save_col }};
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    display: inline-block;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-btn {
+    display: block;
+    width: 100%;
+    padding: {{ section.settings.button_padding }}px;
+    background: {{ btn_bg }};
+    color: {{ btn_col }};
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    text-decoration: none;
+    position: relative;
+    transition: background 0.2s;
+    font-family: inherit;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-btn:hover {
+    background: {{ btn_hover }};
+  }
+
+  @media (max-width: 768px) {
+    #calqix-routine-{{ section.id }} .crb-inner {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      direction: ltr;
+    }
+    #calqix-routine-{{ section.id }} .crb-left,
+    #calqix-routine-{{ section.id }} .crb-right {
+      direction: ltr;
+    }
+  }
+
+  {% if section.settings.custom_css != blank %}
+    {{ section.settings.custom_css }}
+  {% endif %}
+</style>
+
+<section id="calqix-routine-{{ section.id }}" class="calqix-routine-bundle">
+  <div class="crb-inner">
+
+    <!-- Left: Routine Steps -->
+    <div class="crb-left">
+      {% if section.settings.label != blank %}
+        <div class="crb-label">{{ section.settings.label }}</div>
+      {% endif %}
+      {% if section.settings.title != blank %}
+        <h2 class="crb-title">{{ section.settings.title }}</h2>
+      {% endif %}
+      {% if section.settings.subtitle != blank %}
+        <p class="crb-sub">{{ section.settings.subtitle }}</p>
+      {% endif %}
+
+      <div class="crb-steps">
+        {% for block in section.blocks %}
+          <div class="crb-step" {{ block.shopify_attributes }}>
+            {% if block.settings.icon != blank %}
+              <div class="crb-step-icon">{{ block.settings.icon }}</div>
+            {% endif %}
+            <div>
+              {% if block.settings.title != blank %}
+                <h4>{{ block.settings.title }}</h4>
+              {% endif %}
+              {% if block.settings.description != blank %}
+                <p>{{ block.settings.description }}</p>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Right: Bundle Card -->
+    <div class="crb-right">
+      <div class="crb-card">
+        {% if section.settings.card_deco %}
+          <div class="crb-card-deco"></div>
+        {% endif %}
+
+        {% if section.settings.card_label != blank %}
+          <div class="crb-card-label">{{ section.settings.card_label }}</div>
+        {% endif %}
+
+        {% if section.settings.card_title != blank %}
+          <h3 class="crb-card-title">{{ section.settings.card_title }}</h3>
+        {% endif %}
+
+        {% if section.settings.card_quote != blank %}
+          <p class="crb-card-body">{{ section.settings.card_quote }}</p>
+        {% endif %}
+
+        {% unless section.settings.item_1 == blank and section.settings.item_2 == blank and section.settings.item_3 == blank and section.settings.item_4 == blank %}
+          <ul class="crb-items">
+            {% if section.settings.item_1 != blank %}<li>{{ section.settings.item_1 }}</li>{% endif %}
+            {% if section.settings.item_2 != blank %}<li>{{ section.settings.item_2 }}</li>{% endif %}
+            {% if section.settings.item_3 != blank %}<li>{{ section.settings.item_3 }}</li>{% endif %}
+            {% if section.settings.item_4 != blank %}<li>{{ section.settings.item_4 }}</li>{% endif %}
+            {% if section.settings.item_5 != blank %}<li>{{ section.settings.item_5 }}</li>{% endif %}
+          </ul>
+        {% endunless %}
+
+        <div class="crb-price-row">
+          <div class="crb-price">{{ section.settings.bundle_price }}</div>
+          <div>
+            {% if section.settings.old_price != blank %}
+              <div class="crb-old-price">{{ section.settings.old_price }}</div>
+            {% endif %}
+            {% if section.settings.save_text != blank %}
+              <span class="crb-save">{{ section.settings.save_text }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <a href="{{ bundle_url }}" class="crb-btn">
+          {{ section.settings.button_text }}
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% if section.settings.custom_js != blank %}
+  <script>
+    (function() {
+      var sectionId = '{{ section.id }}';
+      var section   = document.getElementById('calqix-routine-' + sectionId);
+      {{ section.settings.custom_js }}
+    })();
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "CALQIX — Routine + Bundle",
+  "tag": "section",
+  "class": "calqix-routine-section",
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Routine stap",
+      "settings": [
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "Icon (emoji of symbool)",
+          "default": "💧"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Stap titel",
+          "default": "Step 1 — Flush with FlowCore"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Stap beschrijving",
+          "default": "60–90 seconds. Remove plaque and bacteria. Expose clean enamel."
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Linker kolom — Routine"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Label",
+      "default": "The CALQIX Routine"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Titel",
+      "default": "Flush. Rebuild. Repeat."
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtekst",
+      "default": "Two products. One clinical protocol. Designed to work in sequence — not separately."
+    },
+
+    {
+      "type": "header",
+      "content": "Rechter kolom — Bundle Card"
+    },
+    {
+      "type": "text",
+      "id": "card_label",
+      "label": "Card label",
+      "default": "Bundle & Save"
+    },
+    {
+      "type": "text",
+      "id": "card_title",
+      "label": "Card titel",
+      "default": "FlowCore + Enamel Tablets"
+    },
+    {
+      "type": "textarea",
+      "id": "card_quote",
+      "label": "Quote / subtekst in card",
+      "default": "The flosser clears the path. The tablet rebuilds. Together, that's the complete oral care protocol."
+    },
+    {
+      "type": "text",
+      "id": "item_1",
+      "label": "Bundle item 1",
+      "default": "FlowCore Water Flosser"
+    },
+    {
+      "type": "text",
+      "id": "item_2",
+      "label": "Bundle item 2",
+      "default": "CALQIX Enamel Tablets (30-day supply)"
+    },
+    {
+      "type": "text",
+      "id": "item_3",
+      "label": "Bundle item 3",
+      "default": "Free travel pouch"
+    },
+    {
+      "type": "text",
+      "id": "item_4",
+      "label": "Bundle item 4",
+      "default": "Free priority shipping"
+    },
+    {
+      "type": "text",
+      "id": "item_5",
+      "label": "Bundle item 5 (optioneel)"
+    },
+    {
+      "type": "text",
+      "id": "bundle_price",
+      "label": "Bundelprijs",
+      "default": "€64,95"
+    },
+    {
+      "type": "text",
+      "id": "old_price",
+      "label": "Oude prijs (doorgestreept)",
+      "default": "€79,90"
+    },
+    {
+      "type": "text",
+      "id": "save_text",
+      "label": "Bespaar tekst",
+      "default": "SAVE €14,95"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button tekst",
+      "default": "Shop the Bundle →"
+    },
+    {
+      "type": "text",
+      "id": "bundle_product_handle",
+      "label": "Bundle product handle (Shopify)",
+      "info": "De handle van je bundle product, bijv. 'flowcore-bundle'. Wordt gebruikt als link.",
+      "default": "flowcore-bundle"
+    },
+    {
+      "type": "url",
+      "id": "bundle_url",
+      "label": "Alternatieve bundle URL",
+      "info": "Vult de product handle in als de handle niet werkt."
+    },
+
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "flip_layout",
+      "label": "Omgekeerde volgorde (bundle links, routine rechts)",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "card_deco",
+      "label": "Decoratief licht-effect in card tonen",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "col_gap",
+      "label": "Ruimte tussen kolommen (px)",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max breedte (px)",
+      "min": 800,
+      "max": 1600,
+      "step": 40,
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "label": "Sectie verticale padding (px)",
+      "min": 20,
+      "max": 120,
+      "step": 4,
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Sectie horizontale padding (px)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "label": "Card binnenruimte (px)",
+      "min": 24,
+      "max": 80,
+      "step": 4,
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "steps_gap_top",
+      "label": "Ruimte boven steps (px)",
+      "min": 16,
+      "max": 64,
+      "step": 4,
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "step_padding",
+      "label": "Ruimte per stap (px)",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "step_inner_gap",
+      "label": "Icon-tekst ruimte (px)",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon grootte (px)",
+      "min": 32,
+      "max": 64,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "icon_font_size",
+      "label": "Icon font grootte (px)",
+      "min": 12,
+      "max": 28,
+      "step": 2,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_padding",
+      "label": "Button padding top/bottom (px)",
+      "min": 10,
+      "max": 24,
+      "step": 2,
+      "default": 16
+    },
+
+    {
+      "type": "header",
+      "content": "Kleuren — Routine (links)"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Sectie achtergrond",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label kleur",
+      "default": "#C9A84C"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Titel kleur",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtekst kleur",
+      "default": "#9B9B9B"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Scheidingslijnen",
+      "default": "#E4E4E0"
+    },
+    {
+      "type": "color",
+      "id": "step_icon_background",
+      "label": "Icon achtergrond",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "step_heading_color",
+      "label": "Stap kop kleur",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "step_body_color",
+      "label": "Stap tekst kleur",
+      "default": "#9B9B9B"
+    },
+
+    {
+      "type": "header",
+      "content": "Kleuren — Bundle Card (rechts)"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card achtergrond",
+      "default": "#0F2438"
+    },
+    {
+      "type": "color",
+      "id": "card_deco_color",
+      "label": "Decoratief lichteffect",
+      "default": "rgba(201,168,76,0.1)"
+    },
+    {
+      "type": "color",
+      "id": "card_label_color",
+      "label": "Card label kleur",
+      "default": "#E8C96A"
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Card titel kleur",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_body_color",
+      "label": "Card quote kleur",
+      "default": "rgba(255,255,255,0.55)"
+    },
+    {
+      "type": "color",
+      "id": "card_item_color",
+      "label": "Bundle item tekst kleur",
+      "default": "rgba(255,255,255,0.8)"
+    },
+    {
+      "type": "color",
+      "id": "check_color",
+      "label": "Check ✓ kleur",
+      "default": "#E8C96A"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Prijs kleur",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "old_price_color",
+      "label": "Oude prijs kleur",
+      "default": "rgba(255,255,255,0.35)"
+    },
+    {
+      "type": "color",
+      "id": "save_background",
+      "label": "Bespaar badge achtergrond",
+      "default": "#C9A84C"
+    },
+    {
+      "type": "color",
+      "id": "save_color",
+      "label": "Bespaar badge tekst",
+      "default": "#0F2438"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Button achtergrond",
+      "default": "#C9A84C"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button tekst kleur",
+      "default": "#0F2438"
+    },
+    {
+      "type": "color",
+      "id": "button_hover",
+      "label": "Button hover kleur",
+      "default": "#E8C96A"
+    },
+
+    {
+      "type": "header",
+      "content": "Typografie"
+    },
+    {
+      "type": "select",
+      "id": "title_font",
+      "label": "Titel font",
+      "options": [
+        { "value": "Georgia, serif", "label": "Georgia (Serif)" },
+        { "value": "'DM Serif Display', serif", "label": "DM Serif Display" },
+        { "value": "'Playfair Display', serif", "label": "Playfair Display" },
+        { "value": "var(--font-heading--family)", "label": "Thema heading font" }
+      ],
+      "default": "Georgia, serif"
+    },
+    {
+      "type": "range",
+      "id": "label_size",
+      "label": "Label grootte (px)",
+      "min": 9,
+      "max": 14,
+      "step": 1,
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Routine titel grootte (px)",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "label": "Subtekst grootte (px)",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "step_heading_size",
+      "label": "Stap kop grootte (px)",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "step_body_size",
+      "label": "Stap tekst grootte (px)",
+      "min": 11,
+      "max": 16,
+      "step": 1,
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "label": "Card titel grootte (px)",
+      "min": 20,
+      "max": 44,
+      "step": 2,
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "label": "Prijs grootte (px)",
+      "min": 28,
+      "max": 64,
+      "step": 2,
+      "default": 46
+    },
+    {
+      "type": "range",
+      "id": "old_price_size",
+      "label": "Oude prijs grootte (px)",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 16
+    },
+
+    {
+      "type": "header",
+      "content": "⚙️ Custom Code"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS",
+      "info": "Gebruik #calqix-routine-{{ section.id }} als selector."
+    },
+    {
+      "type": "textarea",
+      "id": "custom_js",
+      "label": "Custom JavaScript",
+      "info": "'section' = sectie element, 'sectionId' = uniek ID."
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX — Routine + Bundle",
+      "blocks": [
+        {
+          "type": "step",
+          "settings": {
+            "icon": "💧",
+            "title": "Step 1 — Flush with FlowCore",
+            "description": "60–90 seconds. Remove plaque and bacteria from interdental spaces. Expose clean enamel. Create the surface that nano-HA needs to bind."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "icon": "⬡",
+            "title": "Step 2 — Brush with Enamel Tablet",
+            "description": "Two minutes. Nano-HA particles integrate directly into micro-lesions in your enamel. Rebuilding from within, at the molecular level."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "icon": "📅",
+            "title": "Step 3 — 30 days. Then you'll notice.",
+            "description": "Enamel remineralisation is cumulative. Measurable improvement appears at 30 days with daily consistency."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

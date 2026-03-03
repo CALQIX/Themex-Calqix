@@ -1,0 +1,121 @@
+{% for product in search.results %}
+  {% assign lazy_load = false %}
+  {% if forloop.index > 3 %}
+    {% assign lazy_load = true %}
+  {% endif %}
+
+  {% assign url = product.url | within: collection %}
+
+  {% assign alt = product.featured_image.alt | escape %}
+  {% assign uri = product.handle | escape %}
+
+  {%  assign image_hover = null %}
+  {% if section.settings.show_secondary_image and product.images[1] %}
+    {% assign image_hover = product.images[1] %}
+  {% endif %}
+
+  {% assign url = product.url | within: collection %}
+
+  {% assign alt = product.featured_image.alt | escape %}
+  {% assign uri = product.handle | escape %}
+
+  {% if section.settings.show_secondary_image and product.images[1] %}
+    {% assign image_hover = product.images[1].src %}
+  {% endif %}
+
+  {% if product.object_type == 'product' %}
+    <div
+      class="collection__grid__item {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}"
+      {% if settings.animations %}
+        data-cascade
+        style="--animation-order: {{ forloop.index }};"
+      {% endif %}
+    >
+      {% render 'card',
+        img: product.featured_media,
+        image_ratio: section.settings.image_ratio,
+        media_aspect_ratio: section.settings.image_ratio,
+        enable_quick_add_button: section.settings.enable_quick_add_button
+        img_hover: image_hover,
+        alt: alt,
+        subtitle: product.vendor,
+        rating: section.settings.show_product_rating,
+        reviews: product.metafields.reviews,
+        title: product.title,
+        title_tag: 'h2',
+        url: url,
+        uri: uri,
+        variants: product.variants,
+        product_options: product.options,
+        product: product,
+        card_product: product,
+        lazy_load: lazy_load,
+        enable_vendor_link: section.settings.enable_vendor_link,
+        are_filters_active: are_filters_active
+      %}
+    </div>
+  {% elsif product.object_type == 'article' %}
+    {% if is_set_title == false %}
+      <div class="collection__grid__title">Articles</div>
+      {% assign is_set_title = true %}
+    {% endif %}
+    <div
+      class="collection__grid__item {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}"
+      {% if settings.animations %}
+        data-cascade
+        style="--animation-order: {{ forloop.index }};"
+      {% endif %}
+    >
+      {% render 'article-card',
+        article: product,
+        show_image: true,
+        show_date: section.settings.article_show_date,
+        show_author: section.settings.article_show_date,
+        show_badge: true,
+        media_aspect_ratio: section.settings.image_ratio,
+        lazy_load: lazy_load,
+        search: true
+      %}
+    </div>
+  {% elsif product.object_type == 'page' %}
+    {% if is_set_title == false %}
+      <div class="collection__grid__title">Pages</div>
+      {% assign is_set_title = true %}
+    {% endif %}
+    <div
+      class="collection__grid__item {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}"
+      {% if settings.animations %}
+        data-cascade
+        style="--animation-order: {{ forloop.index }};"
+      {% endif %}
+    >
+      <div class="article-card-wrapper card-wrapper underline-links-hover">
+        <div class="card__badges">
+          <div class="card__badges--item" data-custom-badge="{{ settings.custom-badge-1-input }}">
+            {{ 'templates.search.page' | t }}
+          </div>
+        </div>
+        <div
+          class="card card--card card--text ratio color-{{ settings.blog_card_color_scheme }}"
+          style="aspect-ratio: {% if section.settings['image_ratio'] == 'portrait' %}
+            var(--aspect-ratio-portait);
+            {% elsif section.settings['image_ratio'] == 'square' %}
+              1;
+            {% else %}
+             auto;
+            {% endif %}"
+        >
+          <div class="card__content">
+            <div class="card__information">
+              <h3 class="card__heading">
+                <a href="{{ product.url }}" class="full-unstyled-link">
+                  {{ product.title | truncate: 50 | escape }}
+                </a>
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endfor %}

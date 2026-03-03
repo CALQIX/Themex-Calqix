@@ -1,0 +1,74 @@
+<div class="shoppable-product-card {% if customClass != blank %} {{ customClass }}{% endif %}">
+    {% comment %}
+      <div class="shoppable-video__play-button-container">
+        <div class="shoppable-video__play-button" data-product-index="{{ forloop.index0 }}">
+          {% render 'icon-play' %}
+        </div>
+      </div>
+    {% endcomment %}
+    {%- if product != blank -%}
+      <a href="{{ product.url }}" class="wt-dot__link" tabindex="0">
+        <picture class="wt-dot__picture">
+          <img
+            srcset="
+              {% if product.featured_image.width >= 300 %}{{ product.featured_image | image_url: width: 300 }} 300w, {% endif %}
+              {% if product.featured_image.width >= 600 %}{{ product.featured_image | image_url: width: 600 }} 600w, {% endif %}
+              {% if product.featured_image.width >= 900 %}{{ product.featured_image | image_url: width: 900 }} 900w, {% endif %}
+              {{ product.featured_image | image_url: width: 300 }} 300w
+            "
+            sizes="(min-width: 900px) 300px, 100vw"
+            src="{{ product.featured_image | image_url: width: 300 }}"
+            alt="{{ product.featured_image.alt | escape }}"
+            class="wt-dot__image"
+            width="{{ product.featured_image.width }}"
+            height="{{ product.featured_image.height }}"
+            loading="lazy"
+          >
+        </picture>
+        <div class="wt-dot__body">
+          {% if hide_brand != true %}
+            <div class="wt-dot__brand">{{ product.vendor }}</div>
+          {% endif %}
+          <div class="wt-dot__title">{{ product.title }}</div>
+          <div class="wt-dot__price">
+            {% render 'price', product: product, show_compare_at_price: true, price_class: '' %}
+          </div>
+        </div>
+      </a>
+    {%- else -%}
+      <a href="#" class="wt-dot__link">
+        {% assign my_counter = my_counter | modulo: 3 | plus: 1 %}
+        <div class="wt-dot__img-placeholder">
+          {{ 'product-apparel-3' | placeholder_svg_tag: 'wt-dot__image' }}
+        </div>
+        <div class="wt-dot__body">
+          {% if hide_brand != true %}
+            <div class="wt-dot__brand">{{ 'shoppable_image.brand' | t }}</div>
+          {% endif %}
+          <div class="wt-dot__title">{{ 'shoppable_image.title' | t }}</div>
+          <div class="wt-dot__price">{{ 1999 | money }}</div>
+        </div>
+      </a>
+    {%- endif -%}
+
+    {% comment %} {%- if section.settings['quick-add-enabled'] or section.settings['rewind-enabled'] -%} {% endcomment %}
+      <div class="shoppable-video__buttons {% if section.settings.quick-add-enabled and section.settings.rewind-enabled %} shoppable-video__buttons--column {% endif %}">
+        {% comment %} {%- if section.settings['quick-add-enabled'] -%} {% endcomment %}
+          <quick-add data-product-handle="{{ product.handle }}">
+            <button
+              type="submit"
+              class="shoppable-video__add-button"
+              aria-label="Add to cart"
+              data-product-url="{{ product.url }}"
+              {% if product.url == null %}
+                disabled
+              {% endif %}
+            >
+              {% render 'icons', id: 'bag' %}
+            </button>
+          </quick-add>
+        {% comment %} {%- endif -%} {% endcomment %}
+      </div>
+    {% comment %} {%- endif -%} {% endcomment %}
+  </div>
+  

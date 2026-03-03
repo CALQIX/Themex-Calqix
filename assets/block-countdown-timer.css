@@ -1,0 +1,87 @@
+.wt-countdown-timer__display {
+  --font-timer-size: 3rem;
+  font-family: var(--font-timer);
+  font-size: min(var(--font-timer-size) * var(--font-timer-scale, 1), var(--font-timer-size) + 13.5vw);
+}
+@media (min-width: 900px) {
+  .wt-countdown-timer__display {
+    font-size: min(var(--font-timer-size) * var(--font-timer-scale-desk, 1), var(--font-timer-size) + 13.5vw);
+  }
+}
+.wt-countdown-timer__error {
+  background: red;
+  color: yellow;
+  font-weight: bold;
+  padding: 10px;
+}
+.wt-countdown-timer__error:empty {
+  display: none;
+}
+
+.wt-counter__item {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.wt-counter__item__label, .wt-counter__item__value {
+  display: inline-block;
+}
+
+[data-long-labels] .wt-countdown-timer__display {
+  display: flex;
+  justify-content: center;
+  gap: calc(var(--gap, 8px) * 2);
+}
+.hero__overlay__content--left [data-long-labels] .wt-countdown-timer__display {
+  justify-content: flex-start;
+}
+.hero__overlay__content--right [data-long-labels] .wt-countdown-timer__display {
+  justify-content: flex-end;
+}
+.hero__overlay__content--left [data-long-labels] .wt-countdown-timer__display .wt-counter__item, .hero__overlay__content--right [data-long-labels] .wt-countdown-timer__display .wt-counter__item {
+  flex-shrink: 1;
+  flex-grow: 0;
+}
+@media (min-width: 900px) {
+  [data-long-labels] .wt-countdown-timer__display {
+    gap: calc(var(--gap, 8px) * 4);
+  }
+}
+[data-long-labels] .wt-counter__item {
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: 25%;
+  flex-direction: column;
+  margin-bottom: calc(var(--gap, 8px) * 1);
+  justify-content: center;
+}
+[data-long-labels] .wt-counter__item:not(:first-child) .wt-counter__item__value {
+  position: relative;
+}
+[data-long-labels] .wt-counter__item:not(:first-child) .wt-counter__item__value::before {
+  content: ":";
+  position: absolute;
+  width: calc(var(--gap, 8px) * 2);
+  text-align: center;
+  left: 0;
+  margin-left: calc(var(--gap, 8px) * -2);
+  display: block;
+}
+@media (min-width: 900px) {
+  [data-long-labels] .wt-counter__item:not(:first-child) .wt-counter__item__value::before {
+    width: calc(var(--gap, 8px) * 4);
+    margin-left: calc(var(--gap, 8px) * -4);
+  }
+}
+[data-long-labels] .wt-counter__item__value {
+  line-height: 1;
+  width: 100%;
+  letter-spacing: 0.07em;
+  text-align: center;
+}
+[data-long-labels] .wt-counter__item__label {
+  text-transform: uppercase;
+  font-family: var(--font-base);
+  font-size: 25%;
+}
+/*# sourceMappingURL=block-countdown-timer.css.map */

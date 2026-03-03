@@ -1,0 +1,98 @@
+<div class="wt-cart__footer__body">
+  <div class="wt-cart__subtotal">
+    <div class="wt-cart__subtotal__label">
+      <span class="text">{{ 'sections.cart.subtotal' | t }}</span>
+    </div>
+    <div class="wt-cart__subtotal__value">
+      {{ cart.total_price | money_with_currency }}
+    </div>
+  </div>
+  {%- if cart.cart_level_discount_applications.size > 0 -%}
+    <div>
+      <ul class="discounts list-unstyled" role="list" aria-label="{{ 'customer.order.discount' | t }}">
+        {%- for discount in cart.cart_level_discount_applications -%}
+          <li>
+            {%- render 'icon-discount' -%}
+            {{ discount.title }}
+            (-{{ discount.total_allocated_amount | money_with_currency }})
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  {%- endif -%}
+
+  <span class="wt-cart__subtitle__text">
+    {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+      {{ 'sections.cart.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url, tabindex: -1 }}
+    {%- elsif cart.taxes_included -%}
+      {{ 'sections.cart.taxes_included_but_shipping_at_checkout' | t }}
+    {%- elsif shop.shipping_policy.body != blank -%}
+      {{ 'sections.cart.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url, tabindex: -1 }}
+    {%- else -%}
+      {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
+    {%- endif -%}
+  </span>
+
+  {% if settings.show_view_cart and settings.hide_checkout_button %}
+    {% comment %}Only view cart button{% endcomment %}
+    <button
+      aria-label="{{ 'aria-label.featured-collection' | t }}"
+      class="btn-checkout wt-cart__cta"
+      onclick='location.href="{{ routes.cart_url }}"'
+      tabindex="-1"
+      {% if cart == empty %}
+        disabled
+      {% endif %}
+    >
+      <span>{{ 'sections.cart.view_cart' | t }}</span>
+    </button>
+  {% elsif settings.show_view_cart == false and settings.hide_checkout_button == false %}
+    {% comment %}Only checkout button{% endcomment %}
+    <button
+      aria-label="{{ 'sections.cart.checkout' | t }}"
+      type="submit"
+      id="CartDrawer-Checkout"
+      class="btn-checkout wt-cart__cta"
+      name="checkout"
+      form="CartDrawer-Form"
+      {% if cart == empty %}
+        disabled
+      {% endif %}
+      tabindex="-1"
+    >
+      {% if settings['enable-lock-icon'] %}
+        {% render 'icon-lock' %}
+      {% endif %}
+      {{ 'sections.cart.checkout' | t }}
+    </button>
+  {% else %}
+    {% comment %}Both buttons{% endcomment %}
+    <button
+      aria-label="{{ 'sections.cart.checkout' | t }}"
+      type="submit"
+      id="CartDrawer-Checkout"
+      class="btn-checkout wt-cart__cta"
+      name="checkout"
+      form="CartDrawer-Form"
+      {% if cart == empty %}
+        disabled
+      {% endif %}
+      tabindex="-1"
+    >
+      {% if settings['enable-lock-icon'] %}
+        {% render 'icon-lock' %}
+      {% endif %}
+      {{ 'sections.cart.checkout' | t }}
+    </button>
+    <div class="wt-featured-collection__button-container wt-button__container">
+      <button
+        aria-label="{{ 'aria-label.featured-collection' | t }}"
+        class="wt-cart__show-cart hero__button--link"
+        onclick='location.href="{{ routes.cart_url }}"'
+        tabindex="-1"
+      >
+        <span>{{ 'sections.cart.view_cart' | t }}</span>
+      </button>
+    </div>
+  {% endif %}
+</div>

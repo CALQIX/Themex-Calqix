@@ -1,0 +1,197 @@
+{{ 'localization-drawer.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'localization-drawer.js' | asset_url }}" defer="defer"></script>
+
+{% liquid
+  assign show_country_selector = false
+  assign show_lang_selector = false
+
+  if localization.available_countries.size > 0
+    assign show_country_selector = true
+  endif
+
+  if localization.available_languages.size > 0
+    assign show_lang_selector = true
+  endif
+
+  assign show_tabs = show_country_selector and show_lang_selector
+%}
+
+<!-- Overlay behind drawer -->
+<div class="wt-localization-drawer-overlay"></div>
+
+{%- form 'localization', id: 'DrawerCountryForm', class: 'hidden' -%}
+  <input
+    type="hidden"
+    name="country_code"
+    value="{{ localization.country.iso_code }}"
+  >
+  <input
+    type="hidden"
+    name="return_to"
+    value="{{ request.path | escape }}"
+  >
+{%- endform -%}
+
+<!-- Custom element for the drawer -->
+<localization-drawer class="wt-localization-drawer">
+  <div class="wt-localization-drawer__inner">
+    <header class="wt-localization-drawer__header">
+      <div class="wt-drawer__title__text">{{ 'sections.localization_drawer.drawer_title' | t }}</div>
+      <a
+        class="wt-localization-drawer__close"
+        role="button"
+        aria-label="{{ 'accessibility.close' | t }}"
+        tabindex="-1"
+        href="#"
+      >
+        {% render 'icons', id: 'close', icon_class: 'wt-cart__drawer__close' %}
+      </a>
+    </header>
+
+    <div class="wt-localization-drawer__body">
+      {% if show_tabs %}
+        <nav class="wt-localization-drawer__menu">
+          <ul class="wt-localization-drawer__tabs">
+            {% if show_country_selector %}
+              <li class="wt-localization-drawer__tab">
+                <a
+                  href="#"
+                  class="wt-localization-drawer__tab__trigger wt-localization-drawer__tab__trigger--active"
+                  data-tab-target="country"
+                >
+                  {{ 'sections.localization_drawer.country_label' | t }}
+                </a>
+              </li>
+            {% endif %}
+            {% if show_lang_selector %}
+              <li class="wt-localization-drawer__tab">
+                <a
+                  href="#"
+                  class="wt-localization-drawer__tab__trigger"
+                  data-tab-target="language"
+                >
+                  {{ 'sections.localization_drawer.language_label' | t }}
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% else %}
+
+      {% endif %}
+
+      {% if show_country_selector %}
+        <div
+          class="wt-localization-drawer__tab__content is-active"
+          data-tab-content="country"
+        >
+          <div class="wt-localization-drawer__tab__content-header">
+            <div class="wt-localization-drawer__current-country">
+              <div class="wt-localization-drawer__current-country__country">
+                {% if settings.show_flag_in_localization_drawer %}
+                  {% render 'flag-icon', country_code: localization.country.iso_code, alt: localization.country.name %}
+                {% endif %}
+                <span class="country-selector__item__name">
+                  {{ localization.country.name }}
+                </span>
+                |
+                <span class="country-selector__item__currency">
+                  {{ localization.country.currency.iso_code }}
+                  {{ localization.country.currency.symbol }}
+                </span>
+              </div>
+              <p class="wt-localization-drawer__current-country__info">
+                {{
+                  'sections.localization_drawer.current_country_info'
+                  | t:
+                    countryName: localization.country.name,
+                    currencyIso: localization.country.currency.iso_code,
+                    currencySymbol: localization.country.currency.symbol
+                }}
+              </p>
+            </div>
+
+            {% if localization.available_countries.size > 10 %}
+              <div class="wt-localization-drawer__search-country">
+                <span class="wt-localization-drawer__search-country__search-icon">
+                  {%- render 'icons', id: 'search' -%}
+                </span>
+                <input
+                  type="text"
+                  class="wt-localization-drawer__search-country__input"
+                  placeholder="{{ 'sections.localization_drawer.search_location.placeholder' | t }}"
+                  aria-label="{{ 'sections.localization_drawer.search_location.label' | t }}"
+                >
+              </div>
+            {% endif %}
+          </div>
+
+          <ul class="wt-localization-drawer__countries country-selector">
+            {% for country in localization.available_countries %}
+              {% unless country.iso_code == localization.country.iso_code %}
+                <li
+                  class="country-selector__item"
+                  tabindex="-1"
+                  data-filter-name="{{ country.name }} {{ country.iso_code }} {{ country.currency.iso_code }}"
+                >
+                  <a
+                    class="country-selector__trigger {% if country.iso_code == localization.country.iso_code %}country-selector__trigger--active{% endif %}"
+                    href="#"
+                    data-value="{{ country.iso_code }}"
+                  >
+                    {% if settings.show_flag_in_localization_drawer %}
+                      {% render 'flag-icon', country_code: country.iso_code, alt: country.name %}
+                    {% endif %}
+                    <span class="country-selector__item__name">
+                      {{ country.name }}
+                    </span>
+                    <span class="country-selector__item__currency">
+                      {{ country.currency.iso_code }}
+                      {{ country.currency.symbol }}
+                    </span>
+                  </a>
+                </li>
+              {% endunless %}
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% if show_lang_selector %}
+        <div
+          class="wt-localization-drawer__tab__content"
+          data-tab-content="language"
+        >
+          <localization-form>
+            {% form 'localization', id: 'DrawerLanguageForm', class: 'localization-form' %}
+              <div class="no-js-hidden">
+                <ul class="wt-language-list">
+                  {% for language in localization.available_languages %}
+                    <li class="wt-language-list__item">
+                      <input
+                        type="radio"
+                        name="language_code"
+                        id="wt-lang_{{ language.iso_code }}"
+                        class="wt-language-list__radio"
+                        value="{{ language.iso_code }}"
+                        {% if language.iso_code == localization.language.iso_code %}
+                          checked
+                        {% endif %}
+                      >
+                      <label
+                        class="wt-language-list__label"
+                        for="wt-lang_{{ language.iso_code }}"
+                      >
+                        {{ language.endonym_name | capitalize }}
+                      </label>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endform %}
+          </localization-form>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</localization-drawer>

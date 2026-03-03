@@ -1,0 +1,229 @@
+{% if cart != empty %}
+  <style>
+    [data-section-id="{{ section.id }}"]
+      {
+
+          {% if section.settings.margin-top %}
+              --section-gap-top: {{ section.settings.margin-top }}px;
+          {% endif %}
+
+          {% if section.settings.margin-bottom %}
+              --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+          {% endif %}
+
+      }
+  </style>
+  <div
+    data-section-id="{{ section.id }}"
+    class="wt-cart__wrapper cart-page"
+    id="main-cart-footer"
+    data-id="{{ section.id }}"
+  >
+    <div>
+      <div class="wt-cart__footer">
+        {%- if settings.cart_show_order_note -%}
+          <collapsible-section
+            class="wt-cart__note__wrapper"
+          >
+            <div
+              class="wt-cart__note__trigger wt-collapse__trigger wt-cart__subtitle"
+              role="button"
+              tabindex="0"
+              data-open="false"
+              aria-expanded="false"
+              aria-controls="CollapsibleTab-{{ section.id }}"
+            >
+              {{ 'sections.cart.note' | t }}
+              {% render 'icons', id: 'plus' %}
+            </div>
+
+            <div class="wt-collapse__target wt-collapse__target--v2">
+              <cart-note class="wt-cart__note" id="CollapsibleTab-{{ section.id }}">
+                <label
+                        class="form__field"
+                        for="Cart-note-{{ section.id }}"
+                >
+                <textarea
+                        class="form__field__textarea"
+                        name="note"
+                        form="cart"
+                        data-id="wt-cart-note"
+                        id="Cart-note-{{ section.id }}"
+                        placeholder=" "
+                >{{ cart.note }}</textarea>
+                  <span class="form__field__label">
+                  {{ 'sections.cart.note' | t }}
+                </span>
+                </label>
+              </cart-note>
+            </div>
+
+          </collapsible-section>
+        {%- endif -%}
+        <div class="wt-cart__subtitle">
+          {% if settings.cart_show_additional_service %}
+            {% render 'cart-checkbox' %}
+          {% endif %}
+
+          <div class="wt-cart__subtitle__tax">
+            {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+              {{
+                'sections.cart.taxes_included_and_shipping_policy_html'
+                | t: link: shop.shipping_policy.url, tabindex: 0
+              }}
+            {%- elsif cart.taxes_included -%}
+              {{ 'sections.cart.taxes_included_but_shipping_at_checkout' | t }}
+            {%- elsif shop.shipping_policy.body != blank -%}
+              {{
+                'sections.cart.taxes_and_shipping_policy_at_checkout_html'
+                | t: link: shop.shipping_policy.url, tabindex: 0
+              }}
+            {%- else -%}
+              {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
+            {%- endif -%}
+          </div>
+        </div>
+        <div class="wt-cart__footer__body">
+          {% for block in section.blocks %}
+            {%- case block.type -%}
+              {%- when '@app' -%}
+                {% render block %}
+              {%- when 'custom_liquid' -%}
+                {{ block.settings.custom_liquid }}
+              {%- when 'subtotal' -%}
+                <div class="js-contents">
+                  <div class="wt-cart__subtotal " {{ block.shopify_attributes }}>
+                    <div class="wt-cart__subtotal__label">
+                      <span class="text">{{ 'sections.cart.subtotal' | t }}</span>
+                    </div>
+                    <div class="wt-cart__subtotal__value">
+                      {{ cart.total_price | money_with_currency }}
+                    </div>
+                  </div>
+                  {%- if cart.cart_level_discount_applications.size > 0 -%}
+                    <div>
+                      <ul class="discounts list-unstyled" role="list" aria-label="{{ 'customer.order.discount' | t }}">
+                        {%- for discount in cart.cart_level_discount_applications -%}
+                          <li class="discounts__discount discounts__discount--position">
+                            {%- render 'icon-discount' -%}
+                            {{ discount.title }}
+                            (-{{ discount.total_allocated_amount | money }})
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    </div>
+                  {%- endif -%}
+                </div>
+              {%- else -%}
+                <div class="wt-cart__actions" {{ block.shopify_attributes }}>
+                  <noscript>
+                    <button
+                      aria-label="{{ 'sections.cart.update' | t }}"
+                      type="submit"
+                      class="cart__update-button button button--secondary"
+                      form="cart"
+                    >
+                      {{ 'sections.cart.update' | t }}
+                    </button>
+                  </noscript>
+
+                  <button
+                    aria-label="{{ 'sections.cart.checkout' | t }}"
+                    type="submit"
+                    class="wt-cart__cta cart__checkout"
+                    name="checkout"
+                    {% if cart == empty %}
+                      disabled
+                    {% endif %}
+                    form="cart"
+                  >
+                    {% if settings.enable-lock-icon %}
+                      {% render 'icon-lock' %}
+                    {% endif %}
+                    {{ 'sections.cart.checkout' | t }}
+                  </button>
+
+                  <a href="{{ routes.all_products_collection_url }}" class="wt-more wt-cart__back-link">
+                    <span class="wt-more__text">{{ 'general.continue_shopping' | t }}</span>
+                    {% render 'icons', id: 'arrow-right' %}
+                  </a>
+                </div>
+
+                {%- if additional_checkout_buttons -%}
+                  <div class="cart__dynamic-checkout-buttons additional-checkout-buttons">
+                    {{ content_for_additional_checkout_buttons }}
+                  </div>
+                {%- endif -%}
+            {%- endcase -%}
+          {% endfor %}
+          <div id="cart-errors"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "t:sections.main-cart-footer.name",
+  "class": "cart__footer-wrapper",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.global.section_spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin-top",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 40,
+      "label": "t:sections.settings.settings.distance-top.label"
+    },
+    {
+      "type": "range",
+      "id": "margin-bottom",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 0,
+      "label": "t:sections.settings.settings.distance-bottom.label",
+      "info": "t:sections.settings.settings.distance-bottom.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "custom_liquid",
+      "name": "t:sections.custom-liquid.name",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "t:sections.custom-liquid.settings.custom_liquid.label",
+          "info": "t:sections.custom-liquid.settings.custom_liquid.info"
+        }
+      ]
+    },
+    {
+      "type": "subtotal",
+      "name": "t:sections.main-cart-footer.blocks.subtotal.name",
+      "limit": 1
+    },
+    {
+      "type": "buttons",
+      "name": "t:sections.main-cart-footer.blocks.buttons.name",
+      "limit": 1
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

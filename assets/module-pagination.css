@@ -1,0 +1,99 @@
+.wt-pagination-wrapper {
+  margin-top: 0;
+  margin-bottom: 0;
+  opacity: 1;
+  transition: opacity 0.4s;
+}
+.wt-pagination-wrapper.transition {
+  opacity: 0;
+}
+
+.wt-pagination-wrapper-small {
+  margin-top: 1rem;
+  margin-bottom: 7rem;
+}
+
+.wt-pagination__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+.wt-pagination__list > li {
+  flex: 1 0 4.4rem;
+  max-width: 4.4rem;
+}
+.wt-pagination__list > li:not(:last-child) {
+  margin-right: 1rem;
+}
+
+.wt-pagination__item {
+  color: rgb(var(--color-foreground));
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 4.4rem;
+  width: 100%;
+  padding: 0;
+  text-decoration: none;
+}
+.wt-pagination__item:hover {
+  color: var(--color-links-active);
+}
+.wt-pagination__item:hover::after {
+  height: 0.2rem;
+}
+.wt-pagination__item .icon-caret {
+  height: 9px;
+}
+.wt-pagination__item--current {
+  font-weight: 600;
+}
+.wt-pagination__item--current::after {
+  height: 0.1rem;
+  content: "";
+  display: block;
+  width: 2rem;
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: currentColor;
+}
+.wt-pagination__item--next .icon {
+  margin-left: -0.2rem;
+  transform: rotate(90deg);
+}
+.wt-pagination__item--next .icon:hover {
+  transform: rotate(90deg) scale(1.07);
+}
+[dir=rtl] .wt-pagination__item--next .icon {
+  transform: rotate(270deg);
+}
+[dir=rtl] .wt-pagination__item--next .icon:hover {
+  transform: rotate(270deg) scale(1.07);
+}
+.wt-pagination__item--prev .icon {
+  margin-right: -0.2rem;
+  transform: rotate(-90deg);
+}
+.wt-pagination__item--prev .icon:hover {
+  transform: rotate(-90deg) scale(1.07);
+}
+[dir=rtl] .wt-pagination__item--prev .icon {
+  transform: rotate(90deg);
+}
+[dir=rtl] .wt-pagination__item--prev .icon:hover {
+  transform: rotate(90deg) scale(1.07);
+}
+.wt-pagination__item-arrow {
+  color: rgba(var(--color-foreground), 0.75);
+}
+.wt-pagination__item-arrow:hover .icon {
+  color: rgb(var(--color-foreground));
+}
+.wt-pagination__item-arrow:hover::after {
+  display: none;
+}
+/*# sourceMappingURL=module-pagination.css.map */

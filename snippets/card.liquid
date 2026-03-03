@@ -1,0 +1,337 @@
+{%- liquid
+  if lazy_load
+    assign loading = 'lazy'
+  else
+    assign loading = 'eager'
+  endif
+
+  if media_aspect_ratio
+    if media_aspect_ratio == 'portrait'
+      assign aspect_ratio = 'var(--aspect-ratio-portait)'
+    elsif card_product.featured_media and media_aspect_ratio == 'adapt'
+      assign aspect_ratio = card_product.featured_media.aspect_ratio
+    elsif media_aspect_ratio == 'square'
+      assign aspect_ratio = 1
+    else
+      assign aspect_ratio = 'auto'
+    endif
+  endif
+
+  if settings.enable_product_variations
+    assign product_variations_metafield = settings.product_varations_metafield | split: '.' 
+    assign product_variations_namespace = product_variations_metafield[0] 
+    assign product_variations_key = product_variations_metafield[1] 
+    assign product_variations_color_metafield = settings.product_varations_color_metafield | split: '.' 
+    assign product_variations_color_namespace = product_variations_color_metafield[0] 
+    assign product_variations_color_key = product_variations_color_metafield[1] 
+    assign product_variations = product.metafields[product_variations_namespace][product_variations_key].value 
+  endif
+
+  if img.alt != blank
+    assign card_alt = img.alt | escape
+  else
+    assign card_alt = title | escape
+  endif
+-%}
+
+{%- assign title_tag = title_tag | default: 'h3' -%}
+{% assign placeholder_title = 'sections.card.placeholder_title' | t %}
+<color-swatch
+  {% if settings.enable_product_variations %}
+    data-product-variations
+    data-current-variant-handle="{{ card_product.handle }}"
+  {% endif %}
+  {% if are_filters_active %}
+    data-active-filters
+  {% endif %}
+>
+  <div class="card__container" style="--aspect-ratio: {{ aspect_ratio }};">
+    <div class="card__picture-container">
+      <a
+        href="{{ url | default: '#' }}"
+        class="card{% if text_alignment %} card--{{ text_alignment }}{% endif %}"
+        tabindex="0"
+        aria-label="{{ 'aria-label.card-url' | t }}"
+      >
+        <picture class="card__picture" data-uri="{{uri}}">
+          <div class="card__loader hidden"></div>
+          {% if img == 'hide' %}
+          {% elsif img and focal %}
+            {% assign card_classes = 'card__img' %}
+            {% assign card_alt = img.alt | escape %}
+
+            {{
+              img
+              | image_url: width: 1000
+              | image_tag:
+                loading: loading,
+                sizes: '(min-width: 1000px) 620px, 100vw',
+                width: null,
+                widths: '375, 750, 1000, 1440',
+                alt: card_alt,
+                class: card_classes
+            }}
+          {% elsif img %}
+            {% assign is_video_exist = false %}
+
+            {% if show_video %}
+              {% for media in product.media %}
+                {% if media.media_type == 'video' %}
+                  {{ media | video_tag: image_size: '400x', autoplay: true, loop: true, class: 'card__video' }}
+                  {% assign is_video_exist = true %}
+                  {% break %}
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+
+            {% if is_video_exist == false %}
+              <img
+                class="card__img"
+                srcset="
+                  {% if img.width >= 375 %}{{ img | image_url: width: 375 }} 375w, {% endif %}
+                  {% if img.width >= 750 %}{{ img | image_url: width: 750 }} 750w, {% endif %}
+                  {% if img.width >= 1000 %}{{ img | image_url: width: 1000 }} 1000w, {% endif %}
+                  {% if img.width >= 1440 %}{{ img | image_url: width: 1440 }} 1440w, {% endif %}
+                  {{ img | image_url: width: 1000 }} 1000w
+                "
+                sizes="(min-width: 1000px) 620px, 100vw"
+                src="{{ img | image_url: width: 1000 }}"
+                alt="{{ card_alt }}"
+                loading="{{ loading }}"
+                width="{{ img.width }}"
+                height="{{ img.height }}"
+              >
+            {% else %}
+              <img
+                class="card__img hidden"
+                srcset="
+                  {% if img.width >= 375 %}{{ img | image_url: width: 375 }} 375w, {% endif %}
+                  {% if img.width >= 750 %}{{ img | image_url: width: 750 }} 750w, {% endif %}
+                  {% if img.width >= 1000 %}{{ img | image_url: width: 1000 }} 1000w, {% endif %}
+                  {% if img.width >= 1440 %}{{ img | image_url: width: 1440 }} 1440w, {% endif %}
+                  {{ img | image_url: width: 1000 }} 1000w
+                "
+                sizes="(min-width: 1000px) 620px, 100vw"
+                src="{{ img | image_url: width: 1000 }}"
+                alt="{{ card_alt }}"
+                loading="{{ loading }}"
+                width="{{ img.width }}"
+                height="{{ img.height }}"
+              >
+            {% endif %}
+
+            {% if img_hover %}
+              <img
+                class="card__img card__img--hover"
+                srcset="
+                  {% if img_hover.width >= 375 %}{{ img_hover | image_url: width: 375 }} 375w, {% endif %}
+                  {% if img_hover.width >= 750 %}{{ img_hover | image_url: width: 750 }} 750w, {% endif %}
+                  {% if img_hover.width >= 1000 %}{{ img_hover | image_url: width: 1000 }} 1000w, {% endif %}
+                  {% if img_hover.width >= 1440 %}{{ img_hover | image_url: width: 1440 }} 1440w, {% endif %}
+                  {{ img_hover | image_url: width: 1000 }} 1000w
+                "
+                sizes="(min-width: 1000px) 620px, 100vw"
+                src="{{ img_hover | image_url: width: 1000 }}"
+                alt="{{ card_alt }}"
+                loading="{{ loading }}"
+                width="{{ img_hover.width }}"
+                height="{{ img_hover.height }}"
+              >
+            {% endif %}
+          {% else %}
+            {% unless url %}
+              {% if placeholder_image_index %}
+                {{
+                  'product-apparel-'
+                  | append: placeholder_image_index
+                  | placeholder_svg_tag: 'card__img card__img--placeholder'
+                }}
+              {% else %}
+                {{
+                  'collection-apparel-1'
+                  | append: placeholder_image_index
+                  | placeholder_svg_tag: 'card__img card__img--placeholder'
+                }}
+              {% endif %}
+            {% else %}
+              <div class="card__img card__img--empty"></div>
+            {% endunless %}
+          {% endif %}
+          {% if promo %}
+            <div class="card__promo">{{ promo }}</div>
+          {% endif %}
+          {% if save %}
+            <a href="#">[]</a>
+          {% endif %}
+          <div class="card__badges">
+            {% assign custom-badge-1-input = settings['custom-badge-1-input'] | downcase %}
+            {% assign custom-badge-2-input = settings['custom-badge-2-input'] | downcase %}
+            {% assign custom-badge-3-input = settings['custom-badge-3-input'] | downcase %}
+            {% assign custom-badge-4-input = settings['custom-badge-4-input'] | downcase %}
+
+            {% if product.available == false %}
+              <div class="card__badges--item" data-custom-badge="sold-out">
+                {% if settings['badges-uppercase'] == 'uppercase' %}
+                  {{ 'products.product.sold_out' | t | upcase }}
+                {% else %}
+                  {{ 'products.product.sold_out' | t }}
+                {% endif %}
+              </div>
+            {% endif %}
+
+            {% for tag in product.tags %}
+                {% assign downcase_tag = tag | downcase %}
+                {% if downcase_tag == custom-badge-1-input %}
+                <div class="card__badges--item" data-custom-badge="{{ settings.custom-badge-1-input }}">
+                  {% if settings['badges-uppercase'] == 'uppercase' %}
+                    {% if settings['custom-badge-1-label'] != blank %}
+                      {{ settings['custom-badge-1-label'] | upcase }}
+                    {% else %}
+                      {{ settings['custom-badge-1-input'] | upcase }}
+                    {% endif %}
+                  {% else %}
+                    {% if settings['custom-badge-1-label'] != blank %}
+                      {{ settings['custom-badge-1-label'] }}
+                    {% else %}
+                      {{ settings['custom-badge-1-input'] }}
+                    {% endif %}
+                  {% endif %}
+                </div>
+              {% endif %}
+              {% if downcase_tag == custom-badge-2-input %}
+                <div class="card__badges--item" data-custom-badge="{{ settings.custom-badge-2-input }}">
+                  {% if settings['badges-uppercase'] == 'uppercase' %}
+                    {% if settings['custom-badge-2-label'] != blank %}
+                      {{ settings['custom-badge-2-label'] | upcase }}
+                    {% else %}
+                      {{ settings['custom-badge-2-input'] | upcase }}
+                    {% endif %}
+                  {% else %}
+                    {% if settings['custom-badge-2-label'] != blank %}
+                      {{ settings['custom-badge-2-label'] }}
+                    {% else %}
+                      {{ settings['custom-badge-2-input'] }}
+                    {% endif %}
+                  {% endif %}
+                </div>
+              {% endif %}
+              {% if downcase_tag == custom-badge-3-input %}
+                <div class="card__badges--item" data-custom-badge="{{ settings.custom-badge-3-input }}">
+                  {% if settings['badges-uppercase'] == 'uppercase' %}
+                    {% if settings['custom-badge-3-label'] != blank %}
+                      {{ settings['custom-badge-3-label'] | upcase }}
+                    {% else %}
+                      {{ settings['custom-badge-3-input'] | upcase }}
+                    {% endif %}
+                  {% else %}
+                    {% if settings['custom-badge-3-label'] != blank %}
+                      {{ settings['custom-badge-3-label'] }}
+                    {% else %}
+                      {{ settings['custom-badge-3-input'] }}
+                    {% endif %}
+                  {% endif %}
+                </div>
+              {% endif %}
+              {% if downcase_tag == custom-badge-4-input %}
+                <div class="card__badges--item" data-custom-badge="{{ settings.custom-badge-4-input }}">
+                  {% if settings['badges-uppercase'] == 'uppercase' %}
+                    {% if settings['custom-badge-4-label'] != blank %}
+                      {{ settings['custom-badge-4-label'] | upcase }}
+                    {% else %}
+                      {{ settings['custom-badge-4-input'] | upcase }}
+                    {% endif %}
+                  {% else %}
+                    {% if settings['custom-badge-4-label'] != blank %}
+                      {{ settings['custom-badge-4-label'] }}
+                    {% else %}
+                      {{ settings['custom-badge-4-input'] }}
+                    {% endif %}
+                  {% endif %}
+                </div>
+              {% endif %}
+              {% endfor %}
+          </div>
+        </picture>
+      </a>
+
+      {% if enable_quick_add_button %}
+        <div class="card__quick-add-container--desktop">
+          {% render 'quick-add-button', card_product: product, product: card_product, product_variations: product_variations %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div
+      class="card{% if text_alignment %} card--{{ text_alignment }}{% endif %}"
+    >
+      {% if section.settings.show_vendor == true %}
+        <p class="card__subtitle">
+          {% if enable_vendor_link %}
+            <a class="vendor-link" href="/collections/vendors?q={{ product.vendor }}">
+          {% endif %}
+
+          {{ subtitle }}
+
+          {% if enable_vendor_link %}
+            </a>
+          {% endif %}
+        </p>
+      {% endif %}
+
+      {% if show_vendor_prop == true %}
+        <p class="card__subtitle">{{ subtitle }}</p>
+      {% endif %}
+
+      <{{ title_tag }} class="card__title">
+        <a
+          href="{{ url }}"
+          tabindex="-1"
+          data-omit-tabindex
+        >
+        {% if title %}
+          {{ title }}
+        {% else %}
+          {% if default_title %}{{ default_title }}{% else %}{{ placeholder_title }}{% endif %}
+        {% endif %}
+      </a>
+      </{{ title_tag }}>
+      {% if price and collection_list != true %}
+        <div class="card__price">
+          {% if price_old -%}
+            <span class="card__price__old">{{ price_old }}</span>
+          {%- endif %}
+          {% if settings.currency_code_enabled %}
+            {{ price | money_with_currency }}
+          {% else %}
+            {{ price | money }}
+          {% endif %}
+        </div>
+      {% elsif product and collection_list != true %}
+        <div class="card__price">
+          {% render 'price', product: product, show_compare_at_price: true, price_class: '' %}
+        </div>
+      {% endif %}
+
+      {% if rating and reviews %}
+        {% render 'rating', reviews: reviews, text_alignment: text_alignment %}
+      {% endif %}
+    </div>
+
+    {% if settings.enable_product_variations %}
+      {% render 'card-product-variation-swatches', 
+        product: product, text_alignment: text_alignment,
+        product_variations: product_variations,
+        product_variations_color_namespace: product_variations_color_namespace,
+        product_variations_color_key: product_variations_color_key
+      %}
+    {% elsif settings.enable_color_swatch %}
+        {% render 'card-color-swatches', product: product, text_alignment: text_alignment, are_filters_active: are_filters_active %}
+    {% endif %}
+
+    {% if enable_quick_add_button %}
+      <div class="card__quick-add-container">
+        {% render 'quick-add-button', card_product: product, product: card_product, product_variations: product_variations %}
+      </div>
+    {% endif %}
+  </div>
+</color-swatch>

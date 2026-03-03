@@ -1,0 +1,357 @@
+{{ 'section-parallax.css' | asset_url | stylesheet_tag }}
+
+{% assign background_rgb = section.settings.background_color | color_to_rgb %}
+{% assign text_rgb = section.settings['color-body-text'] | color_to_rgb %}
+
+{% assign has_content = false %}
+{%- for block in section.blocks -%}
+  {% if block.type == 'text' and block.settings.text != '' %}
+    {% assign has_content = true %}
+    {% break %}
+  {% endif %}
+  {% if block.type == 'heading' and block.settings.heading != '' %}
+    {% assign has_content = true %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% if request.design_mode or has_content %}
+  <style>
+    [data-section-id="{{ section.id }}"]
+    {
+      {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+        --color-custom-background: {{ section.settings.background_color }};
+      {% endif %}
+
+    {% if section.settings.margin-top %}
+        --section-gap-top: {{ section.settings.margin-top }}px;
+    {% endif %}
+
+    {% if section.settings.margin-bottom %}
+        --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+    {% endif %}
+
+    {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+      --color-custom-text: {{ section.settings.color-body-text }};
+    {% endif %}
+    }
+
+    {%- for block in section.blocks -%}
+    [data-block-id="{{ block.id }}"]
+    {
+        --font-headline-scale-desk: {{ block.settings.size_heading | divided_by: 100.0 }};
+        --font-headline-scale: {{ block.settings.size_heading_mobile | divided_by: 100.0 }};
+    }
+    {%- endfor -%}
+  </style>
+
+  <script src="{{ 'parallax.js' | asset_url }}" defer="defer"></script>
+
+  <parallax-section data-rotation="{{ section.settings.rotation }}">
+    <div class="wt-parallax__content" data-section-id="{{ section.id }}">
+      <div class="{% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %} rich-text">
+        <div class="hero__wrapper">
+          {% render 'hero',
+            type: 'blocks',
+            desktop_text_horizontal_position: section.settings.desktop_text_horizontal_position,
+            desktop_text_vertical_position: 'center',
+            blocks: section.blocks
+          %}
+        </div>
+      </div>
+      <div class="wt-parallax__additional">
+        <div class="wt-parallax__additional__icon">
+          {% render 'icons', id: 'arrow-down' %}
+        </div>
+      </div>
+    </div>
+
+    <div class="wt-parallax__gallery">
+      <ul class="wt-parallax__gallery__list">
+        <li class="wt-parallax__gallery__item">
+          {%- assign large_image_size = 600 -%}
+          {%- assign large_image_size_double = large_image_size | times: 2 -%}
+          {% assign link1 = section.settings.button_link1 %}
+
+          {% if link1 %}
+            <a href="{{ link1 }}" tabindex="0">
+          {% endif %}
+          {% if section.settings.image_1 %}
+            <img
+              srcset="{{ section.settings.image_1 | image_url: width: large_image_size }} 1x, {{ section.settings.image_1 | image_url: width: large_image_size_double }} 2x"
+              src="{{ section.settings.image_1 | image_url: width: large_image_size }}"
+              loading="lazy"
+              width="{{ section.settings.image_1.width }}"
+              height="{{ section.settings.image_1.height }}"
+              class="wt-parallax__img"
+              alt="{{ section.settings.image_1.alt | default: section.settings.image_1.name | escape }}"
+            >
+          {% else %}
+            {{ 'product-apparel-1' | placeholder_svg_tag: 'wt-parallax__img' }}
+          {% endif %}
+          {% if link1 %}
+            </a>
+          {% endif %}
+        </li>
+        <li class="wt-parallax__gallery__item">
+          {% assign link2 = section.settings.button_link2 %}
+
+          {% if link2 %}
+            <a href="{{ link2 }}" tabindex="0">
+          {% endif %}
+          {% if section.settings.image_2 %}
+            <img
+              srcset="{{ section.settings.image_2 | image_url: width: large_image_size }} 1x, {{ section.settings.image_2 | image_url: width: large_image_size_double }} 2x"
+              src="{{ section.settings.image_2 | image_url: width: large_image_size }}"
+              loading="lazy"
+              width="{{ section.settings.image_2.width }}"
+              height="{{ section.settings.image_2.height }}"
+              class="wt-parallax__img"
+              alt="{{ section.settings.image_2.alt | default: section.settings.image_2.name | escape }}"
+            >
+          {% else %}
+            {{ 'product-apparel-2' | placeholder_svg_tag: 'wt-parallax__img' }}
+          {% endif %}
+          {% if link2 %}
+            </a>
+          {% endif %}
+        </li>
+      </ul>
+    </div>
+  </parallax-section>
+{% endif %}
+
+{% schema %}
+{
+  "name": "t:sections.parallax-section.name",
+  "tag": "section",
+  "class": "wt-parallax",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.parallax-section.settings.important-information.content",
+      "info": "t:sections.parallax-section.settings.important-information.info"
+    },
+    {
+      "type": "select",
+      "id": "desktop_text_horizontal_position",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.rich-text.settings.desktop_text_horizontal_position.left.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.rich-text.settings.desktop_text_horizontal_position.center.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.rich-text.settings.desktop_text_horizontal_position.right.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.rich-text.settings.desktop_text_horizontal_position.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.parallax-section.settings.heading__1.label"
+    },
+    {
+      "type": "range",
+      "id": "rotation",
+      "min": 0,
+      "max": 30,
+      "unit": "deg",
+      "step": 1,
+      "default": 5,
+      "label": "t:sections.parallax-section.settings.rotation.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_1",
+      "label": "t:sections.parallax-section.settings.first-image.label"
+    },
+    {
+      "type": "url",
+      "id": "button_link1",
+      "label": "t:sections.rich-text-with-image.blocks.heading.settings.link1.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "t:sections.parallax-section.settings.second-image.label"
+    },
+    {
+      "type": "url",
+      "id": "button_link2",
+      "label": "t:sections.rich-text-with-image.blocks.heading.settings.link2.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "color-body-text",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.text-color.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.background-color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.section_spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin-top",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 20,
+      "label": "t:sections.settings.settings.distance-top.label"
+    },
+    {
+      "type": "range",
+      "id": "margin-bottom",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 20,
+      "label": "t:sections.settings.settings.distance-bottom.label",
+      "info": "t:sections.settings.settings.distance-bottom.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "t:sections.rich-text.blocks.heading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "default": "Talk about your brand",
+          "label": "t:sections.settings.settings.heading.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_on_mobile",
+          "label": "t:sections.global.disable_on_mobile",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "size_heading",
+          "min": 50,
+          "max": 500,
+          "step": 10,
+          "default": 100,
+          "label": "t:sections.settings.settings.size-heading.label",
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "size_heading_mobile",
+          "min": 80,
+          "max": 300,
+          "step": 10,
+          "default": 100,
+          "label": "t:sections.settings.settings.size-heading-mobile.label",
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.rich-text.blocks.text.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Share information about your brand with your customers. Describe a product, make annuncements, or welcome customers to your store.</p>",
+          "label": "t:sections.settings.settings.text.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_on_mobile",
+          "label": "t:sections.global.disable_on_mobile",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "t:sections.image-banner.button.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "button_select",
+          "options": [
+            {
+              "value": "primary",
+              "label": "t:sections.settings.settings.button_select.primary.label"
+            },
+            {
+              "value": "secondary",
+              "label": "t:sections.settings.settings.button_select.secondary.label"
+            },
+            {
+              "value": "link",
+              "label": "t:sections.settings.settings.button_select.link.label"
+            }
+          ],
+          "default": "primary",
+          "label": "t:sections.settings.settings.button_select.default.label"
+        },
+        {
+          "id": "button_label",
+          "type": "text",
+          "default": "Button label",
+          "label": "t:sections.settings.settings.button_label.label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "t:sections.settings.settings.link.label",
+          "default": "/"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_on_mobile",
+          "label": "t:sections.global.disable_on_mobile",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.parallax-section.settings.presets.name",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "button"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

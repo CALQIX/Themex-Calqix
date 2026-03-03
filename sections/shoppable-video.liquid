@@ -1,0 +1,331 @@
+{{ 'shoppable-image.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'shoppable-video.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+
+{% assign heading_rgb = section.settings['color-body-heading'] | color_to_rgb %}
+{% assign background_rgb = section.settings['color-overlay'] | color_to_rgb %}
+{% assign text_rgb = section.settings['color-body-text'] | color_to_rgb %}
+
+<style>
+  section[id="shopify-section-{{ section.id }}"]{
+      {% if section.settings.margin-top %}
+          --section-gap-top: {{ section.settings.margin-top }}px;
+      {% endif %}
+
+      {% if section.settings.margin-bottom %}
+          --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+      {% endif %}
+
+      {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+        --color-overlay-rgb: {{ section.settings.color-overlay | color_to_rgb | remove: 'rgb(' | remove: ')' }};
+          --color-overlay-opacity: {{ section.settings.color-overlay-opacity | divided_by: 100.0 }};
+      {% endif %}
+
+      .headline__title{
+          {% if heading_rgb != 'rgba(0, 0, 0, 0.0)' %}
+            --color-custom-text: {{ section.settings.color-body-heading }};
+          {% endif %}
+      }
+  }
+  [data-section-id="{{ section.id }}"]
+  {
+      {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+          --color-custom-text: {{ section.settings.color-body-text }};
+      {% endif %}
+
+          --section-height: {{ section.settings.mobile_fixed_height }}px;
+          --section-height-desk: {{ section.settings.desktop_fixed_height }}px;
+
+      .hero__img--placeholder{
+          object-position: {{ section.settings.cover_image.presentation.focal_point }};
+      }
+
+  }
+
+  {% if section.settings.full-width-enabled %}
+  [data-section-id="{{ section.id }}"] .hero--video-background {
+    border-radius: 0;
+  }
+  {% endif %}
+
+
+  {%- for block in section.blocks -%}
+  [data-block-id="{{ block.id }}"]
+  {
+
+      --font-headline-scale-desk: {{ block.settings.size_heading | divided_by: 100.0 }};
+
+      --font-headline-scale: {{ block.settings.size_heading_mobile | divided_by: 100.0 }};
+
+  }
+  {%- endfor -%}
+</style>
+
+{% if section.settings['full-width-enabled'] %}
+  {% assign width_line = 'hero__wrapper--full' %}
+{% else %}
+  {% assign width_line = 'hero__wrapper' %}
+{% endif %}
+
+<script src="{{ 'low-power-video.js' | asset_url }}" defer="defer"></script>
+
+<low-power-video>
+  <div class="{{ width_line }} section-background-video shoppable-video" data-section-id="{{ section.id }}">
+    <div>
+      {% render 'headline', title: section.settings.heading %}
+      <shoppable-video
+        data-products='
+          {
+            "0": 0,
+          {% for block in section.blocks %}
+            "{{ forloop.index }}": {{ block.settings.start_second }}{% if forloop.last == false %},{% endif %}
+          {% endfor %}
+          }
+        '
+        class="{% if settings.animations %}scroll-trigger animate--slide-in {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}{% endif %}"
+      >
+        <div class="shoppable-video__container" data-section-id="{{ section.id }}">
+          {% render 'play-pause-button', classname: '' %}
+
+          {% render 'hero',
+            type: 'blocks',
+            desktop_text_horizontal_position: section.settings.desktop_text_horizontal_position,
+            desktop_text_vertical_position: section.settings.desktop_text_vertical_position,
+            mobile_text_horizontal_position: section.settings.mobile_text_horizontal_position,
+            mobile_text_vertical_position: section.settings.mobile_text_vertical_position,
+            desktop_image: section.settings.cover_image,
+            video: section.settings.video_hosted,
+            video_url: section.settings.video_url,
+            placeholder: 'detailed-apparel-1',
+            blocks: section.blocks,
+            href_only_on_button: false,
+            enable_full_screen_mode: section.settings.enable_full_screen_mode,
+            autoplay: true,
+            video_controls: false,
+            video_custom_mute_controls: section.settings.video_custom_mute_controls
+          %}
+          <div class="shoppable-video__products">
+            <div class="shoppable-video__product shoppable-video__empty-product"></div>
+            {% for block in section.blocks %}
+              {% render 'shoppable-video-product',
+                block: block,
+                customClass: 'shoppable-video__product',
+                forloop: forloop,
+                hide_brand: section.settings['hide-brand-name']
+              %}
+            {% endfor %}
+          </div>
+        </div>
+      </shoppable-video>
+    </div>
+  </div>
+</low-power-video>
+
+{{ 'section-video.css' | asset_url | stylesheet_tag }}
+{{ 'section-shoppable-video.css' | asset_url | stylesheet_tag }}
+
+{% schema %}
+{
+  "name": "t:sections.shoppable-video.name",
+  "tag": "section",
+  "class": "background-video-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.shoppable-video.settings.important-information.content",
+      "info": "t:sections.shoppable-video.settings.important-information.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.general"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "t:sections.settings.settings.heading.label",
+      "default": "Shoppable video"
+    },
+    {
+      "type": "checkbox",
+      "id": "full-width-enabled",
+      "label": "t:sections.settings.settings.section-full-width.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "quick-add-enabled",
+      "label": "t:sections.shoppable-video.settings.quick-add-enabled.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "rewind-enabled",
+      "label": "t:sections.shoppable-video.settings.rewind-enabled.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "hide-brand-name",
+      "label": "t:sections.shoppable-video.settings.hide-brand-name.label",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.video",
+      "info": "t:sections.background-video.settings.video.info"
+    },
+    {
+      "type": "video",
+      "id": "video_hosted",
+      "label": "A Shopify-hosted video"
+    },
+    {
+      "type": "checkbox",
+      "id": "video_custom_mute_controls",
+      "label": "t:sections.background-video.settings.video_custom_mute_controls.label",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.section-height"
+    },
+    {
+      "type": "range",
+      "id": "desktop_fixed_height",
+      "min": 200,
+      "max": 1000,
+      "unit": "px",
+      "step": 20,
+      "default": 600,
+      "label": "t:sections.slideshow.settings.slide.desktop_fixed_height.label"
+    },
+    {
+      "type": "range",
+      "id": "mobile_fixed_height",
+      "min": 200,
+      "max": 1000,
+      "unit": "px",
+      "step": 20,
+      "default": 480,
+      "label": "t:sections.slideshow.settings.slide.mobile_fixed_height.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_full_screen_mode",
+      "label": "t:sections.shoppable-video.settings.enable_full_screen_mode.label",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "color-body-heading",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.heading-color.label"
+    },
+    {
+      "type": "color",
+      "id": "color-overlay",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.background-color.label"
+    },
+    {
+      "type": "range",
+      "id": "color-overlay-opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 100,
+      "label": "t:sections.settings.settings.background-opacity.label"
+    },
+    {
+      "type": "color",
+      "id": "color-body-text",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.text-color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.section_spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin-top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 20,
+      "unit": "px",
+      "label": "t:sections.settings.settings.distance-top.label"
+    },
+    {
+      "type": "range",
+      "id": "margin-bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 20,
+      "unit": "px",
+      "label": "t:sections.settings.settings.distance-bottom.label",
+      "info": "t:sections.settings.settings.distance-bottom.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "range",
+          "id": "start_second",
+          "min": 1,
+          "max": 50,
+          "step": 0.5,
+          "unit": "sec",
+          "label": "t:sections.shoppable-video.settings.product.time.label",
+          "info": "t:sections.shoppable-video.settings.product.time.info",
+          "default": 50
+        },
+        {
+          "type": "product",
+          "id": "featured_product",
+          "label": "t:sections.shoppable-image.settings.dot.featured_product.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.shoppable-video.name",
+      "blocks": [
+        {
+          "type": "product",
+          "settings": {
+            "start_second": 1
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "start_second": 4
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "start_second": 6
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

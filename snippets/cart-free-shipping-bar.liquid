@@ -1,0 +1,51 @@
+{% comment %}Parse the free shipping threshold based on currency{% endcomment %}
+{% assign free_shipping_setting = settings.free_shipping_bar_amount | default: '100' %}
+{% assign free_shipping_threshold = free_shipping_setting | split: '|' | first | strip %}
+
+{% comment %}Check if we have currency-specific thresholds{% endcomment %}
+{% assign current_currency = cart.currency.iso_code %}
+{% assign currency_specific_threshold = '' %}
+{% assign setting_parts = free_shipping_setting | split: '|' %}
+{% for part in setting_parts %}
+  {% if part contains ':' %}
+    {% assign currency_amount = part | split: ':' %}
+    {% assign currency_code = currency_amount[0] | strip %}
+    {% if currency_code == current_currency %}
+      {% assign currency_specific_threshold = currency_amount[1] | strip %}
+      {% break %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% if currency_specific_threshold != '' %}
+  {% assign free_shipping_threshold = currency_specific_threshold %}
+{% endif %}
+{% assign cart_value = cart.total_price | divided_by: 100.0 %}
+
+{% assign remaining_amount = free_shipping_threshold | minus: cart_value %}
+{% assign progress_percentage = cart_value | times: 100 | divided_by: free_shipping_threshold | round %}
+
+{% if remaining_amount < 0 %}
+  {% assign remaining_amount = 0 %}
+  {% assign progress_percentage = 100 %}
+{% endif %}
+
+{% assign remaining_amount_with_currency = remaining_amount | times: 100 | money %}
+
+{% assign custom_text = settings.free_shipping_bar_text | replace: '||amount||', remaining_amount_with_currency %}
+
+<div class="wt-free-shipping-bar">
+  <p class="wt-free-shipping-bar__text">
+    {% if remaining_amount > 0 %}
+      {{ custom_text }}
+    {% else %}
+      {{ settings.free_shipping_bar_text_success }}
+    {% endif %}
+  </p>
+  <div class="wt-progress-bar">
+    <div
+      class="wt-progress-bar__fill"
+      style="width: {{ progress_percentage }}%;"
+    ></div>
+  </div>
+</div>

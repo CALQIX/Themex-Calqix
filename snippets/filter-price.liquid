@@ -1,0 +1,73 @@
+{{ 'nouislider.css' | asset_url | stylesheet_tag }}
+
+{%- for filter in results.filters -%}
+  {% if filter.type == 'price_range' %}
+    {%- assign max_price_amount_raw = filter.range_max -%}
+
+    {% if filter.max_value.value != null %}
+      {% assign max_price_filter_raw = filter.max_value.value %}
+    {% endif %}
+
+    {% if filter.min_value.value != null %}
+      {% assign min_price_filter_raw = filter.min_value.value %}
+    {% endif %}
+  {% endif %}
+{%- endfor -%}
+
+{% assign step = 10 %}
+<collapsible-section
+  class="f-price-slider filter"
+  data-toggle-tabindex=".noUi-handle, .f-price__input"
+>
+  <div
+    class="filter__header wt-collapse__trigger"
+    role="button"
+    tabindex="{% if filter_position == 'always' %}0{% else %}-1{% endif %}"
+    data-toggle-tabindex=".form-checkbox"
+    data-open="false"
+    aria-expanded="false"
+    aria-controls="wt-filter-price"
+  >
+    {{ filter.label | escape }}
+    {% render 'icons', id: 'plus' %}
+  </div>
+  <div class="filter__body wt-collapse__target" id="wt-filter-price">
+    <price-slider class="f-price">
+      <price-range>
+        <div
+          class="f-price__slider"
+          data-min="0"
+          data-currency="{{ shop.currency }}"
+          data-max="{{ max_price_amount_raw | divided_by: 100.0 | ceil }}"
+          data-step="{{ step }}"
+        ></div>
+        <div class="f-price__inputs">
+          <div class="f-price__val">
+            <div class="f-price__currency">{{ shop.currency }}</div>
+            <input
+              id="price-from"
+              class="f-price__input f-price__input--from"
+              name="filter.v.price.gte"
+              value="{% if min_price_filter_raw %}{{ min_price_filter_raw | divided_by: 100 }}{% else %}0{% endif %}"
+              tabindex="-1"
+            >
+          </div>
+          <span class="f-price__sep">―</span>
+          <div class="f-price__val">
+            <div class="f-price__currency">{{ shop.currency }}</div>
+            <input
+              id="price-to"
+              class="f-price__input f-price__input--to"
+              name="filter.v.price.lte"
+              value="{% if max_price_filter_raw %}{{ max_price_filter_raw | divided_by: 100.0 | ceil }}{% else %}{{ max_price_amount_raw | divided_by: 100.0 | ceil }}{% endif %}"
+              tabindex="-1"
+            >
+          </div>
+        </div>
+      </price-range>
+    </price-slider>
+  </div>
+</collapsible-section>
+
+<script type="module" src="{{ 'wnumb.js' | asset_url }}" defer="defer"></script>
+<script type="module" src="{{ 'price-slider.js' | asset_url }}" defer="defer"></script>

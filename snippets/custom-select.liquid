@@ -1,0 +1,45 @@
+{{ 'custom-select.css' | asset_url | stylesheet_tag }}
+<custom-select
+  data-reference-id="SortBy"
+  class="wt-options {{ custom_class }}"
+  selected="{{ sort_by }}"
+  selected-label=""
+  {% comment %}tabindex="0"{% endcomment %}
+>
+  <div
+    custom-select-trigger
+    class="wt-options__trigger"
+    tabindex="0"
+    role="button"
+    aria-haspopup="listbox"
+    aria-expanded="false"
+    aria-controls="wt-options__drawer"
+  >
+    <span custom-select-label class="wt-options__label">{{ 'products.facets.sort_by_label' | t }}</span>
+    <span custom-select-current class="wt-options__value"></span>
+  </div>
+  <div custom-select-drawer class="wt-options__drawer" id="wt-options__drawer">
+    <div custom-select-body class="wt-options__body">
+      <header class="wt-options__title">
+        <span class="value">{{ 'products.facets.sort_by_label' | t }}</span>
+        {% render 'icons', id: 'close', icon_class: 'wt-options__close' %}
+      </header>
+      <ul custom-select-list class="wt-options__list" role="listbox" aria-label="{{ 'aria-label.sort-options' | t}}">
+        {%- for option in select_options -%}
+          <li
+            value="{{ option.value | escape }}"
+            class="wt-options__list__item"
+            role="option"
+            {% if option.value == sort_by %}
+              selected
+            {% endif %}
+            tabindex="-1"
+          >
+            {{ option.name | escape }}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  </div>
+</custom-select>
+<script type="module" src="{{ 'custom-select.js' | asset_url }}" defer="defer"></script>

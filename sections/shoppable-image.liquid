@@ -1,0 +1,491 @@
+{{ 'shoppable-image.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'shoppable-drawer.js' | asset_url }}" defer="defer"></script>
+
+{% assign background_rgb = section.settings['color-overlay'] | color_to_rgb %}
+{% assign text_rgb = section.settings['color-body-text'] | color_to_rgb %}
+
+<style>
+  section[id="shopify-section-{{ section.id }}"]{
+      {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+          --color-overlay-rgb: {{ section.settings.color-overlay | color_to_rgb | remove: 'rgb(' | remove: ')' }};
+          --color-overlay-opacity: {{ section.settings.color-overlay-opacity | divided_by: 100.0 }};
+      {% endif %}
+  }
+  [data-section-id="{{ section.id }}"]
+  {
+
+      {% if section.settings.margin-top %}
+          --section-gap-top: {{ section.settings.margin-top }}px;
+      {% endif %}
+
+      {% if section.settings.margin-bottom %}
+          --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+      {% endif %}
+
+      {% if section.settings.full-width-enabled %}
+          --border-radius: 0;
+      {% endif %}
+
+      {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+        --color-custom-text: {{ section.settings.color-body-text }};
+      {% endif %}
+  }
+
+  {%- for block in section.blocks -%}
+      [data-block-id="{{ block.id }}"] .wt-dot
+      {
+
+      --coordinate-width: {{ block.settings.coordinate_width }}%;
+
+      --coordinate-height: {{ block.settings.coordinate_height }}%;
+
+      --coordinate-width-mobile: {{ block.settings.coordinate_width_mobile }}%;
+
+      --coordinate-height-mobile: {{ block.settings.coordinate_height_mobile }}%;
+
+      }
+
+
+      [data-block-id="{{ block.id }}"] .wt-dot__tooltip
+      {
+
+      --coordinate-width: {{ block.settings.coordinate_width }}%;
+
+      --coordinate-height: {{ block.settings.coordinate_height }}%;
+
+      }
+
+  {%- endfor -%}
+</style>
+
+<section
+  data-section-id="{{ section.id }}"
+  class="shoppable-image {% if section.settings.full-width-enabled %} shoppable-image__full {% endif %}"
+>
+  {% render 'headline', title: section.settings.heading %}
+
+  <div class="shoppable-image__text {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}">
+    {{ section.settings.text }}
+  </div>
+
+  <div class="shoppable-image__body" id="shoppable-image__body">
+    {% assign my_counter = 0 %}
+    {%- for block in section.blocks -%}
+      <div data-block-id="{{ block.id }}">
+        <shoppable-drawer>
+          {% if block.type == 'dots' %}
+            <div class="wt-dot">
+              <div class="wt-dot__ringing"></div>
+              <div class="wt-dot__circle" tabindex="0"></div>
+            </div>
+            <div class="wt-dot__tooltip">
+              {%- if block.settings.featured_product != blank -%}
+                <a href="{{ block.settings.featured_product.url }}" class="wt-dot__link" tabindex="0">
+                  <picture class="wt-dot__picture">
+                    <img
+                      srcset="
+                        {% if block.settings.featured_product.featured_image.width >= 300 %}{{ block.settings.featured_product.featured_image | image_url: width: 300 }} 300w, {% endif %}
+                        {% if block.settings.featured_product.featured_image.width >= 600 %}{{ block.settings.featured_product.featured_image | image_url: width: 600 }} 600w, {% endif %}
+                        {% if block.settings.featured_product.featured_image.width >= 900 %}{{ block.settings.featured_product.featured_image | image_url: width: 900 }} 900w, {% endif %}
+                        {{ block.settings.featured_product.featured_image | image_url: width: 300 }} 300w
+                      "
+                      sizes="(min-width: 900px) 300px, 100vw"
+                      src="{{ block.settings.featured_product.featured_image | image_url: width: 300 }}"
+                      alt="{{ block.settings.featured_product.featured_image.alt | escape }}"
+                      class="wt-dot__image"
+                      width="{{ block.settings.featured_product.featured_image.width }}"
+                      height="{{ block.settings.featured_product.featured_image.height }}"
+                      loading="lazy"
+                    >
+                  </picture>
+                  <div class="wt-dot__body">
+                    {%- if section.settings.show_vendor -%}
+                      <div class="wt-dot__brand">{{ block.settings.featured_product.vendor }}</div>
+                    {%- endif -%}
+                    <div class="wt-dot__title">{{ block.settings.featured_product.title }}</div>
+                    <div class="wt-dot__price">
+                      {% render 'price',
+                        product: block.settings.featured_product,
+                        show_compare_at_price: true,
+                        price_class: ''
+                      %}
+                    </div>
+                  </div>
+                </a>
+              {%- else -%}
+                <a href="#" class="wt-dot__link">
+                  {% assign my_counter = my_counter | plus: 1 %}
+                  <div class="wt-dot__img-placeholder">
+                    {{ 'product-apparel-' | append: my_counter | placeholder_svg_tag: 'wt-dot__image' }}
+                  </div>
+                  <div class="wt-dot__body">
+                    {%- if section.settings.show_vendor -%}
+                      <div class="wt-dot__brand">{{ 'shoppable_image.brand' | t }}</div>
+                    {%- endif -%}
+                    <div class="wt-dot__title">{{ 'shoppable_image.title' | t }}</div>
+                    <div class="wt-dot__price">{{ 15.99 | money }}</div>
+                  </div>
+                </a>
+              {%- endif -%}
+            </div>
+          {% elsif block.type == 'benefit-hotspot' %}
+            {% comment %} {% if block.settings.text != blank or request.design_mode %} {% endcomment %}
+                  <div class="wt-dot wt-dot--benefit">
+                    <div class="wt-dot__ringing"></div>
+                    <div class="wt-dot__circle" tabindex="0">
+                      <span class="wt-dot__icon wt-dot__icon--plus">{% render 'icons', id: 'plus' %}</span>
+                    </div>
+                  </div>
+                  <div class="wt-dot__tooltip">
+                    <div class="wt-dot__link wt-dot__link--benefit" tabindex="0">
+                      {% if block.settings.image != blank %}
+                      <picture class="wt-dot__picture">
+                        <img
+                          srcset="
+                            {% if block.settings.image.width >= 300 %}{{ block.settings.image | image_url: width: 300 }} 300w, {% endif %}
+                            {% if block.settings.image.width >= 600 %}{{ block.settings.image | image_url: width: 600 }} 600w, {% endif %}
+                            {% if block.settings.image.width >= 900 %}{{ block.settings.image | image_url: width: 900 }} 900w, {% endif %}
+                            {{ block.settings.image | image_url: width: 300 }} 300w
+                          "
+                          sizes="(min-width: 900px) 300px, 100vw"
+                          src="{{ block.settings.image | image_url: width: 300 }}"
+                          alt="{{ block.settings.image.alt | escape }}"
+                          class="wt-dot__image"
+                          width="{{ block.settings.image.width }}"
+                          height="{{ block.settings.image.height }}"
+                          loading="lazy"
+                        >
+                      </picture>
+                      {% endif %}
+                      <div class="wt-dot__body">
+                        <h3>{{ block.settings.title }}</h3>
+                        <div class="wt-dot__text rte">
+                          {{ block.settings.text }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+            {% comment %} {% endif %} {% endcomment %}
+          {% endif %}
+        </shoppable-drawer>
+      </div>
+    {%- endfor -%}
+    <div class="wt__shoppable-image">
+      <div class="wt__shoppable-image--page-overlay hidden"></div>
+      <div class="wt__shoppable-image--wrapper">
+        <header class="wt-options__title">
+          {% render 'icons', id: 'close', icon_class: 'svg-icon' %}
+        </header>
+      </div>
+    </div>
+
+    {%- if section.settings.desktop_image != blank or section.settings.mobile_image != blank -%}
+      {% render 'picture',
+        desktop_image: section.settings.desktop_image,
+        mobile_image: section.settings.mobile_image,
+        animation: true
+      %}
+
+    {%- else -%}
+      {{ 'detailed-apparel-1' | placeholder_svg_tag: 'shoppable-image__placeholder' }}
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.shoppable-image.name",
+  "tag": "section",
+  "class": "shoppable-image-section",
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "t:sections.settings.settings.heading.label",
+    },
+    {
+      "type": "image_picker",
+      "id": "desktop_image",
+      "label": "t:sections.settings.settings.image.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "full-width-enabled",
+      "label": "t:sections.settings.settings.section-full-width.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "default": true,
+      "label": "t:sections.featured-collection.settings.show_vendor.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.mobile_version"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "t:sections.settings.settings.image.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "color-body-text",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.text-color.label"
+    },
+    {
+      "type": "color",
+      "id": "color-overlay",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.background-color.label"
+    },
+    {
+      "type": "range",
+      "id": "color-overlay-opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 100,
+      "label": "t:sections.settings.settings.background-opacity.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.section_spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin-top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 20,
+      "unit": "px",
+      "label": "t:sections.settings.settings.distance-top.label"
+    },
+    {
+      "type": "range",
+      "id": "margin-bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 20,
+      "unit": "px",
+      "label": "t:sections.settings.settings.distance-bottom.label",
+      "info": "t:sections.settings.settings.distance-bottom.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "dots",
+      "name": "t:sections.shoppable-image.settings.dot.name",
+      "settings": [
+        {
+          "type": "range",
+          "id": "coordinate_width",
+          "min": 20,
+          "max": 87,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.shoppable-image.settings.dot.coordinate_width.label",
+          "info": "t:sections.shoppable-image.settings.dot.coordinate_width.info",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "coordinate_height",
+          "min": 5,
+          "max": 95,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.shoppable-image.settings.dot.coordinate_height.label",
+          "info": "t:sections.shoppable-image.settings.dot.coordinate_height.info",
+          "default": 50
+        },
+        {
+          "type": "header",
+          "content": "t:sections.global.mobile_version"
+        },
+        {
+          "type": "range",
+          "id": "coordinate_width_mobile",
+          "min": 13,
+          "max": 87,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.shoppable-image.settings.dot.coordinate_width.label",
+          "info": "t:sections.shoppable-image.settings.dot.coordinate_width.info",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "coordinate_height_mobile",
+          "min": 13,
+          "max": 95,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.shoppable-image.settings.dot.coordinate_height.label",
+          "info": "t:sections.shoppable-image.settings.dot.coordinate_height.info",
+          "default": 50
+        },
+        {
+          "type": "product",
+          "id": "featured_product",
+          "label": "t:sections.shoppable-image.settings.dot.featured_product.label"
+        }
+      ]
+    },
+    {
+      "type": "benefit-hotspot",
+      "name": "t:sections.shoppable-image.settings.benefit_hotspot.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.settings.settings.image.label"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "title",
+          "label": "t:sections.settings.settings.heading.label",
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.settings.settings.text.label",
+        },
+        {
+          "type": "range",
+          "id": "coordinate_width",
+          "min": 20,
+          "max": 87,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.shoppable-image.settings.dot.coordinate_width.label",
+          "info": "t:sections.shoppable-image.settings.dot.coordinate_width.info",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "coordinate_height",
+          "min": 5,
+          "max": 95,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.shoppable-image.settings.dot.coordinate_height.label",
+          "info": "t:sections.shoppable-image.settings.dot.coordinate_height.info",
+          "default": 50
+        },
+        {
+          "type": "header",
+          "content": "t:sections.global.mobile_version"
+        },
+        {
+          "type": "range",
+          "id": "coordinate_width_mobile",
+          "min": 13,
+          "max": 87,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.shoppable-image.settings.dot.coordinate_width.label",
+          "info": "t:sections.shoppable-image.settings.dot.coordinate_width.info",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "coordinate_height_mobile",
+          "min": 13,
+          "max": 95,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.shoppable-image.settings.dot.coordinate_height.label",
+          "info": "t:sections.shoppable-image.settings.dot.coordinate_height.info",
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.shoppable-image.settings.presets.name__1",
+      "settings": {
+        "heading": "Shoppable image"
+      },
+      "blocks": [
+        {
+          "type": "dots",
+          "settings": {
+            "coordinate_width": 66,
+            "coordinate_height": 40,
+            "coordinate_width_mobile": 66,
+            "coordinate_height_mobile": 40
+          }
+        },
+        {
+          "type": "benefit-hotspot",
+          "settings": {
+            "coordinate_width": 75,
+            "coordinate_height": 61,
+            "coordinate_width_mobile": 80,
+            "coordinate_height_mobile": 61
+          }
+        },
+        {
+          "type": "dots",
+          "settings": {
+            "coordinate_width": 20,
+            "coordinate_height": 44,
+            "coordinate_width_mobile": 13,
+            "coordinate_height_mobile": 44
+          }
+        }
+      ]
+    },
+    {
+      "name": "t:sections.shoppable-image.settings.presets.name__2",
+      "settings": {
+        "heading": "Benefits image"
+      },
+      "blocks": [
+        {
+          "type": "dots",
+          "settings": {
+            "coordinate_width": 66,
+            "coordinate_height": 40,
+            "coordinate_width_mobile": 66,
+            "coordinate_height_mobile": 40
+          }
+        },
+        {
+          "type": "benefit-hotspot",
+          "settings": {
+            "coordinate_width": 75,
+            "coordinate_height": 61,
+            "coordinate_width_mobile": 80,
+            "coordinate_height_mobile": 61
+          }
+        },
+        {
+          "type": "benefit-hotspot",
+          "settings": {
+            "coordinate_width": 20,
+            "coordinate_height": 44,
+            "coordinate_width_mobile": 13,
+            "coordinate_height_mobile": 44
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

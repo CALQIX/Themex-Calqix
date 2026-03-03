@@ -1,0 +1,84 @@
+{% if card_product.variants.size > 1 or settings.enable_product_variations == true and product_variations.count > 0 %}
+  <quick-add data-product-handle="{{ card_product.handle }}">
+    <button
+      aria-label="{{ 'products.product.choose_option' | t }}"
+      class="button--full-width hero__button--secondary"
+      type="button"
+      class="form__send__button wt-contact__form__send--{{ block.settings.button_select }}"
+      name="commit"
+      data-product-url="{{ card_product.url }}"
+      tabindex="0"
+      {% if card_product.available == false and settings.enable_product_variations == true and product_variations.count == 0 %}
+        disabled
+      {% elsif card_product.available == false and settings.enable_product_variations == true and product_variations == nil %}
+        disabled
+      {% elsif card_product.available == false and settings.enable_product_variations == false%}
+        disabled
+      {% endif %}
+      aria-label="
+        {%- if card_product.available or settings.enable_product_variations == true and product_variations.count > 0 -%}
+          {{ 'products.product.add_to_cart' | t }}
+        {%- else -%}
+          {{ 'products.product.sold_out' | t }}
+        {%- endif -%}
+      "
+    >
+      <span>
+        {%- if card_product.available or settings.enable_product_variations == true and product_variations.count > 0 -%}
+          {{ 'products.product.choose_option' | t }}
+        {%- else -%}
+          {{ 'products.product.sold_out' | t }}
+        {%- endif -%}
+      </span>
+    </button>
+  </quick-add>
+{% elsif product %}
+  <product-form class="wt-product__add-to-cart" data-hide-errors="{{ gift_card_recipient_feature_active }}">
+    <div class="product-form__error-message-wrapper" role="alert" hidden>
+      <span class="product-form__error-message"></span>
+    </div>
+    {%- form 'product',
+      product,
+      id: product_form_id,
+      class: 'wt-product__add-to-cart_form form',
+      novalidate: 'novalidate',
+      data-type: 'add-to-cart-form'
+    -%}
+      {% if block.settings.show_gift_card_recipient and product.gift_card? %}
+        {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
+      {% endif %}
+      <div class="wt-product__add-to-cart_form--wrapper">
+        {% if block.settings.show_qty_selector %}
+          {% render 'component-counter' %}
+        {% endif %}
+        <input type="hidden" name="id" value="{{ card_product.selected_or_first_available_variant.id }}">
+        <button
+          aria-label="
+            {%- if card_product.selected_or_first_available_variant.available -%}
+              {{ 'products.product.add_to_cart' | t }}
+            {%- else -%}
+              {{ 'products.product.sold_out' | t }}
+            {%- endif -%}
+          "
+          id="ProductSubmitButton-{{ section.id }}"
+          type="submit"
+          name="add"
+          class="button--full-width hero__button--secondary"
+          {% if card_product.selected_or_first_available_variant.available == false %}
+            disabled
+          {% endif %}
+        >
+          <span>
+            {%- if card_product.selected_or_first_available_variant.available -%}
+              {{ 'products.product.add_to_cart' | t }}
+            {%- else -%}
+              {{ 'products.product.sold_out' | t }}
+            {%- endif -%}
+          </span>
+
+          {% render 'button-loading-indicator' %}
+        </button>
+      </div>
+    {%- endform -%}
+  </product-form>
+{% endif %}

@@ -1,0 +1,61 @@
+<div class="wt-before-after__container">
+  <div class="wt-before-after__slider">
+    <img-comparison-slider>
+      <div slot="first">
+        <div class="wt-before-after__img-container">
+          {% if section.settings.before_image %}
+            {% assign before_image = section.settings.before_image %}
+            {{
+              before_image
+              | image_url: width: before_image.width
+              | image_tag:
+                loading: 'lazy',
+                sizes: '100vw',
+                widths: '375, 750, 1100, 1500, 1780, 2000, 3000, 3840',
+                class: 'wt-before-after__img',
+                alt: before_image.alt
+            }}
+            {% comment %} <img class="wt-before-after__img"  src="{{ section.settings.before_image | image_url: width: section.settings.before_image.width }}" alt="{{ section.settings.before_image.alt }}" /> {% endcomment %}
+          {% else %}
+            {{ 'product-apparel-1' | placeholder_svg_tag: 'wt-before-after__img' }}
+          {% endif %}
+          {% if section.settings.enable_badges %}
+            <span class="wt-before-after__img-before-badge">
+              {{ section.settings.before_badge }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div slot="second">
+        <div class="wt-before-after__img-container">
+          {% if section.settings.after_image %}
+            {% assign after_image = section.settings.after_image %}
+            {{
+              after_image
+              | image_url: width: after_image.width
+              | image_tag:
+                loading: 'lazy',
+                sizes: '100vw',
+                widths: '375, 750, 1100, 1500, 1780, 2000, 3000, 3840',
+                class: 'wt-before-after__img',
+                alt: after_image.alt
+            }}
+            {% comment %} <img class="wt-before-after__img"  src="{{ section.settings.after_image.src | image_url: width: section.settings.after_image.width }}" alt="{{ section.settings.after_image.alt }}" /> {% endcomment %}
+          {% else %}
+            {{ 'product-apparel-2' | placeholder_svg_tag: 'wt-before-after__img' }}
+          {% endif %}
+          {% if section.settings.enable_badges %}
+            <span class="wt-before-after__img-after-badge">
+              {{ section.settings.after_badge }}
+            </span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="wt-before-after__handle" slot="handle">
+        {% render 'icons', id: 'arrow-left' %}
+        {% render 'icons', id: 'arrow-right' %}
+      </div>
+    </img-comparison-slider>
+  </div>
+</div>

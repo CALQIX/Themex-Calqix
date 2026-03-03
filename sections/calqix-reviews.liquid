@@ -1,0 +1,740 @@
+{% comment %}
+  CALQIX — Review Sectie (v2 — volledig aanpasbaar)
+  Installatie: Online Store → Themes → Edit code → Sections → Add new file → calqix-reviews.liquid
+  Daarna: Customize → Add section → CALQIX Reviews
+{% endcomment %}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+{%- assign bg_section        = section.settings.color_bg_section -%}
+{%- assign bg_card           = section.settings.color_bg_card -%}
+{%- assign color_accent      = section.settings.color_accent -%}
+{%- assign color_title       = section.settings.color_title -%}
+{%- assign color_body        = section.settings.color_body -%}
+{%- assign color_muted       = section.settings.color_muted -%}
+{%- assign color_star        = section.settings.color_star -%}
+{%- assign color_card_border = section.settings.color_card_border -%}
+{%- assign color_avatar_bg   = section.settings.color_avatar_bg -%}
+{%- assign color_avatar_text = section.settings.color_avatar_text -%}
+{%- assign color_tag_bg      = section.settings.color_tag_bg -%}
+{%- assign color_tag_text    = section.settings.color_tag_text -%}
+{%- assign color_dot_active  = section.settings.color_dot_active -%}
+{%- assign color_dot_inactive= section.settings.color_dot_inactive -%}
+{%- assign color_arrow_border= section.settings.color_arrow_border -%}
+{%- assign color_arrow_icon  = section.settings.color_arrow_icon -%}
+{%- assign color_arrow_hover_bg   = section.settings.color_arrow_hover_bg -%}
+{%- assign color_arrow_hover_icon = section.settings.color_arrow_hover_icon -%}
+{%- assign color_divider     = section.settings.color_divider -%}
+{%- assign color_eyebrow     = section.settings.color_eyebrow -%}
+{%- assign color_quote_mark  = section.settings.color_quote_mark -%}
+{%- assign color_verified    = section.settings.color_verified -%}
+{%- assign color_score_num   = section.settings.color_score_num -%}
+
+<style>
+  #cq-reviews-{{ section.id }} {
+    background: {{ bg_section }};
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  {% if section.settings.show_dot_texture %}
+  #cq-reviews-{{ section.id }}::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, {{ color_title | color_modify: 'alpha', 0.04 }} 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+  }
+  {% endif %}
+
+  #cq-reviews-{{ section.id }} .cqr-inner {
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+    padding: 0 48px;
+    position: relative;
+  }
+  @media (max-width: 768px) {
+    #cq-reviews-{{ section.id }} .cqr-inner { padding: 0 20px; }
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 56px;
+    gap: 24px;
+  }
+  @media (max-width: 640px) {
+    #cq-reviews-{{ section.id }} .cqr-header { flex-direction: column; align-items: flex-start; margin-bottom: 36px; }
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: {{ color_eyebrow }};
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  #cq-reviews-{{ section.id }} .cqr-eyebrow::before {
+    content: ''; width: 28px; height: 1px;
+    background: {{ color_accent }}; flex-shrink: 0;
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 400; color: {{ color_title }};
+    line-height: 1.1; margin: 0;
+  }
+  #cq-reviews-{{ section.id }} .cqr-title em {
+    font-style: italic; color: {{ color_accent }};
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-aggregate { text-align: right; flex-shrink: 0; }
+  #cq-reviews-{{ section.id }} .cqr-agg-score {
+    font-family: 'DM Serif Display', serif;
+    font-size: 52px; font-weight: 400;
+    color: {{ color_score_num }}; line-height: 1; display: block;
+  }
+  #cq-reviews-{{ section.id }} .cqr-agg-stars {
+    display: flex; gap: 3px; justify-content: flex-end; margin: 4px 0 2px;
+  }
+  #cq-reviews-{{ section.id }} .cqr-agg-count {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px; color: {{ color_muted }}; letter-spacing: 0.06em;
+  }
+  @media (max-width: 640px) {
+    #cq-reviews-{{ section.id }} .cqr-aggregate { text-align: left; }
+    #cq-reviews-{{ section.id }} .cqr-agg-stars { justify-content: flex-start; }
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-track-wrap {
+    position: relative;
+    mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+  }
+  @media (max-width: 640px) {
+    #cq-reviews-{{ section.id }} .cqr-track-wrap {
+      mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+    }
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-track {
+    display: flex; gap: 20px;
+    transition: transform 0.55s cubic-bezier(0.32, 0, 0.14, 1);
+    will-change: transform; cursor: grab; user-select: none;
+  }
+  #cq-reviews-{{ section.id }} .cqr-track:active { cursor: grabbing; }
+
+  #cq-reviews-{{ section.id }} .cqr-card {
+    flex: 0 0 360px;
+    background: {{ bg_card }};
+    border: 1px solid {{ color_card_border }};
+    border-radius: {{ section.settings.card_radius }}px;
+    padding: 32px 28px 28px;
+    display: flex; flex-direction: column;
+    position: relative;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+  #cq-reviews-{{ section.id }} .cqr-card:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.10);
+    transform: translateY(-3px);
+  }
+  @media (max-width: 768px) {
+    #cq-reviews-{{ section.id }} .cqr-card { flex: 0 0 300px; padding: 24px 20px 20px; }
+  }
+  @media (max-width: 480px) {
+    #cq-reviews-{{ section.id }} .cqr-card { flex: 0 0 calc(100vw - 56px); }
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-verified {
+    position: absolute; top: 20px; right: 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: {{ color_verified }};
+    display: flex; align-items: center; gap: 4px;
+  }
+  #cq-reviews-{{ section.id }} .cqr-verified svg {
+    width: 10px; height: 10px;
+    stroke: {{ color_verified }}; fill: none;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-stars { display: flex; gap: 3px; margin-bottom: 16px; }
+  #cq-reviews-{{ section.id }} .cqr-star       { width: 14px; height: 14px; fill: {{ color_star }}; }
+  #cq-reviews-{{ section.id }} .cqr-star.empty  { fill: {{ color_star | color_modify: 'alpha', 0.2 }}; }
+
+  #cq-reviews-{{ section.id }} .cqr-quote-mark {
+    font-family: 'DM Serif Display', serif;
+    font-size: 64px; line-height: 0.6;
+    color: {{ color_quote_mark }};
+    margin-bottom: 8px; display: block; margin-top: -4px;
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-tag {
+    display: inline-block;
+    background: {{ color_tag_bg }};
+    border: 1px solid {{ color_tag_text | color_modify: 'alpha', 0.15 }};
+    border-radius: {{ section.settings.tag_radius }}px;
+    padding: 4px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: {{ color_tag_text }}; margin-bottom: 20px;
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px; line-height: 1.7;
+    color: {{ color_body }}; flex: 1; margin-bottom: 24px;
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-author {
+    display: flex; align-items: center; gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid {{ color_divider }};
+    margin-top: auto;
+  }
+  #cq-reviews-{{ section.id }} .cqr-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: {{ color_avatar_bg }};
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 14px; color: {{ color_avatar_text }}; flex-shrink: 0;
+  }
+  #cq-reviews-{{ section.id }} .cqr-name {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: {{ color_title }}; display: block;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #cq-reviews-{{ section.id }} .cqr-date {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px; color: {{ color_muted }}; display: block; margin-top: 1px;
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-nav {
+    display: flex; align-items: center;
+    justify-content: center; gap: 16px; margin-top: 44px;
+  }
+  #cq-reviews-{{ section.id }} .cqr-dots { display: flex; gap: 8px; align-items: center; }
+  #cq-reviews-{{ section.id }} .cqr-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: {{ color_dot_inactive }};
+    border: none; padding: 0; cursor: pointer;
+    transition: background 0.25s, width 0.25s; flex-shrink: 0;
+  }
+  #cq-reviews-{{ section.id }} .cqr-dot.active {
+    background: {{ color_dot_active }}; width: 24px; border-radius: 3px;
+  }
+
+  #cq-reviews-{{ section.id }} .cqr-arrow {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid {{ color_arrow_border }};
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s; flex-shrink: 0;
+  }
+  #cq-reviews-{{ section.id }} .cqr-arrow:hover {
+    background: {{ color_arrow_hover_bg }};
+    border-color: {{ color_arrow_hover_bg }};
+  }
+  #cq-reviews-{{ section.id }} .cqr-arrow .cqr-arrow-svg {
+    display: block;
+    transition: stroke 0.2s;
+    pointer-events: none;
+  }
+  #cq-reviews-{{ section.id }} .cqr-arrow:hover .cqr-arrow-svg {
+    stroke: {{ color_arrow_hover_icon }} !important;
+  }
+  #cq-reviews-{{ section.id }} .cqr-arrow:disabled { opacity: 0.28; cursor: default; pointer-events: none; }
+</style>
+
+<section id="cq-reviews-{{ section.id }}">
+  <div class="cqr-inner">
+
+    <div class="cqr-header">
+      <div>
+        <div class="cqr-eyebrow">{{ section.settings.eyebrow }}</div>
+        <h2 class="cqr-title">
+          {{ section.settings.title_plain }}
+          {% if section.settings.title_italic != blank %}<em>{{ section.settings.title_italic }}</em>{% endif %}
+        </h2>
+      </div>
+      <div class="cqr-aggregate">
+        <span class="cqr-agg-score">{{ section.settings.avg_score }}</span>
+        <div class="cqr-agg-stars" id="cqr-agg-stars-{{ section.id }}"></div>
+        <span class="cqr-agg-count">{{ section.settings.review_count }} {{ section.settings.review_label }}</span>
+      </div>
+    </div>
+
+    <div class="cqr-track-wrap">
+      <div class="cqr-track" id="cqr-track-{{ section.id }}">
+        {% for block in section.blocks %}
+          {% if block.type == 'review' %}
+            <div class="cqr-card" {{ block.shopify_attributes }}>
+              {% if block.settings.verified %}
+                <span class="cqr-verified">
+                  <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  Verified
+                </span>
+              {% endif %}
+              <div class="cqr-stars">
+                {% assign rating = block.settings.rating | default: 5 %}
+                {% for i in (1..5) %}
+                  {% if i <= rating %}
+                    <svg class="cqr-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  {% else %}
+                    <svg class="cqr-star empty" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              {% if block.settings.tag != blank %}
+                <span class="cqr-tag">{{ block.settings.tag }}</span>
+              {% endif %}
+              <span class="cqr-quote-mark">"</span>
+              <p class="cqr-body">{{ block.settings.body }}</p>
+              <div class="cqr-author">
+                <div class="cqr-avatar">{{ block.settings.name | slice: 0 }}</div>
+                <div>
+                  <span class="cqr-name">{{ block.settings.name }}</span>
+                  <span class="cqr-date">{{ block.settings.date }}</span>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="cqr-nav">
+      <button class="cqr-arrow" id="cqr-prev-{{ section.id }}" aria-label="Previous">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ color_arrow_icon }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cqr-arrow-svg">
+          <path d="M15 18L9 12L15 6"/>
+        </svg>
+      </button>
+      <div class="cqr-dots" id="cqr-dots-{{ section.id }}"></div>
+      <button class="cqr-arrow" id="cqr-next-{{ section.id }}" aria-label="Next">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ color_arrow_icon }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cqr-arrow-svg">
+          <path d="M9 18L15 12L9 6"/>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<script>
+(function(){
+  const SID   = '{{ section.id }}';
+  const track = document.getElementById('cqr-track-' + SID);
+  const dotsEl= document.getElementById('cqr-dots-'  + SID);
+  const prev  = document.getElementById('cqr-prev-'  + SID);
+  const next  = document.getElementById('cqr-next-'  + SID);
+  const aggEl = document.getElementById('cqr-agg-stars-' + SID);
+  const AVG   = parseFloat('{{ section.settings.avg_score }}') || 5;
+
+  if (aggEl) {
+    for (let i = 1; i <= 5; i++) {
+      const sv = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      sv.setAttribute('viewBox','0 0 24 24');
+      sv.setAttribute('width','14'); sv.setAttribute('height','14');
+      sv.style.fill = i <= Math.round(AVG) ? '{{ color_star }}' : '{{ color_star | color_modify: "alpha", 0.2 }}';
+      sv.innerHTML = '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>';
+      aggEl.appendChild(sv);
+    }
+  }
+
+  const cards = Array.from(track ? track.querySelectorAll('.cqr-card') : []);
+  if (!cards.length || !track) return;
+
+  let cur = 0, drag = false, sx = 0, dx = 0;
+
+  const getVis = () => { const w = track.parentElement.offsetWidth; return w<480?1:w<820?2:3; };
+  const getW   = () => cards[0] ? cards[0].offsetWidth + 20 : 380;
+  const maxIdx = () => Math.max(0, cards.length - getVis());
+
+  function goTo(i) {
+    cur = Math.max(0, Math.min(i, maxIdx()));
+    track.style.transform = `translateX(-${cur * getW()}px)`;
+    if (dotsEl) dotsEl.querySelectorAll('.cqr-dot').forEach((d,j) => d.classList.toggle('active', j===cur));
+    if (prev) prev.disabled = cur === 0;
+    if (next) next.disabled = cur >= maxIdx();
+  }
+
+  function buildDots() {
+    if (!dotsEl) return;
+    dotsEl.innerHTML = '';
+    for (let i = 0; i <= maxIdx(); i++) {
+      const b = document.createElement('button');
+      b.className = 'cqr-dot' + (i===cur?' active':'');
+      b.addEventListener('click', () => goTo(i));
+      dotsEl.appendChild(b);
+    }
+  }
+
+  if (prev) prev.addEventListener('click', () => goTo(cur-1));
+  if (next) next.addEventListener('click', () => goTo(cur+1));
+
+  track.addEventListener('mousedown',  e => { drag=true; sx=e.clientX; track.style.transition='none'; });
+  window.addEventListener('mousemove', e => { if(!drag)return; dx=e.clientX-sx; track.style.transform=`translateX(${-cur*getW()+dx}px)`; });
+  window.addEventListener('mouseup',   () => { if(!drag)return; drag=false; track.style.transition=''; dx<-60?goTo(cur+1):dx>60?goTo(cur-1):goTo(cur); dx=0; });
+  track.addEventListener('touchstart', e => { drag=true; sx=e.touches[0].clientX; track.style.transition='none'; },{passive:true});
+  track.addEventListener('touchmove',  e => { if(!drag)return; dx=e.touches[0].clientX-sx; track.style.transform=`translateX(${-cur*getW()+dx}px)`; },{passive:true});
+  track.addEventListener('touchend',   () => { if(!drag)return; drag=false; track.style.transition=''; dx<-50?goTo(cur+1):dx>50?goTo(cur-1):goTo(cur); dx=0; });
+
+  buildDots(); goTo(0);
+  window.addEventListener('resize', () => { buildDots(); goTo(Math.min(cur, maxIdx())); });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "CALQIX Reviews",
+  "tag": "section",
+  "class": "calqix-reviews",
+  "settings": [
+    {
+      "type": "header",
+      "content": "📐 Layout"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding boven (px)",
+      "min": 0, "max": 160, "step": 8, "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding onder (px)",
+      "min": 0, "max": 160, "step": 8, "default": 112
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max breedte (px)",
+      "min": 800, "max": 1400, "step": 20, "default": 1140
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Kaart hoekafronding (px)",
+      "min": 0, "max": 24, "step": 1, "default": 4
+    },
+    {
+      "type": "range",
+      "id": "tag_radius",
+      "label": "Tag hoekafronding (px)",
+      "min": 0, "max": 20, "step": 1, "default": 2
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dot_texture",
+      "label": "Stippeltextuur achtergrond tonen",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "✏️ Tekst"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Verified Reviews"
+    },
+    {
+      "type": "text",
+      "id": "title_plain",
+      "label": "Titel (normaal)",
+      "default": "What our customers"
+    },
+    {
+      "type": "text",
+      "id": "title_italic",
+      "label": "Titel (cursief + accentkleur)",
+      "default": "are saying."
+    },
+    {
+      "type": "text",
+      "id": "avg_score",
+      "label": "Gemiddelde score (bijv. 4.9)",
+      "default": "4.9"
+    },
+    {
+      "type": "text",
+      "id": "review_count",
+      "label": "Aantal reviews",
+      "default": "2,140"
+    },
+    {
+      "type": "text",
+      "id": "review_label",
+      "label": "Label na het aantal",
+      "default": "verified reviews"
+    },
+    {
+      "type": "header",
+      "content": "🎨 Kleuren — Achtergrond & Kaarten"
+    },
+    {
+      "type": "color",
+      "id": "color_bg_section",
+      "label": "Achtergrond sectie",
+      "default": "#F7F6F4"
+    },
+    {
+      "type": "color",
+      "id": "color_bg_card",
+      "label": "Achtergrond kaart",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "color_card_border",
+      "label": "Rand kaart",
+      "default": "#E8E6E1"
+    },
+    {
+      "type": "color",
+      "id": "color_divider",
+      "label": "Scheidingslijn auteur",
+      "default": "#EBEBEB"
+    },
+    {
+      "type": "header",
+      "content": "🎨 Kleuren — Tekst"
+    },
+    {
+      "type": "color",
+      "id": "color_title",
+      "label": "Titels & namen",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "color_body",
+      "label": "Review tekst",
+      "default": "#3D5166"
+    },
+    {
+      "type": "color",
+      "id": "color_muted",
+      "label": "Subtekst (datum, count)",
+      "default": "#8A9BB0"
+    },
+    {
+      "type": "color",
+      "id": "color_eyebrow",
+      "label": "Eyebrow tekst",
+      "default": "#8A9BB0"
+    },
+    {
+      "type": "color",
+      "id": "color_score_num",
+      "label": "Grote score (bijv. 4.9)",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "header",
+      "content": "🎨 Kleuren — Accent & Details"
+    },
+    {
+      "type": "color",
+      "id": "color_accent",
+      "label": "Accentkleur (lijn, cursief titel)",
+      "default": "#C9A96E"
+    },
+    {
+      "type": "color",
+      "id": "color_star",
+      "label": "Sterren",
+      "default": "#C9A96E"
+    },
+    {
+      "type": "color",
+      "id": "color_quote_mark",
+      "label": "Aanhalingsteken",
+      "default": "#C9A96E"
+    },
+    {
+      "type": "color",
+      "id": "color_verified",
+      "label": "Verified badge",
+      "default": "#8A9BB0"
+    },
+    {
+      "type": "header",
+      "content": "🎨 Kleuren — Tags"
+    },
+    {
+      "type": "color",
+      "id": "color_tag_bg",
+      "label": "Tag achtergrond",
+      "default": "#EEF2F6"
+    },
+    {
+      "type": "color",
+      "id": "color_tag_text",
+      "label": "Tag tekst",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "header",
+      "content": "🎨 Kleuren — Avatar"
+    },
+    {
+      "type": "color",
+      "id": "color_avatar_bg",
+      "label": "Avatar achtergrond",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "color_avatar_text",
+      "label": "Avatar letter",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "🎨 Kleuren — Navigatie"
+    },
+    {
+      "type": "color",
+      "id": "color_dot_active",
+      "label": "Dot actief",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "color_dot_inactive",
+      "label": "Dot inactief",
+      "default": "#C8CDD3"
+    },
+    {
+      "type": "color",
+      "id": "color_arrow_border",
+      "label": "Pijlknop rand",
+      "default": "#C8CDD3"
+    },
+    {
+      "type": "color",
+      "id": "color_arrow_icon",
+      "label": "Pijlknop icoon",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "color_arrow_hover_bg",
+      "label": "Pijlknop hover achtergrond",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "color_arrow_hover_icon",
+      "label": "Pijlknop hover icoon",
+      "default": "#FFFFFF"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Sterren (1–5)",
+          "min": 1, "max": 5, "step": 1, "default": 5
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "Tag (bijv. Enamel Repair)",
+          "default": "Enamel Repair"
+        },
+        {
+          "type": "textarea",
+          "id": "body",
+          "label": "Review tekst",
+          "default": "I've tried every whitening toothpaste on the market. Nothing came close to what CALQIX did in 30 days. My dentist actually asked what I changed."
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Naam reviewer",
+          "default": "Sophie M."
+        },
+        {
+          "type": "text",
+          "id": "date",
+          "label": "Datum",
+          "default": "January 2025"
+        },
+        {
+          "type": "checkbox",
+          "id": "verified",
+          "label": "Verified badge tonen",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX Reviews",
+      "category": "CALQIX",
+      "blocks": [
+        {
+          "type": "review",
+          "settings": {
+            "rating": 5, "tag": "Enamel Repair",
+            "body": "I've tried every whitening toothpaste on the market. Nothing came close to what CALQIX did in 30 days. My dentist actually asked what I changed.",
+            "name": "Sophie M.", "date": "January 2025", "verified": true
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "rating": 5, "tag": "Sensitivity Relief",
+            "body": "I have incredibly sensitive teeth. After two weeks on the 30-day programme, I could finally drink cold water without wincing. The science behind this is real.",
+            "name": "Thomas R.", "date": "February 2025", "verified": true
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "rating": 5, "tag": "Fluoride-Free",
+            "body": "Finally a fluoride-free option that actually works. I was sceptical but the nano-HA research is solid. My whole family has switched.",
+            "name": "Lena K.", "date": "December 2024", "verified": true
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "rating": 5, "tag": "30-Day Kuur",
+            "body": "The subscription model makes it effortless. New supply arrives just as I finish the previous one. Clean ingredients, visible results, no waste.",
+            "name": "Maxim D.", "date": "January 2025", "verified": true
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "rating": 4, "tag": "Daily Use",
+            "body": "Took about 10 days to get used to the tablet format but now I prefer it over paste. Travel-friendly and the taste is clean and subtle. Really impressed.",
+            "name": "Iris V.", "date": "March 2025", "verified": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

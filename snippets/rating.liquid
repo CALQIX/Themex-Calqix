@@ -1,0 +1,16 @@
+{% assign percent = reviews.rating.value.rating | times: 20 %}
+
+<div class="wt-rating{% if text_alignment %} wt-rating--{{ text_alignment }}{% endif %} {% if settings.animations and main_product %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}">
+  {% render 'rating-stars', percent: percent %}
+
+  <div class="wt-rating__counter">
+    {% if reviews.rating.value != blank and reviews.rating_count != 0 %}
+      ({{ reviews.rating_count }}
+      {{ 'accessibility.total_reviews' | t -}}
+      )
+    {% else %}
+      ({{ 'no_reviews' | t -}}
+      )
+    {% endif %}
+  </div>
+</div>

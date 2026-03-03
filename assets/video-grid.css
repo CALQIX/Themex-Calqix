@@ -1,0 +1,15 @@
+.wt-video-grid {
+  display: flex;
+  flex-direction: column; }
+  @media (min-width: 1200px) {
+    .wt-video-grid {
+      flex-direction: row; } }
+  .wt-video-grid__item {
+    flex-grow: 1;
+    flex-shrink: 0;
+    width: 100%; }
+    @media (min-width: 1200px) {
+      .wt-video-grid__item {
+        width: 50%; } }
+    .wt-video-grid__item--video {
+      object-fit: cover; }

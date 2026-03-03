@@ -1,0 +1,137 @@
+{% assign background_rgb = section.settings.background_color | color_to_rgb %}
+
+<style>
+  [data-section-id="{{ section.id }}"]
+  {
+    {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+      --color-custom-background: {{ section.settings.background_color }};
+    {% endif %}
+
+    {% if section.settings.margin-top %}
+        --section-gap-top: {{ section.settings.margin-top }}px;
+    {% endif %}
+
+    {% if section.settings.margin-bottom %}
+        --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+    {% endif %}
+  }
+</style>
+
+<div class="wt-button" data-section-id="{{ section.id }}">
+  <div class="wt-button__container {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %} {% if section.settings.button_horizontal_position == 'left' %} wt-button__left {% endif %}{% if section.settings.button_horizontal_position == 'right' %} wt-button__right {% endif %}">
+    <a href="{{ section.settings.button_link }}" class="test-1" tabindex="-1">
+      <button
+        aria-label="{{ section.settings.button_label }}"
+        class="hero__button--primary {% if section.settings.button_select != 'primary' %} hero__button--secondary {% endif %}{% if section.settings.button_select == 'link' %} hero__button--link {% endif %} form__send__button wt-contact__form__send--{{ section.settings.button_select }}"
+        type="submit"
+        name="commit"
+      >
+        <span class="wt-newsletter__send__text">{{ section.settings.button_label }}</span>
+      </button>
+    </a>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.button.name",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "button_select",
+      "options": [
+        {
+          "value": "primary",
+          "label": "t:sections.settings.settings.button_select.primary.label"
+        },
+        {
+          "value": "secondary",
+          "label": "t:sections.settings.settings.button_select.secondary.label"
+        },
+        {
+          "value": "link",
+          "label": "t:sections.settings.settings.button_select.link.label"
+        }
+      ],
+      "default": "primary",
+      "label": "t:sections.settings.settings.button_select.default.label"
+    },
+    {
+      "type": "select",
+      "id": "button_horizontal_position",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.button.settings.button_horizontal_position.left.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.button.settings.button_horizontal_position.center.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.button.settings.button_horizontal_position.right.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.button.settings.button_horizontal_position.default.label"
+    },
+    {
+      "id": "button_label",
+      "type": "text",
+      "default": "Button label",
+      "label": "t:sections.settings.settings.button_label.label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "t:sections.settings.settings.link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.section_spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin-top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 20,
+      "unit": "px",
+      "label": "t:sections.global.margin-top"
+    },
+    {
+      "type": "range",
+      "id": "margin-bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 20,
+      "unit": "px",
+      "label": "t:sections.global.margin-bottom",
+      "info": "t:sections.separator.settings.separator-bottom.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.background-color.label"
+    }    
+  ],
+  "presets": [
+    {
+      "name": "t:sections.button.presets.name"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

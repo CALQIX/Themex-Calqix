@@ -1,0 +1,271 @@
+{% assign background_rgb = section.settings.background_color | color_to_rgb %}
+{% assign text_rgb = section.settings['color-body-text'] | color_to_rgb %}
+
+<style>
+  .wt-announcement {
+      {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+        --color-background: {{ section.settings.background_color }};
+      {% endif %}
+
+      {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+        --color-text: {{ section.settings.color-body-text }};
+      {% endif %}
+  }
+</style>
+
+<script src="{{ 'announcement-bar.js' | asset_url }}" defer="defer"></script>
+
+<announcement-bar class="wt-announcement-bar">
+  <script>
+    (() => {
+      const isHidden = localStorage.getItem("wt-announcement-hidden");
+      const announcementCount = Number({{ section.blocks.size }}) ;
+
+      if ((!isHidden || new Date().getTime() > Number(isHidden)) && announcementCount > 0) {
+        document.querySelector('.wt-announcement-bar').style.display = 'block';
+      }
+    })();
+  </script>
+
+  <div
+    data-section-id="{{ section.id }}"
+    data-announcements-count="{{ section.blocks.size }}"
+    id="wt-announcement__container"
+    class="{% if section.settings.checkbox_enable_animation == true %} wt-announcement__container--animated{% endif %} wt-announcement__container wt-announcement__container--{{ section.blocks.size }}col{% if section.settings.marquee == true %} wt-announcement__container--marquee{% endif %}"
+    {% if section.settings.marquee == true %}
+      style="--time:{{ section.settings.animation_speed }}s"
+    {% endif %}
+  >
+    {% liquid
+      if section.settings.checkbox_enable_animation and section.blocks.size > 1
+        assign multiply = 20
+      else
+        assign multiply = 1
+      endif
+    %}
+    {% liquid
+      if section.settings.marquee == true
+        assign multiply = 5
+      endif
+    %}
+
+    {% if section.settings.marquee == true %}<div class="wt-announcement__marquee">{% endif %}
+    {% assign original = true %}
+    {% for i in (1..multiply) %}
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'announcement' -%}
+            <div
+              class="wt-announcement__body wt-announcement__text"
+              role="region"
+              aria-label="{{ 'sections.header.announcement' | t }}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.text != blank -%}
+                {%- if block.settings.link != blank -%}
+                  <a
+                    href="{{ block.settings.link }}"
+                    tabindex="{% if section.settings.marquee %}-1{% else %}0{% endif %}"
+                  >
+                {%- endif -%}
+                {{ block.settings.text | escape }}
+                {%- if block.settings.link != blank -%}
+                  {% render 'icons', id: 'arrow-right' %}
+                  </a>
+                {%- endif -%}
+              {%- endif -%}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+      {% assign original = false %}
+    {% endfor %}
+    {% if section.settings.marquee == true %}</div>{% endif %}
+
+    {% if section.settings.marquee == true %}
+      <div class="wt-announcement__marquee">
+        {% for i in (1..multiply) %}
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'announcement' -%}
+                <div
+                  class="wt-announcement__body wt-announcement__text"
+                  role="region"
+                  aria-label="{{ 'sections.header.announcement' | t }}"
+                  {{ block.shopify_attributes }}
+                >
+                  {%- if block.settings.text != blank -%}
+                    {%- if block.settings.link != blank -%}
+                      <a href="{{ block.settings.link }}" tabindex="-1">
+                    {%- endif -%}
+                    {{ block.settings.text | escape }}
+                    {%- if block.settings.link != blank -%}
+                      {% render 'icons', id: 'arrow-right' %}
+                      </a>
+                    {%- endif -%}
+                  {%- endif -%}
+                </div>
+            {%- endcase -%}
+          {%- endfor -%}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+  {% if section.settings.checkbox_close_announcement == true %}
+    <button
+      aria-label="{{ 'aria-label.announcement-bar' | t }}"
+      class="wt-announcement__close"
+      tabindex="0"
+    >
+      {% render 'icons', id: 'close', icon_id: 'wt-announcement__close', icon_class: 'wt-announcement__close__icon' %}
+    </button>
+  {% endif %}
+</announcement-bar>
+
+{% if section.settings.marquee != true %}
+  <script>
+    function setAnimationDuration(announcementList, speed) {
+      const totalWidth = Array.from(announcementList.children).reduce((acc, li) => {
+        const liStyles = getComputedStyle(li);
+        const liWidth = li.offsetWidth + parseInt(liStyles.marginLeft) + parseInt(liStyles.marginRight);
+        return acc + liWidth;
+      }, 0);
+      const containerWidth = announcementList.parentElement.offsetWidth;
+      const duration = (totalWidth / 1000) * speed;
+      announcementList.parentElement.style.setProperty('--animation-duration', `${duration}s`);
+    }
+
+    function closeAnnouncement() {
+      const announcementBar = document.getElementById('shopify-section-announcement-bar');
+      announcementBar.style.display = 'none';
+    }
+
+    function initializeAnimation(speed) {
+      if (window.innerWidth < 900) {
+        document.querySelectorAll('.wt-announcement__container').forEach((element) => {
+          if (element.dataset.announcements - count > 1) element.classList.add('wt-announcement__container--animated');
+        });
+      }
+      document
+        .querySelectorAll('.wt-announcement__container--animated')
+        .forEach((announcementList) => setAnimationDuration(announcementList, speed));
+    }
+
+    function attachCloseListener() {
+      const close = document.getElementById('wt-announcement__close');
+      close?.addEventListener('click', closeAnnouncement);
+    }
+
+    function initializeSection() {
+      const speed = 20;
+      initializeAnimation(speed);
+      attachCloseListener();
+    }
+
+    function handleSectionReinit() {
+      document.removeEventListener('shopify:section:load', handleSectionReinit);
+      initializeSection();
+      document.addEventListener('shopify:section:load', handleSectionReinit);
+    }
+
+    window.addEventListener('load', () => {
+      if (window.innerWidth > 900) {
+        initializeSection();
+        document.addEventListener('shopify:section:load', handleSectionReinit);
+      }
+    });
+  </script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "t:sections.announcement-bar.name",
+  "tag": "section",
+  "class": "wt-announcement",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.announcement-bar.settings.behavior.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "marquee",
+      "label": "t:sections.announcement-bar.settings.enable-animation.label",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "animation_speed",
+      "options": [
+        {
+          "value": "150",
+          "label": "t:sections.announcement-bar.settings.animation-speed.options.slow.label"
+        },
+        {
+          "value": "100",
+          "label": "t:sections.announcement-bar.settings.animation-speed.options.normal.label"
+        },
+        {
+          "value": "50",
+          "label": "t:sections.announcement-bar.settings.animation-speed.options.fast.label"
+        }
+      ],
+      "label": "t:sections.announcement-bar.settings.animation-speed.label",
+      "default": "100"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.general"
+    },
+    {
+      "type": "checkbox",
+      "id": "checkbox_close_announcement",
+      "default": true,
+      "label": "t:sections.announcement-bar.blocks.announcement.settings.checkbox_close_announcement.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "color-body-text",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.text-color.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.background-color.label"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "t:sections.announcement-bar.blocks.announcement.name",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "default": "Announce something here",
+          "label": "t:sections.announcement-bar.blocks.announcement.settings.text.label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.announcement-bar.blocks.announcement.settings.link.label"
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "announcement"
+      }
+    ]
+  }
+}
+{% endschema %}

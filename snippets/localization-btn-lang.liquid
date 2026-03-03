@@ -1,0 +1,9 @@
+<button
+  class="wt-localization-trigger wt-localization-trigger--lang {{ custom_class }}"
+  data-open-drawer="language"
+>
+  <span class="wt-localization-trigger__label">
+    {{ localization.language.iso_code | upcase }}
+  </span>
+  {% render 'icons', id: 'arrow-down' %}
+</button>

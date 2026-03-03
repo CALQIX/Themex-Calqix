@@ -1,0 +1,42 @@
+{%- comment -%}
+  Find matching‑variant image or fall back to the first product image
+{%- endcomment -%}
+
+{%- assign chosen_image = null -%}
+
+{%- for variant in swatch_product.variants -%}
+  {%- assign option_value_downcased = variant[swatch_option_key] -%}
+  {%- if option_value_downcased == swatch_search_color and variant.image != blank -%}
+    {%- assign chosen_image = variant.image -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- comment -%} Fallback: first image in the product gallery {%- endcomment -%}
+{%- if chosen_image == null and swatch_product.featured_media != blank -%}
+  {%- assign chosen_image = swatch_product.featured_media -%}
+{%- elsif chosen_image == null and swatch_product.images.size > 0 -%}
+  {%- assign chosen_image = swatch_product.images.first -%}
+{%- endif -%}
+
+{%- if chosen_image -%}
+  {%- assign base_url = chosen_image | image_url: width: 256 -%}
+  {%- assign display_width = 128 -%}
+  {%- assign display_height = display_width | divided_by: chosen_image.aspect_ratio | ceil -%}
+
+  <img
+    srcset="
+      {%- if chosen_image.width >= 64  -%}{{ base_url | image_url: width: 64  }} 64w,{% endif %}
+      {%- if chosen_image.width >= 128 -%}{{ base_url | image_url: width: 128 }} 128w,{% endif %}
+      {%- if chosen_image.width >= 256 -%}{{ base_url | image_url: width: 256 }} 256w,{% endif %}
+      {{ base_url | image_url: width: 128 }} 128w
+    "
+    sizes="(min-width: 128px) 128px, 100vw"
+    src="{{ base_url | image_url: width: 128 }}"
+    alt="{{ chosen_image.alt | escape }}"
+    width="{{ display_width }}"
+    height="{{ display_height }}"
+    loading="lazy"
+    style="--img-aspect-ratio: {{ chosen_image.width }} / {{ chosen_image.height }};"
+  >
+{%- endif -%}

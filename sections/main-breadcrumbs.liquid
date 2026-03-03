@@ -1,0 +1,116 @@
+{% assign background_rgb = section.settings.background_color | color_to_rgb %}
+{% assign text_rgb = section.settings.text_color | color_to_rgb %}
+
+<style>
+  [data-section-id="{{ section.id }}"]{
+
+    {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+      --color-custom-background: {{ section.settings.background_color }};
+    {% endif %}
+
+    {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+      --color-custom-text: {{ section.settings.text_color }};
+      --color-links: {{ section.settings.text_color }};
+    {% endif %}
+
+    {% if section.settings.margin-top %}
+        --section-gap-top: {{ section.settings.margin-top }}px;
+    {% endif %}
+
+    {% if section.settings.margin-bottom %}
+        --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+    {% endif %}
+  }
+</style>
+<div class="breadcrumbs__wrapper" data-section-id="{{ section.id }}">
+  <div class="breadcrumbs {% if section.settings.full-width-enabled %}breadcrumbs--full-width{% endif %}">
+    <ul class="breadcrumbs__list">
+      <li class="breadcrumbs__item">
+        <a href="{{ shop.url }}" class="breadcrumbs__link">{{ 'homepage' | t }}</a>
+      </li>
+      <li class="breadcrumbs__item">
+        {% if collection.url %}
+          {{ collection.title | link_to: collection.url }}
+        {% else %}
+          {{ product.collections[0].title | link_to: product.collections[0].url, class: 'breadcrumbs__link' }}
+        {% endif %}
+      </li>
+      {% if product %}
+        <li class="breadcrumbs__item">
+          {{ product.title }}
+        </li>
+      {% endif %}
+      {% if page %}
+        <li class="breadcrumbs__item">
+          {{ page.title | link_to: page.url }}
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main-breadcrumbs.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.main-breadcrumbs.settings.paragraph.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "full-width-enabled",
+      "label": "t:sections.settings.settings.section-full-width.label",
+      "info": "t:sections.main-breadcrumbs.settings.full-width-enabled.info",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.text-color.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.background-color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.section_spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin-top",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 8,
+      "label": "t:sections.settings.settings.distance-top.label"
+    },
+    {
+      "type": "range",
+      "id": "margin-bottom",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 8,
+      "label": "t:sections.settings.settings.distance-bottom.label",
+      "info": "t:sections.settings.settings.distance-bottom.info"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

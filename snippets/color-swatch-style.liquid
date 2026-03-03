@@ -1,0 +1,91 @@
+{%- comment -%}
+  Extract a style from the color swatch config. You must passed two parameters to this snippet:
+
+  - color_swatch_config: extracted from the theme settings
+  - value: the actual color
+{%- endcomment -%}
+{% assign swatch_focal_point = null %}
+{% if swatch_image %}
+  {% assign image_url = swatch_image | image_url: width: 120 %}
+  {% assign color_swatch_style = 'background-image: url(' | append: image_url | append: ');' %}
+{% elsif swatch_color %}
+  {% assign color_swatch_style = 'background-color: ' | append: swatch_color %}
+{% elsif value.swatch.image %}
+  {% assign image_url = value.swatch.image | image_url: width: 120 %}
+  {% assign swatch_focal_point = value.swatch.image.presentation.focal_point %}
+  {% assign color_swatch_style = 'background-image: url('
+    | append: image_url
+    | append: '); background-position: '
+    | append: swatch_focal_point
+  %}
+{% elsif value.swatch.color %}
+  {% assign color_swatch_style = 'background-color: rgb(' | append: value.swatch.color.rgb | append: ')' %}
+{% elsif variation_value.image %}
+  {% assign image_url = variation_value.image | image_url: width: 120 %}
+  {% assign swatch_focal_point = variation_value.image.presentation.focal_point %}
+  {% assign color_swatch_style = 'background-image: url('
+    | append: image_url
+    | append: '); background-position: '
+    | append: swatch_focal_point
+  %}
+{% elsif variation_value.color %}
+  {% assign color_swatch_style = 'background-color: ' | append: variation_value.color %}
+{% else %}
+  {% comment %} it used for filters {% endcomment %}
+  {% unless value.size > 0 %}
+    {% assign value = value.value %}
+  {% endunless %}
+
+  {%- assign color_value_downcase = value | downcase -%}
+
+  {% if only_color %}
+    {%- assign color_swatch_style = color_value_downcase -%}
+  {% else %}
+    {%- assign color_swatch_style = 'background-color: ' | append: color_value_downcase -%}
+  {% endif %}
+
+  {%- for color_swatch_item in swatches_config -%}
+    {%- assign color_swatch_parts = color_swatch_item | split: ':' -%}
+    {%- assign color_swatch_name = color_swatch_parts.first | downcase | strip -%}
+    {%- if color_value_downcase == color_swatch_name -%}
+      {%- assign color_swatch_value = color_swatch_parts.last | strip -%}
+
+      {%- if color_swatch_value contains '#' and only_color -%}
+        {%- assign color_swatch_style = color_swatch_value -%}
+      {%- elsif color_swatch_value contains '#' -%}
+        {% assign color_swatch_size = color_swatch_value | size %}
+        {% if color_swatch_size == 7 %}
+          {%- assign color_swatch_style = 'background-color: ' | append: color_swatch_value -%}
+        {% elsif color_swatch_size == 14 %}
+          {% assign first_color = color_swatch_value | slice: 0, 7 %}
+          {% assign second_color = color_swatch_value | slice: 7, 7 %}
+          {%- assign color_swatch_style = 'background: linear-gradient(45deg, '
+            | append: first_color
+            | append: ' 50%, '
+            | append: second_color
+            | append: ' 50%);'
+          -%}
+        {% elsif color_swatch_size == 21 %}
+          {% assign first_color = color_swatch_value | slice: 0, 7 %}
+          {% assign second_color = color_swatch_value | slice: 7, 7 %}
+          {% assign third_color = color_swatch_value | slice: 14, 7 %}
+          {%- assign color_swatch_style = 'background: linear-gradient(45deg, '
+            | append: first_color
+            | append: ' 0% 35%, '
+            | append: second_color
+            | append: ' 35% 65%, '
+            | append: third_color
+            | append: ' 65% 100%);'
+          -%}
+        {% endif %}
+      {%- elsif images[color_swatch_value] != blank -%}
+        {%- assign color_swatch_image = images[color_swatch_value] | image_url: width: 72, height: 72 -%}
+        {%- assign color_swatch_style = 'background-image: url(' | append: color_swatch_image | append: ');' -%}
+      {%- endif -%}
+
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{% endif %}
+
+{{- color_swatch_style -}}

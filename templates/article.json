@@ -1,0 +1,122 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-article",
+      "blocks": {
+        "featured_image": {
+          "type": "featured_image",
+          "settings": {
+            "full_width_enabled": false,
+            "slide_height": "adapt_to_first_image",
+            "desktop_fixed_height": 320,
+            "mobile_fixed_height": 460
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+            "blog_show_date": true,
+            "blog_show_author": true,
+            "size_heading": 100,
+            "size_heading_mobile": 100,
+            "color-body-text": "#000000"
+          }
+        },
+        "content": {
+          "type": "content",
+          "settings": {}
+        },
+        "social_sharing": {
+          "type": "social_sharing",
+          "settings": {
+            "share_text": "Share this article",
+            "share_facebook": true,
+            "share_twitter": true,
+            "share_pinterest": true,
+            "share_mail": true
+          }
+        }
+      },
+      "block_order": [
+        "featured_image",
+        "title",
+        "content",
+        "social_sharing"
+      ],
+      "settings": {
+        "margin-top": 20,
+        "margin-bottom": 72
+      }
+    },
+    "separator_zDNkHK": {
+      "type": "separator",
+      "settings": {
+        "heading": "",
+        "show-separator-line": true,
+        "full-width-line": true,
+        "color-background": "#000000",
+        "margin-top": 0,
+        "margin-bottom": 0
+      }
+    },
+    "newsletter_with_image_ttCDY6": {
+      "type": "newsletter-with-image",
+      "blocks": {
+        "heading_9RMrTC": {
+          "type": "heading",
+          "settings": {
+            "heading": "Join Our Circle & Save!",
+            "heading_disable_on_mobile": false,
+            "size_heading": 200,
+            "size_heading_mobile": 140
+          }
+        },
+        "paragraph_JnBgp9": {
+          "type": "paragraph",
+          "settings": {
+            "paragraph": "<p>Sign up now for 10% off your first order – because you deserve it!</p>",
+            "text_disable_on_mobile": false
+          }
+        },
+        "email_form_zNfxPV": {
+          "type": "email_form",
+          "settings": {
+            "button_select": "primary"
+          }
+        }
+      },
+      "block_order": [
+        "heading_9RMrTC",
+        "paragraph_JnBgp9",
+        "email_form_zNfxPV"
+      ],
+      "settings": {
+        "slide_height": "fixed_height",
+        "desktop_fixed_height": 420,
+        "mobile_fixed_height": 460,
+
+
+        "color-body-text": "transparent",
+        "background_color": "#ffffff",
+        "background_color_opacity": 58,
+        "background_blur": 18,
+        "margin-top": 0,
+        "margin-bottom": 0
+      }
+    }
+  },
+  "order": [
+    "main",
+    "separator_zDNkHK",
+    "newsletter_with_image_ttCDY6"
+  ]
+}

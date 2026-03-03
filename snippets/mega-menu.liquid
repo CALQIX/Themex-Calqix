@@ -1,0 +1,173 @@
+<ul
+  class="wt-page-nav-mega__list wt-page-nav-mega__list--center"
+>
+  {%- for link in section.settings.menu.links -%}
+    {% assign menu_class = '--simple' %}
+    {% assign show_mega = false %}
+    {% assign promo_blocks = false %}
+
+    {% if blocks.size > 0 %}
+      {% for block in blocks %}
+        {% assign megamenu_trigger = block.settings.title | handle | strip %}
+        {% if link.handle == megamenu_trigger %}
+          {% assign show_mega = true %}
+          {% assign mega_block = block %}
+          {% assign menu_class = '--mega' %}
+          {% if mega_block.settings.desktop_image_1
+            or mega_block.settings.desktop_image_2
+            or mega_block.settings.desktop_image_3
+            or mega_block.settings.desktop_image_4
+            or mega_block.settings.desktop_image_5
+            or mega_block.settings.desktop_image_6
+          %}
+            {% assign promo_blocks = true %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {%- if link.links != blank or promo_blocks -%}
+      <li
+        class="wt-page-nav-mega__item wt-page-nav-mega__item--parent wt-page-nav-mega__item{{ menu_class }}"
+      >
+        <a
+          href="{{ link.url }}"
+          tabindex="-1"
+          data-menu-level="1"
+          class="wt-page-nav-mega__link wt-page-nav-mega__link--parent {% if link.current %} wt-page-nav-mega__link--active{% endif %}"
+        >
+          <span class="wt-page-nav-mega__link__text wt-page-nav-mega__link__text--underline">
+            {{- link.title | escape -}}
+          </span>
+          {% render 'icons', id: 'plus' %}
+          {% render 'icons', id: 'arrow-down' %}
+        </a>
+        <div class="wt-page-nav-mega__sublist__wrapper wt-page-nav-mega__sublist__wrapper{{ menu_class }}">
+          <ul class="wt-page-nav-mega__sublist">
+            {%- for childlink in link.links -%}
+              {%- if childlink.links == blank -%}
+                <li class="wt-page-nav-mega__sublist__item wt-page-nav-mega__sublist__item--child">
+                  <a
+                    href="{{ childlink.url }}"
+                    data-menu-level="2"
+                    tabindex="-1"
+                    class="wt-page-nav-mega__sublist__link  {% if link.current %} wt-page-nav-mega__sublist__link--active{% endif %}"
+                    ><span class="wt-page-nav-mega__decorated">{{ childlink.title | escape }}</span></a
+                  >
+                </li>
+              {%- else -%}
+                <li
+                  class="wt-page-nav-mega__sublist__item wt-page-nav-mega__sublist__item--child wt-page-nav-mega__sublist--parent"
+                >
+                  <a
+                    href="{{ childlink.url }}"
+                    data-menu-level="2"
+                    tabindex="-1"
+                    class="wt-page-nav-mega__sublist__link wt-page-nav-mega__sublist__link--parent {% if childlink.current %} wt-page-nav-mega__sublist__link--active{% endif %}"
+                  >
+                    <span class="wt-page-nav-mega__decorated">{{ childlink.title | escape }}</span>
+                    {% render 'icons', id: 'plus' %}
+                    {% render 'icons', id: 'arrow-right' %}
+                  </a>
+                  <ul class="wt-page-nav-mega__sublist wt-page-nav-mega__sublist--nested">
+                    {%- for grandchildlink in childlink.links -%}
+                      <li
+                        class="wt-page-nav-mega__sublist__item wt-page-nav-mega__sublist__item--grandchild"
+                      >
+                        <a
+                          href="{{ grandchildlink.url }}"
+                          data-menu-level="3"
+                          class="wt-page-nav-mega__sublist__link"
+                          tabindex="-1"
+                        >
+                          <span class="wt-page-nav-mega__decorated">{{ grandchildlink.title | escape }}</span>
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+            {% if show_mega %}
+              <li
+                data-block-id="{{ mega_block.id }}"
+                class="wt-page-nav-mega__sublist__item wt-page-nav-mega__sublist__item--gallery"
+              >
+                <ul class="mega-menu__gallery {% if mega_block.settings.stack_view %}mega-menu__gallery--stack{% endif %}">
+                  {% assign promo_images_count = 0 %}
+                  {% for i in (1..6) %}
+                    {% assign key = 'desktop_image_' | append: i %}
+                    {% assign text_key = 'text_' | append: i %}
+                    {% if mega_block.settings[key] %}
+                      {% assign promo_images_count = promo_images_count | plus: 1 %}
+                      <li class="mega-menu__gallery__item {% if mega_block.settings.stack_view %}mega-menu__gallery__item--stack{% endif %}">
+                        {% assign link_key = 'link_' | append: i %}
+                        <a
+                          href="{{ mega_block.settings[link_key] | downcase }}"
+                          class="mega-menu__gallery__link"
+                          data-menu-level="2"
+                          tabindex="-1"
+                        >
+                          <picture class="mega-menu__gallery__picture">
+                              {% assign alt_escaped = mega_block.settings[key].alt | escape %}
+                              {% if alt_escaped != blank  %}
+                                {% assign alt_text = alt_escaped %}
+                              {% else %}
+                                {% assign alt_text = mega_block.settings[text_key] %}
+                              {% endif %}
+                            <img
+                              class="mega-menu__gallery__img"
+                              srcset="
+                                {% if mega_block.settings[key].width >= 400 %}{{ mega_block.settings[key] | image_url: width: 400 }} 400w, {% endif %}
+                                {% if mega_block.settings[key].width >= 800 %}{{ mega_block.settings[key] | image_url: width: 800 }} 800w, {% endif %}
+                                {% if mega_block.settings[key].width >= 1200 %}{{ mega_block.settings[key] | image_url: width: 1200 }} 1200w, {% endif %}
+                                {% if mega_block.settings[key].width >= 1600 %}{{ mega_block.settings[key] | image_url: width: 1600 }} 1600w, {% endif %}
+                                {{ mega_block.settings[key] | image_url: width: 800 }} 800w
+                              "
+                              sizes="(min-width: 800px) 800px, 100vw"
+                              src="{{ mega_block.settings[key] | image_url: width: 800 }}"
+                              alt="{{ alt_text }}"
+                              loading="lazy"
+                            >
+                            {% assign heading_key = 'heading_' | append: i %}
+                            <span class="mega-menu__gallery__heading wt-page-nav-mega__decorated">
+                              {{- mega_block.settings[heading_key] -}}
+                            </span>
+                            <p class="mega-menu__gallery__caption">{{ mega_block.settings[text_key] }}</p>
+                          </picture>
+                        </a>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              </li>
+              {% if promo_images_count > 0 %}
+                <style>
+                  [data-block-id='{{ mega_block.id }}'] {
+                    --promo-columns: span {{mega_block.settings.promo_section_width}};
+                  }
+                </style>
+              {% endif %}
+            {% endif %}
+          </ul>
+        </div>
+      </li>
+
+    {%- else -%}
+      <li class="wt-page-nav-mega__item">
+        <a
+          href="{{ link.url }}"
+          data-menu-level="1"
+          tabindex="-1"
+          class="wt-page-nav-mega__link {% if link.current %} wt-page-nav-mega__link--active{% endif %}"
+          {% if link.current %}
+            aria-current="page"
+          {% endif %}
+        >
+          <span class="wt-page-nav-mega__link__text wt-page-nav-mega__link__text--underline">
+            {{- link.title | escape -}}
+          </span>
+        </a>
+      </li>
+    {%- endif -%}
+  {%- endfor -%}
+</ul>

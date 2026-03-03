@@ -1,0 +1,117 @@
+{{ 'section-shoppable-video.css' | asset_url | stylesheet_tag }}
+{{ 'shoppable-image.css' | asset_url | stylesheet_tag }}
+
+{% assign line_items_ids = '' %}
+{% for line_item in cart.items %}
+  {% assign line_items_ids = line_items_ids | append: line_item.product_id | append: ', ' %}
+{% endfor %}
+
+{% assign limit_products = settings.product_limit_cross_sells %}
+
+{% assign hide_brand = true %}
+{% if settings.show_vendor %}
+  {% assign hide_brand = false %}
+{% endif %}
+
+{% comment %} default value is collection {% endcomment %}
+{% assign cross_sell_products = settings.collection_cross_sells.products %}
+{% assign cross_sell_size = 0 %}
+
+{% assign product_source = settings.product_source_cross_sells %}
+
+{% if product_source == 'product_list' %}
+  {% assign cross_sell_products = settings.product_list_cross_sells %}
+{% endif %}
+
+{% for cs_product in cross_sell_products %}
+  {% unless line_items_ids contains cs_product.id %}
+    {% assign cross_sell_size = cross_sell_size | plus: 1 %}
+  {% endunless %}
+{% endfor %}
+
+{% if cross_sell_size == 0 %}
+  {% if request.design_mode %}
+    <div class="wt-cart__cross-sell wt-cart__cross-sell--empty">
+      <p class="wt-cart__cross-sell__heading">
+        {{ settings.heading_cross_sells }}
+      </p>
+      <p class="wt-cart__cross-sell__empty">{{ 'cross_sell.empty_msg' | t }}</p>
+    </div>
+  {% endif %}
+{% else %}
+  <div class="wt-cart__cross-sell {% if settings.cross_sells_collapsed %}wt-cart__cross-sell--collapsed{% endif %}">
+    <p class="wt-cart__cross-sell__heading">
+      {{ settings.heading_cross_sells }}
+      <span
+        class="wt-cart__cross-sell__toggle"
+        onclick="this.closest('.wt-cart__cross-sell').classList.toggle('wt-cart__cross-sell--collapsed')"
+      >
+        {% render 'icons', id: 'arrow-down' %}
+      </span>
+    </p>
+
+    <div class="wt-cart__cross-sell__products">
+      {% if cross_sell_size > 1 %}
+        <script type="module" src="{{ 'slider.js' | asset_url }}" defer="defer"></script>
+        <slideshow-section class="wt-slider wt-slider--cross-sell" data-skip-center-nav-method="true">
+          <div data-swiper class="wt-slider__container" data-sound="off">
+            <div data-swiper-container class="video-reels__container">
+              {% for cs_product in cross_sell_products limit: limit_products %}
+                <div
+                  data-swiper-slide
+                  data-block-id="{{ cs_product.id }}"
+                  class="{% if line_items_ids contains cs_product.id %}hidden {% endif %}"
+                >
+                  {% render 'shoppable-product-card',
+                    product: cs_product,
+                    customClass: 'shoppable-product-card--cross-sell',
+                    hide_brand: hide_brand
+                  %}
+                </div>
+              {% endfor %}
+            </div>
+            <div class="swiper-button-next wt-slider__nav-btn wt-slider__nav-next wt-slider__nav-next--featured">
+              {% render 'icons', id: 'arrow-right' %}
+            </div>
+            <div class="swiper-button-prev wt-slider__nav-btn wt-slider__nav-prev wt-slider__nav-prev--featured">
+              {% render 'icons', id: 'arrow-left' %}
+            </div>
+          </div>
+          <script data-swiper-configuration type="text/json">
+            {
+              "slidesPerView": "auto",
+              "spaceBetween": 0,
+              "freeMode": false,
+              "speed": 150,
+              "grabCursor": true,
+              "centeredSlides": false,
+              "loop": false,
+              "slideToClickedSlide": true,
+              "enableOnMedia": "(min-width: 0px)",
+              "pagination": false,
+              "breakpoints": {
+                "400": {
+                  "slidesPerView": "auto"
+                }
+              },
+              "navigation": {
+                "nextEl": ".wt-slider__nav-next--featured",
+                "prevEl": ".wt-slider__nav-prev--featured"
+              }
+            }
+          </script>
+        </slideshow-section>
+      {% else %}
+        {% for cs_product in cross_sell_products %}
+          {% unless line_items_ids contains cs_product.id %}
+            {% render 'shoppable-product-card',
+              product: cs_product,
+              customClass: 'shoppable-product-card--cross-sell shoppable-product-card--full',
+              hide_brand: hide_brand
+            %}
+          {% endunless %}
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

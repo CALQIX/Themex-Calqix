@@ -1,0 +1,29 @@
+<countdown-timer
+  id="{{ block.id }}"
+  data-block-id="{{ block.id }}"
+  end-date="{{ block.settings.end_datetime }}"
+  expired-message="{{ block.settings.expired_message }}"
+  data-translation-days="{{ 'sections.countdown_timer.counter_labels.days.short' | t }}"
+  data-translation-hours="{{ 'sections.countdown_timer.counter_labels.hours.short' | t }}"
+  data-translation-minutes="{{ 'sections.countdown_timer.counter_labels.minutes.short' | t }}"
+  data-translation-seconds="{{ 'sections.countdown_timer.counter_labels.seconds.short' | t }}"
+  data-translation-days-long="{{ 'sections.countdown_timer.counter_labels.days.long' | t }}"
+  data-translation-hours-long="{{ 'sections.countdown_timer.counter_labels.hours.long' | t }}"
+  data-translation-minutes-long="{{ 'sections.countdown_timer.counter_labels.minutes.long' | t }}"
+  data-translation-seconds-long="{{ 'sections.countdown_timer.counter_labels.seconds.long' | t }}"
+  data-translation-invalid-date="{{ 'sections.countdown_timer.error.invalid_format.short' | t }}"
+  {% if block.settings.labels_below %}
+    data-long-labels
+  {% endif %}
+  class="wt-countdown-timer"
+  data-style="{{ block.settings.style }}"
+>
+  <div class="wt-countdown-timer__display"></div>
+  {% if request.design_mode %}
+    <div class="wt-countdown-timer__error"></div>
+  {% endif %}
+</countdown-timer>
+
+{{ 'block-countdown-timer.css' | asset_url | stylesheet_tag }}
+
+<script src="{{ 'countdown-timer.js' | asset_url }}" defer="defer"></script>

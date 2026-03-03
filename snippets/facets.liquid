@@ -1,0 +1,121 @@
+{%- liquid
+  assign sort_by = results.sort_by | default: results.default_sort_by
+  assign total_active_values = 0
+  if results.url
+    assign results_url = results.url
+  else
+    assign terms = results.terms | escape
+    assign results_url = '?q=' | append: terms | append: '&options%5Bprefix%5D=last&sort_by=' | append: sort_by
+  endif
+    
+  if search_page
+      assign results_url = results_url | append: '&type=product'
+  endif
+-%}
+
+{%- assign total_active_values = 0 -%}
+{%- for filter in results.filters -%}
+  {% if filter.type == 'price_range' %}
+    {%- assign total_active_values = total_active_values | plus: 1 %}
+  {% endif %}
+  {%- assign total_active_values = total_active_values | plus: filter.active_values.size -%}
+{%- endfor -%}
+
+{% assign options_as_color_swatches = settings.color_swatch_names
+  | downcase
+  | newline_to_br
+  | strip_newlines
+  | split: '<br />'
+  | uniq 
+%}
+
+<aside
+  class="collection__aside collection__filter wt-filter{% if section.settings.filter_position == "drawer" %} wt-filter--drawer{% endif %}
+  {% if filters_length < 1 or enable_filtering != true %} wt-filter--hidden {% endif %}
+  "
+  {% if section.settings.filter_position == 'drawer' %}
+    id="wt-filters-drawer"
+  {% endif %}
+  data-toggle-tabindex=".wt-filter__close, .wt-cart__cta, .wt-filter__clear-all, .filter__remove, .f-current__list__cancel"
+>
+  <div class="wt-filter__header">
+    <div>{{ 'products.facets.filter_by_label' | t }}</div>
+    <button class="wt-filter__close" aria-label="{{ 'aria-label.facets-close' | t }}" tabindex="-1">
+      {% render 'icons', id: 'close' %}
+    </button>
+  </div>
+  <div class="wt-filter__body facets-container">
+    <facet-filters-form class="facets" data-position="{{ section.settings.filter_position }}">
+      <form
+        id="FacetFiltersForm"
+      >
+        {%- if results.terms -%}
+          <input type="hidden" name="q" value="{{ results.terms | escape }}">
+          <input name="options[prefix]" type="hidden" value="last">
+        {%- endif -%}
+
+        {% render 'filter-current', results: results, results_url: results_url %}
+
+        <input
+          style="display:none;"
+          name="sort_by"
+          value="{{ sort_by }}"
+          id="SortBy"
+        >
+        
+        {%- if search_page -%}
+          <input type="hidden" name="type" value="product">
+        {%- endif -%}
+
+        {%- for filter in results.filters -%}
+          {% case filter.type %}
+            {% when 'boolean', 'list' %}
+              {% render 'filter-type-list',
+                filter: filter,
+                index: forloop.index,
+                filter_position: section.settings.filter_position,
+                options_as_color_swatches: options_as_color_swatches
+              %}
+            {% when 'price_range' %}
+              {% render 'filter-price',
+                filter: filter,
+                results: results,
+                filter_position: section.settings.filter_position
+              %}
+          {% endcase %}
+        {%- endfor -%}
+      </form>
+    </facet-filters-form>
+  </div>
+  <footer class="wt-filter__footer">
+    <div class="wt-filter__footer__body {% if filter_position == 'always' %}always-visible{% endif %}">
+      <button
+        aria-label="{{ 'products.facets.apply' | t }}"
+        class="wt-cart__cta"
+        onclick="document.querySelector('collection-section').toggleDrawer()"
+        tabindex="-1"
+      >
+        {{ 'products.facets.apply' | t }}
+      </button>
+      <facet-remove>
+        <a
+          href="{{ results_url }}"
+          role="button"
+          aria-label="{{- 'products.facets.clear_all' | t -}}"
+          tabindex="-1"
+          class="wt-filter__clear-all"
+        >
+          <button
+            aria-label="{{- 'products.facets.clear_all' | t -}}"
+            class="hero__button  hero__button--primary  hero__button--secondary hero__button--link wt-filter__remove-all"
+            tabindex="-1"
+          >
+            <span>
+              {{- 'products.facets.clear_all' | t -}}
+            </span>
+          </button>
+        </a>
+      </facet-remove>
+    </div>
+  </footer>
+</aside>

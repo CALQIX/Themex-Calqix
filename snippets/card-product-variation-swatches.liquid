@@ -1,0 +1,86 @@
+{% if product_variations.count > 0 %}
+  <div
+    class="
+      card__color-swatcher--container
+      {% if text_alignment == 'center' %} center {% endif %}
+      {% if settings.swatch_method == 'variant_image' %}variant-image{% endif %}
+    "
+    tabindex="-1"
+    data-options-as-color-swatches="{{ options_as_color_swatches | join: ',' }}"
+    data-omit-tabindex
+  >
+    {% for variation in product_variations %}
+      {% assign new_hover_image = null %}
+      {% assign option_name = nil %}
+      {% assign option_image = nil %}
+      {% assign option_color = nil %}
+
+      {% assign option_value = variation.metafields[product_variations_color_namespace][product_variations_color_key] %}
+      {% if option_value.type == 'metaobject_reference' %}
+        {% assign option_metaobject = option_value.value %}
+        {% assign option_image = option_metaobject.image %}
+        {% assign option_color = option_metaobject.color %}
+        {% assign option_name = option_metaobject.label %}
+      {% endif %}
+      
+      
+      {% for media in variation.media %}
+        {% if media.media_type == 'image' and forloop.first == false %}
+          {% assign new_hover_image = media %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+
+      <div
+        class="
+          color-swatcher--wrapper
+          {% if variation.available == false %}unavailable{% endif %}
+          {% if settings.enable_round_color_swatches %} rounded {% endif %}
+        "
+      >
+        <div
+          class="
+            color-swatcher
+            {% if variation.available == false %}unavailable{% endif %}
+            {% if settings.enable_round_color_swatches %} rounded {% endif %}
+          "
+          data-color="{{ option_name }}"
+          data-img="{% if variation.featured_image %}{{ variation.featured_image | image_url: width: 1000 }}{% endif %}"
+          data-srcset="
+            {% if variation.featured_image %}
+            {% if variation.featured_image.width >= 375 %}{{ variation.featured_image | image_url: width: 375 }} 375w, {% endif %}
+            {% if variation.featured_image.width >= 750 %}{{ variation.featured_image | image_url: width: 750 }} 750w, {% endif %}
+            {% if variation.featured_image.width >= 1000 %}{{ variation.featured_image | image_url: width: 1000 }} 1000w, {% endif %}
+            {% if variation.featured_image.width >= 1440 %}{{ variation.featured_image | image_url: width: 1440 }} 1440w, {% endif %}
+            {{ variation.featured_image | image_url: width: 1000 }} 1000w
+            {% endif %}
+          "
+          data-href="{{ variation.url }}"
+          data-hover="{% if new_hover_image %}{{ new_hover_image | image_url: width: 1000 }}{% elsif img_hover %}{{ img_hover | image_url: width: 1000 }}{% endif %}"
+          data-hover-srcset="
+            {% if new_hover_image %}
+            {% if new_hover_image.width >= 375 %}{{ new_hover_image | image_url: width: 375 }} 375w, {% endif %}
+            {% if new_hover_image.width >= 750 %}{{ new_hover_image | image_url: width: 750 }} 750w, {% endif %}
+            {% if new_hover_image.width >= 1000 %}{{ new_hover_image | image_url: width: 1000 }} 1000w, {% endif %}
+            {% if new_hover_image.width >= 1440 %}{{ new_hover_image | image_url: width: 1440 }} 1440w, {% endif %}
+            {{ new_hover_image | image_url: width: 1000 }} 1000w
+            {% endif %}
+          "
+          data-product-handle="{{ variation.handle }}"
+          style="
+            {% render 'color-swatch-style', swatches_config: swatches_config, swatch_image: option_image, swatch_color: option_color %};
+          "
+          tabindex="0"
+        ></div>
+
+        {% if option_metaobject %}
+          <span class="color-swatcher--tooltip hidden">{{ option_name }}</span>
+        {% endif %}
+
+        {% if variation.available == false %}
+          <div class="unavailable-line"></div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

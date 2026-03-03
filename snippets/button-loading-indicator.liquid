@@ -1,0 +1,14 @@
+{% if hidden == false or hidden == true %}
+  {% assign is_hidden = hidden %}
+{% else %}
+  {% assign is_hidden = true %}
+{% endif %}
+
+<div class="loading-overlay__spinner {% if is_hidden %}hidden{% endif %}">
+  <div class="lds-ring" aria-hidden="true">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>

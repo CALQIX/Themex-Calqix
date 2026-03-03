@@ -1,0 +1,412 @@
+{% comment %}
+  CALQIX — Rich Text with Image
+  DM Serif Display + DM Sans | Navy #1A3B5C | Clinical spacing
+{% endcomment %}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+
+{% assign has_content = false %}
+{%- for block in section.blocks -%}
+  {% if block.type == 'text' and block.settings.text != '' %}
+    {% assign has_content = true %}
+    {% break %}
+  {% endif %}
+  {% if block.type == 'heading' and block.settings.heading != '' %}
+    {% assign has_content = true %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% assign background_rgb = section.settings.background_color | color_to_rgb %}
+{% assign text_rgb = section.settings['color-body-text'] | color_to_rgb %}
+
+{% if request.design_mode or has_content %}
+  <style>
+    /* ── CALQIX BRAND TOKENS ── */
+    [data-section-id="{{ section.id }}"] {
+      {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+        --color-custom-background: {{ section.settings.background_color }};
+      {% endif %}
+      {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+        --color-custom-text: {{ section.settings['color-body-text'] }};
+      {% endif %}
+      {% if section.settings.margin-top %}
+        --section-gap-top: {{ section.settings.margin-top }}px;
+      {% endif %}
+      {% if section.settings.margin-bottom %}
+        --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+      {% endif %}
+    }
+
+    {%- for block in section.blocks -%}
+      [data-block-id="{{ block.id }}"] {
+        --font-headline-scale-desk: {{ block.settings.size_heading | divided_by: 100.0 }};
+        --font-headline-scale:      {{ block.settings.size_heading_mobile | divided_by: 100.0 }};
+        --font-base-line-height:    {{ block.settings.line_height }};
+        --font-base-transform:      {{ block.settings.font_uppercase }};
+      }
+    {%- endfor -%}
+
+    /* ── CALQIX TYPOGRAPHY OVERRIDES ── */
+
+    /* Section wrapper */
+    [data-section-id="{{ section.id }}"].rich-text {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      color: #1C2B3A;
+      background: {{ section.settings.background_color | default: '#FFFFFF' }};
+    }
+
+    /* All headings inside this section → DM Serif Display */
+    [data-section-id="{{ section.id }}"] h1,
+    [data-section-id="{{ section.id }}"] h2,
+    [data-section-id="{{ section.id }}"] h3,
+    [data-section-id="{{ section.id }}"] h4,
+    [data-section-id="{{ section.id }}"] .heading,
+    [data-section-id="{{ section.id }}"] .hero__title,
+    [data-section-id="{{ section.id }}"] .hero__heading,
+    [data-section-id="{{ section.id }}"] [class*="heading"] {
+      font-family: 'DM Serif Display', serif !important;
+      font-weight: 400 !important;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+      color: #1A3B5C;
+    }
+
+    /* Italic accent inside headings */
+    [data-section-id="{{ section.id }}"] h1 em,
+    [data-section-id="{{ section.id }}"] h2 em,
+    [data-section-id="{{ section.id }}"] .hero__title em,
+    [data-section-id="{{ section.id }}"] .hero__heading em {
+      font-style: italic;
+      color: #4a7fa5;
+    }
+
+    /* Subheading / eyebrow */
+    [data-section-id="{{ section.id }}"] .hero__subheading,
+    [data-section-id="{{ section.id }}"] [class*="subheading"] {
+      font-family: 'DM Sans', sans-serif !important;
+      font-size: 11px !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.18em !important;
+      text-transform: uppercase !important;
+      color: #6B8299 !important;
+      margin-bottom: 14px;
+    }
+
+    /* Body text / richtext paragraphs */
+    [data-section-id="{{ section.id }}"] p,
+    [data-section-id="{{ section.id }}"] .hero__text,
+    [data-section-id="{{ section.id }}"] [class*="rte"] p {
+      font-family: 'DM Sans', sans-serif !important;
+      font-weight: 300 !important;
+      font-size: 15px !important;
+      line-height: 1.75 !important;
+      color: #3a5068 !important;
+    }
+
+    /* Links */
+    [data-section-id="{{ section.id }}"] a:not(.btn):not(.button) {
+      color: #1A3B5C;
+      text-decoration: none;
+      border-bottom: 1px solid #D6E4F0;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    [data-section-id="{{ section.id }}"] a:not(.btn):not(.button):hover {
+      color: #244d75;
+      border-bottom-color: #1A3B5C;
+    }
+
+    /* Buttons / CTA → CALQIX stijl */
+    [data-section-id="{{ section.id }}"] .btn,
+    [data-section-id="{{ section.id }}"] .button,
+    [data-section-id="{{ section.id }}"] [class*="btn"] {
+      font-family: 'DM Sans', sans-serif !important;
+      font-size: 12px !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.1em !important;
+      text-transform: uppercase !important;
+      border-radius: 3px !important;
+      padding: 13px 26px !important;
+      background: #1A3B5C !important;
+      color: #FFFFFF !important;
+      border: 1px solid #1A3B5C !important;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s !important;
+      text-decoration: none !important;
+    }
+    [data-section-id="{{ section.id }}"] .btn:hover,
+    [data-section-id="{{ section.id }}"] .button:hover,
+    [data-section-id="{{ section.id }}"] [class*="btn"]:hover {
+      background: #244d75 !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 20px rgba(26,59,92,0.25) !important;
+    }
+
+    /* Outlined / secondary button variant */
+    [data-section-id="{{ section.id }}"] .btn--outline,
+    [data-section-id="{{ section.id }}"] .button--outline {
+      background: transparent !important;
+      color: #1A3B5C !important;
+      border: 1px solid #1A3B5C !important;
+    }
+    [data-section-id="{{ section.id }}"] .btn--outline:hover,
+    [data-section-id="{{ section.id }}"] .button--outline:hover {
+      background: #1A3B5C !important;
+      color: #FFFFFF !important;
+    }
+
+    /* Images — subtiele shadow + border radius */
+    [data-section-id="{{ section.id }}"] img:not(.icon) {
+      border-radius: 4px;
+      box-shadow: 0 4px 24px rgba(26,59,92,0.08);
+    }
+
+    /* Divider / horizontal rule */
+    [data-section-id="{{ section.id }}"] hr {
+      border: none;
+      border-top: 1px solid #D6E4F0;
+      margin: 24px 0;
+    }
+
+    /* Picture blocks (PICTURE1 / PICTURE2 / PICTURE3) */
+    [data-section-id="{{ section.id }}"] .rich-text__picture {
+      display: inline-block;
+      vertical-align: middle;
+      margin: 0 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(26,59,92,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    [data-section-id="{{ section.id }}"] .rich-text__picture:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(26,59,92,0.15);
+    }
+
+    /* Spacing polish */
+    [data-section-id="{{ section.id }}"] .hero__wrapper {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  </style>
+
+  <div
+    data-section-id="{{ section.id }}"
+    class="{% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %} rich-text"
+  >
+    <div class="hero__wrapper">
+      {% render 'hero',
+        type: 'blocks',
+        desktop_text_horizontal_position: section.settings.desktop_text_horizontal_position,
+        desktop_text_vertical_position: 'center',
+        blocks: section.blocks,
+        rich_text_with_image: true
+      %}
+    </div>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "t:sections.rich-text-with-image.name",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "desktop_text_horizontal_position",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.rich-text-with-image.settings.desktop_text_horizontal_position.left.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.rich-text-with-image.settings.desktop_text_horizontal_position.center.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.rich-text-with-image.settings.desktop_text_horizontal_position.right.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.rich-text-with-image.settings.desktop_text_horizontal_position.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "color-body-text",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.text-color.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.background-color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.section_spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin-top",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 20,
+      "label": "t:sections.settings.settings.distance-top.label"
+    },
+    {
+      "type": "range",
+      "id": "margin-bottom",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 20,
+      "label": "t:sections.settings.settings.distance-bottom.label",
+      "info": "t:sections.settings.settings.distance-bottom.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "t:sections.rich-text-with-image.blocks.subheading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "subheading",
+          "default": "<p>Customize Your Visual Layout</p>",
+          "label": "t:sections.settings.settings.subheading.label"
+        },
+        {
+          "type": "select",
+          "id": "font_uppercase",
+          "default": "none",
+          "options": [
+            { "value": "none",      "label": "none" },
+            { "value": "uppercase", "label": "Uppercase" }
+          ],
+          "label": "t:settings_schema.typography.settings.type_body_font_uppercase.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_on_mobile",
+          "label": "t:sections.global.disable_on_mobile",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.rich-text-with-image.blocks.text.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "text",
+          "default": "Type PICTURE1 to insert the first icon – place it where you want a visual cue. Insert PICTURE2 by typing it where a second visual element is needed. Use PICTURE3 for adding a third icon – ensure it has its own space.",
+          "label": "t:sections.settings.settings.text.label"
+        },
+        {
+          "type": "select",
+          "id": "font_uppercase",
+          "default": "none",
+          "options": [
+            { "value": "none",      "label": "none" },
+            { "value": "uppercase", "label": "Uppercase" }
+          ],
+          "label": "t:settings_schema.typography.settings.type_body_font_uppercase.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_on_mobile",
+          "label": "t:sections.global.disable_on_mobile",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "size_heading",
+          "min": 50,
+          "max": 500,
+          "step": 10,
+          "default": 100,
+          "label": "t:sections.settings.settings.size-heading.label",
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "size_heading_mobile",
+          "min": 80,
+          "max": 300,
+          "step": 10,
+          "default": 100,
+          "label": "t:sections.settings.settings.size-heading-mobile.label",
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "line_height",
+          "min": 1,
+          "max": 2,
+          "step": 0.1,
+          "default": 1.5,
+          "label": "t:settings_schema.typography.settings.typo_line_height.label"
+        },
+        {
+          "type": "image_picker",
+          "id": "picture1",
+          "label": "t:sections.rich-text-with-image.blocks.heading.settings.picture1.label",
+          "info":  "t:sections.rich-text-with-image.blocks.heading.settings.picture1.info"
+        },
+        {
+          "type": "url",
+          "id": "button_link1",
+          "label": "t:sections.rich-text-with-image.blocks.heading.settings.link1.label"
+        },
+        {
+          "type": "image_picker",
+          "id": "picture2",
+          "label": "t:sections.rich-text-with-image.blocks.heading.settings.picture2.label",
+          "info":  "t:sections.rich-text-with-image.blocks.heading.settings.picture2.info"
+        },
+        {
+          "type": "url",
+          "id": "button_link2",
+          "label": "t:sections.rich-text-with-image.blocks.heading.settings.link2.label"
+        },
+        {
+          "type": "image_picker",
+          "id": "picture3",
+          "label": "t:sections.rich-text-with-image.blocks.heading.settings.picture3.label",
+          "info":  "t:sections.rich-text-with-image.blocks.heading.settings.picture3.info"
+        },
+        {
+          "type": "url",
+          "id": "button_link3",
+          "label": "t:sections.rich-text-with-image.blocks.heading.settings.link3.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.rich-text-with-image.presets.name",
+      "blocks": [
+        { "type": "heading" },
+        { "type": "text" }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

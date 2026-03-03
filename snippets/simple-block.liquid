@@ -1,0 +1,163 @@
+{% if blocks %}
+  {%- for block in blocks -%}
+    {%- case block.type -%}
+      {%- when 'subheading' -%}
+        {% if block.settings.subheading %}
+          <div
+            data-block-id="{{ block.id }}"
+            class="{% if prefix %}{{ prefix }}{% else %}block{% endif %}__subheading {% if block.settings.subheading_disable_on_mobile %}{% if prefix %}{{ prefix }}{% else %}block{% endif %}__subheading--mobile{% endif %}"
+          >
+            {{ block.settings.subheading | escape | newline_to_br }}
+          </div>
+        {% endif %}
+      {%- when 'subheading_richtext' -%}
+        {% if block.settings.subheading_richtext %}
+          <div
+            data-block-id="{{ block.id }}"
+            class="{% if prefix %}{{ prefix }}{% else %}block{% endif %}__subheading {% if block.settings.subheading_richtext_disable_on_mobile %}{% if prefix %}{{ prefix }}{% else %}block{% endif %}__subheading--mobile{% endif %}"
+          >
+            {{ block.settings.subheading_richtext | newline_to_br }}
+          </div>
+        {% endif %}
+      {%- when 'heading' -%}
+        {% if block.settings.heading %}
+          <h2
+            data-block-id="{{ block.id }}"
+            class="{% if prefix %}{{ prefix }}{% else %}block{% endif %}__title {% if block.settings.disable_on_mobile %}{% if prefix %}{{ prefix }}{% else %}block{% endif %}__title--mobile{% endif %}"
+          >
+            {{ block.settings.heading | escape | newline_to_br }}
+          </h2>
+        {% endif %}
+        {% if block.settings.subheading %}
+          <div
+            data-block-id="{{ block.id }}"
+            class="{% if prefix %}{{ prefix }}{% else %}block{% endif %}__text {% if block.settings.disable_on_mobile %}hero__title--mobile{% endif %}"
+          >
+            {{ block.settings.subheading }}
+          </div>
+        {% endif %}
+      {%- when 'text' -%}
+        {% if block.settings.text and rich_text_with_image == true %}
+          <div
+            class="rich-text-image {% if block.settings.disable_on_mobile %}hero__title--mobile{% endif %}"
+            data-block-id="{{ block.id }}"
+          >
+            {% assign text = block.settings.text %}
+            {{ block.settings.button_link }}
+
+            {% if block.settings.picture1 == null
+              and block.settings.picture2 == null
+              and block.settings.picture3 == null
+            %}
+              {% assign pic1url = 'product-1' | placeholder_svg_tag %}
+              {% assign pic2url = 'product-2' | placeholder_svg_tag %}
+              {% assign pic3url = 'product-3' | placeholder_svg_tag %}
+              {% assign text = text
+                | replace: 'PICTURE1', pic1url
+                | replace: 'PICTURE2', pic2url
+                | replace: 'PICTURE3', pic3url
+              %}
+            {% endif %}
+
+            {% if block.settings.picture1 %}
+              {% assign pic1url = block.settings.picture1.src | image_url: width: 200 | image_tag %}
+              {% assign link1 = block.settings.button_link1 %}
+              {% if link1.size > 0 %}
+                {% assign pic1tag = '<a href="' | append: link1 | append: '">' | append: pic1url | append: '</a>' %}
+              {% else %}
+                {% assign pic1tag = pic1url %}
+              {% endif %}
+              {% assign text = text | replace: 'PICTURE1', pic1tag %}
+            {% endif %}
+
+            {% if block.settings.picture2 %}
+              {% assign pic2url = block.settings.picture2.src | image_url: width: 200 | image_tag %}
+              {% assign link2 = block.settings.button_link2 %}
+              {% if link2.size > 0 %}
+                {% assign pic2tag = '<a href="' | append: link2 | append: '">' | append: pic2url | append: '</a>' %}
+              {% else %}
+                {% assign pic2tag = pic2url %}
+              {% endif %}
+              {% assign text = text | replace: 'PICTURE2', pic2tag %}
+            {% endif %}
+
+            {% if block.settings.picture3 %}
+              {% assign pic3url = block.settings.picture3.src | image_url: width: 200 | image_tag %}
+              {% assign link3 = block.settings.button_link3 %}
+              {% if link3.size > 0 %}
+                {% assign pic3tag = '<a href="' | append: link3 | append: '">' | append: pic3url | append: '</a>' %}
+              {% else %}
+                {% assign pic3tag = pic3url %}
+              {% endif %}
+              {% assign text = text | replace: 'PICTURE3', pic3tag %}
+            {% endif %}
+
+            <h3 class="rich-text-image__heading rte">
+              {{ text }}
+            </h3>
+          </div>
+        {% elsif block.settings.text %}
+          <div
+            data-block-id="{{ block.id }}"
+            class="{% if prefix %}{{ prefix }}{% else %}block{% endif %}__text {% if block.settings.disable_on_mobile %}{% if prefix %}{{ prefix }}{% else %}block{% endif %}__text--mobile{% endif %} rte"
+          >
+            {{ block.settings.text }}
+          </div>
+        {% endif %}
+      {%- when 'button' -%}
+        <div class="hero__button--gap">
+          {% if block.settings.button_link and block.settings.button_label != blank %}
+            <a
+              href="{{ block.settings.button_link }}"
+              {% if block.settings.button_link_in_new_window %}
+                target="_blank" rel="noreferrer noopener"
+                tabindex="0"
+              {% endif %}
+              aria-label="{{ block.settings.button_label }}"
+              class="hero__button--primary {% if block.settings.button_select != 'primary' %} hero__button--secondary {% endif %}{% if block.settings.button_select == 'link' %} hero__button--link {% endif %}{% if prefix %}{{ prefix }}{% else %}block{% endif %}__button {% if block.settings.disable_on_mobile %}{% if prefix %}{{ prefix }}{% else %}block{% endif %}__button--mobile{% endif %}"
+            >
+              <span>{{ block.settings.button_label }}</span>
+            </a>
+          {% endif %}
+
+          {% if block.settings.second_button_link and block.settings.second_button_label != blank %}
+            <a
+              href="{{ block.settings.second_button_link }}"
+              {% if button_link_in_new_window %}
+                target="_blank" rel="noreferrer noopener"
+              {% endif %}
+                aria-label="{{ block.settings.second_button_label }}"
+                class="hero__button--primary {% if block.settings.second_button_select != 'primary' %} hero__button--secondary {% endif %}{% if block.settings.second_button_select == 'link' %} hero__button--link {% endif %}{% if prefix %}{{ prefix }}{% else %}block{% endif %}__button {% if block.settings.second_disable_on_mobile %}{% if prefix %}{{ prefix }}{% else %}block{% endif %}__button--mobile{% endif %}"
+              >
+                <span>
+                  {{ block.settings.second_button_label }}
+                </span>
+            </a>
+          {% endif %}
+        </div>
+      {%- when 'countdown_timer' %}
+        {% render 'countdown-timer', block: block %}
+    {%- endcase -%}
+  {%- endfor -%}
+{% else %}
+  {% if title %}
+    <h2 class="{% if prefix %}{{ prefix }}{% else %}block{% endif %}__title">{{ title }}</h2>
+  {% endif %}
+  {% if title_h1 %}
+    <h1 class="{% if prefix %}{{ prefix }}{% else %}block{% endif %}__title">{{ title }}</h1>
+  {% endif %}
+  {% if text %}
+    <p class="{% if prefix %}{{ prefix }}{% else %}block{% endif %}__text">{{ text }}</p>
+  {% endif %}
+  {% if buttonUrl -%}
+    <a
+      class="{% if prefix %}{{ prefix }}{% else %}block{% endif %}__button"
+      href="{{ buttonUrl }}"
+      {% if button_link_in_new_window %}
+        target="_blank" rel="noreferrer noopener"
+      {% endif %}
+    >
+      {{- buttonText -}}
+    </a>
+  {%- endif %}
+{% endif %}

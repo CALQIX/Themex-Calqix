@@ -1,0 +1,70 @@
+{%- assign total_active_values = 0 -%}
+{%- for filter in results.filters -%}
+  {% if filter.type == 'price_range' %}
+    {%- assign max_price_amount = filter.range_max | divided_by: 100.0 | ceil | times: 100 | money | strip_html | escape -%}
+    {%- assign min_price_amount = 0 | money -%}
+    {% assign max_filter_amount = filter.max_value.value | money %}
+    {% assign min_filter_amount = filter.min_value.value | money %}
+
+    {% if min_filter_amount != min_price_amount or max_filter_amount != max_price_amount %}
+      {% if max_filter_amount != blank or min_filter_amount != blank %}
+        {%- assign total_active_values = total_active_values | plus: 1 -%}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+  {%- assign total_active_values = total_active_values | plus: filter.active_values.size -%}
+{%- endfor -%}
+
+<div class="f-current filter active-facets">
+  {% if total_active_values > 0 %}
+    <div class="filter__header">
+      {{ 'products.facets.filter_by_label' | t }}
+      <facet-remove>
+        <a href="{{ results_url }}" class="filter__remove">
+          {{- 'products.facets.clear_all' | t -}}
+          {% assign total_active_values = 0 %}
+        </a>
+      </facet-remove>
+    </div>
+    <div class="filter__body">
+      <div class="f-current__list">
+        {%- for filter in results.filters -%}
+          {%- for value in filter.active_values -%}
+            <facet-remove>
+              <div class="f-current__list__item">
+                {{ filter.label }}: {{ value.label | escape -}}
+                <a href="{{ value.url_to_remove }}" class="f-current__list__cancel">
+                  {%- render 'icons', id: 'close', url: null -%}
+                </a>
+              </div>
+            </facet-remove>
+          {%- endfor -%}
+          {% if filter.type == 'price_range' %}
+            {%- if filter.min_value.value != null or filter.max_value.value != null -%}
+              {% if min_filter_amount != min_price_amount or max_filter_amount != max_price_amount %}
+                <facet-remove>
+                  <div class="f-current__list__item">
+                    {%- if filter.min_value.value -%}
+                      {{ filter.min_value.value | money }}
+                    {%- endif -%}
+                    {% assign space = '- ' %}
+                    {{ space }}
+                    {%- if filter.max_value.value -%}
+                      {{ filter.max_value.value | money }}
+                    {%- endif -%}
+                    <a href="{{ filter.url_to_remove }}" class="f-current__list__cancel price_range"
+                    role="button" aria-label="{{ 'aria-label.remove-price-range' | t }}"
+                    >
+                      {%- render 'icons', id: 'close', url: null -%}
+                    </a>
+                    <span class="visually-hidden">{{ 'products.facets.clear_filter' | t }}</span>
+                  </div>
+                </facet-remove>
+              {% endif %}
+            {%- endif -%}
+          {% endif %}
+        {%- endfor -%}
+      </div>
+    </div>
+  {% endif %}
+</div>

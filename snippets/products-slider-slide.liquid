@@ -1,0 +1,73 @@
+{% assign placeholder = 'product-apparel-3' %}
+
+<div class="wt-products-slider__promo-picture">
+  {% render 'hero',
+    type: 'single',
+    classname: customclass,
+    desktop_text_horizontal_position: block.settings.desktop_text_horizontal_position,
+    desktop_text_vertical_position: block.settings.desktop_text_vertical_position,
+    mobile_text_horizontal_position: block.settings.mobile_text_horizontal_position,
+    mobile_text_vertical_position: block.settings.mobile_text_vertical_position,
+    desktop_image: block.settings.desktop_image,
+    mobile_image: block.settings.mobile_image,
+    heading: block.settings.heading,
+    text: block.settings.text,
+    placeholder: 'detailed-apparel-1'
+  %}
+</div>
+
+<div class="wt-products-slider__product">
+  {% if block.settings.slider_product != blank %}
+    {% assign reviews = block.settings.slider_product.metafields.reviews %}
+    {% assign text_alignment = section.settings.text_alignment %}
+
+    {% assign product_img = block.settings.slider_product.featured_image.src %}
+
+    {% if block.settings.product_image != blank %}
+      {% assign product_img = block.settings.product_image.src %}
+    {% endif %}
+    <a href="{{ block.settings.slider_product.url }}" class="wt-products-slider__product__card">
+      <div class="wt-products-slider__product__picture">
+        {{-
+          product_img
+          | image_url: width: 3840
+          | image_tag:
+            loading: 'lazy',
+            sizes: '100vw',
+            widths: '375, 750, 1100, 1500, 1780, 2000, 3000, 3840',
+            class: 'wt-products-slider__product-img'
+        -}}
+      </div>
+
+      {% if section.settings.show_vendor == true %}
+        <p class="wt-products-slider__product__vendor wt-product__brand__name">{{ block.settings.slider_product.vendor }}</p>
+      {% endif %}
+
+      <h3 class="wt-products-slider__product__title">
+        {{ block.settings.slider_product.title }}
+      </h3>
+
+      {% if section.settings.show_rating == true %}
+        <div class="wt-products-slider__product__rating">
+          {% render 'rating', reviews: reviews, text_alignment: text_alignment %}
+        </div>
+      {% endif %}
+
+      <div class="wt-products-slider__product__price">
+        {% render 'price', product: block.settings.slider_product, show_compare_at_price: true, price_class: '' %}
+      </div>
+    </a>
+
+  {% else %}
+    {% render 'card',
+      placeholder_image_index: placeholder_image_index,
+      title: 'Example product title',
+      subtitle: 'Vendor',
+      price: '1999',
+      rating: section.settings.show_product_rating,
+      options: false,
+      text_alignment: section.settings.text_alignment,
+      enable_quick_add_button: false
+    %}
+  {% endif %}
+</div>

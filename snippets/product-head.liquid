@@ -1,0 +1,10 @@
+{% assign current_variant = product.selected_or_first_available_variant %}
+
+<meta
+  itemprop="name"
+  content="{{ product.title }}{% unless product.has_only_default_variant %} - {{ current_variant.title }}{% endunless %}"
+>
+<meta itemprop="url" content="{{ shop.url }}{{ current_variant.url }}">
+<meta itemprop="brand" content="{{ product.vendor }}">
+<meta itemprop="image" content="{{ product.featured_image | image_url: width: 600, height: 600 }}">
+<meta itemprop="description" content="{{ product.description | strip_html | escape }}">

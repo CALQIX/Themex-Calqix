@@ -1,0 +1,1727 @@
+{% comment %}
+  CALQIX Custom Footer Section — v3.0
+  Animaties: identiek aan FlowCore Banner (cqFadeUp, ease timings, canvas bg)
+  Mobiel: accordion nav met geanimeerde chevron
+  Theme: ROOT by Wonder
+  v3.0: Volledig bewerkbaar via Shopify Theme Editor
+{% endcomment %}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+
+<style>
+  /* ============================================================
+     ROOT VARIABLES — identical to FlowCore Banner
+     ============================================================ */
+  #calqix-footer-{{ section.id }} {
+    /* ── Bewerkbaar via Theme Editor ── */
+    --bg-primary:    {{ section.settings.color_bg_primary }};
+    --bg-secondary:  {{ section.settings.color_bg_secondary }};
+    --text-primary:  {{ section.settings.color_text_primary }};
+    --text-muted:    {{ section.settings.color_text_muted }};
+    --accent-color:  {{ section.settings.color_accent }};
+    --border-color:  {{ section.settings.color_border }};
+    --social-bg:     {{ section.settings.color_social_bg }};
+
+    /* ── Afgeleid (opacity-varianten van text-primary) ── */
+    --white-55:      color-mix(in srgb, var(--text-primary) 55%, transparent);
+    --white-40:      color-mix(in srgb, var(--text-primary) 40%, transparent);
+    --white-28:      color-mix(in srgb, var(--text-primary) 28%, transparent);
+    --white-10:      color-mix(in srgb, var(--text-primary) 10%, transparent);
+    --white-05:      color-mix(in srgb, var(--text-primary)  6%, transparent);
+
+    /* ── Vaste waarden ── */
+    --ease:          ease;
+    --dur-fast:      0.2s;
+    --dur-mid:       0.3s;
+    --dur-slow:      0.6s;
+
+    position: relative;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    border-top: 1px solid var(--border-color);
+    overflow: hidden;
+    cursor: none;
+  }
+
+  @media (max-width: 700px) {
+    #calqix-footer-{{ section.id }} { cursor: auto; }
+  }
+
+  /* ── Canvas (zelfde systeem als banner) ── */
+  #calqix-footer-{{ section.id }} .footer-canvas {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    z-index: 0; pointer-events: none;
+  }
+
+  /* ── Water overlay gradient ── */
+  #calqix-footer-{{ section.id }} .footer-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--bg-primary) 55%, transparent) 0%, transparent 60%);
+    z-index: 1; pointer-events: none;
+  }
+
+  /* ── Custom cursor dot ── */
+  .calqix-cursor-{{ section.id }} {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: rgba(100,200,255,0.9);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    mix-blend-mode: screen;
+    opacity: 0;
+    transition: opacity var(--dur-mid) var(--ease);
+  }
+
+  /* ============================================================
+     MAIN CONTENT WRAPPER
+     ============================================================ */
+  #calqix-footer-{{ section.id }} .footer-inner {
+    position: relative; z-index: 3;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: {{ section.settings.padding_top }}px 48px {{ section.settings.padding_bottom }}px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  /* ============================================================
+     BRAND COLUMN
+     ============================================================ */
+  #calqix-footer-{{ section.id }} .footer-brand {
+    opacity: 0;
+    animation: cqFooterFadeUp var(--dur-slow) 0.1s var(--ease) forwards;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-logo-link {
+    display: inline-block;
+    text-decoration: none;
+    margin-bottom: 14px;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-logo {
+    max-width: {{ section.settings.logo_width }}px;
+    height: auto;
+    display: block;
+    {%- if section.settings.logo_invert -%}filter: brightness(0) invert(1);{%- endif -%}
+    transition: opacity var(--dur-fast) var(--ease);
+  }
+
+  #calqix-footer-{{ section.id }} .footer-logo-link:hover .footer-logo {
+    opacity: 0.75;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-logo-text {
+    display: inline-block;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+    margin-bottom: 14px;
+    transition: opacity var(--dur-fast) var(--ease);
+  }
+
+  #calqix-footer-{{ section.id }} .footer-logo-text:hover { opacity: 0.75; }
+
+  #calqix-footer-{{ section.id }} .footer-tagline {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--white-28);
+    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-tagline-line {
+    width: 24px; height: 1px;
+    background: rgba(255,255,255,0.2);
+    flex-shrink: 0;
+  }
+
+  /* ── Social Icons ── */
+  #calqix-footer-{{ section.id }} .footer-social {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 28px;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: var(--social-bg);
+    color: var(--text-muted);
+    text-decoration: none;
+    transition:
+      color var(--dur-fast) var(--ease),
+      border-color var(--dur-fast) var(--ease),
+      background var(--dur-fast) var(--ease),
+      transform var(--dur-fast) var(--ease);
+  }
+
+  #calqix-footer-{{ section.id }} .footer-social-link:hover,
+  #calqix-footer-{{ section.id }} .footer-social-link:focus-visible {
+    color: var(--text-primary);
+    border-color: color-mix(in srgb, var(--text-primary) 35%, transparent);
+    background: var(--white-10);
+    transform: translateY(-2px);
+    outline: none;
+  }
+
+  /* ============================================================
+     NAV COLUMNS — DESKTOP
+     ============================================================ */
+  #calqix-footer-{{ section.id }} .footer-nav {
+    display: flex;
+    gap: 56px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: cqFooterFadeUp var(--dur-slow) 0.22s var(--ease) forwards;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-nav-col {
+    min-width: 110px;
+  }
+
+  /* ── Column heading (desktop: plain text, mobile: button) ── */
+  #calqix-footer-{{ section.id }} .footer-nav-heading {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--white-28);
+    margin: 0 0 20px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--white-28);
+    font-family: 'DM Sans', sans-serif;
+    cursor: default;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-nav-chevron {
+    display: none; /* hidden on desktop */
+    width: 16px; height: 16px;
+    color: var(--white-28);
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-nav-list {
+    list-style: none;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-nav-link {
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.65);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    position: relative;
+    transition: color var(--dur-fast) var(--ease);
+    display: inline-block;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -2px;
+    width: 0; height: 1px;
+    background: var(--white);
+    transition: width var(--dur-mid) var(--ease);
+  }
+
+  #calqix-footer-{{ section.id }} .footer-nav-link:hover,
+  #calqix-footer-{{ section.id }} .footer-nav-link:focus-visible {
+    color: var(--white);
+    outline: none;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-nav-link:hover::after,
+  #calqix-footer-{{ section.id }} .footer-nav-link:focus-visible::after {
+    width: 100%;
+  }
+
+  /* ============================================================
+     BOTTOM BAR
+     ============================================================ */
+  #calqix-footer-{{ section.id }} .footer-bottom {
+    position: relative; z-index: 3;
+    border-top: 1px solid var(--white-10);
+    opacity: 0;
+    animation: cqFooterFadeUp var(--dur-slow) 0.34s var(--ease) forwards;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-bottom-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-legal {
+    font-size: 12px;
+    color: var(--white-28);
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-legal-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-legal-link {
+    font-size: 12px;
+    color: var(--white-28);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease);
+  }
+
+  #calqix-footer-{{ section.id }} .footer-legal-link:hover,
+  #calqix-footer-{{ section.id }} .footer-legal-link:focus-visible {
+    color: var(--white);
+    outline: none;
+  }
+
+  /* ============================================================
+     PAYMENT ICONS
+     ============================================================ */
+  #calqix-footer-{{ section.id }} {
+    --payment-icon-height: {{ section.settings.payment_icon_height }}px;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-payment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-payment-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white-28);
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+
+  #calqix-footer-{{ section.id }} .payment-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(var(--payment-icon-height) + 8px);
+    padding: 0 8px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 3px;
+    transition: background var(--dur-fast) var(--ease),
+                border-color var(--dur-fast) var(--ease);
+  }
+
+  #calqix-footer-{{ section.id }} .payment-icon:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.20);
+  }
+
+  #calqix-footer-{{ section.id }} .payment-icon svg {
+    display: block;
+    height: var(--payment-icon-height);
+    width: auto;
+  }
+
+  #calqix-footer-{{ section.id }} .payment-custom-img {
+    display: block;
+    height: var(--payment-icon-height);
+    width: auto;
+    object-fit: contain;
+  }
+
+  #calqix-footer-{{ section.id }} .footer-payment-bar {
+    border-top: 1px solid var(--white-10);
+  }
+
+  #calqix-footer-{{ section.id }} .footer-payment-bar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* ── Mobile center ── */
+  {%- if section.settings.mobile_center -%}
+  @media screen and (max-width: 900px) {
+    #calqix-footer-{{ section.id }} .footer-brand {
+      text-align: center;
+    }
+    #calqix-footer-{{ section.id }} .footer-logo-link,
+    #calqix-footer-{{ section.id }} .footer-logo-text {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #calqix-footer-{{ section.id }} .footer-tagline {
+      justify-content: center;
+    }
+    #calqix-footer-{{ section.id }} .footer-social {
+      justify-content: center;
+    }
+    #calqix-footer-{{ section.id }} .footer-nav-heading {
+      justify-content: space-between;
+    }
+    #calqix-footer-{{ section.id }} .footer-payment {
+      justify-content: center;
+    }
+    #calqix-footer-{{ section.id }} .footer-bottom-inner {
+      align-items: center;
+      text-align: center;
+    }
+    #calqix-footer-{{ section.id }} .footer-legal-links {
+      justify-content: center;
+    }
+  }
+  {%- endif -%}
+  @keyframes cqFooterFadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+
+  /* ============================================================
+     RESPONSIVE — TABLET (≤900px)
+     ============================================================ */
+  @media screen and (max-width: 900px) {
+    #calqix-footer-{{ section.id }} .footer-inner {
+      grid-template-columns: 1fr;
+      padding: 56px 32px 40px;
+      gap: 40px;
+    }
+
+    #calqix-footer-{{ section.id }} .footer-nav {
+      gap: 0;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    #calqix-footer-{{ section.id }} .footer-nav-col {
+      min-width: 0;
+      width: 100%;
+      border-bottom: 1px solid var(--white-10);
+    }
+
+    #calqix-footer-{{ section.id }} .footer-nav-col:first-child {
+      border-top: 1px solid var(--white-10);
+    }
+
+    /* Heading wordt een button op mobiel */
+    #calqix-footer-{{ section.id }} .footer-nav-heading {
+      cursor: pointer;
+      padding: 16px 0;
+      margin: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #calqix-footer-{{ section.id }} .footer-nav-chevron {
+      display: block;
+    }
+
+    /* Open state — chevron draait 180° */
+    #calqix-footer-{{ section.id }} .footer-nav-col.is-open .footer-nav-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Accordion list — geanimeerd met max-height */
+    #calqix-footer-{{ section.id }} .footer-nav-list {
+      max-height: 0;
+      overflow: hidden;
+      gap: 0;
+      /* Cubic-bezier identiek aan banner hover transitions */
+      transition:
+        max-height 0.35s ease,
+        opacity    0.25s ease,
+        padding    0.30s ease;
+      opacity: 0;
+      padding-bottom: 0;
+    }
+
+    #calqix-footer-{{ section.id }} .footer-nav-col.is-open .footer-nav-list {
+      max-height: 400px;
+      opacity: 1;
+      padding-bottom: 20px;
+    }
+
+    #calqix-footer-{{ section.id }} .footer-nav-list li {
+      padding: 0;
+      /* Items staggeren binnen accordion */
+      opacity: 0;
+      transform: translateY(8px);
+      transition:
+        opacity    0.25s ease,
+        transform  0.25s ease;
+    }
+
+    #calqix-footer-{{ section.id }} .footer-nav-col.is-open .footer-nav-list li {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Stagger delays */
+    #calqix-footer-{{ section.id }} .footer-nav-col.is-open .footer-nav-list li:nth-child(1) { transition-delay: 0.04s; }
+    #calqix-footer-{{ section.id }} .footer-nav-col.is-open .footer-nav-list li:nth-child(2) { transition-delay: 0.09s; }
+    #calqix-footer-{{ section.id }} .footer-nav-col.is-open .footer-nav-list li:nth-child(3) { transition-delay: 0.14s; }
+    #calqix-footer-{{ section.id }} .footer-nav-col.is-open .footer-nav-list li:nth-child(4) { transition-delay: 0.19s; }
+    #calqix-footer-{{ section.id }} .footer-nav-col.is-open .footer-nav-list li:nth-child(5) { transition-delay: 0.24s; }
+
+    #calqix-footer-{{ section.id }} .footer-nav-link {
+      display: block;
+      padding: 10px 0;
+      font-size: 15px;
+    }
+
+    #calqix-footer-{{ section.id }} .footer-payment-bar-inner {
+      padding: 14px 32px;
+    }
+
+    #calqix-footer-{{ section.id }} .footer-bottom-inner {
+      padding: 16px 32px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+  }
+
+  /* ============================================================
+     RESPONSIVE — MOBILE (≤480px)
+     ============================================================ */
+  @media screen and (max-width: 480px) {
+    #calqix-footer-{{ section.id }} .footer-inner {
+      padding: 48px 20px 32px;
+    }
+
+    #calqix-footer-{{ section.id }} .footer-bottom-inner,
+    #calqix-footer-{{ section.id }} .footer-payment-bar-inner {
+      padding: 14px 20px;
+    }
+
+    #calqix-footer-{{ section.id }} .footer-legal-links {
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    #calqix-footer-{{ section.id }} .footer-payment {
+      gap: 6px;
+    }
+  }
+</style>
+
+{%- comment -%} Custom cursor dot {%- endcomment -%}
+<div class="calqix-cursor-{{ section.id }}" id="cq-footer-cursor-{{ section.id }}"></div>
+
+<footer id="calqix-footer-{{ section.id }}" role="contentinfo" aria-label="Site footer">
+
+  {%- comment -%} Animated background canvas {%- endcomment -%}
+  <canvas class="footer-canvas" id="cq-footer-bg-{{ section.id }}"></canvas>
+  <div class="footer-overlay"></div>
+
+  <div class="footer-inner">
+
+    {%- comment -%} ── BRAND COLUMN ── {%- endcomment -%}
+    <div class="footer-brand">
+
+      {%- if section.settings.logo != blank -%}
+        <a href="{{ routes.root_url }}" class="footer-logo-link" aria-label="{{ shop.name }}">
+          {{- section.settings.logo | image_url: width: 320 | image_tag:
+            class: 'footer-logo',
+            alt: shop.name,
+            loading: 'lazy',
+            width: section.settings.logo_width
+          -}}
+        </a>
+      {%- else -%}
+        <a href="{{ routes.root_url }}" class="footer-logo-text" aria-label="{{ shop.name }}">
+          {{ shop.name }}
+        </a>
+      {%- endif -%}
+
+      {%- if section.settings.tagline != blank -%}
+        <p class="footer-tagline">
+          {%- if section.settings.show_tagline_line -%}
+            <span class="footer-tagline-line"></span>
+          {%- endif -%}
+          {{ section.settings.tagline }}
+        </p>
+      {%- endif -%}
+
+      <div class="footer-social" aria-label="Volg ons op social media">
+
+        {%- if section.settings.instagram_url != blank -%}
+          <a href="{{ section.settings.instagram_url }}"
+             class="footer-social-link"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="Instagram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+            </svg>
+          </a>
+        {%- endif -%}
+
+        {%- if section.settings.tiktok_url != blank -%}
+          <a href="{{ section.settings.tiktok_url }}"
+             class="footer-social-link"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="TikTok">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5
+                       2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01
+                       a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34
+                       6.34 6.34 0 006.33-6.34V9.13a8.16 8.16 0 004.77 1.52V7.21a4.85 4.85 0 01-1-.52z"/>
+            </svg>
+          </a>
+        {%- endif -%}
+
+        {%- if section.settings.facebook_url != blank -%}
+          <a href="{{ section.settings.facebook_url }}"
+             class="footer-social-link"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="Facebook">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
+            </svg>
+          </a>
+        {%- endif -%}
+
+        {%- if section.settings.youtube_url != blank -%}
+          <a href="{{ section.settings.youtube_url }}"
+             class="footer-social-link"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="YouTube">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46
+                       A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0
+                       003.41 19.6C5.12 20.06 12 20.06 12 20.06s6.88 0 8.59-.46a2.78 2.78 0
+                       001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/>
+              <polygon fill="var(--bg-primary)" points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/>
+            </svg>
+          </a>
+        {%- endif -%}
+
+        {%- if section.settings.linkedin_url != blank -%}
+          <a href="{{ section.settings.linkedin_url }}"
+             class="footer-social-link"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="LinkedIn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/>
+              <rect x="2" y="9" width="4" height="12"/>
+              <circle cx="4" cy="4" r="2"/>
+            </svg>
+          </a>
+        {%- endif -%}
+
+      </div>
+
+    </div>
+
+    {%- comment -%} ── NAV COLUMNS ── {%- endcomment -%}
+    <nav class="footer-nav" aria-label="Footer navigatie">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'nav_column' -%}
+          <div class="footer-nav-col" {{ block.shopify_attributes }}>
+
+            {%- comment -%} Heading = button op mobiel, div op desktop (JS regelt dit) {%- endcomment -%}
+            <button
+              class="footer-nav-heading"
+              aria-expanded="{{ block.settings.open_by_default }}"
+              aria-controls="footer-nav-list-{{ block.id }}"
+              type="button"
+              data-default-open="{{ block.settings.open_by_default }}"
+            >
+              {{ block.settings.heading }}
+              {%- comment -%} Chevron SVG — identiek aan banner arrow, rotated {%- endcomment -%}
+              <svg class="footer-nav-chevron" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+
+            {%- if block.settings.menu != blank -%}
+              <ul class="footer-nav-list"
+                  id="footer-nav-list-{{ block.id }}"
+                  role="list">
+                {%- for link in block.settings.menu.links -%}
+                  <li>
+                    <a href="{{ link.url }}" class="footer-nav-link">{{ link.title }}</a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </nav>
+
+  </div>
+
+  {%- comment -%} ── BOTTOM BAR ── {%- endcomment -%}
+  <div class="footer-bottom">
+    <div class="footer-bottom-inner">
+
+      {%- comment -%} Row 1: copyright + legal links {%- endcomment -%}
+      <p class="footer-legal">
+        &copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. {{ section.settings.copyright_text }}
+      </p>
+      <div class="footer-legal-links">
+        {%- if section.settings.privacy_policy != blank -%}
+          <a href="{{ section.settings.privacy_policy }}" class="footer-legal-link">
+            {{ section.settings.privacy_label | default: 'Privacy Policy' }}
+          </a>
+        {%- endif -%}
+        {%- if section.settings.terms != blank -%}
+          <a href="{{ section.settings.terms }}" class="footer-legal-link">
+            {{ section.settings.terms_label | default: 'Terms & Conditions' }}
+          </a>
+        {%- endif -%}
+        {%- if section.settings.cookie_url != blank -%}
+          <a href="{{ section.settings.cookie_url }}" class="footer-legal-link">
+            {{ section.settings.cookie_label | default: 'Cookie Policy' }}
+          </a>
+        {%- endif -%}
+      </div>
+
+    </div>
+
+    {%- comment -%} Payment icons row — alleen tonen als minimaal 1 icoon aan staat {%- endcomment -%}
+    {%- assign any_payment = false -%}
+    {%- if section.settings.show_visa or section.settings.show_mastercard or section.settings.show_amex or section.settings.show_paypal or section.settings.show_ideal or section.settings.show_apple_pay or section.settings.show_google_pay or section.settings.show_klarna or section.settings.show_bancontact -%}
+      {%- assign any_payment = true -%}
+    {%- endif -%}
+    {%- comment -%} Ook tonen als er custom iconen zijn geüpload {%- endcomment -%}
+    {%- for i in (1..6) -%}
+      {%- assign custom_key = 'payment_custom_' | append: i -%}
+      {%- if section.settings[custom_key] != blank -%}{%- assign any_payment = true -%}{%- endif -%}
+    {%- endfor -%}
+
+    {%- if any_payment -%}
+    <div class="footer-payment-bar">
+      <div class="footer-payment-bar-inner">
+        {%- if section.settings.payment_label != blank -%}
+          <span class="footer-payment-label">{{ section.settings.payment_label }}</span>
+        {%- endif -%}
+        <div class="footer-payment">
+
+          {%- comment -%} ── VISA ── {%- endcomment -%}
+          {%- if section.settings.show_visa -%}
+          <span class="payment-icon" title="Visa">
+            {%- if section.settings.payment_img_visa != blank -%}
+              {{ section.settings.payment_img_visa | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Visa', class: 'payment-custom-img' }}
+            {%- else -%}
+              <svg viewBox="0 0 50 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.8 1.2L16.5 14.8H13.1L16.4 1.2H19.8Z" fill="white"/>
+                <path d="M32.7 1.5C32 1.2 30.9 1 29.5 1C26.1 1 23.7 2.8 23.7 5.3C23.7 7.2 25.4 8.2 26.7 8.9C28 9.6 28.5 10 28.5 10.7C28.5 11.7 27.3 12.1 26.2 12.1C24.7 12.1 23.9 11.9 22.6 11.3L22.1 11.1L21.5 14.2C22.4 14.6 24 15 25.7 15C29.3 15 31.7 13.2 31.7 10.5C31.7 9 30.8 7.9 28.9 7C27.7 6.3 27 5.9 27 5.2C27 4.6 27.7 4 29.1 4C30.3 4 31.1 4.2 31.8 4.5L32.1 4.6L32.7 1.5Z" fill="white"/>
+                <path d="M37.2 1.2H34.5C33.7 1.2 33.1 1.5 32.8 2.3L27.8 14.8H31.4L32.1 12.7H36.5L36.9 14.8H40.1L37.2 1.2ZM33.1 10.1C33.3 9.5 34.5 6.2 34.5 6.2C34.5 6.2 34.8 5.4 35 4.9L35.2 6.1C35.2 6.1 36 9.5 36.2 10.1H33.1Z" fill="white"/>
+                <path d="M10.9 1.2L7.5 10.5L7.1 8.6C6.5 6.6 4.6 4.4 2.5 3.3L5.6 14.8H9.2L14.5 1.2H10.9Z" fill="white"/>
+                <path d="M4.6 1.2H-0.1L-0.2 1.5C3.5 2.4 5.9 4.5 7.1 8.6L5.9 2.3C5.7 1.5 5.2 1.2 4.6 1.2Z" fill="#F9A51A"/>
+              </svg>
+            {%- endif -%}
+          </span>
+          {%- endif -%}
+
+          {%- comment -%} ── MASTERCARD ── {%- endcomment -%}
+          {%- if section.settings.show_mastercard -%}
+          <span class="payment-icon" title="Mastercard">
+            {%- if section.settings.payment_img_mastercard != blank -%}
+              {{ section.settings.payment_img_mastercard | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Mastercard', class: 'payment-custom-img' }}
+            {%- else -%}
+              <svg viewBox="0 0 38 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="15" cy="12" r="9" fill="#EB001B"/>
+                <circle cx="23" cy="12" r="9" fill="#F79E1B"/>
+                <path d="M19 5.9A9 9 0 0123 12a9 9 0 01-4 6.1A9 9 0 0115 12a9 9 0 014-6.1z" fill="#FF5F00"/>
+              </svg>
+            {%- endif -%}
+          </span>
+          {%- endif -%}
+
+          {%- comment -%} ── AMERICAN EXPRESS ── {%- endcomment -%}
+          {%- if section.settings.show_amex -%}
+          <span class="payment-icon" title="American Express">
+            {%- if section.settings.payment_img_amex != blank -%}
+              {{ section.settings.payment_img_amex | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'American Express', class: 'payment-custom-img' }}
+            {%- else -%}
+              <svg viewBox="0 0 50 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="50" height="16" rx="2" fill="#2557D6"/>
+                <path d="M8.2 3L4 13H6.5L7.3 11H11.3L12.1 13H14.7L10.5 3H8.2ZM8 9.2L9.3 5.9L10.6 9.2H8ZM15 3V13H17.3V8L19.8 13H21.7L24.2 8V13H26.5V3H23.8L20.8 9.3L17.8 3H15Z" fill="white"/>
+                <path d="M28 3V13H36.5V11H30.3V9H36.3V7H30.3V5H36.5V3H28Z" fill="white"/>
+              </svg>
+            {%- endif -%}
+          </span>
+          {%- endif -%}
+
+          {%- comment -%} ── PAYPAL ── {%- endcomment -%}
+          {%- if section.settings.show_paypal -%}
+          <span class="payment-icon" title="PayPal">
+            {%- if section.settings.payment_img_paypal != blank -%}
+              {{ section.settings.payment_img_paypal | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'PayPal', class: 'payment-custom-img' }}
+            {%- else -%}
+              <svg viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.5 2H8.1C7.8 2 7.5 2.3 7.5 2.6L5.8 13.2C5.8 13.4 5.9 13.6 6.1 13.6H8.2C8.5 13.6 8.8 13.3 8.8 13L9.2 10.4C9.3 10.1 9.5 9.8 9.9 9.8H11.2C13.9 9.8 15.4 8.5 15.8 5.9C16 4.8 15.8 3.9 15.3 3.3C14.7 2.5 13.7 2 12.5 2ZM12.9 6C12.7 7.5 11.6 7.5 10.5 7.5H9.9L10.3 5C10.3 4.8 10.5 4.7 10.7 4.7H11C11.8 4.7 12.5 4.7 12.9 5.2C13.1 5.4 13 5.7 12.9 6Z" fill="#009CDE"/>
+                <path d="M22.5 6H20.4C20.2 6 20 6.1 20 6.3L19.9 6.9L19.7 6.6C19.1 5.8 18 5.5 16.9 5.5C14.4 5.5 12.2 7.5 11.8 10.2C11.5 11.5 11.8 12.8 12.6 13.7C13.3 14.5 14.3 14.9 15.5 14.9C17.6 14.9 18.7 13.6 18.7 13.6L18.6 14.2C18.5 14.4 18.7 14.6 18.9 14.6H20.8C21.1 14.6 21.4 14.3 21.4 14L22.9 6.4C23 6.3 22.7 6 22.5 6ZM19.3 10.3C19 11.5 18 12.4 16.7 12.4C16 12.4 15.5 12.2 15.2 11.8C14.9 11.4 14.8 10.8 14.9 10.2C15.2 9 16.2 8.1 17.5 8.1C18.2 8.1 18.7 8.3 19 8.7C19.3 9.1 19.4 9.7 19.3 10.3Z" fill="#009CDE"/>
+                <path d="M32.5 6H30.3C30.1 6 29.9 6.1 29.8 6.3L27.3 10.1L26.3 6.4C26.2 6.2 26 6 25.7 6H23.6C23.4 6 23.2 6.2 23.3 6.4L25.2 12.7L23.4 15.2C23.3 15.5 23.5 15.8 23.7 15.8H25.9C26.1 15.8 26.3 15.7 26.4 15.5L32.8 6.5C32.9 6.3 32.7 6 32.5 6Z" fill="#003087"/>
+              </svg>
+            {%- endif -%}
+          </span>
+          {%- endif -%}
+
+          {%- comment -%} ── iDEAL ── {%- endcomment -%}
+          {%- if section.settings.show_ideal -%}
+          <span class="payment-icon" title="iDEAL">
+            {%- if section.settings.payment_img_ideal != blank -%}
+              {{ section.settings.payment_img_ideal | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'iDEAL', class: 'payment-custom-img' }}
+            {%- else -%}
+              <svg viewBox="0 0 42 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="42" height="16" rx="2" fill="white" fill-opacity="0.08"/>
+                <text x="5" y="12" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="white" letter-spacing="0.5">iDEAL</text>
+              </svg>
+            {%- endif -%}
+          </span>
+          {%- endif -%}
+
+          {%- comment -%} ── APPLE PAY ── {%- endcomment -%}
+          {%- if section.settings.show_apple_pay -%}
+          <span class="payment-icon" title="Apple Pay">
+            {%- if section.settings.payment_img_apple_pay != blank -%}
+              {{ section.settings.payment_img_apple_pay | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Apple Pay', class: 'payment-custom-img' }}
+            {%- else -%}
+              <svg viewBox="0 0 50 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.8 4.7C9.2 5.4 8.2 5.9 7.3 5.8C7.2 4.9 7.6 3.9 8.2 3.3C8.8 2.6 9.9 2.1 10.7 2.1C10.8 3 10.4 4 9.8 4.7ZM10.7 6C9.4 5.9 8.3 6.7 7.6 6.7C7 6.7 6 6 5 6C3.4 6 1.9 7 1.1 8.5C-0.5 11.5 0.7 16 2.3 18.4C3 19.6 3.9 20.9 5.1 20.9C6.2 20.9 6.7 20.2 7.9 20.2C9.2 20.2 9.6 20.9 10.8 20.9C12 20.9 12.8 19.7 13.5 18.5C14.3 17.1 14.6 15.8 14.6 15.7C14.6 15.7 12.2 14.8 12.2 12.1C12.2 9.8 14.1 8.7 14.2 8.7C13 7 11.3 6 10.7 6Z" fill="white"/>
+                <path d="M21.5 3.4H19.3V12H21.5V9.2H24.1C26.5 9.2 28.2 7.6 28.2 5.3C28.2 3 26.6 3.4 21.5 3.4ZM21.5 5.2H23.7C25.2 5.2 26 5.9 26 7C26 8.1 25.2 8.8 23.7 8.8H21.5V5.2ZM32.8 12.1C34.2 12.1 35.5 11.4 36.1 10.3H36.2V12H38.2V7.3C38.2 5.6 36.8 4.5 34.7 4.5C32.7 4.5 31.3 5.6 31.2 7.1H33.1C33.3 6.5 33.9 6.1 34.7 6.1C35.7 6.1 36.3 6.6 36.3 7.5V8.1L33.9 8.2C31.7 8.4 30.5 9.3 30.5 10.8C30.5 12.2 31.6 12.1 32.8 12.1ZM33.4 10.6C32.5 10.6 32 10.1 32 9.4C32 8.7 32.5 8.3 33.7 8.2L36.2 8.1V8.7C36.2 9.8 35.3 10.6 33.4 10.6ZM40.4 16C42.3 16 43.3 15.2 44.1 12.9L47.5 4.6H45.3L43.1 11.2H43L40.8 4.6H38.6L41.8 12.9L41.6 13.5C41.3 14.4 40.8 14.7 40 14.7C39.9 14.7 39.6 14.7 39.5 14.7V16.3C39.7 16 40.2 16 40.4 16Z" fill="white"/>
+              </svg>
+            {%- endif -%}
+          </span>
+          {%- endif -%}
+
+          {%- comment -%} ── GOOGLE PAY ── {%- endcomment -%}
+          {%- if section.settings.show_google_pay -%}
+          <span class="payment-icon" title="Google Pay">
+            {%- if section.settings.payment_img_google_pay != blank -%}
+              {{ section.settings.payment_img_google_pay | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Google Pay', class: 'payment-custom-img' }}
+            {%- else -%}
+              <svg viewBox="0 0 58 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M27.4 10v3h-1.7V3h4.5c1.1 0 2 .4 2.7 1.1.7.7 1.1 1.6 1.1 2.6 0 1-.4 1.9-1.1 2.6-.7.7-1.6 1-2.7 1H27.4zm0-5.5v4h2.9c.7 0 1.2-.2 1.7-.7.4-.5.7-1 .7-1.6 0-.6-.2-1.1-.7-1.6-.4-.4-1-.7-1.7-.7h-2.9zM37 6.3c1.2 0 2.1.3 2.8 1 .7.7 1 1.6 1 2.8v5.5h-1.6v-1.2h-.1c-.7 1-1.6 1.5-2.8 1.5-1 0-1.8-.3-2.5-.9-.7-.6-1-1.3-1-2.2 0-.9.4-1.7 1.1-2.2.7-.5 1.6-.8 2.8-.8 1 0 1.8.2 2.5.6v-.4c0-.6-.2-1.1-.7-1.5-.4-.4-1-.6-1.6-.6-.9 0-1.6.4-2.1 1.1L33 8.4c.8-1.4 2-2.1 4-2.1zm-2.5 7c0 .4.2.8.6 1.1.4.3.8.4 1.3.4.7 0 1.4-.3 1.9-.8.5-.5.8-1.1.8-1.8-.5-.4-1.2-.6-2.1-.6-.7 0-1.2.2-1.7.5-.5.3-.8.7-.8 1.2zM50.5 6.6L46.3 17h-1.7l1.5-3.3-2.7-7.1H45l2 5.4h0l1.9-5.4h1.6z" fill="white"/>
+                <path d="M22 9.8c0-.4 0-.8-.1-1.2H14v2.2h4.5c-.2 1-1.5 3-4.5 3-2.7 0-4.9-2.2-4.9-5s2.2-5 4.9-5c1.5 0 2.5.7 3.1 1.2L18.6 4C17.5 3 16 2.3 14 2.3 9.9 2.3 6.6 5.6 6.6 9.8s3.3 7.5 7.4 7.5c4.3 0 7.1-3 7.1-7.2l-.1-.3z" fill="white"/>
+              </svg>
+            {%- endif -%}
+          </span>
+          {%- endif -%}
+
+          {%- comment -%} ── KLARNA ── {%- endcomment -%}
+          {%- if section.settings.show_klarna -%}
+          <span class="payment-icon" title="Klarna">
+            {%- if section.settings.payment_img_klarna != blank -%}
+              {{ section.settings.payment_img_klarna | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Klarna', class: 'payment-custom-img' }}
+            {%- else -%}
+              <svg viewBox="0 0 50 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="50" height="16" rx="2" fill="#FFB3C7" fill-opacity="0.9"/>
+                <text x="7" y="12" font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#17120E" letter-spacing="0.3">klarna</text>
+              </svg>
+            {%- endif -%}
+          </span>
+          {%- endif -%}
+
+          {%- comment -%} ── BANCONTACT ── {%- endcomment -%}
+          {%- if section.settings.show_bancontact -%}
+          <span class="payment-icon" title="Bancontact">
+            {%- if section.settings.payment_img_bancontact != blank -%}
+              {{ section.settings.payment_img_bancontact | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Bancontact', class: 'payment-custom-img' }}
+            {%- else -%}
+              <svg viewBox="0 0 50 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="50" height="16" rx="2" fill="#005498"/>
+                <rect x="0" y="8" width="50" height="8" rx="0" fill="#FFD700"/>
+                <text x="6" y="12" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#005498" letter-spacing="0.2">BANCONTACT</text>
+              </svg>
+            {%- endif -%}
+          </span>
+          {%- endif -%}
+
+          {%- comment -%} ── CUSTOM ICONEN (1–6) ── {%- endcomment -%}
+          {%- for i in (1..6) -%}
+            {%- assign custom_img_key   = 'payment_custom_' | append: i -%}
+            {%- assign custom_label_key = 'payment_custom_label_' | append: i -%}
+            {%- assign custom_img   = section.settings[custom_img_key] -%}
+            {%- assign custom_label = section.settings[custom_label_key] | default: 'Payment' -%}
+            {%- if custom_img != blank -%}
+            <span class="payment-icon" title="{{ custom_label }}">
+              {{ custom_img | image_url: height: 96 | image_tag: loading: 'lazy', alt: custom_label, class: 'payment-custom-img' }}
+            </span>
+            {%- endif -%}
+          {%- endfor -%}
+
+        </div>
+      </div>
+    </div>
+    {%- endif -%}
+
+  </div>
+
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  const SID    = '{{ section.id }}';
+  const footer = document.getElementById('calqix-footer-' + SID);
+  if (!footer) return;
+
+  const SHOW_CANVAS = {{ section.settings.show_canvas }};
+  const SHOW_CURSOR = {{ section.settings.show_cursor }};
+
+  /* ============================================================
+     1. ACCORDION — mobiele opvouwbare menu's
+     ============================================================ */
+  const MOBILE_BP = {{ section.settings.mobile_breakpoint }};
+
+  function isMobile() { return window.innerWidth <= MOBILE_BP; }
+
+  const headings = footer.querySelectorAll('.footer-nav-heading');
+
+  /* Apply open_by_default on load */
+  headings.forEach(function (btn) {
+    if (btn.dataset.defaultOpen === 'true' && isMobile()) {
+      const col = btn.closest('.footer-nav-col');
+      col.classList.add('is-open');
+    }
+  });
+
+  headings.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (!isMobile()) return;
+
+      const col      = btn.closest('.footer-nav-col');
+      const isOpen   = col.classList.contains('is-open');
+      const allCols  = footer.querySelectorAll('.footer-nav-col');
+
+      allCols.forEach(function (c) {
+        if (c !== col) {
+          c.classList.remove('is-open');
+          c.querySelector('.footer-nav-heading').setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      col.classList.toggle('is-open', !isOpen);
+      btn.setAttribute('aria-expanded', String(!isOpen));
+    });
+  });
+
+  function syncDesktopAria() {
+    headings.forEach(function (btn) {
+      if (!isMobile()) btn.setAttribute('aria-expanded', 'true');
+    });
+  }
+
+  window.addEventListener('resize', syncDesktopAria);
+  syncDesktopAria();
+
+  /* ============================================================
+     2. CANVAS — identiek aan FlowCore Banner
+        hex grid + particles + ripples + mouse tracking
+     ============================================================ */
+  const bgCanvas = document.getElementById('cq-footer-bg-' + SID);
+  const cursor   = document.getElementById('cq-footer-cursor-' + SID);
+
+  /* Hide canvas/cursor if disabled in schema */
+  if (!SHOW_CANVAS && bgCanvas) { bgCanvas.style.display = 'none'; }
+  if (!SHOW_CURSOR && cursor)   { cursor.style.display   = 'none'; }
+  if (!SHOW_CANVAS || !bgCanvas) return;
+
+  /* Schema-driven colors */
+  const BG_COLOR      = '{{ section.settings.color_bg_primary }}';
+  const ACCENT_COLOR  = '{{ section.settings.color_accent }}';
+  const HEX_R         = parseInt(ACCENT_COLOR.slice(1,3)||'50', 16);
+  const HEX_G         = parseInt(ACCENT_COLOR.slice(3,5)||'B4', 16);
+  const HEX_B         = parseInt(ACCENT_COLOR.slice(5,7)||'FF', 16);
+
+  const ctx = bgCanvas.getContext('2d');
+  let W, H;
+  const mouse = { x: -999, y: -999 };
+
+  function resize() {
+    W = bgCanvas.width  = footer.offsetWidth;
+    H = bgCanvas.height = footer.offsetHeight;
+  }
+  resize();
+
+  const ro = new ResizeObserver(resize);
+  ro.observe(footer);
+
+  /* Mouse tracking + custom cursor */
+  footer.addEventListener('mousemove', function (e) {
+    const r  = footer.getBoundingClientRect();
+    mouse.x  = e.clientX - r.left;
+    mouse.y  = e.clientY - r.top;
+    if (cursor && SHOW_CURSOR) {
+      cursor.style.left    = e.clientX + 'px';
+      cursor.style.top     = e.clientY + 'px';
+      cursor.style.opacity = '1';
+    }
+  });
+
+  footer.addEventListener('mouseleave', function () {
+    mouse.x = mouse.y = -999;
+    if (cursor) cursor.style.opacity = '0';
+  });
+
+  /* Ripples */
+  const ripples = [];
+
+  setInterval(function () {
+    ripples.push({
+      x:     W * 0.5 + (Math.random() - 0.5) * W * 0.6,
+      y:     H * 0.6 + (Math.random() - 0.5) * H * 0.4,
+      r:     0,
+      alpha: 0.14,
+      speed: 1.2
+    });
+  }, 2800);
+
+  footer.addEventListener('click', function (e) {
+    const r = footer.getBoundingClientRect();
+    ripples.push({
+      x:     e.clientX - r.left,
+      y:     e.clientY - r.top,
+      r:     0,
+      alpha: 0.28,
+      speed: 2.2
+    });
+  });
+
+  /* Particles */
+  const particles = Array.from({ length: 40 }, function () {
+    return {
+      x:     Math.random() * 1400,
+      y:     Math.random() * 600,
+      r:     Math.random() * 1.6 + 0.4,
+      vx:    (Math.random() - 0.5) * 0.28,
+      vy:    (Math.random() - 0.5) * 0.28,
+      alpha: Math.random() * 0.3 + 0.06,
+      pulse: Math.random() * Math.PI * 2,
+      blue:  Math.random() > 0.55
+    };
+  });
+
+  /* Hex grid */
+  const S  = 34;
+  const HH = S * Math.sqrt(3);
+
+  function hexCorner(cx, cy, i) {
+    const a = Math.PI / 180 * (60 * i - 30);
+    return [cx + S * Math.cos(a), cy + S * Math.sin(a)];
+  }
+
+  function drawHex(cx, cy, alpha) {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const [x, y] = hexCorner(cx, cy, i);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(' + HEX_R + ',' + HEX_G + ',' + HEX_B + ',' + alpha + ')';
+    ctx.lineWidth   = 0.5;
+    ctx.stroke();
+  }
+
+  let t = 0;
+
+  (function draw() {
+    requestAnimationFrame(draw);
+    t += 0.01;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = BG_COLOR;
+    ctx.fillRect(0, 0, W, H);
+
+    /* Hex grid */
+    const cols = Math.ceil(W / (S * 1.73)) + 2;
+    const rows = Math.ceil(H / HH) + 2;
+
+    for (let row = -1; row < rows; row++) {
+      for (let col = -1; col < cols; col++) {
+        const cx = col * S * 1.732 + (row % 2) * S * 0.866;
+        const cy = row * HH * 0.75;
+        const dx = cx - mouse.x;
+        const dy = cy - mouse.y;
+        const d  = Math.sqrt(dx * dx + dy * dy);
+        const baseAlpha = d < 110 ? 0.04 + (1 - d / 110) * 0.11 : 0.016;
+        drawHex(
+          cx + Math.sin(t + row * 0.3) * 0.5,
+          cy + Math.cos(t + col * 0.3) * 0.5,
+          baseAlpha
+        );
+      }
+    }
+
+    /* Ripples */
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const rp = ripples[i];
+      rp.r    += rp.speed;
+      rp.alpha *= 0.975;
+
+      ctx.beginPath();
+      ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(' + HEX_R + ',' + HEX_G + ',' + HEX_B + ',' + rp.alpha + ')';
+      ctx.lineWidth   = 1.2;
+      ctx.stroke();
+
+      if (rp.r > 20) {
+        ctx.beginPath();
+        ctx.arc(rp.x, rp.y, rp.r * 0.6, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(' + HEX_R + ',' + HEX_G + ',' + HEX_B + ',' + rp.alpha * 0.35 + ')';
+        ctx.lineWidth   = 0.6;
+        ctx.stroke();
+      }
+
+      if (rp.r > 180 || rp.alpha < 0.004) ripples.splice(i, 1);
+    }
+
+    /* Particles */
+    particles.forEach(function (p) {
+      p.x    += p.vx;
+      p.y    += p.vy;
+      p.pulse += 0.022;
+
+      if (p.x < -10) p.x = W + 10;
+      if (p.x > W + 10) p.x = -10;
+      if (p.y < -10) p.y = H + 10;
+      if (p.y > H + 10) p.y = -10;
+
+      /* Mouse repulsion */
+      const dx = p.x - mouse.x;
+      const dy = p.y - mouse.y;
+      const d  = Math.sqrt(dx * dx + dy * dy);
+      if (d < 85 && d > 0) {
+        p.x += (dx / d) * 0.9;
+        p.y += (dy / d) * 0.9;
+      }
+
+      const a = p.alpha * (0.7 + 0.3 * Math.sin(p.pulse));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.blue
+        ? 'rgba(' + HEX_R + ',' + HEX_G + ',' + HEX_B + ',' + a + ')'
+        : 'rgba(255,255,255,' + (a * 0.7) + ')';
+      ctx.fill();
+
+      /* Particle connections */
+      particles.forEach(function (q) {
+        if (q === p) return;
+        const ex = p.x - q.x;
+        const ey = p.y - q.y;
+        const ed = Math.sqrt(ex * ex + ey * ey);
+        if (ed < 75) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = 'rgba(' + HEX_R + ',' + HEX_G + ',' + HEX_B + ',' + 0.05 * (1 - ed / 75) + ')';
+          ctx.lineWidth   = 0.4;
+          ctx.stroke();
+        }
+      });
+    });
+  })();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "CALQIX Footer",
+  "tag": "section",
+  "class": "calqix-footer-section",
+  "settings": [
+
+    {
+      "type": "header",
+      "content": "🎨 Kleuren"
+    },
+    {
+      "type": "color",
+      "id": "color_bg_primary",
+      "label": "Achtergrond (donker)",
+      "default": "#0d1c2b",
+      "info": "Hoofdkleur van de footer. Standaard: CALQIX deep navy."
+    },
+    {
+      "type": "color",
+      "id": "color_bg_secondary",
+      "label": "Achtergrond (secondary)",
+      "default": "#1A3B5C",
+      "info": "Kan gebruikt worden voor accenten of hover states."
+    },
+    {
+      "type": "color",
+      "id": "color_text_primary",
+      "label": "Tekstkleur (primair)",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "color_text_muted",
+      "label": "Tekstkleur (gedempt)",
+      "default": "#6B8FA8",
+      "info": "Voor tagline, nav-headings en copyright tekst."
+    },
+    {
+      "type": "color",
+      "id": "color_accent",
+      "label": "Accentkleur (canvas & animaties)",
+      "default": "#50B4FF",
+      "info": "Kleur van het hex grid, ripples en particles. Standaard: CALQIX lichtblauw."
+    },
+    {
+      "type": "color",
+      "id": "color_border",
+      "label": "Borderkleur",
+      "default": "#1E3A52",
+      "info": "Scheidingslijnen tussen secties en social icon borders."
+    },
+    {
+      "type": "color",
+      "id": "color_social_bg",
+      "label": "Social icon achtergrond",
+      "default": "#0F2336"
+    },
+
+    {
+      "type": "header",
+      "content": "🏷️ Merk"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo",
+      "info": "Upload je logo. Het wordt automatisch wit gemaakt via CSS filter. Aanbevolen: PNG transparant, min. 280px breed."
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 60,
+      "max": 220,
+      "step": 10,
+      "unit": "px",
+      "label": "Logo breedte",
+      "default": 140
+    },
+    {
+      "type": "checkbox",
+      "id": "logo_invert",
+      "label": "Logo wit maken (filter)",
+      "default": true,
+      "info": "Zet uit als je logo al wit is of een lichte kleur heeft."
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "default": "Rebuild your enamel.",
+      "info": "Verschijnt onder het logo, klein en gediscreet."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tagline_line",
+      "label": "Decoratief streepje voor tagline tonen",
+      "default": true
+    },
+
+    {
+      "type": "header",
+      "content": "📱 Social Media"
+    },
+    {
+      "type": "paragraph",
+      "content": "Laat een veld leeg om dat icoon te verbergen."
+    },
+    {
+      "type": "url",
+      "id": "instagram_url",
+      "label": "Instagram URL"
+    },
+    {
+      "type": "url",
+      "id": "tiktok_url",
+      "label": "TikTok URL"
+    },
+    {
+      "type": "url",
+      "id": "facebook_url",
+      "label": "Facebook URL"
+    },
+    {
+      "type": "url",
+      "id": "youtube_url",
+      "label": "YouTube URL"
+    },
+    {
+      "type": "url",
+      "id": "linkedin_url",
+      "label": "LinkedIn URL"
+    },
+
+    {
+      "type": "header",
+      "content": "⚖️ Legal"
+    },
+    {
+      "type": "text",
+      "id": "copyright_text",
+      "label": "Copyright tekst",
+      "default": "All rights reserved.",
+      "info": "© [jaar] [shopnaam] wordt automatisch toegevoegd."
+    },
+    {
+      "type": "url",
+      "id": "privacy_policy",
+      "label": "Privacy Policy URL",
+      "info": "Bijv. /policies/privacy-policy"
+    },
+    {
+      "type": "text",
+      "id": "privacy_label",
+      "label": "Privacy Policy linktekst",
+      "default": "Privacy Policy"
+    },
+    {
+      "type": "url",
+      "id": "terms",
+      "label": "Terms & Conditions URL",
+      "info": "Bijv. /policies/terms-of-service"
+    },
+    {
+      "type": "text",
+      "id": "terms_label",
+      "label": "Terms linktekst",
+      "default": "Terms & Conditions"
+    },
+    {
+      "type": "url",
+      "id": "cookie_url",
+      "label": "Cookie Policy URL (optioneel)"
+    },
+    {
+      "type": "text",
+      "id": "cookie_label",
+      "label": "Cookie Policy linktekst",
+      "default": "Cookie Policy"
+    },
+
+    {
+      "type": "header",
+      "content": "💳 Betaalmethoden"
+    },
+    {
+      "type": "paragraph",
+      "content": "Zet een betaalmethode aan en upload optioneel je eigen icoon. Laat de upload leeg om het ingebouwde icoon te gebruiken."
+    },
+    {
+      "type": "range",
+      "id": "payment_icon_height",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Icoon hoogte",
+      "default": 24,
+      "info": "Geldt voor alle betaalichonen — zowel ingebouwd als geüpload."
+    },
+    {
+      "type": "text",
+      "id": "payment_label",
+      "label": "Label voor betaalmethoden",
+      "default": "We accept",
+      "info": "Laat leeg om geen label te tonen."
+    },
+    {
+      "type": "header",
+      "content": "Visa"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_visa",
+      "label": "Visa tonen",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_img_visa",
+      "label": "Eigen icoon (optioneel)",
+      "info": "Vervangt het ingebouwde Visa icoon. PNG transparant aanbevolen."
+    },
+    {
+      "type": "header",
+      "content": "Mastercard"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_mastercard",
+      "label": "Mastercard tonen",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_img_mastercard",
+      "label": "Eigen icoon (optioneel)"
+    },
+    {
+      "type": "header",
+      "content": "American Express"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_amex",
+      "label": "American Express tonen",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_img_amex",
+      "label": "Eigen icoon (optioneel)"
+    },
+    {
+      "type": "header",
+      "content": "PayPal"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_paypal",
+      "label": "PayPal tonen",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_img_paypal",
+      "label": "Eigen icoon (optioneel)"
+    },
+    {
+      "type": "header",
+      "content": "iDEAL"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_ideal",
+      "label": "iDEAL tonen",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_img_ideal",
+      "label": "Eigen icoon (optioneel)"
+    },
+    {
+      "type": "header",
+      "content": "Apple Pay"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_apple_pay",
+      "label": "Apple Pay tonen",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_img_apple_pay",
+      "label": "Eigen icoon (optioneel)"
+    },
+    {
+      "type": "header",
+      "content": "Google Pay"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_google_pay",
+      "label": "Google Pay tonen",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_img_google_pay",
+      "label": "Eigen icoon (optioneel)"
+    },
+    {
+      "type": "header",
+      "content": "Klarna"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_klarna",
+      "label": "Klarna tonen",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_img_klarna",
+      "label": "Eigen icoon (optioneel)"
+    },
+    {
+      "type": "header",
+      "content": "Bancontact"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bancontact",
+      "label": "Bancontact tonen",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_img_bancontact",
+      "label": "Eigen icoon (optioneel)"
+    },
+    {
+      "type": "header",
+      "content": "Extra betaalmethode 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_custom_1",
+      "label": "Icoon uploaden"
+    },
+    {
+      "type": "text",
+      "id": "payment_custom_label_1",
+      "label": "Naam",
+      "default": "Payment method"
+    },
+    {
+      "type": "header",
+      "content": "Extra betaalmethode 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_custom_2",
+      "label": "Icoon uploaden"
+    },
+    {
+      "type": "text",
+      "id": "payment_custom_label_2",
+      "label": "Naam",
+      "default": "Payment method"
+    },
+    {
+      "type": "header",
+      "content": "Extra betaalmethode 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_custom_3",
+      "label": "Icoon uploaden"
+    },
+    {
+      "type": "text",
+      "id": "payment_custom_label_3",
+      "label": "Naam",
+      "default": "Payment method"
+    },
+    {
+      "type": "header",
+      "content": "Extra betaalmethode 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_custom_4",
+      "label": "Icoon uploaden"
+    },
+    {
+      "type": "text",
+      "id": "payment_custom_label_4",
+      "label": "Naam",
+      "default": "Payment method"
+    },
+    {
+      "type": "header",
+      "content": "Extra betaalmethode 5"
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_custom_5",
+      "label": "Icoon uploaden"
+    },
+    {
+      "type": "text",
+      "id": "payment_custom_label_5",
+      "label": "Naam",
+      "default": "Payment method"
+    },
+    {
+      "type": "header",
+      "content": "Extra betaalmethode 6"
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_custom_6",
+      "label": "Icoon uploaden"
+    },
+    {
+      "type": "text",
+      "id": "payment_custom_label_6",
+      "label": "Naam",
+      "default": "Payment method"
+    },
+
+    {
+      "type": "header",
+      "content": "📱 Mobiele weergave"
+    },
+    {
+      "type": "checkbox",
+      "id": "mobile_center",
+      "label": "Alles centreren op mobiel",
+      "default": true,
+      "info": "Centreert logo, tagline, social icons, betaalmethoden en legal links op schermen smaller dan 900px."
+    },
+
+    {
+      "type": "header",
+      "content": "✨ Canvas achtergrond"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_canvas",
+      "label": "Animated hex canvas tonen",
+      "default": true,
+      "info": "Het animerende hex grid + particles effect. Zet uit voor een statische achtergrond."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cursor",
+      "label": "Custom cursor dot tonen",
+      "default": true,
+      "info": "Kleine blauwe dot die de cursor volgt. Alleen desktop."
+    },
+
+    {
+      "type": "header",
+      "content": "📐 Layout"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 32,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "label": "Ruimte boven (desktop)",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 24,
+      "max": 104,
+      "step": 8,
+      "unit": "px",
+      "label": "Ruimte onder (desktop)",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "mobile_breakpoint",
+      "min": 600,
+      "max": 1100,
+      "step": 50,
+      "unit": "px",
+      "label": "Accordion activatie breedte",
+      "default": 900,
+      "info": "Onder deze breedte worden nav-kolommen opvouwbaar."
+    }
+
+  ],
+  "blocks": [
+    {
+      "type": "nav_column",
+      "name": "Navigatiekolom",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Kolomtitel",
+          "default": "Company",
+          "info": "Verschijnt als kolomkop op desktop, als accordion-knop op mobiel."
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu",
+          "info": "Kies een bestaand menu uit je Shopify navigatie."
+        },
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "label": "Standaard open op mobiel",
+          "default": false,
+          "info": "Deze kolom is uitgeklapt als de pagina laadt op mobiel."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "presets": [
+    {
+      "name": "CALQIX Footer",
+      "blocks": [
+        {
+          "type": "nav_column",
+          "settings": {
+            "heading": "Shop",
+            "open_by_default": true
+          }
+        },
+        {
+          "type": "nav_column",
+          "settings": {
+            "heading": "Company"
+          }
+        },
+        {
+          "type": "nav_column",
+          "settings": {
+            "heading": "Support"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

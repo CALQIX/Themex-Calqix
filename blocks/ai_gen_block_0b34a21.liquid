@@ -1,0 +1,765 @@
+{% doc %}
+  @prompt
+    Create a premium Shopify footer section for CALQIX, a Dutch nano-hydroxyapatite oral care brand. The footer must feel clinical, scientific, and minimal — think pharmaceutical brand meets premium DTC.
+    Visual identity: Navy #1A3B5C primary, Clinical White #FFFFFF, subtle borders #D6E4F0. Typography: DM Serif Display for headings, DM Sans for body. No gradients, no color noise — precision over decoration.
+    Scientific atmosphere: Add a very subtle animated hexagonal molecular grid pattern as background (low opacity, ~3%). Include a faint pulsing dot next to "Founded in the Netherlands" to suggest an active, living brand. The Ca₁₀(PO₄)₆(OH)₂ hydroxyapatite formula should appear somewhere as a small decorative text element in muted opacity — like a watermark of scientific credibility.
+    Four columns:
+    
+    CALQIX — Logo area + tagline "Rebuild your enamel." + 1-line brand description + social icons (Instagram, TikTok)
+    Products — Nano-HA Tablets, FlowCore Oral Irrigator, Dental Flossers
+    Info — Shipping Policy, Return Policy, Privacy Policy, Terms & Conditions, Contact
+    Science — static text block: "Our formulations are built on peer-reviewed research. Nano-hydroxyapatite is biocompatible, fluoride-free, and structurally identical to human enamel."
+    
+    Mobile: Columns 2 and 3 collapse into accordion/toggle sections with a minimal + / − indicator. Column 1 and 4 remain visible. Smooth CSS transition on expand.
+    Bottom bar: Thin top border. Left: © 2026 Kesekesa Holding B.V. — CALQIX is a registered trade name. Right: payment icons (iDEAL, Visa, Mastercard, PayPal, Klarna). Center: "EU Cosmetics Compliant · Fluoride-Free · Vegan"
+    No excessive shadows, no gradients, no rounded pill buttons. Clean edges. Clinical spacing. Every detail should feel considered.
+    Make sure that I can add the menu's and keep the theme's payment icons, an0jownpiwujqtxf0zaigenblock06f15d0nm4dvy
+    Ik zie al deze coderingen achtige dingetjes achter de payment icon staan verwijder dezen aub, Laat me de brandname ook kunnen vervangen voor een afbeelding/logo, Voeg nog zoals de thema heeft de taal en currency selectors. Voeg ook op de beste plek de social media iconen met de respectievelijke links, De localization is niet zichtbaar?, Ik wil geen border om de social media icons en de localization settings
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .calqix-footer-{{ ai_gen_id }} {
+    display: block;
+    position: relative;
+    background-color: {{ block.settings.background_color }};
+    color: {{ block.settings.text_color }};
+    padding: 60px 0 0;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .calqix-footer-{{ ai_gen_id }}::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      repeating-linear-gradient(0deg, {{ block.settings.grid_color }} 0 1px, transparent 1px 100%),
+      repeating-linear-gradient(90deg, {{ block.settings.grid_color }} 0 1px, transparent 1px 100%),
+      repeating-linear-gradient(60deg, {{ block.settings.grid_color }} 0 1px, transparent 1px 100%),
+      repeating-linear-gradient(120deg, {{ block.settings.grid_color }} 0 1px, transparent 1px 100%);
+    background-size: 40px 40px, 40px 40px, 40px 69.28px, 40px 69.28px;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .calqix-footer-container-{{ ai_gen_id }} {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .calqix-footer-main-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    padding-bottom: 50px;
+    border-bottom: 1px solid {{ block.settings.border_color }};
+  }
+
+  .calqix-footer-column-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .calqix-footer-logo-image-{{ ai_gen_id }} {
+    max-width: {{ block.settings.logo_width }}px;
+    height: auto;
+    margin: 0 0 12px 0;
+  }
+
+  .calqix-footer-logo-{{ ai_gen_id }} {
+    font-family: {{ block.settings.heading_font.family }}, {{ block.settings.heading_font.fallback_families }};
+    font-weight: {{ block.settings.heading_font.weight }};
+    font-size: 28px;
+    margin: 0 0 12px 0;
+    color: {{ block.settings.text_color }};
+    letter-spacing: -0.5px;
+  }
+
+  .calqix-footer-tagline-{{ ai_gen_id }} {
+    font-family: {{ block.settings.heading_font.family }}, {{ block.settings.heading_font.fallback_families }};
+    font-weight: {{ block.settings.heading_font.weight }};
+    font-size: 16px;
+    margin: 0 0 8px 0;
+    color: {{ block.settings.text_color }};
+    font-style: italic;
+  }
+
+  .calqix-footer-description-{{ ai_gen_id }} {
+    font-family: {{ block.settings.body_font.family }}, {{ block.settings.body_font.fallback_families }};
+    font-weight: {{ block.settings.body_font.weight }};
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 20px 0;
+    color: {{ block.settings.text_color }};
+    opacity: 0.85;
+  }
+
+  .calqix-footer-founded-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: {{ block.settings.body_font.family }}, {{ block.settings.body_font.fallback_families }};
+    font-weight: {{ block.settings.body_font.weight }};
+    font-size: 13px;
+    margin: 0 0 20px 0;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+  }
+
+  .calqix-footer-pulse-{{ ai_gen_id }} {
+    width: 6px;
+    height: 6px;
+    background-color: {{ block.settings.pulse_color }};
+    border-radius: 50%;
+    animation: calqix-pulse-{{ ai_gen_id }} 2s ease-in-out infinite;
+  }
+
+  @keyframes calqix-pulse-{{ ai_gen_id }} {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.4;
+      transform: scale(0.8);
+    }
+  }
+
+  .calqix-footer-social-{{ ai_gen_id }} {
+    display: flex;
+    gap: 16px;
+  }
+
+  .calqix-footer-social-link-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    color: {{ block.settings.text_color }};
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .calqix-footer-social-link-{{ ai_gen_id }}:hover {
+    opacity: 0.7;
+  }
+
+  .calqix-footer-social-link-{{ ai_gen_id }} svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .calqix-footer-heading-{{ ai_gen_id }} {
+    font-family: {{ block.settings.heading_font.family }}, {{ block.settings.heading_font.fallback_families }};
+    font-weight: {{ block.settings.heading_font.weight }};
+    font-size: 14px;
+    margin: 0 0 20px 0;
+    color: {{ block.settings.text_color }};
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .calqix-footer-menu-{{ ai_gen_id }} {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .calqix-footer-menu-item-{{ ai_gen_id }} {
+    margin-bottom: 12px;
+  }
+
+  .calqix-footer-menu-link-{{ ai_gen_id }} {
+    font-family: {{ block.settings.body_font.family }}, {{ block.settings.body_font.fallback_families }};
+    font-weight: {{ block.settings.body_font.weight }};
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+    display: inline-block;
+  }
+
+  .calqix-footer-menu-link-{{ ai_gen_id }}:hover {
+    opacity: 1;
+  }
+
+  .calqix-footer-science-{{ ai_gen_id }} {
+    font-family: {{ block.settings.body_font.family }}, {{ block.settings.body_font.fallback_families }};
+    font-weight: {{ block.settings.body_font.weight }};
+    font-size: 13px;
+    line-height: 1.7;
+    color: {{ block.settings.text_color }};
+    opacity: 0.85;
+    position: relative;
+  }
+
+  .calqix-footer-formula-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: -10px;
+    right: 0;
+    font-family: {{ block.settings.body_font.family }}, {{ block.settings.body_font.fallback_families }};
+    font-weight: {{ block.settings.body_font.weight }};
+    font-size: 11px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.15;
+    letter-spacing: 0.5px;
+  }
+
+  .calqix-footer-localization-{{ ai_gen_id }} {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .calqix-footer-localization-form-{{ ai_gen_id }} {
+    position: relative;
+  }
+
+  .calqix-footer-localization-select-{{ ai_gen_id }} {
+    appearance: none;
+    background-color: transparent;
+    border: none;
+    color: {{ block.settings.text_color }};
+    padding: 8px 28px 8px 0;
+    font-family: {{ block.settings.body_font.family }}, {{ block.settings.body_font.fallback_families }};
+    font-weight: {{ block.settings.body_font.weight }};
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+  }
+
+  .calqix-footer-localization-select-{{ ai_gen_id }}:hover {
+    opacity: 1;
+  }
+
+  .calqix-footer-localization-icon-{{ ai_gen_id }} {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+  }
+
+  .calqix-footer-localization-icon-{{ ai_gen_id }} svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .calqix-footer-bottom-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    gap: 20px;
+  }
+
+  .calqix-footer-copyright-{{ ai_gen_id }} {
+    font-family: {{ block.settings.body_font.family }}, {{ block.settings.body_font.fallback_families }};
+    font-weight: {{ block.settings.body_font.weight }};
+    font-size: 12px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+  }
+
+  .calqix-footer-compliance-{{ ai_gen_id }} {
+    font-family: {{ block.settings.body_font.family }}, {{ block.settings.body_font.fallback_families }};
+    font-weight: {{ block.settings.body_font.weight }};
+    font-size: 12px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+    text-align: center;
+  }
+
+  .calqix-footer-payment-{{ ai_gen_id }} {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .calqix-footer-payment-{{ ai_gen_id }} svg {
+    height: 24px;
+    width: auto;
+    opacity: 0.8;
+  }
+
+  .calqix-footer-accordion-toggle-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  @media screen and (max-width: 989px) {
+    .calqix-footer-main-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .calqix-footer-column-{{ ai_gen_id }}:nth-child(2),
+    .calqix-footer-column-{{ ai_gen_id }}:nth-child(3) {
+      border-bottom: 1px solid {{ block.settings.border_color }};
+    }
+
+    .calqix-footer-accordion-toggle-{{ ai_gen_id }} {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 20px 0;
+      cursor: pointer;
+      color: {{ block.settings.text_color }};
+    }
+
+    .calqix-footer-accordion-toggle-{{ ai_gen_id }} .calqix-footer-heading-{{ ai_gen_id }} {
+      margin: 0;
+    }
+
+    .calqix-footer-accordion-icon-{{ ai_gen_id }} {
+      font-size: 20px;
+      transition: transform 0.3s ease;
+      font-weight: 300;
+    }
+
+    .calqix-footer-accordion-content-{{ ai_gen_id }} {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .calqix-footer-accordion-content-{{ ai_gen_id }}.active {
+      max-height: 500px;
+      padding-bottom: 20px;
+    }
+
+    .calqix-footer-accordion-toggle-{{ ai_gen_id }}.active .calqix-footer-accordion-icon-{{ ai_gen_id }} {
+      transform: rotate(45deg);
+    }
+
+    .calqix-footer-column-{{ ai_gen_id }}:nth-child(1),
+    .calqix-footer-column-{{ ai_gen_id }}:nth-child(4) {
+      padding: 20px 0;
+    }
+
+    .calqix-footer-bottom-{{ ai_gen_id }} {
+      flex-direction: column;
+      text-align: center;
+      gap: 15px;
+    }
+
+    .calqix-footer-payment-{{ ai_gen_id }} {
+      justify-content: center;
+    }
+
+    .calqix-footer-localization-{{ ai_gen_id }} {
+      justify-content: center;
+    }
+  }
+{% endstyle %}
+
+<calqix-footer-{{ ai_gen_id }} class="calqix-footer-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="calqix-footer-container-{{ ai_gen_id }}">
+    <div class="calqix-footer-main-{{ ai_gen_id }}">
+      <div class="calqix-footer-column-{{ ai_gen_id }}">
+        {% if block.settings.logo_image != blank %}
+          <img 
+            src="{{ block.settings.logo_image | image_url: width: 400 }}" 
+            alt="{{ block.settings.brand_name }}"
+            class="calqix-footer-logo-image-{{ ai_gen_id }}"
+            width="{{ block.settings.logo_image.width }}"
+            height="{{ block.settings.logo_image.height }}"
+            loading="lazy"
+          >
+        {% else %}
+          <h2 class="calqix-footer-logo-{{ ai_gen_id }}">{{ block.settings.brand_name }}</h2>
+        {% endif %}
+        <p class="calqix-footer-tagline-{{ ai_gen_id }}">{{ block.settings.tagline }}</p>
+        <p class="calqix-footer-description-{{ ai_gen_id }}">{{ block.settings.description }}</p>
+        <div class="calqix-footer-founded-{{ ai_gen_id }}">
+          <span class="calqix-footer-pulse-{{ ai_gen_id }}"></span>
+          <span>{{ block.settings.founded_text }}</span>
+        </div>
+        <div class="calqix-footer-social-{{ ai_gen_id }}">
+          {% if block.settings.instagram_url != blank %}
+            <a href="{{ block.settings.instagram_url }}" class="calqix-footer-social-link-{{ ai_gen_id }}" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+          {% endif %}
+          {% if block.settings.tiktok_url != blank %}
+            <a href="{{ block.settings.tiktok_url }}" class="calqix-footer-social-link-{{ ai_gen_id }}" target="_blank" rel="noopener" aria-label="TikTok">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+              </svg>
+            </a>
+          {% endif %}
+          {% if block.settings.facebook_url != blank %}
+            <a href="{{ block.settings.facebook_url }}" class="calqix-footer-social-link-{{ ai_gen_id }}" target="_blank" rel="noopener" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </a>
+          {% endif %}
+        </div>
+        {% if block.settings.enable_country_selector or block.settings.enable_language_selector %}
+          <div class="calqix-footer-localization-{{ ai_gen_id }}">
+            {% if block.settings.enable_country_selector %}
+              {%- form 'localization', id: 'FooterCountryForm-{{ ai_gen_id }}', class: 'calqix-footer-localization-form-{{ ai_gen_id }}' -%}
+                <select
+                  name="country_code"
+                  class="calqix-footer-localization-select-{{ ai_gen_id }}"
+                  aria-label="Country"
+                  onchange="this.form.submit()"
+                >
+                  {%- for country in localization.available_countries -%}
+                    <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
+                      {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+                    </option>
+                  {%- endfor -%}
+                </select>
+                <span class="calqix-footer-localization-icon-{{ ai_gen_id }}">
+                  <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M1 1l4 4 4-4"/>
+                  </svg>
+                </span>
+              {%- endform -%}
+            {% endif %}
+
+            {% if block.settings.enable_language_selector %}
+              {%- form 'localization', id: 'FooterLanguageForm-{{ ai_gen_id }}', class: 'calqix-footer-localization-form-{{ ai_gen_id }}' -%}
+                <select
+                  name="locale_code"
+                  class="calqix-footer-localization-select-{{ ai_gen_id }}"
+                  aria-label="Language"
+                  onchange="this.form.submit()"
+                >
+                  {%- for language in localization.available_languages -%}
+                    <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
+                      {{ language.endonym_name | capitalize }}
+                    </option>
+                  {%- endfor -%}
+                </select>
+                <span class="calqix-footer-localization-icon-{{ ai_gen_id }}">
+                  <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M1 1l4 4 4-4"/>
+                  </svg>
+                </span>
+              {%- endform -%}
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="calqix-footer-column-{{ ai_gen_id }}">
+        <button class="calqix-footer-accordion-toggle-{{ ai_gen_id }}" aria-expanded="false">
+          <h3 class="calqix-footer-heading-{{ ai_gen_id }}">{{ block.settings.products_heading }}</h3>
+          <span class="calqix-footer-accordion-icon-{{ ai_gen_id }}">+</span>
+        </button>
+        <div class="calqix-footer-accordion-content-{{ ai_gen_id }}">
+          {% if block.settings.products_menu != blank %}
+            <ul class="calqix-footer-menu-{{ ai_gen_id }}">
+              {% for link in block.settings.products_menu.links %}
+                <li class="calqix-footer-menu-item-{{ ai_gen_id }}">
+                  <a href="{{ link.url }}" class="calqix-footer-menu-link-{{ ai_gen_id }}">{{ link.title }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="calqix-footer-column-{{ ai_gen_id }}">
+        <button class="calqix-footer-accordion-toggle-{{ ai_gen_id }}" aria-expanded="false">
+          <h3 class="calqix-footer-heading-{{ ai_gen_id }}">{{ block.settings.info_heading }}</h3>
+          <span class="calqix-footer-accordion-icon-{{ ai_gen_id }}">+</span>
+        </button>
+        <div class="calqix-footer-accordion-content-{{ ai_gen_id }}">
+          {% if block.settings.info_menu != blank %}
+            <ul class="calqix-footer-menu-{{ ai_gen_id }}">
+              {% for link in block.settings.info_menu.links %}
+                <li class="calqix-footer-menu-item-{{ ai_gen_id }}">
+                  <a href="{{ link.url }}" class="calqix-footer-menu-link-{{ ai_gen_id }}">{{ link.title }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="calqix-footer-column-{{ ai_gen_id }}">
+        <h3 class="calqix-footer-heading-{{ ai_gen_id }}">{{ block.settings.science_heading }}</h3>
+        <div class="calqix-footer-science-{{ ai_gen_id }}">
+          {{ block.settings.science_text }}
+          <span class="calqix-footer-formula-{{ ai_gen_id }}">Ca₁₀(PO₄)₆(OH)₂</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="calqix-footer-bottom-{{ ai_gen_id }}">
+      <div class="calqix-footer-copyright-{{ ai_gen_id }}">
+        {{ block.settings.copyright_text }}
+      </div>
+      <div class="calqix-footer-compliance-{{ ai_gen_id }}">
+        {{ block.settings.compliance_text }}
+      </div>
+      <div class="calqix-footer-payment-{{ ai_gen_id }}">
+        {% if shop.enabled_payment_types.size > 0 %}
+          {% for type in shop.enabled_payment_types %}
+            {{ type | payment_type_svg_tag }}
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</calqix-footer-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class CalqixFooter{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.accordionToggles = this.querySelectorAll('.calqix-footer-accordion-toggle-{{ ai_gen_id }}');
+        this.setupAccordions();
+      }
+
+      setupAccordions() {
+        this.accordionToggles.forEach((toggle) => {
+          toggle.addEventListener('click', () => {
+            const content = toggle.nextElementSibling;
+            const isActive = content.classList.contains('active');
+            
+            content.classList.toggle('active');
+            toggle.classList.toggle('active');
+            toggle.setAttribute('aria-expanded', !isActive);
+          });
+        });
+      }
+    }
+
+    customElements.define('calqix-footer-{{ ai_gen_id }}', CalqixFooter{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "CALQIX footer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Brand column"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_image",
+      "label": "Logo image"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 80,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Logo width",
+      "default": 150
+    },
+    {
+      "type": "text",
+      "id": "brand_name",
+      "label": "Brand name",
+      "default": "CALQIX"
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "default": "Rebuild your enamel."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Clinical-grade nano-hydroxyapatite oral care for enamel remineralization."
+    },
+    {
+      "type": "text",
+      "id": "founded_text",
+      "label": "Founded text",
+      "default": "Founded in the Netherlands"
+    },
+    {
+      "type": "header",
+      "content": "Social media"
+    },
+    {
+      "type": "url",
+      "id": "instagram_url",
+      "label": "Instagram URL"
+    },
+    {
+      "type": "url",
+      "id": "tiktok_url",
+      "label": "TikTok URL"
+    },
+    {
+      "type": "url",
+      "id": "facebook_url",
+      "label": "Facebook URL"
+    },
+    {
+      "type": "header",
+      "content": "Localization"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_country_selector",
+      "label": "Enable country selector",
+      "default": true,
+      "info": "Requires multiple markets enabled in Shopify settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_language_selector",
+      "label": "Enable language selector",
+      "default": true,
+      "info": "Requires multiple languages enabled in Shopify settings"
+    },
+    {
+      "type": "header",
+      "content": "Products column"
+    },
+    {
+      "type": "text",
+      "id": "products_heading",
+      "label": "Heading",
+      "default": "Products"
+    },
+    {
+      "type": "link_list",
+      "id": "products_menu",
+      "label": "Menu"
+    },
+    {
+      "type": "header",
+      "content": "Info column"
+    },
+    {
+      "type": "text",
+      "id": "info_heading",
+      "label": "Heading",
+      "default": "Info"
+    },
+    {
+      "type": "link_list",
+      "id": "info_menu",
+      "label": "Menu"
+    },
+    {
+      "type": "header",
+      "content": "Science column"
+    },
+    {
+      "type": "text",
+      "id": "science_heading",
+      "label": "Heading",
+      "default": "Science"
+    },
+    {
+      "type": "textarea",
+      "id": "science_text",
+      "label": "Text",
+      "default": "Our formulations are built on peer-reviewed research. Nano-hydroxyapatite is biocompatible, fluoride-free, and structurally identical to human enamel."
+    },
+    {
+      "type": "header",
+      "content": "Bottom bar"
+    },
+    {
+      "type": "text",
+      "id": "copyright_text",
+      "label": "Copyright text",
+      "default": "© 2026 Kesekesa Holding B.V. — CALQIX is a registered trade name."
+    },
+    {
+      "type": "text",
+      "id": "compliance_text",
+      "label": "Compliance text",
+      "default": "EU Cosmetics Compliant · Fluoride-Free · Vegan"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "Heading font",
+      "default": "serif"
+    },
+    {
+      "type": "font_picker",
+      "id": "body_font",
+      "label": "Body font",
+      "default": "sans-serif"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border",
+      "default": "#D6E4F0"
+    },
+    {
+      "type": "color",
+      "id": "pulse_color",
+      "label": "Pulse dot",
+      "default": "#4CAF50"
+    },
+    {
+      "type": "color",
+      "id": "grid_color",
+      "label": "Grid pattern",
+      "default": "#D6E4F0"
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX footer"
+    }
+  ]
+}
+{% endschema %}

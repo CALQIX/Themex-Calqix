@@ -1,0 +1,99 @@
+{{ 'customers.css' | asset_url | stylesheet_tag }}
+
+<div class="wt-customer ">
+  <div class="wt-customer__form--container">
+    <h2 class="hero__title">
+      {{ 'customer.register.title' | t }}
+    </h2>
+    {%- form 'create_customer', novalidate: 'novalidate' -%}
+      {% if form.errors %}
+        <div class="form__error-field">
+          {{ form.errors | default_errors }}
+        </div>
+      {% endif %}
+      <label class="form__field form__field--email wt-customer__form--input-first" for="RegisterForm-FirstName">
+        <input
+          type="text"
+          name="customer[first_name]"
+          id="RegisterForm-FirstName"
+          class="form__field__input"
+          {% if form.first_name %}
+            value="{{ form.first_name }}"
+          {% endif %}
+          autocomplete="given-name"
+          placeholder=" "
+        >
+        <span class="form__field__label"> First name </span>
+      </label>
+      <label class="form__field form__field--email" for="RegisterForm-LastName">
+        <input
+          type="text"
+          name="customer[last_name]"
+          id="RegisterForm-LastName"
+          class="form__field__input"
+          {% if form.last_name %}
+            value="{{ form.last_name }}"
+          {% endif %}
+          autocomplete="family-name"
+          placeholder=" "
+        >
+        <span class="form__field__label"> Last name </span>
+      </label>
+
+      <label class="form__field form__field--email" for="RegisterForm-email">
+        <input
+          type="email"
+          name="customer[email]"
+          id="RegisterForm-email"
+          class="{%- if form.errors contains 'email' -%} form__field__input  form__field__input--error {% else %} form__field__input {% endif %}"
+          {% if form.email %}
+            value="{{ form.email }}"
+          {% endif %}
+          spellcheck="false"
+          autocapitalize="off"
+          autocomplete="email"
+          aria-required="true"
+          {% if form.errors contains 'email' %}
+            aria-invalid="true"
+            aria-describedby="RegisterForm-email-error"
+          {% endif %}
+          placeholder=" "
+        >
+        <span class="form__field__label"> Email </span>
+        {%- if form.errors contains 'email' -%}
+          <span id="RegisterForm-email-error" class="form__message">
+            {{ form.errors.translated_fields.email | capitalize }}
+            {{ form.errors.messages.email }}.
+          </span>
+        {%- endif -%}
+      </label>
+      <label class="form__field form__field--email" for="RegisterForm-password">
+        <input
+          type="password"
+          name="customer[password]"
+          id="RegisterForm-password"
+          class="{%- if form.errors contains 'password' -%} form__field__input  form__field__input--error {% else %} form__field__input {% endif %}"
+          aria-required="true"
+          {% if form.errors contains 'password' %}
+            aria-invalid="true"
+            aria-describedby="RegisterForm-password-error"
+          {% endif %}
+          placeholder=" "
+        >
+        <span class="form__field__label"> Password </span>
+      </label>
+      {%- if form.errors contains 'password' -%}
+        <span id="RegisterForm-password-error" class="form__message">
+          {{ form.errors.translated_fields.password | capitalize }}
+          {{ form.errors.messages.password }}.
+        </span>
+      {%- endif -%}
+      <button
+        aria-label="{{ 'customer.register.submit' | t }}"
+        class="form__send__button hero__button--primary  wt-customer__create-account"
+      >
+        {{ 'customer.register.submit' | t }}
+      </button>
+    {%- endform -%}
+  </div>
+</div>

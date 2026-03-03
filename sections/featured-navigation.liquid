@@ -1,0 +1,227 @@
+{% assign background_rgb = section.settings.background_color | color_to_rgb %}
+{% assign text_rgb = section.settings['color-body-text'] | color_to_rgb %}
+{% assign active_background_rgb = section.settings.active_background_color | color_to_rgb %}
+{% assign active_text_rgb = section.settings.active_text_color | color_to_rgb %}
+
+<style>
+  [id="shopify-section-{{ section.id }}"]
+  {
+    {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+      --color-background: {{ section.settings.background_color }};
+    {% endif %}
+
+    {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+      --color-custom-text: {{ section.settings.color-body-text }};
+    {% endif %}
+
+    {% if active_background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+      --color-active-background: {{ section.settings.active_background_color }};
+    {% endif %}
+
+    {% if active_text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+      --color-active-text: {{ section.settings.active_text_color }};
+    {% endif %}
+  }
+
+  [data-section-id="{{ section.id }}"]
+  {
+      {% if section.settings.margin-top %}
+          --section-gap-top: {{ section.settings.margin-top }}px;
+      {% endif %}
+
+      {% if section.settings.margin-bottom %}
+          --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+      {% endif %}
+
+  }
+</style>
+
+{% liquid
+  assign button_select = section.settings.button_select
+  assign menu_links = linklists[section.settings.menu].links
+  assign break_flag = false
+
+  for link in linklists[section.settings.menu].links
+    if link.active
+      break
+    endif
+
+    if link.child_active
+      for sublink in link.links
+        if sublink.active
+          assign menu_links = link.links
+          assign break_flag = true
+          break
+        endif
+        if sublink.child_active
+          assign menu_links = sublink.links
+          assign break_flag = true
+          break
+        endif
+      endfor
+    endif
+
+    if break_flag
+      break
+    endif
+  endfor
+%}
+
+<script src="{{ 'secondary-nav.js' | asset_url }}" type="module" defer="defer"></script>
+
+<div class="{% if settings.animations %} scroll-trigger animate--slide-in {% endif %}" data-section-id="{{ section.id }}">
+  {% render 'headline', title: section.settings.heading | newline_to_br %}
+
+  <secondary-nav
+    {% if section.settings.desktop_placement == 'center' %}
+      data-center-slides
+    {% endif %}
+  >
+    <div class="secondary-navigation">
+      <div class="secondary-navigation__swiper swiper">
+        <div class="secondary-navigation__swiper-wrapper swiper-wrapper
+            {% if section.settings.desktop_placement == 'center' %}
+              secondary-navigation__swiper-wrapper--center
+            {% endif %}
+          ">
+          {% for link in menu_links %}
+            <!-- menu content -->
+            <div class="secondary-navigation__swiper-slide {% if link.active %}secondary-navigation__swiper-slide--active{% endif %} swiper-slide">
+              <a
+                href="{{ link.url }}"
+                aria-label="{{ link.title }}"
+                class="hero__button  hero__button--primary {% if button_select != 'primary' %} hero__button--secondary{% endif %}{% if button_select == 'link' %} hero__button--link{% endif %}
+                 secondary-navigation__link {% if link.active %}secondary-navigation__link--active{% endif %}"
+              >
+                {{ link.title }}
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+      </div>
+    </div>
+  </secondary-nav>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.featured-navigation.name",
+  "tag": "section",
+  "class": "spaced-section wt-featured-nav",
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "heading",
+      "default": "Featured Navigation",
+      "label": "t:sections.settings.settings.heading.label"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "default": "main-menu",
+      "label": "t:sections.header.settings.menu.label"
+    },
+    {
+      "type": "select",
+      "id": "desktop_placement",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.multicolumn.settings.column_alignment.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.multicolumn.settings.column_alignment.options__2.label"
+        }
+      ],
+      "default": "left",
+      "label": "t:sections.featured_navigation.settings.desktop_placement.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image-banner.button.name"
+    },
+    {
+      "type": "select",
+      "id": "button_select",
+      "options": [
+        {
+          "value": "primary",
+          "label": "t:sections.settings.settings.button_select.primary.label"
+        },
+        {
+          "value": "secondary",
+          "label": "t:sections.settings.settings.button_select.secondary.label"
+        }
+      ],
+      "default": "primary",
+      "label": "t:sections.settings.settings.button_select.default.label"
+    },
+    {
+      "type": "color",
+      "id": "active_text_color",
+      "default": "transparent",
+      "label": "t:sections.featured-navigation.settings.active_text_color.label"
+    },
+    {
+      "type": "color",
+      "id": "active_background_color",
+      "default": "transparent",
+      "label": "t:sections.featured-navigation.settings.active_background_color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "color-body-text",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.text-color.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.background-color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.section_spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin-top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 40,
+      "unit": "px",
+      "label": "t:sections.settings.settings.distance-top.label"
+    },
+    {
+      "type": "range",
+      "id": "margin-bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 40,
+      "unit": "px",
+      "label": "t:sections.settings.settings.distance-bottom.label",
+      "info": "t:sections.settings.settings.distance-bottom.info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.featured-navigation.name",
+      "blocks": []
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

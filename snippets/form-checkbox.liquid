@@ -1,0 +1,54 @@
+{% if checked == blank %}
+  {% assign checked = false %}
+{% endif %}
+{% assign tabindex_value = tabindex | default: '0' %}
+{%- assign swatches_config = settings.swatches_config | newline_to_br | split: '<br />' -%}
+{% capture swatch_style %}
+    {% render 'color-swatch-style', swatches_config: swatches_config, value: val %};
+{% endcapture %}
+
+<label
+  class="form-checkbox {{ label_class }}{% if is_color_swatch %} form-checkbox--color{% endif %}"
+  id="{{ value }}"
+  for="checkbox-form-{{label}}"
+>
+  <input
+    type="checkbox"
+    {% if id %}
+      id="{{ id }}"
+    {% else %}
+      id="checkbox-form-{{ label }}"
+    {% endif %}
+    class="form-checkbox__input {{ custom_class }}{% if is_color_swatch %} form-checkbox__input--color{% endif %}"
+    {% if checked %}
+      checked="checked"
+    {% endif %}
+    value="{{ value }}"
+    name="{{ name }}"
+    data-label="{{ label }}"
+    tabindex="{{ tabindex_value }}"
+  >
+
+  {% if settings.enable_color_swatch_in_filters and is_color_swatch %}
+    {% if settings.enable_round_color_swatches %}
+      {% assign style_class = 'filter__color-swatch rounded' %}
+    {% else %}
+      {% assign style_class = 'filter__color-swatch' %}
+    {% endif %}
+    <div class="filter__color-swatch--wrapper 
+      {% if settings.enable_round_color_swatches %} 
+       rounded 
+       {% endif %}">
+      {% render 'icons', id: 'check', icon_class: style_class, style: swatch_style %}
+      <span class="color-swatcher--tooltip">{{ label }}</span>
+    </div>
+    <span class="input-decorator"></span>
+  {% else %}
+    {% render 'icons', id: 'check' %}
+    <span class="input-decorator"></span>
+    <span class="form-checkbox__label">
+      {{- label }}
+      {% if count %}({{ count }}){% endif -%}
+    </span>
+  {% endif %}
+</label>

@@ -1,0 +1,90 @@
+{{ 'customers.css' | asset_url | stylesheet_tag }}
+
+<div class="wt-customer">
+  <h2 class="hero__title">
+    {{ 'customer.activate_account.title' | t }}
+  </h2>
+  <p class="wt-customer__text">
+    {{ 'customer.activate_account.subtext' | t }}
+  </p>
+  {%- form 'activate_customer_password' -%}
+    {%- if form.errors -%}
+      {%- for field in form.errors -%}
+        <div class="form__error-field">
+          {%- if field == 'form' -%}
+            {{ form.errors.messages[field] }}
+          {%- else -%}
+            {{ form.errors.translated_fields[field] | capitalize }}
+            {{ form.errors.messages[field] }}
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    {%- endif -%}
+
+    <label class="form__field form__field--email wt-customer__form--input-first" for="password">
+      <input
+        type="password"
+        name="customer[password]"
+        id="password"
+        class="form__field__input"
+        autocomplete="new-password"
+        placeholder=" "
+        {% if form.errors contains 'password' %}
+          aria-invalid="true"
+          aria-describedby="password-error"
+        {% endif %}
+      >
+      <span class="form__field__label">
+        {{ 'customer.activate_account.password' | t }}
+      </span>
+    </label>
+    {% comment %}
+      <label for="password">
+      </label>
+    {% endcomment %}
+
+    {%- if form.errors contains 'password' -%}
+      <small id="password-error" class="form__message">
+        <svg aria-hidden="true" focusable="false" role="presentation">
+          <use href="#icon-error" />
+        </svg>
+        {{ form.errors.translated_fields.password | capitalize }}
+        {{ form.errors.messages.password }}
+      </small>
+    {%- endif -%}
+
+    <label class="form__field form__field--email wt-customer__form--input-first" for="password_confirmation">
+      <input
+        type="password"
+        name="customer[password_confirmation]"
+        id="password_confirmation"
+        class="form__field__input"
+        autocomplete="new-password"
+        placeholder=" "
+        {% if form.errors contains 'password' %}
+          aria-invalid="true"
+          aria-describedby="password_confirmation-error"
+        {% endif %}
+      >
+      <span class="form__field__label">
+        {{ 'customer.activate_account.password_confirm' | t }}
+      </span>
+    </label>
+
+    <div class="wt-customer__buttons-container">
+      <button
+        aria-label="{{ 'customer.activate_account.submit' | t }}"
+        class="form__send__button"
+      >
+        {{ 'customer.activate_account.submit' | t }}
+      </button>
+      <button
+        aria-label="{{ 'customer.activate_account.cancel' | t }}"
+        name="decline"
+        class="form__send__button"
+      >
+        {{ 'customer.activate_account.cancel' | t }}
+      </button>
+    </div>
+  {%- endform -%}
+</div>

@@ -1,0 +1,746 @@
+{% comment %}
+  CALQIX — Product Benefits Section
+  Installatie: Online Store → Themes → Edit code → Sections → Add new file → calqix-benefits.liquid
+  Daarna: Customize → Add section → CALQIX Benefits
+{% endcomment %}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+
+<style>
+  /* ============================================================
+     SECTION
+     ============================================================ */
+  #cq-benefits-{{ section.id }} {
+    --navy:    {{ section.settings.color_navy }};
+    --accent:  {{ section.settings.color_accent }};
+    --body:    {{ section.settings.color_body }};
+    --border:  {{ section.settings.color_border }};
+    background: {{ section.settings.color_bg }};
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+    position: relative;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* Subtle hex watermark background */
+  #cq-benefits-{{ section.id }} .cqb-bg-hex {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.028;
+  }
+
+  #cq-benefits-{{ section.id }} .cqb-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+  #cq-benefits-{{ section.id }} .cqb-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  #cq-benefits-{{ section.id }} .cqb-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  #cq-benefits-{{ section.id }} .cqb-eyebrow-line {
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+
+  #cq-benefits-{{ section.id }} .cqb-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 3.5vw, 42px);
+    font-weight: 400;
+    color: var(--navy);
+    line-height: 1.1;
+    margin: 0 0 14px;
+  }
+  #cq-benefits-{{ section.id }} .cqb-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  #cq-benefits-{{ section.id }} .cqb-subtitle {
+    font-size: 15px;
+    color: var(--body);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ============================================================
+     GRID
+     ============================================================ */
+  #cq-benefits-{{ section.id }} .cqb-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  @media (max-width: 900px) {
+    #cq-benefits-{{ section.id }} .cqb-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 520px) {
+    #cq-benefits-{{ section.id }} .cqb-grid {
+      grid-template-columns: 1fr;
+    }
+    #cq-benefits-{{ section.id }} .cqb-inner {
+      padding: 0 20px;
+    }
+  }
+
+  /* ============================================================
+     CARD
+     ============================================================ */
+  #cq-benefits-{{ section.id }} .cqb-card {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 36px 28px 32px;
+    overflow: hidden;
+    cursor: default;
+    /* Magnetic transform — JS stuurt dit aan */
+    transform: perspective(800px) rotateX(0deg) rotateY(0deg) translateZ(0);
+    transition: transform 0.08s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    will-change: transform;
+  }
+
+  /* Spotlight overlay — JS positioneert dit */
+  #cq-benefits-{{ section.id }} .cqb-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle 180px at var(--mx, 50%) var(--my, -20%),
+      rgba(26,59,92,0.055) 0%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
+  }
+
+  /* Glare edge shimmer */
+  #cq-benefits-{{ section.id }} .cqb-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0.55) 0%,
+      transparent 50%,
+      rgba(255,255,255,0) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
+  }
+
+  #cq-benefits-{{ section.id }} .cqb-card:hover {
+    border-color: rgba(26,59,92,0.18);
+    box-shadow:
+      0 2px 4px rgba(26,59,92,0.04),
+      0 12px 32px rgba(26,59,92,0.10),
+      0 1px 0 rgba(255,255,255,0.8) inset;
+  }
+  #cq-benefits-{{ section.id }} .cqb-card:hover::before,
+  #cq-benefits-{{ section.id }} .cqb-card:hover::after {
+    opacity: 1;
+  }
+
+  /* ── Hex corner decoration ── */
+  #cq-benefits-{{ section.id }} .cqb-card-hex {
+    position: absolute;
+    top: -18px;
+    right: -18px;
+    width: 80px;
+    height: 80px;
+    opacity: 0.04;
+    transition: opacity 0.3s ease, transform 0.5s ease;
+    z-index: 0;
+  }
+  #cq-benefits-{{ section.id }} .cqb-card:hover .cqb-card-hex {
+    opacity: 0.09;
+    transform: rotate(12deg) scale(1.1);
+  }
+
+  /* ============================================================
+     CARD CONTENT
+     ============================================================ */
+  #cq-benefits-{{ section.id }} .cqb-card-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Icon container */
+  #cq-benefits-{{ section.id }} .cqb-icon-wrap {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  /* Hexagonal clip background */
+  #cq-benefits-{{ section.id }} .cqb-icon-bg {
+    position: absolute;
+    inset: 0;
+    background: var(--navy);
+    clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+    opacity: 0.08;
+    transition: opacity 0.3s ease, transform 0.4s ease;
+  }
+  #cq-benefits-{{ section.id }} .cqb-card:hover .cqb-icon-bg {
+    opacity: 0.14;
+    transform: rotate(30deg);
+  }
+
+  #cq-benefits-{{ section.id }} .cqb-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #cq-benefits-{{ section.id }} .cqb-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--navy);
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), stroke 0.3s;
+  }
+  #cq-benefits-{{ section.id }} .cqb-card:hover .cqb-icon svg {
+    transform: scale(1.15) translateY(-1px);
+    stroke: var(--accent);
+  }
+
+  /* Number badge */
+  #cq-benefits-{{ section.id }} .cqb-number {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-family: 'DM Serif Display', serif;
+    font-size: 11px;
+    font-style: italic;
+    color: var(--navy);
+    opacity: 0.2;
+    transition: opacity 0.3s;
+    line-height: 1;
+  }
+  #cq-benefits-{{ section.id }} .cqb-card:hover .cqb-number {
+    opacity: 0.5;
+  }
+
+  /* Title */
+  #cq-benefits-{{ section.id }} .cqb-card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 19px;
+    font-weight: 400;
+    color: var(--navy);
+    margin: 0 0 10px;
+    line-height: 1.2;
+    transition: color 0.2s;
+  }
+
+  /* Separator line — animates on hover */
+  #cq-benefits-{{ section.id }} .cqb-sep {
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+    margin-bottom: 12px;
+    transition: width 0.35s ease;
+    opacity: 0.5;
+  }
+  #cq-benefits-{{ section.id }} .cqb-card:hover .cqb-sep {
+    width: 40px;
+    opacity: 1;
+  }
+
+  /* Body */
+  #cq-benefits-{{ section.id }} .cqb-card-body {
+    font-size: 13.5px;
+    color: var(--body);
+    line-height: 1.72;
+    margin: 0;
+  }
+
+  /* Proof tag */
+  #cq-benefits-{{ section.id }} .cqb-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 18px;
+    padding: 4px 10px;
+    background: rgba(26,59,92,0.05);
+    border: 1px solid rgba(26,59,92,0.08);
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--navy);
+    opacity: 0.6;
+    transition: opacity 0.3s, background 0.3s;
+  }
+  #cq-benefits-{{ section.id }} .cqb-tag-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  #cq-benefits-{{ section.id }} .cqb-card:hover .cqb-tag {
+    opacity: 1;
+    background: rgba(26,59,92,0.08);
+  }
+
+  /* ============================================================
+     SCROLL REVEAL
+     ============================================================ */
+  #cq-benefits-{{ section.id }} .cqb-header,
+  #cq-benefits-{{ section.id }} .cqb-card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  #cq-benefits-{{ section.id }} .cqb-header.cqb-visible,
+  #cq-benefits-{{ section.id }} .cqb-card.cqb-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+
+<section id="cq-benefits-{{ section.id }}">
+
+  {%- comment -%} Subtle hex watermark SVG background {%- endcomment -%}
+  <svg class="cqb-bg-hex" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <pattern id="cqb-hex-pat-{{ section.id }}" x="0" y="0" width="60" height="52" patternUnits="userSpaceOnUse">
+        <polygon points="30,2 58,17 58,47 30,62 2,47 2,17" fill="none" stroke="{{ section.settings.color_navy }}" stroke-width="1"/>
+        <polygon points="60,28 88,43 88,73 60,88 32,73 32,43" fill="none" stroke="{{ section.settings.color_navy }}" stroke-width="1"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#cqb-hex-pat-{{ section.id }})"/>
+  </svg>
+
+  <div class="cqb-inner">
+
+    {%- comment -%} HEADER {%- endcomment -%}
+    <div class="cqb-header">
+      {%- if section.settings.eyebrow != blank -%}
+        <div class="cqb-eyebrow">
+          <span class="cqb-eyebrow-line"></span>
+          {{ section.settings.eyebrow }}
+          <span class="cqb-eyebrow-line"></span>
+        </div>
+      {%- endif -%}
+      <h2 class="cqb-title">
+        {{ section.settings.title_plain }} <em>{{ section.settings.title_italic }}</em>
+      </h2>
+      {%- if section.settings.subtitle != blank -%}
+        <p class="cqb-subtitle">{{ section.settings.subtitle }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} GRID {%- endcomment -%}
+    <div class="cqb-grid">
+
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'feature' -%}
+          <div class="cqb-card" {{ block.shopify_attributes }}>
+
+            {%- comment -%} Hex corner deco {%- endcomment -%}
+            <svg class="cqb-card-hex" viewBox="0 0 100 100" fill="none"
+                 xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5"
+                       fill="{{ section.settings.color_navy }}" stroke="none"/>
+            </svg>
+
+            <div class="cqb-card-content">
+
+              {%- comment -%} Icon + number {%- endcomment -%}
+              <div class="cqb-icon-wrap">
+                <div class="cqb-icon-bg"></div>
+                <div class="cqb-icon">
+                  {%- case block.settings.icon -%}
+                    {%- when 'crystal' -%}
+                      <svg viewBox="0 0 24 24">
+                        <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/>
+                        <line x1="12" y1="2" x2="12" y2="22"/>
+                        <line x1="2" y1="8.5" x2="22" y2="8.5"/>
+                        <line x1="2" y1="15.5" x2="22" y2="15.5"/>
+                      </svg>
+                    {%- when 'molecule' -%}
+                      <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="2.5"/>
+                        <circle cx="4" cy="7" r="1.8"/>
+                        <circle cx="20" cy="7" r="1.8"/>
+                        <circle cx="4" cy="17" r="1.8"/>
+                        <circle cx="20" cy="17" r="1.8"/>
+                        <line x1="9.6" y1="10.5" x2="5.6" y2="8.2"/>
+                        <line x1="14.4" y1="10.5" x2="18.4" y2="8.2"/>
+                        <line x1="9.6" y1="13.5" x2="5.6" y2="15.8"/>
+                        <line x1="14.4" y1="13.5" x2="18.4" y2="15.8"/>
+                      </svg>
+                    {%- when 'shield' -%}
+                      <svg viewBox="0 0 24 24">
+                        <path d="M12 2L3 6.5v5C3 16.5 7 21 12 22c5-1 9-5.5 9-10.5v-5L12 2z"/>
+                        <polyline points="8.5 12 11 14.5 16 9.5"/>
+                      </svg>
+                    {%- when 'leaf' -%}
+                      <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6 2 3 7 3 12c0 3.5 2 6.5 5 8l4-8 4 8c3-1.5 5-4.5 5-8 0-5-3-10-9-10z"/>
+                        <line x1="12" y1="12" x2="12" y2="22"/>
+                      </svg>
+                    {%- when 'microscope' -%}
+                      <svg viewBox="0 0 24 24">
+                        <path d="M6 18h12"/>
+                        <path d="M6 22h12"/>
+                        <path d="M9 18v-2a3 3 0 0 1 6 0v2"/>
+                        <rect x="9" y="2" width="6" height="10" rx="1"/>
+                        <line x1="12" y1="2" x2="12" y2="4"/>
+                        <line x1="9" y1="7" x2="6" y2="7"/>
+                      </svg>
+                    {%- when 'drop' -%}
+                      <svg viewBox="0 0 24 24">
+                        <path d="M12 2C12 2 5 9.5 5 14a7 7 0 0 0 14 0c0-4.5-7-12-7-12z"/>
+                        <path d="M9 16a3 3 0 0 0 3 3"/>
+                      </svg>
+                    {%- when 'clock' -%}
+                      <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="9"/>
+                        <polyline points="12 7 12 12 15.5 15.5"/>
+                        <path d="M16.5 3.5a9 9 0 0 1 4 5.5"/>
+                      </svg>
+                    {%- else -%}
+                      <svg viewBox="0 0 24 24">
+                        <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/>
+                      </svg>
+                  {%- endcase -%}
+                </div>
+                <span class="cqb-number">0{{ forloop.index }}</span>
+              </div>
+
+              {%- comment -%} Title {%- endcomment -%}
+              <h3 class="cqb-card-title">{{ block.settings.title }}</h3>
+              <div class="cqb-sep"></div>
+
+              {%- comment -%} Body {%- endcomment -%}
+              <p class="cqb-card-body">{{ block.settings.body }}</p>
+
+              {%- comment -%} Proof tag {%- endcomment -%}
+              {%- if block.settings.tag != blank -%}
+                <div class="cqb-tag">
+                  <span class="cqb-tag-dot"></span>
+                  {{ block.settings.tag }}
+                </div>
+              {%- endif -%}
+
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  const SID     = '{{ section.id }}';
+  const section = document.getElementById('cq-benefits-' + SID);
+  if (!section) return;
+
+  const cards = section.querySelectorAll('.cqb-card');
+
+  /* ============================================================
+     1. MAGNETIC TILT + SPOTLIGHT
+        Elke kaart kantelt licht mee met de muis
+     ============================================================ */
+  const MAX_TILT  = 6;   /* graden max tilt */
+  const MAX_TRANS = 3;   /* px max translateZ lift */
+
+  cards.forEach(function (card) {
+    let raf = null;
+    let targetRX = 0, targetRY = 0, targetTZ = 0;
+    let currentRX = 0, currentRY = 0, currentTZ = 0;
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    function animate() {
+      currentRX = lerp(currentRX, targetRX, 0.12);
+      currentRY = lerp(currentRY, targetRY, 0.12);
+      currentTZ = lerp(currentTZ, targetTZ, 0.12);
+
+      card.style.transform =
+        'perspective(800px)' +
+        ' rotateX(' + currentRX.toFixed(3) + 'deg)' +
+        ' rotateY(' + currentRY.toFixed(3) + 'deg)' +
+        ' translateZ(' + currentTZ.toFixed(3) + 'px)';
+
+      const diff = Math.abs(currentRX - targetRX) + Math.abs(currentRY - targetRY) + Math.abs(currentTZ - targetTZ);
+      if (diff > 0.01) {
+        raf = requestAnimationFrame(animate);
+      } else {
+        raf = null;
+      }
+    }
+
+    card.addEventListener('mousemove', function (e) {
+      const rect    = card.getBoundingClientRect();
+      const cx      = rect.left + rect.width  / 2;
+      const cy      = rect.top  + rect.height / 2;
+      const dx      = (e.clientX - cx) / (rect.width  / 2);  /* -1 → +1 */
+      const dy      = (e.clientY - cy) / (rect.height / 2);  /* -1 → +1 */
+
+      targetRY =  dx * MAX_TILT;
+      targetRX = -dy * MAX_TILT;
+      targetTZ =  MAX_TRANS;
+
+      /* Spotlight positie als CSS variabele */
+      const mx = ((e.clientX - rect.left) / rect.width  * 100).toFixed(1) + '%';
+      const my = ((e.clientY - rect.top)  / rect.height * 100).toFixed(1) + '%';
+      card.style.setProperty('--mx', mx);
+      card.style.setProperty('--my', my);
+
+      if (!raf) raf = requestAnimationFrame(animate);
+    });
+
+    card.addEventListener('mouseleave', function () {
+      targetRX = 0;
+      targetRY = 0;
+      targetTZ = 0;
+      card.style.removeProperty('--mx');
+      card.style.removeProperty('--my');
+      if (!raf) raf = requestAnimationFrame(animate);
+    });
+  });
+
+  /* ============================================================
+     2. SCROLL REVEAL — IntersectionObserver
+     ============================================================ */
+  const revealEls = section.querySelectorAll('.cqb-header, .cqb-card');
+
+  const io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        /* Stagger op basis van kaartindex */
+        const card = entry.target;
+        const idx  = Array.from(cards).indexOf(card);
+        const delay = idx >= 0 ? idx * 90 : 0;
+
+        setTimeout(function () {
+          card.classList.add('cqb-visible');
+        }, delay);
+
+        io.unobserve(card);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  revealEls.forEach(function (el) { io.observe(el); });
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "CALQIX Benefits",
+  "tag": "section",
+  "class": "calqix-benefits",
+  "settings": [
+    {
+      "type": "header",
+      "content": "📐 Layout"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding boven (px)",
+      "min": 0, "max": 160, "step": 8, "default": 88
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding onder (px)",
+      "min": 0, "max": 160, "step": 8, "default": 96
+    },
+    {
+      "type": "header",
+      "content": "✏️ Header tekst"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Why CALQIX"
+    },
+    {
+      "type": "text",
+      "id": "title_plain",
+      "label": "Titel (normaal)",
+      "default": "Built on"
+    },
+    {
+      "type": "text",
+      "id": "title_italic",
+      "label": "Titel (cursief, accentkleur)",
+      "default": "clinical science."
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitel",
+      "default": "Every ingredient. Every claim. Every formula. Backed by peer-reviewed research and designed to work with your biology — not against it."
+    },
+    {
+      "type": "header",
+      "content": "🎨 Kleuren"
+    },
+    {
+      "type": "color",
+      "id": "color_bg",
+      "label": "Achtergrond",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "color_navy",
+      "label": "Navy (titels, iconen)",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "color_accent",
+      "label": "Accent (goud)",
+      "default": "#C9A96E"
+    },
+    {
+      "type": "color",
+      "id": "color_body",
+      "label": "Body tekst",
+      "default": "#5C7A94"
+    },
+    {
+      "type": "color",
+      "id": "color_border",
+      "label": "Kaartrand",
+      "default": "#E8EEF4"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature kaart",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icoon",
+          "options": [
+            { "value": "crystal",    "label": "Kristal / Nano-HA structuur" },
+            { "value": "molecule",   "label": "Molecule" },
+            { "value": "shield",     "label": "Schild / Bescherming" },
+            { "value": "leaf",       "label": "Blad / Natuurlijk" },
+            { "value": "microscope", "label": "Microscoop / Wetenschap" },
+            { "value": "drop",       "label": "Druppel / Hydratatie" },
+            { "value": "clock",      "label": "Klok / Snelheid" }
+          ],
+          "default": "crystal"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Titel",
+          "default": "Nano-HA Remineralisation"
+        },
+        {
+          "type": "textarea",
+          "id": "body",
+          "label": "Beschrijving",
+          "default": "Hydroxyapatite is the primary mineral in tooth enamel. Our nano-scale particles integrate directly into micro-lesions, rebuilding structure at the molecular level."
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "Proof tag (klein label onderaan)",
+          "default": "Peer-reviewed"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX Benefits",
+      "category": "CALQIX",
+      "blocks": [
+        {
+          "type": "feature",
+          "settings": {
+            "icon": "crystal",
+            "title": "Nano-HA Remineralisation",
+            "body": "Hydroxyapatite is the primary mineral in tooth enamel. Our nano-scale particles integrate directly into micro-lesions, rebuilding structure at the molecular level.",
+            "tag": "Peer-reviewed"
+          }
+        },
+        {
+          "type": "feature",
+          "settings": {
+            "icon": "leaf",
+            "title": "Fluoride-Free Formula",
+            "body": "Zero fluoride. Zero parabens. Zero SLS. A clean-label formulation that remineralises through bio-identical minerals — nothing synthetic, nothing unnecessary.",
+            "tag": "Clean label"
+          }
+        },
+        {
+          "type": "feature",
+          "settings": {
+            "icon": "shield",
+            "title": "Enamel Protection",
+            "body": "Daily use creates a clinically proven protective layer against acid erosion, staining, and bacterial adhesion — without disrupting your oral microbiome.",
+            "tag": "Clinical data"
+          }
+        },
+        {
+          "type": "feature",
+          "settings": {
+            "icon": "molecule",
+            "title": "Biocompatible Science",
+            "body": "Nano-HA is recognised by the ISO and used in dental medicine worldwide. Identical in composition to the mineral that makes up 97% of your enamel.",
+            "tag": "ISO certified"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

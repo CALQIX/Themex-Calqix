@@ -1,0 +1,90 @@
+{% if size_link != empty %}
+<div class="wt-product__content wt-product__information-popup {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}">
+    {% if size_icon != 'none' %}
+    <div class="wt-product__icon">
+        {% render 'icon-accordion', icon: size_icon %}
+    </div>
+    {% endif %}
+    <div class="wt-product__page">
+    <modal-opener
+        class="wt-product__opener no-js-hidden quick-add-hidden"
+        data-modal="#PopupModal-{{ id }}"
+        {{ shopify_attributes }}
+    >
+        <button
+        aria-label="{{ size_link | default: size_page.title }}"
+        id="ProductPopup-{{ id }}"
+        class="wt-product__button wt-product__link"
+        type="button"
+        aria-haspopup="dialog"
+        >
+        {{ size_link | default: size_page.title }}
+        </button>
+    </modal-opener>
+    </div>
+</div>
+
+<modal-dialog
+    id="PopupModal-{{ id }}"
+    class="wt-product__modal"
+    {{ shopify_attributes }}
+>
+    <div
+    role="dialog"
+    aria-label="{{ size_link }}"
+    aria-modal="true"
+    class="wt-product__modal--content"
+    tabindex="-1"
+    >
+    <div class="wt-product__modal-top">
+        <div
+        id="ModalClose-{{ id }}"
+        role="button"
+        class="wt-product__modal--toggle"
+        aria-label="{{ 'accessibility.close' | t }}"
+        >
+        {% render 'icons',
+            id: 'close',
+            icon_id: 'wt-announcement__close',
+            icon_class: 'wt-announcement__close'
+        %}
+        </div>
+    </div>
+    <div class="wt-product__modal--content-info rte">
+        {% if size_content != empty %}
+        <p class="headline__title">{{ size_content.title }}</p>
+        {% else %}
+        <p class="headline__title">{{ size_link }}</p>
+        {% endif %}
+        {% assign metafield = metafield_name | strip | split: '.' %}
+        {% assign metafield_namespace = metafield | first | strip %}
+        {% assign metafield_key = metafield | last | strip %}
+        {% assign information_popup_table = product.metafields[metafield_namespace][metafield_key] %}
+        {% if information_popup_table %}
+        {% assign rows = information_popup_table | newline_to_br | split: '<br />'%}
+        <div class="size-table__wrapper">
+            <table class="size-table {% if enable-striped-rows %} size-table--striped {% endif %}">
+            {% for row in rows %}
+                <tr>
+                {% assign cells = row | split: '|' %}
+                {% for cell in cells %}
+                    {% assign clean_cell = cell | strip %}
+                    {% assign first_char = clean_cell | slice: 0, 1 %}
+                    {% if first_char == '#' %}
+                    <th>{{ clean_cell | remove_first: '#' | strip }}</th>
+                    {% else %}
+                    <td>{{ clean_cell }}</td>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+        {% if size_content != empty %}
+        {{ size_content.content }}
+        {% endif %}
+    </div>
+    </div>
+</modal-dialog>
+{% endif %}

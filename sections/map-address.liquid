@@ -1,0 +1,555 @@
+{% comment %} This section displays a map (e.g. Google Maps) based on an address set in the theme editor {% endcomment %}
+
+{{ 'section-map-address.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'map-section.js' | asset_url }}" defer="defer"></script>
+
+{% assign background_section_rgb = section.settings['section-color-overlay'] | color_to_rgb %}
+{% assign heading_rgb = section.settings['section-color-body-text'] | color_to_rgb %}
+
+{% assign background_rgb = section.settings.background_color | color_to_rgb %}
+{% assign text_rgb = section.settings['color-body-text'] | color_to_rgb %}
+
+<style>
+  section[id="shopify-section-{{ section.id }}"]{
+  {% if background_section_rgb != 'rgba(0, 0, 0, 0.0)' %}
+    --color-overlay-rgb: {{ section.settings.section-color-overlay | color_to_rgb | remove: 'rgb(' | remove: ')' }};
+    --color-overlay-opacity: {{ section.settings.section-color-overlay-opacity | divided_by: 100.0 }};
+  {% endif %}
+  }
+
+  section[id="shopify-section-{{ section.id }}"] .headline__title {
+  {% if heading_rgb != 'rgba(0, 0, 0, 0.0)' %}
+    --color-custom-text: {{ section.settings.section-color-body-text }};
+  {% endif %}
+  }
+
+
+  [data-section-id="{{ section.id }}"]
+  {
+
+  {% if section.settings.margin-top %}
+    --section-gap-top: {{ section.settings.margin-top }}px;
+  {% endif %}
+
+  {% if section.settings.margin-bottom %}
+    --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+  {% endif %}
+
+  {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
+    --color-background: {{ section.settings.background_color }};
+    --color-background-rgb: {{ section.settings.background_color | color_to_rgb | remove: 'rgb(' | remove: ')' }};
+    --color-background-opacity: {{ section.settings.background_color_opacity | divided_by: 100.0 }};
+    --color-background-blur: {{ section.settings.background_blur }}px;
+  {% endif %}
+
+  {% if text_rgb != 'rgba(0, 0, 0, 0.0)' %}
+    --color-custom-text: {{ section.settings.color-body-text }};
+  {% endif %}
+
+  {% if section.settings.slide_height == 'fixed_height' %}
+    --section-height: {{ section.settings.mobile_fixed_height }}px;
+    --section-height-desk: {{ section.settings.desktop_fixed_height }}px;
+    --map-height: {{ section.settings.mobile_fixed_height }}px;
+    --map-height-desk: {{ section.settings.desktop_fixed_height }}px;
+  {% endif %}
+
+  {% if section.settings.slide_height == 'adapt_to_first_image' %}
+    --map-height: 400px;
+    --map-height-desk: 600px;
+    --first-slide-ratio: {{ section.blocks.first.settings.mobile_image.aspect_ratio | default: 1 }};
+    --first-slide-ratio-desk: {{ section.blocks.first.settings.desktop_image.aspect_ratio | default: 2.5 }};
+  {% endif %}
+
+  }
+
+  [data-section-id="{{ section.id }}"] .wt-map-address__content
+  {
+  {% if section.settings.custom-color-text-enabled %}
+    --color-custom-text: {{ section.settings.color-body-text }};
+  {% endif %}
+  }
+
+  {%- for block in section.blocks -%}
+  [data-block-id="{{ block.id }}"]
+  {
+
+    --font-headline-scale-desk: {{ block.settings.size_heading | divided_by: 100.0 }};
+    --font-headline-scale: {{ block.settings.size_heading_mobile | divided_by: 100.0 }};
+
+  }
+  {%- endfor -%}
+</style>
+
+<section
+  class="wt-map-address {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}"
+  data-section-id="{{ section.id }}"
+>
+  {% if section.settings.heading != blank %}
+    {% render 'headline', title: section.settings.heading %}
+  {% endif %}
+
+  <div
+    class="wt-map-address__container {% if section.settings.full-width-enabled %} wt-map-address__container--full {% endif %}"
+    data-ratio="{{ section.settings.slide_height }}"
+    {% if section.settings.image == blank and section.settings.image_desktop == blank %}
+      data-no-image
+    {% endif %}
+  >
+    <div class="wt-map-address__map">
+      {% if section.settings.api_key != blank and section.settings.address != blank %}
+        <wt-google-map
+          data-api-key="{{ section.settings.api_key }}"
+          data-address="{{ section.settings.address }}"
+          data-map-style="{{ section.settings.map_style }}"
+          data-zoom="{{ section.settings.initial_map_zoom }}"
+        ></wt-google-map>
+      {% else %}
+        {% render 'picture',
+          desktop_image: section.settings.image_desktop,
+          mobile_image: section.settings.image,
+          placeholder: 'product-apparel-1'
+        %}
+      {% endif %}
+    </div>
+    <div class="wt-map-address__content" data-desktop-position="{{ section.settings.content_position }}">
+      <div
+        class="wt-map-address__content__wrapper"
+        data-align="{{ section.settings.content_alignment }}"
+        data-align-desktop="{{ section.settings.content_alignment_desktop }}"
+      >
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'address_header' -%}
+            <div
+              data-block-id="{{ block.id }}"
+              class="wt-map-address__content__title {% if block.settings.disable_on_mobile %}wt-map-address__content__title--disable-mobile{% endif %}"
+            >
+              {{ block.settings.address_title }}
+            </div>
+
+          {%- elsif block.type == 'map_address' -%}
+            <div
+              data-block-id="{{ block.id }}"
+              class="wt-map-address__content__text"
+            >
+              {{ block.settings.address_to_display }}
+            </div>
+
+          {%- elsif block.type == 'button' -%}
+            <a
+              href="{{ block.settings.button_link }}"
+              class="wt-map-address__content__button wt-map-address__content__button--{{ block.settings.button_style }}"
+              data-button-style="{{ block.settings.button_style }}"
+            >
+              <span>{{ block.settings.button_label }}</span>
+            </a>
+          {%- endif -%}
+        {%- endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Map with Address",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "t:sections.map_address.settings.heading.default",
+      "label": "t:sections.settings.settings.heading.label"
+    },
+    {
+      "id": "address",
+      "type": "text",
+      "label": "t:sections.map_address.settings.address.label",
+      "default": "t:sections.map_address.settings.address.default"
+    },
+    {
+      "id": "api_key",
+      "type": "text",
+      "label": "t:sections.map_address.settings.api_key.label",
+      "default": "t:sections.map_address.settings.api_key.default",
+      "info": "t:sections.map_address.settings.api_key.info"
+    },
+    {
+      "type": "range",
+      "id": "initial_map_zoom",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "default": 14,
+      "label": "t:sections.map_address.settings.map_zoom.label"
+    },
+    {
+      "type": "select",
+      "id": "map_style",
+      "label": "t:sections.map_address.settings.map_style.label",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "Default"
+        },
+        {
+          "value": "dark",
+          "label": "Dark"
+        },
+        {
+          "value": "silver",
+          "label": "Silver"
+        },
+        {
+          "value": "retro",
+          "label": "Retro"
+        },
+        {
+          "value": "aubergine",
+          "label": "Aubergine"
+        }
+      ]
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.map_address.settings.image.label",
+      "info": "t:sections.map_address.settings.image.info"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_desktop",
+      "label": "t:sections.map_address.settings.image_desktop.label",
+      "info": "t:sections.map_address.settings.image.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "full-width-enabled",
+      "label": "t:sections.settings.settings.section-full-width.label",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.section-height"
+    },
+    {
+      "type": "radio",
+      "id": "slide_height",
+      "label": "t:sections.slideshow.settings.slide.slide_height.default.label",
+      "options": [
+        {
+          "value": "adapt_to_first_image",
+          "label": "t:sections.slideshow.settings.slide.slide_height.adapt_to_first_image.label"
+        },
+        {
+          "value": "fixed_height",
+          "label": "t:sections.slideshow.settings.slide.slide_height.fixed_height.label"
+        }
+      ],
+      "default": "fixed_height"
+    },
+    {
+      "type": "range",
+      "id": "desktop_fixed_height",
+      "min": 200,
+      "max": 1000,
+      "unit": "px",
+      "step": 20,
+      "default": 320,
+      "label": "t:sections.slideshow.settings.slide.desktop_fixed_height.label",
+      "info": "t:sections.background-video.settings.original_ratio.option__1.info"
+    },
+    {
+      "type": "range",
+      "id": "mobile_fixed_height",
+      "min": 200,
+      "max": 1000,
+      "unit": "px",
+      "step": 20,
+      "default": 460,
+      "label": "t:sections.slideshow.settings.slide.mobile_fixed_height.label",
+      "info": "t:sections.background-video.settings.original_ratio.option__1.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.map_address.settings.mobile_layout.name"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "t:sections.map_address.settings.content_alignment.label",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.map_address.settings.content_alignment.options.left.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.map_address.settings.content_alignment.options.center.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.map_address.settings.content_alignment.options.right.label"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Desktop Layout"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment_desktop",
+      "label": "t:sections.map_address.settings.content_alignment.label",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.map_address.settings.content_alignment.options.left.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.map_address.settings.content_alignment.options.center.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.map_address.settings.content_alignment.options.right.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "content_position",
+      "label": "t:sections.map_address.settings.content_position.label",
+      "default": "top_left",
+      "options": [
+        {
+          "value": "top_left",
+          "label": "t:sections.map_address.settings.content_position.options.top_left.label"
+        },
+        {
+          "value": "top_right",
+          "label": "t:sections.map_address.settings.content_position.options.top_right.label"
+        },
+        {
+          "value": "bottom_left",
+          "label": "t:sections.map_address.settings.content_position.options.bottom_left.label"
+        },
+        {
+          "value": "bottom_right",
+          "label": "t:sections.map_address.settings.content_position.options.bottom_right.label"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.colors",
+      "info": "t:sections.global.colors-info"
+    },
+    {
+      "type": "color",
+      "id": "section-color-body-text",
+      "default": "transparent",
+      "label": "t:sections.global.heading-color"
+    },
+    {
+      "type": "color",
+      "id": "section-color-overlay",
+      "default": "transparent",
+      "label": "t:sections.global.section-background-color"
+    },
+    {
+      "type": "range",
+      "id": "section-color-overlay-opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 100,
+      "label": "t:sections.settings.settings.background-opacity.label"
+    },
+    {
+      "type": "color",
+      "id": "color-body-text",
+      "default": "transparent",
+      "label": "t:sections.settings.settings.text-color.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "default": "#ffffff",
+      "label": "t:sections.global.text-container-color"
+    },
+    {
+      "type": "range",
+      "id": "background_color_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 100,
+      "label": "t:sections.settings.settings.background-opacity.label"
+    },
+    {
+      "type": "range",
+      "id": "background_blur",
+      "min": 0,
+      "max": 35,
+      "step": 1,
+      "default": 0,
+      "unit": "px",
+      "label": "t:sections.newsletter-with-image.settings.background_blur.label",
+      "info": "t:sections.newsletter-with-image.settings.background_blur.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.section_spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin-top",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 20,
+      "label": "t:sections.settings.settings.distance-top.label"
+    },
+    {
+      "type": "range",
+      "id": "margin-bottom",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 20,
+      "label": "t:sections.settings.settings.distance-bottom.label",
+      "info": "t:sections.settings.settings.distance-bottom.info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "address_header",
+      "name": "Address Header",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "address_title",
+          "label": "t:sections.settings.settings.heading.label",
+          "default": "Your address title"
+        },
+        {
+          "type": "checkbox",
+          "id": "disable_on_mobile",
+          "label": "t:sections.global.disable_on_mobile",
+          "default": false
+        },
+        {
+          "type": "range",
+          "id": "size_heading",
+          "min": 100,
+          "max": 500,
+          "step": 10,
+          "default": 100,
+          "label": "t:sections.settings.settings.size-heading.label",
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "size_heading_mobile",
+          "min": 80,
+          "max": 300,
+          "step": 10,
+          "default": 100,
+          "label": "t:sections.settings.settings.size-heading-mobile.label",
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "type": "map_address",
+      "name": "Address",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "address_to_display",
+          "label": "Your Address",
+          "default": "<p>Your address here</p>"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "button_style",
+          "default": "primary",
+          "label": "Style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Primary"
+            },
+            {
+              "value": "secondary",
+              "label": "Secondary"
+            },
+            {
+              "value": "link",
+              "label": "Link"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Text",
+          "default": "Button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Link",
+          "default": "/"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Map with Address",
+      "blocks": [
+        {
+          "type": "address_header",
+          "settings": {
+            "address_title": "Store Name"
+          }
+        },
+        {
+          "type": "map_address",
+          "settings": {
+            "address_to_display": "<p>151 O'Connor Street, Ground floor, Ottawa, ON, K2P 2L8.</p>"
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "button_link": "/",
+            "button_label": "Button label",
+            "button_style": "primary"
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  }
+}
+{% endschema %}

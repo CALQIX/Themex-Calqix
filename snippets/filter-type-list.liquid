@@ -1,0 +1,67 @@
+{% assign is_color_swatch = false %}
+{% assign downcase_filter_label = filter.label | downcase %}
+{% if options_as_color_swatches contains downcase_filter_label %}
+  {% assign is_color_swatch = true %}
+{% endif %}
+
+<collapsible-section
+  class="f-brands filter js-filter"
+  data-open="false"
+  data-index="{{ index }}"
+  data-toggle-tabindex=".form-checkbox__input"
+>
+  {% assign input_tabindex = -1 %}
+  {% if filter_position == 'always' %}
+    {% assign input_tabindex = 0 %}
+  {% endif %}
+  <div
+    class="filter__header wt-collapse__trigger"
+    role="button"
+    tabindex="{% if filter_position == 'always' %}0{% else %}-1{% endif %}"
+    data-open="false"
+    aria-expanded="false"
+    aria-controls="wt-filter-{{ filter.param_name }}"
+  >
+    <div>
+      {{- filter.label | escape }}
+      <span class="facets__selected">
+        {% if filter.active_values.size > 0 %}({{ filter.active_values.size }}){% endif -%}
+      </span>
+    </div>
+    {% render 'icons', id: 'plus' %}
+  </div>
+  <div class="filter__body wt-collapse__target" id="wt-filter-{{ filter.param_name }}">
+    {% if is_color_swatch == false %}
+      {% for filter_value in filter.values %}
+        {% if filter_value.swatch %}
+          {% assign is_color_swatch = true %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    <ul
+      class="
+        list--checkbox f-list
+        {% if is_color_swatch %}f-list--color{% endif %}
+        {% if settings.enable_color_swatch_in_filters and is_color_swatch %}wrap{% endif %}
+      "
+    >
+      {%- for value in filter.values -%}
+        <li class="list__item">
+          {% render 'form-checkbox',
+            label: value.label,
+            count: value.count,
+            url: null,
+            name: value.param_name,
+            value: value.value,
+            checked: value.active,
+            val: value,
+            tabindex: -1,
+            is_color_swatch: is_color_swatch
+          %}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</collapsible-section>

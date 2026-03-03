@@ -1,0 +1,35 @@
+<div class="wt-cart__checkbox">
+  {% assign checkbox_label = settings.cart_additional_service_name %}
+  {% assign chcebkox_name = 'attributes["' | append: checkbox_label | append: '"]' %}
+  {% assign chcekbox_checked = cart.attributes[checkbox_label] %}
+  {% if chcekbox_checked == 'true' %}
+    {% assign chcekbox_checked_value = true %}
+  {% else %}
+    {% assign chcekbox_checked_value = '' %}
+  {% endif %}
+
+  {% render 'form-checkbox',
+    name: chcebkox_name,
+    checked: chcekbox_checked_value,
+    label: checkbox_label,
+    label_class: 'label',
+    id: 'cart_additional_checkbox'
+  %}
+</div>
+<script>
+  (() => {
+    const checkbox = document.getElementById('cart_additional_checkbox');
+
+    checkbox.addEventListener('change', (e) => {
+      const isChecked = e.target.checked;
+      const label = e.target.dataset.label;
+      const body = JSON.stringify({
+        attributes: {
+          [label]: isChecked,
+        },
+      });
+
+      fetch(routes.cart_update_url, { ...fetchConfig(), ...{ body } });
+    });
+  })();
+</script>
