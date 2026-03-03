@@ -2411,22 +2411,46 @@
               {%- assign ccs_active_name = '' -%}
               {%- assign ccs_active_handle = '' -%}
               {%- for i in (1..6) -%}
-                {%- assign ccs_hk = 'swatch_' | append: i | append: '_handle' -%}
+                {%- assign ccs_pk = 'swatch_' | append: i | append: '_product' -%}
                 {%- assign ccs_nk = 'swatch_' | append: i | append: '_name' -%}
-                {%- if b[ccs_hk] == product.handle -%}
-                  {%- assign ccs_active_name = b[ccs_nk] -%}
-                  {%- assign ccs_active_handle = b[ccs_hk] -%}
+                {%- assign ccs_product = b[ccs_pk] -%}
+                {%- if ccs_product != blank -%}
+                  {%- assign ccs_resolved_handle = ccs_product.handle -%}
+                  {%- if ccs_resolved_handle == blank -%}
+                    {%- assign ccs_resolved_handle = ccs_product -%}
+                    {%- assign ccs_product = all_products[ccs_resolved_handle] -%}
+                  {%- endif -%}
+                  {%- if ccs_product == blank and ccs_resolved_handle contains 'calqix-' -%}
+                    {%- assign ccs_try_handle = ccs_resolved_handle | remove_first: 'calqix-' -%}
+                    {%- assign ccs_product = all_products[ccs_try_handle] -%}
+                    {%- if ccs_product != blank -%}{%- assign ccs_resolved_handle = ccs_try_handle -%}{%- endif -%}
+                  {%- endif -%}
+                  {%- if ccs_product == blank -%}
+                    {%- assign ccs_try_handle = 'calqix-' | append: ccs_resolved_handle -%}
+                    {%- assign ccs_product = all_products[ccs_try_handle] -%}
+                    {%- if ccs_product != blank -%}{%- assign ccs_resolved_handle = ccs_try_handle -%}{%- endif -%}
+                  {%- endif -%}
+                  {%- assign ccs_display_name = b[ccs_nk] -%}
+                  {%- if ccs_display_name == blank and ccs_product != blank -%}
+                    {%- assign ccs_display_name = ccs_product.title -%}
+                  {%- endif -%}
+                  {%- if ccs_resolved_handle == product.handle -%}
+                    {%- assign ccs_active_name = ccs_display_name -%}
+                    {%- assign ccs_active_handle = ccs_resolved_handle -%}
+                  {%- endif -%}
                 {%- endif -%}
               {%- endfor -%}
               {%- if ccs_active_name == blank -%}{%- assign ccs_active_name = b.swatch_1_name -%}{%- endif -%}
-              {%- if ccs_active_handle == blank -%}{%- assign ccs_active_handle = b.swatch_1_handle -%}{%- endif -%}
+              {%- if ccs_active_handle == blank and b.swatch_1_product != blank -%}
+                {%- assign ccs_active_handle = b.swatch_1_product.handle -%}
+              {%- endif -%}
               <div id="ccs-block-{{ block.id }}" class="calqix-colour-switcher-block" {{ block.shopify_attributes }}>
                 <div class="ccs-label">
                   {{ b.label_text }}
                   {%- if b.show_active_name and ccs_active_name != blank -%}
                     <span class="ccs-meta">
                       — <span class="ccs-active-name">{{ ccs_active_name }}</span>
-                      {%- if b.highlight_text != blank and b.highlight_handle != blank and ccs_active_handle == b.highlight_handle -%}
+                      {%- if b.highlight_text != blank and b.highlight_product != blank and ccs_active_handle == b.highlight_product.handle -%}
                         <span class="ccs-chip">{{ b.highlight_text }}</span>
                       {%- endif -%}
                     </span>
@@ -2434,13 +2458,16 @@
                 </div>
                 <div class="ccs-swatches">
                   {%- for i in (1..6) -%}
-                    {%- assign ccs_hk  = 'swatch_' | append: i | append: '_handle' -%}
+                    {%- assign ccs_pk  = 'swatch_' | append: i | append: '_product' -%}
                     {%- assign ccs_nk  = 'swatch_' | append: i | append: '_name' -%}
-                    {%- assign ccs_ck  = 'swatch_' | append: i | append: '_color' -%}
                     {%- assign ccs_bk  = 'swatch_' | append: i | append: '_border' -%}
                     {%- assign ccs_bcl = 'swatch_' | append: i | append: '_border_color' -%}
-                    {%- if b[ccs_hk] != blank -%}
-                      {%- assign ccs_resolved_handle = b[ccs_hk] -%}
+                    {%- assign ccs_product = b[ccs_pk] -%}
+                    {%- if ccs_product != blank -%}
+                      {%- assign ccs_resolved_handle = ccs_product.handle -%}
+                      {%- if ccs_resolved_handle == blank -%}
+                        {%- assign ccs_resolved_handle = ccs_product -%}
+                      {%- endif -%}
                       {%- assign ccs_product = all_products[ccs_resolved_handle] -%}
                       {%- if ccs_product == blank and ccs_resolved_handle contains 'calqix-' -%}
                         {%- assign ccs_try_handle = ccs_resolved_handle | remove_first: 'calqix-' -%}
@@ -2452,12 +2479,16 @@
                         {%- assign ccs_product = all_products[ccs_try_handle] -%}
                         {%- if ccs_product != blank -%}{%- assign ccs_resolved_handle = ccs_try_handle -%}{%- endif -%}
                       {%- endif -%}
+                      {%- assign ccs_display_name = b[ccs_nk] -%}
+                      {%- if ccs_display_name == blank and ccs_product != blank -%}
+                        {%- assign ccs_display_name = ccs_product.title -%}
+                      {%- endif -%}
                       {%- assign ccs_is_active = false -%}
                       {%- if ccs_resolved_handle == product.handle -%}{%- assign ccs_is_active = true -%}{%- endif -%}
                       <a href="/products/{{ ccs_resolved_handle }}"
                          class="ccs-swatch {% if ccs_is_active %}ccs-active{% endif %} {% if b[ccs_bk] %}ccs-swatch--bordered{% endif %}"
-                         style="background-color: {{ b[ccs_ck] }};{% if b[ccs_bk] %} border-color: {{ b[ccs_bcl] }} !important;{% endif %}"
-                         aria-label="{{ b[ccs_nk] }}" title="{{ b[ccs_nk] }}">
+                         style="{% if b[ccs_bk] %}border-color: {{ b[ccs_bcl] }} !important;{% endif %}"
+                         aria-label="{{ ccs_display_name }}" title="{{ ccs_display_name }}">
                         {%- if ccs_product != blank and ccs_product.featured_image != blank -%}
                           {{
                             ccs_product.featured_image
@@ -2467,10 +2498,10 @@
                               loading: 'lazy',
                               widths: '48, 96',
                               sizes: '48px',
-                              alt: b[ccs_nk]
+                              alt: ccs_display_name
                           }}
                         {%- endif -%}
-                        <span class="ccs-tooltip">{{ b[ccs_nk] }}</span>
+                        <span class="ccs-tooltip">{{ ccs_display_name }}</span>
                       </a>
                     {%- endif -%}
                   {%- endfor -%}
@@ -3326,17 +3357,9 @@
           "default": "Midnight Black"
         },
         {
-          "type": "text",
-          "id": "swatch_1_handle",
-          "label": "Product handle",
-          "info": "bijv. flowcore-midnight-black",
-          "default": "flowcore-midnight-black"
-        },
-        {
-          "type": "color",
-          "id": "swatch_1_color",
-          "label": "Kleur",
-          "default": "#1A1A1A"
+          "type": "product",
+          "id": "swatch_1_product",
+          "label": "Product"
         },
         {
           "type": "checkbox",
@@ -3361,17 +3384,10 @@
           "default": "Clinical White"
         },
         {
-          "type": "text",
-          "id": "swatch_2_handle",
-          "label": "Product handle",
-          "info": "Leeg laten om swatch te verbergen",
-          "default": "flowcore-clinical-white"
-        },
-        {
-          "type": "color",
-          "id": "swatch_2_color",
-          "label": "Kleur",
-          "default": "#F5F5F0"
+          "type": "product",
+          "id": "swatch_2_product",
+          "label": "Product",
+          "info": "Leeg laten om swatch te verbergen"
         },
         {
           "type": "checkbox",
@@ -3396,17 +3412,10 @@
           "default": "Lime Green"
         },
         {
-          "type": "text",
-          "id": "swatch_3_handle",
-          "label": "Product handle",
-          "info": "Leeg laten om swatch te verbergen",
-          "default": "flowcore-lime-green"
-        },
-        {
-          "type": "color",
-          "id": "swatch_3_color",
-          "label": "Kleur",
-          "default": "#7EC850"
+          "type": "product",
+          "id": "swatch_3_product",
+          "label": "Product",
+          "info": "Leeg laten om swatch te verbergen"
         },
         {
           "type": "checkbox",
@@ -3431,17 +3440,10 @@
           "default": "Blush Pink"
         },
         {
-          "type": "text",
-          "id": "swatch_4_handle",
-          "label": "Product handle",
-          "info": "Leeg laten om swatch te verbergen",
-          "default": "flowcore-blush-pink"
-        },
-        {
-          "type": "color",
-          "id": "swatch_4_color",
-          "label": "Kleur",
-          "default": "#E8A0A0"
+          "type": "product",
+          "id": "swatch_4_product",
+          "label": "Product",
+          "info": "Leeg laten om swatch te verbergen"
         },
         {
           "type": "checkbox",
@@ -3465,16 +3467,10 @@
           "label": "Naam"
         },
         {
-          "type": "text",
-          "id": "swatch_5_handle",
-          "label": "Product handle",
+          "type": "product",
+          "id": "swatch_5_product",
+          "label": "Product",
           "info": "Leeg laten om swatch te verbergen"
-        },
-        {
-          "type": "color",
-          "id": "swatch_5_color",
-          "label": "Kleur",
-          "default": "#AAAAAA"
         },
         {
           "type": "checkbox",
@@ -3498,16 +3494,10 @@
           "label": "Naam"
         },
         {
-          "type": "text",
-          "id": "swatch_6_handle",
-          "label": "Product handle",
+          "type": "product",
+          "id": "swatch_6_product",
+          "label": "Product",
           "info": "Leeg laten om swatch te verbergen"
-        },
-        {
-          "type": "color",
-          "id": "swatch_6_color",
-          "label": "Kleur",
-          "default": "#AAAAAA"
         },
         {
           "type": "checkbox",
@@ -3538,10 +3528,10 @@
           "default": true
         },
         {
-          "type": "text",
-          "id": "highlight_handle",
-          "label": "Handle voor highlight badge",
-          "info": "Toon badge wanneer deze kleur actief is (bijv. flowcore-midnight-black)"
+          "type": "product",
+          "id": "highlight_product",
+          "label": "Product voor highlight badge",
+          "info": "Toon badge wanneer dit product actief is"
         },
         {
           "type": "text",
