@@ -25,7 +25,7 @@
         "calqix_badge_V6pymC": {
           "type": "calqix_badge",
           "settings": {
-            "text": "Clinically tested • Up to 99.9% plaque removal"
+            "text": "⬡ Step 1 of the CALQIX Routine"
           }
         },
         "rating_tHpFGr": {
@@ -44,7 +44,7 @@
         "calqix_subtitle_UyGg8U": {
           "type": "calqix_subtitle",
           "settings": {
-            "subtitle": "<p>Cordless oral irrigator that clears plaque fast, so enamel care can work better.</p>"
+            "subtitle": "<p>Cordless oral irrigator — clears the path so nano-HA can work.</p>"
           }
         },
         "price": {
@@ -83,7 +83,7 @@
             "swatch_6_product": "",
             "swatch_6_border": false,
             "swatch_6_border_color": "#cccccc",
-            "label_text": "Choose your FlowCore colour",
+            "label_text": "Colour",
             "show_active_name": true,
             "highlight_product": "",
             "highlight_text": "Most chosen",
@@ -104,11 +104,8 @@
             "show_border_top": false,
             "show_border_bottom": false,
             "border_color": "#e4e4e0",
-            "custom_css": "#ccs-block-{{ block.id }}{margin-bottom:6px;}\n#ccs-block-{{ block.id }} .ccs-label{margin-bottom:8px;}",
-            "custom_js": "",
-            "highlight_product": "flowcore-midnight-black",
-            "highlight_text": "Most chosen",
-            "helper_text": "All colours have the same specifications, warranty and delivery speed."
+            "custom_css": "",
+            "custom_js": ""
           }
         },
         "buy_buttons": {
@@ -159,7 +156,7 @@
             "margin_vertical": 0,
             "show_shipping": true,
             "shipping_icon": "📦",
-            "shipping_text": "Order before 23:00 — shipped today. NL: 1-2 business days, free above EUR80.",
+            "shipping_text": "Free shipping on orders over €80 — ships within 2 business days.",
             "shipping_background": "#f7f5f2",
             "shipping_text_color": "#1a3b5c",
             "shipping_size": 13,
@@ -290,6 +287,21 @@
         "content_font_size": 14,
         "line_height": 18,
         "trigger_padding": 18,
+        "margin_top_desktop": 0,
+        "margin_bottom_desktop": 0,
+        "padding_vertical_desktop": 32,
+        "padding_horizontal_desktop": 0,
+        "max_width_desktop": 800,
+        "margin_top_tablet": 0,
+        "margin_bottom_tablet": 0,
+        "padding_vertical_tablet": 24,
+        "padding_horizontal_tablet": 12,
+        "max_width_tablet": 900,
+        "margin_top_mobile": 0,
+        "margin_bottom_mobile": 0,
+        "padding_vertical_mobile": 16,
+        "padding_horizontal_mobile": 10,
+        "max_width_mobile": 480,
         "padding_vertical": 0,
         "padding_horizontal": 0,
         "max_width": 760,
@@ -397,8 +409,7 @@
         "shipping_padding": 12,
         "custom_css": "",
         "custom_js": ""
-      },
-      "disabled": true
+      }
     },
     "calqix_science_strip_kzQwKf": {
       "type": "calqix-science-strip",
@@ -409,11 +420,11 @@
         "heading_color": "#ffffff",
         "subtext_color": "#6b8faa",
         "divider_color": "#1e3a54",
-        "padding_vertical": 64,
+        "padding_vertical": 52,
         "padding_horizontal": 48,
         "max_width": 1200,
         "number_font": "Georgia, serif",
-        "number_size": 44,
+        "number_size": 42,
         "stat_1_show": true,
         "stat_1_number": "99.9%",
         "stat_1_heading": "Plaque Removal",
@@ -475,8 +486,8 @@
       ],
       "name": "CALQIX — How It Works",
       "settings": {
-        "label": "The technology",
-        "title": "How FlowCore works.",
+        "label": "The Technology",
+        "title": "How the FlowCore works.",
         "subtitle": "Water flossing is not just pressure. It's a combination of pulsation frequency and precise targeting — two things string floss physically cannot replicate.",
         "header_gap": 48,
         "columns": 3,
@@ -494,17 +505,49 @@
         "badge_background": "#c9a84c14",
         "badge_border": "#c9a84c40",
         "title_font": "Georgia, serif",
-        "label_size": 12,
-        "title_size": 36,
+        "label_size": 11,
+        "title_size": 34,
         "subtitle_size": 15,
         "number_size": 52,
-        "card_heading_size": 15,
+        "card_heading_size": 16,
         "card_body_size": 14,
         "padding_vertical": 72,
         "padding_horizontal": 48,
         "max_width": 1200,
         "custom_css": "",
         "custom_js": ""
+      }
+    },
+    "calqix_before_after_JFjxMT": {
+      "type": "calqix-before-after",
+      "name": "CALQIX — Before After",
+      "settings": {
+        "eyebrow": "The CALQIX Journey",
+        "title": "Before. In Action. After.",
+        "background_color": "#0F2438",
+        "accent_color": "#E8C96A",
+        "heading_color": "#FFFFFF",
+        "body_text_color": "#AFC1D2",
+        "section_padding_vertical": 72,
+        "col1_show": true,
+        "col1_url": "",
+        "col1_step_number": "01",
+        "col1_badge_text": "Day 0",
+        "col1_heading": "Before",
+        "col1_body": "Plaque and bacteria accumulate between teeth and below the gumline. Enamel cannot remineralise through biofilm — the barrier must be removed first.",
+        "col2_show": true,
+        "col2_url": "",
+        "col2_step_number": "02",
+        "col2_badge_text": "60 seconds",
+        "col2_heading": "In Action",
+        "col2_body": "The FlowCore delivers 1,400 pulsations per minute, reaching 6mm below the gumline. Plaque, debris and bacteria are flushed from areas a toothbrush cannot reach.",
+        "col3_show": true,
+        "col3_url": "",
+        "col3_step_number": "03",
+        "col3_badge_text": "Day 30+",
+        "col3_heading": "After",
+        "col3_body": "Clean enamel. Healthy gum tissue. With the surface barrier removed, nano-HA from your CALQIX tablet can now bind directly to enamel and remineralise.",
+        "custom_css": ""
       }
     },
     "calqix_routine_bundle_aKkp9x": {
@@ -542,7 +585,7 @@
       ],
       "name": "CALQIX — Routine + Bundle",
       "settings": {
-        "label": "The CALQIX routine",
+        "label": "The CALQIX Routine",
         "title": "Flush. Rebuild. Repeat.",
         "subtitle": "Two products. One clinical protocol. Designed to work in sequence — not separately.",
         "card_label": "Bundle & Save",
@@ -556,7 +599,7 @@
         "bundle_price": "€64,95",
         "old_price": "€79,90",
         "save_text": "SAVE €14,95",
-        "button_text": "Shop the complete routine ->",
+        "button_text": "Shop the Bundle →",
         "bundle_product_handle": "flowcore-bundle",
         "bundle_url": "",
         "flip_layout": false,
@@ -595,8 +638,8 @@
         "button_color": "#0f2438",
         "button_hover": "#e8c96a",
         "title_font": "Georgia, serif",
-        "label_size": 12,
-        "title_size": 36,
+        "label_size": 11,
+        "title_size": 34,
         "subtitle_size": 15,
         "step_heading_size": 14,
         "step_body_size": 13,
@@ -681,9 +724,9 @@
         "card_radius": 4,
         "tag_radius": 2,
         "show_dot_texture": true,
-        "eyebrow": "Verified reviews",
-        "title_plain": "What FlowCore users",
-        "title_italic": "say.",
+        "eyebrow": "Verified Reviews",
+        "title_plain": "What our customers",
+        "title_italic": "are saying.",
         "avg_score": "4.9",
         "review_count": "2,140",
         "review_label": "verified reviews",
@@ -711,46 +754,17 @@
         "color_arrow_hover_bg": "#1a3b5c",
         "color_arrow_hover_icon": "#ffffff"
       }
-    },
-    "calqix_before_after_flowcore": {
-      "type": "calqix-before-after",
-      "settings": {
-        "eyebrow": "How FlowCore Works",
-        "title": "Before. In Action. After.",
-        "background_color": "#0F2438",
-        "accent_color": "#E8C96A",
-        "heading_color": "#FFFFFF",
-        "body_text_color": "#AFC1D2",
-        "section_padding_vertical": 72,
-        "col1_show": true,
-        "col1_url": "",
-        "col1_step_number": "01",
-        "col1_badge_text": "Day 0",
-        "col1_heading": "Before",
-        "col1_body": "Plaque and bacteria accumulate between teeth and below the gumline. Enamel cannot remineralise through biofilm — the barrier must be removed first.",
-        "col2_show": true,
-        "col2_url": "",
-        "col2_step_number": "02",
-        "col2_badge_text": "60 seconds",
-        "col2_heading": "In Action",
-        "col2_body": "The FlowCore delivers 1,400 pulsations per minute, reaching 6mm below the gumline. Plaque, debris and bacteria are flushed from areas a toothbrush cannot reach.",
-        "col3_show": true,
-        "col3_url": "",
-        "col3_step_number": "03",
-        "col3_badge_text": "Day 30+",
-        "col3_heading": "After",
-        "col3_body": "Clean enamel. Healthy gum tissue. With the surface barrier removed, nano-HA from your CALQIX tablet can now bind directly to enamel and remineralise.",
-        "custom_css": ""
-      }
     }
   },
   "order": [
     "breadcrumbs",
     "main",
     "calqix_product_accordions_main",
-    "calqix_before_after_flowcore",
+    "calqix_colour_switcher",
+    "calqix_trust_badges",
     "calqix_science_strip_kzQwKf",
     "calqix_how_it_works_hnfFKd",
+    "calqix_before_after_JFjxMT",
     "calqix_routine_bundle_aKkp9x",
     "calqix_reviews_XHeCpx"
   ]
