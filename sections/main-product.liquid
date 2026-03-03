@@ -2323,16 +2323,41 @@
                   gap: 8px;
                   flex-wrap: wrap;
                 }
+                #ccs-block-{{ block.id }} .ccs-meta {
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 6px;
+                  letter-spacing: 0;
+                  text-transform: none;
+                }
                 #ccs-block-{{ block.id }} .ccs-active-name {
                   font-weight: 400;
                   color: {{ b.name_color }};
                   letter-spacing: 0.02em;
                   text-transform: none;
                 }
+                #ccs-block-{{ block.id }} .ccs-chip {
+                  display: inline-flex;
+                  align-items: center;
+                  padding: 2px 8px;
+                  border-radius: 999px;
+                  font-size: 10px;
+                  font-weight: 600;
+                  line-height: 1.2;
+                  background: #f7f5f2;
+                  color: {{ b.label_color }};
+                  border: 1px solid {{ b.border_color }};
+                }
                 #ccs-block-{{ block.id }} .ccs-swatches {
                   display: flex;
                   gap: {{ b.swatch_gap }}px;
                   flex-wrap: wrap;
+                }
+                #ccs-block-{{ block.id }} .ccs-helper {
+                  margin: 8px 0 0;
+                  font-size: 12px;
+                  line-height: 1.45;
+                  color: {{ b.name_color }};
                 }
                 #ccs-block-{{ block.id }} .ccs-swatch {
                   display: block;
@@ -2345,6 +2370,13 @@
                   position: relative;
                   cursor: pointer;
                   flex-shrink: 0;
+                  overflow: hidden;
+                }
+                #ccs-block-{{ block.id }} .ccs-swatch__img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                  display: block;
                 }
                 #ccs-block-{{ block.id }} .ccs-swatch:hover { transform: scale(1.1); }
                 #ccs-block-{{ block.id }} .ccs-swatch.ccs-active {
@@ -2377,17 +2409,27 @@
                 {% if b.custom_css != blank %}{{ b.custom_css }}{% endif %}
               </style>
               {%- assign ccs_active_name = '' -%}
+              {%- assign ccs_active_handle = '' -%}
               {%- for i in (1..6) -%}
                 {%- assign ccs_hk = 'swatch_' | append: i | append: '_handle' -%}
                 {%- assign ccs_nk = 'swatch_' | append: i | append: '_name' -%}
-                {%- if b[ccs_hk] == product.handle -%}{%- assign ccs_active_name = b[ccs_nk] -%}{%- endif -%}
+                {%- if b[ccs_hk] == product.handle -%}
+                  {%- assign ccs_active_name = b[ccs_nk] -%}
+                  {%- assign ccs_active_handle = b[ccs_hk] -%}
+                {%- endif -%}
               {%- endfor -%}
               {%- if ccs_active_name == blank -%}{%- assign ccs_active_name = b.swatch_1_name -%}{%- endif -%}
+              {%- if ccs_active_handle == blank -%}{%- assign ccs_active_handle = b.swatch_1_handle -%}{%- endif -%}
               <div id="ccs-block-{{ block.id }}" class="calqix-colour-switcher-block" {{ block.shopify_attributes }}>
                 <div class="ccs-label">
                   {{ b.label_text }}
                   {%- if b.show_active_name and ccs_active_name != blank -%}
-                    — <span class="ccs-active-name">{{ ccs_active_name }}</span>
+                    <span class="ccs-meta">
+                      — <span class="ccs-active-name">{{ ccs_active_name }}</span>
+                      {%- if b.highlight_text != blank and b.highlight_handle != blank and ccs_active_handle == b.highlight_handle -%}
+                        <span class="ccs-chip">{{ b.highlight_text }}</span>
+                      {%- endif -%}
+                    </span>
                   {%- endif -%}
                 </div>
                 <div class="ccs-swatches">
@@ -2398,17 +2440,44 @@
                     {%- assign ccs_bk  = 'swatch_' | append: i | append: '_border' -%}
                     {%- assign ccs_bcl = 'swatch_' | append: i | append: '_border_color' -%}
                     {%- if b[ccs_hk] != blank -%}
+                      {%- assign ccs_resolved_handle = b[ccs_hk] -%}
+                      {%- assign ccs_product = all_products[ccs_resolved_handle] -%}
+                      {%- if ccs_product == blank and ccs_resolved_handle contains 'calqix-' -%}
+                        {%- assign ccs_try_handle = ccs_resolved_handle | remove_first: 'calqix-' -%}
+                        {%- assign ccs_product = all_products[ccs_try_handle] -%}
+                        {%- if ccs_product != blank -%}{%- assign ccs_resolved_handle = ccs_try_handle -%}{%- endif -%}
+                      {%- endif -%}
+                      {%- if ccs_product == blank -%}
+                        {%- assign ccs_try_handle = 'calqix-' | append: ccs_resolved_handle -%}
+                        {%- assign ccs_product = all_products[ccs_try_handle] -%}
+                        {%- if ccs_product != blank -%}{%- assign ccs_resolved_handle = ccs_try_handle -%}{%- endif -%}
+                      {%- endif -%}
                       {%- assign ccs_is_active = false -%}
-                      {%- if b[ccs_hk] == product.handle -%}{%- assign ccs_is_active = true -%}{%- endif -%}
-                      <a href="/products/{{ b[ccs_hk] }}"
+                      {%- if ccs_resolved_handle == product.handle -%}{%- assign ccs_is_active = true -%}{%- endif -%}
+                      <a href="/products/{{ ccs_resolved_handle }}"
                          class="ccs-swatch {% if ccs_is_active %}ccs-active{% endif %} {% if b[ccs_bk] %}ccs-swatch--bordered{% endif %}"
                          style="background-color: {{ b[ccs_ck] }};{% if b[ccs_bk] %} border-color: {{ b[ccs_bcl] }} !important;{% endif %}"
                          aria-label="{{ b[ccs_nk] }}" title="{{ b[ccs_nk] }}">
+                        {%- if ccs_product != blank and ccs_product.featured_image != blank -%}
+                          {{
+                            ccs_product.featured_image
+                            | image_url: width: 96
+                            | image_tag:
+                              class: 'ccs-swatch__img',
+                              loading: 'lazy',
+                              widths: '48, 96',
+                              sizes: '48px',
+                              alt: b[ccs_nk]
+                          }}
+                        {%- endif -%}
                         <span class="ccs-tooltip">{{ b[ccs_nk] }}</span>
                       </a>
                     {%- endif -%}
                   {%- endfor -%}
                 </div>
+                {%- if b.helper_text != blank -%}
+                  <p class="ccs-helper">{{ b.helper_text }}</p>
+                {%- endif -%}
               </div>
               {%- if b.custom_js != blank -%}
                 <script>(function(){var blockId='{{ block.id }}';var section=document.getElementById('ccs-block-'+blockId);{{ b.custom_js }}})()</script>
@@ -3260,7 +3329,8 @@
           "type": "text",
           "id": "swatch_1_handle",
           "label": "Product handle",
-          "info": "bijv. flowcore-midnight-black"
+          "info": "bijv. flowcore-midnight-black",
+          "default": "flowcore-midnight-black"
         },
         {
           "type": "color",
@@ -3294,7 +3364,8 @@
           "type": "text",
           "id": "swatch_2_handle",
           "label": "Product handle",
-          "info": "Leeg laten om swatch te verbergen"
+          "info": "Leeg laten om swatch te verbergen",
+          "default": "flowcore-clinical-white"
         },
         {
           "type": "color",
@@ -3328,7 +3399,8 @@
           "type": "text",
           "id": "swatch_3_handle",
           "label": "Product handle",
-          "info": "Leeg laten om swatch te verbergen"
+          "info": "Leeg laten om swatch te verbergen",
+          "default": "flowcore-lime-green"
         },
         {
           "type": "color",
@@ -3362,7 +3434,8 @@
           "type": "text",
           "id": "swatch_4_handle",
           "label": "Product handle",
-          "info": "Leeg laten om swatch te verbergen"
+          "info": "Leeg laten om swatch te verbergen",
+          "default": "flowcore-blush-pink"
         },
         {
           "type": "color",
@@ -3463,6 +3536,24 @@
           "id": "show_active_name",
           "label": "Actieve kleurnaam tonen",
           "default": true
+        },
+        {
+          "type": "text",
+          "id": "highlight_handle",
+          "label": "Handle voor highlight badge",
+          "info": "Toon badge wanneer deze kleur actief is (bijv. flowcore-midnight-black)"
+        },
+        {
+          "type": "text",
+          "id": "highlight_text",
+          "label": "Highlight badge tekst",
+          "default": "Most chosen"
+        },
+        {
+          "type": "text",
+          "id": "helper_text",
+          "label": "Helper tekst onder swatches",
+          "default": "All colours have the same specs. Choose your favourite."
         },
         {
           "type": "color",
