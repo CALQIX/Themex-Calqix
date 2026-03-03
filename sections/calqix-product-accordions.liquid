@@ -51,11 +51,15 @@
     color: {{ trigger_col }};
     letter-spacing: 0.02em;
     text-align: left;
-    transition: color 0.2s;
+    transition: color 0.2s ease;
   }
 
   #calqix-accordions-{{ section.id }} .cqa-trigger:hover {
     color: {{ accent_col }};
+  }
+  #calqix-accordions-{{ section.id }} .cqa-trigger:focus-visible {
+    outline: 2px solid {{ accent_col }};
+    outline-offset: 2px;
   }
 
   #calqix-accordions-{{ section.id }} .cqa-icon {
@@ -90,6 +94,12 @@
     color: {{ content_col }};
     line-height: calc({{ section.settings.line_height }} / 10);
     font-weight: 300;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-content > *:first-child {
+    margin-top: 0;
+  }
+  #calqix-accordions-{{ section.id }} .cqa-content > *:last-child {
+    margin-bottom: 0;
   }
 
   /* Rich text resets */
@@ -171,6 +181,17 @@
     font-weight: 500;
   }
 
+  @media (max-width: 749px) {
+    #calqix-accordions-{{ section.id }} {
+      padding-left: 0;
+      padding-right: 0;
+    }
+    #calqix-accordions-{{ section.id }} .cqa-trigger {
+      padding-top: {{ section.settings.trigger_padding | minus: 2 }}px;
+      padding-bottom: {{ section.settings.trigger_padding | minus: 2 }}px;
+    }
+  }
+
   {% if section.settings.custom_css != blank %}
     {{ section.settings.custom_css }}
   {% endif %}
@@ -189,11 +210,11 @@
       {% endif %}
 
       <div class="cqa-item {% if is_default_open %}open{% endif %}" {{ block.shopify_attributes }}>
-        <button class="cqa-trigger" type="button" aria-expanded="{% if is_default_open %}true{% else %}false{% endif %}">
+        <button class="cqa-trigger" type="button" aria-controls="cqa-panel-{{ section.id }}-{{ block.id }}" aria-expanded="{% if is_default_open %}true{% else %}false{% endif %}">
           {{ block.settings.title }}
           <span class="cqa-icon" aria-hidden="true">+</span>
         </button>
-        <div class="cqa-body {% if is_default_open %}open{% endif %}" role="region" aria-hidden="{% if is_default_open %}false{% else %}true{% endif %}">
+        <div id="cqa-panel-{{ section.id }}-{{ block.id }}" class="cqa-body {% if is_default_open %}open{% endif %}" role="region" aria-hidden="{% if is_default_open %}false{% else %}true{% endif %}">
           <div class="cqa-content">
             {{ block.settings.content }}
           </div>
