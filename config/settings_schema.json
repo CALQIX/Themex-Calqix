@@ -927,6 +927,179 @@
         "id": "free_shipping_bar_text_success",
         "default": "You have unlocked free shipping!",
         "label": "t:settings_schema.cart.settings.free_shipping_bar_text_success.label"
+      },
+      {
+        "type": "header",
+        "content": "Cart drawer CRO"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_show_payment_methods",
+        "default": true,
+        "label": "Show payment methods below checkout"
+      },
+      {
+        "type": "text",
+        "id": "cart_drawer_payment_label",
+        "default": "Secure payments",
+        "label": "Payment label"
+      },
+      {
+        "type": "range",
+        "id": "cart_drawer_payment_icon_height",
+        "min": 14,
+        "max": 34,
+        "step": 1,
+        "default": 20,
+        "label": "Payment icon height"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_payment_show_trust_text",
+        "default": true,
+        "label": "Show trust microcopy"
+      },
+      {
+        "type": "text",
+        "id": "cart_drawer_payment_trust_text",
+        "default": "Secure checkout - 30-day returns - Fast shipping",
+        "label": "Trust microcopy"
+      },
+      {
+        "type": "header",
+        "content": "Payment methods"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_show_visa",
+        "default": true,
+        "label": "Visa"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_drawer_payment_img_visa",
+        "label": "Visa custom image (optional)"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_show_mastercard",
+        "default": true,
+        "label": "Mastercard"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_drawer_payment_img_mastercard",
+        "label": "Mastercard custom image (optional)"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_show_amex",
+        "default": true,
+        "label": "American Express"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_drawer_payment_img_amex",
+        "label": "Amex custom image (optional)"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_show_paypal",
+        "default": true,
+        "label": "PayPal"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_drawer_payment_img_paypal",
+        "label": "PayPal custom image (optional)"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_show_ideal",
+        "default": true,
+        "label": "iDEAL / Wero"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_drawer_payment_img_ideal",
+        "label": "iDEAL custom image (optional)"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_show_apple_pay",
+        "default": true,
+        "label": "Apple Pay"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_drawer_payment_img_apple_pay",
+        "label": "Apple Pay custom image (optional)"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_show_google_pay",
+        "default": true,
+        "label": "Google Pay"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_drawer_payment_img_google_pay",
+        "label": "Google Pay custom image (optional)"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_show_klarna",
+        "default": true,
+        "label": "Klarna"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_drawer_payment_img_klarna",
+        "label": "Klarna custom image (optional)"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_show_bancontact",
+        "default": true,
+        "label": "Bancontact"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_drawer_payment_img_bancontact",
+        "label": "Bancontact custom image (optional)"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_drawer_payment_custom_1",
+        "label": "Custom payment icon 1"
+      },
+      {
+        "type": "text",
+        "id": "cart_drawer_payment_custom_1_label",
+        "default": "Payment method",
+        "label": "Custom payment icon 1 label"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_drawer_payment_custom_2",
+        "label": "Custom payment icon 2"
+      },
+      {
+        "type": "text",
+        "id": "cart_drawer_payment_custom_2_label",
+        "default": "Payment method",
+        "label": "Custom payment icon 2 label"
+      },
+      {
+        "type": "image_picker",
+        "id": "cart_drawer_payment_custom_3",
+        "label": "Custom payment icon 3"
+      },
+      {
+        "type": "text",
+        "id": "cart_drawer_payment_custom_3_label",
+        "default": "Payment method",
+        "label": "Custom payment icon 3 label"
       }
     ]
   },

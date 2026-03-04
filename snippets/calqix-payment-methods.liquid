@@ -1,0 +1,129 @@
+{%- if settings.cart_drawer_show_payment_methods -%}
+  {%- assign any_payment = false -%}
+  {%- if settings.cart_drawer_show_visa or settings.cart_drawer_show_mastercard or settings.cart_drawer_show_amex or settings.cart_drawer_show_paypal or settings.cart_drawer_show_ideal or settings.cart_drawer_show_apple_pay or settings.cart_drawer_show_google_pay or settings.cart_drawer_show_klarna or settings.cart_drawer_show_bancontact -%}
+    {%- assign any_payment = true -%}
+  {%- endif -%}
+  {%- for i in (1..3) -%}
+    {%- assign custom_key = 'cart_drawer_payment_custom_' | append: i -%}
+    {%- if settings[custom_key] != blank -%}{%- assign any_payment = true -%}{%- endif -%}
+  {%- endfor -%}
+
+  {%- if any_payment -%}
+    <div
+      class="ccd-payment-row"
+      aria-label="Payment methods accepted"
+      style="--ccd-payment-icon-height: {{ settings.cart_drawer_payment_icon_height | default: 20 }}px;"
+    >
+      {%- if settings.cart_drawer_payment_label != blank -%}
+        <p class="ccd-payment-label">{{ settings.cart_drawer_payment_label }}</p>
+      {%- endif -%}
+
+      <div class="ccd-payment-icons" role="list">
+        {%- if settings.cart_drawer_show_visa -%}
+          <span class="ccd-payment-icon" role="listitem" title="Visa">
+            {%- if settings.cart_drawer_payment_img_visa != blank -%}
+              {{ settings.cart_drawer_payment_img_visa | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Visa', class: 'ccd-payment-custom-img' }}
+            {%- else -%}
+              {{ 'visa' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+            {%- endif -%}
+          </span>
+        {%- endif -%}
+
+        {%- if settings.cart_drawer_show_mastercard -%}
+          <span class="ccd-payment-icon" role="listitem" title="Mastercard">
+            {%- if settings.cart_drawer_payment_img_mastercard != blank -%}
+              {{ settings.cart_drawer_payment_img_mastercard | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Mastercard', class: 'ccd-payment-custom-img' }}
+            {%- else -%}
+              {{ 'master' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+            {%- endif -%}
+          </span>
+        {%- endif -%}
+
+        {%- if settings.cart_drawer_show_amex -%}
+          <span class="ccd-payment-icon" role="listitem" title="American Express">
+            {%- if settings.cart_drawer_payment_img_amex != blank -%}
+              {{ settings.cart_drawer_payment_img_amex | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'American Express', class: 'ccd-payment-custom-img' }}
+            {%- else -%}
+              {{ 'american_express' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+            {%- endif -%}
+          </span>
+        {%- endif -%}
+
+        {%- if settings.cart_drawer_show_paypal -%}
+          <span class="ccd-payment-icon" role="listitem" title="PayPal">
+            {%- if settings.cart_drawer_payment_img_paypal != blank -%}
+              {{ settings.cart_drawer_payment_img_paypal | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'PayPal', class: 'ccd-payment-custom-img' }}
+            {%- else -%}
+              {{ 'paypal' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+            {%- endif -%}
+          </span>
+        {%- endif -%}
+
+        {%- if settings.cart_drawer_show_ideal -%}
+          <span class="ccd-payment-icon" role="listitem" title="iDEAL">
+            {%- if settings.cart_drawer_payment_img_ideal != blank -%}
+              {{ settings.cart_drawer_payment_img_ideal | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'iDEAL', class: 'ccd-payment-custom-img' }}
+            {%- else -%}
+              {{ 'ideal' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+            {%- endif -%}
+          </span>
+        {%- endif -%}
+
+        {%- if settings.cart_drawer_show_apple_pay -%}
+          <span class="ccd-payment-icon" role="listitem" title="Apple Pay">
+            {%- if settings.cart_drawer_payment_img_apple_pay != blank -%}
+              {{ settings.cart_drawer_payment_img_apple_pay | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Apple Pay', class: 'ccd-payment-custom-img' }}
+            {%- else -%}
+              {{ 'apple_pay' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+            {%- endif -%}
+          </span>
+        {%- endif -%}
+
+        {%- if settings.cart_drawer_show_google_pay -%}
+          <span class="ccd-payment-icon" role="listitem" title="Google Pay">
+            {%- if settings.cart_drawer_payment_img_google_pay != blank -%}
+              {{ settings.cart_drawer_payment_img_google_pay | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Google Pay', class: 'ccd-payment-custom-img' }}
+            {%- else -%}
+              {{ 'google_pay' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+            {%- endif -%}
+          </span>
+        {%- endif -%}
+
+        {%- if settings.cart_drawer_show_klarna -%}
+          <span class="ccd-payment-icon" role="listitem" title="Klarna">
+            {%- if settings.cart_drawer_payment_img_klarna != blank -%}
+              {{ settings.cart_drawer_payment_img_klarna | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Klarna', class: 'ccd-payment-custom-img' }}
+            {%- else -%}
+              {{ 'klarna' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+            {%- endif -%}
+          </span>
+        {%- endif -%}
+
+        {%- if settings.cart_drawer_show_bancontact -%}
+          <span class="ccd-payment-icon" role="listitem" title="Bancontact">
+            {%- if settings.cart_drawer_payment_img_bancontact != blank -%}
+              {{ settings.cart_drawer_payment_img_bancontact | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Bancontact', class: 'ccd-payment-custom-img' }}
+            {%- else -%}
+              {{ 'bancontact' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+            {%- endif -%}
+          </span>
+        {%- endif -%}
+
+        {%- for i in (1..3) -%}
+          {%- assign custom_key = 'cart_drawer_payment_custom_' | append: i -%}
+          {%- assign label_key = 'cart_drawer_payment_custom_' | append: i | append: '_label' -%}
+          {%- assign custom_img = settings[custom_key] -%}
+          {%- if custom_img != blank -%}
+            <span class="ccd-payment-icon" role="listitem" title="{{ settings[label_key] | escape }}">
+              {{ custom_img | image_url: height: 96 | image_tag: loading: 'lazy', alt: settings[label_key] | default: 'Payment method', class: 'ccd-payment-custom-img' }}
+            </span>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      {%- if settings.cart_drawer_payment_show_trust_text and settings.cart_drawer_payment_trust_text != blank -%}
+        <p class="ccd-payment-trust">{{ settings.cart_drawer_payment_trust_text }}</p>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+{%- endif -%}
