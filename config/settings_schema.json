@@ -1054,7 +1054,7 @@
       {
         "type": "select",
         "id": "drawer_mobile_item_price_font",
-        "default": "price",
+        "default": "dm_serif",
         "label": "Price font (mobile)",
         "options": [
           { "value": "price", "label": "Price font" },
@@ -1077,13 +1077,36 @@
       {
         "type": "select",
         "id": "drawer_mobile_item_price_weight",
-        "default": "700",
+        "default": "400",
         "label": "Price weight (mobile)",
         "options": [
+          { "value": "400", "label": "400" },
           { "value": "500", "label": "500" },
           { "value": "600", "label": "600" },
           { "value": "700", "label": "700" }
         ]
+      },
+      {
+        "type": "header",
+        "content": "Drawer line-item price colors"
+      },
+      {
+        "type": "color",
+        "id": "drawer_item_price_regular_color",
+        "default": "#1A3B5C",
+        "label": "Regular price color"
+      },
+      {
+        "type": "color",
+        "id": "drawer_item_price_compare_color",
+        "default": "#B8BEC6",
+        "label": "Compare-at price color"
+      },
+      {
+        "type": "color",
+        "id": "drawer_item_price_sale_color",
+        "default": "#2E9E57",
+        "label": "Sale price color"
       },
       {
         "type": "range",

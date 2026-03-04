@@ -21,10 +21,6 @@
     </div>
   {%- endif -%}
 
-  <span class="wt-cart__subtitle__text wt-cart__subtitle__text--custom">
-    Taxes & duties included, shipping calculated at checkout.
-  </span>
-
   {% if settings.show_view_cart and settings.hide_checkout_button %}
     {% comment %}Only view cart button{% endcomment %}
     <button
@@ -87,6 +83,10 @@
       </button>
     </div>
   {% endif %}
+
+  <span class="wt-cart__subtitle__text wt-cart__subtitle__text--custom">
+    Taxes & duties included, shipping calculated at checkout.
+  </span>
 
   {% assign show_trust_module = settings.drawer_module_trust %}
   {% if show_trust_module == blank %}

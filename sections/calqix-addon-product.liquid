@@ -15,6 +15,7 @@
     <div class="cao-wrap cao-hero-grid">
       <div class="cao-media">
         {% assign featured = product.selected_or_first_available_variant.featured_media | default: product.featured_media %}
+        {% assign main_image_id = 'cao-main-img-' | append: section.id %}
         <div class="cao-main-image">
           {% if featured != blank %}
             {{
@@ -24,7 +25,7 @@
                 loading: 'eager',
                 widths: '420, 640, 900, 1200, 1400',
                 class: 'cao-main-image-el',
-                id: 'cao-main-img-' | append: section.id,
+                id: main_image_id,
                 alt: product.title
             }}
           {% endif %}

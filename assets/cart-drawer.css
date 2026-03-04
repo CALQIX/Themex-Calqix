@@ -1054,8 +1054,19 @@
   color: var(--calqix-muted);
 }
 .wt-cart__drawer .wt-cart__item__price-wrapper .price {
-  color: var(--calqix-navy-soft);
-  font-weight: 700;
+  color: var(--drawer-item-price-regular-color, var(--calqix-navy-soft));
+  font-family: var(--drawer-mobile-price-font, "DM Serif Display", Georgia, serif);
+  font-weight: var(--drawer-mobile-price-weight, 400);
+}
+.wt-cart__drawer .cart-item__old-price,
+.wt-cart__drawer .cart-item__old-price.price,
+.wt-cart__drawer .cart-item__discounted-prices s {
+  color: var(--drawer-item-price-compare-color, #b8bec6);
+}
+.wt-cart__drawer .price--end-sale,
+.wt-cart__drawer .cart-item__discounted-prices .price--end-sale,
+.wt-cart__drawer .cart-item__discounted-prices .cart-item__final-price {
+  color: var(--drawer-item-price-sale-color, #2e9e57);
 }
 .wt-cart__drawer .counter {
   border-radius: 0;
@@ -1187,6 +1198,11 @@
     font-weight: var(--drawer-mobile-price-weight);
     line-height: 1.25;
   }
+  .wt-cart__drawer .wt-cart__item__price-wrapper .price {
+    font-family: var(--drawer-mobile-price-font);
+    font-size: var(--drawer-mobile-price-size);
+    font-weight: var(--drawer-mobile-price-weight);
+  }
   .wt-cart__drawer .counter .js-counter-quantity {
     font-size: var(--drawer-mobile-qty-size);
   }
@@ -1206,8 +1222,9 @@
     padding: 0 4px;
   }
   .wt-cart__drawer .wt-cart__subtitle__text {
-    text-align: right;
+    text-align: center;
     font-size: 11px;
+    margin-top: 8px;
   }
 }
 
