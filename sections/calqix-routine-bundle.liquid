@@ -47,6 +47,16 @@
   {% assign bundle_url = '/collections/bundles' %}
 {% endif %}
 {% assign bundle_sold_out = true %}
+{% assign soldout_waitlist_label = section.settings.soldout_waitlist_label | default: 'Notify me when available' %}
+{% assign soldout_waitlist_url = section.settings.soldout_waitlist_url | default: '/pages/contact' %}
+{% assign soldout_alt_label = section.settings.soldout_alt_label | default: 'Shop FlowCore only' %}
+{% assign soldout_alt_url = section.settings.soldout_alt_url | default: '/products/calqix-flowcore' %}
+{% if section.settings.soldout_copy_variant == 'b' %}
+  {% if section.settings.soldout_waitlist_label_b != blank %}{% assign soldout_waitlist_label = section.settings.soldout_waitlist_label_b %}{% endif %}
+  {% if section.settings.soldout_waitlist_url_b != blank %}{% assign soldout_waitlist_url = section.settings.soldout_waitlist_url_b %}{% endif %}
+  {% if section.settings.soldout_alt_label_b != blank %}{% assign soldout_alt_label = section.settings.soldout_alt_label_b %}{% endif %}
+  {% if section.settings.soldout_alt_url_b != blank %}{% assign soldout_alt_url = section.settings.soldout_alt_url_b %}{% endif %}
+{% endif %}
 
 <style>
   #calqix-routine-{{ section.id }} {
@@ -587,11 +597,11 @@
         {% if bundle_sold_out %}
           <span class="crb-btn is-soldout" role="status" aria-live="polite">Uitverkocht</span>
           <div class="crb-soldout-actions">
-            <a class="crb-soldout-link" href="{{ section.settings.soldout_waitlist_url | default: '/pages/contact' }}">
-              {{ section.settings.soldout_waitlist_label | default: 'Notify me when available' }}
+            <a class="crb-soldout-link" href="{{ soldout_waitlist_url }}">
+              {{ soldout_waitlist_label }}
             </a>
-            <a class="crb-soldout-link crb-soldout-link--alt" href="{{ section.settings.soldout_alt_url | default: '/products/calqix-flowcore' }}">
-              {{ section.settings.soldout_alt_label | default: 'Shop FlowCore only' }}
+            <a class="crb-soldout-link crb-soldout-link--alt" href="{{ soldout_alt_url }}">
+              {{ soldout_alt_label }}
             </a>
           </div>
         {% else %}
@@ -673,11 +683,11 @@
         </div>
         <span class="crb-btn is-soldout" role="status" aria-live="polite">Uitverkocht</span>
         <div class="crb-soldout-actions">
-          <a class="crb-soldout-link" href="{{ section.settings.soldout_waitlist_url | default: '/pages/contact' }}">
-            {{ section.settings.soldout_waitlist_label | default: 'Notify me when available' }}
+          <a class="crb-soldout-link" href="{{ soldout_waitlist_url }}">
+            {{ soldout_waitlist_label }}
           </a>
-          <a class="crb-soldout-link crb-soldout-link--alt" href="{{ section.settings.soldout_alt_url | default: '/products/calqix-flowcore' }}">
-            {{ section.settings.soldout_alt_label | default: 'Shop FlowCore only' }}
+          <a class="crb-soldout-link crb-soldout-link--alt" href="{{ soldout_alt_url }}">
+            {{ soldout_alt_label }}
           </a>
         </div>
       </article>
@@ -928,6 +938,16 @@
       "default": "Shop the Bundle →"
     },
     {
+      "type": "select",
+      "id": "soldout_copy_variant",
+      "label": "Uitverkocht copy variant",
+      "options": [
+        { "value": "a", "label": "Variant A" },
+        { "value": "b", "label": "Variant B" }
+      ],
+      "default": "a"
+    },
+    {
       "type": "text",
       "id": "soldout_waitlist_label",
       "label": "Uitverkocht: waitlist knop label",
@@ -948,6 +968,26 @@
       "type": "url",
       "id": "soldout_alt_url",
       "label": "Uitverkocht: alternatief knop URL"
+    },
+    {
+      "type": "text",
+      "id": "soldout_waitlist_label_b",
+      "label": "Variant B: waitlist knop label"
+    },
+    {
+      "type": "url",
+      "id": "soldout_waitlist_url_b",
+      "label": "Variant B: waitlist knop URL"
+    },
+    {
+      "type": "text",
+      "id": "soldout_alt_label_b",
+      "label": "Variant B: alternatief knop label"
+    },
+    {
+      "type": "url",
+      "id": "soldout_alt_url_b",
+      "label": "Variant B: alternatief knop URL"
     },
     {
       "type": "text",

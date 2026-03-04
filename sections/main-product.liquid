@@ -2304,6 +2304,20 @@
 
             {%- when 'calqix_pdp_decision' -%}
               {%- assign b = block.settings -%}
+              {%- assign cpd_enabled = b.enable_block -%}
+              {%- if cpd_enabled == blank -%}{%- assign cpd_enabled = true -%}{%- endif -%}
+              {%- assign cpd_title = b.title -%}
+              {%- assign cpd_line_1 = b.line_1_text -%}
+              {%- assign cpd_line_2 = b.line_2_text -%}
+              {%- assign cpd_line_3 = b.line_3_text -%}
+              {%- assign cpd_note = b.note_text -%}
+              {%- if b.experiment_variant == 'b' -%}
+                {%- if b.title_b != blank -%}{%- assign cpd_title = b.title_b -%}{%- endif -%}
+                {%- if b.line_1_text_b != blank -%}{%- assign cpd_line_1 = b.line_1_text_b -%}{%- endif -%}
+                {%- if b.line_2_text_b != blank -%}{%- assign cpd_line_2 = b.line_2_text_b -%}{%- endif -%}
+                {%- if b.line_3_text_b != blank -%}{%- assign cpd_line_3 = b.line_3_text_b -%}{%- endif -%}
+                {%- if b.note_text_b != blank -%}{%- assign cpd_note = b.note_text_b -%}{%- endif -%}
+              {%- endif -%}
               <style>
                 #cpd-block-{{ block.id }} {
                   margin: {{ b.margin_vertical }}px 0;
@@ -2354,28 +2368,40 @@
                   }
                 }
               </style>
-              <div id="cpd-block-{{ block.id }}" class="calqix-pdp-decision-block" {{ block.shopify_attributes }}>
-                {%- if b.title != blank -%}
-                  <p class="cpd-title">{{ b.title }}</p>
-                {%- endif -%}
-                <ul class="cpd-list" role="list">
-                  {%- if b.line_1_text != blank -%}
-                    <li class="cpd-item"><span class="cpd-icon">{{ b.line_1_icon }}</span><span>{{ b.line_1_text }}</span></li>
+              {%- if cpd_enabled -%}
+                <div id="cpd-block-{{ block.id }}" class="calqix-pdp-decision-block" {{ block.shopify_attributes }}>
+                  {%- if cpd_title != blank -%}
+                    <p class="cpd-title">{{ cpd_title }}</p>
                   {%- endif -%}
-                  {%- if b.line_2_text != blank -%}
-                    <li class="cpd-item"><span class="cpd-icon">{{ b.line_2_icon }}</span><span>{{ b.line_2_text }}</span></li>
+                  <ul class="cpd-list" role="list">
+                    {%- if cpd_line_1 != blank -%}
+                      <li class="cpd-item"><span class="cpd-icon">{{ b.line_1_icon }}</span><span>{{ cpd_line_1 }}</span></li>
+                    {%- endif -%}
+                    {%- if cpd_line_2 != blank -%}
+                      <li class="cpd-item"><span class="cpd-icon">{{ b.line_2_icon }}</span><span>{{ cpd_line_2 }}</span></li>
+                    {%- endif -%}
+                    {%- if cpd_line_3 != blank -%}
+                      <li class="cpd-item"><span class="cpd-icon">{{ b.line_3_icon }}</span><span>{{ cpd_line_3 }}</span></li>
+                    {%- endif -%}
+                  </ul>
+                  {%- if cpd_note != blank -%}
+                    <p class="cpd-note">{{ cpd_note }}</p>
                   {%- endif -%}
-                  {%- if b.line_3_text != blank -%}
-                    <li class="cpd-item"><span class="cpd-icon">{{ b.line_3_icon }}</span><span>{{ b.line_3_text }}</span></li>
-                  {%- endif -%}
-                </ul>
-                {%- if b.note_text != blank -%}
-                  <p class="cpd-note">{{ b.note_text }}</p>
-                {%- endif -%}
-              </div>
+                </div>
+              {%- endif -%}
 
             {%- when 'calqix_pdp_micro_faq' -%}
               {%- assign b = block.settings -%}
+              {%- assign cpf_enabled = b.enable_block -%}
+              {%- if cpf_enabled == blank -%}{%- assign cpf_enabled = true -%}{%- endif -%}
+              {%- assign faq_open_mode = b.open_mode -%}
+              {%- if faq_open_mode == blank -%}
+                {%- if b.open_first -%}
+                  {%- assign faq_open_mode = 'first_open' -%}
+                {%- else -%}
+                  {%- assign faq_open_mode = 'all_closed' -%}
+                {%- endif -%}
+              {%- endif -%}
               <style>
                 #cpf-block-{{ block.id }} {
                   margin: {{ b.margin_vertical }}px 0;
@@ -2423,24 +2449,32 @@
                   line-height: 1.6;
                 }
               </style>
-              <div id="cpf-block-{{ block.id }}" class="calqix-pdp-micro-faq-block" {{ block.shopify_attributes }}>
-                {%- if b.title != blank -%}
-                  <p class="cpf-title">{{ b.title }}</p>
-                {%- endif -%}
-                {%- for i in (1..4) -%}
-                  {%- assign q_key = 'q_' | append: i -%}
-                  {%- assign a_key = 'a_' | append: i -%}
-                  {%- if b[q_key] != blank and b[a_key] != blank -%}
-                    <details {% if i == 1 and b.open_first %}open{% endif %}>
-                      <summary>
-                        <span>{{ b[q_key] }}</span>
-                        <span class="cpf-plus">+</span>
-                      </summary>
-                      <div class="cpf-answer rte">{{ b[a_key] }}</div>
-                    </details>
+              {%- if cpf_enabled -%}
+                <div id="cpf-block-{{ block.id }}" class="calqix-pdp-micro-faq-block" {{ block.shopify_attributes }}>
+                  {%- if b.title != blank -%}
+                    <p class="cpf-title">{{ b.title }}</p>
                   {%- endif -%}
-                {%- endfor -%}
-              </div>
+                  {%- for i in (1..4) -%}
+                    {%- assign q_key = 'q_' | append: i -%}
+                    {%- assign a_key = 'a_' | append: i -%}
+                    {%- assign should_open = false -%}
+                    {%- if faq_open_mode == 'all_open' -%}
+                      {%- assign should_open = true -%}
+                    {%- elsif faq_open_mode == 'first_open' and i == 1 -%}
+                      {%- assign should_open = true -%}
+                    {%- endif -%}
+                    {%- if b[q_key] != blank and b[a_key] != blank -%}
+                      <details {% if should_open %}open{% endif %}>
+                        <summary>
+                          <span>{{ b[q_key] }}</span>
+                          <span class="cpf-plus">+</span>
+                        </summary>
+                        <div class="cpf-answer rte">{{ b[a_key] }}</div>
+                      </details>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
 
             {%- when 'calqix_colour_switcher' -%}
               {%- assign b = block.settings -%}
@@ -3487,6 +3521,22 @@
       "name": "CALQIX PDP Decision strip",
       "settings": [
         {
+          "type": "checkbox",
+          "id": "enable_block",
+          "label": "Blok tonen",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "experiment_variant",
+          "label": "A/B variant",
+          "options": [
+            { "value": "a", "label": "Variant A" },
+            { "value": "b", "label": "Variant B" }
+          ],
+          "default": "a"
+        },
+        {
           "type": "text",
           "id": "title",
           "label": "Titel",
@@ -3533,6 +3583,35 @@
           "id": "note_text",
           "label": "Extra noot",
           "default": "NL: 1-2 werkdagen, gratis verzending boven EUR80."
+        },
+        {
+          "type": "header",
+          "content": "Variant B copy"
+        },
+        {
+          "type": "text",
+          "id": "title_b",
+          "label": "Variant B titel"
+        },
+        {
+          "type": "text",
+          "id": "line_1_text_b",
+          "label": "Variant B regel 1 tekst"
+        },
+        {
+          "type": "text",
+          "id": "line_2_text_b",
+          "label": "Variant B regel 2 tekst"
+        },
+        {
+          "type": "text",
+          "id": "line_3_text_b",
+          "label": "Variant B regel 3 tekst"
+        },
+        {
+          "type": "text",
+          "id": "note_text_b",
+          "label": "Variant B noot"
         },
         {
           "type": "range",
@@ -3619,6 +3698,12 @@
       "name": "CALQIX PDP Micro FAQ",
       "settings": [
         {
+          "type": "checkbox",
+          "id": "enable_block",
+          "label": "Blok tonen",
+          "default": true
+        },
+        {
           "type": "text",
           "id": "title",
           "label": "Titel",
@@ -3629,6 +3714,17 @@
           "id": "open_first",
           "label": "Eerste vraag openklappen",
           "default": false
+        },
+        {
+          "type": "select",
+          "id": "open_mode",
+          "label": "Standaard openklapgedrag",
+          "options": [
+            { "value": "all_closed", "label": "Alles dicht" },
+            { "value": "first_open", "label": "Alleen eerste open" },
+            { "value": "all_open", "label": "Alles open" }
+          ],
+          "default": "all_closed"
         },
         {
           "type": "text",

@@ -76,6 +76,37 @@
             "size_text_mobile": 140
           }
         },
+        "calqix_pdp_decision_phase2": {
+          "type": "calqix_pdp_decision",
+          "disabled": true,
+          "settings": {
+            "enable_block": true,
+            "experiment_variant": "a",
+            "title": "Why shoppers choose CALQIX",
+            "line_1_icon": "🚚",
+            "line_1_text": "Fast shipping from our EU warehouse",
+            "line_2_icon": "↩️",
+            "line_2_text": "30-day returns",
+            "line_3_icon": "🔒",
+            "line_3_text": "Secure checkout and warranty included",
+            "note_text": "Switch to Variant B in Theme Editor to run copy tests.",
+            "title_b": "Make every order risk-free",
+            "line_1_text_b": "Delivered quickly with live order tracking",
+            "line_2_text_b": "Try it at home with 30-day returns",
+            "line_3_text_b": "Secure payment and product warranty included",
+            "note_text_b": "Use this Variant B copy for A/B tests.",
+            "padding_vertical": 10,
+            "margin_vertical": 8,
+            "border_color": "#e4e4e0",
+            "title_color": "#1a3b5c",
+            "text_color": "#1a3b5c",
+            "note_color": "#6e8093",
+            "icon_size": 15,
+            "title_size": 11,
+            "text_size": 13,
+            "note_size": 12
+          }
+        },
         "buy_buttons": {
           "type": "buy_buttons",
           "settings": {
@@ -84,6 +115,33 @@
             "show_qty_selector": true,
             "text_color": "#ffffff",
             "background_color": "#1a3b5c"
+          }
+        },
+        "calqix_pdp_micro_faq_phase2": {
+          "type": "calqix_pdp_micro_faq",
+          "disabled": true,
+          "settings": {
+            "enable_block": true,
+            "title": "Quick answers",
+            "open_first": false,
+            "open_mode": "all_closed",
+            "q_1": "How quickly can I expect delivery?",
+            "a_1": "<p>Most orders leave our warehouse within 1 business day.</p>",
+            "q_2": "Is there a money-back guarantee?",
+            "a_2": "<p>Yes, you can return your order within 30 days.</p>",
+            "q_3": "Can I use this if I have sensitivity?",
+            "a_3": "<p>Yes, most customers with sensitivity can use our products comfortably.</p>",
+            "q_4": "How do I contact support?",
+            "a_4": "<p>Reach out through our contact page and we will help quickly.</p>",
+            "margin_vertical": 10,
+            "border_color": "#e4e4e0",
+            "title_color": "#1a3b5c",
+            "question_color": "#1a3b5c",
+            "answer_color": "#6e8093",
+            "plus_color": "#1a3b5c",
+            "title_size": 11,
+            "question_size": 14,
+            "answer_size": 13
           }
         },
         "promo_wBVFy3": {
@@ -120,7 +178,9 @@
         "product_variations_7LBAAU",
         "variant_picker_WQEbez",
         "price",
+        "calqix_pdp_decision_phase2",
         "buy_buttons",
+        "calqix_pdp_micro_faq_phase2",
         "promo_wBVFy3",
         "video_reels_cJKbXC"
       ],
