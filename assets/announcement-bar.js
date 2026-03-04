@@ -24,7 +24,7 @@ class AnnouncementBar extends HTMLElement {
         "wt-announcement__container--marquee",
       )
     ) {
-      this.announcementInterval = setInterval(this.changeAnnouncement, 5000);
+      this.announcementInterval = setInterval(this.changeAnnouncement, 4000);
 
       if (this.announcementBar) {
         this.announcementBar.addEventListener(
@@ -83,7 +83,7 @@ class AnnouncementBar extends HTMLElement {
 
   restartInterval() {
     clearInterval(this.announcementInterval);
-    this.announcementInterval = setInterval(this.changeAnnouncement, 5000);
+    this.announcementInterval = setInterval(this.changeAnnouncement, 4000);
   }
 
   hideForOneDay() {

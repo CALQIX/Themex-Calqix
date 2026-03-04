@@ -683,8 +683,13 @@
                   id="footer-nav-list-{{ block.id }}"
                   role="list">
                 {%- for link in block.settings.menu.links -%}
+                  {%- assign normalized_link_title = link.title | strip | downcase -%}
+                  {%- assign footer_link_url = link.url -%}
+                  {%- if normalized_link_title contains 'faq' and (footer_link_url == blank or footer_link_url == '#') -%}
+                    {%- assign footer_link_url = '/pages/faq' -%}
+                  {%- endif -%}
                   <li>
-                    <a href="{{ link.url }}" class="footer-nav-link">{{ link.title }}</a>
+                    <a href="{{ footer_link_url }}" class="footer-nav-link">{{ link.title }}</a>
                   </li>
                 {%- endfor -%}
               </ul>

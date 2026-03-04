@@ -174,8 +174,22 @@
     background: #e8f2ff; transform: translateY(-2px);
     box-shadow: 0 8px 28px rgba(0,0,0,0.25);
   }
+  #calqix-banner-{{ section.id }} .cta-price {
+    color: #E8C96A;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
   #calqix-banner-{{ section.id }} .cta svg { transition: transform 0.2s; }
   #calqix-banner-{{ section.id }} .cta:hover svg { transform: translateX(4px); }
+  #calqix-banner-{{ section.id }} .cta-trust {
+    margin-top: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.84);
+    letter-spacing: 0.01em;
+    max-width: 440px;
+  }
 
   /* ── Mobiel: product gecentreerd, knop direct eronder met lichte overlap ── */
   @media (max-width: 860px) {
@@ -191,6 +205,10 @@
       position: relative;
       z-index: 2;
       margin-top: -22px; /* overlapt licht de onderkant van het product */
+    }
+    #calqix-banner-{{ section.id }} .cta-trust {
+      margin-top: 12px;
+      max-width: 320px;
     }
 
     #calqix-banner-{{ section.id }} .mobile-product {
@@ -440,12 +458,14 @@
 
         <a href="{{ section.settings.cta_url }}" class="cta">
           {{ section.settings.cta_label }}
+          <span class="cta-price">— {{ section.settings.cta_price }}</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </a>
+        <p class="cta-trust">{{ section.settings.trust_line }}</p>
 
       </div>
       {%- comment -%} /cta-row {%- endcomment -%}
@@ -848,6 +868,18 @@
       "type": "url",
       "id": "cta_url",
       "label": "CTA link"
+    },
+    {
+      "type": "text",
+      "id": "cta_price",
+      "label": "CTA prijs",
+      "default": "€39,95"
+    },
+    {
+      "type": "text",
+      "id": "trust_line",
+      "label": "Trust regel onder CTA",
+      "default": "✓ 30-day money-back guarantee · Free shipping over €80"
     },
     {
       "type": "header",

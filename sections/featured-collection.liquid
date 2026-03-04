@@ -49,6 +49,29 @@
         --grid-gap: {{ section.settings.spacing_desktop }}px;
       {% endif %}
       --grid-gap-mobile: {{ section.settings.spacing_mobile }}px;
+      --fc-subheading-color: {{ section.settings.subheading_color }};
+      --fc-subheading-size-desktop: {{ section.settings.subheading_size_desktop }}px;
+      --fc-subheading-size-mobile: {{ section.settings.subheading_size_mobile }}px;
+      --fc-subheading-max-width: {{ section.settings.subheading_max_width }}px;
+      --fc-subheading-margin-bottom: {{ section.settings.subheading_margin_bottom }}px;
+    }
+
+    [data-section-id="{{ section.id }}"] .wt-featured-collection__subheading {
+      margin: 0 auto var(--fc-subheading-margin-bottom);
+      max-width: var(--fc-subheading-max-width);
+      text-align: center;
+      color: var(--fc-subheading-color);
+      font-family: 'DM Sans', sans-serif;
+      font-size: var(--fc-subheading-size-desktop);
+      font-weight: 300;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+    }
+    @media (max-width: 900px) {
+      [data-section-id="{{ section.id }}"] .wt-featured-collection__subheading {
+        font-size: var(--fc-subheading-size-mobile);
+        max-width: min(var(--fc-subheading-max-width), 92vw);
+      }
     }
   </style>
   {% if section.settings.enable_quick_add_button %}
@@ -65,6 +88,9 @@
       <div class="headline {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %} {% if section.settings.heading_disable_on_mobile == true %} hero__title--mobile{% endif %}  {% if section.settings.disable_on_mobile %}disable-on-mobile{% endif %}">
         {% render 'simple-block', prefix: 'headline', title: section.settings.title %}
       </div>
+    {% endif %}
+    {% if section.settings.subheading != blank %}
+      <div class="wt-featured-collection__subheading">{{ section.settings.subheading | escape }}</div>
     {% endif %}
 
     <script type="module" src="{{ 'slider.js' | asset_url }}" defer="defer"></script>
@@ -245,6 +271,54 @@
       "id": "title",
       "default": "Featured collection",
       "label": "t:sections.featured-collection.settings.title.label"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "default": "",
+      "label": "t:sections.featured-collection.settings.subheading.label"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "default": "#1A3B5C",
+      "label": "Subheading color"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_desktop",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 15,
+      "label": "Subheading size desktop"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_mobile",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "default": 15,
+      "label": "Subheading size mobile"
+    },
+    {
+      "type": "range",
+      "id": "subheading_max_width",
+      "min": 260,
+      "max": 700,
+      "step": 20,
+      "default": 400,
+      "label": "Subheading max width"
+    },
+    {
+      "type": "range",
+      "id": "subheading_margin_bottom",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "default": 32,
+      "label": "Subheading margin bottom"
     },
     {
       "type": "checkbox",
