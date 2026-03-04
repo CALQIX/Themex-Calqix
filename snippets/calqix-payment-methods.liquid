@@ -69,25 +69,10 @@
           </span>
         {%- endif -%}
 
-        {%- if settings.cart_drawer_show_apple_pay -%}
-          <span class="ccd-payment-icon" role="listitem" title="Apple Pay">
-            {%- if settings.cart_drawer_payment_img_apple_pay != blank -%}
-              {{ settings.cart_drawer_payment_img_apple_pay | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Apple Pay', class: 'ccd-payment-custom-img' }}
-            {%- else -%}
-              {{ 'apple_pay' | payment_type_svg_tag: class: 'icon icon--full-color' }}
-            {%- endif -%}
-          </span>
-        {%- endif -%}
-
-        {%- if settings.cart_drawer_show_google_pay -%}
-          <span class="ccd-payment-icon" role="listitem" title="Google Pay">
-            {%- if settings.cart_drawer_payment_img_google_pay != blank -%}
-              {{ settings.cart_drawer_payment_img_google_pay | image_url: height: 96 | image_tag: loading: 'lazy', alt: 'Google Pay', class: 'ccd-payment-custom-img' }}
-            {%- else -%}
-              {{ 'google_pay' | payment_type_svg_tag: class: 'icon icon--full-color' }}
-            {%- endif -%}
-          </span>
-        {%- endif -%}
+        {%- comment -%}
+          Apple Pay and Google Pay intentionally hidden in cart drawer
+          to keep primary payment logos on a single row.
+        {%- endcomment -%}
 
         {%- if settings.cart_drawer_show_klarna -%}
           <span class="ccd-payment-icon" role="listitem" title="Klarna">
