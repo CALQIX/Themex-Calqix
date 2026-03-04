@@ -102,17 +102,25 @@
 
   <div class="cao-accordion-wrap">
     <div class="cao-accordion" data-cao-accordion>
+      {% assign accordion_1_title = product.metafields.custom.addon_acc_1_title.value %}
+      {% assign accordion_1_content = product.metafields.custom.addon_acc_1_content.value %}
+      {% assign accordion_2_title = product.metafields.custom.addon_acc_2_title.value %}
+      {% assign accordion_2_content = product.metafields.custom.addon_acc_2_content.value %}
+      {% assign accordion_3_title = product.metafields.custom.addon_acc_3_title.value %}
+      {% assign accordion_3_content = product.metafields.custom.addon_acc_3_content.value %}
       {% assign whats_included = product.metafields.custom.whats_included.value %}
       {% assign materials = product.metafields.custom.materials.value %}
 
       <article class="cao-item">
         <button type="button" class="cao-item-trigger" data-cao-trigger>
-          <span>What's included</span>
+          <span>{{ accordion_1_title | default: "What's included" }}</span>
           <span class="cao-item-icon">+</span>
         </button>
         <div class="cao-item-content" data-cao-content>
           <div class="cao-item-inner">
-            {% if whats_included != blank %}
+            {% if accordion_1_content != blank %}
+              {{ accordion_1_content | escape | newline_to_br }}
+            {% elsif whats_included != blank %}
               {{ whats_included | escape | newline_to_br }}
             {% else %}
               1× FlowCore Travel Pouch<br>
@@ -125,12 +133,14 @@
 
       <article class="cao-item">
         <button type="button" class="cao-item-trigger" data-cao-trigger>
-          <span>Materials & Care</span>
+          <span>{{ accordion_2_title | default: "Materials & Care" }}</span>
           <span class="cao-item-icon">+</span>
         </button>
         <div class="cao-item-content" data-cao-content>
           <div class="cao-item-inner">
-            {% if materials != blank %}
+            {% if accordion_2_content != blank %}
+              {{ accordion_2_content | escape | newline_to_br }}
+            {% elsif materials != blank %}
               {{ materials | escape | newline_to_br }}
             {% else %}
               Exterior: 100% cotton canvas (10oz weight)<br>
@@ -145,16 +155,20 @@
 
       <article class="cao-item">
         <button type="button" class="cao-item-trigger" data-cao-trigger>
-          <span>Shipping & Returns</span>
+          <span>{{ accordion_3_title | default: "Shipping & Returns" }}</span>
           <span class="cao-item-icon">+</span>
         </button>
         <div class="cao-item-content" data-cao-content>
           <div class="cao-item-inner">
-            Free shipping on orders over €80<br>
-            Standard delivery: 2–5 business days (NL/BE)<br>
-            International: 5–10 business days<br>
-            30-day hassle-free returns on unopened items<br>
-            Contact: support@calqix.com
+            {% if accordion_3_content != blank %}
+              {{ accordion_3_content | escape | newline_to_br }}
+            {% else %}
+              Free shipping on orders over €80<br>
+              Standard delivery: 2–5 business days (NL/BE)<br>
+              International: 5–10 business days<br>
+              30-day hassle-free returns on unopened items<br>
+              Contact: support@calqix.com
+            {% endif %}
           </div>
         </div>
       </article>
