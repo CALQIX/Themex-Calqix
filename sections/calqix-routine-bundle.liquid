@@ -263,6 +263,42 @@
     pointer-events: none;
   }
 
+  #calqix-routine-{{ section.id }} .crb-soldout-actions {
+    display: grid;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-soldout-link {
+    display: block;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 12px;
+    border: 1px solid rgba(232, 201, 106, 0.35);
+    color: #E8C96A;
+    background: rgba(232, 201, 106, 0.08);
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  #calqix-routine-{{ section.id }} .crb-soldout-link:hover {
+    background: rgba(232, 201, 106, 0.16);
+  }
+
+  #calqix-routine-{{ section.id }} .crb-soldout-link--alt {
+    border-color: rgba(255, 255, 255, 0.22);
+    color: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  #calqix-routine-{{ section.id }} .crb-soldout-link--alt:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
   #calqix-routine-{{ section.id }} .crb-soldout-badge {
     display: inline-flex;
     align-items: center;
@@ -550,6 +586,14 @@
 
         {% if bundle_sold_out %}
           <span class="crb-btn is-soldout" role="status" aria-live="polite">Uitverkocht</span>
+          <div class="crb-soldout-actions">
+            <a class="crb-soldout-link" href="{{ section.settings.soldout_waitlist_url | default: '/pages/contact' }}">
+              {{ section.settings.soldout_waitlist_label | default: 'Notify me when available' }}
+            </a>
+            <a class="crb-soldout-link crb-soldout-link--alt" href="{{ section.settings.soldout_alt_url | default: '/products/calqix-flowcore' }}">
+              {{ section.settings.soldout_alt_label | default: 'Shop FlowCore only' }}
+            </a>
+          </div>
         {% else %}
           <a href="{{ bundle_url }}" class="crb-btn">
             {{ section.settings.button_text }}
@@ -628,6 +672,14 @@
           </div>
         </div>
         <span class="crb-btn is-soldout" role="status" aria-live="polite">Uitverkocht</span>
+        <div class="crb-soldout-actions">
+          <a class="crb-soldout-link" href="{{ section.settings.soldout_waitlist_url | default: '/pages/contact' }}">
+            {{ section.settings.soldout_waitlist_label | default: 'Notify me when available' }}
+          </a>
+          <a class="crb-soldout-link crb-soldout-link--alt" href="{{ section.settings.soldout_alt_url | default: '/products/calqix-flowcore' }}">
+            {{ section.settings.soldout_alt_label | default: 'Shop FlowCore only' }}
+          </a>
+        </div>
       </article>
     </div>
 
@@ -874,6 +926,28 @@
       "id": "button_text",
       "label": "Button tekst",
       "default": "Shop the Bundle →"
+    },
+    {
+      "type": "text",
+      "id": "soldout_waitlist_label",
+      "label": "Uitverkocht: waitlist knop label",
+      "default": "Notify me when available"
+    },
+    {
+      "type": "url",
+      "id": "soldout_waitlist_url",
+      "label": "Uitverkocht: waitlist knop URL"
+    },
+    {
+      "type": "text",
+      "id": "soldout_alt_label",
+      "label": "Uitverkocht: alternatief knop label",
+      "default": "Shop FlowCore only"
+    },
+    {
+      "type": "url",
+      "id": "soldout_alt_url",
+      "label": "Uitverkocht: alternatief knop URL"
     },
     {
       "type": "text",

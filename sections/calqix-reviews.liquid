@@ -116,6 +116,31 @@
     mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
   }
+  #cq-reviews-{{ section.id }} .cqr-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 18px;
+  }
+  #cq-reviews-{{ section.id }} .cqr-filter {
+    border: 1px solid {{ color_divider }};
+    background: {{ bg_card }};
+    color: {{ color_title }};
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 7px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  #cq-reviews-{{ section.id }} .cqr-filter.active {
+    background: {{ color_arrow_hover_bg }};
+    border-color: {{ color_arrow_hover_bg }};
+    color: {{ color_arrow_hover_icon }};
+  }
   @media (max-width: 640px) {
     #cq-reviews-{{ section.id }} .cqr-track-wrap {
       mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
@@ -299,6 +324,13 @@
       </div>
     </div>
 
+    <div class="cqr-filters" id="cqr-filters-{{ section.id }}">
+      <button class="cqr-filter active" data-filter="all" type="button">All reviews</button>
+      <button class="cqr-filter" data-filter="recent" type="button">Most recent</button>
+      <button class="cqr-filter" data-filter="sensitive" type="button">Sensitive teeth</button>
+      <button class="cqr-filter" data-filter="whitening" type="button">Whitening</button>
+    </div>
+
     <div class="cqr-track-wrap">
       <div class="cqr-track" id="cqr-track-{{ section.id }}">
         {% for block in section.blocks %}
@@ -363,6 +395,7 @@
   const prev  = document.getElementById('cqr-prev-'  + SID);
   const next  = document.getElementById('cqr-next-'  + SID);
   const aggEl = document.getElementById('cqr-agg-stars-' + SID);
+  const filters = document.getElementById('cqr-filters-' + SID);
   const AVG   = parseFloat('{{ section.settings.avg_score }}') || 5;
 
   if (aggEl) {
@@ -376,8 +409,9 @@
     }
   }
 
-  const cards = Array.from(track ? track.querySelectorAll('.cqr-card') : []);
-  if (!cards.length || !track) return;
+  const cardsAll = Array.from(track ? track.querySelectorAll('.cqr-card') : []);
+  if (!cardsAll.length || !track) return;
+  let cards = cardsAll.slice();
 
   let cur = 0, drag = false, sx = 0, dx = 0;
 
@@ -406,6 +440,52 @@
 
   if (prev) prev.addEventListener('click', () => goTo(cur-1));
   if (next) next.addEventListener('click', () => goTo(cur+1));
+
+  function matchFilter(card, filter) {
+    if (filter === 'all') return true;
+
+    const tagText = (card.querySelector('.cqr-tag')?.textContent || '').toLowerCase();
+    const bodyText = (card.querySelector('.cqr-body')?.textContent || '').toLowerCase();
+    const dateText = (card.querySelector('.cqr-date')?.textContent || '').toLowerCase();
+
+    if (filter === 'recent') {
+      return /2025|2026|january|february|march|april|may|june|july|august|september|october|november|december/.test(dateText);
+    }
+    if (filter === 'sensitive') {
+      return tagText.includes('sensitive') || bodyText.includes('sensitive');
+    }
+    if (filter === 'whitening') {
+      return tagText.includes('whitening') || bodyText.includes('whitening') || bodyText.includes('enamel');
+    }
+    return true;
+  }
+
+  function applyFilter(filter) {
+    cardsAll.forEach((card) => {
+      const show = matchFilter(card, filter);
+      card.style.display = show ? '' : 'none';
+    });
+
+    cards = cardsAll.filter((card) => card.style.display !== 'none');
+    if (!cards.length) {
+      cards = cardsAll.slice();
+      cardsAll.forEach((card) => { card.style.display = ''; });
+    }
+
+    cur = 0;
+    buildDots();
+    goTo(0);
+  }
+
+  if (filters) {
+    filters.querySelectorAll('.cqr-filter').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        filters.querySelectorAll('.cqr-filter').forEach((x) => x.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilter(btn.dataset.filter || 'all');
+      });
+    });
+  }
 
   track.addEventListener('mousedown',  e => { drag=true; sx=e.clientX; track.style.transition='none'; });
   window.addEventListener('mousemove', e => { if(!drag)return; dx=e.clientX-sx; track.style.transform=`translateX(${-cur*getW()+dx}px)`; });

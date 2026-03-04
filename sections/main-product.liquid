@@ -2302,6 +2302,146 @@
   ============================================================
 {% endcomment %}
 
+            {%- when 'calqix_pdp_decision' -%}
+              {%- assign b = block.settings -%}
+              <style>
+                #cpd-block-{{ block.id }} {
+                  margin: {{ b.margin_vertical }}px 0;
+                  padding: {{ b.padding_vertical }}px 0;
+                  border-top: 1px solid {{ b.border_color }};
+                  border-bottom: 1px solid {{ b.border_color }};
+                }
+                #cpd-block-{{ block.id }} .cpd-title {
+                  margin: 0 0 10px;
+                  color: {{ b.title_color }};
+                  font-size: {{ b.title_size }}px;
+                  letter-spacing: 0.08em;
+                  text-transform: uppercase;
+                  font-weight: 700;
+                  line-height: 1.3;
+                }
+                #cpd-block-{{ block.id }} .cpd-list {
+                  margin: 0;
+                  padding: 0;
+                  list-style: none;
+                  display: grid;
+                  gap: 8px;
+                }
+                #cpd-block-{{ block.id }} .cpd-item {
+                  display: flex;
+                  align-items: flex-start;
+                  gap: 8px;
+                  color: {{ b.text_color }};
+                  font-size: {{ b.text_size }}px;
+                  line-height: 1.45;
+                  font-weight: 500;
+                }
+                #cpd-block-{{ block.id }} .cpd-icon {
+                  font-size: {{ b.icon_size }}px;
+                  line-height: 1;
+                  flex: 0 0 auto;
+                  margin-top: 1px;
+                }
+                #cpd-block-{{ block.id }} .cpd-note {
+                  margin: 10px 0 0;
+                  color: {{ b.note_color }};
+                  font-size: {{ b.note_size }}px;
+                  line-height: 1.45;
+                }
+                @media (max-width: 749px) {
+                  #cpd-block-{{ block.id }} .cpd-item {
+                    font-size: {{ b.text_size | minus: 1 }}px;
+                  }
+                }
+              </style>
+              <div id="cpd-block-{{ block.id }}" class="calqix-pdp-decision-block" {{ block.shopify_attributes }}>
+                {%- if b.title != blank -%}
+                  <p class="cpd-title">{{ b.title }}</p>
+                {%- endif -%}
+                <ul class="cpd-list" role="list">
+                  {%- if b.line_1_text != blank -%}
+                    <li class="cpd-item"><span class="cpd-icon">{{ b.line_1_icon }}</span><span>{{ b.line_1_text }}</span></li>
+                  {%- endif -%}
+                  {%- if b.line_2_text != blank -%}
+                    <li class="cpd-item"><span class="cpd-icon">{{ b.line_2_icon }}</span><span>{{ b.line_2_text }}</span></li>
+                  {%- endif -%}
+                  {%- if b.line_3_text != blank -%}
+                    <li class="cpd-item"><span class="cpd-icon">{{ b.line_3_icon }}</span><span>{{ b.line_3_text }}</span></li>
+                  {%- endif -%}
+                </ul>
+                {%- if b.note_text != blank -%}
+                  <p class="cpd-note">{{ b.note_text }}</p>
+                {%- endif -%}
+              </div>
+
+            {%- when 'calqix_pdp_micro_faq' -%}
+              {%- assign b = block.settings -%}
+              <style>
+                #cpf-block-{{ block.id }} {
+                  margin: {{ b.margin_vertical }}px 0;
+                  border-top: 1px solid {{ b.border_color }};
+                }
+                #cpf-block-{{ block.id }} .cpf-title {
+                  margin: 0 0 10px;
+                  font-size: {{ b.title_size }}px;
+                  letter-spacing: 0.08em;
+                  text-transform: uppercase;
+                  font-weight: 700;
+                  color: {{ b.title_color }};
+                }
+                #cpf-block-{{ block.id }} details {
+                  border-bottom: 1px solid {{ b.border_color }};
+                }
+                #cpf-block-{{ block.id }} summary {
+                  list-style: none;
+                  cursor: pointer;
+                  display: flex;
+                  justify-content: space-between;
+                  gap: 12px;
+                  align-items: center;
+                  padding: 12px 0;
+                  color: {{ b.question_color }};
+                  font-size: {{ b.question_size }}px;
+                  font-weight: 600;
+                  line-height: 1.4;
+                }
+                #cpf-block-{{ block.id }} summary::-webkit-details-marker { display: none; }
+                #cpf-block-{{ block.id }} .cpf-plus {
+                  font-size: 16px;
+                  line-height: 1;
+                  color: {{ b.plus_color }};
+                  transition: transform 0.2s ease;
+                  flex: 0 0 auto;
+                }
+                #cpf-block-{{ block.id }} details[open] .cpf-plus {
+                  transform: rotate(45deg);
+                }
+                #cpf-block-{{ block.id }} .cpf-answer {
+                  padding: 0 0 12px;
+                  color: {{ b.answer_color }};
+                  font-size: {{ b.answer_size }}px;
+                  line-height: 1.6;
+                }
+              </style>
+              <div id="cpf-block-{{ block.id }}" class="calqix-pdp-micro-faq-block" {{ block.shopify_attributes }}>
+                {%- if b.title != blank -%}
+                  <p class="cpf-title">{{ b.title }}</p>
+                {%- endif -%}
+                {%- for i in (1..4) -%}
+                  {%- assign q_key = 'q_' | append: i -%}
+                  {%- assign a_key = 'a_' | append: i -%}
+                  {%- if b[q_key] != blank and b[a_key] != blank -%}
+                    <details {% if i == 1 and b.open_first %}open{% endif %}>
+                      <summary>
+                        <span>{{ b[q_key] }}</span>
+                        <span class="cpf-plus">+</span>
+                      </summary>
+                      <div class="cpf-answer rte">{{ b[a_key] }}</div>
+                    </details>
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
+
             {%- when 'calqix_colour_switcher' -%}
               {%- assign b = block.settings -%}
               <style>
@@ -3343,6 +3483,270 @@
       ]
     },
         {
+      "type": "calqix_pdp_decision",
+      "name": "CALQIX PDP Decision strip",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Titel",
+          "default": "Why shoppers choose CALQIX"
+        },
+        {
+          "type": "text",
+          "id": "line_1_icon",
+          "label": "Regel 1 icon",
+          "default": "🚚"
+        },
+        {
+          "type": "text",
+          "id": "line_1_text",
+          "label": "Regel 1 tekst",
+          "default": "Order before 23:00 — shipped today"
+        },
+        {
+          "type": "text",
+          "id": "line_2_icon",
+          "label": "Regel 2 icon",
+          "default": "↩️"
+        },
+        {
+          "type": "text",
+          "id": "line_2_text",
+          "label": "Regel 2 tekst",
+          "default": "30-day returns"
+        },
+        {
+          "type": "text",
+          "id": "line_3_icon",
+          "label": "Regel 3 icon",
+          "default": "🔒"
+        },
+        {
+          "type": "text",
+          "id": "line_3_text",
+          "label": "Regel 3 tekst",
+          "default": "Secure checkout and 2-year warranty"
+        },
+        {
+          "type": "text",
+          "id": "note_text",
+          "label": "Extra noot",
+          "default": "NL: 1-2 werkdagen, gratis verzending boven EUR80."
+        },
+        {
+          "type": "range",
+          "id": "padding_vertical",
+          "label": "Verticale padding (px)",
+          "min": 0,
+          "max": 24,
+          "step": 2,
+          "default": 10
+        },
+        {
+          "type": "range",
+          "id": "margin_vertical",
+          "label": "Verticale marge (px)",
+          "min": 0,
+          "max": 32,
+          "step": 2,
+          "default": 8
+        },
+        {
+          "type": "color",
+          "id": "border_color",
+          "label": "Rand kleur",
+          "default": "#E4E4E0"
+        },
+        {
+          "type": "color",
+          "id": "title_color",
+          "label": "Titel kleur",
+          "default": "#1A3B5C"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Tekstkleur",
+          "default": "#1A3B5C"
+        },
+        {
+          "type": "color",
+          "id": "note_color",
+          "label": "Noot kleur",
+          "default": "#6E8093"
+        },
+        {
+          "type": "range",
+          "id": "icon_size",
+          "label": "Icon grootte (px)",
+          "min": 12,
+          "max": 24,
+          "step": 1,
+          "default": 15
+        },
+        {
+          "type": "range",
+          "id": "title_size",
+          "label": "Titel grootte (px)",
+          "min": 10,
+          "max": 16,
+          "step": 1,
+          "default": 11
+        },
+        {
+          "type": "range",
+          "id": "text_size",
+          "label": "Tekst grootte (px)",
+          "min": 11,
+          "max": 16,
+          "step": 1,
+          "default": 13
+        },
+        {
+          "type": "range",
+          "id": "note_size",
+          "label": "Noot grootte (px)",
+          "min": 10,
+          "max": 14,
+          "step": 1,
+          "default": 12
+        }
+      ]
+    },
+    {
+      "type": "calqix_pdp_micro_faq",
+      "name": "CALQIX PDP Micro FAQ",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Titel",
+          "default": "Quick answers"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_first",
+          "label": "Eerste vraag openklappen",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "q_1",
+          "label": "Vraag 1",
+          "default": "Is this suitable for sensitive gums?"
+        },
+        {
+          "type": "richtext",
+          "id": "a_1",
+          "label": "Antwoord 1",
+          "default": "<p>Yes. Start in Gentle mode and increase pressure once comfortable.</p>"
+        },
+        {
+          "type": "text",
+          "id": "q_2",
+          "label": "Vraag 2",
+          "default": "How quickly do I notice results?"
+        },
+        {
+          "type": "richtext",
+          "id": "a_2",
+          "label": "Antwoord 2",
+          "default": "<p>Most users report fresher gums in days and clearer long-term results in 2-4 weeks with consistent routine use.</p>"
+        },
+        {
+          "type": "text",
+          "id": "q_3",
+          "label": "Vraag 3",
+          "default": "What about returns and warranty?"
+        },
+        {
+          "type": "richtext",
+          "id": "a_3",
+          "label": "Antwoord 3",
+          "default": "<p>You get 30-day returns and a 2-year warranty on FlowCore devices.</p>"
+        },
+        {
+          "type": "text",
+          "id": "q_4",
+          "label": "Vraag 4",
+          "default": "How do I use this with CALQIX tablets?"
+        },
+        {
+          "type": "richtext",
+          "id": "a_4",
+          "label": "Antwoord 4",
+          "default": "<p>Use FlowCore first to clear plaque, then brush with your CALQIX tablet to support enamel remineralisation.</p>"
+        },
+        {
+          "type": "range",
+          "id": "margin_vertical",
+          "label": "Verticale marge (px)",
+          "min": 0,
+          "max": 32,
+          "step": 2,
+          "default": 10
+        },
+        {
+          "type": "color",
+          "id": "border_color",
+          "label": "Lijnkleur",
+          "default": "#E4E4E0"
+        },
+        {
+          "type": "color",
+          "id": "title_color",
+          "label": "Titel kleur",
+          "default": "#1A3B5C"
+        },
+        {
+          "type": "color",
+          "id": "question_color",
+          "label": "Vraag kleur",
+          "default": "#1A3B5C"
+        },
+        {
+          "type": "color",
+          "id": "answer_color",
+          "label": "Antwoord kleur",
+          "default": "#6E8093"
+        },
+        {
+          "type": "color",
+          "id": "plus_color",
+          "label": "Plus icoon kleur",
+          "default": "#1A3B5C"
+        },
+        {
+          "type": "range",
+          "id": "title_size",
+          "label": "Titel grootte (px)",
+          "min": 10,
+          "max": 16,
+          "step": 1,
+          "default": 11
+        },
+        {
+          "type": "range",
+          "id": "question_size",
+          "label": "Vraag grootte (px)",
+          "min": 12,
+          "max": 16,
+          "step": 1,
+          "default": 14
+        },
+        {
+          "type": "range",
+          "id": "answer_size",
+          "label": "Antwoord grootte (px)",
+          "min": 12,
+          "max": 15,
+          "step": 1,
+          "default": 13
+        }
+      ]
+    },
+    {
       "type": "calqix_colour_switcher",
       "name": "CALQIX Colour Switcher",
       "settings": [
