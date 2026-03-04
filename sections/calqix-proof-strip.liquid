@@ -1,0 +1,464 @@
+<section id="cps-{{ section.id }}" class="cps">
+  <div class="cps-part cps-part--stats">
+    <div class="cps-wrap">
+      {% if section.settings.eyebrow != blank %}
+        <p class="cps-eyebrow">{{ section.settings.eyebrow }}</p>
+      {% endif %}
+
+      <div class="cps-stats-grid">
+        <article class="cps-stat">
+          <div class="cps-stat-number">{{ section.settings.stat_1_number }}</div>
+          <h3 class="cps-stat-heading">{{ section.settings.stat_1_heading }}</h3>
+          <p class="cps-stat-body">{{ section.settings.stat_1_body }}</p>
+          <p class="cps-stat-source">{{ section.settings.stat_1_source }}</p>
+        </article>
+        <article class="cps-stat">
+          <div class="cps-stat-number">{{ section.settings.stat_2_number }}</div>
+          <h3 class="cps-stat-heading">{{ section.settings.stat_2_heading }}</h3>
+          <p class="cps-stat-body">{{ section.settings.stat_2_body }}</p>
+          <p class="cps-stat-source">{{ section.settings.stat_2_source }}</p>
+        </article>
+        <article class="cps-stat">
+          <div class="cps-stat-number">{{ section.settings.stat_3_number }}</div>
+          <h3 class="cps-stat-heading">{{ section.settings.stat_3_heading }}</h3>
+          <p class="cps-stat-body">{{ section.settings.stat_3_body }}</p>
+          <p class="cps-stat-source">{{ section.settings.stat_3_source }}</p>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <div class="cps-part cps-part--testimonials">
+    <div class="cps-wrap">
+      <div class="cps-cards-grid">
+        <article class="cps-card">
+          <span class="cps-badge">{{ section.settings.t_1_badge }}</span>
+          <p class="cps-quote">{{ section.settings.t_1_quote }}</p>
+          <p class="cps-name">{{ section.settings.t_1_name }}</p>
+          <p class="cps-date">{{ section.settings.t_1_date }}</p>
+          <span class="cps-tag">{{ section.settings.t_1_tag }}</span>
+        </article>
+        <article class="cps-card">
+          <span class="cps-badge">{{ section.settings.t_2_badge }}</span>
+          <p class="cps-quote">{{ section.settings.t_2_quote }}</p>
+          <p class="cps-name">{{ section.settings.t_2_name }}</p>
+          <p class="cps-date">{{ section.settings.t_2_date }}</p>
+          <span class="cps-tag">{{ section.settings.t_2_tag }}</span>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    #cps-{{ section.id }} {
+      --cps-bg-1: {{ section.settings.part_1_bg }};
+      --cps-bg-2: {{ section.settings.part_2_bg }};
+      --cps-accent: {{ section.settings.accent_color }};
+      --cps-navy: #1A3B5C;
+      --cps-div: rgba(255,255,255,0.08);
+      --cps-pad: {{ section.settings.vertical_padding }}px;
+    }
+    #cps-{{ section.id }} .cps-part {
+      padding: var(--cps-pad) 0;
+    }
+    #cps-{{ section.id }} .cps-part--stats {
+      background: var(--cps-bg-1);
+    }
+    #cps-{{ section.id }} .cps-part--testimonials {
+      background: var(--cps-bg-2);
+    }
+    #cps-{{ section.id }} .cps-wrap {
+      width: min(1200px, calc(100% - 48px));
+      margin: 0 auto;
+    }
+    #cps-{{ section.id }} .cps-eyebrow {
+      margin: 0 0 24px;
+      color: rgba(255,255,255,0.72);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    #cps-{{ section.id }} .cps-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      border: 1px solid var(--cps-div);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(6,18,30,0.2);
+    }
+    #cps-{{ section.id }} .cps-stat {
+      padding: 26px 22px 24px;
+      border-right: 1px solid var(--cps-div);
+    }
+    #cps-{{ section.id }} .cps-stat:last-child {
+      border-right: 0;
+    }
+    #cps-{{ section.id }} .cps-stat-number {
+      font-family: "DM Serif Display", Georgia, serif;
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 400;
+      line-height: 0.95;
+      color: var(--cps-accent);
+      margin-bottom: 14px;
+    }
+    #cps-{{ section.id }} .cps-stat-heading {
+      margin: 0 0 8px;
+      color: #fff;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 600;
+      line-height: 1.4;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cps-{{ section.id }} .cps-stat-body {
+      margin: 0 0 10px;
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      line-height: 1.6;
+      max-width: 180px;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cps-{{ section.id }} .cps-stat-source {
+      margin: 0;
+      color: rgba(255,255,255,0.3);
+      font-size: 10px;
+      line-height: 1.5;
+      font-style: italic;
+      font-family: "DM Sans", sans-serif;
+    }
+
+    #cps-{{ section.id }} .cps-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+    #cps-{{ section.id }} .cps-card {
+      background: #fff;
+      border: 1px solid rgba(26,59,92,0.08);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(19, 37, 58, 0.08);
+    }
+    #cps-{{ section.id }} .cps-badge {
+      display: inline-flex;
+      border: 1px solid var(--cps-accent);
+      color: var(--cps-accent);
+      border-radius: 999px;
+      padding: 6px 11px;
+      background: transparent;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+      font-family: "DM Sans", sans-serif;
+      margin-bottom: 18px;
+    }
+    #cps-{{ section.id }} .cps-quote {
+      margin: 0 0 18px;
+      color: #1A3B5C;
+      font-family: Georgia, "DM Serif Display", serif;
+      font-style: italic;
+      font-size: 16px;
+      line-height: 1.7;
+      position: relative;
+      padding-left: 24px;
+    }
+    #cps-{{ section.id }} .cps-quote::before {
+      content: "“";
+      position: absolute;
+      left: 0;
+      top: -10px;
+      font-size: 48px;
+      line-height: 1;
+      color: var(--cps-accent);
+      font-family: Georgia, "DM Serif Display", serif;
+      font-style: normal;
+    }
+    #cps-{{ section.id }} .cps-name {
+      margin: 0 0 4px;
+      color: #1A3B5C;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cps-{{ section.id }} .cps-date {
+      margin: 0 0 12px;
+      color: rgba(0,0,0,0.4);
+      font-size: 12px;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cps-{{ section.id }} .cps-tag {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 5px 11px;
+      background: rgba(26,59,92,0.08);
+      color: #1A3B5C;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: "DM Sans", sans-serif;
+    }
+
+    @media (max-width: 900px) and (min-width: 601px) {
+      #cps-{{ section.id }} .cps-wrap {
+        width: min(1200px, calc(100% - 36px));
+      }
+      #cps-{{ section.id }} .cps-stat {
+        padding: 20px 14px;
+      }
+      #cps-{{ section.id }} .cps-card {
+        padding: 24px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      #cps-{{ section.id }} .cps-wrap {
+        width: calc(100% - 28px);
+      }
+      #cps-{{ section.id }} .cps-stats-grid {
+        grid-template-columns: 1fr;
+      }
+      #cps-{{ section.id }} .cps-stat {
+        border-right: 0;
+        border-bottom: 1px solid var(--cps-div);
+        position: relative;
+        padding: 20px 16px;
+      }
+      #cps-{{ section.id }} .cps-stat:not(:first-child)::before {
+        content: "";
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        top: 0;
+        height: 1px;
+        background: rgba(232,201,106,0.45);
+      }
+      #cps-{{ section.id }} .cps-stat:last-child {
+        border-bottom: 0;
+      }
+      #cps-{{ section.id }} .cps-cards-grid {
+        grid-template-columns: 1fr;
+      }
+      #cps-{{ section.id }} .cps-card {
+        padding: 24px 18px;
+      }
+    }
+  </style>
+
+  {% if section.settings.custom_css != blank %}
+    <style>
+      #cps-{{ section.id }} {
+        {{ section.settings.custom_css }}
+      }
+    </style>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "CALQIX — Proof Strip",
+  "tag": "section",
+  "class": "calqix-proof-strip",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "Clinical Evidence"
+    },
+    {
+      "type": "color",
+      "id": "part_1_bg",
+      "label": "Part 1 background",
+      "default": "#0F2438"
+    },
+    {
+      "type": "color",
+      "id": "part_2_bg",
+      "label": "Part 2 background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Gold accent",
+      "default": "#E8C96A"
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "label": "Section vertical padding",
+      "min": 24,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "header",
+      "content": "Stat 1"
+    },
+    {
+      "type": "text",
+      "id": "stat_1_number",
+      "label": "Number",
+      "default": "81%"
+    },
+    {
+      "type": "text",
+      "id": "stat_1_heading",
+      "label": "Heading",
+      "default": "Reduction in gum bleeding"
+    },
+    {
+      "type": "text",
+      "id": "stat_1_body",
+      "label": "Body",
+      "default": "After 14 days of consistent use"
+    },
+    {
+      "type": "text",
+      "id": "stat_1_source",
+      "label": "Source",
+      "default": "Source: J. Clinical Periodontology"
+    },
+    {
+      "type": "header",
+      "content": "Stat 2"
+    },
+    {
+      "type": "text",
+      "id": "stat_2_number",
+      "label": "Number",
+      "default": "34%"
+    },
+    {
+      "type": "text",
+      "id": "stat_2_heading",
+      "label": "Heading",
+      "default": "Less plaque between teeth"
+    },
+    {
+      "type": "text",
+      "id": "stat_2_body",
+      "label": "Body",
+      "default": "Measured after 30-day programme"
+    },
+    {
+      "type": "text",
+      "id": "stat_2_source",
+      "label": "Source",
+      "default": "Source: Int. Journal of Dental Hygiene"
+    },
+    {
+      "type": "header",
+      "content": "Stat 3"
+    },
+    {
+      "type": "text",
+      "id": "stat_3_number",
+      "label": "Number",
+      "default": "6mm"
+    },
+    {
+      "type": "text",
+      "id": "stat_3_heading",
+      "label": "Heading",
+      "default": "Below the gumline"
+    },
+    {
+      "type": "text",
+      "id": "stat_3_body",
+      "label": "Body",
+      "default": "Where brushing cannot reach"
+    },
+    {
+      "type": "text",
+      "id": "stat_3_source",
+      "label": "Source",
+      "default": "Clinical measurement standard"
+    },
+    {
+      "type": "header",
+      "content": "Testimonial 1"
+    },
+    {
+      "type": "text",
+      "id": "t_1_badge",
+      "label": "Badge",
+      "default": "Verified Purchase"
+    },
+    {
+      "type": "textarea",
+      "id": "t_1_quote",
+      "label": "Quote",
+      "default": "I have incredibly sensitive teeth. After two weeks on the 30-day programme, I could finally drink cold water without wincing. The science behind this is real."
+    },
+    {
+      "type": "text",
+      "id": "t_1_name",
+      "label": "Name",
+      "default": "Thomas R."
+    },
+    {
+      "type": "text",
+      "id": "t_1_date",
+      "label": "Date",
+      "default": "February 2025"
+    },
+    {
+      "type": "text",
+      "id": "t_1_tag",
+      "label": "Tag",
+      "default": "Sensitivity Relief"
+    },
+    {
+      "type": "header",
+      "content": "Testimonial 2"
+    },
+    {
+      "type": "text",
+      "id": "t_2_badge",
+      "label": "Badge",
+      "default": "Verified Purchase"
+    },
+    {
+      "type": "textarea",
+      "id": "t_2_quote",
+      "label": "Quote",
+      "default": "My dentist actually asked what I changed. I've tried every whitening toothpaste on the market. Nothing came close to what CALQIX did in 30 days."
+    },
+    {
+      "type": "text",
+      "id": "t_2_name",
+      "label": "Name",
+      "default": "Sophie M."
+    },
+    {
+      "type": "text",
+      "id": "t_2_date",
+      "label": "Date",
+      "default": "January 2025"
+    },
+    {
+      "type": "text",
+      "id": "t_2_tag",
+      "label": "Tag",
+      "default": "Enamel Repair"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS"
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX — Proof Strip"
+    }
+  ]
+}
+{% endschema %}
