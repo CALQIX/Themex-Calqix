@@ -142,6 +142,8 @@ class CartDrawerSection extends HTMLElement {
   }
 
   renderContents(parsedState, isClosedCart = true) {
+    const previousCount = this.querySelectorAll(".cart-item").length;
+
     this.getSectionsToRender().forEach((section) => {
       const sectionElement = section.selector
         ? document.querySelector(section.selector)
@@ -151,6 +153,9 @@ class CartDrawerSection extends HTMLElement {
         section.selector,
       );
     });
+
+    const nextCount = this.querySelectorAll(".cart-item").length;
+    this.applyDrawerMotion(previousCount, nextCount);
 
     if (isClosedCart) {
       setTimeout(() => {
@@ -199,6 +204,35 @@ class CartDrawerSection extends HTMLElement {
 
   setActiveElement(element) {
     this.activeElement = element;
+  }
+
+  applyDrawerMotion(previousCount, nextCount) {
+    if (!this.drawer) return;
+
+    this.drawer.classList.remove("wt-cart__drawer--item-added", "wt-cart__drawer--item-removed");
+    if (nextCount > previousCount) {
+      this.drawer.classList.add("wt-cart__drawer--item-added");
+      const latestItem = this.querySelector(".wt-cart__list .cart-item:last-child");
+      if (latestItem) {
+        latestItem.classList.add("wt-cart-line--enter");
+        setTimeout(() => latestItem.classList.remove("wt-cart-line--enter"), 850);
+      }
+    } else if (nextCount < previousCount) {
+      this.drawer.classList.add("wt-cart__drawer--item-removed");
+    }
+
+    const totals = this.querySelectorAll(
+      ".wt-cart__subtotal, .wt-cart__subtotal__value, .wt-cart__saved-row, .wt-cart__saved-value",
+    );
+    totals.forEach((node) => {
+      node.classList.remove("wt-cart-motion--pulse");
+      requestAnimationFrame(() => node.classList.add("wt-cart-motion--pulse"));
+      setTimeout(() => node.classList.remove("wt-cart-motion--pulse"), 620);
+    });
+
+    setTimeout(() => {
+      this.drawer.classList.remove("wt-cart__drawer--item-added", "wt-cart__drawer--item-removed");
+    }, 750);
   }
 }
 

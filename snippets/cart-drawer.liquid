@@ -46,6 +46,17 @@
   elsif settings.drawer_mobile_item_meta_font == 'dm_sans'
     assign drawer_meta_font = '"DM Sans", sans-serif'
   endif
+
+  assign drawer_motion_intensity = settings.cart_drawer_motion_intensity | default: 'balanced'
+  assign drawer_motion_scale = 1
+  assign drawer_motion_duration_scale = 1
+  if drawer_motion_intensity == 'aggressive'
+    assign drawer_motion_scale = 1.5
+    assign drawer_motion_duration_scale = 1.15
+  elsif drawer_motion_intensity == 'off'
+    assign drawer_motion_scale = 0
+    assign drawer_motion_duration_scale = 0
+  endif
 %}
 
 <style>
@@ -62,6 +73,8 @@
     --drawer-item-price-regular-color: {{ settings.drawer_item_price_regular_color | default: '#1A3B5C' }};
     --drawer-item-price-compare-color: {{ settings.drawer_item_price_compare_color | default: '#B8BEC6' }};
     --drawer-item-price-sale-color: {{ settings.drawer_item_price_sale_color | default: '#2E9E57' }};
+    --drawer-motion-scale: {{ drawer_motion_scale }};
+    --drawer-motion-duration-scale: {{ drawer_motion_duration_scale }};
   }
 </style>
 
@@ -71,7 +84,11 @@
   data-cart-type="{{ settings.cart_type }}"
 >
   <div class="page-overlay-cart"></div>
-  <div id="CartDrawer" class="cart-drawer wt-cart__drawer">
+  <div
+    id="CartDrawer"
+    class="cart-drawer wt-cart__drawer"
+    data-motion-intensity="{{ drawer_motion_intensity }}"
+  >
     <div
       class="wt-cart__drawer__inner drawer__inner"
       role="dialog"

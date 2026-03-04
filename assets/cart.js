@@ -94,6 +94,16 @@ class CartItems extends HTMLElement {
   }
 
   updateQuantity(line, quantity, name) {
+    const previousQuantityInput =
+      document.getElementById(`Quantity-${line}`) ||
+      document.getElementById(`Drawer-quantity-${line}`);
+    const previousQuantity = parseInt(
+      previousQuantityInput?.getAttribute("value") || previousQuantityInput?.value || "0",
+      10,
+    );
+    const requestedQuantity = parseInt(quantity, 10);
+    const previousItemCount = document.querySelectorAll(".cart-item").length;
+
     this.enableLoading(line);
 
     const body = JSON.stringify({
@@ -162,6 +172,13 @@ class CartItems extends HTMLElement {
           }
         }
         this.updateLiveRegions(line, message);
+        this.runCartMotion({
+          line,
+          previousQuantity,
+          requestedQuantity,
+          previousItemCount,
+          parsedState,
+        });
 
         const lineItem =
           document.getElementById(`CartItem-${line}`) ||
@@ -256,6 +273,86 @@ class CartItems extends HTMLElement {
     cartDrawerItemElements.forEach((overlay) =>
       overlay.classList.add("hidden"),
     );
+  }
+
+  runCartMotion({ line, previousQuantity, requestedQuantity, previousItemCount, parsedState }) {
+    const updatedItem = parsedState.items[line - 1];
+    const updatedQuantity = updatedItem ? updatedItem.quantity : 0;
+    const quantityDelta = updatedQuantity - previousQuantity;
+
+    const currentLineItem =
+      document.getElementById(`CartItem-${line}`) ||
+      document.getElementById(`CartDrawer-Item-${line}`);
+    if (currentLineItem) {
+      currentLineItem.classList.remove(
+        "wt-cart-line--quantity-up",
+        "wt-cart-line--quantity-down",
+        "wt-cart-line--flash",
+      );
+      currentLineItem.classList.add("wt-cart-line--flash");
+      if (quantityDelta > 0) currentLineItem.classList.add("wt-cart-line--quantity-up");
+      if (quantityDelta < 0) currentLineItem.classList.add("wt-cart-line--quantity-down");
+      window.setTimeout(() => {
+        currentLineItem.classList.remove(
+          "wt-cart-line--quantity-up",
+          "wt-cart-line--quantity-down",
+          "wt-cart-line--flash",
+        );
+      }, 900);
+
+      if (quantityDelta !== 0) {
+        const counterHost =
+          currentLineItem.querySelector(".counter-wrapper") ||
+          currentLineItem.querySelector(".wt-cart__item__amount");
+        if (counterHost) {
+          counterHost.querySelectorAll(".wt-cart__qty-delta").forEach((node) => node.remove());
+          const deltaNode = document.createElement("span");
+          deltaNode.className = "wt-cart__qty-delta";
+          deltaNode.classList.add(
+            quantityDelta > 0 ? "wt-cart__qty-delta--up" : "wt-cart__qty-delta--down",
+          );
+          deltaNode.textContent = `${quantityDelta > 0 ? "+" : ""}${quantityDelta}`;
+          counterHost.appendChild(deltaNode);
+          window.setTimeout(() => deltaNode.remove(), 950);
+        }
+      }
+    }
+
+    const newItemCount = parsedState.items.length;
+    const drawer = document.querySelector(".wt-cart__drawer");
+    if (drawer) {
+      drawer.classList.remove("wt-cart__drawer--item-added", "wt-cart__drawer--item-removed");
+      if (newItemCount > previousItemCount || requestedQuantity > previousQuantity) {
+        drawer.classList.add("wt-cart__drawer--item-added");
+      } else if (newItemCount < previousItemCount || requestedQuantity < previousQuantity) {
+        drawer.classList.add("wt-cart__drawer--item-removed");
+      }
+      window.setTimeout(() => {
+        drawer.classList.remove("wt-cart__drawer--item-added", "wt-cart__drawer--item-removed");
+      }, 750);
+    }
+
+    this.pulseCartTotals();
+    this.pulseProgressBar();
+  }
+
+  pulseCartTotals() {
+    const targets = document.querySelectorAll(
+      ".wt-cart__subtotal, .wt-cart__subtotal__value, .wt-cart__saved-row, .wt-cart__saved-value",
+    );
+    targets.forEach((target) => {
+      target.classList.remove("wt-cart-motion--pulse");
+      requestAnimationFrame(() => target.classList.add("wt-cart-motion--pulse"));
+      window.setTimeout(() => target.classList.remove("wt-cart-motion--pulse"), 620);
+    });
+  }
+
+  pulseProgressBar() {
+    const progressFill = document.querySelector(".wt-cart__drawer .wt-progress-bar__fill");
+    if (!progressFill) return;
+    progressFill.classList.remove("wt-cart-motion--progress");
+    requestAnimationFrame(() => progressFill.classList.add("wt-cart-motion--progress"));
+    window.setTimeout(() => progressFill.classList.remove("wt-cart-motion--progress"), 900);
   }
 }
 

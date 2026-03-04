@@ -1194,6 +1194,30 @@
       },
       {
         "type": "header",
+        "content": "Cart drawer animations"
+      },
+      {
+        "type": "select",
+        "id": "cart_drawer_motion_intensity",
+        "label": "Animation intensity",
+        "default": "balanced",
+        "options": [
+          {
+            "value": "off",
+            "label": "Off"
+          },
+          {
+            "value": "balanced",
+            "label": "Balanced"
+          },
+          {
+            "value": "aggressive",
+            "label": "Aggressive"
+          }
+        ]
+      },
+      {
+        "type": "header",
         "content": "Cart drawer CRO"
       },
       {
