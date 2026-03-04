@@ -175,3 +175,16 @@ cart-drawer .ccd-payment-trust {
   font-size: 12px !important;
   font-weight: 500 !important;
 }
+
+/* CALQIX heading style: keep existing sizes, unify look */
+h1,
+h2,
+.h1,
+.h2 {
+  font-family: var(--font-headline) !important;
+  font-style: normal !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  text-rendering: optimizeLegibility;
+}
