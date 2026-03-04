@@ -1,5 +1,15 @@
 <div class="wt-cart__footer__body">
-  {% assign cart_total_saved = cart.original_total_price | minus: cart.total_price %}
+  {% assign cart_baseline_total = 0 %}
+  {% for item in cart.items %}
+    {% assign compare_unit_price = item.variant.compare_at_price %}
+    {% if compare_unit_price != blank and compare_unit_price > item.final_price %}
+      {% assign line_baseline = compare_unit_price | times: item.quantity %}
+    {% else %}
+      {% assign line_baseline = item.original_price | times: item.quantity %}
+    {% endif %}
+    {% assign cart_baseline_total = cart_baseline_total | plus: line_baseline %}
+  {% endfor %}
+  {% assign cart_total_saved = cart_baseline_total | minus: cart.total_price %}
   {% if cart_total_saved > 0 %}
     <div class="wt-cart__saved-row">
       <div class="wt-cart__saved-label">
