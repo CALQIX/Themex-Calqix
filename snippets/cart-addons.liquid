@@ -7,7 +7,7 @@
 {% endfor %}
 
 {% if any_addon %}
-  <div class="wt-cart__addons" aria-label="Optional add-ons">
+  <div class="wt-cart__addons" aria-label="Always perfect to have">
     {% if settings.drawer_addons_heading != blank %}
       <p class="wt-cart__addons__heading">{{ settings.drawer_addons_heading }}</p>
     {% endif %}
@@ -29,7 +29,12 @@
             {% assign final_url = addon_product.url %}
           {% endif %}
 
-          <article class="wt-cart__addon-card">
+          <article
+            class="wt-cart__addon-card"
+            {% if addon_product != blank and addon_product.selected_or_first_available_variant != blank %}
+              data-addon-variant-id="{{ addon_product.selected_or_first_available_variant.id }}"
+            {% endif %}
+          >
             <div class="wt-cart__addon-card__copy">
               {% if settings[title_key] != blank %}
                 <p class="wt-cart__addon-card__title">{{ settings[title_key] }}</p>
@@ -54,6 +59,8 @@
                     <button
                       type="submit"
                       class="wt-cart__addon-card__button"
+                      data-add-label="Add"
+                      data-added-label="Added"
                       {% unless addon_product.selected_or_first_available_variant.available %}
                         disabled
                       {% endunless %}

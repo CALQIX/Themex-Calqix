@@ -21,11 +21,15 @@
     </div>
   {% endif %}
 
-  <div class="wt-cart__subtotal">
+  <div
+    class="wt-cart__subtotal"
+    data-subtotal-cents="{{ cart.total_price }}"
+    data-currency-code="{{ cart.currency.iso_code }}"
+  >
     <div class="wt-cart__subtotal__label">
       <span class="text">{{ 'sections.cart.subtotal' | t }}</span>
     </div>
-    <div class="wt-cart__subtotal__value">
+    <div class="wt-cart__subtotal__value" data-subtotal-value>
       {{ cart.total_price | money_with_currency }}
     </div>
   </div>

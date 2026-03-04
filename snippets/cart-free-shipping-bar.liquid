@@ -33,19 +33,40 @@
 {% assign remaining_amount_with_currency = remaining_amount | times: 100 | money %}
 
 {% assign custom_text = settings.free_shipping_bar_text | replace: '||amount||', remaining_amount_with_currency %}
+{% assign bar_text_template = settings.free_shipping_bar_text | default: 'Spend ||amount|| more for free shipping' %}
+{% assign has_amount_token = false %}
+{% if bar_text_template contains '||amount||' %}
+  {% assign has_amount_token = true %}
+  {% assign bar_text_parts = bar_text_template | split: '||amount||' %}
+{% endif %}
 
-<div class="wt-free-shipping-bar">
+<div
+  class="wt-free-shipping-bar"
+  data-free-shipping-threshold-cents="{{ free_shipping_threshold | times: 100 | round }}"
+  data-free-shipping-progress="{{ progress_percentage }}"
+  data-free-shipping-remaining-cents="{{ remaining_amount | times: 100 | round }}"
+  data-free-shipping-success-text="{{ settings.free_shipping_bar_text_success | escape }}"
+>
   <p class="wt-free-shipping-bar__text">
     {% if remaining_amount > 0 %}
-      {{ custom_text }}
+      {% if has_amount_token %}
+        <span class="wt-free-shipping-bar__prefix">{{ bar_text_parts[0] }}</span>
+        <span class="wt-free-shipping-bar__amount" data-remaining-cents="{{ remaining_amount | times: 100 | round }}">
+          {{ remaining_amount_with_currency }}
+        </span>
+        <span class="wt-free-shipping-bar__suffix">{{ bar_text_parts[1] }}</span>
+      {% else %}
+        {{ custom_text }}
+      {% endif %}
     {% else %}
-      {{ settings.free_shipping_bar_text_success }}
+      <span class="wt-free-shipping-bar__success">{{ settings.free_shipping_bar_text_success }}</span>
     {% endif %}
   </p>
   <div class="wt-progress-bar">
     <div
       class="wt-progress-bar__fill"
-      style="width: {{ progress_percentage }}%;"
+      style="width: {{ progress_percentage }}%; --wt-free-progress: {{ progress_percentage }}%;"
+      data-progress="{{ progress_percentage }}"
     ></div>
   </div>
 </div>

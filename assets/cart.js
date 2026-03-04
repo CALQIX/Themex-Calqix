@@ -3,11 +3,32 @@ class CartRemoveButton extends HTMLElement {
     super();
 
     this.addEventListener("click", (event) => {
+      if (event.defaultPrevented) return;
       event.preventDefault();
       const cartItems =
         this.closest("cart-items") || this.closest("cart-drawer-items");
+      const cartLine =
+        document.getElementById(`CartDrawer-Item-${this.dataset.index}`) ||
+        document.getElementById(`CartItem-${this.dataset.index}`);
+      const shouldAnimate =
+        cartLine &&
+        this.closest("cart-drawer-items") &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      cartItems.updateQuantity(this.dataset.index, 0);
+      if (!shouldAnimate) {
+        cartItems.updateQuantity(this.dataset.index, 0);
+        return;
+      }
+
+      cartLine.classList.add("wt-cart-line--remove-pending", "wt-cart-line--remove-flash");
+      cartLine.style.maxHeight = `${cartLine.scrollHeight}px`;
+      requestAnimationFrame(() => {
+        cartLine.style.maxHeight = "0px";
+        cartLine.style.opacity = "0";
+      });
+      setTimeout(() => {
+        cartItems.updateQuantity(this.dataset.index, 0);
+      }, 320);
     });
   }
 }
@@ -94,6 +115,20 @@ class CartItems extends HTMLElement {
   }
 
   updateQuantity(line, quantity, name) {
+    const previousHeaderCount = parseCounterValue(
+      document.querySelector("#cart-icon-bubble .wt-header__panel__counter"),
+    );
+    const previousSubtotal = parseInt(
+      document.querySelector(".wt-cart__subtotal")?.dataset.subtotalCents || "0",
+      10,
+    );
+    const previousProgress = parseFloat(
+      document.querySelector(".wt-free-shipping-bar .wt-progress-bar__fill")?.dataset.progress || "0",
+    );
+    const previousRemaining = parseInt(
+      document.querySelector(".wt-free-shipping-bar")?.dataset.freeShippingRemainingCents || "0",
+      10,
+    );
     const previousQuantityInput =
       document.getElementById(`Quantity-${line}`) ||
       document.getElementById(`Drawer-quantity-${line}`);
@@ -178,6 +213,10 @@ class CartItems extends HTMLElement {
           requestedQuantity,
           previousItemCount,
           parsedState,
+          previousHeaderCount,
+          previousSubtotal,
+          previousProgress,
+          previousRemaining,
         });
 
         const lineItem =
@@ -275,7 +314,17 @@ class CartItems extends HTMLElement {
     );
   }
 
-  runCartMotion({ line, previousQuantity, requestedQuantity, previousItemCount, parsedState }) {
+  runCartMotion({
+    line,
+    previousQuantity,
+    requestedQuantity,
+    previousItemCount,
+    parsedState,
+    previousHeaderCount,
+    previousSubtotal,
+    previousProgress,
+    previousRemaining,
+  }) {
     const updatedItem = parsedState.items[line - 1];
     const updatedQuantity = updatedItem ? updatedItem.quantity : 0;
     const quantityDelta = updatedQuantity - previousQuantity;
@@ -301,6 +350,17 @@ class CartItems extends HTMLElement {
       }, 900);
 
       if (quantityDelta !== 0) {
+        const quantityInput = currentLineItem.querySelector(".js-counter-quantity");
+        if (quantityInput) {
+          quantityInput.classList.remove("wt-cart-qty--flip-up", "wt-cart-qty--flip-down");
+          quantityInput.classList.add(
+            quantityDelta > 0 ? "wt-cart-qty--flip-up" : "wt-cart-qty--flip-down",
+          );
+          setTimeout(
+            () => quantityInput.classList.remove("wt-cart-qty--flip-up", "wt-cart-qty--flip-down"),
+            220,
+          );
+        }
         const counterHost =
           currentLineItem.querySelector(".counter-wrapper") ||
           currentLineItem.querySelector(".wt-cart__item__amount");
@@ -334,6 +394,9 @@ class CartItems extends HTMLElement {
 
     this.pulseCartTotals();
     this.pulseProgressBar();
+    this.animateHeaderCounter(previousHeaderCount);
+    this.animateSubtotalCounter(previousSubtotal);
+    this.animateFreeShipping(previousProgress, previousRemaining);
   }
 
   pulseCartTotals() {
@@ -353,6 +416,56 @@ class CartItems extends HTMLElement {
     progressFill.classList.remove("wt-cart-motion--progress");
     requestAnimationFrame(() => progressFill.classList.add("wt-cart-motion--progress"));
     window.setTimeout(() => progressFill.classList.remove("wt-cart-motion--progress"), 900);
+  }
+
+  animateHeaderCounter(previousCount) {
+    const counter = document.querySelector("#cart-icon-bubble .wt-header__panel__counter");
+    if (!counter) return;
+    const nextCount = parseCounterValue(counter);
+    if (nextCount === previousCount) return;
+    counter.classList.remove("wt-cart-counter--bounce", "wt-cart-counter--flip-up");
+    requestAnimationFrame(() => counter.classList.add("wt-cart-counter--bounce", "wt-cart-counter--flip-up"));
+    setTimeout(() => counter.classList.remove("wt-cart-counter--flip-up"), 420);
+  }
+
+  animateSubtotalCounter(previousSubtotal) {
+    const subtotal = document.querySelector(".wt-cart__subtotal");
+    const valueNode = document.querySelector(".wt-cart__subtotal__value[data-subtotal-value]");
+    if (!subtotal || !valueNode) return;
+    const nextSubtotal = parseInt(subtotal.dataset.subtotalCents || "0", 10);
+    if (nextSubtotal === previousSubtotal) return;
+    const currencyCode = subtotal.dataset.currencyCode || window.Shopify?.currency?.active || "EUR";
+    countMoneyValue(valueNode, previousSubtotal || 0, nextSubtotal || 0, 400, currencyCode);
+    subtotal.classList.add("wt-cart-subtotal--updating");
+    setTimeout(() => subtotal.classList.remove("wt-cart-subtotal--updating"), 620);
+  }
+
+  animateFreeShipping(previousProgress, previousRemaining) {
+    const barWrapper = document.querySelector(".wt-free-shipping-bar");
+    const fill = document.querySelector(".wt-free-shipping-bar .wt-progress-bar__fill");
+    if (!barWrapper || !fill) return;
+    const nextProgress = parseFloat(fill.dataset.progress || "0");
+    fill.style.setProperty("--wt-prev-free-progress", `${previousProgress || 0}%`);
+    fill.style.setProperty("--wt-free-progress", `${nextProgress}%`);
+    fill.classList.remove("wt-progress-bar__fill--animate");
+    requestAnimationFrame(() => fill.classList.add("wt-progress-bar__fill--animate"));
+    if (nextProgress >= 100 && (previousProgress || 0) < 100) {
+      fill.classList.add("wt-progress-bar__fill--complete");
+      setTimeout(() => fill.classList.remove("wt-progress-bar__fill--complete"), 500);
+      const text = barWrapper.querySelector(".wt-free-shipping-bar__text");
+      if (text) text.innerHTML = '<span class="wt-free-shipping-bar__success">\u{1F389} Free shipping unlocked!</span>';
+      const remaining = parseInt(barWrapper.dataset.freeShippingRemainingCents || "0", 10);
+      triggerShippingConfetti(previousRemaining || 0, remaining || 0);
+    }
+    const amountNode = barWrapper.querySelector(".wt-free-shipping-bar__amount");
+    const remaining = parseInt(barWrapper.dataset.freeShippingRemainingCents || "0", 10);
+    if (amountNode && remaining !== previousRemaining) {
+      const currencyCode =
+        document.querySelector(".wt-cart__subtotal")?.dataset.currencyCode ||
+        window.Shopify?.currency?.active ||
+        "EUR";
+      countMoneyValue(amountNode, previousRemaining || 0, remaining || 0, 400, currencyCode);
+    }
   }
 }
 
@@ -380,4 +493,54 @@ if (!customElements.get("cart-note")) {
       }
     },
   );
+}
+
+function parseCounterValue(counterNode) {
+  if (!counterNode) return 0;
+  const value = parseInt(counterNode.textContent || "0", 10);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function countMoneyValue(node, fromCents, toCents, duration, currencyCode) {
+  if (!node) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    node.textContent = formatMoneyValue(toCents, currencyCode);
+    return;
+  }
+  const start = performance.now();
+  const delta = (toCents || 0) - (fromCents || 0);
+  const animate = (now) => {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const value = Math.round((fromCents || 0) + delta * eased);
+    node.textContent = formatMoneyValue(value, currencyCode);
+    if (progress < 1) requestAnimationFrame(animate);
+  };
+  requestAnimationFrame(animate);
+}
+
+function formatMoneyValue(cents, currencyCode) {
+  try {
+    return new Intl.NumberFormat(document.documentElement.lang || navigator.language || "en", {
+      style: "currency",
+      currency: currencyCode || window.Shopify?.currency?.active || "EUR",
+    }).format((cents || 0) / 100);
+  } catch (error) {
+    return `${(cents || 0) / 100}`;
+  }
+}
+
+function triggerShippingConfetti(previousRemaining, nextRemaining) {
+  if (nextRemaining > 0 || previousRemaining <= 0) return;
+  if (sessionStorage.getItem("shippingConfettiShown") === "1") return;
+  if (typeof window.confetti !== "function") return;
+  window.confetti({
+    particleCount: 80,
+    spread: 60,
+    origin: { x: 0.5, y: 0 },
+    colors: ["#E8C96A", "#1A3B5C", "#FFFFFF"],
+    scalar: 0.9,
+    shapes: ["circle", "square"],
+  });
+  sessionStorage.setItem("shippingConfettiShown", "1");
 }
