@@ -1,0 +1,634 @@
+<section id="css-{{ section.id }}" class="css-section">
+  <div class="css-shell">
+    <div class="css-media-wrap">
+      <div class="css-media-layer css-media-layer--video">
+        {% if section.settings.background_video != blank %}
+          {{
+            section.settings.background_video
+            | video_tag:
+              autoplay: true,
+              loop: true,
+              muted: true,
+              controls: false,
+              playsinline: true,
+              image_size: '1600x'
+          }}
+        {% elsif section.settings.background_image != blank %}
+          {{
+            section.settings.background_image
+            | image_url: width: 1800
+            | image_tag: loading: 'lazy', widths: '540, 900, 1200, 1600, 1800', class: 'css-fallback-image'
+          }}
+        {% else %}
+          <div class="css-fallback"></div>
+        {% endif %}
+      </div>
+      <div class="css-media-layer css-media-layer--overlay"></div>
+      <div class="css-glow css-glow--one"></div>
+      <div class="css-glow css-glow--two"></div>
+    </div>
+
+    <div class="css-content" data-css-observe>
+      {% if section.settings.eyebrow != blank %}
+        <p class="css-eyebrow">{{ section.settings.eyebrow }}</p>
+      {% endif %}
+      {% if section.settings.heading != blank %}
+        <h2 class="css-heading">{{ section.settings.heading }}</h2>
+      {% endif %}
+      {% if section.settings.body != blank %}
+        <div class="css-body rte">{{ section.settings.body }}</div>
+      {% endif %}
+
+      <div class="css-points">
+        {% for block in section.blocks %}
+          {% if block.type == 'story_point' %}
+            <article class="css-point" {{ block.shopify_attributes }}>
+              <span class="css-point-number">{{ forloop.index }}</span>
+              <h3 class="css-point-title">{{ block.settings.title }}</h3>
+              <p class="css-point-text">{{ block.settings.text }}</p>
+            </article>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <a class="css-cta" href="{{ section.settings.button_link | default: '/pages/about-us' }}">
+        <span>{{ section.settings.button_label }}</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="css-mobile-story" data-css-track>
+    {% for block in section.blocks %}
+      {% if block.type == 'story_point' %}
+        <article class="css-slide" data-css-slide {{ block.shopify_attributes }}>
+          <span class="css-slide-step">Step {{ forloop.index }}</span>
+          <h3 class="css-slide-title">{{ block.settings.title }}</h3>
+          <p class="css-slide-text">{{ block.settings.text }}</p>
+        </article>
+      {% endif %}
+    {% endfor %}
+    <article class="css-slide css-slide--cta" data-css-slide>
+      <p class="css-slide-step">{{ section.settings.mobile_cta_kicker }}</p>
+      <h3 class="css-slide-title">{{ section.settings.mobile_cta_title }}</h3>
+      <p class="css-slide-text">{{ section.settings.mobile_cta_text }}</p>
+      <a class="css-cta css-cta--mobile" href="{{ section.settings.button_link | default: '/pages/about-us' }}">
+        <span>{{ section.settings.button_label }}</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </a>
+    </article>
+  </div>
+
+  <div class="css-dots" data-css-dots></div>
+
+  <style>
+    #css-{{ section.id }} {
+      --css-bg: {{ section.settings.background_color }};
+      --css-text: {{ section.settings.text_color }};
+      --css-muted: {{ section.settings.muted_text_color }};
+      --css-accent: {{ section.settings.accent_color }};
+      --css-border: rgba(255, 255, 255, 0.14);
+      --css-radius: 14px;
+      background: var(--css-bg);
+      padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+      overflow: clip;
+    }
+    #css-{{ section.id }} .css-shell {
+      width: min(1200px, calc(100% - 48px));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      border: 1px solid var(--css-border);
+      border-radius: var(--css-radius);
+      background: linear-gradient(140deg, rgba(10, 26, 44, 0.9), rgba(14, 37, 60, 0.76));
+      box-shadow: 0 30px 80px rgba(2, 9, 18, 0.48);
+      backdrop-filter: blur(4px);
+      overflow: hidden;
+      position: relative;
+    }
+    #css-{{ section.id }} .css-shell::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(232, 201, 106, 0.16);
+      pointer-events: none;
+      border-radius: var(--css-radius);
+    }
+    #css-{{ section.id }} .css-media-wrap {
+      min-height: 540px;
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+    #css-{{ section.id }} .css-media-layer {
+      position: absolute;
+      inset: 0;
+    }
+    #css-{{ section.id }} .css-media-layer--video video,
+    #css-{{ section.id }} .css-fallback-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.02);
+      transition: transform 0.9s ease, filter 0.9s ease;
+      filter: saturate(1.08) contrast(1.08);
+    }
+    #css-{{ section.id }} .css-shell:hover .css-media-layer--video video,
+    #css-{{ section.id }} .css-shell:hover .css-fallback-image {
+      transform: scale(1.08);
+      filter: saturate(1.16) contrast(1.14);
+    }
+    #css-{{ section.id }} .css-media-layer--overlay {
+      background:
+        radial-gradient(circle at 18% 18%, rgba(232, 201, 106, 0.28), transparent 42%),
+        radial-gradient(circle at 82% 78%, rgba(65, 141, 220, 0.22), transparent 38%),
+        linear-gradient(125deg, rgba(5, 14, 26, 0.7), rgba(10, 28, 46, 0.22) 48%, rgba(5, 12, 23, 0.78));
+      mix-blend-mode: screen;
+      opacity: 0.9;
+      transition: opacity 0.6s ease;
+    }
+    #css-{{ section.id }} .css-shell:hover .css-media-layer--overlay {
+      opacity: 1;
+    }
+    #css-{{ section.id }} .css-glow {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(40px);
+      opacity: 0.5;
+      pointer-events: none;
+      animation: cssPulse 6s ease-in-out infinite;
+    }
+    #css-{{ section.id }} .css-glow--one {
+      width: 240px;
+      height: 240px;
+      background: rgba(232, 201, 106, 0.26);
+      left: -50px;
+      top: -40px;
+    }
+    #css-{{ section.id }} .css-glow--two {
+      width: 260px;
+      height: 260px;
+      background: rgba(81, 152, 224, 0.2);
+      right: -80px;
+      bottom: -90px;
+      animation-delay: 1.3s;
+    }
+
+    #css-{{ section.id }} .css-content {
+      color: var(--css-text);
+      padding: 52px 44px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    #css-{{ section.id }} .css-content.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #css-{{ section.id }} .css-eyebrow {
+      margin: 0 0 12px;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--css-accent);
+      font-weight: 600;
+    }
+    #css-{{ section.id }} .css-heading {
+      margin: 0 0 14px;
+      font-family: "DM Serif Display", Georgia, serif;
+      font-size: clamp(31px, 4.4vw, 50px);
+      line-height: 1.1;
+      color: var(--css-text);
+    }
+    #css-{{ section.id }} .css-body {
+      margin: 0 0 24px;
+      font-family: "DM Sans", sans-serif;
+      color: var(--css-muted);
+      line-height: 1.7;
+      font-size: 15px;
+      max-width: 46ch;
+    }
+    #css-{{ section.id }} .css-points {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    #css-{{ section.id }} .css-point {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 11px;
+      padding: 12px 13px 12px 44px;
+      position: relative;
+      background: rgba(13, 35, 56, 0.56);
+      transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease;
+    }
+    #css-{{ section.id }} .css-point:hover {
+      border-color: rgba(232, 201, 106, 0.5);
+      background: rgba(14, 41, 64, 0.82);
+      transform: translateY(-2px);
+    }
+    #css-{{ section.id }} .css-point-number {
+      position: absolute;
+      left: 13px;
+      top: 12px;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(232, 201, 106, 0.6);
+      color: var(--css-accent);
+      font-size: 11px;
+      display: grid;
+      place-items: center;
+      font-weight: 600;
+    }
+    #css-{{ section.id }} .css-point-title {
+      margin: 0 0 4px;
+      color: #f8fbff;
+      font-family: "DM Serif Display", Georgia, serif;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+    #css-{{ section.id }} .css-point-text {
+      margin: 0;
+      color: var(--css-muted);
+      font-size: 13px;
+      line-height: 1.65;
+      font-family: "DM Sans", sans-serif;
+    }
+    #css-{{ section.id }} .css-cta {
+      margin-top: auto;
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      border: 1px solid rgba(232, 201, 106, 0.6);
+      color: #f8fbff;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: linear-gradient(94deg, rgba(232, 201, 106, 0.18), rgba(232, 201, 106, 0.02));
+      font-size: 12px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.26s ease, border-color 0.26s ease, box-shadow 0.26s ease;
+    }
+    #css-{{ section.id }} .css-cta::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.25) 40%, transparent 70%);
+      transform: translateX(-130%);
+      transition: transform 0.5s ease;
+    }
+    #css-{{ section.id }} .css-cta svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      transition: transform 0.28s ease;
+    }
+    #css-{{ section.id }} .css-cta:hover {
+      transform: translateY(-2px);
+      border-color: rgba(232, 201, 106, 0.95);
+      box-shadow: 0 10px 30px rgba(2, 10, 20, 0.42);
+    }
+    #css-{{ section.id }} .css-cta:hover::before {
+      transform: translateX(140%);
+    }
+    #css-{{ section.id }} .css-cta:hover svg {
+      transform: translateX(4px);
+    }
+
+    #css-{{ section.id }} .css-mobile-story,
+    #css-{{ section.id }} .css-dots {
+      display: none;
+    }
+
+    @media (max-width: 990px) {
+      #css-{{ section.id }} .css-shell {
+        grid-template-columns: 1fr;
+      }
+      #css-{{ section.id }} .css-media-wrap {
+        min-height: 340px;
+      }
+    }
+
+    @media (max-width: 749px) {
+      #css-{{ section.id }} {
+        padding: {{ section.settings.padding_top | times: 0.72 | round }}px 0 {{ section.settings.padding_bottom | times: 0.72 | round }}px;
+      }
+      #css-{{ section.id }} .css-shell {
+        width: calc(100% - 28px);
+      }
+      #css-{{ section.id }} .css-content {
+        padding: 26px 20px 24px;
+      }
+      #css-{{ section.id }} .css-media-wrap {
+        min-height: 260px;
+      }
+      #css-{{ section.id }} .css-heading {
+        font-size: clamp(27px, 8.2vw, 36px);
+      }
+      #css-{{ section.id }} .css-points,
+      #css-{{ section.id }} .css-cta {
+        display: none;
+      }
+      #css-{{ section.id }} .css-mobile-story {
+        display: flex;
+        gap: 12px;
+        margin: 16px 14px 0;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        padding-bottom: 8px;
+      }
+      #css-{{ section.id }} .css-mobile-story::-webkit-scrollbar {
+        display: none;
+      }
+      #css-{{ section.id }} .css-slide {
+        min-width: calc(100% - 8px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 12px;
+        padding: 16px 14px;
+        background: rgba(11, 30, 49, 0.92);
+        scroll-snap-align: start;
+        transform: translateY(16px) scale(0.98);
+        opacity: 0.58;
+        transition: transform 0.35s ease, opacity 0.35s ease, border-color 0.35s ease;
+      }
+      #css-{{ section.id }} .css-slide.is-active {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        border-color: rgba(232, 201, 106, 0.56);
+      }
+      #css-{{ section.id }} .css-slide-step {
+        margin: 0 0 8px;
+        display: inline-flex;
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--css-accent);
+        font-weight: 600;
+      }
+      #css-{{ section.id }} .css-slide-title {
+        margin: 0 0 6px;
+        font-size: 22px;
+        color: #fff;
+        font-family: "DM Serif Display", Georgia, serif;
+      }
+      #css-{{ section.id }} .css-slide-text {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.65;
+        color: var(--css-muted);
+        font-family: "DM Sans", sans-serif;
+      }
+      #css-{{ section.id }} .css-cta--mobile {
+        margin-top: 14px;
+        display: inline-flex;
+      }
+      #css-{{ section.id }} .css-dots {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      #css-{{ section.id }} .css-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.26);
+        transition: width 0.24s ease, background 0.24s ease;
+      }
+      #css-{{ section.id }} .css-dot.is-active {
+        width: 18px;
+        background: var(--css-accent);
+      }
+    }
+
+    @keyframes cssPulse {
+      0%, 100% { transform: scale(1); opacity: 0.45; }
+      50% { transform: scale(1.18); opacity: 0.65; }
+    }
+  </style>
+
+  <script>
+    (() => {
+      const root = document.getElementById('css-{{ section.id }}');
+      if (!root) return;
+
+      const content = root.querySelector('[data-css-observe]');
+      if (content && 'IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              content.classList.add('is-visible');
+              observer.disconnect();
+            }
+          });
+        }, { threshold: 0.25 });
+        observer.observe(content);
+      } else if (content) {
+        content.classList.add('is-visible');
+      }
+
+      const track = root.querySelector('[data-css-track]');
+      const slides = track ? [...track.querySelectorAll('[data-css-slide]')] : [];
+      const dotsWrap = root.querySelector('[data-css-dots]');
+      if (!track || slides.length === 0 || !dotsWrap) return;
+
+      dotsWrap.innerHTML = slides.map((_, i) => `<span class="css-dot${i === 0 ? ' is-active' : ''}"></span>`).join('');
+      const dots = [...dotsWrap.querySelectorAll('.css-dot')];
+
+      const setActive = (idx) => {
+        slides.forEach((slide, i) => slide.classList.toggle('is-active', i === idx));
+        dots.forEach((dot, i) => dot.classList.toggle('is-active', i === idx));
+      };
+
+      const updateByScroll = () => {
+        const scrollLeft = track.scrollLeft;
+        const width = track.clientWidth;
+        const rawIndex = width > 0 ? Math.round(scrollLeft / (width - 8)) : 0;
+        const idx = Math.max(0, Math.min(slides.length - 1, rawIndex));
+        setActive(idx);
+      };
+
+      setActive(0);
+      track.addEventListener('scroll', updateByScroll, { passive: true });
+      window.addEventListener('resize', updateByScroll);
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "CALQIX Science Story",
+  "tag": "section",
+  "class": "calqix-science-story",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Our Science"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "From deep-cleaning to real enamel recovery."
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Body copy",
+      "default": "<p>FlowCore removes what blocks remineralisation. Then CALQIX nano-HA can bind directly to enamel. Explore the method behind every result.</p>"
+    },
+    {
+      "type": "video",
+      "id": "background_video",
+      "label": "Background video"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Fallback background image"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Discover our Science"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "text",
+      "id": "mobile_cta_kicker",
+      "label": "Mobile CTA kicker",
+      "default": "Final step"
+    },
+    {
+      "type": "text",
+      "id": "mobile_cta_title",
+      "label": "Mobile CTA title",
+      "default": "See the full science story."
+    },
+    {
+      "type": "textarea",
+      "id": "mobile_cta_text",
+      "label": "Mobile CTA text",
+      "default": "Open our over-ons page for the full clinical explanation, protocol details, and ingredient science."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#0F2438"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Main text color",
+      "default": "#F7FBFF"
+    },
+    {
+      "type": "color",
+      "id": "muted_text_color",
+      "label": "Muted text color",
+      "default": "#B8CCDF"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#E8C96A"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 20,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 20,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ],
+  "blocks": [
+    {
+      "type": "story_point",
+      "name": "Story point",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Barrier removal"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Plaque and debris are flushed from areas brushing does not reach, preparing the enamel surface."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX Science Story",
+      "blocks": [
+        {
+          "type": "story_point",
+          "settings": {
+            "title": "Flush deep",
+            "text": "1,600 pulses per minute clear out plaque and bacteria up to 6mm below the gumline."
+          }
+        },
+        {
+          "type": "story_point",
+          "settings": {
+            "title": "Unlock absorption",
+            "text": "By removing the biofilm barrier first, enamel is ready for direct nano-HA binding."
+          }
+        },
+        {
+          "type": "story_point",
+          "settings": {
+            "title": "Rebuild with science",
+            "text": "CALQIX nano-hydroxyapatite supports daily remineralisation through a clinically aligned protocol."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
