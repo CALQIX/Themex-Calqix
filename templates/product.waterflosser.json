@@ -56,29 +56,6 @@
             "size_text_mobile": 140
           }
         },
-        "calqix_pdp_decision_8QkP2M": {
-          "type": "calqix_pdp_decision",
-          "settings": {
-            "title": "Why shoppers choose CALQIX",
-            "line_1_icon": "🚚",
-            "line_1_text": "Order before 23:00 — shipped today",
-            "line_2_icon": "↩️",
-            "line_2_text": "30-day returns",
-            "line_3_icon": "🔒",
-            "line_3_text": "Secure checkout and 2-year warranty",
-            "note_text": "NL: 1-2 werkdagen, gratis verzending boven EUR80.",
-            "padding_vertical": 10,
-            "margin_vertical": 8,
-            "border_color": "#e4e4e0",
-            "title_color": "#1a3b5c",
-            "text_color": "#1a3b5c",
-            "note_color": "#6e8093",
-            "icon_size": 15,
-            "title_size": 11,
-            "text_size": 13,
-            "note_size": 12
-          }
-        },
         "calqix_colour_switcher_gGdWaB": {
           "type": "calqix_colour_switcher",
           "settings": {
@@ -141,30 +118,6 @@
             "buy_now_label": "Buy it Now",
             "text_color": "#ffffff",
             "background_color": "#1a3b5c"
-          }
-        },
-        "calqix_pdp_micro_faq_n3Pm2Y": {
-          "type": "calqix_pdp_micro_faq",
-          "settings": {
-            "title": "Quick answers",
-            "open_first": false,
-            "q_1": "Is this suitable for sensitive gums?",
-            "a_1": "<p>Yes. Start in Gentle mode and increase pressure once comfortable.</p>",
-            "q_2": "How quickly do I notice results?",
-            "a_2": "<p>Most users report fresher gums in days and clearer long-term results in 2-4 weeks with consistent routine use.</p>",
-            "q_3": "What about returns and warranty?",
-            "a_3": "<p>You get 30-day returns and a 2-year warranty on FlowCore devices.</p>",
-            "q_4": "How do I use this with CALQIX tablets?",
-            "a_4": "<p>Use FlowCore first to clear plaque, then brush with your CALQIX tablet to support enamel remineralisation.</p>",
-            "margin_vertical": 10,
-            "border_color": "#e4e4e0",
-            "title_color": "#1a3b5c",
-            "question_color": "#1a3b5c",
-            "answer_color": "#6e8093",
-            "plus_color": "#1a3b5c",
-            "title_size": 11,
-            "question_size": 14,
-            "answer_size": 13
           }
         },
         "calqix_trust_badges_i3QXMQ": {
@@ -238,10 +191,8 @@
         "title",
         "calqix_subtitle_UyGg8U",
         "price",
-        "calqix_pdp_decision_8QkP2M",
         "calqix_colour_switcher_gGdWaB",
         "buy_buttons",
-        "calqix_pdp_micro_faq_n3Pm2Y",
         "calqix_trust_badges_i3QXMQ",
         "video_reels_cJKbXC"
       ],
@@ -579,18 +530,21 @@
         "body_text_color": "#afc1d2",
         "section_padding_vertical": 72,
         "col1_show": true,
+        "col1_image": "shopify://shop_images/Stap_1.png",
         "col1_url": "",
         "col1_step_number": "01",
         "col1_badge_text": "Day 0",
         "col1_heading": "Before",
         "col1_body": "Plaque and bacteria accumulate between teeth and below the gumline. Enamel cannot remineralise through biofilm — the barrier must be removed first.",
         "col2_show": true,
+        "col2_image": "shopify://shop_images/Stap_2.png",
         "col2_url": "",
         "col2_step_number": "02",
         "col2_badge_text": "60 seconds",
         "col2_heading": "In Action",
         "col2_body": "The FlowCore delivers 1,400 pulsations per minute, reaching 6mm below the gumline. Plaque, debris and bacteria are flushed from areas a toothbrush cannot reach.",
         "col3_show": true,
+        "col3_image": "shopify://shop_images/Stap_3.png",
         "col3_url": "",
         "col3_step_number": "03",
         "col3_badge_text": "Day 30+",
@@ -649,6 +603,10 @@
         "old_price": "€79,90",
         "save_text": "SAVE €14,95",
         "button_text": "Shop the Bundle →",
+        "soldout_waitlist_label": "Notify me when available",
+        "soldout_waitlist_url": "",
+        "soldout_alt_label": "Shop FlowCore only",
+        "soldout_alt_url": "",
         "bundle_product_handle": "flowcore-bundle",
         "bundle_url": "",
         "flip_layout": false,
