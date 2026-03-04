@@ -13,6 +13,55 @@
   <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
 {% endif %}
 
+{% liquid
+  assign drawer_title_font = 'var(--font-base)'
+  if settings.drawer_mobile_item_title_font == 'heading'
+    assign drawer_title_font = 'var(--font-headings)'
+  elsif settings.drawer_mobile_item_title_font == 'price'
+    assign drawer_title_font = 'var(--font-price)'
+  elsif settings.drawer_mobile_item_title_font == 'dm_serif'
+    assign drawer_title_font = '"DM Serif Display", Georgia, serif'
+  elsif settings.drawer_mobile_item_title_font == 'dm_sans'
+    assign drawer_title_font = '"DM Sans", sans-serif'
+  endif
+
+  assign drawer_price_font = 'var(--font-price)'
+  if settings.drawer_mobile_item_price_font == 'heading'
+    assign drawer_price_font = 'var(--font-headings)'
+  elsif settings.drawer_mobile_item_price_font == 'base'
+    assign drawer_price_font = 'var(--font-base)'
+  elsif settings.drawer_mobile_item_price_font == 'dm_serif'
+    assign drawer_price_font = '"DM Serif Display", Georgia, serif'
+  elsif settings.drawer_mobile_item_price_font == 'dm_sans'
+    assign drawer_price_font = '"DM Sans", sans-serif'
+  endif
+
+  assign drawer_meta_font = 'var(--font-base)'
+  if settings.drawer_mobile_item_meta_font == 'heading'
+    assign drawer_meta_font = 'var(--font-headings)'
+  elsif settings.drawer_mobile_item_meta_font == 'price'
+    assign drawer_meta_font = 'var(--font-price)'
+  elsif settings.drawer_mobile_item_meta_font == 'dm_serif'
+    assign drawer_meta_font = '"DM Serif Display", Georgia, serif'
+  elsif settings.drawer_mobile_item_meta_font == 'dm_sans'
+    assign drawer_meta_font = '"DM Sans", sans-serif'
+  endif
+%}
+
+<style>
+  .wt-cart__drawer {
+    --drawer-mobile-title-size: {{ settings.drawer_mobile_item_title_size | default: 13 }}px;
+    --drawer-mobile-title-weight: {{ settings.drawer_mobile_item_title_weight | default: 600 }};
+    --drawer-mobile-title-font: {{ drawer_title_font }};
+    --drawer-mobile-meta-size: {{ settings.drawer_mobile_item_meta_size | default: 12 }}px;
+    --drawer-mobile-meta-font: {{ drawer_meta_font }};
+    --drawer-mobile-price-size: {{ settings.drawer_mobile_item_price_size | default: 15 }}px;
+    --drawer-mobile-price-weight: {{ settings.drawer_mobile_item_price_weight | default: 700 }};
+    --drawer-mobile-price-font: {{ drawer_price_font }};
+    --drawer-mobile-qty-size: {{ settings.drawer_mobile_item_qty_size | default: 16 }}px;
+  }
+</style>
+
 <cart-drawer
   class="wt-cart {% if cart == empty %}wt-cart--empty{% endif %}"
   data-toggle-tabindex=".wt-cart__drawer__close--button,.button--continue-shopping,.giftnote__drawercart__addnote,.wt-cart__item__remove, .js-counter-button, .js-counter-quantity, .wt-cart__cta, .wt-cart__item__link, .wt-cart__login__text a, .policy-link, .wt-cart__show-cart"

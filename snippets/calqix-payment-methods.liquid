@@ -12,7 +12,7 @@
     <div
       class="ccd-payment-row"
       aria-label="Payment methods accepted"
-      style="--ccd-payment-icon-height: {{ settings.cart_drawer_payment_icon_height | default: 20 }}px;"
+      style="--ccd-payment-icon-height: {{ settings.cart_drawer_payment_icon_height | default: 20 }}px; --ccd-payment-icon-height-mobile: {{ settings.cart_drawer_payment_icon_height_mobile | default: 16 }}px;"
     >
       {%- if settings.cart_drawer_payment_label != blank -%}
         <p class="ccd-payment-label">{{ settings.cart_drawer_payment_label }}</p>

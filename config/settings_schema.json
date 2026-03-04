@@ -990,6 +990,112 @@
         "label": "Add-on module heading"
       },
       {
+        "type": "header",
+        "content": "Drawer mobile line-item typography"
+      },
+      {
+        "type": "select",
+        "id": "drawer_mobile_item_title_font",
+        "default": "base",
+        "label": "Product title font (mobile)",
+        "options": [
+          { "value": "base", "label": "Base font" },
+          { "value": "heading", "label": "Heading font" },
+          { "value": "price", "label": "Price font" },
+          { "value": "dm_sans", "label": "DM Sans" },
+          { "value": "dm_serif", "label": "DM Serif Display" }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "drawer_mobile_item_title_size",
+        "min": 12,
+        "max": 24,
+        "step": 1,
+        "default": 13,
+        "unit": "px",
+        "label": "Product title size (mobile)"
+      },
+      {
+        "type": "select",
+        "id": "drawer_mobile_item_title_weight",
+        "default": "600",
+        "label": "Product title weight (mobile)",
+        "options": [
+          { "value": "400", "label": "400" },
+          { "value": "500", "label": "500" },
+          { "value": "600", "label": "600" },
+          { "value": "700", "label": "700" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "drawer_mobile_item_meta_font",
+        "default": "base",
+        "label": "Item details font (mobile)",
+        "options": [
+          { "value": "base", "label": "Base font" },
+          { "value": "heading", "label": "Heading font" },
+          { "value": "price", "label": "Price font" },
+          { "value": "dm_sans", "label": "DM Sans" },
+          { "value": "dm_serif", "label": "DM Serif Display" }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "drawer_mobile_item_meta_size",
+        "min": 10,
+        "max": 18,
+        "step": 1,
+        "default": 12,
+        "unit": "px",
+        "label": "Item details size (mobile)"
+      },
+      {
+        "type": "select",
+        "id": "drawer_mobile_item_price_font",
+        "default": "price",
+        "label": "Price font (mobile)",
+        "options": [
+          { "value": "price", "label": "Price font" },
+          { "value": "base", "label": "Base font" },
+          { "value": "heading", "label": "Heading font" },
+          { "value": "dm_sans", "label": "DM Sans" },
+          { "value": "dm_serif", "label": "DM Serif Display" }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "drawer_mobile_item_price_size",
+        "min": 12,
+        "max": 24,
+        "step": 1,
+        "default": 15,
+        "unit": "px",
+        "label": "Price size (mobile)"
+      },
+      {
+        "type": "select",
+        "id": "drawer_mobile_item_price_weight",
+        "default": "700",
+        "label": "Price weight (mobile)",
+        "options": [
+          { "value": "500", "label": "500" },
+          { "value": "600", "label": "600" },
+          { "value": "700", "label": "700" }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "drawer_mobile_item_qty_size",
+        "min": 12,
+        "max": 22,
+        "step": 1,
+        "default": 16,
+        "unit": "px",
+        "label": "Quantity number size (mobile)"
+      },
+      {
         "type": "checkbox",
         "id": "drawer_addon_1_show",
         "default": false,
@@ -1087,6 +1193,15 @@
         "step": 1,
         "default": 22,
         "label": "Payment icon height"
+      },
+      {
+        "type": "range",
+        "id": "cart_drawer_payment_icon_height_mobile",
+        "min": 10,
+        "max": 26,
+        "step": 1,
+        "default": 14,
+        "label": "Payment icon height (mobile)"
       },
       {
         "type": "checkbox",

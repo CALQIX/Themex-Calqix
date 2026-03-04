@@ -1100,6 +1100,9 @@
   color: var(--calqix-muted);
   text-align: right;
 }
+.wt-cart__drawer .wt-cart__subtitle__text--custom {
+  font-style: italic;
+}
 .wt-cart__drawer .wt-cart__cta {
   background: var(--calqix-navy-soft);
   color: #ffffff;
@@ -1163,8 +1166,44 @@
   font-weight: 500;
 }
 @media (max-width: 599px) {
+  .wt-cart__drawer .wt-cart__item__name a {
+    font-family: var(--drawer-mobile-title-font);
+    font-size: var(--drawer-mobile-title-size);
+    font-weight: var(--drawer-mobile-title-weight);
+    line-height: 1.3;
+  }
+  .wt-cart__drawer .wt-cart__item__body .options,
+  .wt-cart__drawer .wt-cart__item__body .options .label,
+  .wt-cart__drawer .wt-cart__item__body .options .value {
+    font-family: var(--drawer-mobile-meta-font);
+    font-size: var(--drawer-mobile-meta-size);
+  }
+  .wt-cart__drawer .wt-cart__item__amount .value,
+  .wt-cart__drawer .wt-cart__item__amount .cart-item__discounted-prices,
+  .wt-cart__drawer .wt-cart__item__amount .cart-item__discounted-prices span,
+  .wt-cart__drawer .wt-cart__item__amount .cart-item__discounted-prices s {
+    font-family: var(--drawer-mobile-price-font);
+    font-size: var(--drawer-mobile-price-size);
+    font-weight: var(--drawer-mobile-price-weight);
+    line-height: 1.25;
+  }
+  .wt-cart__drawer .counter .js-counter-quantity {
+    font-size: var(--drawer-mobile-qty-size);
+  }
   .wt-cart__drawer .ccd-payment-icon {
     min-width: 54px;
+  }
+  .wt-cart__drawer .ccd-payment-icons {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+  .wt-cart__drawer .ccd-payment-icon .icon,
+  .wt-cart__drawer .ccd-payment-custom-img {
+    height: var(--ccd-payment-icon-height-mobile, var(--ccd-payment-icon-height, 20px));
+  }
+  .wt-cart__drawer .ccd-payment-icon {
+    min-width: 0;
+    padding: 0 4px;
   }
   .wt-cart__drawer .wt-cart__subtitle__text {
     text-align: right;
@@ -1255,6 +1294,10 @@
   font-size: 12px;
   line-height: 1.35;
 }
+.wt-cart__addon-card__copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 .wt-cart__addon-card__actions {
   display: flex;
   flex-direction: column;
@@ -1289,11 +1332,12 @@
 }
 @media (max-width: 599px) {
   .wt-cart__addon-card {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
   }
   .wt-cart__addon-card__actions {
-    align-items: flex-start;
+    align-items: flex-end;
+    margin-left: auto;
   }
 }
 /*# sourceMappingURL=cart-drawer.css.map */
