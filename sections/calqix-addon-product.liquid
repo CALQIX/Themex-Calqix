@@ -1,0 +1,781 @@
+<section id="cao-{{ section.id }}" class="cao">
+  <div class="cao-breadcrumb-bar">
+    <div class="cao-wrap">
+      <nav class="cao-breadcrumb" aria-label="Breadcrumb">
+        <a href="/collections/water-flosser">Shop</a>
+        <span>→</span>
+        <a href="/collections/add-ons">Add-ons</a>
+        <span>→</span>
+        <span aria-current="page">{{ product.title }}</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="cao-hero">
+    <div class="cao-wrap cao-hero-grid">
+      <div class="cao-media">
+        {% assign featured = product.selected_or_first_available_variant.featured_media | default: product.featured_media %}
+        <div class="cao-main-image">
+          {% if featured != blank %}
+            {{
+              featured
+              | image_url: width: 1400
+              | image_tag:
+                loading: 'eager',
+                widths: '420, 640, 900, 1200, 1400',
+                class: 'cao-main-image-el',
+                id: 'cao-main-img-' | append: section.id,
+                alt: product.title
+            }}
+          {% endif %}
+        </div>
+
+        {% if product.media.size > 1 %}
+          <div class="cao-thumbs" data-cao-thumbs>
+            {% for media in product.media limit: 4 %}
+              {% if media.preview_image != blank %}
+                <button
+                  type="button"
+                  class="cao-thumb{% if forloop.first %} is-active{% endif %}"
+                  data-cao-src="{{ media.preview_image | image_url: width: 1400 }}"
+                  data-cao-alt="{{ media.alt | default: product.title | escape }}"
+                  aria-label="Show image {{ forloop.index }}"
+                >
+                  {{
+                    media.preview_image
+                    | image_url: width: 220
+                    | image_tag: loading: 'lazy', widths: '80, 110, 160, 220', class: 'cao-thumb-image'
+                  }}
+                </button>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="cao-info">
+        {% assign eyebrow_meta = product.metafields.custom.eyebrow.value %}
+        <p class="cao-eyebrow">{{ eyebrow_meta | default: 'CALQIX Accessory' }}</p>
+        <h1 class="cao-title">{{ product.title }}</h1>
+
+        {% assign short_meta = product.metafields.custom.short_description.value %}
+        {% assign short_fallback = product.description | strip_html | strip | truncate: 120 %}
+        <p class="cao-short">{{ short_meta | default: short_fallback }}</p>
+
+        <div class="cao-price-row">
+          <span class="cao-price">{{ product.selected_or_first_available_variant.price | money }}</span>
+          {% if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price %}
+            <span class="cao-compare">{{ product.selected_or_first_available_variant.compare_at_price | money }}</span>
+          {% endif %}
+          {% if product.tags contains 'bundle-free' %}
+            <span class="cao-bundle-pill">Free with FlowCore Bundle</span>
+          {% endif %}
+        </div>
+
+        <div class="cao-divider"></div>
+
+        {% form 'product', product, class: 'cao-form' %}
+          <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+          <div class="cao-buy-row">
+            <div class="cao-qty" data-cao-qty>
+              <button type="button" class="cao-qty-btn" data-cao-qty-minus aria-label="Decrease quantity">−</button>
+              <input class="cao-qty-input" type="number" name="quantity" value="1" min="1" inputmode="numeric">
+              <button type="button" class="cao-qty-btn" data-cao-qty-plus aria-label="Increase quantity">+</button>
+            </div>
+            <button
+              type="submit"
+              name="add"
+              class="cao-atc"
+              {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}
+            >
+              {% if product.selected_or_first_available_variant.available %}Add to cart{% else %}Sold out{% endif %}
+            </button>
+          </div>
+        {% endform %}
+
+        <p class="cao-trust">
+          ✓ Ships in 2 business days &nbsp;·&nbsp; ✓ 30-day money-back guarantee &nbsp;·&nbsp; ✓ Free over €80
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cao-accordion-wrap">
+    <div class="cao-accordion" data-cao-accordion>
+      {% assign whats_included = product.metafields.custom.whats_included.value %}
+      {% assign materials = product.metafields.custom.materials.value %}
+
+      <article class="cao-item">
+        <button type="button" class="cao-item-trigger" data-cao-trigger>
+          <span>What's included</span>
+          <span class="cao-item-icon">+</span>
+        </button>
+        <div class="cao-item-content" data-cao-content>
+          <div class="cao-item-inner">
+            {% if whats_included != blank %}
+              {{ whats_included | escape | newline_to_br }}
+            {% else %}
+              1× FlowCore Travel Pouch<br>
+              Cotton canvas exterior with gold-tone zipper<br>
+              Fits FlowCore device + 2 nozzle tips + accessories
+            {% endif %}
+          </div>
+        </div>
+      </article>
+
+      <article class="cao-item">
+        <button type="button" class="cao-item-trigger" data-cao-trigger>
+          <span>Materials & Care</span>
+          <span class="cao-item-icon">+</span>
+        </button>
+        <div class="cao-item-content" data-cao-content>
+          <div class="cao-item-inner">
+            {% if materials != blank %}
+              {{ materials | escape | newline_to_br }}
+            {% else %}
+              Exterior: 100% cotton canvas (10oz weight)<br>
+              Lining: Soft polyester inner lining<br>
+              Zipper: Gold-tone metal<br>
+              Care: Hand wash cold, air dry flat<br>
+              Do not tumble dry or iron directly on logo
+            {% endif %}
+          </div>
+        </div>
+      </article>
+
+      <article class="cao-item">
+        <button type="button" class="cao-item-trigger" data-cao-trigger>
+          <span>Shipping & Returns</span>
+          <span class="cao-item-icon">+</span>
+        </button>
+        <div class="cao-item-content" data-cao-content>
+          <div class="cao-item-inner">
+            Free shipping on orders over €80<br>
+            Standard delivery: 2–5 business days (NL/BE)<br>
+            International: 5–10 business days<br>
+            30-day hassle-free returns on unopened items<br>
+            Contact: support@calqix.com
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  {% if section.settings.show_bundle_strip %}
+    <div class="cao-bundle-strip">
+      <div class="cao-wrap cao-bundle-grid">
+        <div class="cao-bundle-copy">
+          <p class="cao-bundle-eyebrow">Complete the System</p>
+          <h2 class="cao-bundle-title">Get it free with the FlowCore Bundle.</h2>
+          <p class="cao-bundle-body">
+            Order the FlowCore + Enamel Tablets Bundle and receive the FlowCore Travel Pouch at no extra cost.
+          </p>
+        </div>
+        <div class="cao-bundle-action">
+          <a href="/collections/bundles" class="cao-bundle-btn">Shop the Bundle →</a>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if section.settings.show_complementary %}
+    <div class="cao-complementary">
+      <div class="cao-wrap">
+        <h2 class="cao-complementary-title">Complete your routine.</h2>
+        <div class="cao-cards" data-cao-cards>
+          {% assign manual_products = product.metafields.custom.complementary_products.value %}
+          {% assign shown = 0 %}
+
+          {% if manual_products != blank %}
+            {% for comp in manual_products %}
+              {% if comp.handle != product.handle and shown < 3 %}
+                <article class="cao-card">
+                  <a href="{{ comp.url }}" class="cao-card-image-link">
+                    {% if comp.featured_image != blank %}
+                      {{
+                        comp.featured_image
+                        | image_url: width: 700
+                        | image_tag: loading: 'lazy', widths: '220, 340, 500, 700', class: 'cao-card-image'
+                      }}
+                    {% endif %}
+                  </a>
+                  <a href="{{ comp.url }}" class="cao-card-title">{{ comp.title }}</a>
+                  <p class="cao-card-price">{{ comp.price | money }}</p>
+                  {% if comp.selected_or_first_available_variant != blank %}
+                    <form method="post" action="/cart/add" class="cao-card-form">
+                      <input type="hidden" name="id" value="{{ comp.selected_or_first_available_variant.id }}">
+                      <button type="submit" class="cao-card-atc">Add to cart</button>
+                    </form>
+                  {% endif %}
+                </article>
+                {% assign shown = shown | plus: 1 %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+          {% if shown < 3 %}
+            {% assign add_ons_collection = collections['add-ons'] %}
+            {% if add_ons_collection != blank %}
+              {% for item in add_ons_collection.products %}
+                {% if item.handle != product.handle and shown < 3 %}
+                  <article class="cao-card">
+                    <a href="{{ item.url }}" class="cao-card-image-link">
+                      {% if item.featured_image != blank %}
+                        {{
+                          item.featured_image
+                          | image_url: width: 700
+                          | image_tag: loading: 'lazy', widths: '220, 340, 500, 700', class: 'cao-card-image'
+                        }}
+                      {% endif %}
+                    </a>
+                    <a href="{{ item.url }}" class="cao-card-title">{{ item.title }}</a>
+                    <p class="cao-card-price">{{ item.price | money }}</p>
+                    {% if item.selected_or_first_available_variant != blank %}
+                      <form method="post" action="/cart/add" class="cao-card-form">
+                        <input type="hidden" name="id" value="{{ item.selected_or_first_available_variant.id }}">
+                        <button type="submit" class="cao-card-atc">Add to cart</button>
+                      </form>
+                    {% endif %}
+                  </article>
+                  {% assign shown = shown | plus: 1 %}
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <style>
+    #cao-{{ section.id }} {
+      --cao-bg: {{ section.settings.page_bg }};
+      --cao-navy: {{ section.settings.navy_color }};
+      --cao-accent: {{ section.settings.accent_color }};
+      --cao-text: {{ section.settings.text_color }};
+      --cao-muted: rgba(26,59,92,0.7);
+      background: var(--cao-bg);
+    }
+    #cao-{{ section.id }} .cao-wrap {
+      width: min(1200px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+    #cao-{{ section.id }} .cao-breadcrumb-bar {
+      background: #fff;
+      border-bottom: 1px solid rgba(26,59,92,0.08);
+    }
+    #cao-{{ section.id }} .cao-breadcrumb {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 12px 0;
+      color: var(--cao-navy);
+      font-size: 12px;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cao-{{ section.id }} .cao-breadcrumb a {
+      text-decoration: none;
+      color: var(--cao-navy);
+      opacity: 0.86;
+    }
+    #cao-{{ section.id }} .cao-breadcrumb a:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    #cao-{{ section.id }} .cao-hero {
+      padding: 24px 0 22px;
+    }
+    #cao-{{ section.id }} .cao-hero-grid {
+      display: grid;
+      grid-template-columns: 55% 45%;
+      gap: 34px;
+      align-items: start;
+    }
+    #cao-{{ section.id }} .cao-main-image {
+      aspect-ratio: 1 / 1;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f7f7f6;
+      border: 1px solid rgba(26,59,92,0.06);
+    }
+    #cao-{{ section.id }} .cao-main-image-el {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    #cao-{{ section.id }} .cao-thumbs {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+    }
+    #cao-{{ section.id }} .cao-thumb {
+      width: 70px;
+      aspect-ratio: 1 / 1;
+      border-radius: 6px;
+      border: 1px solid rgba(26,59,92,0.18);
+      overflow: hidden;
+      padding: 0;
+      background: #fff;
+      cursor: pointer;
+    }
+    #cao-{{ section.id }} .cao-thumb.is-active {
+      border-color: var(--cao-navy);
+      box-shadow: inset 0 0 0 1px var(--cao-navy);
+    }
+    #cao-{{ section.id }} .cao-thumb-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    #cao-{{ section.id }} .cao-eyebrow {
+      margin: 0 0 10px;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--cao-accent);
+      font-weight: 600;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cao-{{ section.id }} .cao-title {
+      margin: 0 0 10px;
+      color: var(--cao-navy);
+      font-family: "DM Serif Display", Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(24px, 3vw, 38px);
+      line-height: 1.12;
+    }
+    #cao-{{ section.id }} .cao-short {
+      margin: 0 0 16px;
+      color: var(--cao-muted);
+      max-width: 420px;
+      font-size: 15px;
+      line-height: 1.6;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cao-{{ section.id }} .cao-price-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    #cao-{{ section.id }} .cao-price {
+      color: var(--cao-navy);
+      font-size: 22px;
+      font-weight: 700;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cao-{{ section.id }} .cao-compare {
+      color: rgba(0,0,0,0.35);
+      font-size: 16px;
+      text-decoration: line-through;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cao-{{ section.id }} .cao-bundle-pill {
+      display: inline-flex;
+      border: 1px solid var(--cao-accent);
+      background: rgba(232,201,106,0.12);
+      color: var(--cao-navy);
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cao-{{ section.id }} .cao-divider {
+      border-top: 1px solid rgba(26,59,92,0.08);
+      margin: 0 0 14px;
+    }
+    #cao-{{ section.id }} .cao-buy-row {
+      display: grid;
+      grid-template-columns: 138px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    #cao-{{ section.id }} .cao-qty {
+      border: 1px solid rgba(26,59,92,0.4);
+      border-radius: 4px;
+      height: 52px;
+      display: grid;
+      grid-template-columns: 40px 1fr 40px;
+      overflow: hidden;
+      background: #fff;
+    }
+    #cao-{{ section.id }} .cao-qty-btn {
+      border: 0;
+      background: transparent;
+      color: var(--cao-navy);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cao-{{ section.id }} .cao-qty-input {
+      border: 0;
+      width: 100%;
+      text-align: center;
+      color: var(--cao-navy);
+      font-size: 15px;
+      font-weight: 600;
+      font-family: "DM Sans", sans-serif;
+      -moz-appearance: textfield;
+    }
+    #cao-{{ section.id }} .cao-qty-input::-webkit-outer-spin-button,
+    #cao-{{ section.id }} .cao-qty-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    #cao-{{ section.id }} .cao-atc {
+      width: 100%;
+      height: 52px;
+      border: 0;
+      border-radius: 4px;
+      background: var(--cao-navy);
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cao-{{ section.id }} .cao-atc:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    #cao-{{ section.id }} .cao-trust {
+      margin: 10px 0 0;
+      text-align: center;
+      color: rgba(26,59,92,0.5);
+      font-size: 12px;
+      line-height: 1.55;
+      font-family: "DM Sans", sans-serif;
+    }
+
+    #cao-{{ section.id }} .cao-accordion-wrap {
+      background: #fff;
+      padding: 10px 0 34px;
+    }
+    #cao-{{ section.id }} .cao-accordion {
+      width: min(800px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+    #cao-{{ section.id }} .cao-item-trigger {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid rgba(26,59,92,0.1);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 0;
+      color: var(--cao-navy);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cao-{{ section.id }} .cao-item-icon {
+      color: var(--cao-accent);
+      font-size: 24px;
+      line-height: 1;
+      transition: transform 0.2s ease;
+    }
+    #cao-{{ section.id }} .cao-item-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+    #cao-{{ section.id }} .cao-item.is-open .cao-item-icon {
+      transform: rotate(180deg);
+    }
+    #cao-{{ section.id }} .cao-item-inner {
+      padding: 16px 0;
+      color: rgba(26,59,92,0.7);
+      font-size: 14px;
+      line-height: 1.7;
+      font-family: "DM Sans", sans-serif;
+    }
+
+    #cao-{{ section.id }} .cao-bundle-strip {
+      background: #0F2438;
+      padding: 48px 0;
+    }
+    #cao-{{ section.id }} .cao-bundle-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: center;
+    }
+    #cao-{{ section.id }} .cao-bundle-eyebrow {
+      margin: 0 0 10px;
+      color: var(--cao-accent);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 600;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cao-{{ section.id }} .cao-bundle-title {
+      margin: 0 0 10px;
+      color: #fff;
+      font-size: clamp(20px, 2.5vw, 32px);
+      line-height: 1.2;
+      font-weight: 400;
+      font-family: "DM Serif Display", Georgia, serif;
+    }
+    #cao-{{ section.id }} .cao-bundle-body {
+      margin: 0;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 540px;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cao-{{ section.id }} .cao-bundle-btn {
+      text-decoration: none;
+      border: 1px solid var(--cao-accent);
+      color: var(--cao-accent);
+      background: transparent;
+      border-radius: 4px;
+      padding: 14px 20px;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 600;
+      font-family: "DM Sans", sans-serif;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    #cao-{{ section.id }} .cao-bundle-btn:hover {
+      background: var(--cao-accent);
+      color: #0F2438;
+    }
+
+    #cao-{{ section.id }} .cao-complementary {
+      background: #fff;
+      padding: 52px 0 60px;
+    }
+    #cao-{{ section.id }} .cao-complementary-title {
+      margin: 0 0 22px;
+      color: var(--cao-navy);
+      font-size: 28px;
+      line-height: 1.2;
+      text-align: center;
+      font-weight: 400;
+      font-family: "DM Serif Display", Georgia, serif;
+    }
+    #cao-{{ section.id }} .cao-cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    #cao-{{ section.id }} .cao-card-image-link {
+      display: block;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(26,59,92,0.08);
+      background: #f6f6f6;
+      margin-bottom: 10px;
+    }
+    #cao-{{ section.id }} .cao-card-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      display: block;
+    }
+    #cao-{{ section.id }} .cao-card-title {
+      color: var(--cao-navy);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.5;
+      font-family: "DM Sans", sans-serif;
+      display: block;
+      margin-bottom: 5px;
+    }
+    #cao-{{ section.id }} .cao-card-price {
+      margin: 0 0 10px;
+      color: var(--cao-navy);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cao-{{ section.id }} .cao-card-atc {
+      width: 100%;
+      border: 0;
+      background: var(--cao-navy);
+      color: #fff;
+      border-radius: 4px;
+      height: 40px;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: "DM Sans", sans-serif;
+    }
+
+    @media (max-width: 768px) {
+      #cao-{{ section.id }} .cao-hero-grid {
+        grid-template-columns: 1fr;
+      }
+      #cao-{{ section.id }} .cao-bundle-grid {
+        grid-template-columns: 1fr;
+      }
+      #cao-{{ section.id }} .cao-buy-row {
+        grid-template-columns: 124px 1fr;
+      }
+    }
+    @media (max-width: 600px) {
+      #cao-{{ section.id }} .cao-wrap {
+        width: calc(100% - 24px);
+      }
+      #cao-{{ section.id }} .cao-thumbs {
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+      #cao-{{ section.id }} .cao-thumb {
+        flex: 0 0 66px;
+      }
+      #cao-{{ section.id }} .cao-cards {
+        display: flex;
+        overflow-x: auto;
+        gap: 12px;
+        scroll-snap-type: x mandatory;
+      }
+      #cao-{{ section.id }} .cao-card {
+        min-width: calc(100% - 36px);
+        scroll-snap-align: start;
+      }
+      #cao-{{ section.id }} .cao-trust {
+        text-align: left;
+      }
+    }
+  </style>
+
+  <script>
+    (() => {
+      const root = document.getElementById('cao-{{ section.id }}');
+      if (!root) return;
+
+      const mainImage = root.querySelector('#cao-main-img-{{ section.id }}');
+      const thumbButtons = root.querySelectorAll('[data-cao-src]');
+      thumbButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (!mainImage) return;
+          mainImage.src = btn.getAttribute('data-cao-src');
+          mainImage.alt = btn.getAttribute('data-cao-alt') || mainImage.alt;
+          thumbButtons.forEach((b) => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+        });
+      });
+
+      const qtyWrap = root.querySelector('[data-cao-qty]');
+      if (qtyWrap) {
+        const input = qtyWrap.querySelector('.cao-qty-input');
+        const minus = qtyWrap.querySelector('[data-cao-qty-minus]');
+        const plus = qtyWrap.querySelector('[data-cao-qty-plus]');
+        minus?.addEventListener('click', () => {
+          const next = Math.max(1, parseInt(input.value || '1', 10) - 1);
+          input.value = String(next);
+        });
+        plus?.addEventListener('click', () => {
+          const next = Math.max(1, parseInt(input.value || '1', 10) + 1);
+          input.value = String(next);
+        });
+      }
+
+      const accordion = root.querySelector('[data-cao-accordion]');
+      if (accordion) {
+        const items = accordion.querySelectorAll('.cao-item');
+        items.forEach((item) => {
+          const trigger = item.querySelector('[data-cao-trigger]');
+          const content = item.querySelector('[data-cao-content]');
+          trigger?.addEventListener('click', () => {
+            const isOpen = item.classList.contains('is-open');
+            if (isOpen) {
+              item.classList.remove('is-open');
+              content.style.maxHeight = '0px';
+              trigger.querySelector('.cao-item-icon').textContent = '+';
+            } else {
+              item.classList.add('is-open');
+              content.style.maxHeight = content.scrollHeight + 'px';
+              trigger.querySelector('.cao-item-icon').textContent = '−';
+            }
+          });
+        });
+      }
+    })();
+  </script>
+
+  {% if section.settings.custom_css != blank %}
+    <style>
+      #cao-{{ section.id }} {
+        {{ section.settings.custom_css }}
+      }
+    </style>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "CALQIX — Add-on Product",
+  "tag": "section",
+  "class": "calqix-addon-product",
+  "settings": [
+    {
+      "type": "color",
+      "id": "page_bg",
+      "label": "Page background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "navy_color",
+      "label": "Navy color",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#E8C96A"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bundle_strip",
+      "label": "Show bundle CTA strip",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_complementary",
+      "label": "Show complementary products",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "custom_css",
+      "label": "Custom CSS"
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX — Add-on Product"
+    }
+  ]
+}
+{% endschema %}
