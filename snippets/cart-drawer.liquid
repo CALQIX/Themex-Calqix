@@ -1,8 +1,14 @@
+{{ 'cart-drawer.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'cart-drawer-note.js' | asset_url }}" defer="defer"></script>
 
-{% if settings.enable_cross_sells %}
+{% assign drawer_enable_upsell = settings.drawer_module_upsell %}
+{% if drawer_enable_upsell == blank %}
+  {% assign drawer_enable_upsell = settings.enable_cross_sells %}
+{% endif %}
+
+{% if settings.enable_cross_sells or drawer_enable_upsell %}
   <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
 {% endif %}
@@ -39,9 +45,19 @@
         </a>
       </header>
       <div class="wt-cart__drawer__body">
-        {% if settings.enable_free_shipping_bar and cart != empty %}
-          {% render 'cart-free-shipping-bar' %}
-        {% endif %}
+        <div class="wt-cart__drawer__module-slot wt-cart__drawer__module-slot--pre-items">
+          {% assign drawer_show_progress = settings.drawer_module_progress %}
+          {% if drawer_show_progress == blank %}
+            {% assign drawer_show_progress = settings.enable_free_shipping_bar %}
+          {% endif %}
+          {% if drawer_show_progress and settings.enable_free_shipping_bar and cart != empty %}
+            {% render 'cart-free-shipping-bar' %}
+          {% endif %}
+
+          {% if settings.drawer_module_urgency and cart != empty %}
+            {% render 'cart-urgency' %}
+          {% endif %}
+        </div>
 
         <cart-drawer-items class="wt-cart__drawer__items">
           <form
@@ -70,13 +86,20 @@
           </form>
         </cart-drawer-items>
       </div>
-      {% if settings.enable_cross_sells and cart != empty %}
-        {% render 'cart-cross-sell' %}
-      {% endif %}
+
+      <div class="wt-cart__drawer__module-slot wt-cart__drawer__module-slot--post-items">
+        {% if drawer_enable_upsell and settings.enable_cross_sells and cart != empty %}
+          {% render 'cart-cross-sell' %}
+        {% endif %}
+
+        {% if settings.drawer_module_addons and cart != empty %}
+          {% render 'cart-addons' %}
+        {% endif %}
+      </div>
 
       {% if cart != empty %}
         <footer class="wt-cart__drawer__footer">
-          <div class="wt-cart__subtitle">
+          <div class="wt-cart__subtitle wt-cart__drawer__module-slot wt-cart__drawer__module-slot--footer">
             {% if settings.cart_show_additional_service %}
               {% render 'cart-checkbox' %}
             {% endif %}

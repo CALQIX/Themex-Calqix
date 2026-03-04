@@ -1,0 +1,5 @@
+{% assign urgency_text = settings.drawer_urgency_text | default: 'Popular colour today. Checkout now so you do not miss out.' %}
+<div class="wt-cart__urgency" role="status" aria-live="polite">
+  <span class="wt-cart__urgency__dot" aria-hidden="true"></span>
+  <span class="wt-cart__urgency__text">{{ urgency_text }}</span>
+</div>

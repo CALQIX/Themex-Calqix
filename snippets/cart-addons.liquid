@@ -1,0 +1,55 @@
+{% assign any_addon = false %}
+{% for i in (1..2) %}
+  {% assign show_key = 'drawer_addon_' | append: i | append: '_show' %}
+  {% if settings[show_key] %}
+    {% assign any_addon = true %}
+  {% endif %}
+{% endfor %}
+
+{% if any_addon %}
+  <div class="wt-cart__addons" aria-label="Optional add-ons">
+    {% if settings.drawer_addons_heading != blank %}
+      <p class="wt-cart__addons__heading">{{ settings.drawer_addons_heading }}</p>
+    {% endif %}
+
+    <div class="wt-cart__addons__list">
+      {% for i in (1..2) %}
+        {% assign show_key = 'drawer_addon_' | append: i | append: '_show' %}
+        {% assign title_key = 'drawer_addon_' | append: i | append: '_title' %}
+        {% assign text_key = 'drawer_addon_' | append: i | append: '_text' %}
+        {% assign price_key = 'drawer_addon_' | append: i | append: '_price' %}
+        {% assign product_key = 'drawer_addon_' | append: i | append: '_product' %}
+        {% assign url_key = 'drawer_addon_' | append: i | append: '_url' %}
+
+        {% if settings[show_key] %}
+          {% assign addon_product = settings[product_key] %}
+          {% assign addon_url = settings[url_key] %}
+          {% assign final_url = addon_url %}
+          {% if final_url == blank and addon_product != blank %}
+            {% assign final_url = addon_product.url %}
+          {% endif %}
+
+          <article class="wt-cart__addon-card">
+            <div class="wt-cart__addon-card__copy">
+              {% if settings[title_key] != blank %}
+                <p class="wt-cart__addon-card__title">{{ settings[title_key] }}</p>
+              {% endif %}
+              {% if settings[text_key] != blank %}
+                <p class="wt-cart__addon-card__text">{{ settings[text_key] }}</p>
+              {% endif %}
+            </div>
+
+            <div class="wt-cart__addon-card__actions">
+              {% if settings[price_key] != blank %}
+                <span class="wt-cart__addon-card__price">{{ settings[price_key] }}</span>
+              {% endif %}
+              {% if final_url != blank %}
+                <a href="{{ final_url }}" class="wt-cart__addon-card__button">Add</a>
+              {% endif %}
+            </div>
+          </article>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}

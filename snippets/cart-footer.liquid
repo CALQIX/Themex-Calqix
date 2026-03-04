@@ -96,5 +96,11 @@
     </div>
   {% endif %}
 
-  {% render 'calqix-payment-methods' %}
+  {% assign show_trust_module = settings.drawer_module_trust %}
+  {% if show_trust_module == blank %}
+    {% assign show_trust_module = true %}
+  {% endif %}
+  {% if show_trust_module %}
+    {% render 'calqix-payment-methods' %}
+  {% endif %}
 </div>

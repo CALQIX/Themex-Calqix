@@ -6,7 +6,12 @@
   {% assign line_items_ids = line_items_ids | append: line_item.product_id | append: ', ' %}
 {% endfor %}
 
-{% assign limit_products = settings.product_limit_cross_sells %}
+{% assign limit_products = settings.drawer_upsell_max_products | default: settings.product_limit_cross_sells %}
+{% if limit_products > 3 %}
+  {% assign limit_products = 3 %}
+{% endif %}
+{% assign upsell_heading = settings.drawer_upsell_heading | default: settings.heading_cross_sells %}
+{% assign upsell_context = settings.drawer_upsell_context_label | default: 'Recommended for this cart' %}
 
 {% assign hide_brand = true %}
 {% if settings.show_vendor %}
@@ -41,7 +46,7 @@
 {% else %}
   <div class="wt-cart__cross-sell {% if settings.cross_sells_collapsed %}wt-cart__cross-sell--collapsed{% endif %}">
     <p class="wt-cart__cross-sell__heading">
-      {{ settings.heading_cross_sells }}
+      {{ upsell_heading }}
       <span
         class="wt-cart__cross-sell__toggle"
         onclick="this.closest('.wt-cart__cross-sell').classList.toggle('wt-cart__cross-sell--collapsed')"
@@ -49,6 +54,9 @@
         {% render 'icons', id: 'arrow-down' %}
       </span>
     </p>
+    {% if upsell_context != blank %}
+      <p class="wt-cart__cross-sell__context">{{ upsell_context }}</p>
+    {% endif %}
 
     <div class="wt-cart__cross-sell__products">
       {% if cross_sell_size > 1 %}

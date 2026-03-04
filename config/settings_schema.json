@@ -930,6 +930,141 @@
       },
       {
         "type": "header",
+        "content": "Drawer modules (Phase 1)"
+      },
+      {
+        "type": "checkbox",
+        "id": "drawer_module_progress",
+        "default": true,
+        "label": "Enable progress module"
+      },
+      {
+        "type": "checkbox",
+        "id": "drawer_module_urgency",
+        "default": false,
+        "label": "Enable urgency line"
+      },
+      {
+        "type": "text",
+        "id": "drawer_urgency_text",
+        "default": "Popular colour today. Checkout now so you do not miss out.",
+        "label": "Urgency text"
+      },
+      {
+        "type": "checkbox",
+        "id": "drawer_module_upsell",
+        "default": true,
+        "label": "Enable upsell module"
+      },
+      {
+        "type": "text",
+        "id": "drawer_upsell_heading",
+        "default": "Complete your routine",
+        "label": "Upsell heading"
+      },
+      {
+        "type": "text",
+        "id": "drawer_upsell_context_label",
+        "default": "Recommended for this cart",
+        "label": "Upsell context label"
+      },
+      {
+        "type": "range",
+        "id": "drawer_upsell_max_products",
+        "min": 1,
+        "max": 4,
+        "step": 1,
+        "default": 3,
+        "label": "Max upsell products visible"
+      },
+      {
+        "type": "checkbox",
+        "id": "drawer_module_addons",
+        "default": false,
+        "label": "Enable add-on module"
+      },
+      {
+        "type": "text",
+        "id": "drawer_addons_heading",
+        "default": "Add-ons before checkout",
+        "label": "Add-on module heading"
+      },
+      {
+        "type": "checkbox",
+        "id": "drawer_addon_1_show",
+        "default": false,
+        "label": "Show add-on 1"
+      },
+      {
+        "type": "text",
+        "id": "drawer_addon_1_title",
+        "default": "Travel pouch",
+        "label": "Add-on 1 title"
+      },
+      {
+        "type": "text",
+        "id": "drawer_addon_1_text",
+        "default": "Protect your FlowCore while travelling.",
+        "label": "Add-on 1 description"
+      },
+      {
+        "type": "text",
+        "id": "drawer_addon_1_price",
+        "default": "€9,95",
+        "label": "Add-on 1 price label"
+      },
+      {
+        "type": "product",
+        "id": "drawer_addon_1_product",
+        "label": "Add-on 1 product"
+      },
+      {
+        "type": "url",
+        "id": "drawer_addon_1_url",
+        "label": "Add-on 1 fallback URL"
+      },
+      {
+        "type": "checkbox",
+        "id": "drawer_addon_2_show",
+        "default": false,
+        "label": "Show add-on 2"
+      },
+      {
+        "type": "text",
+        "id": "drawer_addon_2_title",
+        "default": "Priority support",
+        "label": "Add-on 2 title"
+      },
+      {
+        "type": "text",
+        "id": "drawer_addon_2_text",
+        "default": "Get direct support and guidance after purchase.",
+        "label": "Add-on 2 description"
+      },
+      {
+        "type": "text",
+        "id": "drawer_addon_2_price",
+        "default": "Included in premium plan",
+        "label": "Add-on 2 price label"
+      },
+      {
+        "type": "product",
+        "id": "drawer_addon_2_product",
+        "label": "Add-on 2 product"
+      },
+      {
+        "type": "url",
+        "id": "drawer_addon_2_url",
+        "label": "Add-on 2 fallback URL"
+      },
+      {
+        "type": "checkbox",
+        "id": "drawer_module_trust",
+        "default": true,
+        "label": "Enable trust/payment module"
+      },
+      {
+        "type": "header",
         "content": "Cart drawer CRO"
       },
       {
