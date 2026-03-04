@@ -43,8 +43,31 @@
               {% if settings[price_key] != blank %}
                 <span class="wt-cart__addon-card__price">{{ settings[price_key] }}</span>
               {% endif %}
-              {% if final_url != blank %}
-                <a href="{{ final_url }}" class="wt-cart__addon-card__button">Add</a>
+              {% if addon_product != blank and addon_product.selected_or_first_available_variant != blank %}
+                <product-form class="wt-cart__addon-product-form" data-hide-errors="true">
+                  <form method="post" action="{{ routes.cart_add_url }}" accept-charset="UTF-8" class="form">
+                    <input
+                      type="hidden"
+                      name="id"
+                      value="{{ addon_product.selected_or_first_available_variant.id }}"
+                    >
+                    <button
+                      type="submit"
+                      class="wt-cart__addon-card__button"
+                      {% unless addon_product.selected_or_first_available_variant.available %}
+                        disabled
+                      {% endunless %}
+                    >
+                      {% if addon_product.selected_or_first_available_variant.available %}
+                        Add
+                      {% else %}
+                        Sold out
+                      {% endif %}
+                    </button>
+                  </form>
+                </product-form>
+              {% elsif final_url != blank %}
+                <a href="{{ final_url }}" class="wt-cart__addon-card__button">View</a>
               {% endif %}
             </div>
           </article>
