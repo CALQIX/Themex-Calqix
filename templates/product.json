@@ -80,8 +80,6 @@
           "type": "calqix_pdp_decision",
           "disabled": true,
           "settings": {
-            "enable_block": true,
-            "experiment_variant": "a",
             "title": "Why shoppers choose CALQIX",
             "line_1_icon": "🚚",
             "line_1_text": "Fast shipping from our EU warehouse",
@@ -90,11 +88,6 @@
             "line_3_icon": "🔒",
             "line_3_text": "Secure checkout and warranty included",
             "note_text": "Switch to Variant B in Theme Editor to run copy tests.",
-            "title_b": "Make every order risk-free",
-            "line_1_text_b": "Delivered quickly with live order tracking",
-            "line_2_text_b": "Try it at home with 30-day returns",
-            "line_3_text_b": "Secure payment and product warranty included",
-            "note_text_b": "Use this Variant B copy for A/B tests.",
             "padding_vertical": 10,
             "margin_vertical": 8,
             "border_color": "#e4e4e0",
@@ -121,10 +114,8 @@
           "type": "calqix_pdp_micro_faq",
           "disabled": true,
           "settings": {
-            "enable_block": true,
             "title": "Quick answers",
             "open_first": false,
-            "open_mode": "all_closed",
             "q_1": "How quickly can I expect delivery?",
             "a_1": "<p>Most orders leave our warehouse within 1 business day.</p>",
             "q_2": "Is there a money-back guarantee?",
@@ -526,7 +517,6 @@
     },
     "calqix_product_accordions_main": {
       "type": "calqix-product-accordions",
-      "name": "CALQIX Product Accordions",
       "blocks": {
         "acc_description": {
           "type": "accordion",
@@ -567,6 +557,7 @@
         "acc_how_to_use",
         "acc_ingredients"
       ],
+      "name": "CALQIX Product Accordions",
       "settings": {
         "first_open": false,
         "allow_multiple": false,
