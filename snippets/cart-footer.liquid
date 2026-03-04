@@ -1,4 +1,16 @@
 <div class="wt-cart__footer__body">
+  {% assign cart_total_saved = cart.original_total_price | minus: cart.total_price %}
+  {% if cart_total_saved > 0 %}
+    <div class="wt-cart__saved-row">
+      <div class="wt-cart__saved-label">
+        <span class="text">Total saved</span>
+      </div>
+      <div class="wt-cart__saved-value">
+        {{ cart_total_saved | money_with_currency }}
+      </div>
+    </div>
+  {% endif %}
+
   <div class="wt-cart__subtotal">
     <div class="wt-cart__subtotal__label">
       <span class="text">{{ 'sections.cart.subtotal' | t }}</span>
