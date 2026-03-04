@@ -14,15 +14,31 @@
     "announcement-bar": {
       "type": "announcement-bar",
       "blocks": {
+        "announcement_ThRGUR": {
+          "type": "announcement",
+          "settings": {
+            "text": "Free shipping on orders over €80 — ships within 2 business days",
+            "link": ""
+          }
+        },
+        "announcement_7xBzKV": {
+          "type": "announcement",
+          "settings": {
+            "text": "⚡ Launch offer — FlowCore Pro",
+            "link": ""
+          }
+        },
         "announcement_DKVb4L": {
           "type": "announcement",
           "settings": {
-            "text": "Free shipping on orders over €80",
+            "text": "✓ 30-day money-back guarantee — try it completely risk-free",
             "link": ""
           }
         }
       },
       "block_order": [
+        "announcement_ThRGUR",
+        "announcement_7xBzKV",
         "announcement_DKVb4L"
       ],
       "settings": {
