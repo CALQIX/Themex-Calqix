@@ -1006,4 +1006,163 @@
 .template-cart main {
   min-height: 55vh;
 }
+
+/* CALQIX visual system for drawer cart */
+.wt-cart__drawer {
+  --calqix-navy: #0f2438;
+  --calqix-navy-soft: #1a3b5c;
+  --calqix-gold: #e8c96a;
+  --calqix-border: #e4e4e0;
+  --calqix-muted: #6e8093;
+}
+.wt-cart__drawer__header {
+  border-bottom: 1px solid var(--calqix-border);
+  background: #ffffff;
+}
+.wt-drawer__title__text {
+  color: var(--calqix-navy-soft);
+  font-family: var(--font-base);
+  font-style: var(--font-base-style);
+  font-weight: 700;
+  text-transform: var(--font-base-transform, none);
+  letter-spacing: var(--font-base-letter-spacing, normal);
+  letter-spacing: 0.01em;
+}
+.wt-cart__drawer__close {
+  color: var(--calqix-navy-soft);
+}
+.wt-cart__drawer .wt-cart__item {
+  border-bottom-color: var(--calqix-border);
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+.wt-cart__drawer .wt-cart__item__thumb img,
+.wt-cart__drawer .wt-cart__item__thumb svg {
+  border-radius: 12px;
+  border: 1px solid rgba(26, 59, 92, 0.12);
+  background: #f8fafc;
+}
+.wt-cart__drawer .wt-cart__item__name a {
+  color: var(--calqix-navy-soft);
+  font-family: var(--font-base);
+  font-style: var(--font-base-style);
+  font-weight: 600;
+  text-transform: var(--font-base-transform, none);
+  letter-spacing: var(--font-base-letter-spacing, normal);
+}
+.wt-cart__drawer .wt-cart__item__body .options,
+.wt-cart__drawer .wt-cart__item__body .options .label,
+.wt-cart__drawer .wt-cart__item__body .options .value {
+  color: var(--calqix-muted);
+}
+.wt-cart__drawer .wt-cart__item__price-wrapper .price {
+  color: var(--calqix-navy-soft);
+  font-weight: 700;
+}
+.wt-cart__drawer .counter {
+  border-radius: 10px;
+  border: 1px solid rgba(26, 59, 92, 0.28);
+  overflow: hidden;
+  background: #ffffff;
+}
+.wt-cart__drawer .counter .js-counter-button {
+  color: var(--calqix-navy-soft);
+}
+.wt-cart__drawer .counter .js-counter-quantity {
+  color: var(--calqix-navy-soft);
+  font-weight: 600;
+}
+.wt-cart__drawer .wt-cart__item__remove {
+  color: rgba(26, 59, 92, 0.62);
+  opacity: 1;
+}
+.wt-cart__drawer__footer {
+  border-top: 1px solid var(--calqix-border);
+  background: #ffffff;
+  box-shadow: 0 -4px 16px rgba(15, 36, 56, 0.06);
+}
+.wt-cart__drawer .wt-cart__subtotal {
+  margin-top: 0;
+  padding-top: 0;
+  color: var(--calqix-navy-soft);
+}
+.wt-cart__drawer .wt-cart__subtotal__label .text {
+  color: var(--calqix-navy-soft);
+  font-weight: 600;
+}
+.wt-cart__drawer .wt-cart__subtotal__value {
+  color: var(--calqix-navy-soft);
+  font-weight: 700;
+}
+.wt-cart__drawer .wt-cart__subtitle__text {
+  color: var(--calqix-muted);
+  text-align: right;
+}
+.wt-cart__drawer .wt-cart__cta {
+  background: var(--calqix-navy-soft);
+  color: #ffffff;
+  border-radius: 10px;
+  min-height: 44px;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 0 rgba(15, 36, 56, 0.08);
+}
+@media (hover: hover) {
+  .wt-cart__drawer .wt-cart__cta:hover {
+    background: var(--calqix-navy);
+    color: #ffffff;
+  }
+}
+.wt-cart__drawer .wt-free-shipping-bar__text {
+  color: var(--calqix-navy-soft);
+  font-weight: 600;
+}
+.wt-cart__drawer .wt-progress-bar {
+  background-color: #d9dfe6;
+}
+.wt-cart__drawer .wt-progress-bar__fill {
+  background-color: var(--calqix-navy-soft);
+}
+
+/* Payment row tuned for CALQIX look */
+.wt-cart__drawer .ccd-payment-row {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--calqix-border);
+}
+.wt-cart__drawer .ccd-payment-label {
+  margin-bottom: 10px;
+  color: var(--calqix-navy-soft);
+  font-size: 10px;
+  letter-spacing: 0.11em;
+}
+.wt-cart__drawer .ccd-payment-icons {
+  gap: 7px;
+}
+.wt-cart__drawer .ccd-payment-icon {
+  min-width: 58px;
+  min-height: calc(var(--ccd-payment-icon-height, 20px) + 10px);
+  border: 1px solid rgba(15, 36, 56, 0.14);
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 1px 0 rgba(15, 36, 56, 0.04);
+}
+.wt-cart__drawer .ccd-payment-icon .icon,
+.wt-cart__drawer .ccd-payment-custom-img {
+  height: var(--ccd-payment-icon-height, 20px);
+}
+.wt-cart__drawer .ccd-payment-trust {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--calqix-navy-soft);
+  font-weight: 500;
+}
+@media (max-width: 599px) {
+  .wt-cart__drawer .ccd-payment-icon {
+    min-width: 54px;
+  }
+  .wt-cart__drawer .wt-cart__subtitle__text {
+    text-align: right;
+    font-size: 11px;
+  }
+}
 /*# sourceMappingURL=cart-drawer.css.map */
