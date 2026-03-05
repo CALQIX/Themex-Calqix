@@ -172,7 +172,16 @@ class CartItems extends HTMLElement {
       previousQuantityInput?.getAttribute("value") || previousQuantityInput?.value || "0",
       10,
     );
-    const requestedQuantity = parseInt(quantity, 10);
+    let requestedQuantity = parseInt(quantity, 10);
+
+    const lineItemNode =
+      document.getElementById(`CartDrawer-Item-${line}`) ||
+      document.getElementById(`CartItem-${line}`);
+    const isPrioritySupport = lineItemNode?.dataset?.prioritySupport === "true";
+    if (isPrioritySupport && Number.isFinite(requestedQuantity) && requestedQuantity > 1) {
+      requestedQuantity = 1;
+      quantity = 1;
+    }
     const previousItemCount = document.querySelectorAll(".cart-item").length;
 
     this.enableLoading(line);

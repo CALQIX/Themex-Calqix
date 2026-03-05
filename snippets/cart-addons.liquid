@@ -29,6 +29,44 @@
             {% assign final_url = addon_product.url %}
           {% endif %}
 
+          {% assign is_added = false %}
+          {% if addon_product != blank %}
+            {% for item in cart.items %}
+              {% if item.product_id == addon_product.id %}
+                {% assign is_added = true %}
+                {% break %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+          {% assign is_priority_support = false %}
+          {% if addon_product != blank %}
+            {% assign addon_title_downcase = addon_product.title | downcase %}
+            {% if addon_title_downcase contains 'priority support' %}
+              {% assign is_priority_support = true %}
+            {% endif %}
+          {% endif %}
+
+          {% assign is_in_use = false %}
+          {% if is_priority_support and addon_product != blank and customer %}
+            {% assign now_s = 'now' | date: '%s' | plus: 0 %}
+            {% for order in customer.orders limit: 20 %}
+              {% assign order_s = order.created_at | date: '%s' | plus: 0 %}
+              {% assign age_s = now_s | minus: order_s %}
+              {% if age_s < 2592000 %}
+                {% for line_item in order.line_items %}
+                  {% if line_item.product_id == addon_product.id %}
+                    {% assign is_in_use = true %}
+                    {% break %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              {% if is_in_use %}
+                {% break %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
           <article
             class="wt-cart__addon-card"
             {% if addon_product != blank and addon_product.selected_or_first_available_variant != blank %}
@@ -64,8 +102,15 @@
                       {% unless addon_product.selected_or_first_available_variant.available %}
                         disabled
                       {% endunless %}
+                      {% if is_added or is_in_use %}
+                        disabled
+                      {% endif %}
                     >
-                      {% if addon_product.selected_or_first_available_variant.available %}
+                      {% if is_in_use %}
+                        In use
+                      {% elsif is_added %}
+                        Added
+                      {% elsif addon_product.selected_or_first_available_variant.available %}
                         Add
                       {% else %}
                         Sold out

@@ -306,11 +306,11 @@ class CartDrawerSection extends HTMLElement {
     event.stopImmediatePropagation();
 
     const button = form.querySelector(".wt-cart__addon-card__button");
+    if (button?.disabled) return;
     const variantInput = form.querySelector('input[name="id"]');
     const variantId = variantInput?.value;
     if (!variantId) return;
 
-    const addonCard = form.closest(".wt-cart__addon-card");
     this.animateAddButtonState(button, "loading");
 
     try {
@@ -327,7 +327,6 @@ class CartDrawerSection extends HTMLElement {
       });
 
       this.animateAddButtonState(button, "success");
-      this.animateAddonCardOut(addonCard);
       await this.refreshSectionsInPlace();
       publish(PUB_SUB_EVENTS.cartUpdate, { source: "cart-drawer-addon" });
     } catch (error) {
@@ -340,6 +339,9 @@ class CartDrawerSection extends HTMLElement {
     if (!button) return;
     const idleLabel = button.dataset.addLabel || "Add";
     const addedLabel = button.dataset.addedLabel || "Added";
+    if (state !== "loading") {
+      button.disabled = false;
+    }
     button.classList.remove(
       "wt-addon-button--loading",
       "wt-addon-button--success",
@@ -347,16 +349,17 @@ class CartDrawerSection extends HTMLElement {
     );
     if (state === "loading") {
       button.classList.add("wt-addon-button--pressed", "wt-addon-button--loading");
+      button.disabled = true;
       button.dataset.originalText = button.textContent;
       button.innerHTML = '<span class="wt-addon-button__spinner" aria-hidden="true"></span>';
       return;
     }
     if (state === "success") {
       button.classList.add("wt-addon-button--success");
-      button.textContent = `\u2713 ${addedLabel}`;
+      button.textContent = addedLabel;
+      button.disabled = true;
       setTimeout(() => {
         button.classList.remove("wt-addon-button--success");
-        button.textContent = idleLabel;
       }, 1200);
       return;
     }

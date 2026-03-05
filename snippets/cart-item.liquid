@@ -1,8 +1,17 @@
+{% assign is_priority_support_line = false %}
+{% assign item_title_downcase = item.product.title | downcase %}
+{% if item_title_downcase contains 'priority support' %}
+  {% assign is_priority_support_line = true %}
+{% endif %}
+
 <li
   id="CartDrawer-Item-{{ item.index | plus: 1 }}"
   class="cart-item wt-cart__item"
   data-line-key="{{ item.key | escape }}"
   data-product-id="{{ item.product.id }}"
+  {% if is_priority_support_line %}
+    data-priority-support="true"
+  {% endif %}
   data-quantity="{{ item.quantity }}"
   data-line-price="{{ item.final_line_price }}"
   data-line-index="{{ item.index | plus: 1 }}"
@@ -167,7 +176,9 @@
               {% # theme-check-disable %}
               data-cart-quantity="{{ cart | item_count_for_variant: item.variant.id }}"
               min="{{ item.variant.quantity_rule.min }}"
-              {% if item.variant.quantity_rule.max != null %}
+              {% if is_priority_support_line %}
+                max="1"
+              {% elsif item.variant.quantity_rule.max != null %}
                 max="{{ item.variant.quantity_rule.max }}"
               {% endif %}
               step="{{ item.variant.quantity_rule.increment }}"
@@ -185,6 +196,9 @@
               type="button"
               class="js-counter-increase js-counter-button"
               tabindex="-1"
+              {% if is_priority_support_line and item.quantity >= 1 %}
+                disabled
+              {% endif %}
             >
               <span class="visually-hidden">
                 {{- 'products.product.quantity.increase' | t: product: item.product.title | escape -}}
