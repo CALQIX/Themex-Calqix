@@ -1,4 +1,12 @@
-<li id="CartDrawer-Item-{{ item.index | plus: 1 }}" class="cart-item wt-cart__item">
+<li
+  id="CartDrawer-Item-{{ item.index | plus: 1 }}"
+  class="cart-item wt-cart__item"
+  data-line-key="{{ item.key | escape }}"
+  data-product-id="{{ item.product.id }}"
+  data-quantity="{{ item.quantity }}"
+  data-line-price="{{ item.final_line_price }}"
+  data-line-index="{{ item.index | plus: 1 }}"
+>
   <picture class="wt-cart__item__thumb">
     <a href="{{ item.url }}" aria-label="{{ item.title }}" tabindex="-1" class="wt-cart__item__link">
       {% if item.image %}
@@ -169,6 +177,9 @@
               data-index="{{ item.index | plus: 1 }}"
               tabindex="-1"
             >
+            <span class="cart-item__quantity-display visually-hidden" data-current="{{ item.quantity }}">
+              {{ item.quantity }}
+            </span>
             <button
               aria-label="{{- 'products.product.quantity.increase' | t: product: item.product.title | escape -}}"
               type="button"
@@ -214,7 +225,7 @@
             <span class="visually-hidden">
               {{ 'products.product.price.sale_price' | t }}
             </span>
-            <span class="price price--end">
+            <span class="price price--end cart-item__line-price" data-cents="{{ item.final_line_price }}">
               {{ item.final_line_price | money }}
             </span>
           </div>
@@ -229,12 +240,15 @@
             <span class="visually-hidden">
               {{ 'products.product.price.sale_price' | t }}
             </span>
-            <span class="price price--end price--end-sale">
+            <span
+              class="price price--end price--end-sale cart-item__line-price"
+              data-cents="{{ item.variant.price | times: item.quantity }}"
+            >
               {{ item.variant.price | times: item.quantity | money }}
             </span>
           </div>
         {%- else -%}
-          <span class="price price--end">
+          <span class="price price--end cart-item__line-price" data-cents="{{ item.original_line_price }}">
             {{ item.original_line_price | money }}
           </span>
         {%- endif -%}
