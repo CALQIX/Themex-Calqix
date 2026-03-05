@@ -12,6 +12,8 @@
 {% if settings.enable_cross_sells or drawer_enable_upsell or settings.drawer_module_addons %}
   <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{% elsif settings.drawer_gift_milestones_enable %}
+  <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
 {% endif %}
 
 {% liquid
@@ -126,6 +128,10 @@
 
           {% if settings.drawer_module_urgency and cart != empty %}
             {% render 'cart-urgency' %}
+          {% endif %}
+
+          {% if settings.drawer_gift_milestones_enable and cart != empty %}
+            {% render 'cart-gift-milestones' %}
           {% endif %}
         </div>
 

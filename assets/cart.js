@@ -93,7 +93,7 @@ class CartItems extends HTMLElement {
         if (event.source === "cart-items") {
           return;
         }
-        this.onCartUpdate();
+        this.onCartUpdate(event);
       },
     );
   }
@@ -112,7 +112,7 @@ class CartItems extends HTMLElement {
     );
   }
 
-  onCartUpdate() {
+  onCartUpdate(_event) {
     fetch(`${routes.cart_url}?section_id=main-cart-items`)
       .then((response) => response.text())
       .then((responseText) => {
@@ -520,8 +520,14 @@ class CartItems extends HTMLElement {
   copyNodeInner(sourceRoot, targetRoot, selector) {
     const source = sourceRoot.querySelector(selector);
     const target = targetRoot.querySelector(selector);
-    if (!source || !target) return;
+    if (!target) return;
+    if (!source) {
+      target.innerHTML = "";
+      target.setAttribute("hidden", "");
+      return;
+    }
     target.innerHTML = source.innerHTML;
+    target.removeAttribute("hidden");
   }
 
   updateCartBubbleSection(parsedState) {
@@ -675,7 +681,7 @@ class CartItems extends HTMLElement {
       const text = barWrapper.querySelector(".wt-free-shipping-bar__text");
       if (text) text.innerHTML = '<span class="wt-free-shipping-bar__success">\u{1F389} Free shipping unlocked!</span>';
       const remaining = parseInt(barWrapper.dataset.freeShippingRemainingCents || "0", 10);
-      triggerShippingConfetti(previousRemaining || 0, remaining || 0);
+      triggerShippingConfetti(previousRemaining || 0, remaining || 0, previousProgress || 0);
     }
     const amountNode = barWrapper.querySelector(".wt-free-shipping-bar__amount");
     const remaining = parseInt(barWrapper.dataset.freeShippingRemainingCents || "0", 10);
@@ -751,7 +757,13 @@ function formatMoneyValue(cents, currencyCode) {
 }
 
 function triggerShippingConfetti(previousRemaining, nextRemaining) {
-  if (nextRemaining > 0 || previousRemaining <= 0) return;
+  const prevProgress = arguments.length >= 3 ? arguments[2] : null;
+  if (nextRemaining > 0) return;
+  if (typeof prevProgress === "number" && Number.isFinite(prevProgress)) {
+    if (prevProgress >= 100) return;
+  } else if (previousRemaining <= 0) {
+    return;
+  }
   if (sessionStorage.getItem("shippingConfettiShown") === "1") return;
   if (typeof window.confetti !== "function") return;
   window.confetti({

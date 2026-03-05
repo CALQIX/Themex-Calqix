@@ -177,7 +177,8 @@ class CartDrawerSection extends HTMLElement {
     this.animateHeaderCounter(previousHeaderCount);
     this.animateSubtotal(previousSubtotal);
     this.animateFreeShipping(previousProgress, previousRemaining);
-    this.triggerShippingConfetti(previousRemaining);
+    this.triggerShippingConfetti(previousProgress, previousRemaining);
+    this.syncCalqixCartState();
 
     if (isClosedCart) {
       setTimeout(() => {
@@ -452,10 +453,17 @@ class CartDrawerSection extends HTMLElement {
     }
   }
 
-  triggerShippingConfetti(previousRemaining) {
+  triggerShippingConfetti(previousProgress, previousRemaining) {
     if (!this.isMotionAllowed()) return;
+    const bar = this.querySelector(".wt-free-shipping-bar");
+    if (!bar) return;
     const remaining = this.getFreeShippingRemainingCents();
-    if (remaining > 0 || previousRemaining <= 0) return;
+    if (remaining > 0) return;
+    if (typeof previousProgress === "number" && Number.isFinite(previousProgress)) {
+      if (previousProgress >= 100) return;
+    } else if (previousRemaining <= 0) {
+      return;
+    }
     if (sessionStorage.getItem("shippingConfettiShown") === "1") return;
     if (typeof window.confetti !== "function") return;
 
@@ -468,6 +476,18 @@ class CartDrawerSection extends HTMLElement {
       shapes: ["circle", "square"],
     });
     sessionStorage.setItem("shippingConfettiShown", "1");
+  }
+
+  syncCalqixCartState() {
+    if (typeof routes === "undefined" || !routes.cart_url) return;
+    if (typeof refreshCalqixCartState !== "function") return;
+
+    fetch(`${routes.cart_url}.js`, { headers: { Accept: "application/json" } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((cart) => {
+        if (cart) refreshCalqixCartState(cart);
+      })
+      .catch(() => {});
   }
 
   countMoneyValue(node, fromCents, toCents, duration, currencyCode) {
@@ -539,6 +559,17 @@ function subtotalCurrencyFromDrawer(drawer) {
 customElements.define("cart-drawer", CartDrawerSection);
 
 class CartDrawerItems extends CartItems {
+  onCartUpdate(event) {
+    if (event?.source === "cart-items") return;
+    if (event?.source === "product-form") return;
+    if (event?.source === "cart-drawer-addon") return;
+
+    const drawer = this.closest("cart-drawer");
+    if (drawer && typeof drawer.refreshCartDrawer === "function") {
+      drawer.refreshCartDrawer(event);
+    }
+  }
+
   getSectionsToRender() {
     return [
       {

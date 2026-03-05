@@ -1,0 +1,120 @@
+{% if settings.drawer_gift_milestones_enable %}
+  {% assign cart_total_cents = cart.total_price | default: 0 %}
+  {% assign cart_total_eligible_cents = cart_total_cents %}
+  {% assign any_milestone = false %}
+
+  {% assign gift_product_ids = '' %}
+  {% for i in (1..2) %}
+    {% assign product_key = 'drawer_gift_milestone_' | append: i | append: '_product' %}
+    {% assign gift_product = settings[product_key] %}
+    {% if gift_product != blank %}
+      {% assign gift_product_ids = gift_product_ids | append: gift_product.id | append: ',' %}
+    {% endif %}
+  {% endfor %}
+
+  {% if gift_product_ids != blank %}
+    {% for item in cart.items %}
+      {% assign item_key = item.product_id | append: ',' %}
+      {% if gift_product_ids contains item_key %}
+        {% assign cart_total_eligible_cents = cart_total_eligible_cents | minus: item.final_line_price %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  {% for i in (1..2) %}
+    {% assign amount_key = 'drawer_gift_milestone_' | append: i | append: '_amount' %}
+    {% assign product_key = 'drawer_gift_milestone_' | append: i | append: '_product' %}
+
+    {% assign threshold_eur = settings[amount_key] | default: 0 %}
+    {% assign threshold_cents = threshold_eur | times: 100 | round %}
+    {% assign gift_product = settings[product_key] %}
+
+    {% if threshold_cents > 0 and gift_product != blank and gift_product.selected_or_first_available_variant != blank %}
+      {% assign any_milestone = true %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+
+  {% if any_milestone %}
+    {% assign heading = settings.drawer_gift_milestones_heading | default: 'Free gifts' %}
+    <div class="wt-cart__addons wt-cart__gift-milestones" role="status" aria-live="polite">
+      {% if heading != blank %}
+        <p class="wt-cart__addons__heading">{{ heading }}</p>
+      {% endif %}
+
+      <div class="wt-cart__addons__list">
+        {% for i in (1..2) %}
+          {% assign amount_key = 'drawer_gift_milestone_' | append: i | append: '_amount' %}
+          {% assign product_key = 'drawer_gift_milestone_' | append: i | append: '_product' %}
+
+          {% assign threshold_eur = settings[amount_key] | default: 0 %}
+          {% assign threshold_cents = threshold_eur | times: 100 | round %}
+          {% assign gift_product = settings[product_key] %}
+
+          {% if threshold_cents > 0 and gift_product != blank and gift_product.selected_or_first_available_variant != blank %}
+            {% assign is_added = false %}
+            {% for item in cart.items %}
+              {% if item.product_id == gift_product.id %}
+                {% assign is_added = true %}
+                {% break %}
+              {% endif %}
+            {% endfor %}
+
+            {% assign remaining_cents = threshold_cents | minus: cart_total_eligible_cents %}
+            {% if remaining_cents < 0 %}
+              {% assign remaining_cents = 0 %}
+            {% endif %}
+
+            {% assign is_unlocked = false %}
+            {% if remaining_cents == 0 %}
+              {% assign is_unlocked = true %}
+            {% endif %}
+
+            <article class="wt-cart__addon-card wt-cart__gift-milestone" data-threshold-cents="{{ threshold_cents }}">
+              <div class="wt-cart__addon-card__copy">
+                <p class="wt-cart__addon-card__title">{{ gift_product.title }}</p>
+
+                {% if is_added %}
+                  <p class="wt-cart__addon-card__text">Gift added</p>
+                {% elsif is_unlocked %}
+                  <p class="wt-cart__addon-card__text">Unlocked</p>
+                {% else %}
+                  <p class="wt-cart__addon-card__text">Spend {{ remaining_cents | money }} more to unlock</p>
+                {% endif %}
+              </div>
+
+              <div class="wt-cart__addon-card__actions">
+                {% if is_added %}
+                  <span class="wt-cart__addon-card__price">Added</span>
+                {% elsif is_unlocked %}
+                  <product-form class="wt-cart__gift-product-form" data-hide-errors="true">
+                    <form method="post" action="{{ routes.cart_add_url }}" accept-charset="UTF-8" class="form">
+                      <input type="hidden" name="id" value="{{ gift_product.selected_or_first_available_variant.id }}">
+                      <button
+                        type="submit"
+                        class="wt-cart__addon-card__button"
+                        data-add-label="Add gift"
+                        data-added-label="Added"
+                        {% unless gift_product.selected_or_first_available_variant.available %}
+                          disabled
+                        {% endunless %}
+                      >
+                        {% if gift_product.selected_or_first_available_variant.available %}
+                          Add gift
+                        {% else %}
+                          Sold out
+                        {% endif %}
+                      </button>
+                    </form>
+                  </product-form>
+                {% else %}
+                  <span class="wt-cart__addon-card__price">Locked</span>
+                {% endif %}
+              </div>
+            </article>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+{% endif %}

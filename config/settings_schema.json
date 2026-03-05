@@ -930,6 +930,52 @@
       },
       {
         "type": "header",
+        "content": "Gift milestones"
+      },
+      {
+        "type": "checkbox",
+        "id": "drawer_gift_milestones_enable",
+        "default": false,
+        "label": "Enable gift milestones"
+      },
+      {
+        "type": "text",
+        "id": "drawer_gift_milestones_heading",
+        "default": "Free gifts",
+        "label": "Gift milestones heading"
+      },
+      {
+        "type": "range",
+        "id": "drawer_gift_milestone_1_amount",
+        "min": 0,
+        "max": 500,
+        "step": 5,
+        "default": 80,
+        "unit": "€",
+        "label": "Milestone 1 amount"
+      },
+      {
+        "type": "product",
+        "id": "drawer_gift_milestone_1_product",
+        "label": "Milestone 1 product"
+      },
+      {
+        "type": "range",
+        "id": "drawer_gift_milestone_2_amount",
+        "min": 0,
+        "max": 500,
+        "step": 5,
+        "default": 120,
+        "unit": "€",
+        "label": "Milestone 2 amount"
+      },
+      {
+        "type": "product",
+        "id": "drawer_gift_milestone_2_product",
+        "label": "Milestone 2 product"
+      },
+      {
+        "type": "header",
         "content": "Drawer modules (Phase 1)"
       },
       {
