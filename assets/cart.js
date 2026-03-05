@@ -1,3 +1,39 @@
+const calqixCartState = { items: [], total_price: 0, item_count: 0 };
+
+(function seedCalqixCartState() {
+  if (typeof routes === "undefined" || !routes.cart_url) return;
+  fetch(`${routes.cart_url}.js`, { headers: { Accept: "application/json" } })
+    .then((r) => r.ok ? r.json() : null)
+    .then((cart) => { if (cart) refreshCalqixCartState(cart); })
+    .catch(() => {});
+})();
+
+function refreshCalqixCartState(cartJson) {
+  if (!cartJson) return;
+  calqixCartState.items = Array.isArray(cartJson.items) ? cartJson.items : [];
+  calqixCartState.total_price = cartJson.total_price || 0;
+  calqixCartState.item_count = cartJson.item_count || 0;
+}
+
+function getQuantityByKey(lineKey) {
+  const item = calqixCartState.items.find((i) => i.key === lineKey);
+  if (!item) {
+    console.warn("CALQIX Cart: line key not found in state", lineKey);
+    return null;
+  }
+  return item.quantity;
+}
+
+function getQuantityByLineIndex(lineIndex) {
+  const idx = parseInt(lineIndex, 10) - 1;
+  if (idx < 0 || idx >= calqixCartState.items.length) return null;
+  return calqixCartState.items[idx].quantity;
+}
+
+window.calqixGetCartQuantity = function (lineIndex) {
+  return getQuantityByLineIndex(lineIndex);
+};
+
 class CartRemoveButton extends HTMLElement {
   constructor() {
     super();
@@ -182,6 +218,7 @@ class CartItems extends HTMLElement {
           const freshCart = await this.fetchCartState();
           this.applyDrawerDiffUpdate(parsedState, freshCart);
         } else {
+          refreshCalqixCartState(parsedState);
           this.getSectionsToRender().forEach((section) => {
             const elementToReplace =
               document
@@ -326,7 +363,9 @@ class CartItems extends HTMLElement {
         headers: { Accept: "application/json" },
       });
       if (!response.ok) return null;
-      return await response.json();
+      const cartJson = await response.json();
+      refreshCalqixCartState(cartJson);
+      return cartJson;
     } catch (error) {
       console.error(error);
       return null;
@@ -362,8 +401,10 @@ class CartItems extends HTMLElement {
     const incomingByKey = new Map();
     itemsFromCart.forEach((item) => incomingByKey.set(item.key, item));
 
+    const incomingKeys = new Set(itemsFromCart.map((i) => i.key));
+
     existingByKey.forEach((node, key) => {
-      if (incomingByKey.has(key)) return;
+      if (incomingKeys.has(key)) return;
       node.classList.add("wt-cart-line--remove-pending", "wt-cart-line--remove-flash");
       node.style.maxHeight = `${node.scrollHeight}px`;
       requestAnimationFrame(() => {
@@ -373,24 +414,25 @@ class CartItems extends HTMLElement {
       setTimeout(() => node.remove(), 320);
     });
 
-    itemsFromCart.forEach((item) => {
+    itemsFromCart.forEach((item, index) => {
       const templateNode = incomingList.querySelector(
         `.cart-item[data-line-key="${cssEscapeValue(item.key)}"]`,
       );
       if (!templateNode) return;
 
-      let existingNode = existingByKey.get(item.key);
-      if (!existingNode) {
-        existingNode = templateNode.cloneNode(true);
-        existingNode.classList.add("wt-cart-line--enter", "wt-cart-line--new-gold");
-      } else {
+      const existingNode = existingByKey.get(item.key);
+      if (existingNode) {
         this.updateDrawerItemInPlace(existingNode, templateNode, item);
+      } else {
+        const newNode = templateNode.cloneNode(true);
+        newNode.classList.add("wt-cart-line--enter", "wt-cart-line--new-gold");
+        const referenceChild = currentList.children[index] || null;
+        currentList.insertBefore(newNode, referenceChild);
+        existingByKey.set(item.key, newNode);
+        setTimeout(() => {
+          newNode.classList.remove("wt-cart-line--enter", "wt-cart-line--new-gold");
+        }, 1500);
       }
-      currentList.appendChild(existingNode);
-      existingByKey.set(item.key, existingNode);
-      setTimeout(() => {
-        existingNode.classList.remove("wt-cart-line--enter", "wt-cart-line--new-gold");
-      }, 1500);
     });
 
     this.syncDrawerIndexes(currentList, itemsFromCart);

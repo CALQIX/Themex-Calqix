@@ -140,6 +140,9 @@ class QuantityCounter extends HTMLElement {
   constructor() {
     super();
     this.changeEvent = new Event("change", { bubbles: true });
+    this._boundIncrease = this.onIncrease.bind(this);
+    this._boundDecrease = this.onDecrease.bind(this);
+    this._listenersAttached = false;
   }
 
   connectedCallback() {
@@ -150,23 +153,45 @@ class QuantityCounter extends HTMLElement {
     this.min = parseInt(this.counterEl.min) || 1;
     this.max = parseInt(this.counterEl.max) || 999;
 
-    this.increaseBtn.addEventListener("click", this.onIncrease.bind(this));
-    this.decreaseBtn.addEventListener("click", this.onDecrease.bind(this));
+    if (!this._listenersAttached) {
+      this.increaseBtn.addEventListener("click", this._boundIncrease);
+      this.decreaseBtn.addEventListener("click", this._boundDecrease);
+      this._listenersAttached = true;
+    }
+  }
+
+  disconnectedCallback() {
+    if (this._listenersAttached && this.increaseBtn && this.decreaseBtn) {
+      this.increaseBtn.removeEventListener("click", this._boundIncrease);
+      this.decreaseBtn.removeEventListener("click", this._boundDecrease);
+      this._listenersAttached = false;
+    }
   }
 
   onIncrease() {
-    const currentValue = parseInt(this.counterEl.value);
+    const currentValue = this.getLiveQuantity();
     if (currentValue < this.max) {
       this.updateValue(currentValue + 1);
     }
   }
 
   onDecrease() {
-    const currentValue = parseInt(this.counterEl.value);
+    const currentValue = this.getLiveQuantity();
     if (this.dataset.cart) this.min = 0;
     if (currentValue > this.min) {
       this.updateValue(currentValue - 1);
     }
+  }
+
+  getLiveQuantity() {
+    if (this.dataset.cart && typeof window.calqixGetCartQuantity === "function") {
+      const lineIndex = this.counterEl.dataset.index;
+      if (lineIndex) {
+        const stateQty = window.calqixGetCartQuantity(lineIndex);
+        if (stateQty !== null && stateQty !== undefined) return stateQty;
+      }
+    }
+    return parseInt(this.counterEl.value) || 0;
   }
 
   updateValue(value) {
