@@ -1,0 +1,595 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breadcrumbs": {
+      "type": "main-breadcrumbs",
+      "settings": {
+        "full-width-enabled": false,
+        "text_color": "#1a3b5c",
+        "background_color": "#ffffff",
+        "margin-top": 12,
+        "margin-bottom": 20
+      }
+    },
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "rating_tHpFGr": {
+          "type": "rating",
+          "settings": {}
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+            "brand": "",
+            "enable_vendor_link": false,
+            "size_text": 200,
+            "size_text_mobile": 160
+          }
+        },
+        "product_variations_7LBAAU": {
+          "type": "product_variations",
+          "settings": {
+            "option_name": "Choose Supplement",
+            "picker_type": "swatch",
+            "swatch_size": 36,
+            "radius": "default",
+            "border_radius": 0,
+            "option_value_metafield": "custom.color",
+            "products": []
+          }
+        },
+        "variant_picker_WQEbez": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "button",
+            "color_swatch_names": "",
+            "variant_picture_swatch_names": "",
+            "thumb_size": 60,
+            "radius": "default",
+            "border_radius": 0,
+            "dropdown_swatch_names": "",
+            "margin-top": 8,
+            "margin-bottom": 8,
+            "size_icon": "check_mark",
+            "size_link": "",
+            "variant_name": "",
+            "size_content": "",
+            "metafield": "",
+            "enable-striped-rows": true
+          }
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "show_tax_included": true,
+            "show_shipping_policy": true,
+            "size_text": 140,
+            "size_text_mobile": 140
+          }
+        },
+        "calqix_pdp_decision_phase2": {
+          "type": "calqix_pdp_decision",
+          "disabled": true,
+          "settings": {
+            "title": "Why shoppers choose CALQIX",
+            "line_1_icon": "🚚",
+            "line_1_text": "Fast shipping from our EU warehouse",
+            "line_2_icon": "↩️",
+            "line_2_text": "30-day returns",
+            "line_3_icon": "🔒",
+            "line_3_text": "Secure checkout and warranty included",
+            "note_text": "Switch to Variant B in Theme Editor to run copy tests.",
+            "padding_vertical": 10,
+            "margin_vertical": 8,
+            "border_color": "#e4e4e0",
+            "title_color": "#1a3b5c",
+            "text_color": "#1a3b5c",
+            "note_color": "#6e8093",
+            "icon_size": 15,
+            "title_size": 11,
+            "text_size": 13,
+            "note_size": 12
+          }
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": false,
+            "show_gift_card_recipient": true,
+            "show_qty_selector": true,
+            "text_color": "#ffffff",
+            "background_color": "#1a3b5c"
+          }
+        },
+        "calqix_pdp_micro_faq_phase2": {
+          "type": "calqix_pdp_micro_faq",
+          "disabled": true,
+          "settings": {
+            "title": "Quick answers",
+            "open_first": false,
+            "q_1": "How quickly can I expect delivery?",
+            "a_1": "<p>Most orders leave our warehouse within 1 business day.</p>",
+            "q_2": "Is there a money-back guarantee?",
+            "a_2": "<p>Yes, you can return your order within 30 days.</p>",
+            "q_3": "Can I use this if I have sensitivity?",
+            "a_3": "<p>Yes, most customers with sensitivity can use our products comfortably.</p>",
+            "q_4": "How do I contact support?",
+            "a_4": "<p>Reach out through our contact page and we will help quickly.</p>",
+            "margin_vertical": 10,
+            "border_color": "#e4e4e0",
+            "title_color": "#1a3b5c",
+            "question_color": "#1a3b5c",
+            "answer_color": "#6e8093",
+            "plus_color": "#1a3b5c",
+            "title_size": 11,
+            "question_size": 14,
+            "answer_size": 13
+          }
+        },
+        "promo_wBVFy3": {
+          "type": "promo",
+          "settings": {
+            "content": "<p>+10.000 Happy Customers  - Free shipping on US</p>",
+            "text_alignment": "center",
+            "color-body-text": "#ffffff",
+            "background_color": "#4caf50"
+          }
+        },
+        "video_reels_cJKbXC": {
+          "type": "video_reels",
+          "disabled": true,
+          "settings": {
+            "heading": "Enhance Your Daily Routine",
+            "show_play_pause": true,
+            "show_unmute": false,
+            "auto_advanced": true,
+            "enable_quick_add": false,
+            "hide_brand": true,
+            "video_reels_1_product": "womens-multi-capsules",
+            "video_reels_2_product": "mens-multi-capsules",
+            "video_reels_3_product": "stress-relief-capsules",
+            "video_reels_4_product": "hair-skin-nails-capsules",
+            "video_reels_5_product": "boost-energy-capsules",
+            "video_reels_6_product": ""
+          }
+        }
+      },
+      "block_order": [
+        "rating_tHpFGr",
+        "title",
+        "product_variations_7LBAAU",
+        "variant_picker_WQEbez",
+        "price",
+        "calqix_pdp_decision_phase2",
+        "buy_buttons",
+        "calqix_pdp_micro_faq_phase2",
+        "promo_wBVFy3",
+        "video_reels_cJKbXC"
+      ],
+      "custom_css": [
+        ".rte p:first-child,.rte ul:first-child,.rte li:first-child,.rte ol:first-child {margin-block-start: 0;}"
+      ],
+      "settings": {
+        "enable_sticky_buy_button": true,
+        "full-width-enabled": false,
+        "desktop-media-size": "normal",
+        "desktop-layout": "carousel-horizontal",
+        "desktop-image-ratio": "original",
+        "enable_video_looping": true,
+        "video_controls": false,
+        "video_custom_play_controls": false,
+        "video_custom_mute_controls": false,
+        "enable-preselected-variant": true,
+        "enable-image-zoom": true,
+        "mobile-image": "small",
+        "show-thumbnails-mobile": false,
+        "text_color": "#1a3b5c",
+        "background_color": "#ffffff",
+        "margin-top": 0,
+        "margin-bottom": 8
+      }
+    },
+    "benefits_product_RArPDt": {
+      "type": "benefits-product",
+      "blocks": {
+        "benefit_a8BHCH": {
+          "type": "benefit",
+          "settings": {
+            "item_heading": "Vitamin C",
+            "text": "<p>A powerful antioxidant that boosts the immune system, enhances iron absorption, and promotes collagen production for healthy skin.</p>"
+          }
+        },
+        "benefit_VC9nyU": {
+          "type": "benefit",
+          "settings": {
+            "item_heading": "Vitamin E",
+            "text": "<p>Is a powerful antioxidant that helps protect cells from damage caused by free radicals. It supports healthy skin by promoting hydration and reducing signs of aging.</p>"
+          }
+        },
+        "benefit_dAVxLA": {
+          "type": "benefit",
+          "settings": {
+            "item_heading": "Hydrolysed Collagen",
+            "text": "<p>Supports skin elasticity and hydration, reducing the appearance of fine lines and wrinkles for a youthful glow.</p>"
+          }
+        },
+        "benefit_MgFn7x": {
+          "type": "benefit",
+          "settings": {
+            "item_heading": "Iron",
+            "text": "<p>Vital for energy production and oxygen transport in the body, it prevents fatigue and supports overall vitality.</p>"
+          }
+        },
+        "benefit_xByee6": {
+          "type": "benefit",
+          "settings": {
+            "item_heading": "Zinc",
+            "text": "<p>Supports a strong immune system, promotes wound healing, and helps maintain healthy skin.</p>"
+          }
+        },
+        "benefit_Vd94d7": {
+          "type": "benefit",
+          "settings": {
+            "item_heading": "Vitamin A",
+            "text": "<p>Essential for good vision, healthy skin, and a robust immune system, it also supports cell growth and reproduction.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "benefit_a8BHCH",
+        "benefit_VC9nyU",
+        "benefit_dAVxLA",
+        "benefit_MgFn7x",
+        "benefit_xByee6",
+        "benefit_Vd94d7"
+      ],
+      "settings": {
+        "heading": "Key Ingredients",
+        "full-width-enabled": false,
+        "section_height_mode": "fixed_height",
+        "desktop_section_height": 67,
+        "desktop_section_max_height": 1080,
+        "desktop_width": 100,
+        "desktop_max_width": 760,
+        "button_label": "",
+        "button_link": "",
+        "quick_buy_product": "",
+        "button_select": "primary",
+        "size_heading": 140,
+        "size_heading_mobile": 120,
+        "color-body-heading": "rgba(0,0,0,0)",
+        "color-overlay": "#ffffff",
+        "color-overlay-opacity": 100,
+        "color-body-text": "rgba(0,0,0,0)",
+        "margin-top": 48,
+        "margin-bottom": 48
+      }
+    },
+    "rich_text_YecVJk": {
+      "type": "rich-text",
+      "blocks": {
+        "text_DAR9af": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Everything You Need to Know!</p>",
+            "disable_on_mobile": false
+          }
+        },
+        "heading_LFctxD": {
+          "type": "heading",
+          "settings": {
+            "heading": "Frequently Asked Questions",
+            "disable_on_mobile": false,
+            "size_heading": 100,
+            "size_heading_mobile": 100
+          }
+        }
+      },
+      "block_order": [
+        "text_DAR9af",
+        "heading_LFctxD"
+      ],
+      "settings": {
+        "section_width": "regular",
+        "desktop_text_horizontal_position": "center",
+        "color-body-text": "rgba(0,0,0,0)",
+        "background_color": "#ffffff",
+        "margin-top": 40,
+        "margin-bottom": 0
+      }
+    },
+    "collapsible_menu_WraA7j": {
+      "type": "collapsible_menu",
+      "blocks": {
+        "collapsible_tab_ndLBg3": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "Are Wellness supplements safe to use?",
+            "content": "<p>Absolutely! All our products are manufactured in certified facilities and meet strict safety and quality standards. We recommend consulting your healthcare provider if you have specific health conditions or are taking medications.This is the demo store.</p>",
+            "page": "",
+            "icon": "none"
+          }
+        },
+        "collapsible_tab_74pBFd": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "How should I store my supplements?",
+            "content": "<p>To ensure the freshness and effectiveness of our products, store them in a cool, dry place away from direct sunlight. Always keep them out of reach of children.</p>",
+            "page": "",
+            "icon": "none"
+          }
+        },
+        "collapsible_tab_ijR4af": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "Do you offer international shipping?",
+            "content": "<p>Yes, we ship worldwide! Shipping costs and delivery times may vary depending on your location. You can find more details on our Shipping Policy page.</p>",
+            "page": "",
+            "icon": "none"
+          }
+        },
+        "collapsible_tab_nExPEQ": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "What is your return policy?",
+            "content": "<p>We offer a 30-day satisfaction guarantee. If you're not completely happy with your purchase, you can return it for a refund or exchange. Please visit our Return Policy page for more details.</p>",
+            "page": "",
+            "icon": "none"
+          }
+        }
+      },
+      "block_order": [
+        "collapsible_tab_ndLBg3",
+        "collapsible_tab_74pBFd",
+        "collapsible_tab_ijR4af",
+        "collapsible_tab_nExPEQ"
+      ],
+      "settings": {
+        "color-body-text": "rgba(0,0,0,0)",
+        "background_color": "#ffffff",
+        "compact-size-enabled": true,
+        "margin-top": 0,
+        "margin-bottom": 48
+      }
+    },
+    "rich_text_AtYc9A": {
+      "type": "rich-text",
+      "blocks": {
+        "text_QE3XGe": {
+          "type": "text",
+          "settings": {
+            "text": "<p>What Our Customers Say</p>",
+            "disable_on_mobile": false
+          }
+        },
+        "heading_8wQKBm": {
+          "type": "heading",
+          "settings": {
+            "heading": "+10000 Happy Customers",
+            "disable_on_mobile": false,
+            "size_heading": 300,
+            "size_heading_mobile": 100
+          }
+        }
+      },
+      "block_order": [
+        "text_QE3XGe",
+        "heading_8wQKBm"
+      ],
+      "name": "t:sections.rich-text.presets.name",
+      "settings": {
+        "section_width": "regular",
+        "desktop_text_horizontal_position": "center",
+        "color-body-text": "#ffffff",
+        "background_color": "#f29f00",
+        "margin-top": 36,
+        "margin-bottom": 8
+      }
+    },
+    "testimonial_images_3YJzHj": {
+      "type": "testimonial-images",
+      "blocks": {
+        "testimonial_gwwdEf": {
+          "type": "testimonial",
+          "settings": {
+            "icon_select": "100",
+            "text": "<p>\"Collagen Caps have helped with my joint comfort and even improved my skin. Simple, effective, and worth it. I'll definitely keep using them.\"</p>",
+            "author": "- Michael M.",
+            "featured_product": "mens-multi-capsules",
+            "image_link": ""
+          }
+        },
+        "testimonial_6rTqHb": {
+          "type": "testimonial",
+          "settings": {
+            "icon_select": "100",
+            "text": "<p>\"I've been taking Collagen Caps for a month now and I really see a difference — my skin feels smoother and looks brighter. Super easy to add to my routine.\"</p>",
+            "author": "- Anna M.",
+            "featured_product": "womens-multi-capsules",
+            "image_link": ""
+          }
+        }
+      },
+      "block_order": [
+        "testimonial_gwwdEf",
+        "testimonial_6rTqHb"
+      ],
+      "name": "t:sections.testimonial_images.name",
+      "settings": {
+        "title": "",
+        "text_style": "body",
+        "testimonial_text_size_desktop": 170,
+        "testimonial_text_size": 120,
+        "layout": "image_first",
+        "desktop-percentage-image-width": 50,
+        "full-width-enabled": false,
+        "auto-rotate": false,
+        "change_slider_time": 5,
+        "slide_height": "adapt_to_first_image",
+        "desktop_fixed_height": 480,
+        "mobile_fixed_height": 300,
+        "desktop_text_vertical_position": "center",
+        "desktop_text_horizontal_position": "left",
+        "mobile_text_horizontal_position": "center",
+        "quick-add-enabled": false,
+        "hide-brand-name": true,
+        "section-color-body-text": "#ffffff",
+        "section-color-overlay": "#f29f00",
+        "section-color-overlay-opacity": 100,
+        "color-body-text": "rgba(0,0,0,0)",
+        "color-overlay": "#ffffff",
+        "color-overlay-opacity": 100,
+        "margin-top": 0,
+        "margin-bottom": 56
+      }
+    },
+    "features_banner_wiKkaQ": {
+      "type": "features-banner",
+      "blocks": {
+        "image_P4yL64": {
+          "type": "image",
+          "settings": {
+            "select_icon": "bag",
+            "heading": "Third-party tested",
+            "text": "<p>We hold ourselves and our ingredients to the highest standards.</p>",
+            "link": ""
+          }
+        },
+        "image_m7jjzm": {
+          "type": "image",
+          "settings": {
+            "select_icon": "user",
+            "heading": "Quality ingredients",
+            "text": "<p>We're dedicated to using scientifically backed, high-quality natural ingredients.</p>",
+            "link": ""
+          }
+        },
+        "image_AkKWrq": {
+          "type": "image",
+          "settings": {
+            "select_icon": "search",
+            "heading": "Non-GMO",
+            "text": "<p>We carefully evaluate every ingredient, ensuring they are non-GMO.</p>",
+            "link": ""
+          }
+        },
+        "image_XPgaAR": {
+          "type": "image",
+          "settings": {
+            "select_icon": "star",
+            "heading": "Vegan",
+            "text": "<p>We ensure the highest standards with 100% vegan, cruelty-free formulations.</p>",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "image_P4yL64",
+        "image_m7jjzm",
+        "image_AkKWrq",
+        "image_XPgaAR"
+      ],
+      "settings": {
+        "heading": "",
+        "size_heading_mobile": 80,
+        "size_heading": 80,
+        "icon_width_mobile": 52,
+        "icon_width_desktop": 64,
+        "icon_layout": "center",
+        "columns_desktop": "4",
+        "icon_layout_mobile": "grid",
+        "color_body_icon": "rgba(0,0,0,0)",
+        "color_background_icon": "rgba(0,0,0,0)",
+        "color_body_text": "rgba(0,0,0,0)",
+        "background_color": "rgba(0,0,0,0)",
+        "margin-top": 44,
+        "margin-bottom": 52
+      }
+    },
+    "calqix_product_accordions_main": {
+      "type": "calqix-product-accordions",
+      "blocks": {
+        "acc_description": {
+          "type": "accordion",
+          "settings": {
+            "title": "Description",
+            "content": "<p>Supplement details and product information.</p>",
+            "force_open": false
+          }
+        },
+        "acc_benefits": {
+          "type": "accordion",
+          "settings": {
+            "title": "Benefits",
+            "content": "<ul><li><strong>Supports Healthy Skin</strong>: Boosts skin elasticity, hydration, and firmness, helping to reduce the appearance of wrinkles and promote a youthful glow.</li><li><strong>Strengthens Hair and Nails</strong>: Encourages healthier, stronger hair growth and helps to reduce brittle nails, giving you a polished look from within.</li><li><strong>Promotes Joint Health</strong>: Enhances joint flexibility and reduces discomfort, supporting an active lifestyle and overall mobility.</li><li><strong>Improves Bone Density</strong>: Aids in maintaining strong and healthy bones by supporting bone structure and density.</li><li><strong>Enhances Muscle Recovery</strong>: Assists in muscle repair and recovery, making it an excellent supplement for active individuals and athletes.</li></ul>",
+            "force_open": false
+          }
+        },
+        "acc_how_to_use": {
+          "type": "accordion",
+          "settings": {
+            "title": "How to take supplement?",
+            "content": "<ol><li>Recommended Dosage: Take 1 capsules daily, preferably with water or your favorite beverage.</li><li>Best Time to Take: For optimal results, consume the supplement in the morning on an empty stomach or as advised by your healthcare professional.</li><li>Consistency is Key: Incorporate the supplement into your daily routine to maximize its benefits.</li><li>Optional Pairing: Pair with a balanced diet and a healthy lifestyle to enhance the effects.</li><li>Always read the product label for specific instructions and consult your healthcare provider if you are pregnant, nursing, or taking medications.<br>This is demo store, this information are only for demo purpose</li></ol>",
+            "force_open": false
+          }
+        },
+        "acc_ingredients": {
+          "type": "accordion",
+          "settings": {
+            "title": "Ingrediënts",
+            "content": "<ul><li><strong>Protein</strong></li><li><strong>Vitamin C</strong> (as L-Ascorbic Acid)</li><li><strong>Vitamin E</strong> (as D-Alpha Tocopherol Succinate)</li><li><strong>Hydrolysed Collagen</strong> (from Bovine)</li></ul>",
+            "force_open": false
+          }
+        }
+      },
+      "block_order": [
+        "acc_description",
+        "acc_benefits",
+        "acc_how_to_use",
+        "acc_ingredients"
+      ],
+      "name": "CALQIX Product Accordions",
+      "settings": {
+        "first_open": false,
+        "allow_multiple": false,
+        "animation_speed": 500,
+        "border_color": "#e4e4e0",
+        "trigger_color": "#1a3b5c",
+        "icon_color": "#c9a84c",
+        "content_color": "#9b9b9b",
+        "accent_color": "#c9a84c",
+        "navy_color": "#1a3b5c",
+        "trigger_font_size": 14,
+        "trigger_weight": "600",
+        "content_font_size": 14,
+        "line_height": 18,
+        "trigger_padding": 18,
+        "padding_vertical": 0,
+        "padding_horizontal": 0,
+        "max_width": 800,
+        "custom_css": ".cqa-content p:first-child, .cqa-content ul:first-child, .cqa-content ol:first-child { margin-top: 0; }",
+        "custom_js": ""
+      }
+    }
+  },
+  "order": [
+    "breadcrumbs",
+    "main",
+    "calqix_product_accordions_main",
+    "benefits_product_RArPDt",
+    "rich_text_YecVJk",
+    "collapsible_menu_WraA7j",
+    "rich_text_AtYc9A",
+    "testimonial_images_3YJzHj",
+    "features_banner_wiKkaQ"
+  ]
+}
