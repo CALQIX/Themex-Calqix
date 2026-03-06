@@ -227,9 +227,35 @@
     },
     "product_lumicore_testimonials": {
       "type": "product-lumicore-testimonials",
+      "blocks": {
+        "testimonial_p6GLyd": {
+          "type": "testimonial",
+          "settings": {
+            "stars": "★★★★★",
+            "quote": "I've tried every whitening strip on the market. They all left my teeth aching for days. LumiCore gave me the same results — visible after day 3 — with zero sensitivity.",
+            "author": "Sophie M.",
+            "location": "Amsterdam, NL",
+            "verified_line": "✓ Verified Purchase · 10-day protocol completed"
+          }
+        },
+        "testimonial_kf8pU8": {
+          "type": "testimonial",
+          "settings": {
+            "stars": "★★★★★",
+            "quote": "As someone with naturally sensitive teeth I'd given up on whitening entirely. The PAP formula is genuinely different — I used it every morning for 10 days and never once felt that electric jolt. Results are noticeable and lasting.",
+            "author": "Thomas R.",
+            "location": "Rotterdam, NL",
+            "verified_line": "✓ Verified Purchase · Bundle with Tablets"
+          }
+        }
+      },
+      "block_order": [
+        "testimonial_p6GLyd",
+        "testimonial_kf8pU8"
+      ],
       "settings": {
         "eyebrow": "Verified Reviews",
-        "title": "Real results.\nReal people."
+        "title": "Real results.Real people."
       }
     },
     "product_lumicore_cta": {
