@@ -214,6 +214,53 @@
     button.textContent = originalText;
   }
 
+  function getCartDrawer() {
+    const cart = document.querySelector("cart-drawer");
+    if (!cart) return null;
+    if (typeof cart.getSectionsToRender !== "function") return null;
+    if (typeof cart.renderContents !== "function") return null;
+    return cart;
+  }
+
+  function getCartAddUrl(form) {
+    const url =
+      (window.routes && window.routes.cart_add_url) ||
+      (typeof routes !== "undefined" && routes && routes.cart_add_url) ||
+      form.getAttribute("action") ||
+      "/cart/add";
+    return url;
+  }
+
+  async function addToCartWithSections(form, cart) {
+    const formData = new FormData(form);
+    if (cart) {
+      formData.append(
+        "sections",
+        cart.getSectionsToRender().map((section) => section.id),
+      );
+    } else {
+      formData.append("sections", []);
+    }
+    formData.append("sections_url", window.location.pathname);
+
+    const res = await fetch(getCartAddUrl(form), {
+      method: "POST",
+      headers: {
+        Accept: "application/javascript",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body: formData,
+    });
+
+    const json = await res.json();
+    if (!res.ok || json?.status) {
+      const error = new Error("cart_add_failed");
+      error.payload = json;
+      throw error;
+    }
+    return json;
+  }
+
   function initAjaxAddToCart(root) {
     root.querySelectorAll(SELECTORS.form).forEach((form) => {
       form.addEventListener("submit", async (e) => {
@@ -227,18 +274,27 @@
         setButtonState(submitButton, "loading", originalText);
 
         try {
-          const formData = new FormData(form);
-          const res = await fetch("/cart/add.js", {
-            method: "POST",
-            body: formData,
-            headers: { Accept: "application/json", "X-Requested-With": "XMLHttpRequest" },
-          });
-
-          if (!res.ok) {
-            throw new Error("cart_add_failed");
+          const cart = getCartDrawer();
+          if (cart && typeof cart.setActiveElement === "function") {
+            cart.setActiveElement(document.activeElement);
           }
 
-          await res.json();
+          const response = await addToCartWithSections(form, cart);
+          const isClosedCart = !document.body.classList.contains("page-overlay-cart-on");
+          if (cart) {
+            cart.renderContents(response, isClosedCart);
+            if (typeof publish === "function" && typeof PUB_SUB_EVENTS === "object") {
+              publish(PUB_SUB_EVENTS.cartUpdate, {
+                source: "product-lumicore",
+                productVariantId: form.querySelector('[name="id"]')?.value,
+                cartData: response,
+              });
+            }
+          } else if (window.routes && window.routes.cart_url) {
+            window.location = window.routes.cart_url;
+            return;
+          }
+
           await updateCartCount();
 
           setButtonState(submitButton, "success", originalText);
