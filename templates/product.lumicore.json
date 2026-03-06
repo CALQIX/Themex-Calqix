@@ -63,21 +63,9 @@
     "product_lumicore_comparison": {
       "type": "product-lumicore-comparison",
       "blocks": {
-        "row_46TR6D": {
-          "type": "row",
-          "name": "EU Compliant (0% H₂O₂)",
-          "settings": {
-            "feature": "Sensitivity-Free",
-            "lumicore_type": "check",
-            "lumicore_text": "—",
-            "peroxide_type": "cross",
-            "peroxide_text": "—",
-            "clinic_type": "cross",
-            "clinic_text": "—"
-          }
-        },
         "row_7QKLpq": {
           "type": "row",
+          "name": "Sensitivity-Free",
           "settings": {
             "feature": "Sensitivity-Free",
             "lumicore_type": "check",
@@ -100,12 +88,25 @@
             "clinic_type": "cross",
             "clinic_text": "—"
           }
+        },
+        "row_46TR6D": {
+          "type": "row",
+          "name": "EU Compliant (0% H₂O₂)",
+          "settings": {
+            "feature": "Sensitivity-Free",
+            "lumicore_type": "check",
+            "lumicore_text": "—",
+            "peroxide_type": "cross",
+            "peroxide_text": "—",
+            "clinic_type": "cross",
+            "clinic_text": "—"
+          }
         }
       },
       "block_order": [
-        "row_46TR6D",
         "row_7QKLpq",
-        "row_fURbYP"
+        "row_fURbYP",
+        "row_46TR6D"
       ],
       "settings": {
         "eyebrow": "Why LumiCore",
