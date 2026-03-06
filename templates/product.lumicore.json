@@ -63,8 +63,21 @@
     "product_lumicore_comparison": {
       "type": "product-lumicore-comparison",
       "blocks": {
+        "row_7QKLpq": {
+          "type": "row",
+          "settings": {
+            "feature": "Sensitivity-Free",
+            "lumicore_type": "check",
+            "lumicore_text": "—",
+            "peroxide_type": "cross",
+            "peroxide_text": "—",
+            "clinic_type": "cross",
+            "clinic_text": "—"
+          }
+        },
         "row_fURbYP": {
           "type": "row",
+          "name": "Enamel Safe (no erosion)",
           "settings": {
             "feature": "Sensitivity-Free",
             "lumicore_type": "check",
@@ -77,6 +90,7 @@
         }
       },
       "block_order": [
+        "row_7QKLpq",
         "row_fURbYP"
       ],
       "settings": {
