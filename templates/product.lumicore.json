@@ -12,27 +12,90 @@
   "sections": {
     "product_lumicore_hero": {
       "type": "product-lumicore-hero",
-      "settings": {}
+      "settings": {
+        "subtitle": "Clinical whitening without compromise. Zero peroxide. Zero sensitivity.",
+        "routine_strip_text": "Whiten with PAP. Rebuild with nano-HA.",
+        "guarantee_days": 30,
+        "subscription_discount_pct": 15,
+        "recharge_subscription_id": "",
+        "selling_plan_id": ""
+      }
     },
     "product_lumicore_science": {
       "type": "product-lumicore-science",
-      "settings": {}
+      "blocks": {
+        "stat_wNY6eQ": {
+          "type": "stat",
+          "settings": {
+            "number": "8",
+            "suffix": "+",
+            "label": "VITA shades lighter in a single 10-day protocol"
+          }
+        },
+        "stat_8D8xC9": {
+          "type": "stat",
+          "settings": {
+            "number": "8",
+            "suffix": "+",
+            "label": "VITA shades lighter in a single 10-day protocol"
+          }
+        },
+        "stat_HRPaUt": {
+          "type": "stat",
+          "settings": {
+            "number": "8",
+            "suffix": "+",
+            "label": "VITA shades lighter in a single 10-day protocol"
+          }
+        }
+      },
+      "block_order": [
+        "stat_wNY6eQ",
+        "stat_8D8xC9",
+        "stat_HRPaUt"
+      ],
+      "settings": {
+        "eyebrow": "Peer-Reviewed Evidence",
+        "title": "The science behind\nsensitivity-free whitening",
+        "subtitle": "PAP+ technology is backed by independent laboratory studies and published in peer-reviewed dental literature."
+      }
     },
     "product_lumicore_comparison": {
       "type": "product-lumicore-comparison",
-      "settings": {}
+      "settings": {
+        "eyebrow": "Why LumiCore",
+        "title": "Not all whitening is equal",
+        "subtitle": "See how PAP+ compares to traditional peroxide-based whitening.",
+        "feature_heading": "Feature",
+        "col_lumicore": "LumiCore PAP+",
+        "col_peroxide": "Peroxide Strips",
+        "col_clinic": "Dental Clinic"
+      }
     },
     "product_lumicore_whats_included": {
       "type": "product-lumicore-whats-included",
-      "settings": {}
+      "settings": {
+        "eyebrow": "In the Box",
+        "title": "Everything you need.\nNothing you don't."
+      }
     },
     "product_lumicore_testimonials": {
       "type": "product-lumicore-testimonials",
-      "settings": {}
+      "settings": {
+        "eyebrow": "Verified Reviews",
+        "title": "Real results.\nReal people."
+      }
     },
     "product_lumicore_cta": {
       "type": "product-lumicore-cta",
-      "settings": {}
+      "settings": {
+        "title_line_1": "Whiten with PAP.",
+        "title_emphasis": "Rebuild with nano-HA.",
+        "subtitle": "The clinical two-step routine. Science-backed. Sensitivity-free. Yours.",
+        "primary_label": "Shop LumiCore Kit",
+        "secondary_label": "View the Full Routine Bundle",
+        "secondary_link": ""
+      }
     }
   },
   "order": [
