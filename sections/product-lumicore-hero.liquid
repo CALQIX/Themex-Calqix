@@ -1,7 +1,8 @@
 {% assign selected_variant = product.selected_or_first_available_variant %}
 
-{% assign discount_pct = section.settings.subscription_discount_pct | default: 15 %}
-{% assign discount_multiplier = 100 | minus: discount_pct %}
+{% assign discount_pct_setting = section.settings.subscription_discount_pct | default: 15 %}
+{% assign discount_pct = discount_pct_setting %}
+{% assign discount_multiplier = 100 | minus: discount_pct_setting %}
 {% assign price_once_cents = selected_variant.price | default: 0 %}
 {% assign price_sub_cents = price_once_cents | times: discount_multiplier | divided_by: 100 %}
 
@@ -13,18 +14,52 @@
 
 {% assign selling_plan_id = section.settings.selling_plan_id %}
 {% if selling_plan_id == blank and product.selling_plan_groups != blank %}
-  {% assign first_group = product.selling_plan_groups | first %}
-  {% if first_group != blank and first_group.selling_plans != blank %}
-    {% assign first_plan = first_group.selling_plans | first %}
-    {% if first_plan != blank %}
-      {% assign selling_plan_id = first_plan.id %}
+  {% assign preferred_plan_id = blank %}
+  {% for group in product.selling_plan_groups %}
+    {% if group != blank and group.selling_plans != blank %}
+      {% for plan in group.selling_plans %}
+        {% assign plan_name_downcase = plan.name | downcase %}
+        {% if preferred_plan_id == blank and plan_name_downcase contains '30' %}
+          {% assign preferred_plan_id = plan.id %}
+        {% endif %}
+      {% endfor %}
     {% endif %}
+  {% endfor %}
+
+  {% if preferred_plan_id != blank %}
+    {% assign selling_plan_id = preferred_plan_id %}
+  {% else %}
+    {% assign first_group = product.selling_plan_groups | first %}
+    {% if first_group != blank and first_group.selling_plans != blank %}
+      {% assign first_plan = first_group.selling_plans | first %}
+      {% if first_plan != blank %}
+        {% assign selling_plan_id = first_plan.id %}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+{% assign allocation_price_cents = blank %}
+{% if selling_plan_id != blank and selected_variant.selling_plan_allocations != blank %}
+  {% for allocation in selected_variant.selling_plan_allocations %}
+    {% if allocation.selling_plan.id == selling_plan_id %}
+      {% assign allocation_price_cents = allocation.price %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{% if allocation_price_cents != blank %}
+  {% assign price_sub_cents = allocation_price_cents %}
+  {% if price_once_cents > 0 and price_sub_cents < price_once_cents %}
+    {% assign discount_pct = price_once_cents | minus: price_sub_cents | times: 100 | divided_by: price_once_cents %}
+  {% else %}
+    {% assign discount_pct = 0 %}
   {% endif %}
 {% endif %}
 
 {% assign recharge_subscription_id = section.settings.recharge_subscription_id %}
 {% assign is_recharge_pending = false %}
-{% if recharge_subscription_id == blank or selling_plan_id == blank %}
+{% if selling_plan_id == blank %}
   {% assign is_recharge_pending = true %}
 {% endif %}
 
@@ -150,7 +185,9 @@
       >
         <input type="hidden" name="id" value="{{ selected_variant.id }}">
         <input type="hidden" name="quantity" value="1">
-        <input type="hidden" name="properties[subscription_id]" value="{{ recharge_subscription_id }}">
+        {% if recharge_subscription_id != blank %}
+          <input type="hidden" name="properties[subscription_id]" value="{{ recharge_subscription_id }}">
+        {% endif %}
         <input type="hidden" name="selling_plan" value="{{ selling_plan_id }}">
         <button type="submit" class="lumicore-subscribe-btn" {% if is_recharge_pending %}disabled{% endif %}>
           Subscribe &amp; Save {{ discount_pct }}% — {{ price_sub_cents | money }}/month

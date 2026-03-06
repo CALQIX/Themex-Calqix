@@ -10,3 +10,41 @@ h2,
   text-transform: none !important;
   text-rendering: optimizeLegibility;
 }
+
+.customer__details a[href="/tools/recurring/login/"],
+.wt-customer__create-account a[href="/tools/recurring/login/"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #1a3b5c;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.customer__details a[href="/tools/recurring/login/"]:hover,
+.wt-customer__create-account a[href="/tools/recurring/login/"]:hover {
+  background: #0f2336;
+  color: #ffffff;
+}
+
+.recharge-theme {
+  --recharge-color-brand: #1a3b5c;
+  --recharge-color-brand-120: #0f2336;
+  --recharge-color-brand-20: #2f557d;
+  --recharge-color-brand-40: #4a6d90;
+  --recharge-color-brand-60: #7e97ad;
+  --recharge-color-brand-75: #c3ced9;
+  --recharge-color-brand-85: #eef1f5;
+  --recharge-button-brand: #1a3b5c;
+  --recharge-button-border-radius: 12px;
+  --recharge-corners-radius: 12px;
+  --recharge-typography-heading-font-family: var(--font-headline);
+  --recharge-typography-body-font-family: var(--font-base);
+  --recharge-typography-heading-font-weight: 600;
+  --recharge-views-background: #ffffff;
+  --recharge-cards-background: #ffffff;
+}
