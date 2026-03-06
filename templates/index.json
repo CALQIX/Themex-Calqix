@@ -420,6 +420,61 @@
         "color_arrow_hover_bg": "#1a3b5c",
         "color_arrow_hover_icon": "#f8fafb"
       }
+    },
+    "rich_text_hFzb9d": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_yB3Dje": {
+          "type": "heading",
+          "settings": {
+            "heading": "CALQIX Social feed",
+            "disable_on_mobile": false,
+            "size_heading": 160,
+            "size_heading_mobile": 100
+          }
+        }
+      },
+      "block_order": [
+        "heading_yB3Dje"
+      ],
+      "name": "t:sections.rich-text.presets.name",
+      "settings": {
+        "section_width": "regular",
+        "desktop_text_horizontal_position": "center",
+        "color-body-text": "transparent",
+        "background_color": "transparent",
+        "margin-top": 0,
+        "margin-bottom": 0
+      }
+    },
+    "1772822810f63dcbd0": {
+      "type": "apps",
+      "blocks": {
+        "instafeed_app_block_Fw7FEt": {
+          "type": "shopify://apps/instafeed/blocks/app-block/c447db20-095d-4a10-9725-b5977662c9d5",
+          "settings": {
+            "title": "",
+            "title_color": "",
+            "title_size_v2": 0,
+            "alignment": "center",
+            "instafeed_margin_top": 0,
+            "instafeed_margin_bottom": 0,
+            "instafeed_margin_sides": 0,
+            "show_instagram_link": false,
+            "link_alignment": "left",
+            "link_color": "#000000",
+            "background_color": "",
+            "feed_id": "",
+            "html_area": ""
+          }
+        }
+      },
+      "block_order": [
+        "instafeed_app_block_Fw7FEt"
+      ],
+      "settings": {
+        "include_margins": true
+      }
     }
   },
   "order": [
@@ -430,6 +485,8 @@
     "video_reels_kb4KdA",
     "scrolling_text_banner_7ziGpd",
     "calqix_science_story_M8kQw2",
-    "calqix_reviews_hzPdKh"
+    "calqix_reviews_hzPdKh",
+    "rich_text_hFzb9d",
+    "1772822810f63dcbd0"
   ]
 }
