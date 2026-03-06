@@ -1,0 +1,19 @@
+# secrets
+.env
+.env.*
+*.pem
+*.key
+
+# node / build
+node_modules/
+dist/
+build/
+.cache/
+
+# git internals
+.git/
+.github/
+
+# Shopify - vaak ruis / groot
+**/*.map
+**/*.min.*
