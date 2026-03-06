@@ -1,0 +1,72 @@
+{% assign selected_variant = product.selected_or_first_available_variant %}
+
+<section class="lumicore-cta-section reveal">
+  <h2 class="lumicore-cta-title">
+    {{ section.settings.title_line_1 }}<br>
+    <em>{{ section.settings.title_emphasis }}</em>
+  </h2>
+
+  {% if section.settings.subtitle != blank %}
+    <p class="lumicore-cta-subtitle">{{ section.settings.subtitle }}</p>
+  {% endif %}
+
+  <div class="lumicore-cta-buttons">
+    <button type="button" class="lumicore-cta-primary" data-lumicore-scroll-to-subscription>
+      {{ section.settings.primary_label }} — {{ selected_variant.price | money }}
+    </button>
+
+    {% if section.settings.secondary_link != blank %}
+      <a class="lumicore-cta-secondary" href="{{ section.settings.secondary_link }}">{{ section.settings.secondary_label }}</a>
+    {% else %}
+      <button type="button" class="lumicore-cta-secondary">{{ section.settings.secondary_label }}</button>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product LumiCore CTA",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title_line_1",
+      "label": "Title line 1",
+      "default": "Whiten with PAP."
+    },
+    {
+      "type": "text",
+      "id": "title_emphasis",
+      "label": "Title emphasis",
+      "default": "Rebuild with nano-HA."
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "The clinical two-step routine. Science-backed. Sensitivity-free. Yours."
+    },
+    {
+      "type": "text",
+      "id": "primary_label",
+      "label": "Primary button label",
+      "default": "Shop LumiCore Kit"
+    },
+    {
+      "type": "text",
+      "id": "secondary_label",
+      "label": "Secondary button label",
+      "default": "View the Full Routine Bundle"
+    },
+    {
+      "type": "url",
+      "id": "secondary_link",
+      "label": "Secondary link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product LumiCore CTA"
+    }
+  ]
+}
+{% endschema %}

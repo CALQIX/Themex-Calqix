@@ -1,0 +1,102 @@
+<section class="lumicore-section reveal">
+  <div class="lumicore-section-header">
+    <p class="lumicore-section-eyebrow">{{ section.settings.eyebrow | escape }}</p>
+    <h2 class="lumicore-section-title">{{ section.settings.title | escape | newline_to_br }}</h2>
+    {% if section.settings.subtitle != blank %}
+      <p class="lumicore-section-subtitle">{{ section.settings.subtitle | escape }}</p>
+    {% endif %}
+  </div>
+
+  <div class="lumicore-stats-grid">
+    {% for block in section.blocks %}
+      <div class="lumicore-stat-cell" {{ block.shopify_attributes }}>
+        <div class="lumicore-stat-number">{{ block.settings.number }}<span>{{ block.settings.suffix }}</span></div>
+        <div class="lumicore-stat-label">{{ block.settings.label }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product LumiCore Science",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Peer-Reviewed Evidence"
+    },
+    {
+      "type": "textarea",
+      "id": "title",
+      "label": "Title",
+      "default": "The science behind\nsensitivity-free whitening"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "PAP+ technology is backed by independent laboratory studies and published in peer-reviewed dental literature."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Stat",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "text",
+          "id": "number",
+          "label": "Number",
+          "default": "8"
+        },
+        {
+          "type": "text",
+          "id": "suffix",
+          "label": "Suffix",
+          "default": "+"
+        },
+        {
+          "type": "textarea",
+          "id": "label",
+          "label": "Label",
+          "default": "VITA shades lighter in a single 10-day protocol"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product LumiCore Science",
+      "blocks": [
+        {
+          "type": "stat",
+          "settings": {
+            "number": "8",
+            "suffix": "+",
+            "label": "VITA shades lighter in a single 10-day protocol"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "number": "0",
+            "suffix": "%",
+            "label": "Hydrogen peroxide — zero enamel erosion risk"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "number": "67",
+            "suffix": "%",
+            "label": "Of peroxide users report sensitivity — LumiCore eliminates this entirely"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

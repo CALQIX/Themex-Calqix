@@ -1,0 +1,116 @@
+<section class="lumicore-section reveal">
+  <div class="lumicore-section-header">
+    <p class="lumicore-section-eyebrow">{{ section.settings.eyebrow }}</p>
+    <h2 class="lumicore-section-title">{{ section.settings.title }}</h2>
+  </div>
+
+  <div class="lumicore-testimonials-grid">
+    {% for block in section.blocks %}
+      <div class="lumicore-testimonial-card" {{ block.shopify_attributes }}>
+        <div class="lumicore-test-stars">{{ block.settings.stars }}</div>
+        <p class="lumicore-test-text">{{ block.settings.quote }}</p>
+        <div class="lumicore-test-author">{{ block.settings.author }}</div>
+        <div class="lumicore-test-meta">{{ block.settings.location }}</div>
+        {% if block.settings.verified_line != blank %}
+          <span class="lumicore-verified-purchase-inline">{{ block.settings.verified_line }}</span>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "LumiCore Reviews",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Verified Reviews"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Real results.\nReal people."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "text",
+          "id": "stars",
+          "label": "Stars",
+          "default": "★★★★★"
+        },
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Quote",
+          "default": "I've tried every whitening strip on the market. They all left my teeth aching for days. LumiCore gave me the same results — visible after day 3 — with zero sensitivity."
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Author",
+          "default": "Sophie M."
+        },
+        {
+          "type": "text",
+          "id": "location",
+          "label": "Location",
+          "default": "Amsterdam, NL"
+        },
+        {
+          "type": "text",
+          "id": "verified_line",
+          "label": "Verified line",
+          "default": "✓ Verified Purchase · 10-day protocol completed"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "LumiCore Reviews",
+      "blocks": [
+        {
+          "type": "testimonial",
+          "settings": {
+            "stars": "★★★★★",
+            "quote": "I've tried every whitening strip on the market. They all left my teeth aching for days. LumiCore gave me the same results — visible after day 3 — with zero sensitivity. The nano-HA routine after is the missing piece I didn't know I needed.",
+            "author": "Sophie M.",
+            "location": "Amsterdam, NL",
+            "verified_line": "✓ Verified Purchase · 10-day protocol completed"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "stars": "★★★★★",
+            "quote": "As someone with naturally sensitive teeth I'd given up on whitening entirely. The PAP formula is genuinely different — I used it every morning for 10 days and never once felt that electric jolt. Results are noticeable and lasting.",
+            "author": "Thomas R.",
+            "location": "Rotterdam, NL",
+            "verified_line": "✓ Verified Purchase · Bundle with Tablets"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "stars": "★★★★☆",
+            "quote": "Clinical, clean, and it actually works. The combination with the nano-HA tablets is smart — I can feel my teeth are stronger and less reactive to cold since starting the full routine. Would love more strips in the box.",
+            "author": "Anika V.",
+            "location": "Utrecht, NL",
+            "verified_line": "✓ Verified Purchase · 3-Month Routine"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

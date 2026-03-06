@@ -1,0 +1,244 @@
+<section class="lumicore-section lumicore-section-navy reveal">
+  <div class="lumicore-section-header">
+    <p class="lumicore-section-eyebrow" style="color:var(--gold-light)">{{ section.settings.eyebrow }}</p>
+    <h2 class="lumicore-section-title">{{ section.settings.title }}</h2>
+    {% if section.settings.subtitle != blank %}
+      <p class="lumicore-section-subtitle">{{ section.settings.subtitle }}</p>
+    {% endif %}
+  </div>
+
+  <table class="lumicore-comparison-table">
+    <thead>
+      <tr>
+        <th style="text-align:left">{{ section.settings.feature_heading }}</th>
+        <th class="lumicore-highlight-col">{{ section.settings.col_lumicore }}</th>
+        <th>{{ section.settings.col_peroxide }}</th>
+        <th>{{ section.settings.col_clinic }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for block in section.blocks %}
+        <tr {{ block.shopify_attributes }}>
+          <td class="lumicore-row-label">{{ block.settings.feature }}</td>
+          <td class="lumicore-highlight-col">
+            {% if block.settings.lumicore_type == 'check' %}
+              <span class="lumicore-check">✓</span>
+            {% elsif block.settings.lumicore_type == 'cross' %}
+              <span class="lumicore-cross">✗</span>
+            {% else %}
+              {{ block.settings.lumicore_text }}
+            {% endif %}
+          </td>
+          <td>
+            {% if block.settings.peroxide_type == 'check' %}
+              <span class="lumicore-check">✓</span>
+            {% elsif block.settings.peroxide_type == 'cross' %}
+              <span class="lumicore-cross">✗</span>
+            {% else %}
+              {{ block.settings.peroxide_text }}
+            {% endif %}
+          </td>
+          <td>
+            {% if block.settings.clinic_type == 'check' %}
+              <span class="lumicore-check">✓</span>
+            {% elsif block.settings.clinic_type == 'cross' %}
+              <span class="lumicore-cross">✗</span>
+            {% else %}
+              {{ block.settings.clinic_text }}
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+{% schema %}
+{
+  "name": "LumiCore Compare",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Why LumiCore"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Not all whitening is equal"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "See how PAP+ compares to traditional peroxide-based whitening."
+    },
+    {
+      "type": "text",
+      "id": "feature_heading",
+      "label": "Feature heading",
+      "default": "Feature"
+    },
+    {
+      "type": "text",
+      "id": "col_lumicore",
+      "label": "Column 1",
+      "default": "LumiCore PAP+"
+    },
+    {
+      "type": "text",
+      "id": "col_peroxide",
+      "label": "Column 2",
+      "default": "Peroxide Strips"
+    },
+    {
+      "type": "text",
+      "id": "col_clinic",
+      "label": "Column 3",
+      "default": "Dental Clinic"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "row",
+      "name": "Row",
+      "limit": 7,
+      "settings": [
+        {
+          "type": "text",
+          "id": "feature",
+          "label": "Feature",
+          "default": "Sensitivity-Free"
+        },
+        {
+          "type": "select",
+          "id": "lumicore_type",
+          "label": "LumiCore cell",
+          "default": "check",
+          "options": [
+            { "value": "check", "label": "Check" },
+            { "value": "cross", "label": "Cross" },
+            { "value": "text", "label": "Text" }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "lumicore_text",
+          "label": "LumiCore text",
+          "default": ""
+        },
+        {
+          "type": "select",
+          "id": "peroxide_type",
+          "label": "Peroxide cell",
+          "default": "cross",
+          "options": [
+            { "value": "check", "label": "Check" },
+            { "value": "cross", "label": "Cross" },
+            { "value": "text", "label": "Text" }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "peroxide_text",
+          "label": "Peroxide text",
+          "default": ""
+        },
+        {
+          "type": "select",
+          "id": "clinic_type",
+          "label": "Clinic cell",
+          "default": "cross",
+          "options": [
+            { "value": "check", "label": "Check" },
+            { "value": "cross", "label": "Cross" },
+            { "value": "text", "label": "Text" }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "clinic_text",
+          "label": "Clinic text",
+          "default": ""
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "LumiCore Compare",
+      "blocks": [
+        {
+          "type": "row",
+          "settings": {
+            "feature": "Sensitivity-Free",
+            "lumicore_type": "check",
+            "peroxide_type": "cross",
+            "clinic_type": "cross"
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "feature": "Enamel Safe (no erosion)",
+            "lumicore_type": "check",
+            "peroxide_type": "cross",
+            "clinic_type": "text",
+            "clinic_text": "Varies"
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "feature": "EU Compliant (0% H₂O₂)",
+            "lumicore_type": "check",
+            "peroxide_type": "cross",
+            "clinic_type": "check"
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "feature": "LED Activation",
+            "lumicore_type": "check",
+            "peroxide_type": "cross",
+            "clinic_type": "check"
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "feature": "Nano-HA Remineralisation",
+            "lumicore_type": "check",
+            "peroxide_type": "cross",
+            "clinic_type": "cross"
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "feature": "At-Home Use",
+            "lumicore_type": "check",
+            "peroxide_type": "check",
+            "clinic_type": "cross"
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "feature": "Price",
+            "lumicore_type": "text",
+            "lumicore_text": "€49,95",
+            "peroxide_type": "text",
+            "peroxide_text": "€25–45",
+            "clinic_type": "text",
+            "clinic_text": "€300–600"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

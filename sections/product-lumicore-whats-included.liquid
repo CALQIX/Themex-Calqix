@@ -1,0 +1,102 @@
+<section class="lumicore-section lumicore-section-alt reveal">
+  <div class="lumicore-section-header">
+    <p class="lumicore-section-eyebrow">{{ section.settings.eyebrow }}</p>
+    <h2 class="lumicore-section-title">{{ section.settings.title }}</h2>
+  </div>
+
+  <div class="lumicore-included-grid">
+    {% for block in section.blocks %}
+      <div class="lumicore-included-card" {{ block.shopify_attributes }}>
+        <span class="lumicore-included-icon">{{ block.settings.icon }}</span>
+        <div class="lumicore-included-name">{{ block.settings.name }}</div>
+        <div class="lumicore-included-detail">{{ block.settings.detail }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "LumiCore In The Box",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "In the Box"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Everything you need.\nNothing you don't."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Item",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "Icon",
+          "default": "💡"
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name",
+          "default": "LED Whitening Device"
+        },
+        {
+          "type": "textarea",
+          "id": "detail",
+          "label": "Detail",
+          "default": "USB-C rechargeable · Blue LED activation · Wireless · 10-min auto-timer"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "LumiCore In The Box",
+      "blocks": [
+        {
+          "type": "item",
+          "settings": {
+            "icon": "💡",
+            "name": "LED Whitening Device",
+            "detail": "USB-C rechargeable · Blue LED activation · Wireless · 10-min auto-timer"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "📋",
+            "name": "PAP+ Whitening Strips",
+            "detail": "14 individually sealed strips · 10-day full protocol · PAP 12% · 0% H₂O₂"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "✏️",
+            "name": "Precision Whitening Pen",
+            "detail": "Touch-up between sessions · Targets edges & gaps · Portable"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "🧳",
+            "name": "CALQIX Travel Case",
+            "detail": "Premium navy canvas · Fits complete kit · Gold zipper"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
