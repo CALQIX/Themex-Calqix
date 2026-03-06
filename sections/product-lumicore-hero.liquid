@@ -6,8 +6,18 @@
 {% assign price_once_cents = selected_variant.price | default: 0 %}
 {% assign price_sub_cents = price_once_cents | times: discount_multiplier | divided_by: 100 %}
 
-{% assign subtitle_text = product.metafields.calqix.subtitle.value | default: section.settings.subtitle %}
-{% assign routine_strip_text = product.metafields.calqix.routine_strip_text.value | default: section.settings.routine_strip_text %}
+{% assign use_subtitle_metafield = section.settings.use_subtitle_metafield %}
+{% assign subtitle_text = section.settings.subtitle %}
+{% assign subtitle_richtext = section.settings.subtitle_richtext %}
+{% if use_subtitle_metafield %}
+  {% assign subtitle_text = product.metafields.calqix.subtitle.value | default: subtitle_text %}
+{% endif %}
+
+{% assign use_routine_strip_metafield = section.settings.use_routine_strip_metafield %}
+{% assign routine_strip_text = section.settings.routine_strip_text %}
+{% if use_routine_strip_metafield %}
+  {% assign routine_strip_text = product.metafields.calqix.routine_strip_text.value | default: routine_strip_text %}
+{% endif %}
 {% if routine_strip_text == blank %}
   {% assign routine_strip_text = 'Whiten with PAP. Rebuild with nano-HA.' %}
 {% endif %}
@@ -69,10 +79,73 @@
 <script src="{{ 'product-lumicore.js' | asset_url }}" defer="defer"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
 
-<section class="lumicore-product-hero" data-lumicore-root>
+<style>
+  #shopify-section-{{ section.id }} .lumicore-product-hero {
+    padding-top: {{ section.settings.hero_padding_top }}px;
+  }
+
+  #shopify-section-{{ section.id }} .lumicore-product-name {
+    font-size: clamp({{ section.settings.heading_size_mobile }}px, 4vw, {{ section.settings.heading_size_desktop }}px);
+  }
+
+  #shopify-section-{{ section.id }} .lumicore-product-subtitle {
+    font-size: {{ section.settings.subtitle_size }}px;
+    font-weight: {{ section.settings.subtitle_weight }};
+    {% if section.settings.subtitle_italic %}
+      font-style: italic;
+    {% endif %}
+  }
+
+  #shopify-section-{{ section.id }} .lumicore-toggle-card,
+  #shopify-section-{{ section.id }} .lumicore-trust-row {
+    border-radius: {{ section.settings.card_radius }}px;
+  }
+
+  #shopify-section-{{ section.id }} .lumicore-subscribe-btn,
+  #shopify-section-{{ section.id }} .lumicore-once-btn {
+    border-radius: {{ section.settings.button_radius }}px;
+  }
+
+  #shopify-section-{{ section.id }} .lumicore-toggle-detail p,
+  #shopify-section-{{ section.id }} .lumicore-trust-text p,
+  #shopify-section-{{ section.id }} .lumicore-step-desc p,
+  #shopify-section-{{ section.id }} .lumicore-accordion-body p {
+    margin: 0;
+  }
+
+  {% unless section.settings.sticky_gallery %}
+    #shopify-section-{{ section.id }} .lumicore-gallery-side {
+      position: relative;
+      top: auto;
+      height: auto;
+    }
+  {% endunless %}
+</style>
+
+<section
+  class="lumicore-product-hero"
+  data-lumicore-root
+  style="
+    --navy: {{ section.settings.color_navy }};
+    --navy-deep: {{ section.settings.color_navy_deep }};
+    --navy-mid: {{ section.settings.color_navy_mid }};
+    --white: {{ section.settings.color_white }};
+    --off-white: {{ section.settings.color_off_white }};
+    --gold: {{ section.settings.color_gold }};
+    --gold-light: {{ section.settings.color_gold_light }};
+    --gold-pale: {{ section.settings.color_gold_pale }};
+    --accent-blue: {{ section.settings.color_accent_blue }};
+    --clinical-grey: {{ section.settings.color_clinical_grey }};
+    --text-muted: {{ section.settings.color_text_muted }};
+    --text-body: {{ section.settings.color_text_body }};
+    --border: {{ section.settings.color_border }};
+  "
+>
   <div class="lumicore-gallery-side">
     <div class="lumicore-gallery-main">
-      <span class="lumicore-gallery-badge">New</span>
+      {% if section.settings.show_gallery_badge %}
+        <span class="lumicore-gallery-badge">{{ section.settings.gallery_badge_text | escape }}</span>
+      {% endif %}
 
       <div class="lumicore-product-visual">
         <div class="lumicore-product-visual-inner">
@@ -81,7 +154,9 @@
           {% else %}
             <span class="lumicore-product-icon">✦</span>
           {% endif %}
-          <span class="lumicore-product-label-pill">LumiCore PAP+</span>
+          {% if section.settings.show_label_pill %}
+            <span class="lumicore-product-label-pill">{{ section.settings.label_pill_text | escape }}</span>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -109,67 +184,89 @@
   </div>
 
   <div class="lumicore-info-side">
-    <div class="lumicore-product-eyebrow lumicore-fade-up">
-      <span class="lumicore-eyebrow-text">CALQIX Oral Science</span>
-      <span class="lumicore-eyebrow-dot"></span>
-      <span class="lumicore-eyebrow-text">Peroxide-Free Whitening</span>
-    </div>
+    {% if section.settings.show_eyebrow %}
+      <div class="lumicore-product-eyebrow lumicore-fade-up">
+        <span class="lumicore-eyebrow-text">{{ section.settings.eyebrow_left | escape }}</span>
+        <span class="lumicore-eyebrow-dot"></span>
+        <span class="lumicore-eyebrow-text">{{ section.settings.eyebrow_right | escape }}</span>
+      </div>
+    {% endif %}
 
     <h1 class="lumicore-product-name lumicore-fade-up-2">{{ product.title | escape }}</h1>
 
-    {% if subtitle_text != blank %}
+    {% if subtitle_richtext != blank %}
+      <div class="lumicore-product-subtitle lumicore-fade-up-3">{{ subtitle_richtext }}</div>
+    {% elsif subtitle_text != blank %}
       <p class="lumicore-product-subtitle lumicore-fade-up-3">{{ subtitle_text | escape }}</p>
     {% endif %}
 
-    <div class="lumicore-rating-row lumicore-fade-up-4">
-      <span class="lumicore-stars">★★★★★</span>
-      <span class="lumicore-rating-count">4.9 (127 reviews)</span>
-      <span class="lumicore-rating-divider"></span>
-      <span class="lumicore-verified-purchase">✓ Verified buyers</span>
-    </div>
-
-    <div class="lumicore-purchase-toggle" data-lumicore-purchase-toggle>
-      <div class="lumicore-toggle-card selected" data-lumicore-toggle="subscription" role="button" tabindex="0">
-        <div class="lumicore-toggle-badge">Most Popular</div>
-        <div class="lumicore-toggle-title">Subscribe &amp; Save</div>
-        <div class="lumicore-toggle-price">{{ price_sub_cents | money }}</div>
-        <div class="lumicore-toggle-detail">Cancel anytime<br>Free shipping on subscription<br>Billed every 30 days</div>
+    {% if section.settings.show_rating %}
+      <div class="lumicore-rating-row lumicore-fade-up-4">
+        <span class="lumicore-stars">{{ section.settings.rating_stars | escape }}</span>
+        <span class="lumicore-rating-count">{{ section.settings.rating_text | escape }}</span>
+        <span class="lumicore-rating-divider"></span>
+        <span class="lumicore-verified-purchase">{{ section.settings.verified_text | escape }}</span>
       </div>
-      <div class="lumicore-toggle-card" data-lumicore-toggle="once" role="button" tabindex="0">
-        <div class="lumicore-toggle-title">One-time Purchase</div>
-        <div class="lumicore-toggle-price">{{ price_once_cents | money }}</div>
-        <div class="lumicore-toggle-detail">Standard shipping</div>
-      </div>
-    </div>
+    {% endif %}
 
+    {% if section.settings.show_purchase_toggle %}
+      <div class="lumicore-purchase-toggle" data-lumicore-purchase-toggle>
+        <div class="lumicore-toggle-card selected" data-lumicore-toggle="subscription" role="button" tabindex="0">
+          {% if section.settings.sub_card_badge != blank %}
+            <div class="lumicore-toggle-badge">{{ section.settings.sub_card_badge | escape }}</div>
+          {% endif %}
+          <div class="lumicore-toggle-title">{{ section.settings.sub_card_title | escape }}</div>
+          <div class="lumicore-toggle-price">{{ price_sub_cents | money }}</div>
+          <div class="lumicore-toggle-detail">{{ section.settings.sub_card_detail }}</div>
+        </div>
+        <div class="lumicore-toggle-card" data-lumicore-toggle="once" role="button" tabindex="0">
+          <div class="lumicore-toggle-title">{{ section.settings.once_card_title | escape }}</div>
+          <div class="lumicore-toggle-price">{{ price_once_cents | money }}</div>
+          <div class="lumicore-toggle-detail">{{ section.settings.once_card_detail }}</div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% assign save_label_template = section.settings.save_label_template | default: 'Save {discount}%' %}
+    {% assign save_label = save_label_template | replace: '{discount}', discount_pct %}
     <div
       class="lumicore-price-block"
       data-lumicore-price
       data-price-once="{{ price_once_cents | money }}"
       data-price-sub="{{ price_sub_cents | money }}"
       data-discount-pct="{{ discount_pct }}"
+      data-save-template="{{ save_label_template | escape }}"
     >
       <span class="lumicore-price-current">{{ price_sub_cents | money }}</span>
       <span class="lumicore-price-compare">{{ price_once_cents | money }}</span>
-      <span class="lumicore-price-save">Save {{ discount_pct }}%</span>
+      <span class="lumicore-price-save">{{ save_label | escape }}</span>
     </div>
 
     <p
       class="lumicore-price-note"
       data-lumicore-price-note
-      data-note-once="Free shipping on orders over €80 · Delivered in 3–5 business days"
-      data-note-sub="Free shipping on subscription · Billed every 30 days"
+      data-note-once="{{ section.settings.price_note_once | escape }}"
+      data-note-sub="{{ section.settings.price_note_sub | escape }}"
     >
-      Free shipping on subscription · Billed every 30 days
+      {{ section.settings.price_note_sub | escape }}
     </p>
 
-    <div class="lumicore-routine-strip">
-      <span class="lumicore-routine-strip-icon">⬡</span>
-      <div class="lumicore-routine-strip-text">
-        <strong>Complete the two-step routine:</strong>
-        <span> {{ routine_strip_text | escape }}</span>
+    {% if section.settings.show_routine_strip %}
+      <div class="lumicore-routine-strip">
+        <span class="lumicore-routine-strip-icon">{{ section.settings.routine_strip_icon | escape }}</span>
+        <div class="lumicore-routine-strip-text">
+          <strong>{{ section.settings.routine_strip_heading | escape }}</strong>
+          <span> {{ routine_strip_text | escape }}</span>
+        </div>
       </div>
-    </div>
+    {% endif %}
+
+    {% assign price_sub_money = price_sub_cents | money %}
+    {% assign price_once_money = price_once_cents | money %}
+    {% assign subscribe_btn_label_template = section.settings.subscribe_btn_label | default: 'Subscribe & Save {discount}% — {price}/month' %}
+    {% assign subscribe_btn_label = subscribe_btn_label_template | replace: '{discount}', discount_pct | replace: '{price}', price_sub_money %}
+    {% assign once_btn_label_template = section.settings.once_btn_label | default: 'Buy Once — {price}' %}
+    {% assign once_btn_label = once_btn_label_template | replace: '{price}', price_once_money %}
 
     <div class="lumicore-form-sub" data-lumicore-form-wrapper="subscription" data-lumicore-subscription-target>
       <form
@@ -190,7 +287,7 @@
         {% endif %}
         <input type="hidden" name="selling_plan" value="{{ selling_plan_id }}">
         <button type="submit" class="lumicore-subscribe-btn" {% if is_recharge_pending %}disabled{% endif %}>
-          Subscribe &amp; Save {{ discount_pct }}% — {{ price_sub_cents | money }}/month
+          {{ subscribe_btn_label | escape }}
         </button>
       </form>
     </div>
@@ -199,116 +296,180 @@
       <form action="{{ routes.cart_add_url }}" method="post" data-lumicore-form="once">
         <input type="hidden" name="id" value="{{ selected_variant.id }}">
         <input type="hidden" name="quantity" value="1">
-        <button type="submit" class="lumicore-once-btn">Buy Once — {{ price_once_cents | money }}</button>
+        <button type="submit" class="lumicore-once-btn">{{ once_btn_label | escape }}</button>
       </form>
     </div>
 
-    <p class="lumicore-subscribe-note">Cancel anytime · Free shipping · Billed every 30 days</p>
+    {% if section.settings.subscribe_note != blank %}
+      <p class="lumicore-subscribe-note">{{ section.settings.subscribe_note | escape }}</p>
+    {% endif %}
 
-    <div class="lumicore-trust-row">
-      <div class="lumicore-trust-item">
-        <span class="lumicore-trust-icon">🔬</span>
-        <span class="lumicore-trust-text">PAP+<br>Clinically Tested</span>
-      </div>
-      <div class="lumicore-trust-item">
-        <span class="lumicore-trust-icon">⬡</span>
-        <span class="lumicore-trust-text">0% Hydrogen<br>Peroxide</span>
-      </div>
-      <div class="lumicore-trust-item">
-        <span class="lumicore-trust-icon">🛡</span>
-        <span class="lumicore-trust-text">Enamel<br>Safe</span>
-      </div>
-      <div class="lumicore-trust-item">
-        <span class="lumicore-trust-icon">↩</span>
-        <span class="lumicore-trust-text">{{ section.settings.guarantee_days | escape }}-Day<br>Guarantee</span>
-      </div>
-    </div>
+    {% if section.settings.show_trust_row %}
+      {% assign trust_blocks = section.blocks | where: 'type', 'trust_item' %}
+      {% if trust_blocks.size > 0 %}
+        <div class="lumicore-trust-row">
+          {% for block in trust_blocks %}
+            <div class="lumicore-trust-item" {{ block.shopify_attributes }}>
+              {% if block.settings.icon != blank %}
+                <span class="lumicore-trust-icon">{{ block.settings.icon | escape }}</span>
+              {% endif %}
+              <div class="lumicore-trust-text">
+                {% capture trust_text %}{{ block.settings.text }}{% endcapture %}
+                {% assign trust_text = trust_text | replace: '{guarantee_days}', section.settings.guarantee_days %}
+                {{ trust_text }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="lumicore-trust-row">
+          <div class="lumicore-trust-item">
+            <span class="lumicore-trust-icon">🔬</span>
+            <span class="lumicore-trust-text">PAP+<br>Clinically Tested</span>
+          </div>
+          <div class="lumicore-trust-item">
+            <span class="lumicore-trust-icon">⬡</span>
+            <span class="lumicore-trust-text">0% Hydrogen<br>Peroxide</span>
+          </div>
+          <div class="lumicore-trust-item">
+            <span class="lumicore-trust-icon">🛡</span>
+            <span class="lumicore-trust-text">Enamel<br>Safe</span>
+          </div>
+          <div class="lumicore-trust-item">
+            <span class="lumicore-trust-icon">↩</span>
+            <span class="lumicore-trust-text">{{ section.settings.guarantee_days | escape }}-Day<br>Guarantee</span>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
 
     <div class="lumicore-section-divider"></div>
 
-    <p class="lumicore-routine-title">The CALQIX Two-Step Routine</p>
-    <div class="lumicore-routine-steps">
-      <div class="lumicore-routine-step">
-        <div class="lumicore-step-num lumicore-step-1">1</div>
-        <div class="lumicore-step-info">
-          <div class="lumicore-step-title">Whiten — LumiCore PAP+ Kit</div>
-          <div class="lumicore-step-desc">Apply PAP+ gel strips. Activate with the LED device for 10 minutes. PAP oxidises surface chromogens without releasing free radicals — no sensitivity, no enamel erosion.</div>
+    {% if section.settings.show_routine_steps %}
+      {% if section.settings.routine_title != blank %}
+        <p class="lumicore-routine-title">{{ section.settings.routine_title | escape }}</p>
+      {% endif %}
+
+      {% assign routine_blocks = section.blocks | where: 'type', 'routine_step' %}
+      {% if routine_blocks.size > 0 %}
+        <div class="lumicore-routine-steps">
+          {% for block in routine_blocks %}
+            <div class="lumicore-routine-step" {{ block.shopify_attributes }}>
+              <div class="lumicore-step-num lumicore-step-{{ forloop.index }}">{{ forloop.index }}</div>
+              <div class="lumicore-step-info">
+                <div class="lumicore-step-title">{{ block.settings.title | escape }}</div>
+                <div class="lumicore-step-desc">{{ block.settings.description }}</div>
+              </div>
+            </div>
+          {% endfor %}
         </div>
-      </div>
-      <div class="lumicore-routine-step">
-        <div class="lumicore-step-num lumicore-step-2">2</div>
-        <div class="lumicore-step-info">
-          <div class="lumicore-step-title">Rebuild — CALQIX Nano-HA Tablets</div>
-          <div class="lumicore-step-desc">Brush with nano-hydroxyapatite tablets immediately after whitening. Nano-HA fills microscopic enamel lesions and accelerates remineralisation — protecting and strengthening what you just whitened.</div>
+      {% else %}
+        <p class="lumicore-routine-title">The CALQIX Two-Step Routine</p>
+        <div class="lumicore-routine-steps">
+          <div class="lumicore-routine-step">
+            <div class="lumicore-step-num lumicore-step-1">1</div>
+            <div class="lumicore-step-info">
+              <div class="lumicore-step-title">Whiten — LumiCore PAP+ Kit</div>
+              <div class="lumicore-step-desc">Apply PAP+ gel strips. Activate with the LED device for 10 minutes. PAP oxidises surface chromogens without releasing free radicals — no sensitivity, no enamel erosion.</div>
+            </div>
+          </div>
+          <div class="lumicore-routine-step">
+            <div class="lumicore-step-num lumicore-step-2">2</div>
+            <div class="lumicore-step-info">
+              <div class="lumicore-step-title">Rebuild — CALQIX Nano-HA Tablets</div>
+              <div class="lumicore-step-desc">Brush with nano-hydroxyapatite tablets immediately after whitening. Nano-HA fills microscopic enamel lesions and accelerates remineralisation — protecting and strengthening what you just whitened.</div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      {% endif %}
+    {% endif %}
 
     <div class="lumicore-section-divider"></div>
 
-    <div class="lumicore-accordion" data-lumicore-accordion>
-      <div class="lumicore-accordion-item">
-        <button class="lumicore-accordion-trigger" type="button" data-lumicore-accordion-trigger>
-          What's in the Kit?
-          <span class="lumicore-accordion-icon">+</span>
-        </button>
-        <div class="lumicore-accordion-body" data-lumicore-accordion-body>
-          <strong class="lumicore-accordion-strong">Each LumiCore kit contains:</strong>
-          LED Whitening Device (USB-C, blue light, wireless) · 14× PAP+ Whitening Strips (10-day treatment) · Whitening Precision Pen (touch-up &amp; maintenance) · Travel Case in CALQIX navy · Routine instruction card
+    {% if section.settings.show_accordion %}
+      {% assign accordion_blocks = section.blocks | where: 'type', 'accordion_item' %}
+      {% if accordion_blocks.size > 0 %}
+        <div class="lumicore-accordion" data-lumicore-accordion>
+          {% for block in accordion_blocks %}
+            <div class="lumicore-accordion-item" {{ block.shopify_attributes }}>
+              <button class="lumicore-accordion-trigger" type="button" data-lumicore-accordion-trigger>
+                {{ block.settings.title | escape }}
+                <span class="lumicore-accordion-icon">+</span>
+              </button>
+              <div class="lumicore-accordion-body" data-lumicore-accordion-body>
+                {% capture accordion_content %}{{ block.settings.content }}{% endcapture %}
+                {% assign accordion_content = accordion_content | replace: '{guarantee_days}', section.settings.guarantee_days %}
+                {{ accordion_content }}
+              </div>
+            </div>
+          {% endfor %}
         </div>
-      </div>
+      {% else %}
+        <div class="lumicore-accordion" data-lumicore-accordion>
+          <div class="lumicore-accordion-item">
+            <button class="lumicore-accordion-trigger" type="button" data-lumicore-accordion-trigger>
+              What's in the Kit?
+              <span class="lumicore-accordion-icon">+</span>
+            </button>
+            <div class="lumicore-accordion-body" data-lumicore-accordion-body>
+              <strong class="lumicore-accordion-strong">Each LumiCore kit contains:</strong>
+              LED Whitening Device (USB-C, blue light, wireless) · 14× PAP+ Whitening Strips (10-day treatment) · Whitening Precision Pen (touch-up &amp; maintenance) · Travel Case in CALQIX navy · Routine instruction card
+            </div>
+          </div>
 
-      <div class="lumicore-accordion-item">
-        <button class="lumicore-accordion-trigger" type="button" data-lumicore-accordion-trigger>
-          Key Ingredients
-          <span class="lumicore-accordion-icon">+</span>
-        </button>
-        <div class="lumicore-accordion-body" data-lumicore-accordion-body>
-          <div class="lumicore-ingredient-row">
-            <span class="lumicore-ing-name">PAP (12%)</span>
-            <span class="lumicore-ing-desc">Phthalimidoperoxycaproic Acid — oxidises stain chromogens via epoxidation. No free radicals, no enamel erosion.</span>
+          <div class="lumicore-accordion-item">
+            <button class="lumicore-accordion-trigger" type="button" data-lumicore-accordion-trigger>
+              Key Ingredients
+              <span class="lumicore-accordion-icon">+</span>
+            </button>
+            <div class="lumicore-accordion-body" data-lumicore-accordion-body>
+              <div class="lumicore-ingredient-row">
+                <span class="lumicore-ing-name">PAP (12%)</span>
+                <span class="lumicore-ing-desc">Phthalimidoperoxycaproic Acid — oxidises stain chromogens via epoxidation. No free radicals, no enamel erosion.</span>
+              </div>
+              <div class="lumicore-ingredient-row">
+                <span class="lumicore-ing-name">Nano-HA</span>
+                <span class="lumicore-ing-desc">Hydroxyapatite nanoparticles — remineralises enamel micro-lesions after whitening treatment.</span>
+              </div>
+              <div class="lumicore-ingredient-row">
+                <span class="lumicore-ing-name">Potassium Nitrate</span>
+                <span class="lumicore-ing-desc">Desensitising agent — calms nerve endings during and after treatment.</span>
+              </div>
+              <div class="lumicore-ingredient-row">
+                <span class="lumicore-ing-name">Glycerin / PVP</span>
+                <span class="lumicore-ing-desc">Carrier and adhesion agents — ensure even gel distribution across tooth surface.</span>
+              </div>
+            </div>
           </div>
-          <div class="lumicore-ingredient-row">
-            <span class="lumicore-ing-name">Nano-HA</span>
-            <span class="lumicore-ing-desc">Hydroxyapatite nanoparticles — remineralises enamel micro-lesions after whitening treatment.</span>
-          </div>
-          <div class="lumicore-ingredient-row">
-            <span class="lumicore-ing-name">Potassium Nitrate</span>
-            <span class="lumicore-ing-desc">Desensitising agent — calms nerve endings during and after treatment.</span>
-          </div>
-          <div class="lumicore-ingredient-row">
-            <span class="lumicore-ing-name">Glycerin / PVP</span>
-            <span class="lumicore-ing-desc">Carrier and adhesion agents — ensure even gel distribution across tooth surface.</span>
-          </div>
-        </div>
-      </div>
 
-      <div class="lumicore-accordion-item">
-        <button class="lumicore-accordion-trigger" type="button" data-lumicore-accordion-trigger>
-          How to Use
-          <span class="lumicore-accordion-icon">+</span>
-        </button>
-        <div class="lumicore-accordion-body" data-lumicore-accordion-body>
-          <strong class="lumicore-accordion-strong">10-Day Protocol:</strong>
-          1. Apply PAP+ strip to upper and lower teeth.<br>
-          2. Insert LED device and activate blue light (10 min).<br>
-          3. Remove strip. Apply touch-up pen to edges.<br>
-          4. Brush with CALQIX nano-HA tablets to remineralise.<br><br>
-          Repeat daily for 10 days for optimal results. Maintenance: 1–2 strips per week thereafter.
-        </div>
-      </div>
+          <div class="lumicore-accordion-item">
+            <button class="lumicore-accordion-trigger" type="button" data-lumicore-accordion-trigger>
+              How to Use
+              <span class="lumicore-accordion-icon">+</span>
+            </button>
+            <div class="lumicore-accordion-body" data-lumicore-accordion-body>
+              <strong class="lumicore-accordion-strong">10-Day Protocol:</strong>
+              1. Apply PAP+ strip to upper and lower teeth.<br>
+              2. Insert LED device and activate blue light (10 min).<br>
+              3. Remove strip. Apply touch-up pen to edges.<br>
+              4. Brush with CALQIX nano-HA tablets to remineralise.<br><br>
+              Repeat daily for 10 days for optimal results. Maintenance: 1–2 strips per week thereafter.
+            </div>
+          </div>
 
-      <div class="lumicore-accordion-item">
-        <button class="lumicore-accordion-trigger" type="button" data-lumicore-accordion-trigger>
-          Shipping &amp; Returns
-          <span class="lumicore-accordion-icon">+</span>
-        </button>
-        <div class="lumicore-accordion-body" data-lumicore-accordion-body>
-          Free standard shipping on orders over €80. Netherlands: 3–5 business days. EU: 5–8 business days.<br><br>
-          {{ section.settings.guarantee_days }}-day money-back guarantee. If you're unsatisfied after completing the 10-day protocol, we refund in full — no questions asked.
+          <div class="lumicore-accordion-item">
+            <button class="lumicore-accordion-trigger" type="button" data-lumicore-accordion-trigger>
+              Shipping &amp; Returns
+              <span class="lumicore-accordion-icon">+</span>
+            </button>
+            <div class="lumicore-accordion-body" data-lumicore-accordion-body>
+              Free standard shipping on orders over €80. Netherlands: 3–5 business days. EU: 5–8 business days.<br><br>
+              {{ section.settings.guarantee_days }}-day money-back guarantee. If you're unsatisfied after completing the 10-day protocol, we refund in full — no questions asked.
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      {% endif %}
+    {% endif %}
   </div>
 </section>
 
@@ -323,10 +484,28 @@
       "default": "Clinical whitening without compromise. Zero peroxide. Zero sensitivity."
     },
     {
+      "type": "checkbox",
+      "id": "use_subtitle_metafield",
+      "label": "Use product metafield for subtitle (calqix.subtitle)",
+      "default": true
+    },
+    {
+      "type": "richtext",
+      "id": "subtitle_richtext",
+      "label": "Subtitle (rich text)",
+      "default": ""
+    },
+    {
       "type": "text",
       "id": "routine_strip_text",
       "label": "Routine strip text",
       "default": "Whiten with PAP. Rebuild with nano-HA."
+    },
+    {
+      "type": "checkbox",
+      "id": "use_routine_strip_metafield",
+      "label": "Use product metafield for routine strip (calqix.routine_strip_text)",
+      "default": true
     },
     {
       "type": "number",
@@ -349,6 +528,440 @@
       "type": "text",
       "id": "selling_plan_id",
       "label": "Selling plan ID"
+    },
+    {
+      "type": "header",
+      "content": "Visibility"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_gallery_badge",
+      "label": "Show gallery badge",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_label_pill",
+      "label": "Show label pill",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_eyebrow",
+      "label": "Show eyebrow",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show rating row",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_purchase_toggle",
+      "label": "Show purchase toggle cards",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_routine_strip",
+      "label": "Show routine strip",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trust_row",
+      "label": "Show trust row",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_routine_steps",
+      "label": "Show routine steps",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_accordion",
+      "label": "Show accordion",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Gallery"
+    },
+    {
+      "type": "text",
+      "id": "gallery_badge_text",
+      "label": "Gallery badge text",
+      "default": "New"
+    },
+    {
+      "type": "text",
+      "id": "label_pill_text",
+      "label": "Label pill text",
+      "default": "LumiCore PAP+"
+    },
+    {
+      "type": "header",
+      "content": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_left",
+      "label": "Eyebrow left",
+      "default": "CALQIX Oral Science"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_right",
+      "label": "Eyebrow right",
+      "default": "Peroxide-Free Whitening"
+    },
+    {
+      "type": "header",
+      "content": "Rating"
+    },
+    {
+      "type": "text",
+      "id": "rating_stars",
+      "label": "Rating stars",
+      "default": "★★★★★"
+    },
+    {
+      "type": "text",
+      "id": "rating_text",
+      "label": "Rating text",
+      "default": "4.9 (127 reviews)"
+    },
+    {
+      "type": "text",
+      "id": "verified_text",
+      "label": "Verified text",
+      "default": "✓ Verified buyers"
+    },
+    {
+      "type": "header",
+      "content": "Purchase cards"
+    },
+    {
+      "type": "text",
+      "id": "sub_card_badge",
+      "label": "Subscription badge",
+      "default": "Most Popular"
+    },
+    {
+      "type": "text",
+      "id": "sub_card_title",
+      "label": "Subscription title",
+      "default": "Subscribe & Save"
+    },
+    {
+      "type": "richtext",
+      "id": "sub_card_detail",
+      "label": "Subscription detail",
+      "default": "<p>Cancel anytime<br>Free shipping on subscription<br>Billed every 30 days</p>"
+    },
+    {
+      "type": "text",
+      "id": "once_card_title",
+      "label": "One-time title",
+      "default": "One-time Purchase"
+    },
+    {
+      "type": "richtext",
+      "id": "once_card_detail",
+      "label": "One-time detail",
+      "default": "<p>Standard shipping</p>"
+    },
+    {
+      "type": "header",
+      "content": "Price + buttons"
+    },
+    {
+      "type": "text",
+      "id": "save_label_template",
+      "label": "Save label template",
+      "default": "Save {discount}%"
+    },
+    {
+      "type": "text",
+      "id": "price_note_once",
+      "label": "Price note (one-time)",
+      "default": "Free shipping on orders over €80 · Delivered in 3–5 business days"
+    },
+    {
+      "type": "text",
+      "id": "price_note_sub",
+      "label": "Price note (subscription)",
+      "default": "Free shipping on subscription · Billed every 30 days"
+    },
+    {
+      "type": "text",
+      "id": "subscribe_btn_label",
+      "label": "Subscribe button label (use {discount} and {price})",
+      "default": "Subscribe & Save {discount}% — {price}/month"
+    },
+    {
+      "type": "text",
+      "id": "once_btn_label",
+      "label": "One-time button label (use {price})",
+      "default": "Buy Once — {price}"
+    },
+    {
+      "type": "text",
+      "id": "subscribe_note",
+      "label": "Note under buttons",
+      "default": "Cancel anytime · Free shipping · Billed every 30 days"
+    },
+    {
+      "type": "header",
+      "content": "Routine strip"
+    },
+    {
+      "type": "text",
+      "id": "routine_strip_icon",
+      "label": "Routine strip icon",
+      "default": "⬡"
+    },
+    {
+      "type": "text",
+      "id": "routine_strip_heading",
+      "label": "Routine strip heading",
+      "default": "Complete the two-step routine:"
+    },
+    {
+      "type": "header",
+      "content": "Routine steps"
+    },
+    {
+      "type": "text",
+      "id": "routine_title",
+      "label": "Routine title",
+      "default": "The CALQIX Two-Step Routine"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "range",
+      "id": "hero_padding_top",
+      "min": 0,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "label": "Hero padding top",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "min": 24,
+      "max": 56,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading size (mobile)",
+      "default": 38
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "min": 28,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading size (desktop)",
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "subtitle_size",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Subtitle size",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "subtitle_weight",
+      "label": "Subtitle weight",
+      "default": "400",
+      "options": [
+        { "value": "300", "label": "Light (300)" },
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "subtitle_italic",
+      "label": "Subtitle italic",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Card radius",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Button radius",
+      "default": 3
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_gallery",
+      "label": "Sticky gallery",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "color_navy",
+      "label": "Color: Navy",
+      "default": "#1a3b5c"
+    },
+    {
+      "type": "color",
+      "id": "color_navy_deep",
+      "label": "Color: Navy deep",
+      "default": "#0f2336"
+    },
+    {
+      "type": "color",
+      "id": "color_navy_mid",
+      "label": "Color: Navy mid",
+      "default": "#244d75"
+    },
+    {
+      "type": "color",
+      "id": "color_white",
+      "label": "Color: White",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "color_off_white",
+      "label": "Color: Off white",
+      "default": "#f7f8fa"
+    },
+    {
+      "type": "color",
+      "id": "color_clinical_grey",
+      "label": "Color: Clinical grey",
+      "default": "#eef1f5"
+    },
+    {
+      "type": "color",
+      "id": "color_gold",
+      "label": "Color: Gold",
+      "default": "#c9a84c"
+    },
+    {
+      "type": "color",
+      "id": "color_gold_light",
+      "label": "Color: Gold light",
+      "default": "#e2c97e"
+    },
+    {
+      "type": "color",
+      "id": "color_gold_pale",
+      "label": "Color: Gold pale",
+      "default": "#f5edd6"
+    },
+    {
+      "type": "color",
+      "id": "color_accent_blue",
+      "label": "Color: Accent blue",
+      "default": "#2e6da4"
+    },
+    {
+      "type": "color",
+      "id": "color_text_muted",
+      "label": "Color: Text muted",
+      "default": "#6b7a8d"
+    },
+    {
+      "type": "color",
+      "id": "color_text_body",
+      "label": "Color: Text body",
+      "default": "#2c3e50"
+    },
+    {
+      "type": "color",
+      "id": "color_border",
+      "label": "Color: Border",
+      "default": "#dde3ec"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "trust_item",
+      "name": "Trust item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "Icon (emoji or short text)",
+          "default": "🔬"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text (rich text)",
+          "default": "<p>PAP+<br>Clinically Tested</p>"
+        }
+      ]
+    },
+    {
+      "type": "routine_step",
+      "name": "Routine step",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Whiten — LumiCore PAP+ Kit"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description (rich text)",
+          "default": "<p>Apply PAP+ gel strips. Activate with the LED device for 10 minutes.</p>"
+        }
+      ]
+    },
+    {
+      "type": "accordion_item",
+      "name": "Accordion item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "What's in the Kit?"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Content (rich text)",
+          "default": "<p>LED Whitening Device (USB-C, blue light, wireless) · 14× PAP+ Whitening Strips (10-day treatment) · Whitening Precision Pen (touch-up &amp; maintenance) · Travel Case in CALQIX navy · Routine instruction card</p>"
+        }
+      ]
     }
   ],
   "presets": [

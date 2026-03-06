@@ -12,6 +12,90 @@
   "sections": {
     "product_lumicore_hero": {
       "type": "product-lumicore-hero",
+      "blocks": {
+        "trust_A1b2C3": {
+          "type": "trust_item",
+          "settings": {
+            "icon": "🔬",
+            "text": "<p>PAP+<br>Clinically Tested</p>"
+          }
+        },
+        "trust_D4e5F6": {
+          "type": "trust_item",
+          "settings": {
+            "icon": "⬡",
+            "text": "<p>0% Hydrogen<br>Peroxide</p>"
+          }
+        },
+        "trust_G7h8I9": {
+          "type": "trust_item",
+          "settings": {
+            "icon": "🛡",
+            "text": "<p>Enamel<br>Safe</p>"
+          }
+        },
+        "trust_J0k1L2": {
+          "type": "trust_item",
+          "settings": {
+            "icon": "↩",
+            "text": "<p>{guarantee_days}-Day<br>Guarantee</p>"
+          }
+        },
+        "step_M3n4O5": {
+          "type": "routine_step",
+          "settings": {
+            "title": "Whiten — LumiCore PAP+ Kit",
+            "description": "<p>Apply PAP+ gel strips. Activate with the LED device for 10 minutes. PAP oxidises surface chromogens without releasing free radicals — no sensitivity, no enamel erosion.</p>"
+          }
+        },
+        "step_P6q7R8": {
+          "type": "routine_step",
+          "settings": {
+            "title": "Rebuild — CALQIX Nano-HA Tablets",
+            "description": "<p>Brush with nano-hydroxyapatite tablets immediately after whitening. Nano-HA fills microscopic enamel lesions and accelerates remineralisation — protecting and strengthening what you just whitened.</p>"
+          }
+        },
+        "acc_S9t0U1": {
+          "type": "accordion_item",
+          "settings": {
+            "title": "What's in the Kit?",
+            "content": "<p><strong>Each LumiCore kit contains:</strong><br>LED Whitening Device (USB-C, blue light, wireless) · 14× PAP+ Whitening Strips (10-day treatment) · Whitening Precision Pen (touch-up &amp; maintenance) · Travel Case in CALQIX navy · Routine instruction card</p>"
+          }
+        },
+        "acc_V2w3X4": {
+          "type": "accordion_item",
+          "settings": {
+            "title": "Key Ingredients",
+            "content": "<ul><li><strong>PAP (12%)</strong> — Phthalimidoperoxycaproic Acid — oxidises stain chromogens via epoxidation. No free radicals, no enamel erosion.</li><li><strong>Nano-HA</strong> — Hydroxyapatite nanoparticles — remineralises enamel micro-lesions after whitening treatment.</li><li><strong>Potassium Nitrate</strong> — Desensitising agent — calms nerve endings during and after treatment.</li><li><strong>Glycerin / PVP</strong> — Carrier and adhesion agents — ensure even gel distribution across tooth surface.</li></ul>"
+          }
+        },
+        "acc_Y5z6A7": {
+          "type": "accordion_item",
+          "settings": {
+            "title": "How to Use",
+            "content": "<p><strong>10-Day Protocol:</strong></p><ol><li>Apply PAP+ strip to upper and lower teeth.</li><li>Insert LED device and activate blue light (10 min).</li><li>Remove strip. Apply touch-up pen to edges.</li><li>Brush with CALQIX nano-HA tablets to remineralise.</li></ol><p>Repeat daily for 10 days for optimal results. Maintenance: 1–2 strips per week thereafter.</p>"
+          }
+        },
+        "acc_B8c9D0": {
+          "type": "accordion_item",
+          "settings": {
+            "title": "Shipping & Returns",
+            "content": "<p>Free standard shipping on orders over €80. Netherlands: 3–5 business days. EU: 5–8 business days.</p><p>{guarantee_days}-day money-back guarantee. If you're unsatisfied after completing the 10-day protocol, we refund in full — no questions asked.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "trust_A1b2C3",
+        "trust_D4e5F6",
+        "trust_G7h8I9",
+        "trust_J0k1L2",
+        "step_M3n4O5",
+        "step_P6q7R8",
+        "acc_S9t0U1",
+        "acc_V2w3X4",
+        "acc_Y5z6A7",
+        "acc_B8c9D0"
+      ],
       "settings": {
         "subtitle": "Clinical whitening without compromise. Zero peroxide. Zero sensitivity.",
         "routine_strip_text": "Whiten with PAP. Rebuild with nano-HA.",

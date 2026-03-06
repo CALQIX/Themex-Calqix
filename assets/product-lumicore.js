@@ -47,6 +47,7 @@
     const priceOnce = priceBlock.getAttribute("data-price-once") || "";
     const priceSub = priceBlock.getAttribute("data-price-sub") || "";
     const discountPct = priceBlock.getAttribute("data-discount-pct") || "";
+    const saveTemplate = priceBlock.getAttribute("data-save-template") || "";
 
     const currentEl = priceBlock.querySelector(SELECTORS.priceCurrent);
     const compareEl = priceBlock.querySelector(SELECTORS.priceCompare);
@@ -60,7 +61,11 @@
       }
       if (saveEl) {
         saveEl.style.display = "inline-flex";
-        saveEl.textContent = `Save ${discountPct}%`;
+        if (saveTemplate) {
+          saveEl.textContent = saveTemplate.replace("{discount}", discountPct);
+        } else {
+          saveEl.textContent = `Save ${discountPct}%`;
+        }
       }
     } else {
       if (currentEl) currentEl.textContent = priceOnce;
