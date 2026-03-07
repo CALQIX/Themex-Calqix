@@ -318,23 +318,18 @@
       <div class="cpi-variants__label">{{ block.settings.swatch_label }}</div>
       <ul class="cpi-swatches">
         {%- for colour_block in section.blocks -%}
-          {%- if colour_block.type == 'swatch_item' -%}
-            {%- assign swatch_product = all_products[colour_block.settings.product_handle] -%}
+          {%- if colour_block.type == 'swatch_item' and colour_block.settings.product_handle != blank -%}
             {%- assign is_active = false -%}
-            {%- assign swatch_url = routes.root_url | append: 'products/' | append: colour_block.settings.product_handle -%}
 
-            {%- if swatch_product != blank -%}
-              {%- assign swatch_url = swatch_product.url -%}
-            {%- endif -%}
-
-            {%- if swatch_product != blank and swatch_product.id == product.id -%}
-              {%- assign is_active = true -%}
-            {%- elsif colour_block.settings.product_handle == product.handle -%}
+            {%- if colour_block.settings.product_handle == product.handle -%}
               {%- assign is_active = true -%}
             {%- endif -%}
+
+            {%- assign locale_root = routes.root_url -%}
+            {%- assign swatch_href = locale_root | append: 'products/' | append: colour_block.settings.product_handle -%}
 
             <li>
-              <a href="{{ swatch_url }}"
+              <a href="{{ swatch_href }}"
                  style="background-color: {{ colour_block.settings.swatch_color }}; display:block;"
                  class="cpi-swatch {% if is_active %}is-active{% endif %}"
                  title="{{ colour_block.settings.colour_name | escape }}"
