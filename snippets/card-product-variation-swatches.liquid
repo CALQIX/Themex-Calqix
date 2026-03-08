@@ -31,6 +31,12 @@
         {% endif %}
       {% endfor %}
 
+      {% assign localized_variation_url = variation.url %}
+      {% unless localized_variation_url contains '://' %}
+        {% assign localized_variation_url = localized_variation_url | remove_first: '/' %}
+        {% assign localized_variation_url = routes.root_url | append: localized_variation_url %}
+      {% endunless %}
+
       <div
         class="
           color-swatcher--wrapper
@@ -55,7 +61,7 @@
             {{ variation.featured_image | image_url: width: 1000 }} 1000w
             {% endif %}
           "
-          data-href="{{ variation.url }}"
+          data-href="{{ localized_variation_url }}"
           data-hover="{% if new_hover_image %}{{ new_hover_image | image_url: width: 1000 }}{% elsif img_hover %}{{ img_hover | image_url: width: 1000 }}{% endif %}"
           data-hover-srcset="
             {% if new_hover_image %}

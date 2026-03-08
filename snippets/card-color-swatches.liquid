@@ -100,6 +100,12 @@
         {% continue %}
       {% endunless %}
       
+      {% assign localized_variant_url = rep_variant.url %}
+      {% unless localized_variant_url contains '://' %}
+        {% assign localized_variant_url = localized_variant_url | remove_first: '/' %}
+        {% assign localized_variant_url = routes.root_url | append: localized_variant_url %}
+      {% endunless %}
+
       {% assign featured_media = rep_variant.featured_media.preview_image | default: product.featured_media.preview_image %}
 
       {%- comment -%}Optional hover image{%- endcomment -%}
@@ -155,7 +161,7 @@
               {{ featured_media | image_url: width: 1000 }} 1000w
             {% endif %}
           "
-          data-href="{{ rep_variant.url }}"
+          data-href="{{ localized_variant_url }}"
           data-hover="{% if new_hover_image %}{{ new_hover_image | image_url: width: 1000 }}{% endif %}"
           style="
             {% if is_variant_picture %}
