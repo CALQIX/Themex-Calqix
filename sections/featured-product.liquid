@@ -2139,7 +2139,11 @@
                         {% assign option_name = nil %}
                         {% assign option_image = nil %}
                         {% assign option_color = nil %}
-                        {% assign localized_variant_url = variant.url %}
+                        {% assign locale_root_url = request.locale.root_url | default: routes.root_url %}
+                        {% if locale_root_url == '/' %}
+                          {% assign locale_root_url = '' %}
+                        {% endif %}
+                        {% capture localized_variant_url %}{{ locale_root_url }}/products/{{ variant.handle }}{% endcapture %}
 
                         {% assign option_value = variant.metafields[metafield_namespace][metafield_key] %}
                         {% if option_value.type == 'metaobject_reference' %}
@@ -2150,13 +2154,6 @@
                         {% elsif option_value.type == 'single_line_text_field' %}
                           {% assign option_name = option_value %}
                         {% endif %}
-                        {% unless localized_variant_url contains '://' %}
-                          {% assign locale_root_url = routes.root_url %}
-                          {% if locale_root_url == '/' %}
-                            {% assign locale_root_url = '' %}
-                          {% endif %}
-                          {% assign localized_variant_url = localized_variant_url | prepend: locale_root_url %}
-                        {% endunless %}
                         <li class="{{ options_container_class }}__list__item">
                           {% comment %}
                             <a
