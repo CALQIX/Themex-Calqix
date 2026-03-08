@@ -2632,6 +2632,7 @@
                     </span>
                   {%- endif -%}
                 </div>
+                {%- assign ccs_locale_root_url = request.path | split: '/products/' | first -%}
                 <div class="ccs-swatches">
                   {%- for i in (1..6) -%}
                     {%- assign ccs_pk  = 'swatch_' | append: i | append: '_product' -%}
@@ -2661,7 +2662,7 @@
                       {%- endif -%}
                       {%- assign ccs_is_active = false -%}
                       {%- if ccs_resolved_handle == product.handle -%}{%- assign ccs_is_active = true -%}{%- endif -%}
-                      <a href="/products/{{ ccs_resolved_handle }}"
+                      <a href="{{ ccs_locale_root_url }}/products/{{ ccs_resolved_handle }}"
                          class="ccs-swatch {% if ccs_is_active %}ccs-active{% endif %} {% if b[ccs_bk] %}ccs-swatch--bordered{% endif %}"
                          style="{% if b[ccs_bk] %}border-color: {{ b[ccs_bcl] }} !important;{% endif %}"
                          aria-label="{{ ccs_display_name }}" title="{{ ccs_display_name }}">
