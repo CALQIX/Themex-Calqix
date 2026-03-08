@@ -33,8 +33,11 @@
 
       {% assign localized_variation_url = variation.url %}
       {% unless localized_variation_url contains '://' %}
-        {% assign localized_variation_url = localized_variation_url | remove_first: '/' %}
-        {% assign localized_variation_url = routes.root_url | append: localized_variation_url %}
+        {% assign locale_root_url = routes.root_url %}
+        {% if locale_root_url == '/' %}
+          {% assign locale_root_url = '' %}
+        {% endif %}
+        {% assign localized_variation_url = localized_variation_url | prepend: locale_root_url %}
       {% endunless %}
 
       <div

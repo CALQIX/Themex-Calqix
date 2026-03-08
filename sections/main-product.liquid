@@ -2209,6 +2209,7 @@
                         {% assign option_name = nil %}
                         {% assign option_image = nil %}
                         {% assign option_color = nil %}
+                        {% assign localized_variant_url = variant.url %}
 
                         {% assign option_value = variant.metafields[metafield_namespace][metafield_key] %}
                         {% if option_value.type == 'metaobject_reference' %}
@@ -2219,6 +2220,13 @@
                         {% elsif option_value.type == 'single_line_text_field' %}
                           {% assign option_name = option_value %}
                         {% endif %}
+                        {% unless localized_variant_url contains '://' %}
+                          {% assign locale_root_url = routes.root_url %}
+                          {% if locale_root_url == '/' %}
+                            {% assign locale_root_url = '' %}
+                          {% endif %}
+                          {% assign localized_variant_url = localized_variant_url | prepend: locale_root_url %}
+                        {% endunless %}
                         <li class="{{ options_container_class }}__list__item">
                           {% comment %}
                             <a
@@ -2230,7 +2238,7 @@
                           {% case block.settings.picker_type %}
                             {%- when 'button' -%}
                               <a
-                                href="{{ variant.url }}"
+                                href="{{ localized_variant_url }}"
                                 tabindex="0"
                                 class="{{ options_container_class }}__list__link  {% if settings.enable_round_color_swatches %} rounded {% endif %} {% if option_value == current_option %} active {% endif %} {% if block.settings.radius == 'custom' %} custom-radius {% endif %}"
                                 for="{{ section.id }}-{{ block.id }}-{{ forloop.index0 }}"
@@ -2239,7 +2247,7 @@
                               </a>
                             {%- when 'swatch' -%}
                               <a
-                                href="{{ variant.url }}"
+                                href="{{ localized_variant_url }}"
                                 tabindex="0"
                                 class="{{ options_container_class }}__list__link  {% if settings.enable_round_color_swatches %} rounded {% endif %} {% if option_value == current_option %} active {% endif %}{% if block.settings.radius == 'custom' %} custom-radius{% endif %}"
                               >
