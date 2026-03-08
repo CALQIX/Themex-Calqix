@@ -2209,10 +2209,7 @@
                         {% assign option_name = nil %}
                         {% assign option_image = nil %}
                         {% assign option_color = nil %}
-                        {% assign locale_root_url = request.locale.root_url | default: routes.root_url %}
-                        {% if locale_root_url == '/' %}
-                          {% assign locale_root_url = '' %}
-                        {% endif %}
+                        {% assign locale_root_url = request.path | split: '/products/' | first %}
                         {% capture localized_variant_url %}{{ locale_root_url }}/products/{{ variant.handle }}{% endcapture %}
 
                         {% assign option_value = variant.metafields[metafield_namespace][metafield_key] %}
