@@ -11,6 +11,18 @@
     #calqix-tooth-science-{{ section.id }} {
       --cts-padding-top: {{ section.settings.padding_top }}px;
       --cts-padding-bottom: {{ section.settings.padding_bottom }}px;
+      --cts-heading-max-width-desktop: {{ section.settings.heading_max_width_desktop }}px;
+      --cts-heading-max-width-tablet: {{ section.settings.heading_max_width_tablet }}px;
+      --cts-heading-max-width-mobile: {{ section.settings.heading_max_width_mobile }}px;
+      --cts-heading-size-desktop: {{ section.settings.heading_size_desktop }}px;
+      --cts-heading-size-tablet: {{ section.settings.heading_size_tablet }}px;
+      --cts-heading-size-mobile: {{ section.settings.heading_size_mobile }}px;
+      --cts-intro-align-desktop: {{ section.settings.intro_align_desktop }};
+      --cts-intro-align-tablet: {{ section.settings.intro_align_tablet }};
+      --cts-intro-align-mobile: {{ section.settings.intro_align_mobile }};
+      --cts-intro-justify-desktop: {% case section.settings.intro_align_desktop %}{% when 'left' %}start{% when 'right' %}end{% else %}center{% endcase %};
+      --cts-intro-justify-tablet: {% case section.settings.intro_align_tablet %}{% when 'left' %}start{% when 'right' %}end{% else %}center{% endcase %};
+      --cts-intro-justify-mobile: {% case section.settings.intro_align_mobile %}{% when 'left' %}start{% when 'right' %}end{% else %}center{% endcase %};
       --cts-bg: {{ section.settings.color_bg }};
       --cts-surface: {{ section.settings.color_surface }};
       --cts-text: {{ section.settings.color_text }};
@@ -22,6 +34,17 @@
       --cts-aqua-strong: {{ section.settings.color_aqua_strong }};
       --cts-green: {{ section.settings.color_green }};
       --cts-amber: {{ section.settings.color_amber }};
+      --cts-bg-rgb: {{ section.settings.color_bg | color_extract: 'red' }}, {{ section.settings.color_bg | color_extract: 'green' }}, {{ section.settings.color_bg | color_extract: 'blue' }};
+      --cts-surface-rgb: {{ section.settings.color_surface | color_extract: 'red' }}, {{ section.settings.color_surface | color_extract: 'green' }}, {{ section.settings.color_surface | color_extract: 'blue' }};
+      --cts-text-rgb: {{ section.settings.color_text | color_extract: 'red' }}, {{ section.settings.color_text | color_extract: 'green' }}, {{ section.settings.color_text | color_extract: 'blue' }};
+      --cts-text-soft-rgb: {{ section.settings.color_text_soft | color_extract: 'red' }}, {{ section.settings.color_text_soft | color_extract: 'green' }}, {{ section.settings.color_text_soft | color_extract: 'blue' }};
+      --cts-navy-rgb: {{ section.settings.color_navy | color_extract: 'red' }}, {{ section.settings.color_navy | color_extract: 'green' }}, {{ section.settings.color_navy | color_extract: 'blue' }};
+      --cts-navy-deep-rgb: {{ section.settings.color_navy_deep | color_extract: 'red' }}, {{ section.settings.color_navy_deep | color_extract: 'green' }}, {{ section.settings.color_navy_deep | color_extract: 'blue' }};
+      --cts-line-rgb: {{ section.settings.color_line | color_extract: 'red' }}, {{ section.settings.color_line | color_extract: 'green' }}, {{ section.settings.color_line | color_extract: 'blue' }};
+      --cts-aqua-rgb: {{ section.settings.color_aqua | color_extract: 'red' }}, {{ section.settings.color_aqua | color_extract: 'green' }}, {{ section.settings.color_aqua | color_extract: 'blue' }};
+      --cts-aqua-strong-rgb: {{ section.settings.color_aqua_strong | color_extract: 'red' }}, {{ section.settings.color_aqua_strong | color_extract: 'green' }}, {{ section.settings.color_aqua_strong | color_extract: 'blue' }};
+      --cts-green-rgb: {{ section.settings.color_green | color_extract: 'red' }}, {{ section.settings.color_green | color_extract: 'green' }}, {{ section.settings.color_green | color_extract: 'blue' }};
+      --cts-amber-rgb: {{ section.settings.color_amber | color_extract: 'red' }}, {{ section.settings.color_amber | color_extract: 'green' }}, {{ section.settings.color_amber | color_extract: 'blue' }};
     }
   </style>
 
@@ -81,32 +104,34 @@
     {% endif %}
 
     <div class="cts-controls" data-ts-animate="controls">
-      <div class="cts-tooth-selector" role="tablist" aria-label="Choose a tooth type" data-ts-tooth-tabs>
-        <button class="cts-tooth-tab" type="button" role="tab" data-tooth-type="incisors" aria-selected="false" aria-controls="cts-visual-{{ section.id }}">
-          <span class="cts-tooth-tab__label">Incisors</span>
-          <span class="cts-tooth-tab__meta">Cut & guide</span>
-          <span class="cts-tooth-tab__visited" aria-hidden="true"></span>
-        </button>
-        <button class="cts-tooth-tab" type="button" role="tab" data-tooth-type="canines" aria-selected="false" aria-controls="cts-visual-{{ section.id }}">
-          <span class="cts-tooth-tab__label">Canines</span>
-          <span class="cts-tooth-tab__meta">Grip & tear</span>
-          <span class="cts-tooth-tab__visited" aria-hidden="true"></span>
-        </button>
-        <button class="cts-tooth-tab" type="button" role="tab" data-tooth-type="premolars" aria-selected="false" aria-controls="cts-visual-{{ section.id }}">
-          <span class="cts-tooth-tab__label">Premolars</span>
-          <span class="cts-tooth-tab__meta">Crush & bridge</span>
-          <span class="cts-tooth-tab__visited" aria-hidden="true"></span>
-        </button>
-        <button class="cts-tooth-tab" type="button" role="tab" data-tooth-type="molars" aria-selected="false" aria-controls="cts-visual-{{ section.id }}">
-          <span class="cts-tooth-tab__label">Molars</span>
-          <span class="cts-tooth-tab__meta">Grind & stabilise</span>
-          <span class="cts-tooth-tab__visited" aria-hidden="true"></span>
-        </button>
-        <button class="cts-tooth-tab" type="button" role="tab" data-tooth-type="wisdom" aria-selected="false" aria-controls="cts-visual-{{ section.id }}">
-          <span class="cts-tooth-tab__label">Wisdom teeth</span>
-          <span class="cts-tooth-tab__meta">Late arrival</span>
-          <span class="cts-tooth-tab__visited" aria-hidden="true"></span>
-        </button>
+      <div class="cts-tooth-selector-shell">
+        <div class="cts-tooth-selector" role="tablist" aria-label="Choose a tooth type" data-ts-tooth-tabs>
+          <button class="cts-tooth-tab" type="button" role="tab" data-tooth-type="incisors" aria-selected="false" aria-controls="cts-visual-{{ section.id }}">
+            <span class="cts-tooth-tab__label">Incisors</span>
+            <span class="cts-tooth-tab__meta">Cut & guide</span>
+            <span class="cts-tooth-tab__visited" aria-hidden="true"></span>
+          </button>
+          <button class="cts-tooth-tab" type="button" role="tab" data-tooth-type="canines" aria-selected="false" aria-controls="cts-visual-{{ section.id }}">
+            <span class="cts-tooth-tab__label">Canines</span>
+            <span class="cts-tooth-tab__meta">Grip & tear</span>
+            <span class="cts-tooth-tab__visited" aria-hidden="true"></span>
+          </button>
+          <button class="cts-tooth-tab" type="button" role="tab" data-tooth-type="premolars" aria-selected="false" aria-controls="cts-visual-{{ section.id }}">
+            <span class="cts-tooth-tab__label">Premolars</span>
+            <span class="cts-tooth-tab__meta">Crush & bridge</span>
+            <span class="cts-tooth-tab__visited" aria-hidden="true"></span>
+          </button>
+          <button class="cts-tooth-tab" type="button" role="tab" data-tooth-type="molars" aria-selected="false" aria-controls="cts-visual-{{ section.id }}">
+            <span class="cts-tooth-tab__label">Molars</span>
+            <span class="cts-tooth-tab__meta">Grind & stabilise</span>
+            <span class="cts-tooth-tab__visited" aria-hidden="true"></span>
+          </button>
+          <button class="cts-tooth-tab" type="button" role="tab" data-tooth-type="wisdom" aria-selected="false" aria-controls="cts-visual-{{ section.id }}">
+            <span class="cts-tooth-tab__label">Wisdom teeth</span>
+            <span class="cts-tooth-tab__meta">Late arrival</span>
+            <span class="cts-tooth-tab__visited" aria-hidden="true"></span>
+          </button>
+        </div>
       </div>
 
       {% if section.settings.show_age_toggle %}
@@ -149,54 +174,53 @@
           <div class="cts-stage__diagram">
             <div class="cts-diagram-layer is-current" data-ts-diagram-current aria-hidden="true"></div>
             <div class="cts-diagram-layer" data-ts-diagram-next aria-hidden="true"></div>
-          </div>
-
-          <div class="cts-hotspots" data-ts-hotspots>
-            <button class="cts-hotspot" type="button" data-layer-id="enamel" aria-label="Inspect enamel">
-              <span class="cts-hotspot__dot"></span>
-              <span class="cts-hotspot__line"></span>
-              <span class="cts-hotspot__label">Enamel</span>
-            </button>
-            <button class="cts-hotspot" type="button" data-layer-id="dentin" aria-label="Inspect dentin">
-              <span class="cts-hotspot__dot"></span>
-              <span class="cts-hotspot__line"></span>
-              <span class="cts-hotspot__label">Dentin</span>
-            </button>
-            <button class="cts-hotspot" type="button" data-layer-id="pulp" aria-label="Inspect pulp">
-              <span class="cts-hotspot__dot"></span>
-              <span class="cts-hotspot__line"></span>
-              <span class="cts-hotspot__label">Pulp</span>
-            </button>
-            <button class="cts-hotspot" type="button" data-layer-id="root" aria-label="Inspect root">
-              <span class="cts-hotspot__dot"></span>
-              <span class="cts-hotspot__line"></span>
-              <span class="cts-hotspot__label">Root</span>
-            </button>
-            <button class="cts-hotspot" type="button" data-layer-id="gum" aria-label="Inspect gum">
-              <span class="cts-hotspot__dot"></span>
-              <span class="cts-hotspot__line"></span>
-              <span class="cts-hotspot__label">Gum</span>
-            </button>
-            <button class="cts-hotspot" type="button" data-layer-id="cementum" aria-label="Inspect cementum">
-              <span class="cts-hotspot__dot"></span>
-              <span class="cts-hotspot__line"></span>
-              <span class="cts-hotspot__label">Cementum</span>
-            </button>
-            <button class="cts-hotspot" type="button" data-layer-id="rootCanal" aria-label="Inspect root canal">
-              <span class="cts-hotspot__dot"></span>
-              <span class="cts-hotspot__line"></span>
-              <span class="cts-hotspot__label">Root canal</span>
-            </button>
-            <button class="cts-hotspot" type="button" data-layer-id="alveolarBone" aria-label="Inspect alveolar bone">
-              <span class="cts-hotspot__dot"></span>
-              <span class="cts-hotspot__line"></span>
-              <span class="cts-hotspot__label">Jaw support</span>
-            </button>
-            <button class="cts-hotspot" type="button" data-layer-id="periodontalLigament" aria-label="Inspect periodontal ligament">
-              <span class="cts-hotspot__dot"></span>
-              <span class="cts-hotspot__line"></span>
-              <span class="cts-hotspot__label">Ligament</span>
-            </button>
+            <div class="cts-hotspots" data-ts-hotspots>
+              <button class="cts-hotspot" type="button" data-layer-id="enamel" aria-label="Inspect enamel">
+                <span class="cts-hotspot__dot"></span>
+                <span class="cts-hotspot__line"></span>
+                <span class="cts-hotspot__label">Enamel</span>
+              </button>
+              <button class="cts-hotspot" type="button" data-layer-id="dentin" aria-label="Inspect dentin">
+                <span class="cts-hotspot__dot"></span>
+                <span class="cts-hotspot__line"></span>
+                <span class="cts-hotspot__label">Dentin</span>
+              </button>
+              <button class="cts-hotspot" type="button" data-layer-id="pulp" aria-label="Inspect pulp">
+                <span class="cts-hotspot__dot"></span>
+                <span class="cts-hotspot__line"></span>
+                <span class="cts-hotspot__label">Pulp</span>
+              </button>
+              <button class="cts-hotspot" type="button" data-layer-id="root" aria-label="Inspect root">
+                <span class="cts-hotspot__dot"></span>
+                <span class="cts-hotspot__line"></span>
+                <span class="cts-hotspot__label">Root</span>
+              </button>
+              <button class="cts-hotspot" type="button" data-layer-id="gum" aria-label="Inspect gum">
+                <span class="cts-hotspot__dot"></span>
+                <span class="cts-hotspot__line"></span>
+                <span class="cts-hotspot__label">Gum</span>
+              </button>
+              <button class="cts-hotspot" type="button" data-layer-id="cementum" aria-label="Inspect cementum">
+                <span class="cts-hotspot__dot"></span>
+                <span class="cts-hotspot__line"></span>
+                <span class="cts-hotspot__label">Cementum</span>
+              </button>
+              <button class="cts-hotspot" type="button" data-layer-id="rootCanal" aria-label="Inspect root canal">
+                <span class="cts-hotspot__dot"></span>
+                <span class="cts-hotspot__line"></span>
+                <span class="cts-hotspot__label">Root canal</span>
+              </button>
+              <button class="cts-hotspot" type="button" data-layer-id="alveolarBone" aria-label="Inspect alveolar bone">
+                <span class="cts-hotspot__dot"></span>
+                <span class="cts-hotspot__line"></span>
+                <span class="cts-hotspot__label">Jaw support</span>
+              </button>
+              <button class="cts-hotspot" type="button" data-layer-id="periodontalLigament" aria-label="Inspect periodontal ligament">
+                <span class="cts-hotspot__dot"></span>
+                <span class="cts-hotspot__line"></span>
+                <span class="cts-hotspot__label">Ligament</span>
+              </button>
+            </div>
           </div>
 
           <div class="cts-stage__insight" data-ts-stage-insight>
@@ -261,60 +285,66 @@
       </aside>
     </div>
 
-    <div class="cts-support-grid" data-ts-animate="support">
-      <article class="cts-support-card cts-support-card--function">
-        <div class="cts-support-card__head">
-          <p class="cts-mini-label">How this tooth works</p>
-          <h3 class="cts-support-card__title">Functional profile</h3>
-        </div>
-        <div class="cts-chip-row" data-ts-function-chips></div>
-      </article>
-
-      <article class="cts-support-card cts-support-card--care">
-        <div class="cts-support-card__head">
-          <p class="cts-mini-label">What keeps it healthy</p>
-          <h3 class="cts-support-card__title">Daily care focus</h3>
-        </div>
-        <div class="cts-chip-row cts-chip-row--care" data-ts-care-chips></div>
-      </article>
-
-      <article class="cts-support-card cts-support-card--risk">
-        <div class="cts-support-card__head">
-          <p class="cts-mini-label">What happens when neglected</p>
-          <h3 class="cts-support-card__title" data-ts-risk-title>Structure under pressure</h3>
-        </div>
-        <p class="cts-support-card__copy" data-ts-risk-copy></p>
-      </article>
-
-      <article class="cts-support-card cts-support-card--fact">
-        <div class="cts-support-card__head">
-          <p class="cts-mini-label">Did you know?</p>
-          <h3 class="cts-support-card__title" data-ts-fact-title>Clinical quick fact</h3>
-        </div>
-        <p class="cts-support-card__copy" data-ts-fact-copy></p>
-      </article>
-
-      {% if section.settings.enable_support_videos %}
-        <article class="cts-support-card cts-support-card--media" data-ts-support-media>
+    <div class="cts-support-slider-wrap">
+      <div class="cts-support-grid" data-ts-animate="support" data-ts-support-track>
+        <article class="cts-support-card cts-support-card--function">
           <div class="cts-support-card__head">
-            <p class="cts-mini-label">Support visual</p>
-            <h3 class="cts-support-card__title">Cleaning flow guidance</h3>
+            <p class="cts-mini-label">How this tooth works</p>
+            <h3 class="cts-support-card__title">Functional profile</h3>
           </div>
-          <div class="cts-flow-demo" aria-hidden="true">
-            <svg viewBox="0 0 320 160" role="presentation">
-              <path class="cts-flow-demo__arc" d="M18 108C52 72 90 50 136 48C184 46 230 68 302 42" />
-              <path class="cts-flow-demo__arc cts-flow-demo__arc--secondary" d="M14 124C68 92 112 84 152 88C208 93 244 115 304 88" />
-              <circle class="cts-flow-demo__pulse" cx="64" cy="84" r="10" />
-              <circle class="cts-flow-demo__pulse cts-flow-demo__pulse--two" cx="198" cy="68" r="12" />
-              <circle class="cts-flow-demo__dot" cx="48" cy="92" r="3" />
-              <circle class="cts-flow-demo__dot" cx="102" cy="62" r="3" />
-              <circle class="cts-flow-demo__dot" cx="164" cy="72" r="3" />
-              <circle class="cts-flow-demo__dot" cx="232" cy="58" r="3" />
-              <circle class="cts-flow-demo__dot" cx="286" cy="48" r="3" />
-            </svg>
-          </div>
+          <div class="cts-chip-row" data-ts-function-chips></div>
         </article>
-      {% endif %}
+
+        <article class="cts-support-card cts-support-card--care">
+          <div class="cts-support-card__head">
+            <p class="cts-mini-label">What keeps it healthy</p>
+            <h3 class="cts-support-card__title">Daily care focus</h3>
+          </div>
+          <div class="cts-chip-row cts-chip-row--care" data-ts-care-chips></div>
+        </article>
+
+        <article class="cts-support-card cts-support-card--risk">
+          <div class="cts-support-card__head">
+            <p class="cts-mini-label">What happens when neglected</p>
+            <h3 class="cts-support-card__title" data-ts-risk-title>Structure under pressure</h3>
+          </div>
+          <p class="cts-support-card__copy" data-ts-risk-copy></p>
+        </article>
+
+        <article class="cts-support-card cts-support-card--fact">
+          <div class="cts-support-card__head">
+            <p class="cts-mini-label">Did you know?</p>
+            <h3 class="cts-support-card__title" data-ts-fact-title>Clinical quick fact</h3>
+          </div>
+          <p class="cts-support-card__copy" data-ts-fact-copy></p>
+        </article>
+
+        {% if section.settings.enable_support_videos %}
+          <article class="cts-support-card cts-support-card--media" data-ts-support-media>
+            <div class="cts-support-card__head">
+              <p class="cts-mini-label">Support visual</p>
+              <h3 class="cts-support-card__title">Cleaning flow guidance</h3>
+            </div>
+            <div class="cts-flow-demo" aria-hidden="true">
+              <svg viewBox="0 0 320 160" role="presentation">
+                <path class="cts-flow-demo__arc" d="M18 108C52 72 90 50 136 48C184 46 230 68 302 42" />
+                <path class="cts-flow-demo__arc cts-flow-demo__arc--secondary" d="M14 124C68 92 112 84 152 88C208 93 244 115 304 88" />
+                <circle class="cts-flow-demo__pulse" cx="64" cy="84" r="10" />
+                <circle class="cts-flow-demo__pulse cts-flow-demo__pulse--two" cx="198" cy="68" r="12" />
+                <circle class="cts-flow-demo__dot" cx="48" cy="92" r="3" />
+                <circle class="cts-flow-demo__dot" cx="102" cy="62" r="3" />
+                <circle class="cts-flow-demo__dot" cx="164" cy="72" r="3" />
+                <circle class="cts-flow-demo__dot" cx="232" cy="58" r="3" />
+                <circle class="cts-flow-demo__dot" cx="286" cy="48" r="3" />
+              </svg>
+            </div>
+            <p class="cts-support-card__copy cts-support-card__copy--flow" data-ts-flow-copy>Cleaning flow guidance shows the safest sweep around the active tooth, so plaque is lifted away from the gumline instead of being pushed deeper.</p>
+          </article>
+        {% endif %}
+      </div>
+      <div class="cts-scroll-hint" data-ts-scroll-hint aria-hidden="true">
+        <span class="cts-scroll-hint__text">Please scroll for more information</span>
+      </div>
     </div>
 
     <div class="cts-completion" data-ts-completion hidden>
@@ -407,6 +437,103 @@
       "id": "intro",
       "label": "Intro copy",
       "default": "<p>Explore every tooth type, discover what each layer does, and learn what helps keep teeth clean, strong, and healthy.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Intro layout"
+    },
+    {
+      "type": "range",
+      "id": "heading_max_width_desktop",
+      "label": "Heading max width desktop",
+      "min": 320,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "default": 720
+    },
+    {
+      "type": "range",
+      "id": "heading_max_width_tablet",
+      "label": "Heading max width tablet",
+      "min": 280,
+      "max": 900,
+      "step": 20,
+      "unit": "px",
+      "default": 620
+    },
+    {
+      "type": "range",
+      "id": "heading_max_width_mobile",
+      "label": "Heading max width mobile",
+      "min": 220,
+      "max": 520,
+      "step": 10,
+      "unit": "px",
+      "default": 340
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "label": "Heading size desktop",
+      "min": 34,
+      "max": 84,
+      "step": 2,
+      "unit": "px",
+      "default": 68
+    },
+    {
+      "type": "range",
+      "id": "heading_size_tablet",
+      "label": "Heading size tablet",
+      "min": 30,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 58
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size mobile",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "default": 42
+    },
+    {
+      "type": "select",
+      "id": "intro_align_desktop",
+      "label": "Text alignment desktop",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "intro_align_tablet",
+      "label": "Text alignment tablet",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "intro_align_mobile",
+      "label": "Text alignment mobile",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
     },
     {
       "type": "select",
@@ -550,67 +677,67 @@
       "type": "color",
       "id": "color_bg",
       "label": "Background",
-      "default": "#F8FAFC"
+      "default": "#F9FAFB"
     },
     {
       "type": "color",
       "id": "color_surface",
       "label": "Surface",
-      "default": "#FFFFFF"
+      "default": "#F2F7FF"
     },
     {
       "type": "color",
       "id": "color_text",
       "label": "Primary text",
-      "default": "#102033"
+      "default": "#202020"
     },
     {
       "type": "color",
       "id": "color_text_soft",
       "label": "Secondary text",
-      "default": "#5E6B78"
+      "default": "#5D6F86"
     },
     {
       "type": "color",
       "id": "color_navy",
       "label": "Navy",
-      "default": "#16324A"
+      "default": "#004381"
     },
     {
       "type": "color",
       "id": "color_navy_deep",
       "label": "Deep navy",
-      "default": "#0D2233"
+      "default": "#002549"
     },
     {
       "type": "color",
       "id": "color_line",
       "label": "Line / border",
-      "default": "#E6EDF3"
+      "default": "#D9E5F2"
     },
     {
       "type": "color",
       "id": "color_aqua",
       "label": "Aqua",
-      "default": "#CDEFF4"
+      "default": "#F2F7FF"
     },
     {
       "type": "color",
       "id": "color_aqua_strong",
       "label": "Aqua strong",
-      "default": "#8EDCE8"
+      "default": "#33B0D3"
     },
     {
       "type": "color",
       "id": "color_green",
       "label": "Green",
-      "default": "#BFE7D1"
+      "default": "#1FB11F"
     },
     {
       "type": "color",
       "id": "color_amber",
       "label": "Amber",
-      "default": "#F5DFC2"
+      "default": "#E8C96A"
     },
     {
       "type": "header",

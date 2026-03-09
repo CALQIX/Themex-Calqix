@@ -32,7 +32,10 @@
         adult: { crownWidth: 116, crownHeight: 124, shouldersY: 166, rootCount: 1, rootLength: 214, rootSpread: 0, cusps: [10, 4, 10], taper: 28 },
         young: { crownWidth: 108, crownHeight: 110, shouldersY: 175, rootCount: 1, rootLength: 170, rootSpread: 0, cusps: [8, 4, 8], taper: 24 }
       },
-      hotspots: { enamel: [50, 18, 'top'], dentin: [40, 33, 'left'], pulp: [51, 42, 'right'], root: [57, 67, 'right'], gum: [75, 46, 'right'], cementum: [36, 58, 'left'], rootCanal: [50, 55, 'bottom'], alveolarBone: [81, 71, 'right'], periodontalLigament: [30, 68, 'left'] }
+      hotspots: {
+        adult: { enamel: [50, 19, 'top'], dentin: [41, 34, 'left'], pulp: [50, 42, 'bottom'], root: [55, 67, 'right'], gum: [72, 46, 'right'], cementum: [43, 58, 'left'], rootCanal: [50, 56, 'bottom'], alveolarBone: [71, 73, 'right'], periodontalLigament: [35, 67, 'left'] },
+        young: { enamel: [50, 21, 'top'], dentin: [41, 36, 'left'], pulp: [50, 44, 'bottom'], root: [55, 69, 'right'], gum: [72, 48, 'right'], cementum: [43, 60, 'left'], rootCanal: [50, 58, 'bottom'], alveolarBone: [71, 75, 'right'], periodontalLigament: [35, 69, 'left'] }
+      }
     },
     canines: {
       label: 'Canines', role: 'grip, tear, and guide side movement', surface: 'pointed canine cusp',
@@ -49,7 +52,10 @@
         adult: { crownWidth: 108, crownHeight: 138, shouldersY: 168, rootCount: 1, rootLength: 206, rootSpread: 0, cusps: [22, 0, 22], taper: 24 },
         young: { crownWidth: 100, crownHeight: 124, shouldersY: 175, rootCount: 1, rootLength: 172, rootSpread: 0, cusps: [18, 0, 18], taper: 22 }
       },
-      hotspots: { enamel: [50, 17, 'top'], dentin: [41, 32, 'left'], pulp: [51, 40, 'right'], root: [57, 65, 'right'], gum: [74, 44, 'right'], cementum: [37, 57, 'left'], rootCanal: [50, 54, 'bottom'], alveolarBone: [80, 69, 'right'], periodontalLigament: [31, 66, 'left'] }
+      hotspots: {
+        adult: { enamel: [50, 18, 'top'], dentin: [41, 32, 'left'], pulp: [50, 40, 'bottom'], root: [56, 66, 'right'], gum: [72, 44, 'right'], cementum: [42, 57, 'left'], rootCanal: [50, 55, 'bottom'], alveolarBone: [71, 72, 'right'], periodontalLigament: [36, 67, 'left'] },
+        young: { enamel: [50, 20, 'top'], dentin: [41, 34, 'left'], pulp: [50, 42, 'bottom'], root: [56, 68, 'right'], gum: [72, 46, 'right'], cementum: [42, 59, 'left'], rootCanal: [50, 57, 'bottom'], alveolarBone: [71, 74, 'right'], periodontalLigament: [36, 69, 'left'] }
+      }
     },
     premolars: {
       label: 'Premolars', role: 'crush food and bridge front-to-back chewing', surface: 'dual-cusp chewing ridge',
@@ -66,7 +72,10 @@
         adult: { crownWidth: 118, crownHeight: 126, shouldersY: 170, rootCount: 1, rootLength: 198, rootSpread: 0, cusps: [12, 2, 16], taper: 26 },
         young: { crownWidth: 110, crownHeight: 114, shouldersY: 177, rootCount: 1, rootLength: 166, rootSpread: 0, cusps: [10, 2, 14], taper: 24 }
       },
-      hotspots: { enamel: [50, 18, 'top'], dentin: [40, 34, 'left'], pulp: [50, 41, 'right'], root: [57, 66, 'right'], gum: [75, 45, 'right'], cementum: [38, 57, 'left'], rootCanal: [50, 54, 'bottom'], alveolarBone: [81, 70, 'right'], periodontalLigament: [31, 67, 'left'] }
+      hotspots: {
+        adult: { enamel: [50, 19, 'top'], dentin: [40, 34, 'left'], pulp: [50, 41, 'bottom'], root: [56, 66, 'right'], gum: [74, 45, 'right'], cementum: [41, 58, 'left'], rootCanal: [50, 56, 'bottom'], alveolarBone: [73, 72, 'right'], periodontalLigament: [35, 67, 'left'] },
+        young: { enamel: [50, 21, 'top'], dentin: [40, 36, 'left'], pulp: [50, 43, 'bottom'], root: [56, 68, 'right'], gum: [74, 47, 'right'], cementum: [41, 60, 'left'], rootCanal: [50, 58, 'bottom'], alveolarBone: [73, 74, 'right'], periodontalLigament: [35, 69, 'left'] }
+      }
     },
     molars: {
       label: 'Molars', role: 'grind food under heavier bite force', surface: 'broad grinding table',
@@ -83,7 +92,10 @@
         adult: { crownWidth: 156, crownHeight: 122, shouldersY: 170, rootCount: 3, rootLength: 188, rootSpread: 54, cusps: [16, 6, 12, 4, 14], taper: 24 },
         young: { crownWidth: 146, crownHeight: 110, shouldersY: 176, rootCount: 3, rootLength: 156, rootSpread: 48, cusps: [14, 6, 10, 4, 12], taper: 22 }
       },
-      hotspots: { enamel: [50, 18, 'top'], dentin: [39, 35, 'left'], pulp: [50, 41, 'bottom'], root: [63, 67, 'right'], gum: [79, 44, 'right'], cementum: [33, 59, 'left'], rootCanal: [50, 57, 'bottom'], alveolarBone: [85, 71, 'right'], periodontalLigament: [28, 68, 'left'] }
+      hotspots: {
+        adult: { enamel: [50, 18, 'top'], dentin: [39, 35, 'left'], pulp: [50, 42, 'bottom'], root: [61, 67, 'right'], gum: [77, 45, 'right'], cementum: [36, 58, 'left'], rootCanal: [50, 57, 'bottom'], alveolarBone: [81, 71, 'right'], periodontalLigament: [31, 67, 'left'] },
+        young: { enamel: [50, 20, 'top'], dentin: [40, 37, 'left'], pulp: [50, 44, 'bottom'], root: [60, 69, 'right'], gum: [77, 47, 'right'], cementum: [37, 60, 'left'], rootCanal: [50, 59, 'bottom'], alveolarBone: [81, 73, 'right'], periodontalLigament: [32, 69, 'left'] }
+      }
     },
     wisdom: {
       label: 'Wisdom teeth', role: 'add late-stage grinding support when space allows', surface: 'late-erupting back crown',
@@ -100,7 +112,10 @@
         adult: { crownWidth: 146, crownHeight: 118, shouldersY: 172, rootCount: 3, rootLength: 180, rootSpread: 46, cusps: [18, 8, 16, 6, 20], taper: 26 },
         young: { crownWidth: 136, crownHeight: 106, shouldersY: 178, rootCount: 3, rootLength: 150, rootSpread: 40, cusps: [16, 8, 14, 6, 18], taper: 24 }
       },
-      hotspots: { enamel: [50, 18, 'top'], dentin: [39, 35, 'left'], pulp: [50, 41, 'bottom'], root: [62, 67, 'right'], gum: [79, 44, 'right'], cementum: [34, 58, 'left'], rootCanal: [50, 56, 'bottom'], alveolarBone: [84, 70, 'right'], periodontalLigament: [29, 67, 'left'] }
+      hotspots: {
+        adult: { enamel: [50, 18, 'top'], dentin: [39, 35, 'left'], pulp: [50, 42, 'bottom'], root: [60, 68, 'right'], gum: [77, 46, 'right'], cementum: [36, 59, 'left'], rootCanal: [50, 58, 'bottom'], alveolarBone: [80, 72, 'right'], periodontalLigament: [31, 68, 'left'] },
+        young: { enamel: [50, 20, 'top'], dentin: [40, 37, 'left'], pulp: [50, 44, 'bottom'], root: [60, 69, 'right'], gum: [76, 48, 'right'], cementum: [37, 60, 'left'], rootCanal: [50, 59, 'bottom'], alveolarBone: [80, 73, 'right'], periodontalLigament: [32, 69, 'left'] }
+      }
     }
   };
 
@@ -277,6 +292,26 @@
     button.classList.add(`is-align-${align}`);
   }
 
+  function getFlowGuidance(toothKey, ageMode, layerId) {
+    const tooth = TEETH[toothKey];
+    const ageLabel = ageMode === 'young' ? 'young tooth' : 'adult tooth';
+    if (layerId === 'overview') {
+      return `Cleaning flow guidance shows the safest sweep around the ${ageLabel}, so plaque lifts away from the gumline while protecting the ${tooth.surface}.`;
+    }
+    const copy = {
+      enamel: `Start on the enamel shell and sweep outward from the biting surface so you clean the crown without over-scrubbing the edge.`,
+      dentin: `Use gentle, controlled passes so the structure beneath the enamel stays protected instead of being stressed by pressure or abrasion.`,
+      pulp: `The guidance keeps cleaning light over the crown center because deep pressure is never the goal when the living center is close underneath.`,
+      root: `Angle the flow down the root path and away from the tissue margin so debris moves off the support zone instead of deeper toward it.`,
+      gum: `Feather the flow along the gumline to break plaque at the seal without forcing it under irritated tissue.`,
+      cementum: `Around cementum the guidance becomes softer and more precise because root coating prefers finesse, not force.`,
+      rootCanal: `The root canal itself is not cleaned directly, but the guidance shows how surface care helps prevent deeper irritation from ever reaching that pathway.`,
+      alveolarBone: `The bone is hidden support, so the guidance focuses on removing plaque above it to protect the tissues that keep this housing stable.`,
+      periodontalLigament: `A calm cleaning flow helps the ligament stay comfortable by reducing inflammation and excess pressure around the root.`
+    };
+    return copy[layerId];
+  }
+
   function buildSvg(toothKey, ageMode) {
     const geom = getToothGeometry(toothKey, ageMode);
     const ageClass = ageMode === 'young' ? 'is-age-young' : 'is-age-adult';
@@ -322,6 +357,9 @@
     const riskCopyTargets = root.querySelectorAll('[data-ts-risk-copy]');
     const factTitleTargets = root.querySelectorAll('[data-ts-fact-title]');
     const factCopyTargets = root.querySelectorAll('[data-ts-fact-copy]');
+    const flowCopyTargets = root.querySelectorAll('[data-ts-flow-copy]');
+    const supportTrack = root.querySelector('[data-ts-support-track]');
+    const scrollHint = root.querySelector('[data-ts-scroll-hint]');
     const panelFields = {
       toothPill: root.querySelectorAll('[data-ts-tooth-pill]'),
       agePill: root.querySelectorAll('[data-ts-age-pill]'),
@@ -386,6 +424,23 @@
       setHtml(targets, html);
     }
 
+    function centerActiveTab() {
+      const activeTab = tabs.find((button) => button.getAttribute('data-tooth-type') === state.tooth);
+      if (!activeTab) return;
+      activeTab.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        inline: 'center',
+        block: 'nearest'
+      });
+    }
+
+    function updateScrollHint() {
+      if (!supportTrack || !scrollHint) return;
+      const isScrollable = supportTrack.scrollWidth - supportTrack.clientWidth > 12;
+      const scrolledFar = supportTrack.scrollLeft > 24;
+      scrollHint.classList.toggle('is-visible', isScrollable && !scrolledFar && window.innerWidth <= 1180);
+    }
+
     function renderDiagram() {
       nextLayer.innerHTML = buildSvg(state.tooth, state.age);
       nextLayer.classList.add('is-entering');
@@ -420,7 +475,7 @@
     }
 
     function updateHotspots() {
-      const positions = TEETH[state.tooth].hotspots;
+      const positions = TEETH[state.tooth].hotspots[state.age] || TEETH[state.tooth].hotspots.adult;
       hotspotButtons.forEach((button) => {
         const layerId = button.getAttribute('data-layer-id');
         const pos = positions[layerId];
@@ -475,6 +530,7 @@
       setText(factCopyTargets, state.age === 'young' ? tooth.factYoung : tooth.factAdult);
       renderChips(functionChips, tooth.functionProfile);
       renderChips(careChips, tooth.careProfile);
+      setText(flowCopyTargets, getFlowGuidance(state.tooth, state.age, state.layer));
       setText(progressSummary, `${visitedCount} of ${Object.keys(TEETH).length} explored`);
       if (insightChip) insightChip.textContent = state.layer === 'overview' ? getIdleInsightChip() : LAYERS[state.layer].label;
       if (insightCopy) insightCopy.textContent = state.layer === 'overview' ? getIdleInsightCopy() : content.description;
@@ -507,6 +563,7 @@
       root.classList.remove(...Object.keys(TEETH).map((key) => `is-tooth-${key}`));
       root.classList.add(`is-tooth-${toothKey}`);
       updateControls();
+      centerActiveTab();
       updateHotspots();
       renderDiagram();
       updatePanel();
@@ -616,6 +673,7 @@
     });
     addManagedListener(window, 'resize', () => {
       if (!isMobile()) closeSheet();
+      updateScrollHint();
     });
     addManagedListener(document, 'shopify:section:unload', (event) => {
       const matchesById = sectionId && event.detail && String(event.detail.sectionId) === sectionId;
@@ -624,6 +682,9 @@
         cleanup();
       }
     });
+    if (supportTrack) {
+      addManagedListener(supportTrack, 'scroll', updateScrollHint, { passive: true });
+    }
 
     if ('IntersectionObserver' in window && !reduceMotion && config.enableAnimations !== false) {
       revealObserver = new IntersectionObserver((entries) => {
@@ -644,6 +705,7 @@
     root.classList.toggle('is-background-motion-enabled', !reduceMotion && config.enableBackgroundMotion !== false);
     root.classList.add('is-age-young');
     setTooth(state.tooth);
+    updateScrollHint();
   }
 
   function initWithin(scope) {
