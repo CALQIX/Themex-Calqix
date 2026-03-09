@@ -305,7 +305,6 @@
     }
   }
 </style>
-
 <section id="cq-reviews-{{ section.id }}">
   <div class="cqr-inner">
 
@@ -313,59 +312,59 @@
       <div>
         <div class="cqr-eyebrow">{{ section.settings.eyebrow }}</div>
         <h2 class="cqr-title">
-          {{ section.settings.title_plain }}
-          {% if section.settings.title_italic != blank %}<em>{{ section.settings.title_italic }}</em>{% endif %}
+          <span class="cqr-title-plain">{{ section.settings.title_plain }}</span>
+          {% if section.settings.title_italic != blank %}<em class="cqr-title-italic">{{ section.settings.title_italic }}</em>{% endif %}
         </h2>
       </div>
       <div class="cqr-aggregate">
         <span class="cqr-agg-score">{{ section.settings.avg_score }}</span>
         <div class="cqr-agg-stars" id="cqr-agg-stars-{{ section.id }}"></div>
-        <span class="cqr-agg-count">{{ section.settings.review_count }} {{ section.settings.review_label }}</span>
+        <span class="cqr-agg-count"><span class="cqr-agg-count-number">{{ section.settings.review_count }}</span> <span class="cqr-agg-count-label">{{ section.settings.review_label }}</span></span>
       </div>
     </div>
 
     <div class="cqr-filters" id="cqr-filters-{{ section.id }}">
-      <button class="cqr-filter active" data-filter="all" type="button">All reviews</button>
-      <button class="cqr-filter" data-filter="recent" type="button">Most recent</button>
-      <button class="cqr-filter" data-filter="sensitive" type="button">Sensitive teeth</button>
+      <button class="cqr-filter active" data-filter="all" type="button">All Reviews</button>
+      <button class="cqr-filter" data-filter="recent" type="button">Most Recent</button>
+      <button class="cqr-filter" data-filter="sensitive" type="button">Sensitive Teeth</button>
       <button class="cqr-filter" data-filter="whitening" type="button">Whitening</button>
+      <button class="cqr-filter" data-filter="gum" type="button">Gum Health</button>
+      <button class="cqr-filter" data-filter="daily" type="button">Daily Routine</button>
     </div>
 
     <div class="cqr-track-wrap">
       <div class="cqr-track" id="cqr-track-{{ section.id }}">
         {% for block in section.blocks %}
-          {% if block.type == 'review' %}
-            <div class="cqr-card" {{ block.shopify_attributes }}>
-              {% if block.settings.verified %}
-                <span class="cqr-verified">
-                  <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  Verified
-                </span>
-              {% endif %}
-              <div class="cqr-stars">
-                {% assign rating = block.settings.rating | default: 5 %}
-                {% for i in (1..5) %}
-                  {% if i <= rating %}
-                    <svg class="cqr-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  {% else %}
-                    <svg class="cqr-star empty" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  {% endif %}
-                {% endfor %}
-              </div>
-              {% if block.settings.tag != blank %}
-                <span class="cqr-tag">{{ block.settings.tag }}</span>
-              {% endif %}
-              <span class="cqr-quote-mark">"</span>
-              <p class="cqr-body">{{ block.settings.body }}</p>
-              <div class="cqr-author">
-                <div class="cqr-avatar">{{ block.settings.name | slice: 0 }}</div>
-                <div>
-                  <span class="cqr-name">{{ block.settings.name }}</span>
-                  <span class="cqr-date">{{ block.settings.date }}</span>
-                </div>
+          <div class="cqr-card">
+            {% if block.settings.verified %}
+              <span class="cqr-verified">
+                <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Verified
+              </span>
+            {% endif %}
+            <div class="cqr-stars">
+              {% assign rating = block.settings.rating | default: 5 %}
+              {% for i in (1..5) %}
+                {% if i <= rating %}
+                  <svg class="cqr-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                {% else %}
+                  <svg class="cqr-star empty" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% if block.settings.tag != blank %}
+              <span class="cqr-tag">{{ block.settings.tag }}</span>
+            {% endif %}
+            <span class="cqr-quote-mark">"</span>
+            <p class="cqr-body">{{ block.settings.body }}</p>
+            <div class="cqr-author">
+              <div class="cqr-avatar">{{ block.settings.name | slice: 0 }}</div>
+              <div>
+                <span class="cqr-name">{{ block.settings.name }}</span>
+                <span class="cqr-date">{{ block.settings.date }}</span>
               </div>
             </div>
-          {% endif %}
+          </div>
         {% endfor %}
       </div>
     </div>
@@ -389,40 +388,666 @@
 
 <script>
 (function(){
-  const SID   = '{{ section.id }}';
+  const SID = '{{ section.id }}';
+  const scope = document.getElementById('cq-reviews-' + SID);
   const track = document.getElementById('cqr-track-' + SID);
-  const dotsEl= document.getElementById('cqr-dots-'  + SID);
-  const prev  = document.getElementById('cqr-prev-'  + SID);
-  const next  = document.getElementById('cqr-next-'  + SID);
+  const dotsEl = document.getElementById('cqr-dots-' + SID);
+  const prev = document.getElementById('cqr-prev-' + SID);
+  const next = document.getElementById('cqr-next-' + SID);
   const aggEl = document.getElementById('cqr-agg-stars-' + SID);
   const filters = document.getElementById('cqr-filters-' + SID);
-  const AVG   = parseFloat('{{ section.settings.avg_score }}') || 5;
+  const localeCode = ('{{ request.locale.iso_code | downcase | slice: 0, 2 }}' || 'en').toLowerCase();
+  const activeLocale = ['en', 'nl', 'de', 'fr'].includes(localeCode) ? localeCode : 'en';
+  const filterKeys = ['all', 'recent', 'sensitive', 'whitening', 'gum', 'daily'];
+  const localizedContent = {
+    sectionSettings: {
+      eyebrow: {
+        en: 'Verified Reviews',
+        nl: 'Geverifieerde reviews',
+        de: 'Verifizierte Bewertungen',
+        fr: 'Avis vérifiés'
+      },
+      titlePlain: {
+        en: 'What our customers',
+        nl: 'Wat onze klanten',
+        de: 'Was unsere Kunden',
+        fr: 'Ce que nos clients'
+      },
+      titleItalic: {
+        en: 'are saying.',
+        nl: 'zeggen.',
+        de: 'sagen.',
+        fr: 'en disent.'
+      },
+      reviewLabel: {
+        en: 'verified reviews',
+        nl: 'geverifieerde reviews',
+        de: 'verifizierte Bewertungen',
+        fr: 'avis vérifiés'
+      },
+      verifiedLabel: {
+        en: 'Verified',
+        nl: 'Geverifieerd',
+        de: 'Verifiziert',
+        fr: 'Vérifié'
+      },
+      filterTabs: {
+        en: ['All Reviews', 'Most Recent', 'Sensitive Teeth', 'Whitening', 'Gum Health', 'Daily Routine'],
+        nl: ['Alle reviews', 'Meest recent', 'Gevoelige tanden', 'Whitening', 'Tandvlees', 'Dagelijkse routine'],
+        de: ['Alle Bewertungen', 'Neueste', 'Empfindliche Zähne', 'Aufhellung', 'Zahnfleisch', 'Tägliche Routine'],
+        fr: ['Tous les avis', 'Plus récents', 'Dents sensibles', 'Blanchiment', 'Gencives', 'Routine quotidienne']
+      },
+      reviewCount: '2,140',
+      avgScore: '4.9'
+    },
+    reviews: [
+      {
+        stars: 5,
+        verified: true,
+        name: 'Sophie M.',
+        filter: 'whitening',
+        sortValue: '2025-01',
+        tag: {
+          en: 'ENAMEL REPAIR',
+          nl: 'GLAZUURHERSTEL',
+          de: 'ZAHNSCHMELZREPARATUR',
+          fr: 'RÉPARATION DE L\'ÉMAIL'
+        },
+        body: {
+          en: `I've tried every whitening toothpaste on the market. Nothing came close to what CALQIX did in 30 days. My dentist actually asked what I changed.`,
+          nl: `Ik heb alle whitening-tandpasta's op de markt geprobeerd. Niets kwam in de buurt van wat CALQIX in 30 dagen deed. Mijn tandarts vroeg zelfs wat ik veranderd had.`,
+          de: `Ich habe jede Whitening-Zahnpasta auf dem Markt ausprobiert. Nichts kam an das heran, was CALQIX in 30 Tagen bewirkt hat. Mein Zahnarzt fragte sogar, was ich geändert habe.`,
+          fr: `J'ai essayé tous les dentifrices blanchissants du marché. Rien n'a approché ce que CALQIX a fait en 30 jours. Mon dentiste m'a demandé ce que j'avais changé.`
+        },
+        date: {
+          en: 'January 2025',
+          nl: 'Januari 2025',
+          de: 'Januar 2025',
+          fr: 'Janvier 2025'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Thomas R.',
+        filter: 'sensitive',
+        sortValue: '2025-02',
+        tag: {
+          en: 'SENSITIVITY RELIEF',
+          nl: 'MINDER GEVOELIGHEID',
+          de: 'WENIGER EMPFINDLICHKEIT',
+          fr: 'SOULAGEMENT DE LA SENSIBILITÉ'
+        },
+        body: {
+          en: `I have incredibly sensitive teeth. After two weeks on the 30-day programme, I could finally drink cold water without wincing. The science behind this is real.`,
+          nl: `Ik heb ontzettend gevoelige tanden. Na twee weken van het 30-dagenprogramma kon ik eindelijk koud water drinken zonder te krimpen. De wetenschap hierachter is echt.`,
+          de: `Ich habe unglaublich empfindliche Zähne. Nach zwei Wochen des 30-Tage-Programms konnte ich endlich kaltes Wasser trinken, ohne zusammenzuzucken. Die Wissenschaft dahinter ist echt.`,
+          fr: `J'ai des dents incroyablement sensibles. Après deux semaines du programme de 30 jours, je pouvais enfin boire de l'eau froide sans grimacer. La science derrière tout ça est réelle.`
+        },
+        date: {
+          en: 'February 2025',
+          nl: 'Februari 2025',
+          de: 'Februar 2025',
+          fr: 'Février 2025'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Lena K.',
+        filter: 'all',
+        sortValue: '2024-12',
+        tag: {
+          en: 'FLUORIDE-FREE',
+          nl: 'FLUORIDEVRIJ',
+          de: 'FLUORIDFREI',
+          fr: 'SANS FLUOR'
+        },
+        body: {
+          en: `Finally a fluoride-free option that actually works. I was sceptical but the nano-HA research is solid. My whole family has switched.`,
+          nl: `Eindelijk een fluoridevrije optie die echt werkt. Ik was sceptisch, maar het onderzoek naar nano-HA is overtuigend. Mijn hele gezin is overgestapt.`,
+          de: `Endlich eine fluoridfreie Option, die tatsächlich funktioniert. Ich war skeptisch, aber die Nano-HA-Forschung ist solide. Meine ganze Familie ist umgestiegen.`,
+          fr: `Enfin une option sans fluor qui fonctionne vraiment. J'étais sceptique mais les recherches sur le nano-HA sont solides. Toute ma famille a changé.`
+        },
+        date: {
+          en: 'December 2024',
+          nl: 'December 2024',
+          de: 'Dezember 2024',
+          fr: 'Décembre 2024'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Maxim D.',
+        filter: 'all',
+        sortValue: '2025-01',
+        tag: {
+          en: '30-DAY PROGRAMME',
+          nl: '30-DAGENPROGRAMMA',
+          de: '30-TAGE-PROGRAMM',
+          fr: 'PROGRAMME 30 JOURS'
+        },
+        body: {
+          en: `The subscription model makes it effortless. New supply arrives just as I finish the previous one. Clean ingredients, visible results, no waste.`,
+          nl: `Het abonnementsmodel maakt het moeiteloos. Nieuwe voorraad komt precies wanneer de vorige op is. Zuivere ingrediënten, zichtbare resultaten, geen verspilling.`,
+          de: `Das Abo-Modell macht alles mühelos. Neuer Vorrat kommt genau dann, wenn der vorherige aufgebraucht ist. Saubere Inhaltsstoffe, sichtbare Ergebnisse, kein Abfall.`,
+          fr: `Le modèle d'abonnement rend tout simple. Le nouveau stock arrive juste quand le précédent est terminé. Ingrédients propres, résultats visibles, zéro gaspillage.`
+        },
+        date: {
+          en: 'January 2025',
+          nl: 'Januari 2025',
+          de: 'Januar 2025',
+          fr: 'Janvier 2025'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Iris V.',
+        filter: 'daily',
+        sortValue: '2025-03',
+        tag: {
+          en: 'DAILY USE',
+          nl: 'DAGELIJKS GEBRUIK',
+          de: 'TÄGLICHE ANWENDUNG',
+          fr: 'USAGE QUOTIDIEN'
+        },
+        body: {
+          en: `Took about 10 days to get used to the tablet format but now I prefer it over paste. Travel-friendly and the taste is clean and subtle. Really impressed.`,
+          nl: `Het duurde zo'n 10 dagen om aan het tabletformaat te wennen, maar nu geef ik er de voorkeur aan boven tandpasta. Handig op reis en de smaak is fris en subtiel.`,
+          de: `Es dauerte etwa 10 Tage, bis ich mich an das Tablettenformat gewöhnt hatte, aber jetzt bevorzuge ich es gegenüber Zahnpasta. Reisefreundlich und der Geschmack ist frisch und dezent.`,
+          fr: `Il m'a fallu environ 10 jours pour m'habituer au format comprimé, mais maintenant je le préfère au dentifrice. Pratique en voyage, goût frais et subtil.`
+        },
+        date: {
+          en: 'March 2025',
+          nl: 'Maart 2025',
+          de: 'März 2025',
+          fr: 'Mars 2025'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Daan M.',
+        filter: 'gum',
+        sortValue: '2024-11',
+        tag: {
+          en: 'GUM HEALTH',
+          nl: 'TANDVLEESGEZONDHEID',
+          de: 'ZAHNFLEISCHGESUNDHEIT',
+          fr: 'SANTÉ DES GENCIVES'
+        },
+        body: {
+          en: `My gums used to bleed every time I flossed. After three weeks with FlowCore, the bleeding completely stopped. My hygienist noticed the improvement immediately.`,
+          nl: `Mijn tandvlees bloedde altijd bij het flossen. Na drie weken FlowCore is het bloeden volledig gestopt. Mijn mondhygiënist zag het verschil meteen.`,
+          de: `Mein Zahnfleisch blutete jedes Mal beim Fädeln. Nach drei Wochen mit FlowCore hat die Blutung komplett aufgehört. Meine Dentalhygienikerin bemerkte die Verbesserung sofort.`,
+          fr: `Mes gencives saignaient à chaque utilisation du fil dentaire. Après trois semaines avec FlowCore, les saignements ont complètement cessé. Mon hygiéniste a remarqué l'amélioration immédiatement.`
+        },
+        date: {
+          en: 'November 2024',
+          nl: 'November 2024',
+          de: 'November 2024',
+          fr: 'Novembre 2024'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Emma B.',
+        filter: 'sensitive',
+        sortValue: '2025-04',
+        tag: {
+          en: 'SENSITIVE TEETH',
+          nl: 'GEVOELIGE TANDEN',
+          de: 'EMPFINDLICHE ZÄHNE',
+          fr: 'DENTS SENSIBLES'
+        },
+        body: {
+          en: `My dentist told me my enamel was thinning. After 60 days on the nano-HA programme, my sensitivity has noticeably decreased. I can eat ice cream again.`,
+          nl: `Mijn tandarts vertelde me dat mijn glazuur dunner werd. Na 60 dagen nano-HA-programma is mijn gevoeligheid merkbaar afgenomen. Ik kan weer ijs eten.`,
+          de: `Mein Zahnarzt sagte mir, mein Zahnschmelz werde dünner. Nach 60 Tagen Nano-HA-Programm hat meine Empfindlichkeit spürbar nachgelassen. Ich kann wieder Eis essen.`,
+          fr: `Mon dentiste m'a dit que mon émail s'amincissait. Après 60 jours du programme nano-HA, ma sensibilité a nettement diminué. Je peux enfin remanger des glaces.`
+        },
+        date: {
+          en: 'April 2025',
+          nl: 'April 2025',
+          de: 'April 2025',
+          fr: 'Avril 2025'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Julia K.',
+        filter: 'whitening',
+        sortValue: '2025-05',
+        tag: {
+          en: 'WHITENING',
+          nl: 'WHITENING',
+          de: 'AUFHELLUNG',
+          fr: 'BLANCHIMENT'
+        },
+        body: {
+          en: `Two shades lighter in four weeks — measured by my dentist, not just my opinion. No sensitivity at all. The PAP formula is a game changer.`,
+          nl: `Twee tinten lichter in vier weken — gemeten door mijn tandarts, niet alleen mijn mening. Geen gevoeligheid. De PAP-formule is een gamechanger.`,
+          de: `Zwei Nuancen heller in vier Wochen — von meinem Zahnarzt gemessen, nicht nur meine Meinung. Keine Empfindlichkeit. Die PAP-Formel ist bahnbrechend.`,
+          fr: `Deux teintes plus claires en quatre semaines — mesuré par mon dentiste, pas seulement mon avis. Aucune sensibilité. La formule PAP change tout.`
+        },
+        date: {
+          en: 'May 2025',
+          nl: 'Mei 2025',
+          de: 'Mai 2025',
+          fr: 'Mai 2025'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Lucas T.',
+        filter: 'daily',
+        sortValue: '2025-06',
+        tag: {
+          en: 'CLINICAL ROUTINE',
+          nl: 'KLINISCHE ROUTINE',
+          de: 'KLINISCHE ROUTINE',
+          fr: 'ROUTINE CLINIQUE'
+        },
+        body: {
+          en: `The two-step system makes so much sense. FlowCore clears everything out, then the tablets go to work. My teeth feel genuinely stronger after two months.`,
+          nl: `Het tweestapssysteem is logisch. FlowCore reinigt alles, daarna doen de tabletten hun werk. Mijn tanden voelen echt sterker na twee maanden.`,
+          de: `Das Zwei-Schritte-System ergibt so viel Sinn. FlowCore reinigt alles, dann wirken die Tabletten. Meine Zähne fühlen sich nach zwei Monaten wirklich stärker an.`,
+          fr: `Le système en deux étapes a tellement de sens. FlowCore nettoie tout, puis les comprimés font leur travail. Mes dents sont vraiment plus fortes après deux mois.`
+        },
+        date: {
+          en: 'June 2025',
+          nl: 'Juni 2025',
+          de: 'Juni 2025',
+          fr: 'Juin 2025'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Noa D.',
+        filter: 'gum',
+        sortValue: '2025-03',
+        tag: {
+          en: 'DENTIST APPROVED',
+          nl: 'TANDARTS GOEDGEKEURD',
+          de: 'VOM ZAHNARZT EMPFOHLEN',
+          fr: 'APPROUVÉ PAR UN DENTISTE'
+        },
+        body: {
+          en: `I'm a dental hygienist. I bought FlowCore for myself first, then started recommending it to patients. The subgingival access is excellent — 6mm is no exaggeration.`,
+          nl: `Ik ben mondhygiënist. Ik kocht FlowCore eerst voor mezelf en raad het nu aan bij patiënten. De subgingivale reiniging is uitstekend — 6 mm is geen overdrijving.`,
+          de: `Ich bin Dentalhygienikerin. Ich kaufte FlowCore zuerst für mich selbst und empfehle es jetzt Patienten. Der subgingivale Zugang ist ausgezeichnet — 6 mm ist keine Übertreibung.`,
+          fr: `Je suis hygiéniste dentaire. J'ai d'abord acheté FlowCore pour moi, puis j'ai commencé à le recommander à mes patients. L'accès sous-gingival est excellent — 6 mm, c'est pas exagéré.`
+        },
+        date: {
+          en: 'March 2025',
+          nl: 'Maart 2025',
+          de: 'März 2025',
+          fr: 'Mars 2025'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Milan J.',
+        filter: 'daily',
+        sortValue: '2025-07',
+        tag: {
+          en: 'TRAVEL FRIENDLY',
+          nl: 'REISKLAAR',
+          de: 'REISEFREUNDLICH',
+          fr: 'PRATIQUE EN VOYAGE'
+        },
+        body: {
+          en: `Compact, USB-C charging, and the battery lasts three weeks. I travel constantly for work and this fits perfectly in my wash bag. No more excuses to skip flossing.`,
+          nl: `Compact, USB-C opladen en de batterij gaat drie weken mee. Ik reis constant voor werk en dit past perfect in mijn toilettas. Geen excuus meer om het flossen over te slaan.`,
+          de: `Kompakt, USB-C-Ladung und der Akku hält drei Wochen. Ich reise ständig beruflich und das passt perfekt in meinen Kulturbeutel. Keine Ausreden mehr.`,
+          fr: `Compact, recharge USB-C et l'autonomie dure trois semaines. Je voyage constamment pour le travail et ça rentre parfaitement dans ma trousse de toilette.`
+        },
+        date: {
+          en: 'July 2025',
+          nl: 'Juli 2025',
+          de: 'Juli 2025',
+          fr: 'Juillet 2025'
+        }
+      },
+      {
+        stars: 4,
+        verified: true,
+        name: 'Sem R.',
+        filter: 'all',
+        sortValue: '2025-08',
+        tag: {
+          en: 'SOLID PRODUCT',
+          nl: 'DEGELIJK PRODUCT',
+          de: 'SOLIDES PRODUKT',
+          fr: 'PRODUIT SOLIDE'
+        },
+        body: {
+          en: `Really effective water flosser. Pressure is great and build quality feels premium. Only reason for four stars: I wish the tank was slightly bigger. Otherwise perfect.`,
+          nl: `Echt effectieve waterflosser. De druk is goed en de bouwkwaliteit voelt premium. Enige reden voor vier sterren: het reservoir mag iets groter. Verder perfect.`,
+          de: `Wirklich effektive Munddusche. Der Druck ist großartig und die Verarbeitung fühlt sich hochwertig an. Einziger Grund für vier Sterne: der Tank könnte etwas größer sein.`,
+          fr: `Hydropulseur vraiment efficace. La pression est excellente et la qualité de fabrication est premium. Seule raison pour quatre étoiles : le réservoir pourrait être un peu plus grand.`
+        },
+        date: {
+          en: 'August 2025',
+          nl: 'Augustus 2025',
+          de: 'August 2025',
+          fr: 'Août 2025'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Lars N.',
+        filter: 'gum',
+        sortValue: '2025-10',
+        tag: {
+          en: 'IMPLANT CARE',
+          nl: 'IMPLANTAATVERZORGING',
+          de: 'IMPLANTATPFLEGE',
+          fr: 'SOIN D\'IMPLANT'
+        },
+        body: {
+          en: `I have two implants and keeping the area clean was always a struggle. FlowCore's periodontal tip is perfect for it. My periodontist is impressed with the results.`,
+          nl: `Ik heb twee implantaten en het schoonhouden was altijd een uitdaging. De parodontale opzetstuk van FlowCore is hier perfect voor. Mijn parodontoloog is onder de indruk.`,
+          de: `Ich habe zwei Implantate und die Reinigung war immer schwierig. Die Parodontal-Düse von FlowCore ist perfekt dafür. Mein Parodontologe ist beeindruckt von den Ergebnissen.`,
+          fr: `J'ai deux implants et garder la zone propre était toujours difficile. L'embout parodontal du FlowCore est parfait pour ça. Mon parodontiste est impressionné par les résultats.`
+        },
+        date: {
+          en: 'October 2025',
+          nl: 'Oktober 2025',
+          de: 'Oktober 2025',
+          fr: 'Octobre 2025'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Fleur M.',
+        filter: 'all',
+        sortValue: '2025-09',
+        tag: {
+          en: 'BRACES FRIENDLY',
+          nl: 'GESCHIKT BIJ BEUGEL',
+          de: 'ZAHNSPANGENFREUNDLICH',
+          fr: 'COMPATIBLE APPAREIL'
+        },
+        body: {
+          en: `My orthodontist recommended a water flosser for my braces. FlowCore reaches spots that are impossible to get with a regular toothbrush. Cleaner teeth, fewer bracket issues.`,
+          nl: `Mijn orthodontist raadde een waterflosser aan vanwege mijn beugel. FlowCore bereikt plekken die onmogelijk zijn met een gewone tandenborstel. Schonere tanden, minder problemen.`,
+          de: `Mein Kieferorthopäde empfahl eine Munddusche für meine Zahnspange. FlowCore erreicht Stellen, die mit einer normalen Zahnbürste unmöglich sind. Sauberere Zähne, weniger Probleme.`,
+          fr: `Mon orthodontiste m'a recommandé un hydropulseur pour mon appareil. FlowCore atteint des endroits impossibles avec une brosse ordinaire. Des dents plus propres, moins de soucis.`
+        },
+        date: {
+          en: 'September 2025',
+          nl: 'September 2025',
+          de: 'September 2025',
+          fr: 'Septembre 2025'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Sara W.',
+        filter: 'all',
+        sortValue: '2025-11',
+        tag: {
+          en: 'CLEAN FORMULA',
+          nl: 'ZUIVERE FORMULE',
+          de: 'REINE FORMEL',
+          fr: 'FORMULE PROPRE'
+        },
+        body: {
+          en: `No fluoride, no SLS, no parabens — and it actually remineralises. I've been looking for something like this for years. The science checks out and the results speak for themselves.`,
+          nl: `Geen fluoride, geen SLS, geen parabenen — en het remineraliseert daadwerkelijk. Ik zocht dit al jaren. De wetenschap klopt en de resultaten spreken voor zich.`,
+          de: `Kein Fluorid, kein SLS, keine Parabene — und es remineralisiert tatsächlich. Ich habe jahrelang nach so etwas gesucht. Die Wissenschaft stimmt und die Ergebnisse sprechen für sich.`,
+          fr: `Pas de fluor, pas de SLS, pas de parabènes — et ça reminéralise vraiment. Je cherchais quelque chose comme ça depuis des années. La science est solide et les résultats parlent d'eux-mêmes.`
+        },
+        date: {
+          en: 'November 2025',
+          nl: 'November 2025',
+          de: 'November 2025',
+          fr: 'Novembre 2025'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Ruben K.',
+        filter: 'gum',
+        sortValue: '2025-12',
+        tag: {
+          en: 'PLAQUE REMOVAL',
+          nl: 'PLAAKVERWIJDERING',
+          de: 'PLAQUE-ENTFERNUNG',
+          fr: 'ÉLIMINATION DE LA PLAQUE'
+        },
+        body: {
+          en: `The difference in plaque buildup between my left side (FlowCore) and right side (manual brush only) was visible after just one week of testing. Switched to full mouth immediately.`,
+          nl: `Het verschil in plaakopbouw tussen links (FlowCore) en rechts (alleen handtandenborstel) was na één week testen al zichtbaar. Direct overgeschakeld naar de hele mond.`,
+          de: `Der Unterschied im Plaque-Aufbau zwischen meiner linken Seite (FlowCore) und rechten Seite (nur Handzahnbürste) war nach nur einer Woche sichtbar. Sofort komplett umgestiegen.`,
+          fr: `La différence d'accumulation de plaque entre mon côté gauche (FlowCore) et droit (brosse manuelle seule) était visible après une seule semaine de test. Passage immédiat sur toute la bouche.`
+        },
+        date: {
+          en: 'December 2025',
+          nl: 'December 2025',
+          de: 'Dezember 2025',
+          fr: 'Décembre 2025'
+        }
+      },
+      {
+        stars: 4,
+        verified: true,
+        name: 'Thijs A.',
+        filter: 'all',
+        sortValue: '2026-01',
+        tag: {
+          en: 'GREAT VALUE',
+          nl: 'GOEDE PRIJS-KWALITEIT',
+          de: 'GUTES PREIS-LEISTUNG',
+          fr: 'BON RAPPORT QUALITÉ-PRIX'
+        },
+        body: {
+          en: `Compared this to the Philips Sonicare and Waterpik options. FlowCore won on size, battery, and nozzle variety. Only minus: the sound is a touch louder than expected.`,
+          nl: `Vergeleken met de Philips Sonicare en Waterpik. FlowCore wint op formaat, batterij en opzetstukken. Enige minpunt: het geluid is iets harder dan verwacht.`,
+          de: `Verglichen mit Philips Sonicare und Waterpik. FlowCore gewinnt bei Größe, Akku und Düsenauswahl. Einziger Nachteil: etwas lauter als erwartet.`,
+          fr: `Comparé aux options Philips Sonicare et Waterpik. FlowCore gagne sur le format, la batterie et le choix d'embouts. Seul bémol : un peu plus bruyant que prévu.`
+        },
+        date: {
+          en: 'January 2026',
+          nl: 'Januari 2026',
+          de: 'Januar 2026',
+          fr: 'Janvier 2026'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Lotte P.',
+        filter: 'daily',
+        sortValue: '2026-02',
+        tag: {
+          en: 'FAMILY FAVOURITE',
+          nl: 'GEZINSFAVORIET',
+          de: 'FAMILIENFAVORIT',
+          fr: 'FAVORI DE LA FAMILLE'
+        },
+        body: {
+          en: `Bought one for myself, ended up buying three more. My partner, my mum, and my teenage daughter all use FlowCore daily now. Best group purchase I've ever made.`,
+          nl: `Eén voor mezelf gekocht en uiteindelijk nog drie extra. Mijn partner, mijn moeder en mijn tienerdochter gebruiken FlowCore nu dagelijks. Beste groepsaankoop ooit.`,
+          de: `Einen für mich gekauft, am Ende noch drei weitere. Mein Partner, meine Mutter und meine Teenagertochter nutzen FlowCore jetzt täglich. Bester Gruppenkauf aller Zeiten.`,
+          fr: `Acheté un pour moi, fini par en acheter trois de plus. Mon partenaire, ma mère et ma fille ado utilisent maintenant FlowCore tous les jours. Meilleur achat groupé de ma vie.`
+        },
+        date: {
+          en: 'February 2026',
+          nl: 'Februari 2026',
+          de: 'Februar 2026',
+          fr: 'Février 2026'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Finn H.',
+        filter: 'gum',
+        sortValue: '2026-02',
+        tag: {
+          en: 'PERIODONTAL CARE',
+          nl: 'PARODONTALE ZORG',
+          de: 'PARODONTALPFLEGE',
+          fr: 'SOIN PARODONTAL'
+        },
+        body: {
+          en: `My pocket depths went from 6mm to 4mm in eight months. My periodontist said whatever I'm doing, keep doing it. The answer is FlowCore twice daily plus the nano-HA tablets.`,
+          nl: `Mijn pocketdiepte ging van 6 naar 4 mm in acht maanden. Mijn parodontoloog zei: wat je ook doet, ga ermee door. Het antwoord is FlowCore twee keer per dag plus de nano-HA-tabletten.`,
+          de: `Meine Taschentiefen gingen in acht Monaten von 6 mm auf 4 mm zurück. Mein Parodontologe sagte: Was auch immer Sie tun, machen Sie weiter. Die Antwort ist FlowCore zweimal täglich plus die Nano-HA-Tabletten.`,
+          fr: `Mes profondeurs de poche sont passées de 6 mm à 4 mm en huit mois. Mon parodontiste m'a dit : quoi que vous fassiez, continuez. La réponse : FlowCore deux fois par jour plus les comprimés nano-HA.`
+        },
+        date: {
+          en: 'February 2026',
+          nl: 'Februari 2026',
+          de: 'Februar 2026',
+          fr: 'Février 2026'
+        }
+      },
+      {
+        stars: 5,
+        verified: true,
+        name: 'Eva G.',
+        filter: 'daily',
+        sortValue: '2026-03',
+        tag: {
+          en: 'ZERO WASTE',
+          nl: 'GEEN AFVAL',
+          de: 'KEIN ABFALL',
+          fr: 'ZÉRO DÉCHET'
+        },
+        body: {
+          en: `Switched from tube toothpaste to CALQIX tablets. No plastic tubes, no mess, exact dosage every time. Combined with FlowCore my oral care routine is cleaner in every sense.`,
+          nl: `Overgestapt van tandpasta uit een tube naar CALQIX-tabletten. Geen plastic tubes, geen rommel, elke keer de juiste dosering. Samen met FlowCore is mijn routine schoner in alle opzichten.`,
+          de: `Von Zahnpasta aus der Tube auf CALQIX-Tabletten umgestiegen. Keine Plastiktuben, kein Chaos, jedes Mal die exakte Dosierung. Zusammen mit FlowCore ist meine Routine in jeder Hinsicht sauberer.`,
+          fr: `Passé du dentifrice en tube aux comprimés CALQIX. Plus de tubes plastique, plus de désordre, dosage exact à chaque fois. Avec FlowCore, ma routine est plus propre à tous les niveaux.`
+        },
+        date: {
+          en: 'March 2026',
+          nl: 'Maart 2026',
+          de: 'März 2026',
+          fr: 'Mars 2026'
+        }
+      }
+    ]
+  };
 
-  if (aggEl) {
-    for (let i = 1; i <= 5; i++) {
-      const sv = document.createElementNS('http://www.w3.org/2000/svg','svg');
-      sv.setAttribute('viewBox','0 0 24 24');
-      sv.setAttribute('width','14'); sv.setAttribute('height','14');
-      sv.style.fill = i <= Math.round(AVG) ? '{{ color_star }}' : '{{ color_star | color_modify: "alpha", 0.2 }}';
-      sv.innerHTML = '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>';
-      aggEl.appendChild(sv);
+  if (!scope || !track) return;
+
+  const titlePlainEl = scope.querySelector('.cqr-title-plain');
+  const titleItalicEl = scope.querySelector('.cqr-title-italic');
+  const eyebrowEl = scope.querySelector('.cqr-eyebrow');
+  const reviewCountNumberEl = scope.querySelector('.cqr-agg-count-number');
+  const reviewCountLabelEl = scope.querySelector('.cqr-agg-count-label');
+  const AVG = parseFloat(localizedContent.sectionSettings.avgScore || '{{ section.settings.avg_score }}') || 5;
+
+  function localizedValue(value) {
+    if (Array.isArray(value)) return value;
+    if (!value || typeof value !== 'object') return value || '';
+    return value[activeLocale] || value.en || '';
+  }
+
+  function escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function renderAggregate() {
+    if (eyebrowEl) eyebrowEl.textContent = localizedValue(localizedContent.sectionSettings.eyebrow);
+    if (titlePlainEl) titlePlainEl.textContent = localizedValue(localizedContent.sectionSettings.titlePlain);
+    if (titleItalicEl) titleItalicEl.textContent = localizedValue(localizedContent.sectionSettings.titleItalic);
+    if (reviewCountNumberEl) reviewCountNumberEl.textContent = localizedContent.sectionSettings.reviewCount;
+    if (reviewCountLabelEl) reviewCountLabelEl.textContent = localizedValue(localizedContent.sectionSettings.reviewLabel);
+
+    if (aggEl) {
+      aggEl.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const sv = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        sv.setAttribute('viewBox', '0 0 24 24');
+        sv.setAttribute('width', '14');
+        sv.setAttribute('height', '14');
+        sv.style.fill = i <= Math.round(AVG) ? '{{ color_star }}' : '{{ color_star | color_modify: "alpha", 0.2 }}';
+        sv.innerHTML = '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>';
+        aggEl.appendChild(sv);
+      }
     }
   }
 
-  const cardsAll = Array.from(track ? track.querySelectorAll('.cqr-card') : []);
-  if (!cardsAll.length || !track) return;
-  let cards = cardsAll.slice();
+  function renderFilters() {
+    if (!filters) return;
+    const labels = localizedValue(localizedContent.sectionSettings.filterTabs);
+    filters.querySelectorAll('.cqr-filter').forEach((btn, index) => {
+      btn.textContent = labels[index] || btn.textContent;
+      btn.dataset.filter = filterKeys[index] || btn.dataset.filter || 'all';
+    });
+  }
 
-  let cur = 0, drag = false, sx = 0, dx = 0;
+  function buildStars(rating) {
+    let starsHtml = '';
+    for (let i = 1; i <= 5; i++) {
+      starsHtml += `<svg class="cqr-star${i <= rating ? '' : ' empty'}" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>`;
+    }
+    return starsHtml;
+  }
 
-  const getVis = () => { const w = track.parentElement.offsetWidth; return w<480?1:w<820?2:3; };
-  const getW   = () => cards[0] ? cards[0].offsetWidth + 20 : 380;
+  function buildReviewCard(review) {
+    const verifiedLabel = localizedValue(localizedContent.sectionSettings.verifiedLabel);
+    const tag = localizedValue(review.tag);
+    const body = localizedValue(review.body);
+    const date = localizedValue(review.date);
+
+    return `
+      <div class="cqr-card" data-filter-key="${escapeHtml(review.filter)}" data-sort-value="${escapeHtml(review.sortValue)}">
+        ${review.verified ? `<span class="cqr-verified"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>${escapeHtml(verifiedLabel)}</span>` : ''}
+        <div class="cqr-stars">${buildStars(review.stars || 5)}</div>
+        ${tag ? `<span class="cqr-tag">${escapeHtml(tag)}</span>` : ''}
+        <span class="cqr-quote-mark">"</span>
+        <p class="cqr-body">${escapeHtml(body)}</p>
+        <div class="cqr-author">
+          <div class="cqr-avatar">${escapeHtml((review.name || '').slice(0, 1))}</div>
+          <div>
+            <span class="cqr-name">${escapeHtml(review.name)}</span>
+            <span class="cqr-date">${escapeHtml(date)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  let cards = [];
+  let cur = 0;
+  let drag = false;
+  let sx = 0;
+  let dx = 0;
+  let activeFilter = 'all';
+
+  const getVis = () => {
+    const width = track.parentElement.offsetWidth;
+    return width < 480 ? 1 : width < 820 ? 2 : 3;
+  };
+  const getW = () => cards[0] ? cards[0].offsetWidth + 20 : 380;
   const maxIdx = () => Math.max(0, cards.length - getVis());
 
-  function goTo(i) {
-    cur = Math.max(0, Math.min(i, maxIdx()));
+  function goTo(index) {
+    cur = Math.max(0, Math.min(index, maxIdx()));
     track.style.transform = `translateX(-${cur * getW()}px)`;
-    if (dotsEl) dotsEl.querySelectorAll('.cqr-dot').forEach((d,j) => d.classList.toggle('active', j===cur));
+    if (dotsEl) dotsEl.querySelectorAll('.cqr-dot').forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === cur));
     if (prev) prev.disabled = cur === 0;
     if (next) next.disabled = cur >= maxIdx();
   }
@@ -431,71 +1056,93 @@
     if (!dotsEl) return;
     dotsEl.innerHTML = '';
     for (let i = 0; i <= maxIdx(); i++) {
-      const b = document.createElement('button');
-      b.className = 'cqr-dot' + (i===cur?' active':'');
-      b.addEventListener('click', () => goTo(i));
-      dotsEl.appendChild(b);
+      const button = document.createElement('button');
+      button.className = 'cqr-dot' + (i === cur ? ' active' : '');
+      button.addEventListener('click', () => goTo(i));
+      dotsEl.appendChild(button);
     }
   }
 
-  if (prev) prev.addEventListener('click', () => goTo(cur-1));
-  if (next) next.addEventListener('click', () => goTo(cur+1));
-
-  function matchFilter(card, filter) {
-    if (filter === 'all') return true;
-
-    const tagText = (card.querySelector('.cqr-tag')?.textContent || '').toLowerCase();
-    const bodyText = (card.querySelector('.cqr-body')?.textContent || '').toLowerCase();
-    const dateText = (card.querySelector('.cqr-date')?.textContent || '').toLowerCase();
+  function getFilteredReviews(filter) {
+    let reviews = localizedContent.reviews.slice();
 
     if (filter === 'recent') {
-      return /2025|2026|january|february|march|april|may|june|july|august|september|october|november|december/.test(dateText);
+      reviews.sort((a, b) => String(b.sortValue || '').localeCompare(String(a.sortValue || '')));
+      return reviews;
     }
-    if (filter === 'sensitive') {
-      return tagText.includes('sensitive') || bodyText.includes('sensitive');
+
+    if (filter !== 'all') {
+      reviews = reviews.filter((review) => review.filter === filter);
     }
-    if (filter === 'whitening') {
-      return tagText.includes('whitening') || bodyText.includes('whitening') || bodyText.includes('enamel');
-    }
-    return true;
+
+    return reviews;
   }
 
-  function applyFilter(filter) {
-    cardsAll.forEach((card) => {
-      const show = matchFilter(card, filter);
-      card.style.display = show ? '' : 'none';
-    });
-
-    cards = cardsAll.filter((card) => card.style.display !== 'none');
-    if (!cards.length) {
-      cards = cardsAll.slice();
-      cardsAll.forEach((card) => { card.style.display = ''; });
-    }
-
+  function renderCards(filter) {
+    const reviews = getFilteredReviews(filter);
+    track.innerHTML = reviews.map((review) => buildReviewCard(review)).join('');
+    cards = Array.from(track.querySelectorAll('.cqr-card'));
     cur = 0;
     buildDots();
     goTo(0);
   }
 
+  if (prev) prev.addEventListener('click', () => goTo(cur - 1));
+  if (next) next.addEventListener('click', () => goTo(cur + 1));
+
   if (filters) {
     filters.querySelectorAll('.cqr-filter').forEach((btn) => {
       btn.addEventListener('click', () => {
-        filters.querySelectorAll('.cqr-filter').forEach((x) => x.classList.remove('active'));
+        activeFilter = btn.dataset.filter || 'all';
+        filters.querySelectorAll('.cqr-filter').forEach((item) => item.classList.remove('active'));
         btn.classList.add('active');
-        applyFilter(btn.dataset.filter || 'all');
+        renderCards(activeFilter);
       });
     });
   }
 
-  track.addEventListener('mousedown',  e => { drag=true; sx=e.clientX; track.style.transition='none'; });
-  window.addEventListener('mousemove', e => { if(!drag)return; dx=e.clientX-sx; track.style.transform=`translateX(${-cur*getW()+dx}px)`; });
-  window.addEventListener('mouseup',   () => { if(!drag)return; drag=false; track.style.transition=''; dx<-60?goTo(cur+1):dx>60?goTo(cur-1):goTo(cur); dx=0; });
-  track.addEventListener('touchstart', e => { drag=true; sx=e.touches[0].clientX; track.style.transition='none'; },{passive:true});
-  track.addEventListener('touchmove',  e => { if(!drag)return; dx=e.touches[0].clientX-sx; track.style.transform=`translateX(${-cur*getW()+dx}px)`; },{passive:true});
-  track.addEventListener('touchend',   () => { if(!drag)return; drag=false; track.style.transition=''; dx<-50?goTo(cur+1):dx>50?goTo(cur-1):goTo(cur); dx=0; });
+  track.addEventListener('mousedown', (event) => {
+    drag = true;
+    sx = event.clientX;
+    track.style.transition = 'none';
+  });
+  window.addEventListener('mousemove', (event) => {
+    if (!drag) return;
+    dx = event.clientX - sx;
+    track.style.transform = `translateX(${-cur * getW() + dx}px)`;
+  });
+  window.addEventListener('mouseup', () => {
+    if (!drag) return;
+    drag = false;
+    track.style.transition = '';
+    dx < -60 ? goTo(cur + 1) : dx > 60 ? goTo(cur - 1) : goTo(cur);
+    dx = 0;
+  });
+  track.addEventListener('touchstart', (event) => {
+    drag = true;
+    sx = event.touches[0].clientX;
+    track.style.transition = 'none';
+  }, { passive: true });
+  track.addEventListener('touchmove', (event) => {
+    if (!drag) return;
+    dx = event.touches[0].clientX - sx;
+    track.style.transform = `translateX(${-cur * getW() + dx}px)`;
+  }, { passive: true });
+  track.addEventListener('touchend', () => {
+    if (!drag) return;
+    drag = false;
+    track.style.transition = '';
+    dx < -50 ? goTo(cur + 1) : dx > 50 ? goTo(cur - 1) : goTo(cur);
+    dx = 0;
+  });
 
-  buildDots(); goTo(0);
-  window.addEventListener('resize', () => { buildDots(); goTo(Math.min(cur, maxIdx())); });
+  renderAggregate();
+  renderFilters();
+  renderCards(activeFilter);
+  window.addEventListener('resize', () => {
+    buildDots();
+    goTo(Math.min(cur, maxIdx()));
+  });
 })();
 </script>
 
