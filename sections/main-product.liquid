@@ -2723,7 +2723,19 @@
                 #ctb-block-{{ block.id }} .ctb-badge:hover {
                   opacity: {% if b.badge_hover %}0.7{% else %}1{% endif %};
                 }
-                #ctb-block-{{ block.id }} .ctb-icon { font-size: {{ b.icon_size }}px; line-height: 1; }
+                #ctb-block-{{ block.id }} .ctb-icon {
+                  font-size: {{ b.icon_size }}px;
+                  line-height: 1;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                }
+                #ctb-block-{{ block.id }} .ctb-icon-image {
+                  display: block;
+                  width: {{ b.icon_size }}px;
+                  height: {{ b.icon_size }}px;
+                  object-fit: contain;
+                }
                 #ctb-block-{{ block.id }} .ctb-text {
                   font-size: {{ b.text_size }}px;
                   font-weight: {{ b.text_weight }};
@@ -2764,10 +2776,15 @@
                     {%- for i in (1..5) -%}
                       {%- assign ctb_tk = 'badge_' | append: i | append: '_text' -%}
                       {%- assign ctb_ik = 'badge_' | append: i | append: '_icon' -%}
+                      {%- assign ctb_imgk = 'badge_' | append: i | append: '_image' -%}
                       {%- assign ctb_uk = 'badge_' | append: i | append: '_url' -%}
                       {%- if b[ctb_tk] != blank -%}
                         {%- if b[ctb_uk] != blank -%}<a href="{{ b[ctb_uk] }}" class="ctb-badge">{%- else -%}<div class="ctb-badge">{%- endif -%}
-                          {%- if b[ctb_ik] != blank -%}<div class="ctb-icon">{{ b[ctb_ik] }}</div>{%- endif -%}
+                          {%- if b[ctb_imgk] != blank -%}
+                            <div class="ctb-icon"><img class="ctb-icon-image" src="{{ b[ctb_imgk] | image_url: width: 96 }}" alt="{{ b[ctb_tk] | escape }}" loading="lazy" width="{{ b.icon_size }}" height="{{ b.icon_size }}"></div>
+                          {%- elsif b[ctb_ik] != blank -%}
+                            <div class="ctb-icon">{{ b[ctb_ik] }}</div>
+                          {%- endif -%}
                           <div class="ctb-text">{{ b[ctb_tk] }}</div>
                         {%- if b[ctb_uk] != blank -%}</a>{%- else -%}</div>{%- endif -%}
                       {%- endif -%}
@@ -4217,6 +4234,11 @@
           "default": "🔬"
         },
         {
+          "type": "image_picker",
+          "id": "badge_1_image",
+          "label": "Of kies afbeelding"
+        },
+        {
           "type": "text",
           "id": "badge_1_text",
           "label": "Tekst",
@@ -4236,6 +4258,11 @@
           "id": "badge_2_icon",
           "label": "Icon (emoji)",
           "default": "🔒"
+        },
+        {
+          "type": "image_picker",
+          "id": "badge_2_image",
+          "label": "Of kies afbeelding"
         },
         {
           "type": "text",
@@ -4259,6 +4286,11 @@
           "default": "↩️"
         },
         {
+          "type": "image_picker",
+          "id": "badge_3_image",
+          "label": "Of kies afbeelding"
+        },
+        {
           "type": "text",
           "id": "badge_3_text",
           "label": "Tekst",
@@ -4280,6 +4312,11 @@
           "default": "🚚"
         },
         {
+          "type": "image_picker",
+          "id": "badge_4_image",
+          "label": "Of kies afbeelding"
+        },
+        {
           "type": "text",
           "id": "badge_4_text",
           "label": "Tekst",
@@ -4299,6 +4336,11 @@
           "id": "badge_5_icon",
           "label": "Icon (emoji)",
           "default": "⭐"
+        },
+        {
+          "type": "image_picker",
+          "id": "badge_5_image",
+          "label": "Of kies afbeelding"
         },
         {
           "type": "text",
