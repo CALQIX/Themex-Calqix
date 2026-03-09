@@ -672,6 +672,12 @@
   z-index: 2;
 }
 
+.calqix-tooth-science .cts-hotspot::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+}
+
 .calqix-tooth-science .cts-hotspot:focus-visible {
   outline: none;
 }
@@ -1503,6 +1509,8 @@
   .calqix-tooth-science .cts-hotspot__label {
     padding: 7px 9px;
     font-size: 10px;
+    opacity: 0;
+    box-shadow: 0 10px 20px rgba(16, 32, 51, 0.08);
   }
 
   .calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__label,
@@ -1518,6 +1526,24 @@
   .calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__line {
     width: 48px;
     transform: translate(-50%, -46px) rotate(-90deg);
+  }
+
+  .calqix-tooth-science .cts-hotspot::before {
+    inset: -22px;
+  }
+
+  .calqix-tooth-science .cts-hotspot__line {
+    opacity: 0.3;
+  }
+
+  .calqix-tooth-science .cts-hotspot.is-active .cts-hotspot__line,
+  .calqix-tooth-science .cts-hotspot:focus-visible .cts-hotspot__line {
+    opacity: 0.72;
+  }
+
+  .calqix-tooth-science .cts-hotspot.is-active .cts-hotspot__label,
+  .calqix-tooth-science .cts-hotspot:focus-visible .cts-hotspot__label {
+    opacity: 1;
   }
 
   .calqix-tooth-science .cts-hotspot.is-align-top .cts-hotspot__label {

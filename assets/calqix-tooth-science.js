@@ -304,6 +304,7 @@
     root.setAttribute('data-ts-initialized', 'true');
     const configNode = root.querySelector('[data-ts-config]');
     const config = configNode ? JSON.parse(configNode.textContent) : {};
+    const sectionId = config.sectionId ? String(config.sectionId) : null;
     const tabs = Array.from(root.querySelectorAll('[data-ts-tooth-tabs] [data-tooth-type]'));
     const ageButtons = Array.from(root.querySelectorAll('[data-age-mode]'));
     const hotspotButtons = Array.from(root.querySelectorAll('[data-ts-hotspots] [data-layer-id]'));
@@ -342,9 +343,26 @@
       hoverLayer: null,
       visited: new Set()
     };
+    const cleanupCallbacks = [];
+    let revealObserver = null;
 
     function isMobile() {
       return window.innerWidth < MOBILE_BREAKPOINT;
+    }
+
+    function addManagedListener(target, eventName, handler, options) {
+      target.addEventListener(eventName, handler, options);
+      cleanupCallbacks.push(() => target.removeEventListener(eventName, handler, options));
+    }
+
+    function getIdleInsightChip() {
+      return isMobile() ? 'Tap a layer' : 'Hover or tap a layer';
+    }
+
+    function getIdleInsightCopy() {
+      return isMobile()
+        ? 'Tap a hotspot to open the detail panel and see what that structure does, why it matters, and how to protect it.'
+        : 'Hover or tap a layer to see what each structure does, why it matters, and what helps protect it day after day.';
     }
 
     function syncLayerState() {
@@ -440,7 +458,7 @@
       const visitedCount = state.visited.size;
       const cards = Array.from(root.querySelectorAll('.cts-info-card'));
       setText(titleTargets, tooth.label);
-      setText(modeTargets, state.layer === 'overview' ? 'Preview mode' : 'Layer focus');
+      setText(modeTargets, state.layer === 'overview' ? (isMobile() ? 'Tap to explore' : 'Preview mode') : 'Layer focus');
       setText(panelFields.toothPill, tooth.label);
       setText(panelFields.agePill, state.age === 'young' ? config.youngLabel || 'Young teeth' : config.adultLabel || 'Adult teeth');
       setText(panelFields.layerKicker, content.kicker);
@@ -458,8 +476,8 @@
       renderChips(functionChips, tooth.functionProfile);
       renderChips(careChips, tooth.careProfile);
       setText(progressSummary, `${visitedCount} of ${Object.keys(TEETH).length} explored`);
-      if (insightChip) insightChip.textContent = state.layer === 'overview' ? 'Hover or tap a layer' : LAYERS[state.layer].label;
-      if (insightCopy) insightCopy.textContent = state.layer === 'overview' ? 'See what each structure does, why it matters, and what helps protect it day after day.' : content.description;
+      if (insightChip) insightChip.textContent = state.layer === 'overview' ? getIdleInsightChip() : LAYERS[state.layer].label;
+      if (insightCopy) insightCopy.textContent = state.layer === 'overview' ? getIdleInsightCopy() : content.description;
       cards.forEach((card) => card.classList.remove('is-visible'));
       cards.forEach((card, index) => {
         if (reduceMotion) {
@@ -534,6 +552,16 @@
       }
     }
 
+    function cleanup() {
+      closeSheet();
+      if (revealObserver) {
+        revealObserver.disconnect();
+        revealObserver = null;
+      }
+      cleanupCallbacks.splice(0).forEach((callback) => callback());
+      root.removeAttribute('data-ts-initialized');
+    }
+
     function reveal() {
       root.classList.add('is-revealed');
     }
@@ -583,22 +611,32 @@
     });
 
     closeButtons.forEach((button) => button.addEventListener('click', closeSheet));
-    window.addEventListener('keydown', (event) => {
+    addManagedListener(window, 'keydown', (event) => {
       if (event.key === 'Escape') closeSheet();
     });
-    window.addEventListener('resize', () => {
+    addManagedListener(window, 'resize', () => {
       if (!isMobile()) closeSheet();
+    });
+    addManagedListener(document, 'shopify:section:unload', (event) => {
+      const matchesById = sectionId && event.detail && String(event.detail.sectionId) === sectionId;
+      const matchesByTarget = event.target === root || (event.target instanceof Element && event.target.contains(root));
+      if (matchesById || matchesByTarget) {
+        cleanup();
+      }
     });
 
     if ('IntersectionObserver' in window && !reduceMotion && config.enableAnimations !== false) {
-      const observer = new IntersectionObserver((entries) => {
+      revealObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
           reveal();
-          observer.disconnect();
+          if (revealObserver) {
+            revealObserver.disconnect();
+            revealObserver = null;
+          }
         });
       }, { threshold: 0.22 });
-      observer.observe(root);
+      revealObserver.observe(root);
     } else {
       reveal();
     }
