@@ -7814,7 +7814,11 @@ input.disabled + .f-swatch__list__link .f-swatch__list__link__content {
 .wt-product__feature-icons__item img {
   width: var(--icon-size-mobile);
   height: var(--icon-size-mobile);
-  object-fit: cover;
+  max-width: 100%;
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
+  object-position: center;
 }
 @media (min-width: 900px) {
   .wt-product__feature-icons__item img {

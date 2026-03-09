@@ -48,13 +48,59 @@
     }
   </style>
 
+  {% assign cts_intro_default = '<p>Explore every tooth type, discover what each layer does, and learn what helps keep teeth clean, strong, and healthy.</p>' %}
+  {% assign cts_eyebrow = section.settings.eyebrow | strip %}
+  {% if cts_eyebrow == blank or cts_eyebrow == 'Tooth Science' %}
+    {% assign cts_eyebrow = 'sections.calqix_tooth_science.ui.introEyebrow' | t %}
+  {% endif %}
+  {% assign cts_heading = section.settings.heading | strip %}
+  {% if cts_heading == blank or cts_heading == 'Understand how your teeth really work.' %}
+    {% assign cts_heading = 'sections.calqix_tooth_science.ui.introHeading' | t %}
+  {% endif %}
+  {% assign cts_use_translated_intro = false %}
+  {% if section.settings.intro == blank or section.settings.intro == cts_intro_default %}
+    {% assign cts_use_translated_intro = true %}
+  {% endif %}
+  {% assign cts_young_label = section.settings.young_label | strip %}
+  {% if cts_young_label == blank or cts_young_label == 'Young teeth' %}
+    {% assign cts_young_label = 'sections.calqix_tooth_science.ui.agePluralYoung' | t %}
+  {% endif %}
+  {% assign cts_adult_label = section.settings.adult_label | strip %}
+  {% if cts_adult_label == blank or cts_adult_label == 'Adult teeth' %}
+    {% assign cts_adult_label = 'sections.calqix_tooth_science.ui.agePluralAdult' | t %}
+  {% endif %}
+  {% assign cts_trust_item_1 = section.settings.trust_item_1 | strip %}
+  {% if cts_trust_item_1 == blank or cts_trust_item_1 == 'Clinically informed' %}
+    {% assign cts_trust_item_1 = 'sections.calqix_tooth_science.ui.trustItem1' | t %}
+  {% endif %}
+  {% assign cts_trust_item_2 = section.settings.trust_item_2 | strip %}
+  {% if cts_trust_item_2 == blank or cts_trust_item_2 == 'Interactive learning' %}
+    {% assign cts_trust_item_2 = 'sections.calqix_tooth_science.ui.trustItem2' | t %}
+  {% endif %}
+  {% assign cts_trust_item_3 = section.settings.trust_item_3 | strip %}
+  {% if cts_trust_item_3 == blank or cts_trust_item_3 == 'Mobile-friendly' %}
+    {% assign cts_trust_item_3 = 'sections.calqix_tooth_science.ui.trustItem3' | t %}
+  {% endif %}
+  {% assign cts_trust_item_4 = section.settings.trust_item_4 | strip %}
+  {% if cts_trust_item_4 == blank or cts_trust_item_4 == 'Built for oral-care education' %}
+    {% assign cts_trust_item_4 = 'sections.calqix_tooth_science.ui.trustItem4' | t %}
+  {% endif %}
+  {% assign cts_trust_item_5 = section.settings.trust_item_5 | strip %}
+  {% if cts_trust_item_5 == blank or cts_trust_item_5 == 'Science-led visual guidance' %}
+    {% assign cts_trust_item_5 = 'sections.calqix_tooth_science.ui.trustItem5' | t %}
+  {% endif %}
+  {% assign cts_cta_text = section.settings.cta_text | strip %}
+  {% if cts_cta_text == blank or cts_cta_text == 'Explore CALQIX oral care' %}
+    {% assign cts_cta_text = 'sections.calqix_tooth_science.ui.ctaLabel' | t %}
+  {% endif %}
+
   <script type="application/json" data-ts-config>
     {
       "sectionId": {{ section.id | json }},
       "defaultToothType": {{ section.settings.default_tooth_type | json }},
       "showAgeToggle": {{ section.settings.show_age_toggle | json }},
-      "youngLabel": {{ section.settings.young_label | json }},
-      "adultLabel": {{ section.settings.adult_label | json }},
+      "youngLabel": {{ cts_young_label | json }},
+      "adultLabel": {{ cts_adult_label | json }},
       "showProgressTracker": {{ section.settings.show_progress_tracker | json }},
       "showTrustStrip": {{ section.settings.show_trust_strip | json }},
       "showCta": {{ section.settings.show_cta | json }},
@@ -367,13 +413,15 @@
 
   <div class="cts-shell">
     <header class="cts-intro" data-ts-animate="intro">
-      {% if section.settings.eyebrow != blank %}
-        <p class="cts-eyebrow">{{ section.settings.eyebrow }}</p>
+      {% if cts_eyebrow != blank %}
+        <p class="cts-eyebrow">{{ cts_eyebrow }}</p>
       {% endif %}
-      {% if section.settings.heading != blank %}
-        <h2 class="cts-heading">{{ section.settings.heading }}</h2>
+      {% if cts_heading != blank %}
+        <h2 class="cts-heading">{{ cts_heading }}</h2>
       {% endif %}
-      {% if section.settings.intro != blank %}
+      {% if cts_use_translated_intro %}
+        <div class="cts-intro-copy rte"><p>{{ 'sections.calqix_tooth_science.ui.introCopy' | t }}</p></div>
+      {% elsif section.settings.intro != blank %}
         <div class="cts-intro-copy rte">{{ section.settings.intro }}</div>
       {% endif %}
     </header>
@@ -382,20 +430,20 @@
       <div class="cts-trust" data-ts-animate="trust" aria-label="{{ 'sections.calqix_tooth_science.ui.trustAriaLabel' | t }}">
         <span class="cts-trust__pulse" aria-hidden="true"></span>
         <ul class="cts-trust__list" role="list">
-          {% if section.settings.trust_item_1 != blank %}
-            <li class="cts-trust__item">{{ section.settings.trust_item_1 }}</li>
+          {% if cts_trust_item_1 != blank %}
+            <li class="cts-trust__item">{{ cts_trust_item_1 }}</li>
           {% endif %}
-          {% if section.settings.trust_item_2 != blank %}
-            <li class="cts-trust__item">{{ section.settings.trust_item_2 }}</li>
+          {% if cts_trust_item_2 != blank %}
+            <li class="cts-trust__item">{{ cts_trust_item_2 }}</li>
           {% endif %}
-          {% if section.settings.trust_item_3 != blank %}
-            <li class="cts-trust__item">{{ section.settings.trust_item_3 }}</li>
+          {% if cts_trust_item_3 != blank %}
+            <li class="cts-trust__item">{{ cts_trust_item_3 }}</li>
           {% endif %}
-          {% if section.settings.trust_item_4 != blank %}
-            <li class="cts-trust__item">{{ section.settings.trust_item_4 }}</li>
+          {% if cts_trust_item_4 != blank %}
+            <li class="cts-trust__item">{{ cts_trust_item_4 }}</li>
           {% endif %}
-          {% if section.settings.trust_item_5 != blank %}
-            <li class="cts-trust__item">{{ section.settings.trust_item_5 }}</li>
+          {% if cts_trust_item_5 != blank %}
+            <li class="cts-trust__item">{{ cts_trust_item_5 }}</li>
           {% endif %}
         </ul>
       </div>
@@ -435,8 +483,8 @@
       {% if section.settings.show_age_toggle %}
         <div class="cts-age-toggle" data-ts-age-toggle role="group" aria-label="{{ 'sections.calqix_tooth_science.ui.ageToggleAriaLabel' | t }}">
           <span class="cts-age-toggle__thumb" aria-hidden="true"></span>
-          <button class="cts-age-toggle__button" type="button" data-age-mode="young" aria-pressed="false">{{ section.settings.young_label }}</button>
-          <button class="cts-age-toggle__button" type="button" data-age-mode="adult" aria-pressed="false">{{ section.settings.adult_label }}</button>
+          <button class="cts-age-toggle__button" type="button" data-age-mode="young" aria-pressed="false">{{ cts_young_label }}</button>
+          <button class="cts-age-toggle__button" type="button" data-age-mode="adult" aria-pressed="false">{{ cts_adult_label }}</button>
         </div>
       {% endif %}
     </div>
@@ -547,7 +595,7 @@
       <aside class="cts-panel cts-panel--desktop" data-ts-panel-desktop data-ts-animate="panel">
         <div class="cts-panel__meta">
           <span class="cts-panel__badge" data-ts-tooth-pill>{{ 'sections.calqix_tooth_science.teeth.incisors.label' | t }}</span>
-          <span class="cts-panel__badge cts-panel__badge--soft" data-ts-age-pill>{{ section.settings.young_label }}</span>
+          <span class="cts-panel__badge cts-panel__badge--soft" data-ts-age-pill>{{ cts_young_label }}</span>
         </div>
 
         <div class="cts-panel__header">
@@ -651,10 +699,10 @@
       <p class="cts-completion__copy">{{ 'sections.calqix_tooth_science.ui.completionCopy' | t }}</p>
     </div>
 
-    {% if section.settings.show_cta and section.settings.cta_text != blank %}
+    {% if section.settings.show_cta and cts_cta_text != blank %}
       <div class="cts-cta-wrap" data-ts-animate="cta">
         <a class="cts-cta" href="{{ section.settings.cta_link | default: routes.all_products_collection_url }}">
-          <span>{{ section.settings.cta_text }}</span>
+          <span>{{ cts_cta_text }}</span>
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
@@ -674,7 +722,7 @@
       <div class="cts-panel cts-panel--mobile">
         <div class="cts-panel__meta">
           <span class="cts-panel__badge" data-ts-tooth-pill>{{ 'sections.calqix_tooth_science.teeth.incisors.label' | t }}</span>
-          <span class="cts-panel__badge cts-panel__badge--soft" data-ts-age-pill>{{ section.settings.young_label }}</span>
+          <span class="cts-panel__badge cts-panel__badge--soft" data-ts-age-pill>{{ cts_young_label }}</span>
         </div>
         <div class="cts-panel__header">
           <p class="cts-panel__eyebrow" data-ts-layer-kicker>{{ 'sections.calqix_tooth_science.layers.overview.kicker' | t }}</p>
