@@ -3,6 +3,24 @@
   const MOBILE_BREAKPOINT = 750;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  const UI = {
+    previewMode: 'Preview mode',
+    tapToExplore: 'Tap to explore',
+    layerFocus: 'Layer focus',
+    idleInsightChipDesktop: 'Hover or tap a layer',
+    idleInsightChipMobile: 'Tap a layer',
+    idleInsightCopyDesktop: 'Hover or tap a layer to see what each structure does, why it matters, and what helps protect it day after day.',
+    idleInsightCopyMobile: 'Tap a hotspot to open the detail panel and see what that structure does, why it matters, and how to protect it.',
+    progressSummary: '[count] of [total] explored',
+    factTitleYoung: 'Growing tooth fact',
+    factTitleAdult: 'Adult tooth fact',
+    ageSingularYoung: 'young tooth',
+    ageSingularAdult: 'adult tooth',
+    agePluralYoung: 'Young teeth',
+    agePluralAdult: 'Adult teeth',
+    diagramAriaLabel: '[tooth] diagram'
+  };
+
   const LAYERS = {
     overview: { label: 'Tooth overview', kicker: 'Tooth overview' },
     enamel: { label: 'Enamel', kicker: 'Protective outer shield' },
@@ -119,6 +137,126 @@
     }
   };
 
+  const CONTENT_TEMPLATES = {
+    overview: {
+      descriptionSuffixYoung: 'This younger stage usually shows larger pulp space and shorter developing support.',
+      descriptionSuffixAdult: 'This adult stage shows mature support, long-term loading, and more established function.',
+      function: '[tooth_label] [role].',
+      why: 'That matters because this tooth depends on a healthy [surface], stable support, and a calm gumline to keep doing its job well.',
+      care: 'Daily care should prioritise [care].',
+      risk: 'When neglected, the most common pressure points are [risk].'
+    },
+    enamel: {
+      title: '[label] protects the [surface].',
+      description: 'Enamel is the hardest outer layer of the [age_label] and shields the crown during daily use.',
+      function: 'It resists friction, acids, and everyday contact so the outer surface can stay smooth and protective.',
+      why: 'If enamel thins, deeper structure becomes more exposed and the tooth may look or feel different faster.',
+      care: 'Support it with low-abrasion brushing, fluoride exposure, and steady plaque removal.',
+      risk: 'Repeated acid attack, wear, or plaque retention can accelerate [risk].',
+      tip: 'Protect the [surface] before it feels sensitive.'
+    },
+    dentin: {
+      title: '[label] supports the tooth from inside.',
+      description: 'Dentin sits beneath enamel and gives the [tooth_label_lower] strength, resilience, and internal bulk.',
+      function: 'It helps the tooth absorb normal chewing forces without behaving like brittle porcelain.',
+      why: 'If dentin becomes exposed, temperature, touch, and sweet foods may be felt more easily.',
+      care: 'The best strategy is preserving the enamel shell and lowering plaque and acid pressure.',
+      risk: 'Exposed dentin can intensify sensitivity and make wear feel more noticeable.',
+      tip: 'Sensitivity often means a protective outer layer has become thinner.'
+    },
+    pulp: {
+      title: '[label] keeps the tooth alive.',
+      description: 'The pulp contains nerves and blood supply that nourish the tooth and help it respond to injury or stress.',
+      function: 'It supports vitality, sensation, and internal repair signals inside the tooth.',
+      why: 'In a [age_label], pulp shape and size influence how deeply wear or trauma may affect the tooth.',
+      care: 'Watch for lingering pain, trauma, cracks, or strong biting sensitivity.',
+      risk: 'Untreated stress can inflame the pulp and move discomfort from mild to persistent.',
+      tip: 'A tooth can look intact from the outside while deeper tissues are irritated.'
+    },
+    root: {
+      title: '[label] anchors the tooth below the surface.',
+      description: 'The root secures the tooth in bone and transfers load away from the crown during normal chewing.',
+      function: 'It provides stability and helps the tooth tolerate normal everyday pressure.',
+      why: 'Without root support, even a strong crown cannot remain comfortable for long.',
+      care: 'Healthy gums and low inflammation are essential for long-term root stability.',
+      risk: 'Support loss can contribute to mobility, sensitivity, and less confident chewing.',
+      tip: 'Stable roots depend on the tissue around them, not only the tooth above them.'
+    },
+    gum: {
+      title: '[label] creates the soft-tissue seal.',
+      description: 'Healthy gum tissue wraps around the neck of the tooth and helps block bacteria from moving deeper.',
+      function: 'It protects the transition from crown to root and supports comfort near the gumline.',
+      why: 'Inflamed gum changes can expose delicate root surfaces and alter how the tooth looks or feels.',
+      care: 'Angle cleaning toward the gumline and remove plaque before it stays long enough to irritate tissue.',
+      risk: 'Bleeding, swelling, and recession are early signs that the seal is under pressure.',
+      tip: 'Gentle technique usually helps more than stronger pressure.'
+    },
+    cementum: {
+      title: '[label] coats the root surface.',
+      description: 'Cementum is a softer mineral layer that covers the root and supports fibre attachment below the gumline.',
+      function: 'It helps the tooth connect to the ligament system that keeps it stable in the socket.',
+      why: 'Unlike enamel, exposed cementum needs gentler care and protection from aggressive abrasion.',
+      care: 'Prevent recession where possible and clean exposed root surfaces carefully.',
+      risk: 'If root coating is exposed, sensitivity and wear can develop more quickly.',
+      tip: 'Root surfaces prefer finesse, not force.'
+    },
+    rootCanal: {
+      title: '[label] carries the internal pathway.',
+      description: 'The root canal is the route through which living tissue extends from the crown deeper into the root.',
+      function: 'It supports vitality and links the pulp to surrounding tissues.',
+      why: 'Changes inside this pathway matter when decay, trauma, or cracks reach deeper levels.',
+      care: 'Persistent pressure pain, colour change, or lingering sensitivity should not be ignored.',
+      risk: 'Deep irritation can compromise the living center even when the outside still looks calm.',
+      tip: 'Internal change often arrives before obvious visible damage.'
+    },
+    alveolarBone: {
+      title: '[label] supports the socket.',
+      description: 'This part of the jaw surrounds the root and provides the solid housing needed for the tooth to function well.',
+      function: 'It stabilises the tooth and adapts to healthy load over time.',
+      why: 'Bone support helps determine whether the tooth stays comfortable, steady, and easy to clean around.',
+      care: 'Control chronic inflammation and keep plaque low around the tooth and neighbouring gumline.',
+      risk: 'Support loss can change contour, stability, and chewing comfort.',
+      tip: 'Healthy bone is usually the hidden reason a tooth feels dependable.'
+    },
+    periodontalLigament: {
+      title: '[label] acts like a suspension system.',
+      description: 'Tiny ligament fibres connect root to bone and allow microscopic movement instead of rigid impact.',
+      function: 'It cushions force, adds comfort, and helps the tooth feel responsive when biting.',
+      why: 'This support layer is one reason teeth can handle pressure without feeling fixed like stone.',
+      care: 'Reduce overload from clenching and protect the surrounding tissues from inflammation.',
+      risk: 'An irritated ligament can make the tooth feel high, sore, or pressure-sensitive.',
+      tip: 'Some healthy tooth movement is normal because the ligament is doing its job.'
+    }
+  };
+
+  const FLOW_GUIDANCE = {
+    overview: 'Cleaning flow guidance shows the safest sweep around the [age_label], so plaque lifts away from the gumline while protecting the [surface].',
+    enamel: 'Start on the enamel shell and sweep outward from the biting surface so you clean the crown without over-scrubbing the edge.',
+    dentin: 'Use gentle, controlled passes so the structure beneath the enamel stays protected instead of being stressed by pressure or abrasion.',
+    pulp: 'The guidance keeps cleaning light over the crown center because deep pressure is never the goal when the living center is close underneath.',
+    root: 'Angle the flow down the root path and away from the tissue margin so debris moves off the support zone instead of deeper toward it.',
+    gum: 'Feather the flow along the gumline to break plaque at the seal without forcing it under irritated tissue.',
+    cementum: 'Around cementum the guidance becomes softer and more precise because root coating prefers finesse, not force.',
+    rootCanal: 'The root canal itself is not cleaned directly, but the guidance shows how surface care helps prevent deeper irritation from ever reaching that pathway.',
+    alveolarBone: 'The bone is hidden support, so the guidance focuses on removing plaque above it to protect the tissues that keep this housing stable.',
+    periodontalLigament: 'A calm cleaning flow helps the ligament stay comfortable by reducing inflammation and excess pressure around the root.'
+  };
+
+  function formatCopy(template, replacements = {}) {
+    return String(template || '').replace(/\[([a-zA-Z0-9_]+)\]/g, (match, key) => (
+      Object.prototype.hasOwnProperty.call(replacements, key) ? replacements[key] : match
+    ));
+  }
+
+  function localizeEntries(base, localized = {}) {
+    return Object.fromEntries(Object.entries(base).map(([key, value]) => [
+      key,
+      value && typeof value === 'object' && !Array.isArray(value)
+        ? { ...value, ...(localized[key] || {}) }
+        : (key in localized ? localized[key] : value)
+    ]));
+  }
+
   function buildCurve(points, startY, endY) {
     const width = points.length - 1;
     let d = `M ${points[0][0]} ${startY}`;
@@ -133,8 +271,8 @@
     return d;
   }
 
-  function getToothGeometry(toothKey, ageMode) {
-    const config = TEETH[toothKey].anatomy[ageMode];
+  function getToothGeometry(teeth, toothKey, ageMode) {
+    const config = teeth[toothKey].anatomy[ageMode];
     const centerX = 166;
     const topY = 44;
     const half = config.crownWidth / 2;
@@ -185,106 +323,43 @@
     return { crownOuter, crownInner, pulp, roots, gum, bone, ligament, cementum, canalLines, outline };
   }
 
-  function getLayerContent(toothKey, ageMode, layerId) {
-    const tooth = TEETH[toothKey];
-    const ageLabel = ageMode === 'young' ? 'young tooth' : 'adult tooth';
+  function getLayerContent(teeth, layers, contentTemplates, ui, toothKey, ageMode, layerId) {
+    const tooth = teeth[toothKey];
+    const ageLabel = ageMode === 'young' ? ui.ageSingularYoung : ui.ageSingularAdult;
+    const replacements = {
+      age_label: ageLabel,
+      care: tooth.care,
+      label: layerId === 'overview' ? layers.overview.label : layers[layerId].label,
+      risk: tooth.risk,
+      role: tooth.role,
+      surface: tooth.surface,
+      tooth_label: tooth.label,
+      tooth_label_lower: tooth.label.toLowerCase()
+    };
     if (layerId === 'overview') {
+      const overviewTemplates = contentTemplates.overview;
       return {
-        kicker: 'Tooth overview',
+        kicker: layers.overview.kicker,
         title: tooth.overviewTitle,
-        description: `${tooth.overview} ${ageMode === 'young' ? 'This younger stage usually shows larger pulp space and shorter developing support.' : 'This adult stage shows mature support, long-term loading, and more established function.'}`,
-        function: `${tooth.label} ${tooth.role}.`,
-        why: `That matters because this tooth depends on a healthy ${tooth.surface}, stable support, and a calm gumline to keep doing its job well.`,
-        care: `Daily care should prioritise ${tooth.care}.`,
-        risk: `When neglected, the most common pressure points are ${tooth.risk}.`,
+        description: `${tooth.overview} ${ageMode === 'young' ? overviewTemplates.descriptionSuffixYoung : overviewTemplates.descriptionSuffixAdult}`.trim(),
+        function: formatCopy(overviewTemplates.function, replacements),
+        why: formatCopy(overviewTemplates.why, replacements),
+        care: formatCopy(overviewTemplates.care, replacements),
+        risk: formatCopy(overviewTemplates.risk, replacements),
         tip: ageMode === 'young' ? tooth.factYoung : tooth.factAdult
       };
     }
-    const label = LAYERS[layerId].label;
-    const builders = {
-      enamel: {
-        title: `${label} protects the ${tooth.surface}.`,
-        description: `Enamel is the hardest outer layer of the ${ageLabel} and shields the crown where ${tooth.role}.`,
-        function: `It resists friction, acids, and everyday contact so the outer surface can stay smooth and protective.`,
-        why: `If enamel thins, deeper structure becomes more exposed and the tooth may look or feel different faster.`,
-        care: `Support it with low-abrasion brushing, fluoride exposure, and steady plaque removal.`,
-        risk: `Repeated acid attack, wear, or plaque retention can accelerate ${tooth.risk}.`,
-        tip: `Protect the ${tooth.surface} before it feels sensitive.`
-      },
-      dentin: {
-        title: `${label} supports the tooth from inside.`,
-        description: `Dentin sits beneath enamel and gives the ${tooth.label.toLowerCase()} strength, resilience, and internal bulk.`,
-        function: `It helps the tooth absorb normal chewing forces without behaving like brittle porcelain.`,
-        why: `If dentin becomes exposed, temperature, touch, and sweet foods may be felt more easily.`,
-        care: `The best strategy is preserving the enamel shell and lowering plaque and acid pressure.`,
-        risk: `Exposed dentin can intensify sensitivity and make wear feel more noticeable.`,
-        tip: `Sensitivity often means a protective outer layer has become thinner.`
-      },
-      pulp: {
-        title: `${label} keeps the tooth alive.`,
-        description: `The pulp contains nerves and blood supply that nourish the tooth and help it respond to injury or stress.`,
-        function: `It supports vitality, sensation, and internal repair signals inside the tooth.`,
-        why: `In a ${ageLabel}, pulp shape and size influence how deeply wear or trauma may affect the tooth.`,
-        care: `Watch for lingering pain, trauma, cracks, or strong biting sensitivity.`,
-        risk: `Untreated stress can inflame the pulp and move discomfort from mild to persistent.`,
-        tip: `A tooth can look intact from the outside while deeper tissues are irritated.`
-      },
-      root: {
-        title: `${label} anchors the tooth below the surface.`,
-        description: `The root secures the tooth in bone and transfers load away from the crown while ${tooth.role}.`,
-        function: `It provides stability and helps the tooth tolerate normal everyday pressure.`,
-        why: `Without root support, even a strong crown cannot remain comfortable for long.`,
-        care: `Healthy gums and low inflammation are essential for long-term root stability.`,
-        risk: `Support loss can contribute to mobility, sensitivity, and less confident chewing.`,
-        tip: `Stable roots depend on the tissue around them, not only the tooth above them.`
-      },
-      gum: {
-        title: `${label} creates the soft-tissue seal.`,
-        description: `Healthy gum tissue wraps around the neck of the tooth and helps block bacteria from moving deeper.`,
-        function: `It protects the transition from crown to root and supports comfort near the gumline.`,
-        why: `Inflamed gum changes can expose delicate root surfaces and alter how the tooth looks or feels.`,
-        care: `Angle cleaning toward the gumline and remove plaque before it stays long enough to irritate tissue.`,
-        risk: `Bleeding, swelling, and recession are early signs that the seal is under pressure.`,
-        tip: `Gentle technique usually helps more than stronger pressure.`
-      },
-      cementum: {
-        title: `${label} coats the root surface.`,
-        description: `Cementum is a softer mineral layer that covers the root and supports fibre attachment below the gumline.`,
-        function: `It helps the tooth connect to the ligament system that keeps it stable in the socket.`,
-        why: `Unlike enamel, exposed cementum needs gentler care and protection from aggressive abrasion.`,
-        care: `Prevent recession where possible and clean exposed root surfaces carefully.`,
-        risk: `If root coating is exposed, sensitivity and wear can develop more quickly.`,
-        tip: `Root surfaces prefer finesse, not force.`
-      },
-      rootCanal: {
-        title: `${label} carries the internal pathway.`,
-        description: `The root canal is the route through which living tissue extends from the crown deeper into the root.`,
-        function: `It supports vitality and links the pulp to surrounding tissues.`,
-        why: `Changes inside this pathway matter when decay, trauma, or cracks reach deeper levels.`,
-        care: `Persistent pressure pain, colour change, or lingering sensitivity should not be ignored.`,
-        risk: `Deep irritation can compromise the living center even when the outside still looks calm.`,
-        tip: `Internal change often arrives before obvious visible damage.`
-      },
-      alveolarBone: {
-        title: `${label} supports the socket.`,
-        description: `This part of the jaw surrounds the root and provides the solid housing needed for the tooth to function well.`,
-        function: `It stabilises the tooth and adapts to healthy load over time.`,
-        why: `Bone support helps determine whether the tooth stays comfortable, steady, and easy to clean around.`,
-        care: `Control chronic inflammation and keep plaque low around the tooth and neighbouring gumline.`,
-        risk: `Support loss can change contour, stability, and chewing comfort.`,
-        tip: `Healthy bone is usually the hidden reason a tooth feels dependable.`
-      },
-      periodontalLigament: {
-        title: `${label} acts like a suspension system.`,
-        description: `Tiny ligament fibres connect root to bone and allow microscopic movement instead of rigid impact.`,
-        function: `It cushions force, adds comfort, and helps the tooth feel responsive when biting.`,
-        why: `This support layer is one reason teeth can handle pressure without feeling fixed like stone.`,
-        care: `Reduce overload from clenching and protect the surrounding tissues from inflammation.`,
-        risk: `An irritated ligament can make the tooth feel high, sore, or pressure-sensitive.`,
-        tip: `Some healthy tooth movement is normal because the ligament is doing its job.`
-      }
+    const template = contentTemplates[layerId];
+    return {
+      kicker: layers[layerId].kicker,
+      title: formatCopy(template.title, replacements),
+      description: formatCopy(template.description, replacements),
+      function: formatCopy(template.function, replacements),
+      why: formatCopy(template.why, replacements),
+      care: formatCopy(template.care, replacements),
+      risk: formatCopy(template.risk, replacements),
+      tip: formatCopy(template.tip, replacements)
     };
-    return { kicker: LAYERS[layerId].kicker, ...builders[layerId] };
   }
 
   function hotspotClass(button, align) {
@@ -292,31 +367,20 @@
     button.classList.add(`is-align-${align}`);
   }
 
-  function getFlowGuidance(toothKey, ageMode, layerId) {
-    const tooth = TEETH[toothKey];
-    const ageLabel = ageMode === 'young' ? 'young tooth' : 'adult tooth';
-    if (layerId === 'overview') {
-      return `Cleaning flow guidance shows the safest sweep around the ${ageLabel}, so plaque lifts away from the gumline while protecting the ${tooth.surface}.`;
-    }
-    const copy = {
-      enamel: `Start on the enamel shell and sweep outward from the biting surface so you clean the crown without over-scrubbing the edge.`,
-      dentin: `Use gentle, controlled passes so the structure beneath the enamel stays protected instead of being stressed by pressure or abrasion.`,
-      pulp: `The guidance keeps cleaning light over the crown center because deep pressure is never the goal when the living center is close underneath.`,
-      root: `Angle the flow down the root path and away from the tissue margin so debris moves off the support zone instead of deeper toward it.`,
-      gum: `Feather the flow along the gumline to break plaque at the seal without forcing it under irritated tissue.`,
-      cementum: `Around cementum the guidance becomes softer and more precise because root coating prefers finesse, not force.`,
-      rootCanal: `The root canal itself is not cleaned directly, but the guidance shows how surface care helps prevent deeper irritation from ever reaching that pathway.`,
-      alveolarBone: `The bone is hidden support, so the guidance focuses on removing plaque above it to protect the tissues that keep this housing stable.`,
-      periodontalLigament: `A calm cleaning flow helps the ligament stay comfortable by reducing inflammation and excess pressure around the root.`
-    };
-    return copy[layerId];
+  function getFlowGuidance(teeth, flowGuidance, ui, toothKey, ageMode, layerId) {
+    const tooth = teeth[toothKey];
+    const ageLabel = ageMode === 'young' ? ui.ageSingularYoung : ui.ageSingularAdult;
+    return formatCopy(flowGuidance[layerId], {
+      age_label: ageLabel,
+      surface: tooth.surface
+    });
   }
 
-  function buildSvg(toothKey, ageMode) {
-    const geom = getToothGeometry(toothKey, ageMode);
+  function buildSvg(teeth, ui, toothKey, ageMode) {
+    const geom = getToothGeometry(teeth, toothKey, ageMode);
     const ageClass = ageMode === 'young' ? 'is-age-young' : 'is-age-adult';
     return `
-      <svg class="cts-tooth-svg ${ageClass}" viewBox="0 0 332 560" role="img" aria-label="${TEETH[toothKey].label} diagram">
+      <svg class="cts-tooth-svg ${ageClass}" viewBox="0 0 332 560" role="img" aria-label="${formatCopy(ui.diagramAriaLabel, { tooth: teeth[toothKey].label })}">
         <path class="cts-outline-path" d="${geom.outline}" />
         <path class="cts-shimmer-path" d="${geom.outline}" />
         <g class="cts-tooth-core">
@@ -338,7 +402,14 @@
     if (!root || root.hasAttribute('data-ts-initialized')) return;
     root.setAttribute('data-ts-initialized', 'true');
     const configNode = root.querySelector('[data-ts-config]');
+    const translationsNode = root.querySelector('[data-ts-translations]');
     const config = configNode ? JSON.parse(configNode.textContent) : {};
+    const translations = translationsNode ? JSON.parse(translationsNode.textContent) : {};
+    const layers = localizeEntries(LAYERS, translations.layers || {});
+    const teeth = localizeEntries(TEETH, translations.teeth || {});
+    const contentTemplates = localizeEntries(CONTENT_TEMPLATES, translations.content || {});
+    const flowGuidance = { ...FLOW_GUIDANCE, ...(translations.flowGuidance || {}) };
+    const ui = { ...UI, ...(translations.ui || {}) };
     const sectionId = config.sectionId ? String(config.sectionId) : null;
     const tabs = Array.from(root.querySelectorAll('[data-ts-tooth-tabs] [data-tooth-type]'));
     const ageButtons = Array.from(root.querySelectorAll('[data-age-mode]'));
@@ -374,7 +445,7 @@
     };
 
     const state = {
-      tooth: TEETH[config.defaultToothType] ? config.defaultToothType : 'incisors',
+      tooth: teeth[config.defaultToothType] ? config.defaultToothType : 'incisors',
       age: 'young',
       layer: 'overview',
       selectedLayer: 'overview',
@@ -394,13 +465,11 @@
     }
 
     function getIdleInsightChip() {
-      return isMobile() ? 'Tap a layer' : 'Hover or tap a layer';
+      return isMobile() ? ui.idleInsightChipMobile : ui.idleInsightChipDesktop;
     }
 
     function getIdleInsightCopy() {
-      return isMobile()
-        ? 'Tap a hotspot to open the detail panel and see what that structure does, why it matters, and how to protect it.'
-        : 'Hover or tap a layer to see what each structure does, why it matters, and what helps protect it day after day.';
+      return isMobile() ? ui.idleInsightCopyMobile : ui.idleInsightCopyDesktop;
     }
 
     function syncLayerState() {
@@ -442,7 +511,7 @@
     }
 
     function renderDiagram() {
-      nextLayer.innerHTML = buildSvg(state.tooth, state.age);
+      nextLayer.innerHTML = buildSvg(teeth, ui, state.tooth, state.age);
       nextLayer.classList.add('is-entering');
       currentLayer.classList.add('is-leaving');
       const swap = () => {
@@ -468,14 +537,14 @@
         region.classList.toggle('is-dimmed', !overview && id !== state.layer);
       });
       root.classList.toggle('has-active-focus', state.layer !== 'overview');
-      Object.keys(LAYERS).forEach((key) => root.classList.remove(`is-focus-${key}`));
+      Object.keys(layers).forEach((key) => root.classList.remove(`is-focus-${key}`));
       if (state.layer !== 'overview') {
         root.classList.add(`is-focus-${state.layer}`);
       }
     }
 
     function updateHotspots() {
-      const positions = TEETH[state.tooth].hotspots[state.age] || TEETH[state.tooth].hotspots.adult;
+      const positions = teeth[state.tooth].hotspots[state.age] || teeth[state.tooth].hotspots.adult;
       hotspotButtons.forEach((button) => {
         const layerId = button.getAttribute('data-layer-id');
         const pos = positions[layerId];
@@ -505,17 +574,17 @@
     }
 
     function updatePanel() {
-      const tooth = TEETH[state.tooth];
-      const content = getLayerContent(state.tooth, state.age, state.layer);
+      const tooth = teeth[state.tooth];
+      const content = getLayerContent(teeth, layers, contentTemplates, ui, state.tooth, state.age, state.layer);
       const insight = root.querySelector('[data-ts-stage-insight]');
       const insightChip = insight ? insight.querySelector('.cts-stage__insight-chip') : null;
       const insightCopy = insight ? insight.querySelector('.cts-stage__insight-copy') : null;
       const visitedCount = state.visited.size;
       const cards = Array.from(root.querySelectorAll('.cts-info-card'));
       setText(titleTargets, tooth.label);
-      setText(modeTargets, state.layer === 'overview' ? (isMobile() ? 'Tap to explore' : 'Preview mode') : 'Layer focus');
+      setText(modeTargets, state.layer === 'overview' ? (isMobile() ? ui.tapToExplore : ui.previewMode) : ui.layerFocus);
       setText(panelFields.toothPill, tooth.label);
-      setText(panelFields.agePill, state.age === 'young' ? config.youngLabel || 'Young teeth' : config.adultLabel || 'Adult teeth');
+      setText(panelFields.agePill, state.age === 'young' ? config.youngLabel || ui.agePluralYoung : config.adultLabel || ui.agePluralAdult);
       setText(panelFields.layerKicker, content.kicker);
       setText(panelFields.title, content.title);
       setText(panelFields.description, content.description);
@@ -526,13 +595,13 @@
       setText(panelFields.tip, content.tip);
       setText(riskTitleTargets, tooth.riskTitle);
       setText(riskCopyTargets, tooth.riskCopy);
-      setText(factTitleTargets, state.age === 'young' ? 'Growing tooth fact' : 'Adult tooth fact');
+      setText(factTitleTargets, state.age === 'young' ? ui.factTitleYoung : ui.factTitleAdult);
       setText(factCopyTargets, state.age === 'young' ? tooth.factYoung : tooth.factAdult);
       renderChips(functionChips, tooth.functionProfile);
       renderChips(careChips, tooth.careProfile);
-      setText(flowCopyTargets, getFlowGuidance(state.tooth, state.age, state.layer));
-      setText(progressSummary, `${visitedCount} of ${Object.keys(TEETH).length} explored`);
-      if (insightChip) insightChip.textContent = state.layer === 'overview' ? getIdleInsightChip() : LAYERS[state.layer].label;
+      setText(flowCopyTargets, getFlowGuidance(teeth, flowGuidance, ui, state.tooth, state.age, state.layer));
+      setText(progressSummary, formatCopy(ui.progressSummary, { count: visitedCount, total: Object.keys(teeth).length }));
+      if (insightChip) insightChip.textContent = state.layer === 'overview' ? getIdleInsightChip() : layers[state.layer].label;
       if (insightCopy) insightCopy.textContent = state.layer === 'overview' ? getIdleInsightCopy() : content.description;
       cards.forEach((card) => card.classList.remove('is-visible'));
       cards.forEach((card, index) => {
@@ -547,20 +616,20 @@
     function updateCompletion() {
       const completion = root.querySelector('[data-ts-completion]');
       if (!completion) return;
-      const completed = state.visited.size === Object.keys(TEETH).length;
+      const completed = state.visited.size === Object.keys(teeth).length;
       completion.hidden = !completed;
       completion.classList.toggle('is-visible', completed && !!config.enableCompletionCelebration);
     }
 
     function setTooth(toothKey, focusLayer) {
-      if (!TEETH[toothKey]) return;
+      if (!teeth[toothKey]) return;
       state.tooth = toothKey;
       state.visited.add(toothKey);
       state.selectedLayer = focusLayer || 'overview';
       state.hoverLayer = null;
       syncLayerState();
       root.classList.remove('has-hover-focus');
-      root.classList.remove(...Object.keys(TEETH).map((key) => `is-tooth-${key}`));
+      root.classList.remove(...Object.keys(teeth).map((key) => `is-tooth-${key}`));
       root.classList.add(`is-tooth-${toothKey}`);
       updateControls();
       centerActiveTab();
@@ -584,7 +653,7 @@
     }
 
     function setLayer(layerId, openSheet) {
-      state.selectedLayer = layerId in LAYERS ? layerId : 'overview';
+      state.selectedLayer = layerId in layers ? layerId : 'overview';
       state.hoverLayer = null;
       syncLayerState();
       root.classList.remove('has-hover-focus');
