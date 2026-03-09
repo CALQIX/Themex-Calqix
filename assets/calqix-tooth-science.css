@@ -696,6 +696,12 @@
   z-index: 2;
 }
 
+.calqix-tooth-science .cts-hotspot.is-active,
+.calqix-tooth-science .cts-hotspot:focus-visible,
+.calqix-tooth-science .cts-hotspot.is-hovered {
+  z-index: 3;
+}
+
 .calqix-tooth-science .cts-hotspot::before {
   content: '';
   position: absolute;
@@ -1604,11 +1610,11 @@
 
   .calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__line,
   .calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__line {
-    width: 56px;
+    width: 52px;
   }
 
-  .calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__label { left: 74px; }
-  .calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__label { right: 74px; }
+  .calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__label { left: 70px; }
+  .calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__label { right: 70px; }
 }
 
 @media (max-width: 749px) {
@@ -1717,7 +1723,7 @@
   .calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__label,
   .calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__label {
     top: auto;
-    bottom: 20px;
+    bottom: 16px;
     left: 50%;
     right: auto;
     transform: translateX(-50%);
@@ -1725,8 +1731,8 @@
 
   .calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__line,
   .calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__line {
-    width: 48px;
-    transform: translate(-50%, -46px) rotate(-90deg);
+    width: 42px;
+    transform: translate(-50%, -40px) rotate(-90deg);
   }
 
   .calqix-tooth-science .cts-hotspot::before {
@@ -1748,11 +1754,11 @@
   }
 
   .calqix-tooth-science .cts-hotspot.is-align-top .cts-hotspot__label {
-    bottom: 68px;
+    bottom: 54px;
   }
 
   .calqix-tooth-science .cts-hotspot.is-align-bottom .cts-hotspot__label {
-    top: 66px;
+    top: 54px;
   }
 
   .calqix-tooth-science .cts-panel--desktop {
@@ -1798,6 +1804,20 @@
     max-width: min(156px, calc(100vw - 28px));
     padding: 8px 10px;
     line-height: 1.18;
+  }
+
+  .calqix-tooth-science .cts-hotspot.is-align-top .cts-hotspot__label {
+    bottom: 50px;
+  }
+
+  .calqix-tooth-science .cts-hotspot.is-align-bottom .cts-hotspot__label {
+    top: 50px;
+  }
+
+  .calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__line,
+  .calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__line {
+    width: 38px;
+    transform: translate(-50%, -36px) rotate(-90deg);
   }
 
   .calqix-tooth-science .cts-progress__list::before {

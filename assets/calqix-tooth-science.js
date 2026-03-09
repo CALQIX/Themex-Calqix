@@ -417,6 +417,7 @@
     const progressButtons = Array.from(root.querySelectorAll('[data-progress-tooth]'));
     const currentLayer = root.querySelector('[data-ts-diagram-current]');
     const nextLayer = root.querySelector('[data-ts-diagram-next]');
+    const diagramFrame = root.querySelector('.cts-stage__diagram');
     const mobileSheet = root.querySelector('[data-ts-mobile-sheet]');
     const closeButtons = Array.from(root.querySelectorAll('[data-ts-sheet-close]'));
     const titleTargets = root.querySelectorAll('[data-ts-current-tooth-title]');
@@ -510,6 +511,75 @@
       scrollHint.classList.toggle('is-visible', isScrollable && !scrolledFar && window.innerWidth <= 1180);
     }
 
+    function getHotspotAlignCandidates(preferredAlign, x, y) {
+      const candidates = [];
+      const push = (align) => {
+        if (!candidates.includes(align)) candidates.push(align);
+      };
+
+      if (isMobile()) {
+        if (y <= 30) {
+          push('bottom');
+        } else if (y >= 68) {
+          push('top');
+        }
+
+        if (x >= 74) {
+          push('left');
+        } else if (x <= 26) {
+          push('right');
+        }
+
+        push(preferredAlign);
+      } else if (window.innerWidth <= 990) {
+        if (y <= 24) push('bottom');
+        if (y >= 72) push('top');
+        if (x >= 80) push('left');
+        if (x <= 20) push('right');
+        push(preferredAlign);
+      } else {
+        push(preferredAlign);
+        if (y <= 18) push('bottom');
+        if (y >= 78) push('top');
+        if (x >= 84) push('left');
+        if (x <= 16) push('right');
+      }
+
+      ['right', 'left', 'bottom', 'top'].forEach(push);
+      return candidates;
+    }
+
+    function getHotspotOverflow(rect, bounds, padding) {
+      return Math.max(bounds.left + padding - rect.left, 0)
+        + Math.max(rect.right - (bounds.right - padding), 0)
+        + Math.max(bounds.top + padding - rect.top, 0)
+        + Math.max(rect.bottom - (bounds.bottom - padding), 0);
+    }
+
+    function resolveHotspotAlign(button, x, y, preferredAlign) {
+      const label = button.querySelector('.cts-hotspot__label');
+      if (!diagramFrame || !label) {
+        return preferredAlign;
+      }
+
+      const bounds = diagramFrame.getBoundingClientRect();
+      const padding = isMobile() ? 10 : window.innerWidth <= 990 ? 14 : 18;
+      const candidates = getHotspotAlignCandidates(preferredAlign, x, y);
+      let bestAlign = candidates[0] || preferredAlign;
+      let bestOverflow = Number.POSITIVE_INFINITY;
+
+      candidates.forEach((align) => {
+        hotspotClass(button, align);
+        const overflow = getHotspotOverflow(label.getBoundingClientRect(), bounds, padding);
+        if (overflow < bestOverflow) {
+          bestAlign = align;
+          bestOverflow = overflow;
+        }
+      });
+
+      return bestAlign;
+    }
+
     function renderDiagram() {
       nextLayer.innerHTML = buildSvg(teeth, ui, state.tooth, state.age);
       nextLayer.classList.add('is-entering');
@@ -551,7 +621,7 @@
         if (!pos) return;
         button.style.setProperty('--x', pos[0]);
         button.style.setProperty('--y', pos[1]);
-        hotspotClass(button, pos[2]);
+        hotspotClass(button, resolveHotspotAlign(button, pos[0], pos[1], pos[2]));
         button.classList.toggle('is-active', state.layer === layerId);
       });
     }
@@ -742,6 +812,7 @@
     });
     addManagedListener(window, 'resize', () => {
       if (!isMobile()) closeSheet();
+      updateHotspots();
       updateScrollHint();
     });
     addManagedListener(document, 'shopify:section:unload', (event) => {
