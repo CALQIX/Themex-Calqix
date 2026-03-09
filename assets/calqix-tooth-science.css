@@ -1,0 +1,1594 @@
+/* CALQIX Tooth Science
+   --------------------------------------------------------------------------
+   Premium interactive tooth education section styles.
+   The section is fully scoped through the `calqix-tooth-science` root.
+*/
+
+.calqix-tooth-science {
+  position: relative;
+  padding: var(--cts-padding-top) 0 var(--cts-padding-bottom);
+  background:
+    radial-gradient(circle at 12% 12%, rgba(205, 239, 244, 0.55), transparent 30%),
+    radial-gradient(circle at 88% 18%, rgba(245, 223, 194, 0.44), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), var(--cts-bg));
+  color: var(--cts-text);
+  overflow: clip;
+}
+
+.calqix-tooth-science::before,
+.calqix-tooth-science::after {
+  content: '';
+  position: absolute;
+  inset: auto;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0.48;
+  filter: blur(42px);
+}
+
+.calqix-tooth-science::before {
+  width: 220px;
+  height: 220px;
+  left: -70px;
+  top: 6%;
+  background: rgba(142, 220, 232, 0.24);
+}
+
+.calqix-tooth-science::after {
+  width: 260px;
+  height: 260px;
+  right: -90px;
+  bottom: 8%;
+  background: rgba(191, 231, 209, 0.22);
+}
+
+.calqix-tooth-science .cts-shell {
+  width: min(1320px, calc(100% - 40px));
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.calqix-tooth-science [data-ts-animate] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.calqix-tooth-science.is-revealed [data-ts-animate] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.calqix-tooth-science.is-revealed [data-ts-animate="intro"] { transition-delay: 120ms; }
+.calqix-tooth-science.is-revealed [data-ts-animate="trust"] { transition-delay: 300ms; }
+.calqix-tooth-science.is-revealed [data-ts-animate="controls"] { transition-delay: 360ms; }
+.calqix-tooth-science.is-revealed [data-ts-animate="visual"] { transition-delay: 420ms; }
+.calqix-tooth-science.is-revealed [data-ts-animate="panel"] { transition-delay: 650ms; }
+.calqix-tooth-science.is-revealed [data-ts-animate="support"] { transition-delay: 720ms; }
+.calqix-tooth-science.is-revealed [data-ts-animate="cta"] { transition-delay: 800ms; }
+
+.calqix-tooth-science .cts-intro {
+  max-width: 760px;
+  margin: 0 auto 28px;
+  text-align: center;
+}
+
+.calqix-tooth-science .cts-eyebrow,
+.calqix-tooth-science .cts-mini-label,
+.calqix-tooth-science .cts-panel__eyebrow,
+.calqix-tooth-science .cts-info-card__label,
+.calqix-tooth-science .cts-trust__item,
+.calqix-tooth-science .cts-completion__badge,
+.calqix-tooth-science .cts-stage__insight-chip,
+.calqix-tooth-science .cts-status-chip,
+.calqix-tooth-science .cts-panel__badge,
+.calqix-tooth-science .cts-progress__summary {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.calqix-tooth-science .cts-eyebrow {
+  margin: 0 0 14px;
+  color: var(--cts-navy);
+  opacity: 0.78;
+}
+
+.calqix-tooth-science .cts-heading {
+  margin: 0;
+  font-family: var(--font-heading--family, "DM Serif Display", Georgia, serif);
+  font-size: clamp(34px, 5.3vw, 64px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: var(--cts-navy-deep);
+  max-width: 12ch;
+  margin-inline: auto;
+}
+
+.calqix-tooth-science .cts-intro-copy {
+  margin: 16px auto 0;
+  max-width: 60ch;
+  color: var(--cts-text-soft);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.calqix-tooth-science .cts-intro-copy p:last-child {
+  margin-bottom: 0;
+}
+
+.calqix-tooth-science .cts-trust {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin: 0 auto 30px;
+  padding: 14px 18px;
+  border: 1px solid rgba(22, 50, 74, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(16, 32, 51, 0.05);
+  backdrop-filter: blur(12px);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.calqix-tooth-science .cts-trust__pulse {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid rgba(142, 220, 232, 0.35);
+  opacity: 0;
+}
+
+.calqix-tooth-science .cts-trust__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 18px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.calqix-tooth-science .cts-trust__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--cts-text-soft);
+}
+
+.calqix-tooth-science .cts-trust__item::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cts-aqua-strong), var(--cts-navy));
+  box-shadow: 0 0 0 6px rgba(142, 220, 232, 0.12);
+}
+
+.calqix-tooth-science .cts-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.calqix-tooth-science .cts-tooth-selector {
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 4px;
+}
+
+.calqix-tooth-science .cts-tooth-selector::-webkit-scrollbar {
+  display: none;
+}
+
+.calqix-tooth-science .cts-tooth-tab {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid rgba(22, 50, 74, 0.09);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--cts-text);
+  border-radius: 18px;
+  min-width: 152px;
+  padding: 15px 16px 14px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 260ms cubic-bezier(0.4, 0, 0.2, 1),
+    background 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 24px rgba(16, 32, 51, 0.04);
+  flex: 0 0 auto;
+}
+
+.calqix-tooth-science .cts-tooth-tab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(120deg, rgba(205, 239, 244, 0.32), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity 220ms ease;
+  z-index: -1;
+}
+
+.calqix-tooth-science .cts-tooth-tab::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 8px;
+  height: 2px;
+  border-radius: 999px;
+  transform: scaleX(0.2);
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--cts-aqua-strong), var(--cts-navy));
+  opacity: 0;
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease;
+}
+
+.calqix-tooth-science .cts-tooth-tab:hover,
+.calqix-tooth-science .cts-tooth-tab:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(22, 50, 74, 0.18);
+  box-shadow: 0 18px 40px rgba(16, 32, 51, 0.08);
+  outline: none;
+}
+
+.calqix-tooth-science .cts-tooth-tab:hover::before,
+.calqix-tooth-science .cts-tooth-tab:focus-visible::before,
+.calqix-tooth-science .cts-tooth-tab[aria-selected="true"]::before {
+  opacity: 1;
+}
+
+.calqix-tooth-science .cts-tooth-tab:hover::after,
+.calqix-tooth-science .cts-tooth-tab:focus-visible::after,
+.calqix-tooth-science .cts-tooth-tab[aria-selected="true"]::after {
+  transform: scaleX(1);
+  opacity: 1;
+}
+
+.calqix-tooth-science .cts-tooth-tab[aria-selected="true"] {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(205, 239, 244, 0.48));
+  border-color: rgba(22, 50, 74, 0.18);
+  box-shadow: 0 22px 50px rgba(16, 32, 51, 0.11);
+}
+
+.calqix-tooth-science .cts-tooth-tab__label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--cts-navy-deep);
+}
+
+.calqix-tooth-science .cts-tooth-tab__meta {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--cts-text-soft);
+}
+
+.calqix-tooth-science .cts-tooth-tab__visited {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(22, 50, 74, 0.16);
+  transition: transform 220ms ease, background 220ms ease, box-shadow 220ms ease;
+}
+
+.calqix-tooth-science .cts-tooth-tab.is-visited .cts-tooth-tab__visited,
+.calqix-tooth-science .cts-progress__node.is-visited::before {
+  background: linear-gradient(135deg, var(--cts-green), var(--cts-aqua-strong));
+  box-shadow: 0 0 0 4px rgba(191, 231, 209, 0.24);
+}
+
+.calqix-tooth-science .cts-tooth-tab[aria-selected="true"] .cts-tooth-tab__visited {
+  transform: scale(1.14);
+}
+
+.calqix-tooth-science .cts-age-toggle {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(22, 50, 74, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 10px 24px rgba(16, 32, 51, 0.05);
+  flex: 0 0 auto;
+}
+
+.calqix-tooth-science .cts-age-toggle__thumb {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(205, 239, 244, 0.88), rgba(255, 255, 255, 0.98));
+  box-shadow: 0 8px 20px rgba(16, 32, 51, 0.08);
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), background 220ms ease;
+}
+
+.calqix-tooth-science.is-age-adult .cts-age-toggle__thumb {
+  transform: translateX(100%);
+  background: linear-gradient(135deg, rgba(22, 50, 74, 0.12), rgba(255, 255, 255, 0.98));
+}
+
+.calqix-tooth-science .cts-age-toggle__button {
+  position: relative;
+  z-index: 1;
+  border: 0;
+  background: transparent;
+  padding: 11px 18px;
+  min-width: 136px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--cts-text-soft);
+  cursor: pointer;
+  transition: color 220ms ease;
+}
+
+.calqix-tooth-science .cts-age-toggle__button[aria-pressed="true"] {
+  color: var(--cts-navy-deep);
+}
+
+.calqix-tooth-science .cts-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.calqix-tooth-science .cts-visual-card,
+.calqix-tooth-science .cts-panel,
+.calqix-tooth-science .cts-support-card,
+.calqix-tooth-science .cts-completion {
+  border: 1px solid rgba(22, 50, 74, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.88));
+  box-shadow: 0 18px 48px rgba(16, 32, 51, 0.07);
+  backdrop-filter: blur(14px);
+}
+
+.calqix-tooth-science .cts-visual-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 30px;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.calqix-tooth-science .cts-visual-card__header,
+.calqix-tooth-science .cts-progress__header,
+.calqix-tooth-science .cts-support-card__head,
+.calqix-tooth-science .cts-panel__meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.calqix-tooth-science .cts-mini-label {
+  margin: 0 0 6px;
+  color: var(--cts-text-soft);
+  opacity: 0.8;
+}
+
+.calqix-tooth-science .cts-visual-title,
+.calqix-tooth-science .cts-panel__title,
+.calqix-tooth-science .cts-support-card__title,
+.calqix-tooth-science .cts-completion__title {
+  margin: 0;
+  font-family: var(--font-heading--family, "DM Serif Display", Georgia, serif);
+  font-weight: 400;
+  line-height: 1.06;
+  color: var(--cts-navy-deep);
+}
+
+.calqix-tooth-science .cts-visual-title {
+  font-size: clamp(28px, 3vw, 42px);
+}
+
+.calqix-tooth-science .cts-status-chip,
+.calqix-tooth-science .cts-stage__insight-chip,
+.calqix-tooth-science .cts-panel__badge,
+.calqix-tooth-science .cts-completion__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(22, 50, 74, 0.08);
+  background: rgba(248, 250, 252, 0.86);
+  color: var(--cts-navy);
+  width: fit-content;
+}
+
+.calqix-tooth-science .cts-panel__badge--soft {
+  background: rgba(205, 239, 244, 0.46);
+}
+
+.calqix-tooth-science .cts-stage {
+  position: relative;
+  min-height: 560px;
+  margin-top: 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(22, 50, 74, 0.08);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(236, 243, 248, 0.9));
+  overflow: hidden;
+}
+
+.calqix-tooth-science .cts-background {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.calqix-tooth-science .cts-background__gradient,
+.calqix-tooth-science .cts-background__contours,
+.calqix-tooth-science .cts-background__grid,
+.calqix-tooth-science .cts-background__flow,
+.calqix-tooth-science .cts-background__halo,
+.calqix-tooth-science .cts-background__particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.calqix-tooth-science .cts-background__gradient {
+  background:
+    radial-gradient(circle at 28% 26%, rgba(205, 239, 244, 0.78), transparent 28%),
+    radial-gradient(circle at 76% 72%, rgba(245, 223, 194, 0.46), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(232, 241, 247, 0.6));
+  transform: scale(1.03);
+}
+
+.calqix-tooth-science .cts-background__contours {
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(22, 50, 74, 0.04) 0 1px, transparent 1px),
+    repeating-radial-gradient(circle at 50% 50%, rgba(22, 50, 74, 0.02) 0 16px, transparent 16px 34px);
+  background-size: 18px 18px, 100% 100%;
+  opacity: 0.5;
+  mask-image: radial-gradient(circle at 50% 50%, black 42%, transparent 90%);
+}
+
+.calqix-tooth-science .cts-background__grid {
+  background-image:
+    linear-gradient(rgba(22, 50, 74, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22, 50, 74, 0.05) 1px, transparent 1px);
+  background-size: 34px 34px;
+  opacity: 0.22;
+  mask-image: linear-gradient(180deg, transparent, black 18%, black 78%, transparent);
+}
+
+.calqix-tooth-science .cts-background__flow {
+  background:
+    radial-gradient(circle at 32% 42%, rgba(142, 220, 232, 0.24), transparent 18%),
+    radial-gradient(circle at 72% 56%, rgba(191, 231, 209, 0.18), transparent 20%);
+  mix-blend-mode: screen;
+  opacity: 0.8;
+}
+
+.calqix-tooth-science .cts-background__halo {
+  border-radius: 999px;
+  filter: blur(22px);
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), opacity 320ms ease;
+}
+
+.calqix-tooth-science .cts-background__halo--a {
+  width: 220px;
+  height: 220px;
+  background: rgba(142, 220, 232, 0.18);
+  left: 16%;
+  top: 24%;
+}
+
+.calqix-tooth-science .cts-background__halo--b {
+  width: 240px;
+  height: 240px;
+  background: rgba(245, 223, 194, 0.16);
+  right: 10%;
+  bottom: 12%;
+}
+
+.calqix-tooth-science .cts-background__particles span {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(22, 50, 74, 0.12);
+  box-shadow: 0 0 0 9px rgba(205, 239, 244, 0.08);
+  animation: ctsFloatParticle 8s ease-in-out infinite;
+}
+
+.calqix-tooth-science .cts-background__particles span:nth-child(1) { left: 18%; top: 20%; animation-delay: -0.2s; }
+.calqix-tooth-science .cts-background__particles span:nth-child(2) { left: 76%; top: 24%; animation-delay: -2.4s; }
+.calqix-tooth-science .cts-background__particles span:nth-child(3) { left: 62%; top: 58%; animation-delay: -1.4s; }
+.calqix-tooth-science .cts-background__particles span:nth-child(4) { left: 34%; top: 72%; animation-delay: -3.1s; }
+.calqix-tooth-science .cts-background__particles span:nth-child(5) { left: 80%; top: 72%; animation-delay: -4.1s; }
+.calqix-tooth-science .cts-background__particles span:nth-child(6) { left: 16%; top: 56%; animation-delay: -5.1s; }
+
+.calqix-tooth-science .cts-stage__diagram {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 1100px;
+}
+
+.calqix-tooth-science .cts-diagram-layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: translateY(6px) scale(0.985);
+  transition:
+    opacity 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.calqix-tooth-science .cts-diagram-layer.is-current,
+.calqix-tooth-science .cts-diagram-layer.is-entering {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.calqix-tooth-science .cts-diagram-layer.is-leaving {
+  opacity: 0;
+  transform: translateY(6px) scale(0.985);
+}
+
+.calqix-tooth-science .cts-tooth-svg {
+  width: min(100%, 430px);
+  height: auto;
+  overflow: visible;
+  transform-origin: center center;
+}
+
+.calqix-tooth-science .cts-tooth-svg .cts-tooth-core {
+  transform-box: fill-box;
+  transform-origin: center center;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.calqix-tooth-science .cts-tooth-svg.is-age-young .cts-tooth-core {
+  transform: translateY(8px) scale(0.94);
+}
+
+.calqix-tooth-science .cts-tooth-svg .cts-region {
+  transition:
+    opacity 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    filter 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    stroke-width 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  transform-box: fill-box;
+  transform-origin: center center;
+}
+
+.calqix-tooth-science .cts-tooth-svg .cts-region path,
+.calqix-tooth-science .cts-tooth-svg .cts-region circle,
+.calqix-tooth-science .cts-tooth-svg .cts-region ellipse,
+.calqix-tooth-science .cts-tooth-svg .cts-region polyline {
+  transition: inherit;
+}
+
+.calqix-tooth-science .cts-tooth-svg .cts-region--enamel path { fill: #f9fbfd; stroke: rgba(22, 50, 74, 0.14); stroke-width: 2; }
+.calqix-tooth-science .cts-tooth-svg .cts-region--dentin path { fill: rgba(245, 223, 194, 0.74); stroke: rgba(215, 169, 116, 0.24); stroke-width: 1.5; }
+.calqix-tooth-science .cts-tooth-svg .cts-region--pulp path { fill: rgba(246, 181, 159, 0.64); stroke: rgba(178, 92, 80, 0.16); stroke-width: 1.4; }
+.calqix-tooth-science .cts-tooth-svg .cts-region--root path { fill: rgba(253, 251, 247, 0.9); stroke: rgba(22, 50, 74, 0.12); stroke-width: 1.8; }
+.calqix-tooth-science .cts-tooth-svg .cts-region--gum path { fill: rgba(238, 197, 198, 0.62); stroke: rgba(188, 130, 136, 0.24); stroke-width: 1.8; }
+.calqix-tooth-science .cts-tooth-svg .cts-region--cementum path { fill: rgba(232, 244, 246, 0.7); stroke: rgba(82, 120, 132, 0.18); stroke-width: 1.2; }
+.calqix-tooth-science .cts-tooth-svg .cts-region--rootCanal path { fill: none; stroke: rgba(160, 83, 75, 0.66); stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
+.calqix-tooth-science .cts-tooth-svg .cts-region--alveolarBone path { fill: rgba(223, 229, 236, 0.72); stroke: rgba(108, 122, 138, 0.16); stroke-width: 1.4; }
+.calqix-tooth-science .cts-tooth-svg .cts-region--periodontalLigament path { fill: rgba(191, 231, 209, 0.52); stroke: rgba(97, 150, 122, 0.22); stroke-width: 1.2; }
+
+.calqix-tooth-science .cts-tooth-svg .cts-region.is-dimmed {
+  opacity: 0.32;
+  filter: saturate(0.78);
+}
+
+.calqix-tooth-science .cts-tooth-svg .cts-region.is-hovered,
+.calqix-tooth-science .cts-tooth-svg .cts-region.is-active {
+  opacity: 1;
+  filter: drop-shadow(0 0 20px rgba(142, 220, 232, 0.3));
+  transform: translateY(-1px) scale(1.008);
+}
+
+.calqix-tooth-science .cts-tooth-svg .cts-region.is-active path,
+.calqix-tooth-science .cts-tooth-svg .cts-region.is-hovered path {
+  stroke: rgba(22, 50, 74, 0.34);
+}
+
+.calqix-tooth-science .cts-tooth-svg .cts-region--rootCanal.is-active path,
+.calqix-tooth-science .cts-tooth-svg .cts-region--rootCanal.is-hovered path {
+  stroke-width: 5.3;
+}
+
+.calqix-tooth-science .cts-tooth-svg .cts-outline-path {
+  fill: none;
+  stroke: rgba(22, 50, 74, 0.14);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 740;
+  stroke-dashoffset: 740;
+}
+
+.calqix-tooth-science.is-revealed .cts-tooth-svg .cts-outline-path {
+  animation: ctsLineDraw 1s 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.calqix-tooth-science .cts-tooth-svg .cts-shimmer-path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.82);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 24 680;
+  opacity: 0;
+}
+
+.calqix-tooth-science.has-hover-focus .cts-tooth-svg .cts-shimmer-path,
+.calqix-tooth-science.has-active-focus .cts-tooth-svg .cts-shimmer-path {
+  opacity: 0.25;
+  animation: ctsShimmerSweep 1.2s linear infinite;
+}
+
+.calqix-tooth-science .cts-hotspots {
+  position: absolute;
+  inset: 0;
+}
+
+.calqix-tooth-science .cts-hotspot {
+  position: absolute;
+  left: calc(var(--x, 50) * 1%);
+  top: calc(var(--y, 50) * 1%);
+  transform: translate(-50%, -50%);
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.calqix-tooth-science .cts-hotspot:focus-visible {
+  outline: none;
+}
+
+.calqix-tooth-science .cts-hotspot__dot {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.88);
+  background: linear-gradient(135deg, var(--cts-aqua-strong), var(--cts-navy));
+  box-shadow: 0 0 0 8px rgba(142, 220, 232, 0.14);
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 220ms ease;
+}
+
+.calqix-tooth-science .cts-hotspot__dot::before,
+.calqix-tooth-science .cts-hotspot__dot::after {
+  content: '';
+  position: absolute;
+  inset: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.calqix-tooth-science .cts-hotspot__dot::before {
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(142, 220, 232, 0.3);
+  opacity: 0.9;
+}
+
+.calqix-tooth-science .cts-hotspot__dot::after {
+  width: 40px;
+  height: 40px;
+  border: 1px dashed rgba(22, 50, 74, 0.15);
+  opacity: 0;
+}
+
+.calqix-tooth-science .cts-hotspot__line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(22, 50, 74, 0.35), rgba(142, 220, 232, 0.52));
+  transform-origin: left center;
+  opacity: 0.72;
+  transition: opacity 220ms ease, transform 220ms ease, width 220ms ease;
+}
+
+.calqix-tooth-science .cts-hotspot__label {
+  position: absolute;
+  top: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(22, 50, 74, 0.09);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 12px 24px rgba(16, 32, 51, 0.08);
+  color: var(--cts-navy-deep);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0.96;
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease;
+}
+
+.calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__line {
+  width: 72px;
+  transform: translate(8px, -50%) rotate(0deg);
+}
+
+.calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__label {
+  left: 92px;
+  transform: translateY(-50%);
+}
+
+.calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__line {
+  width: 72px;
+  transform: translate(-8px, -50%) rotate(180deg);
+}
+
+.calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__label {
+  right: 92px;
+  transform: translateY(-50%);
+}
+
+.calqix-tooth-science .cts-hotspot.is-align-top .cts-hotspot__line {
+  width: 52px;
+  transform: translate(-50%, -58px) rotate(-90deg);
+}
+
+.calqix-tooth-science .cts-hotspot.is-align-top .cts-hotspot__label {
+  left: 50%;
+  bottom: 78px;
+  top: auto;
+  transform: translateX(-50%);
+}
+
+.calqix-tooth-science .cts-hotspot.is-align-bottom .cts-hotspot__line {
+  width: 52px;
+  transform: translate(-50%, 42px) rotate(90deg);
+}
+
+.calqix-tooth-science .cts-hotspot.is-align-bottom .cts-hotspot__label {
+  left: 50%;
+  top: 76px;
+  transform: translateX(-50%);
+}
+
+.calqix-tooth-science .cts-hotspot:hover .cts-hotspot__dot,
+.calqix-tooth-science .cts-hotspot:focus-visible .cts-hotspot__dot,
+.calqix-tooth-science .cts-hotspot.is-hovered .cts-hotspot__dot,
+.calqix-tooth-science .cts-hotspot.is-active .cts-hotspot__dot {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 10px rgba(142, 220, 232, 0.18);
+}
+
+.calqix-tooth-science .cts-hotspot:hover .cts-hotspot__dot::after,
+.calqix-tooth-science .cts-hotspot:focus-visible .cts-hotspot__dot::after,
+.calqix-tooth-science .cts-hotspot.is-hovered .cts-hotspot__dot::after,
+.calqix-tooth-science .cts-hotspot.is-active .cts-hotspot__dot::after {
+  opacity: 1;
+}
+
+.calqix-tooth-science .cts-hotspot:hover .cts-hotspot__label,
+.calqix-tooth-science .cts-hotspot:focus-visible .cts-hotspot__label,
+.calqix-tooth-science .cts-hotspot.is-hovered .cts-hotspot__label,
+.calqix-tooth-science .cts-hotspot.is-active .cts-hotspot__label {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(22, 50, 74, 0.16);
+  box-shadow: 0 18px 30px rgba(16, 32, 51, 0.12);
+}
+
+.calqix-tooth-science .cts-hotspot.is-active .cts-hotspot__label::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cts-green);
+  box-shadow: 0 0 0 6px rgba(191, 231, 209, 0.26);
+}
+
+.calqix-tooth-science .cts-stage__insight {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(22, 50, 74, 0.08);
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: 0 16px 28px rgba(16, 32, 51, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.calqix-tooth-science .cts-stage__insight-copy,
+.calqix-tooth-science .cts-panel__description,
+.calqix-tooth-science .cts-info-card__value,
+.calqix-tooth-science .cts-support-card__copy,
+.calqix-tooth-science .cts-completion__copy,
+.calqix-tooth-science .cts-progress__summary {
+  margin: 0;
+  color: var(--cts-text-soft);
+  line-height: 1.7;
+}
+
+.calqix-tooth-science .cts-stage__insight-copy {
+  font-size: 14px;
+}
+
+.calqix-tooth-science .cts-progress {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(22, 50, 74, 0.08);
+}
+
+.calqix-tooth-science .cts-progress__list {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+}
+
+.calqix-tooth-science .cts-progress__list::before {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(22, 50, 74, 0.08), rgba(142, 220, 232, 0.45), rgba(22, 50, 74, 0.08));
+}
+
+.calqix-tooth-science .cts-progress__node {
+  position: relative;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--cts-text-soft);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.calqix-tooth-science .cts-progress__node::before {
+  content: '';
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(22, 50, 74, 0.14);
+  background: #fff;
+  transition: transform 220ms ease, border-color 220ms ease, background 220ms ease, box-shadow 220ms ease;
+}
+
+.calqix-tooth-science .cts-progress__node.is-current::before {
+  transform: scale(1.14);
+  border-color: rgba(22, 50, 74, 0.32);
+  background: linear-gradient(135deg, var(--cts-aqua-strong), var(--cts-navy));
+  box-shadow: 0 0 0 7px rgba(142, 220, 232, 0.16);
+}
+
+.calqix-tooth-science .cts-progress__node span {
+  display: block;
+}
+
+.calqix-tooth-science .cts-panel {
+  border-radius: 28px;
+  padding: 22px;
+}
+
+.calqix-tooth-science .cts-panel__meta {
+  margin-bottom: 18px;
+}
+
+.calqix-tooth-science .cts-panel__header {
+  margin-bottom: 18px;
+}
+
+.calqix-tooth-science .cts-panel__eyebrow {
+  margin: 0 0 6px;
+  color: var(--cts-text-soft);
+}
+
+.calqix-tooth-science .cts-panel__title {
+  font-size: clamp(26px, 2.6vw, 38px);
+  margin-bottom: 10px;
+}
+
+.calqix-tooth-science .cts-panel__description {
+  font-size: 15px;
+}
+
+.calqix-tooth-science .cts-panel__cards {
+  display: grid;
+  gap: 12px;
+}
+
+.calqix-tooth-science .cts-info-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(22, 50, 74, 0.08);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.95), rgba(255, 255, 255, 0.92));
+  padding: 16px;
+  transform: translateY(10px);
+  opacity: 0;
+  transition:
+    opacity 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.calqix-tooth-science .cts-info-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(205, 239, 244, 0.22), transparent 48%);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.calqix-tooth-science .cts-info-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.calqix-tooth-science .cts-info-card:hover {
+  border-color: rgba(22, 50, 74, 0.14);
+  box-shadow: 0 12px 28px rgba(16, 32, 51, 0.08);
+}
+
+.calqix-tooth-science .cts-info-card:hover::before {
+  opacity: 1;
+}
+
+.calqix-tooth-science .cts-info-card__label,
+.calqix-tooth-science .cts-info-card__value {
+  position: relative;
+  z-index: 1;
+}
+
+.calqix-tooth-science .cts-info-card__label {
+  margin: 0 0 8px;
+  color: var(--cts-navy);
+}
+
+.calqix-tooth-science .cts-info-card__value {
+  font-size: 14px;
+}
+
+.calqix-tooth-science .cts-support-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.calqix-tooth-science .cts-support-card {
+  border-radius: 24px;
+  padding: 20px;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.calqix-tooth-science .cts-support-card::before {
+  content: '';
+  position: absolute;
+  inset: auto -20px -20px auto;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(205, 239, 244, 0.38), transparent 70%);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.calqix-tooth-science .cts-support-card__head {
+  margin-bottom: 14px;
+}
+
+.calqix-tooth-science .cts-support-card__title {
+  font-size: 24px;
+}
+
+.calqix-tooth-science .cts-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.calqix-tooth-science .cts-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(22, 50, 74, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--cts-navy-deep);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 700;
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.calqix-tooth-science .cts-chip::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cts-aqua-strong), var(--cts-navy));
+  flex: 0 0 auto;
+}
+
+.calqix-tooth-science .cts-chip:hover,
+.calqix-tooth-science .cts-chip:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(22, 50, 74, 0.14);
+  box-shadow: 0 12px 24px rgba(16, 32, 51, 0.08);
+  outline: none;
+}
+
+.calqix-tooth-science .cts-chip-row--care .cts-chip::before {
+  background: linear-gradient(135deg, var(--cts-green), var(--cts-aqua-strong));
+}
+
+.calqix-tooth-science .cts-flow-demo {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid rgba(22, 50, 74, 0.08);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(228, 238, 244, 0.9));
+  padding: 12px;
+}
+
+.calqix-tooth-science .cts-flow-demo svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.calqix-tooth-science .cts-flow-demo__arc {
+  fill: none;
+  stroke: rgba(22, 50, 74, 0.26);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 18 8;
+}
+
+.calqix-tooth-science .cts-flow-demo__arc--secondary {
+  stroke: rgba(142, 220, 232, 0.48);
+}
+
+.calqix-tooth-science .cts-flow-demo__pulse,
+.calqix-tooth-science .cts-flow-demo__dot {
+  fill: rgba(22, 50, 74, 0.16);
+}
+
+.calqix-tooth-science .cts-flow-demo__pulse {
+  fill: rgba(142, 220, 232, 0.22);
+  stroke: rgba(22, 50, 74, 0.16);
+  transform-origin: center center;
+  animation: ctsFlowPulse 2.8s ease-in-out infinite;
+}
+
+.calqix-tooth-science .cts-flow-demo__pulse--two {
+  animation-delay: -1.4s;
+}
+
+.calqix-tooth-science .cts-completion {
+  margin-top: 22px;
+  border-radius: 24px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.calqix-tooth-science .cts-completion::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.4) 35%, transparent 68%);
+  transform: translateX(-140%);
+}
+
+.calqix-tooth-science .cts-completion.is-visible::before {
+  animation: ctsCompletionSweep 1s cubic-bezier(0.22, 1, 0.36, 1) 1;
+}
+
+.calqix-tooth-science .cts-completion__title {
+  font-size: clamp(28px, 3vw, 40px);
+  margin: 10px 0 8px;
+}
+
+.calqix-tooth-science .cts-cta-wrap {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.calqix-tooth-science .cts-cta {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(22, 50, 74, 0.14);
+  color: var(--cts-navy-deep);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(205, 239, 244, 0.58), rgba(255, 255, 255, 0.98));
+  box-shadow: 0 14px 30px rgba(16, 32, 51, 0.08);
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.calqix-tooth-science .cts-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.65) 40%, transparent 72%);
+  transform: translateX(-130%);
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.calqix-tooth-science .cts-cta svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  transition: transform 220ms ease;
+}
+
+.calqix-tooth-science .cts-cta:hover,
+.calqix-tooth-science .cts-cta:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 38px rgba(16, 32, 51, 0.12);
+  border-color: rgba(22, 50, 74, 0.22);
+  outline: none;
+}
+
+.calqix-tooth-science .cts-cta:hover::before,
+.calqix-tooth-science .cts-cta:focus-visible::before {
+  transform: translateX(130%);
+}
+
+.calqix-tooth-science .cts-cta:hover svg,
+.calqix-tooth-science .cts-cta:focus-visible svg {
+  transform: translateX(3px);
+}
+
+.calqix-tooth-science .cts-mobile-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.calqix-tooth-science .cts-mobile-sheet.is-open {
+  pointer-events: auto;
+}
+
+.calqix-tooth-science .cts-mobile-sheet__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 34, 51, 0.46);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.calqix-tooth-science .cts-mobile-sheet__panel {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  max-height: min(78vh, 680px);
+  overflow: auto;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.98);
+  transform: translateY(110%);
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 26px 60px rgba(13, 34, 51, 0.24);
+}
+
+.calqix-tooth-science .cts-mobile-sheet.is-open .cts-mobile-sheet__scrim {
+  opacity: 1;
+}
+
+.calqix-tooth-science .cts-mobile-sheet.is-open .cts-mobile-sheet__panel {
+  transform: translateY(0);
+}
+
+.calqix-tooth-science .cts-mobile-sheet__close {
+  position: sticky;
+  top: 12px;
+  margin: 12px 12px 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(22, 50, 74, 0.08);
+  background: rgba(248, 250, 252, 0.96);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.calqix-tooth-science .cts-mobile-sheet__close span {
+  position: absolute;
+  width: 16px;
+  height: 1.5px;
+  background: var(--cts-navy-deep);
+}
+
+.calqix-tooth-science .cts-mobile-sheet__close span:first-child { transform: rotate(45deg); }
+.calqix-tooth-science .cts-mobile-sheet__close span:last-child { transform: rotate(-45deg); }
+
+.calqix-tooth-science .cts-panel--mobile {
+  padding-top: 10px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.calqix-tooth-science .cts-panel--mobile .cts-panel__cards {
+  padding-bottom: 20px;
+}
+
+.calqix-tooth-science .cts-panel--mobile .cts-info-card {
+  opacity: 1;
+  transform: none;
+}
+
+.calqix-tooth-science .cts-panel--mobile,
+.calqix-tooth-science .cts-mobile-sheet {
+  display: none;
+}
+
+.calqix-tooth-science.is-focus-enamel .cts-background__halo--a { transform: translate(14px, -10px) scale(1.12); }
+.calqix-tooth-science.is-focus-dentin .cts-background__halo--a { transform: translate(4px, 8px) scale(1.04); }
+.calqix-tooth-science.is-focus-pulp .cts-background__halo--a { transform: translate(18px, 14px) scale(1.18); }
+.calqix-tooth-science.is-focus-root .cts-background__halo--b { transform: translate(-18px, 10px) scale(1.18); }
+.calqix-tooth-science.is-focus-gum .cts-background__halo--a { transform: translate(-12px, -14px) scale(1.08); }
+.calqix-tooth-science.is-focus-cementum .cts-background__halo--b { transform: translate(-12px, 0) scale(1.08); }
+.calqix-tooth-science.is-focus-rootCanal .cts-background__halo--b { transform: translate(-8px, 18px) scale(1.14); }
+.calqix-tooth-science.is-focus-alveolarBone .cts-background__halo--b { transform: translate(-22px, 20px) scale(1.22); }
+.calqix-tooth-science.is-focus-periodontalLigament .cts-background__halo--a { transform: translate(8px, 18px) scale(1.1); }
+
+.calqix-tooth-science.is-tooth-incisors .cts-background__flow {
+  background: linear-gradient(115deg, rgba(142, 220, 232, 0.06), transparent 40%), repeating-linear-gradient(120deg, rgba(22, 50, 74, 0.05) 0 1px, transparent 1px 18px);
+}
+
+.calqix-tooth-science.is-tooth-canines .cts-background__flow {
+  background: linear-gradient(145deg, rgba(245, 223, 194, 0.14), transparent 34%), repeating-linear-gradient(130deg, rgba(22, 50, 74, 0.05) 0 1px, transparent 1px 18px);
+}
+
+.calqix-tooth-science.is-tooth-premolars .cts-background__flow {
+  background: repeating-radial-gradient(circle at 50% 48%, rgba(22, 50, 74, 0.04) 0 12px, transparent 12px 28px);
+}
+
+.calqix-tooth-science.is-tooth-molars .cts-background__flow {
+  background: linear-gradient(180deg, rgba(191, 231, 209, 0.16), transparent 34%), repeating-linear-gradient(90deg, rgba(22, 50, 74, 0.05) 0 1px, transparent 1px 22px);
+}
+
+.calqix-tooth-science.is-tooth-wisdom .cts-background__flow {
+  background: radial-gradient(circle at 72% 42%, rgba(22, 50, 74, 0.08), transparent 34%), repeating-radial-gradient(circle at 64% 54%, rgba(22, 50, 74, 0.04) 0 14px, transparent 14px 30px);
+}
+
+.calqix-tooth-science.is-age-young .cts-stage,
+.calqix-tooth-science.is-age-young .cts-support-card,
+.calqix-tooth-science.is-age-young .cts-panel__badge--soft {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 249, 251, 0.92));
+}
+
+.calqix-tooth-science.is-age-adult .cts-stage,
+.calqix-tooth-science.is-age-adult .cts-support-card,
+.calqix-tooth-science.is-age-adult .cts-panel__badge--soft {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(238, 243, 247, 0.92));
+}
+
+.calqix-tooth-science.is-background-motion-enabled .cts-background__gradient {
+  animation: ctsGradientDrift 14s ease-in-out infinite alternate;
+}
+
+.calqix-tooth-science.is-background-motion-enabled .cts-background__contours {
+  animation: ctsContourDrift 18s linear infinite;
+}
+
+.calqix-tooth-science.is-background-motion-enabled .cts-background__halo--a,
+.calqix-tooth-science.is-background-motion-enabled .cts-background__halo--b {
+  animation: ctsHaloFloat 8s ease-in-out infinite;
+}
+
+.calqix-tooth-science.is-background-motion-enabled .cts-background__halo--b {
+  animation-delay: -3.4s;
+}
+
+.calqix-tooth-science.is-background-motion-enabled.has-hover-focus .cts-background__particles span,
+.calqix-tooth-science.is-background-motion-enabled.has-active-focus .cts-background__particles span {
+  animation-duration: 4.2s;
+}
+
+@keyframes ctsLineDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes ctsShimmerSweep {
+  from { stroke-dashoffset: 720; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes ctsGradientDrift {
+  0% { transform: translate3d(0, 0, 0) scale(1.02); }
+  100% { transform: translate3d(2%, -2%, 0) scale(1.08); }
+}
+
+@keyframes ctsContourDrift {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-14px, 8px, 0); }
+}
+
+@keyframes ctsHaloFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(12px, -10px, 0) scale(1.06); }
+}
+
+@keyframes ctsFloatParticle {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.5; }
+  50% { transform: translate3d(6px, -8px, 0) scale(1.08); opacity: 0.85; }
+}
+
+@keyframes ctsFlowPulse {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.18); opacity: 0.92; }
+}
+
+@keyframes ctsCompletionSweep {
+  from { transform: translateX(-140%); }
+  to { transform: translateX(140%); }
+}
+
+@media (max-width: 1180px) {
+  .calqix-tooth-science .cts-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calqix-tooth-science .cts-panel--desktop {
+    order: 2;
+  }
+
+  .calqix-tooth-science .cts-support-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 990px) {
+  .calqix-tooth-science .cts-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .calqix-tooth-science .cts-age-toggle {
+    align-self: flex-start;
+  }
+
+  .calqix-tooth-science .cts-stage {
+    min-height: 500px;
+  }
+
+  .calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__line,
+  .calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__line {
+    width: 56px;
+  }
+
+  .calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__label { left: 74px; }
+  .calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__label { right: 74px; }
+}
+
+@media (max-width: 749px) {
+  .calqix-tooth-science {
+    padding: calc(var(--cts-padding-top) * 0.76) 0 calc(var(--cts-padding-bottom) * 0.76);
+  }
+
+  .calqix-tooth-science .cts-shell {
+    width: calc(100% - 24px);
+  }
+
+  .calqix-tooth-science .cts-intro {
+    text-align: left;
+    margin-bottom: 24px;
+  }
+
+  .calqix-tooth-science .cts-heading,
+  .calqix-tooth-science .cts-intro-copy {
+    margin-inline: 0;
+  }
+
+  .calqix-tooth-science .cts-trust {
+    margin-inline: 0;
+    border-radius: 24px;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .calqix-tooth-science .cts-trust__list {
+    justify-content: flex-start;
+  }
+
+  .calqix-tooth-science .cts-tooth-tab {
+    min-width: 142px;
+  }
+
+  .calqix-tooth-science .cts-age-toggle {
+    width: 100%;
+  }
+
+  .calqix-tooth-science .cts-age-toggle__button {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .calqix-tooth-science .cts-visual-card {
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  .calqix-tooth-science .cts-stage {
+    min-height: 450px;
+  }
+
+  .calqix-tooth-science .cts-stage__insight {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .calqix-tooth-science .cts-hotspot__label {
+    padding: 7px 9px;
+    font-size: 10px;
+  }
+
+  .calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__label,
+  .calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__label {
+    top: auto;
+    bottom: 20px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  .calqix-tooth-science .cts-hotspot.is-align-left .cts-hotspot__line,
+  .calqix-tooth-science .cts-hotspot.is-align-right .cts-hotspot__line {
+    width: 48px;
+    transform: translate(-50%, -46px) rotate(-90deg);
+  }
+
+  .calqix-tooth-science .cts-hotspot.is-align-top .cts-hotspot__label {
+    bottom: 68px;
+  }
+
+  .calqix-tooth-science .cts-hotspot.is-align-bottom .cts-hotspot__label {
+    top: 66px;
+  }
+
+  .calqix-tooth-science .cts-panel--desktop {
+    display: none;
+  }
+
+  .calqix-tooth-science .cts-panel--mobile,
+  .calqix-tooth-science .cts-mobile-sheet {
+    display: block;
+  }
+
+  .calqix-tooth-science .cts-support-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calqix-tooth-science .cts-progress__list {
+    gap: 8px;
+  }
+
+  .calqix-tooth-science .cts-progress__node {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 560px) {
+  .calqix-tooth-science .cts-heading {
+    font-size: clamp(30px, 9vw, 42px);
+  }
+
+  .calqix-tooth-science .cts-stage {
+    min-height: 410px;
+  }
+
+  .calqix-tooth-science .cts-stage__diagram {
+    top: -6px;
+  }
+
+  .calqix-tooth-science .cts-hotspot__label {
+    white-space: normal;
+    max-width: 120px;
+    text-align: center;
+    line-height: 1.35;
+  }
+
+  .calqix-tooth-science .cts-progress__list::before {
+    left: 12%;
+    right: 12%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calqix-tooth-science,
+  .calqix-tooth-science *,
+  .calqix-tooth-science *::before,
+  .calqix-tooth-science *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .calqix-tooth-science .cts-outline-path {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+}
