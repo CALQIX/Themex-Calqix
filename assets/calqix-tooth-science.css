@@ -1699,6 +1699,17 @@
   .calqix-tooth-science .cts-hotspot__label {
     padding: 7px 9px;
     font-size: 10px;
+    display: flex;
+    justify-content: center;
+    width: max-content;
+    max-width: min(148px, calc(100vw - 32px));
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: normal;
+    text-wrap: balance;
+    text-align: center;
+    line-height: 1.2;
+    letter-spacing: 0.05em;
     opacity: 0;
     box-shadow: 0 10px 20px rgba(var(--cts-navy-deep-rgb), 0.08);
   }
@@ -1784,10 +1795,9 @@
   }
 
   .calqix-tooth-science .cts-hotspot__label {
-    white-space: normal;
-    max-width: 120px;
-    text-align: center;
-    line-height: 1.35;
+    max-width: min(156px, calc(100vw - 28px));
+    padding: 8px 10px;
+    line-height: 1.18;
   }
 
   .calqix-tooth-science .cts-progress__list::before {
