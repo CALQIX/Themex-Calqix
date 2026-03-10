@@ -419,6 +419,12 @@
     margin: 0;
   }
 
+  #cq-signup-{{ section.id }} .cqs-klaviyo {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
   /* ============================================================
      FINE PRINT
      ============================================================ */
@@ -487,11 +493,11 @@
 
 {%- comment -%} ── HTML ── {%- endcomment -%}
 
+{%- assign klaviyo_form_shortcode = section.settings.klaviyo_form_shortcode | strip -%}
+{%- assign klaviyo_form_id = klaviyo_form_shortcode | replace: 'klaviyo-form-', '' | strip -%}
 <div id="cq-signup-{{ section.id }}">
-
-  {%- comment -%} Canvas achtergrond {%- endcomment -%}
-  <canvas class="cqs-bg-canvas" id="cqs-canvas-{{ section.id }}"></canvas>
-
+  <canvas class="cqs-canvas" id="cqs-canvas-{{ section.id }}"></canvas>
+  <div class="cqs-bg-glow"></div>
   <div class="cqs-inner">
 
     {%- comment -%} Badge {%- endcomment -%}
@@ -533,68 +539,121 @@
       {%- endif -%}
     </div>
 
-    {% form 'customer', id: 'cqs-form-{{ section.id }}' %}
-      {%- comment -%} Mobile collapse trigger {%- endcomment -%}
-      <div class="cqs-mobile-trigger" id="cqs-trigger-wrap-{{ section.id }}"{% if form.posted_successfully? %} style="display: none;"{% endif %}>
+    {%- if klaviyo_form_id != blank -%}
+      <div class="cqs-mobile-trigger" id="cqs-trigger-wrap-{{ section.id }}">
         <button class="cqs-trigger-btn" id="cqs-trigger-{{ section.id }}" type="button" aria-expanded="false" aria-controls="cqs-form-wrapper-{{ section.id }}">
           <span class="cqs-btn-text">{{ section.settings.mobile_trigger_label }}</span>
           <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
 
-      {%- comment -%} Form wrapper — collapsible op mobiel {%- endcomment -%}
       <div class="cqs-form-wrapper" id="cqs-form-wrapper-{{ section.id }}">
-        {%- unless form.posted_successfully? -%}
-          <input type="hidden" name="contact[tags]" value="newsletter">
-          <div class="cqs-form">
-            <input
-              class="cqs-input"
-              type="email"
-              name="contact[email]"
-              id="cqs-email-{{ section.id }}"
-              placeholder="{{ section.settings.input_placeholder }}"
-              required
-              autocomplete="email"
-              autocorrect="off"
-              autocapitalize="off"
-              value="{{ form.email }}"
-            >
-            <button class="cqs-btn" type="submit" id="cqs-submit-{{ section.id }}">
-              <span class="cqs-btn-text">{{ section.settings.btn_label }}</span>
-              <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
-          </div>
-
-          {%- if section.settings.fine_print != blank -%}
-            <p class="cqs-fine">{{ section.settings.fine_print }}</p>
-          {%- endif -%}
-        {%- endunless -%}
+        <div class="cqs-klaviyo" id="cqs-klaviyo-{{ section.id }}">
+          <div class="klaviyo-form-{{ klaviyo_form_id }}"></div>
+        </div>
+        {%- if section.settings.fine_print != blank -%}
+          <p class="cqs-fine">{{ section.settings.fine_print }}</p>
+        {%- endif -%}
       </div>
+    {%- else -%}
+      <script>
+      (function () {
+        var key = 'cqs-signup-scroll-{{ section.id }}';
+        var hash = window.location.hash;
+        var savedY;
+        if (hash !== '#cqs-form-{{ section.id }}' && hash !== '#contact_form') return;
+        try {
+          savedY = window.sessionStorage.getItem(key);
+        } catch (e) {
+          return;
+        }
+        if (!savedY) return;
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+        }
+        var y = parseInt(savedY, 10);
+        if (isNaN(y)) return;
+        var restored = false;
+        function restoreScroll() {
+          if (restored) return;
+          restored = true;
+          window.scrollTo(0, y);
+          try {
+            window.sessionStorage.removeItem(key);
+          } catch (e) {}
+        }
+        if (document.readyState === 'complete') {
+          restoreScroll();
+        } else {
+          document.addEventListener('DOMContentLoaded', restoreScroll, { once: true });
+          window.addEventListener('load', restoreScroll, { once: true });
+        }
+      })();
+      </script>
 
-      {%- if form.errors -%}
-        <div class="cqs-error" id="cqs-error-{{ section.id }}">
-          {% for error in form.errors %}
-            <p>
-              {% if error == 'form' %}
-                {{ form.errors.messages[error] }}
-              {% else %}
-                {{ form.errors.translated_fields[error] }} - {{ form.errors.messages[error] }}
-              {% endif %}
-            </p>
-          {% endfor %}
+      {% form 'customer', id: 'cqs-form-{{ section.id }}' %}
+        {%- comment -%} Mobile collapse trigger {%- endcomment -%}
+        <div class="cqs-mobile-trigger" id="cqs-trigger-wrap-{{ section.id }}"{% if form.posted_successfully? %} style="display: none;"{% endif %}>
+          <button class="cqs-trigger-btn" id="cqs-trigger-{{ section.id }}" type="button" aria-expanded="false" aria-controls="cqs-form-wrapper-{{ section.id }}">
+            <span class="cqs-btn-text">{{ section.settings.mobile_trigger_label }}</span>
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
         </div>
-      {%- endif -%}
 
-      {%- if form.posted_successfully? -%}
-        <div class="cqs-success" id="cqs-success-{{ section.id }}" style="display: flex;">
-          <div class="cqs-success-icon">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        {%- comment -%} Form wrapper — collapsible op mobiel {%- endcomment -%}
+        <div class="cqs-form-wrapper" id="cqs-form-wrapper-{{ section.id }}">
+          {%- unless form.posted_successfully? -%}
+            <input type="hidden" name="contact[tags]" value="newsletter">
+            <div class="cqs-form">
+              <input
+                class="cqs-input"
+                type="email"
+                name="contact[email]"
+                id="cqs-email-{{ section.id }}"
+                placeholder="{{ section.settings.input_placeholder }}"
+                required
+                autocomplete="email"
+                autocorrect="off"
+                autocapitalize="off"
+                value="{{ form.email }}"
+              >
+              <button class="cqs-btn" type="submit" id="cqs-submit-{{ section.id }}">
+                <span class="cqs-btn-text">{{ section.settings.btn_label }}</span>
+                <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+
+            {%- if section.settings.fine_print != blank -%}
+              <p class="cqs-fine">{{ section.settings.fine_print }}</p>
+            {%- endif -%}
+          {%- endunless -%}
+        </div>
+
+        {%- if form.errors -%}
+          <div class="cqs-error" id="cqs-error-{{ section.id }}">
+            {% for error in form.errors %}
+              <p>
+                {% if error == 'form' %}
+                  {{ form.errors.messages[error] }}
+                {% else %}
+                  {{ form.errors.translated_fields[error] }} - {{ form.errors.messages[error] }}
+                {% endif %}
+              </p>
+            {% endfor %}
           </div>
-          <span class="cqs-success-title">{{ section.settings.success_title }}</span>
-          <span class="cqs-success-sub">{{ section.settings.success_sub }}</span>
-        </div>
-      {%- endif -%}
-    {% endform %}
+        {%- endif -%}
+
+        {%- if form.posted_successfully? -%}
+          <div class="cqs-success" id="cqs-success-{{ section.id }}" style="display: flex;">
+            <div class="cqs-success-icon">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <span class="cqs-success-title">{{ section.settings.success_title }}</span>
+            <span class="cqs-success-sub">{{ section.settings.success_sub }}</span>
+          </div>
+        {%- endif -%}
+      {% endform %}
+    {%- endif -%}
     {%- comment -%} /cqs-form-wrapper {%- endcomment -%}
 
   </div>
@@ -860,6 +919,9 @@
      ============================================================ */
   if (form && submitBtn) {
     form.addEventListener('submit', function (e) {
+      try {
+        window.sessionStorage.setItem('cqs-signup-scroll-' + SID, String(window.scrollY || window.pageYOffset || 0));
+      } catch (error) {}
       if (submitBtn) submitBtn.classList.add('loading');
     });
   }
@@ -993,6 +1055,17 @@
       "id": "btn_label",
       "label": "Knop tekst",
       "default": "Claim 10% Off"
+    },
+    {
+      "type": "header",
+      "content": "Klaviyo (optioneel)"
+    },
+    {
+      "type": "text",
+      "id": "klaviyo_form_shortcode",
+      "label": "Klaviyo shortcode / form class",
+      "default": "",
+      "info": "Plak hier `klaviyo-form-XXXXXX` of alleen `XXXXXX`. Zorg dat de Klaviyo app embed in de theme editor is ingeschakeld."
     },
     {
       "type": "header",
