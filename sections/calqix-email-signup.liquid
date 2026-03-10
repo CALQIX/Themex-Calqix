@@ -402,6 +402,23 @@
     color: {{ section.settings.color_body }};
   }
 
+  #cq-signup-{{ section.id }} .cqs-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 0 0;
+    max-width: 480px;
+    margin: 0 auto;
+    color: #f6b5b5;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    text-align: center;
+  }
+  #cq-signup-{{ section.id }} .cqs-error p {
+    margin: 0;
+  }
+
   /* ============================================================
      FINE PRINT
      ============================================================ */
@@ -516,48 +533,68 @@
       {%- endif -%}
     </div>
 
-    {%- comment -%} Mobile collapse trigger {%- endcomment -%}
-    <div class="cqs-mobile-trigger" id="cqs-trigger-wrap-{{ section.id }}">
-      <button class="cqs-trigger-btn" id="cqs-trigger-{{ section.id }}" type="button" aria-expanded="false" aria-controls="cqs-form-wrapper-{{ section.id }}">
-        <span class="cqs-btn-text">{{ section.settings.mobile_trigger_label }}</span>
-        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-    </div>
-
-    {%- comment -%} Form wrapper — collapsible op mobiel {%- endcomment -%}
-    <div class="cqs-form-wrapper" id="cqs-form-wrapper-{{ section.id }}">
-
-      <form class="cqs-form" id="cqs-form-{{ section.id }}" novalidate>
-        <input
-          class="cqs-input"
-          type="email"
-          name="email"
-          id="cqs-email-{{ section.id }}"
-          placeholder="{{ section.settings.input_placeholder }}"
-          required
-          autocomplete="email"
-        >
-        <button class="cqs-btn" type="submit" id="cqs-submit-{{ section.id }}">
-          <span class="cqs-btn-text">{{ section.settings.btn_label }}</span>
-          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    {% form 'customer', id: 'cqs-form-{{ section.id }}' %}
+      {%- comment -%} Mobile collapse trigger {%- endcomment -%}
+      <div class="cqs-mobile-trigger" id="cqs-trigger-wrap-{{ section.id }}"{% if form.posted_successfully? %} style="display: none;"{% endif %}>
+        <button class="cqs-trigger-btn" id="cqs-trigger-{{ section.id }}" type="button" aria-expanded="false" aria-controls="cqs-form-wrapper-{{ section.id }}">
+          <span class="cqs-btn-text">{{ section.settings.mobile_trigger_label }}</span>
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-      </form>
-
-      {%- comment -%} Success message {%- endcomment -%}
-      <div class="cqs-success" id="cqs-success-{{ section.id }}">
-        <div class="cqs-success-icon">
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        </div>
-        <span class="cqs-success-title">{{ section.settings.success_title }}</span>
-        <span class="cqs-success-sub">{{ section.settings.success_sub }}</span>
       </div>
 
-      {%- comment -%} Fine print {%- endcomment -%}
-      {%- if section.settings.fine_print != blank -%}
-        <p class="cqs-fine">{{ section.settings.fine_print }}</p>
+      {%- comment -%} Form wrapper — collapsible op mobiel {%- endcomment -%}
+      <div class="cqs-form-wrapper" id="cqs-form-wrapper-{{ section.id }}">
+        {%- unless form.posted_successfully? -%}
+          <input type="hidden" name="contact[tags]" value="newsletter">
+          <div class="cqs-form">
+            <input
+              class="cqs-input"
+              type="email"
+              name="contact[email]"
+              id="cqs-email-{{ section.id }}"
+              placeholder="{{ section.settings.input_placeholder }}"
+              required
+              autocomplete="email"
+              autocorrect="off"
+              autocapitalize="off"
+              value="{{ form.email }}"
+            >
+            <button class="cqs-btn" type="submit" id="cqs-submit-{{ section.id }}">
+              <span class="cqs-btn-text">{{ section.settings.btn_label }}</span>
+              <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          {%- if section.settings.fine_print != blank -%}
+            <p class="cqs-fine">{{ section.settings.fine_print }}</p>
+          {%- endif -%}
+        {%- endunless -%}
+      </div>
+
+      {%- if form.errors -%}
+        <div class="cqs-error" id="cqs-error-{{ section.id }}">
+          {% for error in form.errors %}
+            <p>
+              {% if error == 'form' %}
+                {{ form.errors.messages[error] }}
+              {% else %}
+                {{ form.errors.translated_fields[error] }} - {{ form.errors.messages[error] }}
+              {% endif %}
+            </p>
+          {% endfor %}
+        </div>
       {%- endif -%}
 
-    </div>
+      {%- if form.posted_successfully? -%}
+        <div class="cqs-success" id="cqs-success-{{ section.id }}" style="display: flex;">
+          <div class="cqs-success-icon">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <span class="cqs-success-title">{{ section.settings.success_title }}</span>
+          <span class="cqs-success-sub">{{ section.settings.success_sub }}</span>
+        </div>
+      {%- endif -%}
+    {% endform %}
     {%- comment -%} /cqs-form-wrapper {%- endcomment -%}
 
   </div>
@@ -575,7 +612,9 @@
   const submitBtn = document.getElementById('cqs-submit-'       + SID);
   const succ    = document.getElementById('cqs-success-'        + SID);
   const trigger = document.getElementById('cqs-trigger-'        + SID);
+  const triggerWrap = document.getElementById('cqs-trigger-wrap-' + SID);
   const fwrap   = document.getElementById('cqs-form-wrapper-'   + SID);
+  const errorBox = document.getElementById('cqs-error-'         + SID);
 
   /* ============================================================
      1. CANVAS — hex grid + particles + ripples
@@ -765,14 +804,30 @@
   function initCollapse() {
     if (!MOBILE_COLLAPSE || !trigger || !fwrap) return;
 
+    if (succ) {
+      fwrap.classList.remove('cqs-collapsed', 'cqs-mobile-ready');
+      trigger.setAttribute('aria-expanded', 'true');
+      trigger.classList.add('open');
+      if (triggerWrap) triggerWrap.style.display = 'none';
+      return;
+    }
+
     if (isMobile()) {
-      /* Collapse instellen */
-      fwrap.classList.add('cqs-collapsed', 'cqs-mobile-ready');
-      trigger.setAttribute('aria-expanded', 'false');
+      if (errorBox) {
+        fwrap.classList.remove('cqs-collapsed', 'cqs-mobile-ready');
+        trigger.setAttribute('aria-expanded', 'true');
+        trigger.classList.add('open');
+      } else {
+        /* Collapse instellen */
+        fwrap.classList.add('cqs-collapsed', 'cqs-mobile-ready');
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.classList.remove('open');
+      }
     } else {
       /* Desktop: altijd open */
       fwrap.classList.remove('cqs-collapsed', 'cqs-mobile-ready');
       trigger.setAttribute('aria-expanded', 'true');
+      trigger.classList.add('open');
     }
   }
 
@@ -803,57 +858,9 @@
   /* ============================================================
      3. FORM SUBMIT
      ============================================================ */
-  if (form) {
+  if (form && submitBtn) {
     form.addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      const email = input ? input.value.trim() : '';
-
-      /* Validatie */
-      if (!email || !/\S+@\S+\.\S+/.test(email)) {
-        if (input) {
-          input.style.borderColor = '#e05555';
-          input.style.boxShadow   = '0 0 0 3px rgba(224,85,85,0.12)';
-          input.focus();
-          setTimeout(function () {
-            input.style.borderColor = '';
-            input.style.boxShadow   = '';
-          }, 2000);
-        }
-        return;
-      }
-
-      /* Loading state */
       if (submitBtn) submitBtn.classList.add('loading');
-
-      /* Shopify newsletter via Contact API */
-      fetch('/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          form_type: 'customer',
-          utf8: '✓',
-          'customer[email]': email,
-          'customer[accepts_marketing]': 'true',
-          return_to: '/pages/thank-you'
-        })
-      })
-      .catch(function () {})
-      .finally(function () {
-        /* Toon success */
-        if (form) form.style.display = 'none';
-        if (succ) {
-          succ.style.display = 'flex';
-          /* Ripple vanuit het midden ter bevestiging */
-          if (wrap) {
-            const r = wrap.getBoundingClientRect();
-            wrap.dispatchEvent(new MouseEvent('click', {
-              clientX: r.left + r.width  / 2,
-              clientY: r.top  + r.height / 2
-            }));
-          }
-        }
-      });
     });
   }
 
