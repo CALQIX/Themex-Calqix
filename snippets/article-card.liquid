@@ -48,7 +48,7 @@
                 {%- if block.settings.show_author or show_author -%} date card__subtitle--right-border {% endif %}
               "
             >
-              {{ article.published_at | date: '%B %d, %Y' }}
+              {{ article.published_at | time_tag: format: 'date' }}
             </span>
           {%- endif -%}
 

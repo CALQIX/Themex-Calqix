@@ -85,13 +85,11 @@
               <div class="main-article__header">
                 {%- if block.settings.blog_show_author -%}
                   <span itemprop="author">
-                    <span itemprop="name">Posted by {{ article.author }} </span>
+                    <span itemprop="name">{{ 'blogs.article.posted_by' | t: author: article.author }}</span>
                   </span>
                 {%- endif -%}
                 {%- if block.settings.blog_show_date -%}
-                  <span itemprop="dateCreated pubdate datePublished"
-                    >on {{ article.published_at | date: '%B %d, %Y' -}}
-                  </span>
+                  <span itemprop="dateCreated pubdate datePublished">{{ article.published_at | time_tag: format: 'date' }}</span>
                 {%- endif -%}
               </div>
               {%- if block.settings.blog_show_author or block.settings.blog_show_date -%}
@@ -115,7 +113,11 @@
               {{ block.shopify_attributes }}
             >
               {% assign share_url = request.origin | append: article.url %}
-              <p>{{ block.settings.share_text | escape }}</p>
+              {% assign main_article_share_text = block.settings.share_text | strip %}
+              {% if main_article_share_text == blank or main_article_share_text == 'Share this article' %}
+                {% assign main_article_share_text = 'blogs.article.share' | t %}
+              {% endif %}
+              <p>{{ main_article_share_text | escape }}</p>
 
               {% if block.settings.share_facebook %}
                 <a href="//www.facebook.com/sharer/sharer.php?u={{ share_url }}" class="main-article__share__button">
@@ -133,7 +135,7 @@
                 </a>
               {% endif %}
               {% if block.settings.share_mail %}
-                <a href="mailto:?body={{ share_url }}" class="main-article__share__button" aria-label="Email">
+                <a href="mailto:?body={{ share_url }}" class="main-article__share__button" aria-label="{{ 'blogs.article.email_aria_label' | t }}">
                   {% render 'icon-mail' %}
                 </a>
               {% endif %}
