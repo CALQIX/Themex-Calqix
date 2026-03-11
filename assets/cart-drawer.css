@@ -36,9 +36,13 @@
   right: 0;
   display: flex;
   flex-direction: column;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  contain: layout style;
 }
 .drawers-animated .wt-cart__drawer {
-  transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
+  transition: transform 0.34s cubic-bezier(0.16, 0.84, 0.24, 1), opacity 0.28s ease-out;
 }
 .wt-cart__drawer__header {
   display: flex;
@@ -69,7 +73,7 @@
 }
 .drawers-animated .wt-cart__drawer--open,
 .drawers-animated .wt-cart[open] .wt-cart__drawer {
-  transition: transform 0.32s ease-in, opacity 0.3s ease;
+  transition: transform 0.26s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.22s ease;
 }
 .wt-cart__drawer__header {
   padding: calc(var(--gap, 8px) * 2) calc(var(--gap, 8px) * 3);
@@ -116,6 +120,23 @@
   display: flex;
   flex-direction: column;
   padding: 0 calc(var(--gap, 8px) * 3);
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(26, 59, 92, 0.16) transparent;
+}
+.wt-cart__drawer__body::-webkit-scrollbar {
+  width: 4px;
+}
+.wt-cart__drawer__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.wt-cart__drawer__body::-webkit-scrollbar-thumb {
+  background: rgba(26, 59, 92, 0.16);
+  border-radius: 4px;
+}
+.wt-cart__drawer__body::-webkit-scrollbar-thumb:hover {
+  background: rgba(26, 59, 92, 0.3);
 }
 @media (max-width: 399px) {
   .wt-cart__drawer__body {
@@ -896,25 +917,29 @@
 
 .page-overlay-cart {
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
   position: fixed;
   height: 100vh;
   width: 100%;
   top: 0;
   left: 0;
   opacity: 0;
-  transform: scale(0);
-  z-index: 15;
-  transition: opacity 0.3s ease-in-out;
+  visibility: hidden;
+  pointer-events: none;
   z-index: 50;
+  transition: opacity 0.32s ease, backdrop-filter 0.32s ease, -webkit-backdrop-filter 0.32s ease, visibility 0s linear 0.32s;
 }
 .page-overlay-cart-on {
   overflow: hidden;
 }
 .page-overlay-cart-on .page-overlay-cart {
   opacity: 1;
-  transform: scale(1);
-  backdrop-filter: blur(4px);
+  visibility: visible;
+  pointer-events: auto;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: opacity 0.32s ease, backdrop-filter 0.32s ease, -webkit-backdrop-filter 0.32s ease, visibility 0s linear 0s;
 }
 
 .wt-cart__drawer {
@@ -923,11 +948,7 @@
 }
 
 .drawers-animated .wt-cart__drawer {
-  transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.32s ease-in;
-}
-
-.page-overlay-cart {
-  transition: opacity 0.3s ease;
+  transition: transform 0.34s cubic-bezier(0.16, 0.84, 0.24, 1), opacity 0.28s ease-out;
 }
 
 .cart-page .card__subtitle {
@@ -1045,11 +1066,27 @@
 }
 .wt-cart__drawer__close {
   color: var(--calqix-navy-soft);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+}
+@media (hover: hover) {
+  .wt-cart__drawer .wt-cart__drawer__close:hover {
+    transform: rotate(90deg) scale(1.1);
+    color: var(--calqix-navy);
+  }
+}
+.wt-cart__drawer .wt-cart__drawer__close:active {
+  transform: rotate(90deg) scale(0.92);
 }
 .wt-cart__drawer .wt-cart__item {
   border-bottom-color: var(--calqix-border);
   padding-top: 18px;
   padding-bottom: 18px;
+  transition: background-color 0.2s ease;
+}
+@media (hover: hover) {
+  .wt-cart__drawer .wt-cart__item:hover {
+    background-color: rgba(26, 59, 92, 0.02);
+  }
 }
 .wt-cart__drawer .wt-cart__item__thumb img,
 .wt-cart__drawer .wt-cart__item__thumb svg {
@@ -1188,6 +1225,26 @@
   text-transform: uppercase;
   font-weight: 700;
   transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.wt-cart__drawer .wt-cart__cta::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.1) 45%,
+    rgba(255, 255, 255, 0.18) 50%,
+    rgba(255, 255, 255, 0.1) 55%,
+    transparent 80%
+  );
+  animation: wtCartCtaShimmer 3.5s ease-in-out infinite;
+  pointer-events: none;
 }
 @media (hover: hover) {
   .wt-cart__drawer .wt-cart__cta:hover {
@@ -1216,7 +1273,8 @@
     color-mix(in srgb, var(--calqix-navy-soft) 60%, var(--calqix-gold) 40%) 60%,
     var(--calqix-gold) 100%
   );
-  background-size: 160% 100%;
+  background-size: 200% 100%;
+  animation: wtCartProgressShimmer 2.5s ease-in-out infinite;
 }
 
 /* Payment row tuned for CALQIX look */
@@ -1567,13 +1625,18 @@
   animation: wtCartProgressPulse calc(0.9s * var(--drawer-motion-duration-scale, 1)) ease both;
 }
 .wt-cart__drawer .js-counter-button {
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, background-color 0.18s ease;
+}
+@media (hover: hover) {
+  .wt-cart__drawer .js-counter-button:hover {
+    background-color: rgba(26, 59, 92, 0.06);
+  }
 }
 .wt-cart__drawer .js-counter-increase:active {
-  transform: scale(1.2);
+  transform: scale(1.15);
 }
 .wt-cart__drawer .js-counter-decrease:active {
-  transform: scale(0.85);
+  transform: scale(0.88);
 }
 .wt-cart__drawer .js-counter-quantity.wt-cart-qty--flip-up {
   animation: wtCartQtyFlipUp 0.2s ease;
@@ -1582,8 +1645,8 @@
   animation: wtCartQtyFlipDown 0.2s ease;
 }
 .wt-cart__drawer .wt-cart__item.wt-cart-item--stagger-in {
-  animation: wtCartItemStaggerIn 0.28s ease-out both;
-  animation-delay: calc(var(--wt-cart-item-index, 0) * 60ms);
+  animation: wtCartItemStaggerIn 0.32s cubic-bezier(0.22, 0.68, 0, 1.04) both;
+  animation-delay: calc(var(--wt-cart-item-index, 0) * 45ms);
 }
 
 .wt-cart__drawer .wt-cart__drawer__inner {
@@ -1605,7 +1668,7 @@
       rgba(15, 36, 56, 1) 62%
     );
     animation: breathe 6s ease-in-out infinite alternate;
-    transition: all 0.4s ease;
+    transition: opacity 0.35s ease, background 0.35s ease;
   }
   .wt-cart__drawer .wt-cart__drawer__inner > * {
     position: relative;
@@ -1717,8 +1780,9 @@
   to { background-position: 100% 100%; }
 }
 @keyframes wtCartItemStaggerIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  0% { opacity: 0; transform: translateY(14px) scale(0.98); }
+  70% { opacity: 1; transform: translateY(-2px) scale(1.005); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 @keyframes wtCartLineRemoveFlash {
   0% { background: rgba(220, 50, 50, 0.08); }
@@ -1846,6 +1910,7 @@
   .wt-cart__drawer .wt-cart__item__thumb img,
   .wt-cart__drawer .wt-cart__item__thumb svg,
   .wt-cart__drawer .wt-cart__cta,
+  .wt-cart__drawer .wt-cart__cta::after,
   .wt-cart__drawer .wt-cart__addon-card__button,
   .wt-cart-counter--bounce,
   .wt-cart-counter--flip-up,
@@ -1862,6 +1927,15 @@
     animation: none !important;
     opacity: 0.08;
   }
+}
+
+@keyframes wtCartCtaShimmer {
+  0% { left: -100%; }
+  45%, 100% { left: 120%; }
+}
+@keyframes wtCartProgressShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /*# sourceMappingURL=cart-drawer.css.map */

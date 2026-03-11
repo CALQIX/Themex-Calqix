@@ -267,7 +267,11 @@ class CartDrawerSection extends HTMLElement {
     items.forEach((item, index) => {
       item.style.setProperty("--wt-cart-item-index", index);
       item.classList.remove("wt-cart-item--stagger-in");
-      requestAnimationFrame(() => item.classList.add("wt-cart-item--stagger-in"));
+    });
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        items.forEach((item) => item.classList.add("wt-cart-item--stagger-in"));
+      });
     });
   }
 
