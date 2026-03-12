@@ -11,15 +11,28 @@
   "sections": {
     "main": {
       "type": "main-page",
+      "disabled": true,
       "settings": {
+        "compact-size-enabled": true,
         "size_heading": 140,
         "size_heading_mobile": 100,
+        "color-body-text": "rgba(0,0,0,0)",
+        "color-bg-overlay": "rgba(0,0,0,0)",
+        "color-overlay-opacity": 100,
         "margin-top": 40,
         "margin-bottom": 0
+      }
+    },
+    "custom_liquid_3UBnpF": {
+      "type": "custom-liquid",
+      "name": "t:sections.custom-liquid.presets.name",
+      "settings": {
+        "custom_liquid": ""
       }
     }
   },
   "order": [
-    "main"
+    "main",
+    "custom_liquid_3UBnpF"
   ]
 }
