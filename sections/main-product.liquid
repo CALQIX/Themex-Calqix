@@ -189,6 +189,18 @@
           --color-button-secondary-text-hover: {{ block.settings.text_color }};
 
         {% endif %}
+      }
+      [data-block-id="{{ block.id }}"] .calqix-atc-note {
+        margin: 0 0 12px;
+        color: #6B7280;
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        font-style: italic;
+        line-height: 1.5;
+        text-align: center;
+      }
+      [data-block-id="{{ block.id }}"] .wt-product__add-to-cart {
+        width: 100%;
       }{% when 'feature_icons' %}
       [data-block-id="{{ block.id }}"]{
         --columns-number-mobile: {{block.settings.items_per_row }};
@@ -1235,7 +1247,7 @@
                   assign file3 = product.metafields[metafield_namespace3][metafield_key3].value
                 endunless
               %}
-              
+
               <collapsible-section
                 class="wt-collapse wt-collapse--always {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}"
                 data-accordion-set="pdp"
@@ -1359,7 +1371,7 @@
                   </div>
                 </div>
               </collapsible-section>
-            
+
             {%- when 'custom_option' -%}
               {% assign options = block.settings.options | newline_to_br | split: '<br />' %}
 
@@ -1815,6 +1827,7 @@
                     {% if block.settings.show_gift_card_recipient and product.gift_card? %}
                       {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
                     {% endif %}
+                    <p class="calqix-atc-note">Join thousands who stopped ignoring the signs.</p>
                     <div class="wt-product__add-to-cart_form--wrapper product-form__buttons">
                       {% if block.settings.show_qty_selector %}
                         {% render 'component-counter' %}
@@ -2055,7 +2068,7 @@
                     {% endif %}
 
                   {% if block.settings.social_whatsapp_link %}
-                    <li class="share-icons__item"> 
+                    <li class="share-icons__item">
                       <a
                         href="https://wa.me/?text={{ shop.url }}{{ product.url }}"
                         aria-label="WhatsApp"
@@ -2162,7 +2175,7 @@
 
               {% assign metafield_namespace = metafield | first | strip %}
               {% assign metafield_key = metafield | last | strip %}
-              
+
               {% assign option_name = nil %}
               {% assign current_option = product.metafields[metafield_namespace][metafield_key] %}
               {% if current_option.type == 'metaobject_reference' %}
@@ -2297,7 +2310,7 @@
   ============================================================
   CALQIX PATCH — Stap 1 van 2
   Bestandsnaam: GEEN apart bestand — plak dit IN main-product.liquid
-  
+
   LOCATIE: Zoek naar de regel:
     {%- when 'video_reels' -%}
   Plak de onderstaande code DIRECT VOOR die regel.
@@ -2622,14 +2635,13 @@
               {%- endif -%}
               <div id="ccs-block-{{ block.id }}" class="calqix-colour-switcher-block" {{ block.shopify_attributes }}>
                 <div class="ccs-label">
-                  {{ b.label_text }}
                   {%- if b.show_active_name and ccs_active_name != blank -%}
-                    <span class="ccs-meta">
-                      — <span class="ccs-active-name">{{ ccs_active_name }}</span>
-                      {%- if b.highlight_text != blank and b.highlight_product != blank and ccs_active_handle == b.highlight_product.handle -%}
-                        <span class="ccs-chip">{{ b.highlight_text }}</span>
-                      {%- endif -%}
-                    </span>
+                    {{ b.label_text }}: <span class="ccs-active-name">{{ ccs_active_name }}</span>
+                    {%- if b.highlight_text != blank and b.highlight_product != blank and ccs_active_handle == b.highlight_product.handle -%}
+                      <span class="ccs-chip">{{ b.highlight_text }}</span>
+                    {%- endif -%}
+                  {%- else -%}
+                    {{ b.label_text }}
                   {%- endif -%}
                 </div>
                 {%- assign ccs_locale_root_url = request.path | split: '/products/' | first -%}
@@ -3492,7 +3504,7 @@
           "type": "richtext",
           "id": "subtitle",
           "label": "Subtitle tekst",
-          "default": "<p>Cordless oral irrigator — clears the path so nano-HA can work.</p>"
+          "default": "<p>Cordless oral irrigator that clears the path so nano-HA can actually work.</p>"
         }
       ]
     },
@@ -4515,7 +4527,7 @@
           "type": "text",
           "id": "shipping_text",
           "label": "Shipping tekst",
-          "default": "Free shipping on orders over €80 — ships within 2 business days."
+          "default": "Free shipping on orders over €80, ships within 2 business days."
         },
         {
           "type": "color",

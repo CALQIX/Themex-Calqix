@@ -1,0 +1,300 @@
+<section id="calqix-product-faq-{{ section.id }}" class="calqix-product-faq">
+  <style>
+    #calqix-product-faq-{{ section.id }} {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 56px 20px;
+      background: #f4f5f7;
+    }
+
+    #calqix-product-faq-{{ section.id }} *,
+    #calqix-product-faq-{{ section.id }} *::before,
+    #calqix-product-faq-{{ section.id }} *::after {
+      box-sizing: border-box;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cpf-heading {
+      margin: 0 0 32px;
+      color: #1a3b5c;
+      font-family: "DM Serif Display", serif;
+      font-size: 32px;
+      line-height: 1.1;
+      font-weight: 400;
+      text-align: center;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-wrap {
+      border-top: 1px solid #e4e4e0;
+      min-width: 0;
+      background: #ffffff;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-item {
+      border-bottom: 1px solid #e4e4e0;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-trigger {
+      width: 100%;
+      min-width: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: "DM Sans", sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a3b5c;
+      letter-spacing: 0.02em;
+      text-align: left;
+      transition: color 0.2s ease;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-trigger:hover {
+      color: #c9a84c;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-trigger:focus-visible {
+      outline: 2px solid #c9a84c;
+      outline-offset: 2px;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-icon {
+      font-size: 22px;
+      color: #c9a84c;
+      font-weight: 300;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-left: 16px;
+      transition: transform 0.3s ease;
+      display: inline-block;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-item.open .cqa-icon {
+      transform: rotate(45deg);
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 500ms ease;
+      will-change: max-height;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-content {
+      min-width: 0;
+      padding: 0 0 18px;
+      font-family: "DM Sans", sans-serif;
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.7;
+      font-weight: 400;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-content p {
+      margin: 0;
+    }
+
+    @media (max-width: 749px) {
+      #calqix-product-faq-{{ section.id }} {
+        padding: 56px 12px;
+      }
+
+      #calqix-product-faq-{{ section.id }} .cpf-heading {
+        font-size: 28px;
+      }
+    }
+  </style>
+
+  <h2 class="cpf-heading">Common questions</h2>
+
+  <div class="cqa-wrap">
+    <div class="cqa-item open">
+      <button class="cqa-trigger" type="button" aria-controls="cpf-panel-1-{{ section.id }}" aria-expanded="true">
+        How long does the battery last?
+        <span class="cqa-icon" aria-hidden="true">+</span>
+      </button>
+      <div id="cpf-panel-1-{{ section.id }}" class="cqa-body" role="region" aria-hidden="false">
+        <div class="cqa-content">
+          <p>A single USB-C charge powers the FlowCore for up to 30 days of daily use, based on 60 seconds per session. The LED indicator shows battery status. Charging takes approximately 4 hours from empty.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cqa-item">
+      <button class="cqa-trigger" type="button" aria-controls="cpf-panel-2-{{ section.id }}" aria-expanded="false">
+        Is it safe to use with braces or implants?
+        <span class="cqa-icon" aria-hidden="true">+</span>
+      </button>
+      <div id="cpf-panel-2-{{ section.id }}" class="cqa-body" role="region" aria-hidden="true">
+        <div class="cqa-content">
+          <p>Yes. The FlowCore includes a dedicated orthodontic nozzle for cleaning around brackets and wires, and a periodontal nozzle optimised for implant care. Start with Gentle mode if you are new to water flossing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cqa-item">
+      <button class="cqa-trigger" type="button" aria-controls="cpf-panel-3-{{ section.id }}" aria-expanded="false">
+        How often should I use it?
+        <span class="cqa-icon" aria-hidden="true">+</span>
+      </button>
+      <div id="cpf-panel-3-{{ section.id }}" class="cqa-body" role="region" aria-hidden="true">
+        <div class="cqa-content">
+          <p>Once daily is sufficient for most users. Use it before brushing and before applying your CALQIX nano-HA tablet, so that remineralisation works on a clean enamel surface. Twice daily is safe and beneficial for users managing active gum inflammation.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cqa-item">
+      <button class="cqa-trigger" type="button" aria-controls="cpf-panel-4-{{ section.id }}" aria-expanded="false">
+        What is the difference between the 4 pressure modes?
+        <span class="cqa-icon" aria-hidden="true">+</span>
+      </button>
+      <div id="cpf-panel-4-{{ section.id }}" class="cqa-body" role="region" aria-hidden="true">
+        <div class="cqa-content">
+          <p>Gentle is recommended for first-time users and sensitive gums. Clean is the standard daily mode for most users. Pulse delivers an alternating pressure pattern effective for dislodging stubborn plaque. Turbo is maximum pressure for users who require deeper cleaning or have been advised by a dental professional.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cqa-item">
+      <button class="cqa-trigger" type="button" aria-controls="cpf-panel-5-{{ section.id }}" aria-expanded="false">
+        Can I use it in the shower?
+        <span class="cqa-icon" aria-hidden="true">+</span>
+      </button>
+      <div id="cpf-panel-5-{{ section.id }}" class="cqa-body" role="region" aria-hidden="true">
+        <div class="cqa-content">
+          <p>Yes. The FlowCore is IPX7 waterproof, meaning it is fully submersible up to 1 metre for 30 minutes. It is safe for shower use. Do not submerge the USB-C charging port while charging.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cqa-item">
+      <button class="cqa-trigger" type="button" aria-controls="cpf-panel-6-{{ section.id }}" aria-expanded="false">
+        What is included in the box?
+        <span class="cqa-icon" aria-hidden="true">+</span>
+      </button>
+      <div id="cpf-panel-6-{{ section.id }}" class="cqa-body" role="region" aria-hidden="true">
+        <div class="cqa-content">
+          <p>The FlowCore comes with one device, four replacement nozzles (standard, orthodontic, periodontal, tongue cleaner), one USB-C charging cable, one travel pouch, and a quick-start guide.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var container = document.getElementById('calqix-product-faq-{{ section.id }}');
+      if (!container) return;
+
+      var items = Array.prototype.slice.call(container.querySelectorAll('.cqa-item'));
+      if (!items.length) return;
+
+      function setOpen(item, shouldOpen) {
+        var body = item.querySelector('.cqa-body');
+        var trigger = item.querySelector('.cqa-trigger');
+        if (!body || !trigger) return;
+
+        item.classList.toggle('open', shouldOpen);
+        trigger.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+        body.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+        body.style.maxHeight = shouldOpen ? body.scrollHeight + 'px' : '0px';
+      }
+
+      items.forEach(function(item, index) {
+        setOpen(item, index === 0);
+        var trigger = item.querySelector('.cqa-trigger');
+        if (!trigger) return;
+        trigger.addEventListener('click', function() {
+          var shouldOpen = !item.classList.contains('open');
+          items.forEach(function(otherItem) {
+            setOpen(otherItem, otherItem === item ? shouldOpen : false);
+          });
+        });
+      });
+
+      window.addEventListener('resize', function() {
+        items.forEach(function(item) {
+          if (!item.classList.contains('open')) return;
+          var body = item.querySelector('.cqa-body');
+          if (body) body.style.maxHeight = body.scrollHeight + 'px';
+        });
+      });
+    })();
+  </script>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How long does the battery last?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A single USB-C charge powers the FlowCore for up to 30 days of daily use, based on 60 seconds per session. The LED indicator shows battery status. Charging takes approximately 4 hours from empty."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it safe to use with braces or implants?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. The FlowCore includes a dedicated orthodontic nozzle for cleaning around brackets and wires, and a periodontal nozzle optimised for implant care. Start with Gentle mode if you are new to water flossing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How often should I use it?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Once daily is sufficient for most users. Use it before brushing and before applying your CALQIX nano-HA tablet, so that remineralisation works on a clean enamel surface. Twice daily is safe and beneficial for users managing active gum inflammation."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the difference between the 4 pressure modes?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Gentle is recommended for first-time users and sensitive gums. Clean is the standard daily mode for most users. Pulse delivers an alternating pressure pattern effective for dislodging stubborn plaque. Turbo is maximum pressure for users who require deeper cleaning or have been advised by a dental professional."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I use it in the shower?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. The FlowCore is IPX7 waterproof, meaning it is fully submersible up to 1 metre for 30 minutes. It is safe for shower use. Do not submerge the USB-C charging port while charging."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is included in the box?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The FlowCore comes with one device, four replacement nozzles (standard, orthodontic, periodontal, tongue cleaner), one USB-C charging cable, one travel pouch, and a quick-start guide."
+          }
+        }
+      ]
+    }
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "CALQIX Product FAQ",
+  "settings": [],
+  "presets": [
+    {
+      "name": "CALQIX Product FAQ"
+    }
+  ]
+}
+{% endschema %}

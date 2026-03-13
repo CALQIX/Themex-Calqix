@@ -1,0 +1,271 @@
+{% assign cq_protocol_product = all_products['calqix-nano-ha-tablets'] %}
+
+{% if cq_protocol_product != blank and cq_protocol_product.available %}
+  {% assign cq_protocol_variant = cq_protocol_product.selected_or_first_available_variant %}
+  {% assign cq_flowcore_image = product.selected_or_first_available_variant.featured_media.preview_image | default: product.featured_image %}
+  <section id="calqix-complete-routine-{{ section.id }}" class="calqix-complete-routine">
+    <style>
+      #calqix-complete-routine-{{ section.id }} {
+        background: #1a3b5c;
+        padding: 48px 0;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-shell {
+        width: min(100%, 1200px);
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-label {
+        margin: 0;
+        text-align: center;
+        color: #c9a84c;
+        font-family: "DM Sans", sans-serif;
+        font-size: 11px;
+        line-height: 1.4;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-title {
+        margin: 8px 0 0;
+        text-align: center;
+        color: #ffffff;
+        font-family: "DM Serif Display", serif;
+        font-size: 32px;
+        line-height: 1.1;
+        font-weight: 400;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-subtitle {
+        margin: 16px auto 36px;
+        max-width: 520px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.75);
+        font-family: "DM Sans", sans-serif;
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+        max-width: 720px;
+        margin: 0 auto;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-card {
+        min-width: 0;
+        padding: 24px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-card--flowcore {
+        border: 1px solid rgba(201, 168, 76, 0.3);
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-card--tablet {
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-image-wrap {
+        margin-bottom: 18px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.04);
+        aspect-ratio: 1 / 1;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-step {
+        margin: 0 0 8px;
+        color: #c9a84c;
+        font-family: "DM Sans", sans-serif;
+        font-size: 11px;
+        line-height: 1.4;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-name {
+        margin: 0 0 8px;
+        color: #ffffff;
+        font-family: "DM Serif Display", serif;
+        font-size: 22px;
+        line-height: 1.15;
+        font-weight: 400;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-desc {
+        margin: 0 0 16px;
+        color: rgba(255, 255, 255, 0.65);
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-price {
+        color: #ffffff;
+        font-family: "DM Sans", sans-serif;
+        font-size: 15px;
+        line-height: 1.4;
+        font-weight: 500;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-status {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        background: #c9a84c;
+        color: #1a3b5c;
+        font-family: "DM Sans", sans-serif;
+        font-size: 11px;
+        line-height: 1.3;
+        font-weight: 600;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-product-form {
+        display: block;
+        width: 100%;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-product-form form {
+        margin: 0;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-product-form .product-form__error-message-wrapper {
+        margin-bottom: 12px;
+        color: #ffffff;
+        font-family: "DM Sans", sans-serif;
+        font-size: 12px;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-button {
+        width: 100%;
+        min-height: 48px;
+        border: 0;
+        border-radius: 6px;
+        background: #c9a84c;
+        color: #1a3b5c;
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        line-height: 1.4;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-button:hover {
+        background: #d6b86b;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-link-row {
+        margin-top: 24px;
+        text-align: center;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-link {
+        color: rgba(255, 255, 255, 0.5);
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        line-height: 1.5;
+        text-decoration: none;
+      }
+
+      #calqix-complete-routine-{{ section.id }} .ccr-link:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 767px) {
+        #calqix-complete-routine-{{ section.id }} .ccr-shell {
+          padding: 0 12px;
+        }
+
+        #calqix-complete-routine-{{ section.id }} .ccr-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+
+    <div class="ccr-shell">
+      <p class="ccr-label">THE CALQIX PROTOCOL</p>
+      <h2 class="ccr-title">Clean the surface. Then rebuild it.</h2>
+      <p class="ccr-subtitle">FlowCore clears the path. CALQIX nano-HA tablets finish the job. Together, they form the only routine proven to support enamel remineralisation at a clinical level.</p>
+
+      <div class="ccr-grid">
+        <article class="ccr-card ccr-card--flowcore">
+          <div class="ccr-image-wrap">
+            {% if cq_flowcore_image != blank %}
+              {{ cq_flowcore_image | image_url: width: 720 | image_tag: class: 'ccr-image', loading: 'lazy', widths: '360, 540, 720', sizes: '(max-width: 767px) 100vw, 340px', alt: product.title }}
+            {% endif %}
+          </div>
+          <p class="ccr-step">Step 01</p>
+          <h3 class="ccr-name">FlowCore</h3>
+          <p class="ccr-desc">Cordless oral irrigator, 1,600 pulses/min, 6mm subgingival reach.</p>
+          <div class="ccr-bottom">
+            <span class="ccr-price">{{ product.selected_or_first_available_variant.price | money }}</span>
+            <span class="ccr-status">In your cart</span>
+          </div>
+        </article>
+
+        <article class="ccr-card ccr-card--tablet">
+          <div class="ccr-image-wrap">
+            {% if cq_protocol_product.featured_image != blank %}
+              {{ cq_protocol_product.featured_image | image_url: width: 720 | image_tag: class: 'ccr-image', loading: 'lazy', widths: '360, 540, 720', sizes: '(max-width: 767px) 100vw, 340px', alt: cq_protocol_product.title }}
+            {% endif %}
+          </div>
+          <p class="ccr-step">Step 02</p>
+          <h3 class="ccr-name">CALQIX Nano-HA Tablets</h3>
+          <p class="ccr-desc">Fluoride-free enamel remineralisation. 30-day supply, monthly subscription.</p>
+          <p class="ccr-price">{{ cq_protocol_variant.price | money }}</p>
+          <product-form class="ccr-product-form" data-hide-errors="false">
+            <div class="product-form__error-message-wrapper" role="alert" hidden>
+              <span class="product-form__error-message"></span>
+            </div>
+            <form method="post" action="{{ routes.cart_add_url }}" accept-charset="UTF-8" class="form" data-type="add-to-cart-form">
+              <input type="hidden" name="id" value="{{ cq_protocol_variant.id }}">
+              <input type="hidden" name="quantity" value="1">
+              <button type="submit" name="add" class="ccr-button">
+                <span>Add to routine</span>
+                {% render 'button-loading-indicator' %}
+              </button>
+            </form>
+          </product-form>
+        </article>
+      </div>
+
+      <div class="ccr-link-row">
+        <a class="ccr-link" href="{{ routes.all_products_collection_url }}">Or shop the complete routine →</a>
+      </div>
+    </div>
+  </section>
+{% endif %}
+
+{% schema %}
+{
+  "name": "CALQIX Complete Routine",
+  "settings": [],
+  "presets": [
+    {
+      "name": "CALQIX Complete Routine"
+    }
+  ]
+}
+{% endschema %}
