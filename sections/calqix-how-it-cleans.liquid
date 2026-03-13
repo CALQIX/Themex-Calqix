@@ -61,25 +61,30 @@
     }
 
     #calqix-how-it-cleans-{{ section.id }} .chc-stage {
-      position: relative;
+      display: grid;
+      align-items: start;
     }
 
     #calqix-how-it-cleans-{{ section.id }} .chc-panel {
-      position: absolute;
-      inset: 0;
+      position: relative;
+      grid-area: 1 / 1;
       display: grid;
       grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
       gap: 64px;
       align-items: center;
       opacity: 0;
+      visibility: hidden;
       pointer-events: none;
-      transition: opacity 200ms ease;
+      transform: translateY(16px);
+      transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease;
     }
 
     #calqix-how-it-cleans-{{ section.id }} .chc-panel.is-active {
       opacity: 1;
+      visibility: visible;
       pointer-events: auto;
       z-index: 1;
+      transform: translateY(0);
     }
 
     #calqix-how-it-cleans-{{ section.id }} .chc-media {
@@ -89,17 +94,19 @@
     #calqix-how-it-cleans-{{ section.id }} .chc-image-wrap {
       position: relative;
       overflow: visible;
+      width: 100%;
       max-width: 420px;
-      min-height: 420px;
       margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 12px;
     }
 
     #calqix-how-it-cleans-{{ section.id }} .chc-image {
       width: 100%;
       max-width: 420px;
+      max-height: 420px;
       height: auto;
       object-fit: contain;
       display: block;
@@ -119,6 +126,7 @@
 
     #calqix-how-it-cleans-{{ section.id }} .chc-copy {
       min-width: 0;
+      padding: 8px 0;
     }
 
     #calqix-how-it-cleans-{{ section.id }} .chc-step-label {
@@ -351,26 +359,54 @@
         padding: 64px 0;
       }
 
+      #calqix-how-it-cleans-{{ section.id }} .chc-shell {
+        padding: 0 12px;
+      }
+
       #calqix-how-it-cleans-{{ section.id }} .chc-heading {
         font-size: 32px;
         margin-bottom: 36px;
       }
 
       #calqix-how-it-cleans-{{ section.id }} .chc-nav {
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 0 2px 6px;
         margin-bottom: 28px;
+        scrollbar-width: none;
+      }
+
+      #calqix-how-it-cleans-{{ section.id }} .chc-nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      #calqix-how-it-cleans-{{ section.id }} .chc-pill {
+        flex: 0 0 auto;
+        padding: 8px 16px;
       }
 
       #calqix-how-it-cleans-{{ section.id }} .chc-panel {
         grid-template-columns: 1fr;
+        gap: 24px;
         align-content: start;
       }
 
       #calqix-how-it-cleans-{{ section.id }} .chc-image-wrap {
-        min-height: 320px;
+        max-width: 320px;
+        padding: 0;
       }
 
       #calqix-how-it-cleans-{{ section.id }} .chc-title {
-        font-size: 26px;
+        font-size: 24px;
+      }
+
+      #calqix-how-it-cleans-{{ section.id }} .chc-body {
+        font-size: 14px;
+      }
+
+      #calqix-how-it-cleans-{{ section.id }} .chc-callout {
+        padding: 12px 14px;
       }
     }
 
@@ -494,18 +530,6 @@
 
       if (!stage || !pills.length || !panels.length) return;
 
-      function syncStageHeight() {
-        var tallest = 0;
-        panels.forEach(function(panel) {
-          panel.style.position = 'absolute';
-          var panelHeight = panel.offsetHeight;
-          if (panelHeight > tallest) tallest = panelHeight;
-        });
-        if (tallest > 0) {
-          stage.style.minHeight = tallest + 'px';
-        }
-      }
-
       function setActive(index) {
         pills.forEach(function(pill, pillIndex) {
           var isActive = pillIndex === index;
@@ -520,7 +544,6 @@
         });
 
         activeIndex = index;
-        window.requestAnimationFrame(syncStageHeight);
       }
 
       function transitionTo(index) {
@@ -561,14 +584,7 @@
         });
       });
 
-      Array.prototype.slice.call(root.querySelectorAll('.chc-image')).forEach(function(image) {
-        if (image.complete) return;
-        image.addEventListener('load', syncStageHeight);
-      });
-
-      window.addEventListener('resize', syncStageHeight);
       setActive(0);
-      syncStageHeight();
       startAutoAdvance();
     })();
   </script>

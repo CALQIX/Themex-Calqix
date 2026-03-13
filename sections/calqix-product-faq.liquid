@@ -3,10 +3,10 @@
     #calqix-product-faq-{{ section.id }} {
       box-sizing: border-box;
       width: 100%;
-      max-width: 760px;
+      max-width: 920px;
       margin: 0 auto;
-      padding: 56px 20px;
-      background: #f4f5f7;
+      padding: 64px 20px 72px;
+      background: linear-gradient(180deg, #f4f5f7 0%, #eef1f5 100%);
     }
 
     #calqix-product-faq-{{ section.id }} *,
@@ -16,23 +16,41 @@
     }
 
     #calqix-product-faq-{{ section.id }} .cpf-heading {
-      margin: 0 0 32px;
+      margin: 0 0 28px;
       color: #1a3b5c;
       font-family: "DM Serif Display", serif;
-      font-size: 32px;
+      font-size: 34px;
       line-height: 1.1;
       font-weight: 400;
       text-align: center;
     }
 
     #calqix-product-faq-{{ section.id }} .cqa-wrap {
-      border-top: 1px solid #e4e4e0;
+      border: 1px solid rgba(26, 59, 92, 0.08);
+      border-radius: 10px;
       min-width: 0;
       background: #ffffff;
+      overflow: hidden;
+      box-shadow: 0 18px 46px rgba(15, 36, 56, 0.08);
     }
 
     #calqix-product-faq-{{ section.id }} .cqa-item {
+      position: relative;
       border-bottom: 1px solid #e4e4e0;
+      background: #ffffff;
+      transition: background-color 200ms ease, transform 200ms ease;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-item:last-child {
+      border-bottom: none;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-item:hover {
+      background: #fbfbfc;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-item.open {
+      background: linear-gradient(180deg, rgba(201, 168, 76, 0.08) 0%, #ffffff 34%);
     }
 
     #calqix-product-faq-{{ section.id }} .cqa-trigger {
@@ -41,17 +59,18 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 18px 0;
+      gap: 16px;
+      padding: 22px 24px;
       background: none;
       border: none;
       cursor: pointer;
       font-family: "DM Sans", sans-serif;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 600;
       color: #1a3b5c;
       letter-spacing: 0.02em;
       text-align: left;
-      transition: color 0.2s ease;
+      transition: color 0.2s ease, transform 0.2s ease;
     }
 
     #calqix-product-faq-{{ section.id }} .cqa-trigger:hover {
@@ -64,18 +83,26 @@
     }
 
     #calqix-product-faq-{{ section.id }} .cqa-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: rgba(201, 168, 76, 0.14);
       font-size: 22px;
       color: #c9a84c;
       font-weight: 300;
       line-height: 1;
       flex-shrink: 0;
-      margin-left: 16px;
-      transition: transform 0.3s ease;
-      display: inline-block;
+      margin-left: auto;
+      transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     #calqix-product-faq-{{ section.id }} .cqa-item.open .cqa-icon {
       transform: rotate(45deg);
+      background: #c9a84c;
+      color: #1a3b5c;
     }
 
     #calqix-product-faq-{{ section.id }} .cqa-body {
@@ -87,7 +114,7 @@
 
     #calqix-product-faq-{{ section.id }} .cqa-content {
       min-width: 0;
-      padding: 0 0 18px;
+      padding: 0 24px 24px;
       font-family: "DM Sans", sans-serif;
       font-size: 14px;
       color: #6b7280;
@@ -95,6 +122,14 @@
       font-weight: 400;
       overflow-wrap: anywhere;
       word-break: break-word;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 250ms ease, transform 250ms ease;
+    }
+
+    #calqix-product-faq-{{ section.id }} .cqa-item.open .cqa-content {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     #calqix-product-faq-{{ section.id }} .cqa-content p {
@@ -103,11 +138,29 @@
 
     @media (max-width: 749px) {
       #calqix-product-faq-{{ section.id }} {
-        padding: 56px 12px;
+        padding: 56px 12px 64px;
       }
 
       #calqix-product-faq-{{ section.id }} .cpf-heading {
         font-size: 28px;
+      }
+
+      #calqix-product-faq-{{ section.id }} .cqa-trigger {
+        padding: 18px 18px;
+        font-size: 14px;
+      }
+
+      #calqix-product-faq-{{ section.id }} .cqa-content {
+        padding: 0 18px 20px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #calqix-product-faq-{{ section.id }} *,
+      #calqix-product-faq-{{ section.id }} *::before,
+      #calqix-product-faq-{{ section.id }} *::after {
+        animation: none !important;
+        transition: none !important;
       }
     }
   </style>
