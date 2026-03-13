@@ -52,12 +52,31 @@
   }
 
   #calqix-accordions-{{ section.id }} .cqa-wrap {
-    border-top: 1px solid {{ border_col }};
+    border: 1px solid rgba(26, 59, 92, 0.08);
+    border-radius: 10px;
     min-width: 0;
+    background: #ffffff;
+    overflow: hidden;
+    box-shadow: 0 18px 46px rgba(15, 36, 56, 0.08);
   }
 
   #calqix-accordions-{{ section.id }} .cqa-item {
+    position: relative;
     border-bottom: 1px solid {{ border_col }};
+    background: #ffffff;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-item:last-child {
+    border-bottom: none;
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-item:hover {
+    background: #fbfbfc;
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-item.open {
+    background: linear-gradient(180deg, rgba(201, 168, 76, 0.08) 0%, #ffffff 34%);
   }
 
   #calqix-accordions-{{ section.id }} .cqa-trigger {
@@ -66,17 +85,18 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: {{ section.settings.trigger_padding }}px 0;
+    gap: 16px;
+    padding: {{ section.settings.trigger_padding | plus: 4 }}px 24px;
     background: none;
     border: none;
     cursor: pointer;
-    font-family: inherit;
-    font-size: {{ trigger_sz }}px;
+    font-family: "DM Sans", sans-serif;
+    font-size: {{ trigger_sz | plus: 1 }}px;
     font-weight: {{ section.settings.trigger_weight }};
     color: {{ trigger_col }};
     letter-spacing: 0.02em;
     text-align: left;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, transform 0.2s ease;
   }
 
   #calqix-accordions-{{ section.id }} .cqa-trigger:hover {
@@ -88,18 +108,26 @@
   }
 
   #calqix-accordions-{{ section.id }} .cqa-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: rgba(201, 168, 76, 0.14);
     font-size: 22px;
     color: {{ icon_col }};
     font-weight: 300;
     line-height: 1;
     flex-shrink: 0;
-    margin-left: 16px;
-    transition: transform 0.3s ease;
-    display: inline-block;
+    margin-left: auto;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   #calqix-accordions-{{ section.id }} .cqa-item.open .cqa-icon {
     transform: rotate(45deg);
+    background: {{ accent_col }};
+    color: {{ navy_col }};
   }
 
   #calqix-accordions-{{ section.id }} .cqa-body {
@@ -115,13 +143,21 @@
 
   #calqix-accordions-{{ section.id }} .cqa-content {
     min-width: 0;
-    padding: 0 0 {{ section.settings.trigger_padding }}px;
+    padding: 0 24px {{ section.settings.trigger_padding | plus: 6 }}px;
     font-size: {{ content_sz }}px;
     color: {{ content_col }};
     line-height: calc({{ section.settings.line_height }} / 10);
-    font-weight: 300;
+    font-weight: 400;
     overflow-wrap: anywhere;
     word-break: break-word;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 250ms ease, transform 250ms ease;
+  }
+
+  #calqix-accordions-{{ section.id }} .cqa-item.open .cqa-content {
+    opacity: 1;
+    transform: translateY(0);
   }
   #calqix-accordions-{{ section.id }} .cqa-content > *:first-child {
     margin-top: 0;
@@ -237,8 +273,20 @@
       margin: {{ mar_t_mobile }}px auto {{ mar_b_mobile }}px;
     }
     #calqix-accordions-{{ section.id }} .cqa-trigger {
-      padding-top: {{ section.settings.trigger_padding | minus: 2 }}px;
-      padding-bottom: {{ section.settings.trigger_padding | minus: 2 }}px;
+      padding: {{ section.settings.trigger_padding }}px 18px;
+      font-size: {{ trigger_sz }}px;
+    }
+    #calqix-accordions-{{ section.id }} .cqa-content {
+      padding: 0 18px {{ section.settings.trigger_padding | plus: 2 }}px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #calqix-accordions-{{ section.id }} *,
+    #calqix-accordions-{{ section.id }} *::before,
+    #calqix-accordions-{{ section.id }} *::after {
+      animation: none !important;
+      transition: none !important;
     }
   }
 
