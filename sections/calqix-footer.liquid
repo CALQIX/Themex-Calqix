@@ -659,8 +659,13 @@
     {%- liquid
       assign cq_impressum_page = pages['impressum']
       assign cq_show_impressum_link = false
+      assign cq_lang = localization.language.iso_code | downcase | slice: 0, 2
 
       if localization.country.iso_code == 'DE' and cq_impressum_page != blank
+        assign cq_show_impressum_link = true
+      endif
+
+      if cq_lang == 'de' and cq_impressum_page != blank
         assign cq_show_impressum_link = true
       endif
     -%}
