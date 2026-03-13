@@ -656,6 +656,14 @@
     </div>
 
     {%- comment -%} ── NAV COLUMNS ── {%- endcomment -%}
+    {%- liquid
+      assign cq_impressum_page = pages['impressum']
+      assign cq_show_impressum_link = false
+
+      if localization.country.iso_code == 'DE' and cq_impressum_page != blank
+        assign cq_show_impressum_link = true
+      endif
+    -%}
     <nav class="footer-nav" aria-label="Footer navigatie">
       {%- for block in section.blocks -%}
         {%- if block.type == 'nav_column' -%}
@@ -682,10 +690,33 @@
               <ul class="footer-nav-list"
                   id="footer-nav-list-{{ block.id }}"
                   role="list">
-                {%- for link in block.settings.menu.links -%}
+                {%- liquid
+                  assign cq_is_support_column = false
+
+                  if block.settings.heading | strip | downcase == 'support' or block.settings.menu.handle == 'customer-account-main-menu'
+                    assign cq_is_support_column = true
+                  endif
+                -%}
+                {%- if cq_is_support_column and cq_show_impressum_link -%}
                   <li>
-                    <a href="{{ link.url }}" class="footer-nav-link">{{ link.title }}</a>
+                    <a href="{{ cq_impressum_page.url }}" class="footer-nav-link">Impressum</a>
                   </li>
+                {%- endif -%}
+                {%- for link in block.settings.menu.links -%}
+                  {%- liquid
+                    assign cq_skip_impressum_link = false
+
+                    if cq_is_support_column and cq_show_impressum_link
+                      if link.url == cq_impressum_page.url or link.title | strip | downcase == 'impressum'
+                        assign cq_skip_impressum_link = true
+                      endif
+                    endif
+                  -%}
+                  {%- unless cq_skip_impressum_link -%}
+                    <li>
+                      <a href="{{ link.url }}" class="footer-nav-link">{{ link.title }}</a>
+                    </li>
+                  {%- endunless -%}
                 {%- endfor -%}
               </ul>
             {%- endif -%}

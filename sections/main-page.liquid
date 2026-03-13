@@ -1,5 +1,17 @@
 {% assign background_rgb = section.settings['color-bg-overlay'] | color_to_rgb %}
 {% assign text_rgb = section.settings['color-body-text'] | color_to_rgb %}
+{% liquid
+  assign cq_is_impressum_page = false
+  assign cq_show_impressum = false
+
+  if page.handle == 'impressum'
+    assign cq_is_impressum_page = true
+  endif
+
+  if localization.country.iso_code == 'DE'
+    assign cq_show_impressum = true
+  endif
+%}
 <style>
   section[id="shopify-section-{{ section.id }}"]{
       {% if section.settings.full-width-enabled %}
@@ -28,19 +40,289 @@
       --font-headline-scale: {{ section.settings.size_heading_mobile | divided_by: 100.0 }};
 
   }
+
+  {% if cq_is_impressum_page %}
+    #shopify-section-{{ section.id }} .cq-impressum {
+      --cq-navy: #1a3b5c;
+      --cq-navy-deep: #0d1c2b;
+      --cq-accent: #4a8ec2;
+      --cq-gold: #e8c96a;
+      --cq-surface: #ffffff;
+      --cq-surface-soft: #f6f9fc;
+      --cq-border: rgba(26, 59, 92, 0.12);
+      --cq-text-soft: rgba(13, 28, 43, 0.74);
+      --cq-shadow: 0 14px 38px rgba(13, 28, 43, 0.06);
+      background:
+        radial-gradient(circle at top right, rgba(74, 142, 194, 0.08), transparent 34%),
+        linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+      color: var(--cq-navy-deep);
+      padding: clamp(48px, 7vw, 96px) 0;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum .page-width {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__shell {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 14px;
+      margin-bottom: 18px;
+      border: 1px solid var(--cq-border);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--cq-accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__hero {
+      margin-bottom: 26px;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__title {
+      margin: 0 0 14px;
+      color: var(--cq-navy);
+      font-size: clamp(40px, 6vw, 64px);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      font-weight: 500;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__lead {
+      max-width: 760px;
+      margin: 0;
+      color: var(--cq-text-soft);
+      font-size: clamp(17px, 2vw, 20px);
+      line-height: 1.7;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__meta span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(46, 109, 164, 0.08);
+      color: var(--cq-navy);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__notice,
+    #shopify-section-{{ section.id }} .cq-impressum__block,
+    #shopify-section-{{ section.id }} .cq-impressum__card {
+      border: 1px solid var(--cq-border);
+      border-radius: 24px;
+      background: var(--cq-surface);
+      box-shadow: var(--cq-shadow);
+      content-visibility: auto;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__notice,
+    #shopify-section-{{ section.id }} .cq-impressum__block {
+      margin-bottom: 22px;
+      padding: 22px 24px;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__block--soft {
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__card {
+      height: 100%;
+      padding: 24px;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__notice p,
+    #shopify-section-{{ section.id }} .cq-impressum__block p,
+    #shopify-section-{{ section.id }} .cq-impressum__card p,
+    #shopify-section-{{ section.id }} .cq-impressum__card address {
+      margin: 0;
+      color: var(--cq-text-soft);
+      font-size: 16px;
+      line-height: 1.8;
+      font-style: normal;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum__card h2,
+    #shopify-section-{{ section.id }} .cq-impressum__block h2 {
+      margin: 0 0 12px;
+      color: var(--cq-navy);
+      font-size: 20px;
+      line-height: 1.25;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum a {
+      color: var(--cq-accent);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(74, 142, 194, 0.24);
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+
+    #shopify-section-{{ section.id }} .cq-impressum a:hover,
+    #shopify-section-{{ section.id }} .cq-impressum a:focus-visible {
+      color: var(--cq-navy);
+      border-color: rgba(26, 59, 92, 0.3);
+      outline: none;
+    }
+
+    @media (max-width: 767px) {
+      #shopify-section-{{ section.id }} .cq-impressum__grid {
+        grid-template-columns: 1fr;
+      }
+
+      #shopify-section-{{ section.id }} .cq-impressum__title {
+        font-size: 42px;
+      }
+
+      #shopify-section-{{ section.id }} .cq-impressum__notice,
+      #shopify-section-{{ section.id }} .cq-impressum__block,
+      #shopify-section-{{ section.id }} .cq-impressum__card {
+        padding: 20px;
+        border-radius: 20px;
+      }
+    }
+  {% endif %}
 </style>
 
-<div
-  data-section-id="{{ section.id }}"
-  class="wt-page {% if section.settings.compact-size-enabled == true %}  wt-page--compact{% endif %}"
->
-  <h1 class="wt-page__title">
-    {{ page.title | escape }}
-  </h1>
-  <div class="rte wt-page__wrapper">
-    {{ page.content }}
+{% if cq_is_impressum_page %}
+  {% if cq_show_impressum %}
+    <section class="cq-impressum">
+      <div class="page-width">
+        <div class="cq-impressum__shell">
+          <span class="cq-impressum__eyebrow">Deutschland · Rechtliche Anbieterkennzeichnung</span>
+
+          <header class="cq-impressum__hero">
+            <h1 class="cq-impressum__title">Impressum</h1>
+            <p class="cq-impressum__lead">
+              Pflichtangaben für den deutschen Markt im klaren, klinischen CALQIX-Stil.
+            </p>
+            <div class="cq-impressum__meta">
+              <span>CALQIX</span>
+              <span>Kesekesa Holding B.V.</span>
+              <span>Deutschland</span>
+            </div>
+          </header>
+
+          <div class="cq-impressum__notice">
+            <p>
+              <strong>Hinweis zur Marke:</strong>
+              CALQIX ist die Gründermarke und der operative Markenauftritt. Rechtlich verantwortlicher Diensteanbieter dieser Website ist die
+              <strong>Kesekesa Holding B.V.</strong>
+            </p>
+          </div>
+
+          <div class="cq-impressum__grid">
+            <article class="cq-impressum__card">
+              <h2>Anbieter</h2>
+              <address>
+                Kesekesa Holding B.V.<br>
+                CALQIX<br>
+                3824 KG Amersfoort<br>
+                Niederlande
+              </address>
+            </article>
+
+            <article class="cq-impressum__card">
+              <h2>Vertreten durch</h2>
+              <p>Hediveleck Kesekesa (DGA)</p>
+            </article>
+
+            <article class="cq-impressum__card">
+              <h2>Kontakt</h2>
+              <p>
+                E-Mail: <a href="mailto:info@calqix.com">info@calqix.com</a><br>
+                Website: <a href="https://www.calqix.com">www.calqix.com</a><br>
+                Weitere Kontaktmöglichkeit: Kontaktformular oder Live-Chat über die Website
+              </p>
+            </article>
+
+            <article class="cq-impressum__card">
+              <h2>Handelsregister</h2>
+              <p>
+                Eingetragen bei der Kamer van Koophandel (Niederlande)<br>
+                KvK-Nummer: 98836196
+              </p>
+            </article>
+
+            <article class="cq-impressum__card">
+              <h2>Umsatzsteuer</h2>
+              <p>
+                Umsatzsteuer-Identifikationsnummer gemäß Art. 9c MwStSystRL:<br>
+                NL005357319B89
+              </p>
+            </article>
+
+            <article class="cq-impressum__card">
+              <h2>Verantwortlich für den Inhalt</h2>
+              <address>
+                Hediveleck Kesekesa<br>
+                Kesekesa Holding B.V.<br>
+                CALQIX<br>
+                3824 KG Amersfoort<br>
+                Niederlande
+              </address>
+            </article>
+          </div>
+
+          <div class="cq-impressum__block">
+            <h2>Verbraucherstreitbeilegung</h2>
+            <p>
+              Wir sind weder verpflichtet noch bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
+            </p>
+          </div>
+
+          <div class="cq-impressum__block cq-impressum__block--soft">
+            <h2>Rechtlicher Hinweis</h2>
+            <p>
+              Dieses Impressum gilt für den deutschen Markt und wird ausschließlich innerhalb des Shopify-Marktes Deutschland ausgespielt.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+{% else %}
+  <div
+    data-section-id="{{ section.id }}"
+    class="wt-page {% if section.settings.compact-size-enabled == true %}  wt-page--compact{% endif %}"
+  >
+    <h1 class="wt-page__title">
+      {{ page.title | escape }}
+    </h1>
+    <div class="rte wt-page__wrapper">
+      {{ page.content }}
+    </div>
   </div>
-</div>
+{% endif %}
 
 {% schema %}
 {
