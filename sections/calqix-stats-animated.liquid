@@ -1,0 +1,258 @@
+<section id="calqix-stats-animated-{{ section.id }}" class="calqix-stats-animated">
+  <style>
+    #calqix-stats-animated-{{ section.id }} {
+      background: #F4F5F7;
+      padding: 32px 0 24px;
+    }
+
+    #calqix-stats-animated-{{ section.id }} .csa-shell {
+      width: min(100%, 1200px);
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    #calqix-stats-animated-{{ section.id }} .csa-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      background: #F4F5F7;
+    }
+
+    #calqix-stats-animated-{{ section.id }} .csa-stat {
+      min-width: 0;
+      padding: 0 24px;
+      text-align: center;
+    }
+
+    #calqix-stats-animated-{{ section.id }} .csa-stat:not(:last-child) {
+      border-right: 1px solid #E2E4E8;
+    }
+
+    #calqix-stats-animated-{{ section.id }} .csa-number-row {
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    #calqix-stats-animated-{{ section.id }} .stat-number {
+      font-family: "DM Serif Display", serif;
+      font-size: 36px;
+      line-height: 1;
+      font-weight: 400;
+      color: #1A3B5C;
+    }
+
+    #calqix-stats-animated-{{ section.id }} .stat-suffix {
+      font-family: "DM Serif Display", serif;
+      font-size: 24px;
+      line-height: 1;
+      font-weight: 400;
+      color: #C9A84C;
+    }
+
+    #calqix-stats-animated-{{ section.id }} .csa-label {
+      margin: 4px 0 0;
+      font-family: "DM Sans", sans-serif;
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 500;
+      color: #1A3B5C;
+    }
+
+    #calqix-stats-animated-{{ section.id }} .csa-source {
+      margin: 2px 0 0;
+      font-family: "DM Sans", sans-serif;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #9CA3AF;
+    }
+
+    #calqix-stats-animated-{{ section.id }} .csa-link-row {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    #calqix-stats-animated-{{ section.id }} .csa-link {
+      font-family: "DM Sans", sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #C9A84C;
+      text-decoration: none;
+    }
+
+    #calqix-stats-animated-{{ section.id }} .csa-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 639px) {
+      #calqix-stats-animated-{{ section.id }} .csa-shell {
+        padding: 0 12px;
+      }
+
+      #calqix-stats-animated-{{ section.id }} .csa-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #calqix-stats-animated-{{ section.id }} .csa-stat {
+        padding: 16px 14px;
+      }
+
+      #calqix-stats-animated-{{ section.id }} .csa-stat:not(:last-child) {
+        border-right: none;
+      }
+
+      #calqix-stats-animated-{{ section.id }} .csa-stat:nth-child(-n + 2) {
+        border-bottom: 1px solid #E2E4E8;
+      }
+
+      #calqix-stats-animated-{{ section.id }} .stat-number {
+        font-size: 32px;
+      }
+
+      #calqix-stats-animated-{{ section.id }} .stat-suffix {
+        font-size: 22px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #calqix-stats-animated-{{ section.id }} *,
+      #calqix-stats-animated-{{ section.id }} *::before,
+      #calqix-stats-animated-{{ section.id }} *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+
+  <div class="csa-shell">
+    <div class="csa-grid">
+      <article class="csa-stat">
+        <div class="csa-number-row">
+          <span class="stat-number" data-stat-target="99.9" data-target="99.9" data-decimals="1">0</span>
+          <span class="stat-suffix">%</span>
+        </div>
+        <p class="csa-label">Plaque removal</p>
+        <p class="csa-source">J. Clinical Dentistry, 2019</p>
+      </article>
+
+      <article class="csa-stat">
+        <div class="csa-number-row">
+          <span class="stat-number" data-stat-target="6" data-target="6" data-decimals="0">0</span>
+          <span class="stat-suffix">mm</span>
+        </div>
+        <p class="csa-label">Subgingival reach</p>
+        <p class="csa-source">Below the gumline</p>
+      </article>
+
+      <article class="csa-stat">
+        <div class="csa-number-row">
+          <span class="stat-number" data-stat-target="51" data-target="51" data-decimals="0">0</span>
+          <span class="stat-suffix">%</span>
+        </div>
+        <p class="csa-label">Better than string floss</p>
+        <p class="csa-source">Cochrane Review, 2021</p>
+      </article>
+
+      <article class="csa-stat">
+        <div class="csa-number-row">
+          <span class="stat-number" data-stat-target="40" data-target="40" data-decimals="0">0</span>
+          <span class="stat-suffix">%</span>
+        </div>
+        <p class="csa-label">Deeper interdental cleaning</p>
+        <p class="csa-source">ADA, 2020</p>
+      </article>
+    </div>
+
+    <div class="csa-link-row">
+      <a class="csa-link" href="/pages/about-us">View the full clinical evidence →</a>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var root = document.getElementById('calqix-stats-animated-{{ section.id }}');
+      if (!root) return;
+
+      var statNodes = Array.prototype.slice.call(root.querySelectorAll('.stat-number'));
+      if (!statNodes.length) return;
+
+      var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var duration = 1800;
+      var hasAnimated = false;
+
+      function formatValue(value, decimals) {
+        if (decimals > 0) {
+          return value.toFixed(decimals);
+        }
+        return String(Math.round(value));
+      }
+
+      function setFinalValues() {
+        statNodes.forEach(function(node) {
+          var target = parseFloat(node.getAttribute('data-target') || node.getAttribute('data-stat-target') || '0');
+          var decimals = parseInt(node.getAttribute('data-decimals') || '0', 10);
+          node.textContent = formatValue(target, decimals);
+        });
+      }
+
+      function animateValues() {
+        if (hasAnimated) return;
+        hasAnimated = true;
+
+        var startedAt = null;
+
+        function tick(timestamp) {
+          if (!startedAt) startedAt = timestamp;
+
+          var progress = Math.min((timestamp - startedAt) / duration, 1);
+          var eased = 1 - Math.pow(1 - progress, 3);
+
+          statNodes.forEach(function(node) {
+            var target = parseFloat(node.getAttribute('data-target') || node.getAttribute('data-stat-target') || '0');
+            var decimals = parseInt(node.getAttribute('data-decimals') || '0', 10);
+            var currentValue = target * eased;
+            node.textContent = formatValue(currentValue, decimals);
+          });
+
+          if (progress < 1) {
+            window.requestAnimationFrame(tick);
+          } else {
+            setFinalValues();
+          }
+        }
+
+        window.requestAnimationFrame(tick);
+      }
+
+      if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+        setFinalValues();
+        return;
+      }
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            animateValues();
+            observer.disconnect();
+          }
+        });
+      }, {
+        threshold: 0.3
+      });
+
+      observer.observe(root);
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "CALQIX Stats Animated",
+  "settings": [],
+  "presets": [
+    {
+      "name": "CALQIX Stats Animated"
+    }
+  ]
+}
+{% endschema %}

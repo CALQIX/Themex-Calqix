@@ -1,0 +1,587 @@
+{% assign chc_fallback_image = product.selected_or_first_available_variant.featured_media.preview_image | default: product.featured_image %}
+<section id="calqix-how-it-cleans-{{ section.id }}" class="calqix-how-it-cleans">
+  <style>
+    #calqix-how-it-cleans-{{ section.id }} {
+      background: #FFFFFF;
+      padding: 80px 0;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-shell {
+      width: min(100%, 1200px);
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-label {
+      margin: 0;
+      text-align: center;
+      font-family: "DM Sans", sans-serif;
+      font-size: 11px;
+      line-height: 1.4;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #C9A84C;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-heading {
+      margin: 8px 0 48px;
+      text-align: center;
+      font-family: "DM Serif Display", serif;
+      font-size: 36px;
+      line-height: 1.1;
+      font-weight: 400;
+      color: #1A3B5C;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 40px;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-pill {
+      border: 0;
+      border-radius: 20px;
+      padding: 8px 20px;
+      background: #F4F5F7;
+      color: #6B7280;
+      font-family: "DM Sans", sans-serif;
+      font-size: 13px;
+      line-height: 1.4;
+      cursor: pointer;
+      transition: background-color 200ms ease, color 200ms ease;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-pill.is-active {
+      background: #C9A84C;
+      color: #1A3B5C;
+      font-weight: 500;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-stage {
+      position: relative;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-panel {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+      gap: 64px;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms ease;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-panel.is-active {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 1;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-media {
+      min-width: 0;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-image-wrap {
+      position: relative;
+      overflow: visible;
+      max-width: 420px;
+      min-height: 420px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-image {
+      width: 100%;
+      max-width: 420px;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      position: relative;
+      z-index: 1;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-copy {
+      min-width: 0;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-step-label {
+      margin: 0;
+      font-family: "DM Sans", sans-serif;
+      font-size: 11px;
+      line-height: 1.4;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #C9A84C;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-title {
+      margin: 6px 0 0;
+      font-family: "DM Serif Display", serif;
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 400;
+      color: #1A3B5C;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-body {
+      margin: 18px 0 0;
+      font-family: "DM Sans", sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #4B5563;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-callout {
+      margin-top: 20px;
+      padding: 12px 16px;
+      background: #F4F5F7;
+      border-left: 3px solid #C9A84C;
+      border-radius: 6px;
+      font-family: "DM Sans", sans-serif;
+      font-size: 13px;
+      line-height: 1.65;
+      color: #6B7280;
+      font-style: italic;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-cta {
+      display: inline-block;
+      margin-top: 24px;
+      border-radius: 6px;
+      padding: 14px 28px;
+      background: #1A3B5C;
+      color: #FFFFFF;
+      font-family: "DM Sans", sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background-color 200ms ease, color 200ms ease;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-cta:hover {
+      background: #C9A84C;
+      color: #1A3B5C;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-arc-path {
+      fill: none;
+      stroke: #C9A84C;
+      stroke-width: 1.5;
+      stroke-dasharray: 4 4;
+      stroke-linecap: round;
+      stroke-dashoffset: 80;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-angle-text,
+    #calqix-how-it-cleans-{{ section.id }} .chc-depth-text {
+      font-family: "DM Sans", sans-serif;
+      font-size: 11px;
+      fill: #C9A84C;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-stream-line {
+      fill: none;
+      stroke: #3B9EF5;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-dasharray: 160;
+      stroke-dashoffset: 160;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-depth-line {
+      fill: none;
+      stroke: #C9A84C;
+      stroke-width: 1;
+      stroke-dasharray: 4 4;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-particle {
+      fill: #C9A84C;
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-pulse-circle {
+      fill: none;
+      stroke: #C9A84C;
+      stroke-width: 1.5;
+      opacity: 0;
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+
+    @keyframes chc-arc-draw {
+      from {
+        stroke-dashoffset: 80;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes chc-stream-pulse {
+      0% {
+        stroke-dashoffset: 160;
+      }
+      44% {
+        stroke-dashoffset: 0;
+      }
+      100% {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes chc-flush-dot-1 {
+      0% {
+        transform: translate(0, 0);
+        opacity: 0;
+      }
+      12% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate(26px, -18px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes chc-flush-dot-2 {
+      0% {
+        transform: translate(0, 0);
+        opacity: 0;
+      }
+      12% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate(22px, 6px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes chc-flush-dot-3 {
+      0% {
+        transform: translate(0, 0);
+        opacity: 0;
+      }
+      12% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate(30px, 18px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes chc-sonar {
+      0% {
+        transform: scale(0.4);
+        opacity: 0.3;
+      }
+      100% {
+        transform: scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-panel[data-panel="0"].is-active .chc-arc-path {
+      animation: chc-arc-draw 600ms ease-out forwards;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-panel[data-panel="1"].is-active .chc-stream-line {
+      animation: chc-stream-pulse 1800ms ease-in-out infinite;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-panel[data-panel="2"].is-active .chc-particle--1 {
+      animation: chc-flush-dot-1 900ms ease-in-out infinite;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-panel[data-panel="2"].is-active .chc-particle--2 {
+      animation: chc-flush-dot-2 900ms ease-in-out 200ms infinite;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-panel[data-panel="2"].is-active .chc-particle--3 {
+      animation: chc-flush-dot-3 900ms ease-in-out 400ms infinite;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-panel[data-panel="3"].is-active .chc-pulse-circle--1 {
+      animation: chc-sonar 2s ease-in-out infinite;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-panel[data-panel="3"].is-active .chc-pulse-circle--2 {
+      animation: chc-sonar 2s ease-in-out 600ms infinite;
+    }
+
+    #calqix-how-it-cleans-{{ section.id }} .chc-panel[data-panel="3"].is-active .chc-pulse-circle--3 {
+      animation: chc-sonar 2s ease-in-out 1200ms infinite;
+    }
+
+    @media (max-width: 989px) {
+      #calqix-how-it-cleans-{{ section.id }} .chc-shell {
+        padding: 0 16px;
+      }
+
+      #calqix-how-it-cleans-{{ section.id }} .chc-panel {
+        gap: 36px;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 767px) {
+      #calqix-how-it-cleans-{{ section.id }} {
+        padding: 64px 0;
+      }
+
+      #calqix-how-it-cleans-{{ section.id }} .chc-heading {
+        font-size: 32px;
+        margin-bottom: 36px;
+      }
+
+      #calqix-how-it-cleans-{{ section.id }} .chc-nav {
+        margin-bottom: 28px;
+      }
+
+      #calqix-how-it-cleans-{{ section.id }} .chc-panel {
+        grid-template-columns: 1fr;
+        align-content: start;
+      }
+
+      #calqix-how-it-cleans-{{ section.id }} .chc-image-wrap {
+        min-height: 320px;
+      }
+
+      #calqix-how-it-cleans-{{ section.id }} .chc-title {
+        font-size: 26px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #calqix-how-it-cleans-{{ section.id }} *,
+      #calqix-how-it-cleans-{{ section.id }} *::before,
+      #calqix-how-it-cleans-{{ section.id }} *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+
+  <div class="chc-shell">
+    <p class="chc-label">THE MECHANISM</p>
+    <h2 class="chc-heading">How FlowCore cleans where brushing can't.</h2>
+
+    <div class="chc-nav" role="tablist" aria-label="FlowCore cleaning steps">
+      <button class="chc-pill is-active" type="button" role="tab" aria-selected="true" data-step-index="0">01 Position</button>
+      <button class="chc-pill" type="button" role="tab" aria-selected="false" data-step-index="1">02 Penetrate</button>
+      <button class="chc-pill" type="button" role="tab" aria-selected="false" data-step-index="2">03 Flush</button>
+      <button class="chc-pill" type="button" role="tab" aria-selected="false" data-step-index="3">04 Result</button>
+    </div>
+
+    <div class="chc-stage">
+      <article class="chc-panel is-active" data-panel="0" aria-hidden="false">
+        <div class="chc-media">
+          <div class="chc-image-wrap">
+            <!-- IMAGE REQUIRED: calqix-step1-position.png -->
+            <img class="chc-image" src="{{ chc_fallback_image | image_url: width: 840 }}" alt="FlowCore positioned at 90 degree angle along the gumline" width="{{ chc_fallback_image.width }}" height="{{ chc_fallback_image.height }}">
+            <svg class="chc-overlay" viewBox="0 0 420 420" aria-hidden="true">
+              <path class="chc-arc-path" d="M 162 234 A 56 56 0 0 1 218 178"></path>
+              <text class="chc-angle-text" x="226" y="170">90°</text>
+            </svg>
+          </div>
+        </div>
+        <div class="chc-copy">
+          <p class="chc-step-label">Step 01</p>
+          <h3 class="chc-title">Position along the gumline.</h3>
+          <p class="chc-body">Hold the FlowCore nozzle at a 90° angle to your teeth, tip touching the gumline. This is the entry angle for subgingival access, the zone 2 to 6mm below the tissue surface where bacteria accumulate and where a toothbrush physically cannot reach.</p>
+          <div class="chc-callout">Correct nozzle angle reduces resistance and allows the precision stream to enter the sulcus at full pressure.</div>
+        </div>
+      </article>
+
+      <article class="chc-panel" data-panel="1" aria-hidden="true">
+        <div class="chc-media">
+          <div class="chc-image-wrap">
+            <!-- IMAGE REQUIRED: calqix-step2-penetrate.png -->
+            <img class="chc-image" src="{{ chc_fallback_image | image_url: width: 840 }}" alt="FlowCore nozzle tip close-up with water stream entering between teeth" width="{{ chc_fallback_image.width }}" height="{{ chc_fallback_image.height }}">
+            <svg class="chc-overlay" viewBox="0 0 420 420" aria-hidden="true">
+              <path class="chc-stream-line" d="M 206 74 L 206 248"></path>
+              <line class="chc-depth-line" x1="118" y1="270" x2="282" y2="270"></line>
+              <text class="chc-depth-text" x="288" y="274">6mm</text>
+            </svg>
+          </div>
+        </div>
+        <div class="chc-copy">
+          <p class="chc-step-label">Step 02</p>
+          <h3 class="chc-title">Penetrate 6mm below the gumline.</h3>
+          <p class="chc-body">The 0.6mm precision stream enters the space between tooth and gum tissue, reaching up to 6mm subgingivally. String floss reaches approximately 2 to 3mm. At 1,600 pulses per minute, the stream creates a hydrodynamic zone that physically disrupts biofilm, the bacterial layer that causes plaque and gum inflammation.</p>
+          <div class="chc-callout">String floss maximum penetration: 2–3mm. FlowCore subgingival reach: up to 6mm. The difference is where periodontal disease begins.</div>
+        </div>
+      </article>
+
+      <article class="chc-panel" data-panel="2" aria-hidden="true">
+        <div class="chc-media">
+          <div class="chc-image-wrap">
+            <!-- IMAGE REQUIRED: calqix-step3-flush.png -->
+            <img class="chc-image" src="{{ chc_fallback_image | image_url: width: 840 }}" alt="FlowCore flushing plaque debris from between teeth" width="{{ chc_fallback_image.width }}" height="{{ chc_fallback_image.height }}">
+            <svg class="chc-overlay" viewBox="0 0 420 420" aria-hidden="true">
+              <circle class="chc-particle chc-particle--1" cx="210" cy="186" r="3"></circle>
+              <circle class="chc-particle chc-particle--2" cx="210" cy="186" r="3"></circle>
+              <circle class="chc-particle chc-particle--3" cx="210" cy="186" r="3"></circle>
+            </svg>
+          </div>
+        </div>
+        <div class="chc-copy">
+          <p class="chc-step-label">Step 03</p>
+          <h3 class="chc-title">Flush out the biofilm barrier.</h3>
+          <p class="chc-body">Plaque is not just food debris, it is a structured bacterial community called biofilm. Biofilm resists manual removal and blocks nano-HA from bonding to enamel. The FlowCore's pulsating stream physically breaks up and flushes biofilm from interdental spaces and below the gumline, clearing access for remineralisation.</p>
+          <div class="chc-callout">99.9% plaque removal in clinical testing versus brushing alone. Journal of Clinical Dentistry, 2019.</div>
+        </div>
+      </article>
+
+      <article class="chc-panel" data-panel="3" aria-hidden="true">
+        <div class="chc-media">
+          <div class="chc-image-wrap">
+            <!-- IMAGE REQUIRED: calqix-step4-result.png -->
+            <img class="chc-image" src="{{ chc_fallback_image | image_url: width: 840 }}" alt="FlowCore Clinical White standing upright, clean product shot" width="{{ chc_fallback_image.width }}" height="{{ chc_fallback_image.height }}">
+            <svg class="chc-overlay" viewBox="0 0 420 420" aria-hidden="true">
+              <circle class="chc-pulse-circle chc-pulse-circle--1" cx="210" cy="210" r="70"></circle>
+              <circle class="chc-pulse-circle chc-pulse-circle--2" cx="210" cy="210" r="70"></circle>
+              <circle class="chc-pulse-circle chc-pulse-circle--3" cx="210" cy="210" r="70"></circle>
+            </svg>
+          </div>
+        </div>
+        <div class="chc-copy">
+          <p class="chc-step-label">Step 04</p>
+          <h3 class="chc-title">Clean enamel. Ready to rebuild.</h3>
+          <p class="chc-body">With the biofilm barrier removed, enamel surface is exposed and clean. Nano-hydroxyapatite from your CALQIX tablet can now bond directly to enamel micro-lesions. Remineralisation is a contact process, it requires a clean surface. This is why sequence matters: flush first, then rebuild.</p>
+          <div class="chc-callout">This is the CALQIX clinical protocol. Step 01: FlowCore. Step 02: CALQIX nano-HA tablets.</div>
+          <a class="chc-cta" href="#product-form">Start the full protocol</a>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var root = document.getElementById('calqix-how-it-cleans-{{ section.id }}');
+      if (!root) return;
+
+      var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var stage = root.querySelector('.chc-stage');
+      var pills = Array.prototype.slice.call(root.querySelectorAll('.chc-pill'));
+      var panels = Array.prototype.slice.call(root.querySelectorAll('.chc-panel'));
+      var activeIndex = 0;
+      var isTransitioning = false;
+      var autoTimer = null;
+      var manualOverride = false;
+
+      if (!stage || !pills.length || !panels.length) return;
+
+      function syncStageHeight() {
+        var tallest = 0;
+        panels.forEach(function(panel) {
+          panel.style.position = 'absolute';
+          var panelHeight = panel.offsetHeight;
+          if (panelHeight > tallest) tallest = panelHeight;
+        });
+        if (tallest > 0) {
+          stage.style.minHeight = tallest + 'px';
+        }
+      }
+
+      function setActive(index) {
+        pills.forEach(function(pill, pillIndex) {
+          var isActive = pillIndex === index;
+          pill.classList.toggle('is-active', isActive);
+          pill.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+
+        panels.forEach(function(panel, panelIndex) {
+          var isActive = panelIndex === index;
+          panel.classList.toggle('is-active', isActive);
+          panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+        });
+
+        activeIndex = index;
+        window.requestAnimationFrame(syncStageHeight);
+      }
+
+      function transitionTo(index) {
+        if (index === activeIndex || isTransitioning) return;
+        isTransitioning = true;
+
+        panels[activeIndex].classList.remove('is-active');
+        panels[activeIndex].setAttribute('aria-hidden', 'true');
+        pills[activeIndex].classList.remove('is-active');
+        pills[activeIndex].setAttribute('aria-selected', 'false');
+
+        window.setTimeout(function() {
+          setActive(index);
+          isTransitioning = false;
+        }, prefersReducedMotion ? 0 : 200);
+      }
+
+      function stopAutoAdvance() {
+        if (autoTimer) {
+          window.clearInterval(autoTimer);
+          autoTimer = null;
+        }
+      }
+
+      function startAutoAdvance() {
+        if (prefersReducedMotion || manualOverride) return;
+        stopAutoAdvance();
+        autoTimer = window.setInterval(function() {
+          transitionTo((activeIndex + 1) % panels.length);
+        }, 5000);
+      }
+
+      pills.forEach(function(pill) {
+        pill.addEventListener('click', function() {
+          manualOverride = true;
+          stopAutoAdvance();
+          transitionTo(parseInt(pill.getAttribute('data-step-index') || '0', 10));
+        });
+      });
+
+      Array.prototype.slice.call(root.querySelectorAll('.chc-image')).forEach(function(image) {
+        if (image.complete) return;
+        image.addEventListener('load', syncStageHeight);
+      });
+
+      window.addEventListener('resize', syncStageHeight);
+      setActive(0);
+      syncStageHeight();
+      startAutoAdvance();
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "CALQIX How It Cleans",
+  "settings": [],
+  "presets": [
+    {
+      "name": "CALQIX How It Cleans"
+    }
+  ]
+}
+{% endschema %}
