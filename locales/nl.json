@@ -183,10 +183,10 @@
       "variant_sold_out_or_unavailable": "Variant uitverkocht of niet beschikbaar",
       "view_full_details": "Bekijk alle details",
       "include_taxes": "Belasting inbegrepen.",
-      "shipping_policy_html": "<a href=\"{{ link }}\">Verzending</a> berekend bij het afrekenen.",
+      "shipping_policy_html": "<a href=\"{{ link }}\">Verzendkosten</a> worden berekend bij het afrekenen.",
       "volume_pricing": {
-        "note": "TODO",
-        "price_range": "TODO"
+        "note": "Volumekorting beschikbaar",
+        "price_range": "Van {{ minimum }} tot {{ maximum }}"
       },
       "select_option": "Selecteer een optie",
       "select_options": "Opties selecteren"
@@ -289,11 +289,11 @@
       "checkout": "Afrekenen",
       "empty": "Je winkelwagen is leeg",
       "cart_error": "Er is een fout opgetreden bij het bijwerken van je winkelwagen. Probeer het opnieuw.",
-      "cart_quantity_error_html": "Je kunt maar [aantal] van dit artikel toevoegen aan je winkelwagen.",
-      "taxes_and_shipping_policy_at_checkout_html": "Belastingen en <a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">verzendkosten</a> worden berekend bij de checkout",
-      "taxes_included_but_shipping_at_checkout": "Belasting inbegrepen en verzendkosten worden berekend bij de checkout",
-      "taxes_included_and_shipping_policy_html": "Inclusief belasting. <a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">Verzendkosten</a> worden berekend bij de checkout.",
-      "taxes_and_shipping_at_checkout": "Belastingen en verzendkosten worden berekend bij de checkout",
+      "cart_quantity_error_html": "Je kunt slechts {{ quantity }} van dit artikel aan je winkelwagen toevoegen.",
+      "taxes_and_shipping_policy_at_checkout_html": "Belastingen en <a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">verzendkosten</a> worden berekend bij het afrekenen",
+      "taxes_included_but_shipping_at_checkout": "Belasting inbegrepen, verzendkosten worden berekend bij het afrekenen.",
+      "taxes_included_and_shipping_policy_html": "Belasting inbegrepen. <a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">Verzendkosten</a> worden berekend bij het afrekenen.",
+      "taxes_and_shipping_at_checkout": "Belastingen en verzendkosten worden berekend bij het afrekenen",
       "headings": {
         "product": "Product",
         "price": "Prijs",
@@ -303,7 +303,7 @@
       },
       "update": "Bijwerken",
       "edit_note": "Bestelling notitie bewerken",
-      "note_placeholder": "Hoe kunnen we u helpen?",
+      "note_placeholder": "Hoe kunnen we je helpen?",
       "note-tax_id": "Btw-id",
       "login": {
         "title": "Heb je een account?",
@@ -383,8 +383,8 @@
       "drawer_title": "Lokalisatie-opties",
       "current_country_info": "U verzendt momenteel naar {{ countryName }} en uw bestelling wordt gefactureerd in {{ currencyIso }} {{ currencySymbol }}.",
       "search_location": {
-        "label": "Zoeklocatie",
-        "placeholder": "Zoek locatie..."
+        "label": "Zoek land of regio",
+        "placeholder": "Zoek land of regio..."
       }
     },
     "calqix_tooth_science": {
@@ -781,7 +781,7 @@
       "shop_link": "Terugkeren naar winkel",
       "remaining_html": "Resterend bedrag: {{ balance }}",
       "add_to_apple_wallet": "Aan Apple Wallet toevoegen",
-      "qr_image_alt": "QR-code — scannen om cadeaubon te verzilveren",
+      "qr_image_alt": "QR-code, scannen om cadeaubon te verzilveren",
       "copy_code": "Code kopiëren",
       "expired": "Verlopen",
       "copy_code_success": "Code gekopieerd",

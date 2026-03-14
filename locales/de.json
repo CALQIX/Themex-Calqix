@@ -163,7 +163,7 @@
         "open_media": "Medien {{ index }} im Modal öffnen",
         "play_model": "3D-Ansicht abspielen",
         "play_video": "Video abspielen",
-        "open_featured_media": "TODO"
+        "open_featured_media": "Hauptmedium öffnen"
       },
       "quantity": {
         "label": "Menge",
@@ -200,8 +200,8 @@
       "shipping_policy_html": "<a href=\"{{ link }}\">Versand</a> wird beim Bezahlen berechnet.",
       "choose_option": "Option wählen",
       "volume_pricing": {
-        "note": "TODO",
-        "price_range": "TODO"
+        "note": "Mengenrabatte verfügbar",
+        "price_range": "Von {{ minimum }} bis {{ maximum }}"
       }
     },
     "modal": {
@@ -294,7 +294,7 @@
     },
     "cart": {
       "title": "Ihr Warenkorb",
-      "caption": "Warenkorb-Artikel",
+      "caption": "Artikel im Warenkorb",
       "remove_title": "{{ title }} entfernen",
       "subtotal": "Zwischensumme",
       "new_subtotal": "Neue Zwischensumme",
@@ -307,8 +307,8 @@
       "cart_error": "Beim Aktualisieren Ihres Warenkorbs ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
       "cart_quantity_error_html": "Sie können nur {{ quantity }} dieses Artikels zu Ihrem Warenkorb hinzufügen.",
       "taxes_and_shipping_policy_at_checkout_html": "Steuern und <a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">Versand</a> werden an der Kasse berechnet",
-      "taxes_included_but_shipping_at_checkout": "Versand und Steuern werden an der Kasse berechnet",
-      "taxes_included_and_shipping_policy_html": "<a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">Versand</a> & Steuern werden an der Kasse berechnet",
+      "taxes_included_but_shipping_at_checkout": "Steuern inbegriffen, Versand wird an der Kasse berechnet.",
+      "taxes_included_and_shipping_policy_html": "Steuern inbegriffen. <a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">Versand</a> wird an der Kasse berechnet.",
       "taxes_and_shipping_at_checkout": "Steuern und Versand werden an der Kasse berechnet",
       "headings": {
         "product": "Produkt",
@@ -404,15 +404,15 @@
       "ui": {
         "trustAriaLabel": "Nachweise dieses Abschnitts",
         "introEyebrow": "Zahnwissenschaft",
-        "introHeading": "Verstehe, wie deine Zähne wirklich funktionieren.",
-        "introCopy": "Entdecke jeden Zahntyp, erfahre, was jede Schicht macht, und lerne, was hilft, Zähne sauber, stark und gesund zu halten.",
+        "introHeading": "Verstehen Sie, wie Ihre Zähne tatsächlich funktionieren.",
+        "introCopy": "Entdecken Sie jeden Zahntyp, erfahren Sie, was jede Schicht leistet, und lernen Sie, was hilft, Zähne sauber, kräftig und gesund zu halten.",
         "trustItem1": "Klinisch fundiert",
         "trustItem2": "Interaktives Lernen",
         "trustItem3": "Mobilfreundlich",
         "trustItem4": "Für die Aufklärung zur Mundpflege entwickelt",
         "trustItem5": "Wissenschaftlich gestützte visuelle Führung",
         "ctaLabel": "CALQIX Mundpflege entdecken",
-        "toothSelectorAriaLabel": "Wähle einen Zahntyp",
+        "toothSelectorAriaLabel": "Wählen Sie einen Zahntyp",
         "ageToggleAriaLabel": "Zwischen jungen und erwachsenen Zähnen wechseln",
         "interactiveAnatomy": "Interaktive Anatomie",
         "previewMode": "Vorschaumodus",
@@ -421,14 +421,14 @@
         "inspectLayer": "[layer] untersuchen",
         "idleInsightChipDesktop": "Eine Schicht berühren oder darüberfahren",
         "idleInsightChipMobile": "Eine Schicht antippen",
-        "idleInsightCopyDesktop": "Bewege den Cursor über eine Schicht oder tippe sie an, um zu sehen, was jede Struktur macht, warum sie wichtig ist und was sie Tag für Tag schützt.",
-        "idleInsightCopyMobile": "Tippe auf einen Hotspot, um das Detailfeld zu öffnen und zu sehen, was diese Struktur macht, warum sie wichtig ist und wie du sie schützt.",
+        "idleInsightCopyDesktop": "Bewegen Sie den Cursor über eine Schicht oder tippen Sie sie an, um zu sehen, was jede Struktur leistet, warum sie wichtig ist und was sie Tag für Tag schützt.",
+        "idleInsightCopyMobile": "Tippen Sie auf einen Hotspot, um das Detailfeld zu öffnen und zu sehen, was diese Struktur leistet, warum sie wichtig ist und wie Sie sie schützen.",
         "explorationProgress": "Erkundungsfortschritt",
         "progressSummary": "[count] von [total] erkundet",
         "functionLabel": "Funktion",
         "whyLabel": "Warum das wichtig ist",
         "careLabel": "Gesunde Pflege",
-        "riskLabel": "Achte auf",
+        "riskLabel": "Achten Sie auf",
         "tipLabel": "Kurzer Tipp",
         "supportFunctionEyebrow": "So arbeitet dieser Zahn",
         "supportFunctionTitle": "Funktionsprofil",
@@ -440,10 +440,10 @@
         "factTitleAdult": "Fakt zum erwachsenen Zahn",
         "supportVisualEyebrow": "Visuelle Unterstützung",
         "supportVisualTitle": "Reinigungsführung",
-        "scrollHint": "Bitte scrolle für weitere Informationen",
+        "scrollHint": "Scrollen Sie für weitere Informationen",
         "completionBadge": "Vollständige Zahnkarte",
-        "completionTitle": "Du hast die gesamte Zahnkarte erkundet.",
-        "completionCopy": "Jetzt weißt du, wofür jeder Zahn gebaut ist, was ihn unterstützt und warum die tägliche Pflege sowohl den Zahnschmelz als auch das umliegende Gewebe schützen muss.",
+        "completionTitle": "Sie haben die gesamte Zahnkarte erkundet.",
+        "completionCopy": "Sie wissen jetzt, wofür jeder Zahn ausgelegt ist, was ihn unterstützt und warum die tägliche Pflege sowohl den Zahnschmelz als auch das umliegende Gewebe schützen muss.",
         "mobileSheetAriaLabel": "Details zur Zahnschicht",
         "mobileSheetCloseAriaLabel": "Details zur Zahnschicht schließen",
         "diagramAriaLabel": "Diagramm von [tooth]",
@@ -478,9 +478,9 @@
           "description": "Zahnschmelz ist die härteste äußere Schicht des [age_label] und schützt die Krone im Alltag.",
           "function": "Er widersteht Reibung, Säuren und täglichem Kontakt, damit die Oberfläche glatt und schützend bleiben kann.",
           "why": "Wird der Zahnschmelz dünner, liegt die tiefere Struktur schneller frei und der Zahn kann sich anders anfühlen oder aussehen.",
-          "care": "Unterstütze ihn mit wenig abrasivem Putzen, Fluorid und konsequenter Plaqueentfernung.",
+          "care": "Unterstützen Sie ihn mit wenig abrasivem Putzen, Fluorid und konsequenter Plaqueentfernung.",
           "risk": "Wiederholte Säureangriffe, Abrieb oder festgesetzte Plaque können [risk] beschleunigen.",
-          "tip": "Schütze die [surface], bevor sie empfindlich wird."
+          "tip": "Schützen Sie die [surface], bevor sie empfindlich wird."
         },
         "dentin": {
           "title": "[label] stützt den Zahn von innen.",
@@ -496,7 +496,7 @@
           "description": "Die Pulpa enthält Nerven und Blutversorgung, die den Zahn versorgen und ihm helfen, auf Verletzung oder Stress zu reagieren.",
           "function": "Sie unterstützt Vitalität, Empfinden und innere Reparatursignale im Zahn.",
           "why": "Bei einem [age_label] beeinflussen Form und Größe der Pulpa, wie tief Abrieb oder Trauma den Zahn betreffen können.",
-          "care": "Achte auf anhaltende Schmerzen, Trauma, Risse oder starke Empfindlichkeit beim Zubeißen.",
+          "care": "Achten Sie auf anhaltende Schmerzen, Trauma, Risse oder starke Empfindlichkeit beim Zubeißen.",
           "risk": "Unbehandelter Stress kann die Pulpa entzünden und Beschwerden von mild zu anhaltend werden lassen.",
           "tip": "Ein Zahn kann außen intakt aussehen, während tiefere Gewebe bereits gereizt sind."
         },
@@ -514,7 +514,7 @@
           "description": "Gesundes Zahnfleisch umschließt den Zahnhals und hilft, Bakterien davon abzuhalten, tiefer vorzudringen.",
           "function": "Es schützt den Übergang von Krone zu Wurzel und unterstützt den Komfort am Zahnfleischrand.",
           "why": "Entzündete Veränderungen am Zahnfleisch können empfindliche Wurzeloberflächen freilegen und verändern, wie der Zahn aussieht oder sich anfühlt.",
-          "care": "Richte die Reinigung zum Zahnfleischrand und entferne Plaque, bevor sie das Gewebe lange genug reizen kann.",
+          "care": "Richten Sie die Reinigung zum Zahnfleischrand aus und entfernen Sie Plaque, bevor sie das Gewebe lange genug reizen kann.",
           "risk": "Bluten, Schwellung und Rückgang sind frühe Zeichen dafür, dass der Abschluss unter Druck steht.",
           "tip": "Eine sanfte Technik hilft meist mehr als stärkerer Druck."
         },
@@ -523,7 +523,7 @@
           "description": "Zement ist eine weichere Mineralschicht, die die Wurzel bedeckt und die Faseranheftung unter dem Zahnfleischrand unterstützt.",
           "function": "Er hilft dem Zahn, mit dem Bandapparat verbunden zu bleiben, der ihn in der Zahnfach stabil hält.",
           "why": "Anders als Zahnschmelz braucht freiliegender Zement sanftere Pflege und Schutz vor aggressivem Abrieb.",
-          "care": "Beuge Zahnfleischrückgang nach Möglichkeit vor und reinige freiliegende Wurzeloberflächen vorsichtig.",
+          "care": "Beugen Sie Zahnfleischrückgang nach Möglichkeit vor und reinigen Sie freiliegende Wurzeloberflächen vorsichtig.",
           "risk": "Liegt der Wurzelüberzug frei, können Empfindlichkeit und Abrieb schneller entstehen.",
           "tip": "Wurzeloberflächen brauchen Feingefühl statt Kraft."
         },
@@ -541,7 +541,7 @@
           "description": "Dieser Teil des Kiefers umgibt die Wurzel und liefert die stabile Umgebung, die der Zahn für eine gute Funktion braucht.",
           "function": "Er stabilisiert den Zahn und passt sich mit der Zeit gesunder Belastung an.",
           "why": "Knochenunterstützung entscheidet mit darüber, ob der Zahn angenehm, stabil und gut zu reinigen bleibt.",
-          "care": "Kontrolliere chronische Entzündung und halte Plaque rund um den Zahn und den benachbarten Zahnfleischrand niedrig.",
+          "care": "Kontrollieren Sie chronische Entzündungen und halten Sie Plaque rund um den Zahn und den benachbarten Zahnfleischrand gering.",
           "risk": "Unterstützungsverlust kann Kontur, Stabilität und Kaukomfort verändern.",
           "tip": "Gesunder Knochen ist oft der verborgene Grund, warum sich ein Zahn verlässlich anfühlt."
         },
@@ -550,18 +550,18 @@
           "description": "Kleine Ligamentfasern verbinden Wurzel und Knochen und erlauben mikroskopische Bewegung statt harter Krafteinwirkung.",
           "function": "Es dämpft Kräfte, erhöht den Komfort und hilft dem Zahn, beim Zubeißen reaktionsfähig zu bleiben.",
           "why": "Diese Stützschicht ist ein Grund dafür, dass Zähne Druck aushalten können, ohne sich starr wie Stein anzufühlen.",
-          "care": "Verringere Überlastung durch Pressen und schütze das umliegende Gewebe vor Entzündung.",
+          "care": "Verringern Sie Überlastung durch Pressen und schützen Sie das umliegende Gewebe vor Entzündungen.",
           "risk": "Ein gereiztes Ligament kann den Zahn hoch, wund oder druckempfindlich erscheinen lassen.",
           "tip": "Eine kleine gesunde Zahnbewegung ist normal, weil das Ligament seine Arbeit macht."
         }
       },
       "flowGuidance": {
         "overview": "Die Reinigungsführung zeigt die sicherste Bewegung um den [age_label], damit Plaque vom Zahnfleischrand weggeführt wird und die [surface] geschützt bleibt.",
-        "enamel": "Beginne auf der Schmelzhülle und streiche von der Beißfläche nach außen, damit du die Krone reinigst, ohne den Rand zu stark zu schrubben.",
-        "dentin": "Arbeite mit sanften, kontrollierten Bewegungen, damit die Struktur unter dem Zahnschmelz geschützt bleibt, statt durch Druck oder Abrieb belastet zu werden.",
+        "enamel": "Beginnen Sie an der Schmelzhülle und streichen Sie von der Beißfläche nach außen, damit Sie die Krone reinigen, ohne den Rand zu stark zu schrubben.",
+        "dentin": "Arbeiten Sie mit sanften, kontrollierten Bewegungen, damit die Struktur unter dem Zahnschmelz geschützt bleibt, statt durch Druck oder Abrieb belastet zu werden.",
         "pulp": "Die Führung hält die Reinigung über der Kronenmitte leicht, denn tiefer Druck ist nie das Ziel, wenn das lebendige Zentrum direkt darunter liegt.",
-        "root": "Führe die Bewegung entlang des Wurzelverlaufs und vom Geweberand weg, damit sich Beläge von der Stützzone entfernen statt tiefer dorthin gedrückt zu werden.",
-        "gum": "Streiche mit der Bewegung am Zahnfleischrand entlang, um Plaque am Abschluss zu lösen, ohne sie unter gereiztes Gewebe zu drücken.",
+        "root": "Führen Sie die Bewegung entlang des Wurzelverlaufs und vom Geweberand weg, damit sich Beläge von der Stützzone entfernen, statt tiefer dorthin gedrückt zu werden.",
+        "gum": "Streichen Sie mit der Bewegung am Zahnfleischrand entlang, um Plaque am Abschluss zu lösen, ohne sie unter gereiztes Gewebe zu drücken.",
         "cementum": "Rund um den Zement wird die Führung weicher und präziser, weil Wurzelüberzug Feingefühl statt Kraft braucht.",
         "rootCanal": "Der Wurzelkanal selbst wird nicht direkt gereinigt, aber die Führung zeigt, wie Oberflächenpflege helfen kann, tiefere Reizung zu verhindern, bevor sie diesen Weg erreicht.",
         "alveolarBone": "Der Knochen ist verborgene Unterstützung, daher konzentriert sich die Führung darauf, Plaque darüber zu entfernen und so die Gewebe zu schützen, die diese Basis stabil halten.",
@@ -794,7 +794,7 @@
       "shop_link": "Weiter einkaufen",
       "remaining_html": "Verbleibender Betrag {{ balance }}",
       "add_to_apple_wallet": "Zu Apple Wallet hinzufügen",
-      "qr_image_alt": "QR-Code — zum Einlösen der Geschenkkarte scannen",
+      "qr_image_alt": "QR-Code, zum Einlösen der Geschenkkarte scannen",
       "copy_code": "Code kopieren",
       "expired": "Abgelaufen",
       "copy_code_success": "Code erfolgreich kopiert",

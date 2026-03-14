@@ -81,7 +81,7 @@
     }
   },
   "newsletter": {
-    "label": "Email",
+    "label": "E-mail",
     "success": "Merci de vous être abonné",
     "button_label": "S'abonner"
   },
@@ -123,7 +123,7 @@
       "moderated": "Veuillez noter, les commentaires doivent être approuvés avant leur publication.",
       "comment_form_title": "Laisser un commentaire",
       "name": "Nom",
-      "email": "Email",
+      "email": "E-mail",
       "message": "Commentaire",
       "post": "Poster le commentaire",
       "back_to_blog": "Retour au blog",
@@ -163,7 +163,7 @@
         "open_media": "Ouvrir le média {{ index }} dans une modale",
         "play_model": "Lire la visionneuse 3D",
         "play_video": "Lire la vidéo",
-        "open_featured_media": "TODO"
+        "open_featured_media": "Ouvrir le média principal"
       },
       "quantity": {
         "label": "Quantité",
@@ -200,8 +200,8 @@
       "shipping_policy_html": "<a href=\"{{ link }}\">Livraison</a> calculée à la caisse.",
       "choose_option": "Choisir une option",
       "volume_pricing": {
-        "note": "TODO",
-        "price_range": "TODO"
+        "note": "Tarifs dégressifs disponibles",
+        "price_range": "De {{ minimum }} à {{ maximum }}"
       }
     },
     "modal": {
@@ -270,7 +270,7 @@
       "form": {
         "title": "Formulaire de contact",
         "name": "Nom",
-        "email": "Email",
+        "email": "E-mail",
         "phone": "Numéro de téléphone",
         "comment": "Commentaire",
         "send": "Envoyer",
@@ -307,8 +307,8 @@
       "cart_error": "Une erreur s'est produite lors de la mise à jour de votre panier. Veuillez réessayer.",
       "cart_quantity_error_html": "Vous ne pouvez ajouter que {{ quantity }} de cet article à votre panier.",
       "taxes_and_shipping_policy_at_checkout_html": "Les taxes et <a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">les frais de livraison</a> sont calculés à la caisse",
-      "taxes_included_but_shipping_at_checkout": "Livraison & taxes calculées à la caisse",
-      "taxes_included_and_shipping_policy_html": "<a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">Livraison</a> & taxes calculées à la caisse",
+      "taxes_included_but_shipping_at_checkout": "Taxes incluses, frais de livraison calculés à la caisse.",
+      "taxes_included_and_shipping_policy_html": "Taxes incluses. <a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">Frais de livraison</a> calculés à la caisse.",
       "taxes_and_shipping_at_checkout": "Taxes et frais de livraison calculés à la caisse",
       "headings": {
         "product": "Produit",
@@ -396,8 +396,8 @@
       "drawer_title": "Options de localisation",
       "current_country_info": "Vous expédiez actuellement vers {{ countryName }} et votre commande sera facturée en {{ currencyIso }} {{ currencySymbol }}.",
       "search_location": {
-        "label": "Rechercher un emplacement",
-        "placeholder": "Rechercher un lieu..."
+        "label": "Rechercher un pays ou une région",
+        "placeholder": "Rechercher un pays ou une région..."
       }
     },
     "calqix_tooth_science": {
@@ -721,7 +721,7 @@
     "login_page": {
       "cancel": "Annuler",
       "create_account": "Créer un compte",
-      "email": "Email",
+      "email": "E-mail",
       "forgot_password": "Mot de passe oublié ?",
       "guest_continue": "Continuer",
       "guest_title": "Continuer en tant qu'invité",
@@ -774,7 +774,7 @@
       "title": "Créer un compte",
       "first_name": "Prénom",
       "last_name": "Nom",
-      "email": "Email",
+      "email": "E-mail",
       "password": "Mot de passe",
       "submit": "Créer"
     },
@@ -794,7 +794,7 @@
       "shop_link": "Continuer vos achats",
       "remaining_html": "Restant {{ balance }}",
       "add_to_apple_wallet": "Ajouter à Apple Wallet",
-      "qr_image_alt": "Code QR — scannez pour utiliser la carte cadeau",
+      "qr_image_alt": "Code QR, scannez pour utiliser la carte cadeau",
       "copy_code": "Copier le code",
       "expired": "Expiré",
       "copy_code_success": "Code copié avec succès",
@@ -806,9 +806,9 @@
       "checkbox": "Je souhaite envoyer ceci en tant que cadeau",
       "expanded": "Formulaire de destinataire de carte cadeau déployé",
       "collapsed": "Formulaire de destinataire de carte cadeau replié",
-      "email_label": "Email du destinataire",
-      "email_label_optional_for_no_js_behavior": "Email du destinataire (optionnel)",
-      "email": "Email du destinataire",
+      "email_label": "E-mail du destinataire",
+      "email_label_optional_for_no_js_behavior": "E-mail du destinataire (optionnel)",
+      "email": "E-mail du destinataire",
       "name_label": "Nom du destinataire (optionnel)",
       "name": "Nom du destinataire (optionnel)",
       "message_label": "Message (optionnel)",

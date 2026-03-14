@@ -170,7 +170,7 @@
         "open_media": "Open media {{ index }} in modal",
         "play_model": "Play 3D Viewer",
         "play_video": "Play video",
-        "open_featured_media": "TODO"
+        "open_featured_media": "Open featured media"
       },
       "quantity": {
         "label": "Quantity",
@@ -206,8 +206,8 @@
       "include_taxes": "Tax included.",
       "shipping_policy_html": "<a href=\"{{ link }}\">Shipping</a> calculated at checkout.",
       "volume_pricing": {
-        "note": "TODO",
-        "price_range": "TODO"
+        "note": "Volume pricing available",
+        "price_range": "From {{ minimum }} to {{ maximum }}"
       }
     },
     "modal": {
@@ -314,8 +314,8 @@
       "cart_error": "There was an error while updating your cart. Please try again.",
       "cart_quantity_error_html": "You can only add {{ quantity }} of this item to your cart.",
       "taxes_and_shipping_policy_at_checkout_html": "Taxes and <a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">shipping</a> calculated at checkout",
-      "taxes_included_but_shipping_at_checkout": "Shipping & taxes calculated at checkout",
-      "taxes_included_and_shipping_policy_html": " <a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">Shipping</a> & taxes calculated at checkout",
+      "taxes_included_but_shipping_at_checkout": "Tax included, shipping calculated at checkout.",
+      "taxes_included_and_shipping_policy_html": "Tax included. <a class=\"policy-link\" href=\"{{ link }}\" tabindex=\"{{ tabindex }}\">Shipping</a> calculated at checkout.",
       "taxes_and_shipping_at_checkout": "Taxes and shipping calculated at checkout",
       "headings": {
         "product": "Product",
@@ -396,10 +396,10 @@
       }
     },
     "localization_drawer": {
-      "title": "Localization",
+      "title": "Localisation",
       "country_label": "Country/region",
       "language_label": "Language",
-      "drawer_title": "Localization options",
+      "drawer_title": "Language and region",
       "current_country_info": "You are currently shipping to {{ countryName }} and your order will be billed in {{ currencyIso }} {{ currencySymbol }}.",
       "search_location": {
         "label": "Search location",
@@ -800,7 +800,7 @@
       "shop_link": "Continue shopping",
       "remaining_html": "Remaining {{ balance }}",
       "add_to_apple_wallet": "Add to Apple Wallet",
-      "qr_image_alt": "QR code — scan to redeem gift card",
+      "qr_image_alt": "QR code, scan to redeem gift card",
       "copy_code": "Copy code",
       "expired": "Expired",
       "copy_code_success": "Code copied successfully",
