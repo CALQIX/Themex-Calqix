@@ -495,7 +495,109 @@
     },
     "calqix_how_it_cleans_flowcore": {
       "type": "calqix-how-it-cleans",
-      "settings": {}
+      "blocks": {
+        "step_3zR4Qc": {
+          "type": "step",
+          "name": "Step 01",
+          "settings": {
+            "step_number": "Step 01",
+            "pill_label": "01 Position",
+            "step_image": "shopify://shop_images/1st.png",
+            "image_alt": "",
+            "image_position": "center",
+            "step_headline": "Position along the gumline.",
+            "step_body": "<p>Hold the FlowCore nozzle at a 90° angle to your teeth,<br/>tip touching the gumline. This is the entry angle for subgingival access, the<br/>zone 2 to 6mm below the tissue surface where bacteria accumulate and where a<br/>toothbrush physically cannot reach.</p>",
+            "callout_text": "Correct nozzle angle reduces resistance and allows the precision stream to enter the sulcus at full pressure.",
+            "cta_label": "",
+            "cta_link": "",
+            "cta_style": "gold",
+            "annotation_type": "angle"
+          }
+        },
+        "step_URMJid": {
+          "type": "step",
+          "name": "Step 02",
+          "settings": {
+            "step_number": "Step 02",
+            "pill_label": "02 Penetrate",
+            "step_image": "shopify://shop_images/2nd.png",
+            "image_alt": "",
+            "image_position": "center",
+            "step_headline": "Penetrate 6mm below the gumline.",
+            "step_body": "<p>The 0.6mm precision stream enters the space between tooth<br/>and gum tissue, reaching up to 6mm subgingivally. String floss reaches<br/>approximately 2 to 3mm. At 1,600 pulses per minute, the stream creates a<br/>hydrodynamic zone that physically disrupts biofilm, the bacterial layer that<br/>causes plaque and gum inflammation.</p>",
+            "callout_text": "String floss maximum penetration: 2–3mm. FlowCore subgingival reach: up to 6mm. The difference is where periodontal disease begins.",
+            "cta_label": "",
+            "cta_link": "",
+            "cta_style": "navy",
+            "annotation_type": "stream"
+          }
+        },
+        "step_qMTQRg": {
+          "type": "step",
+          "name": "Step 03",
+          "settings": {
+            "step_number": "Step 03",
+            "pill_label": "03 Flush",
+            "step_image": "shopify://shop_images/3rd.png",
+            "image_alt": "",
+            "image_position": "center",
+            "step_headline": "Flush out the biofilm barrier.",
+            "step_body": "<p>Plaque is not just food debris, it is a structured<br/>bacterial community called biofilm. Biofilm resists manual removal and blocks<br/>nano-HA from bonding to enamel. The FlowCore's pulsating stream physically<br/>breaks up and flushes biofilm from interdental spaces and below the gumline,<br/>clearing access for remineralisation.</p>",
+            "callout_text": "99.9% plaque removal in clinical testing versus brushing alone. Journal of Clinical Dentistry, 2019.",
+            "cta_label": "",
+            "cta_link": "",
+            "cta_style": "navy",
+            "annotation_type": "particles"
+          }
+        },
+        "step_J7zm7m": {
+          "type": "step",
+          "name": "Step 04",
+          "settings": {
+            "step_number": "Step 04",
+            "pill_label": "04 Result",
+            "step_image": "shopify://shop_images/4th.png",
+            "image_alt": "",
+            "image_position": "center",
+            "step_headline": "Clean enamel. Ready to rebuild.",
+            "step_body": "<p>With the biofilm barrier removed, enamel surface is<br/>exposed and clean. Nano-hydroxyapatite from your CALQIX tablet can now bond<br/>directly to enamel micro-lesions. Remineralisation is a contact process, it<br/>requires a clean surface. This is why sequence matters: flush first, then<br/>rebuild.</p>",
+            "callout_text": "This is the CALQIX clinical protocol. Step 01: FlowCore. Step 02: CALQIX nano-HA tablets.",
+            "cta_label": "",
+            "cta_link": "",
+            "cta_style": "navy",
+            "annotation_type": "pulse"
+          }
+        }
+      },
+      "block_order": [
+        "step_3zR4Qc",
+        "step_URMJid",
+        "step_qMTQRg",
+        "step_J7zm7m"
+      ],
+      "settings": {
+        "section_background_color": "#ffffff",
+        "section_padding_top": 80,
+        "section_padding_bottom": 80,
+        "eyebrow_text": "THE MECHANISM",
+        "heading_text": "How FlowCore cleans where brushing can't.",
+        "heading_color": "#1a3b5c",
+        "eyebrow_color": "#c9a84c",
+        "pill_active_bg": "#c9a84c",
+        "pill_active_text": "#1a3b5c",
+        "pill_inactive_bg": "#f4f5f7",
+        "pill_inactive_text": "#6b7280",
+        "image_max_width": 420,
+        "image_background_color": "#f8f9fa",
+        "image_border_radius": 16,
+        "show_svg_annotations": true,
+        "annotation_color": "#c9a84c",
+        "callout_background": "#f4f5f7",
+        "callout_border_color": "#c9a84c",
+        "callout_text_color": "#6b7280",
+        "auto_advance": true,
+        "auto_advance_delay": 5
+      }
     },
     "calqix_before_after_JFjxMT": {
       "type": "calqix-before-after",
@@ -645,6 +747,10 @@
         "custom_css": "",
         "custom_js": ""
       }
+    },
+    "calqix_product_faq_flowcore": {
+      "type": "calqix-product-faq",
+      "settings": {}
     },
     "calqix_reviews_XHeCpx": {
       "type": "calqix-reviews",
@@ -930,10 +1036,6 @@
         "color_arrow_hover_bg": "#1a3b5c",
         "color_arrow_hover_icon": "#ffffff"
       }
-    },
-    "calqix_product_faq_flowcore": {
-      "type": "calqix-product-faq",
-      "settings": {}
     },
     "1773013788156ef032": {
       "type": "apps",
