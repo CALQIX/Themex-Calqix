@@ -1391,6 +1391,12 @@ button[disabled] {
   color: var(--color-custom-text);
 }
 .card.card--product-meta .card__price {
+  --font-price-size: var(--product-card-price-size);
+  --font-price: var(--product-card-price-font);
+  --font-price-style: var(--product-card-price-style);
+  --font-price-weight: var(--product-card-price-weight);
+  --color-price: var(--product-card-price-color);
+  --color-sale-price: var(--product-card-price-sale-color);
   display: flex;
   justify-content: var(--product-card-price-justify);
   align-items: center;
@@ -1408,6 +1414,15 @@ button[disabled] {
 }
 .card.card--product-meta .card__price .price {
   width: 100%;
+}
+.card.card--product-meta .card__price .price-item,
+.card.card--product-meta .card__price .wt-product__price__final,
+.card.card--product-meta .card__price .wt-product__price__compare {
+  font-size: var(--product-card-price-size);
+  font-family: var(--product-card-price-font);
+  font-style: var(--product-card-price-style);
+  font-weight: var(--product-card-price-weight);
+  line-height: 1.35;
 }
 .card.card--product-meta .card__price .price__container,
 .card.card--product-meta .card__price .price__regular,
@@ -1431,10 +1446,16 @@ button[disabled] {
 .card.card--product-meta .card__price .price-item.price-item--sale.price-item--last.wt-product__price__final {
   color: var(--product-card-price-sale-color);
 }
+.card.card--product-meta .card__price .wt-product__price__final {
+  color: var(--product-card-price-color);
+}
 .card.card--product-meta .card__price .price-item--lower,
 .card.card--product-meta .card__price s.price-item--regular,
-.card.card--product-meta .card__price .card__price__old {
+.card.card--product-meta .card__price .card__price__old,
+.card.card--product-meta .card__price .wt-product__price__compare,
+.card.card--product-meta .card__price .price--on-sale .price-item--regular {
   color: var(--product-card-price-compare-color);
+  font-size: var(--product-card-price-size);
 }
 .card.card--product-meta .card__price .card__price__old {
   opacity: 1;
