@@ -25,6 +25,38 @@
 {% assign cols       = section.settings.columns %}
 {% assign pad_v      = section.settings.padding_vertical %}
 {% assign pad_h      = section.settings.padding_horizontal %}
+{% assign cq_lang = request.locale.iso_code | downcase | slice: 0, 2 %}
+{% assign cq_flowcore_handles = 'calqix-flowcore,flowcore-white,flowcore-green,flowcore-pink' | split: ',' %}
+{% assign cq_is_flowcore = false %}
+{% if product != blank and cq_flowcore_handles contains product.handle %}
+  {% assign cq_is_flowcore = true %}
+{% endif %}
+{% assign chiw_label = section.settings.label %}
+{% assign chiw_title = section.settings.title %}
+{% assign chiw_subtitle = section.settings.subtitle %}
+{% assign chiw_empty_state = 'Voeg stappen toe via "Block toevoegen" in de Theme Customizer.' %}
+{% assign chiw_dot_label = 'Go to step' %}
+{% if cq_is_flowcore %}
+  {% case cq_lang %}
+    {% when 'nl' %}
+      {% assign chiw_label = 'De technologie' %}
+      {% assign chiw_title = 'Hoe FlowCore werkt' %}
+      {% assign chiw_subtitle = 'Een monddouche werkt niet alleen op druk. Het is een combinatie van pulsatiefrequentie en gerichte precisie, twee dingen die flossdraad fysiek niet kan nabootsen.' %}
+      {% assign chiw_dot_label = 'Ga naar stap' %}
+    {% when 'de' %}
+      {% assign chiw_label = 'Die Technologie' %}
+      {% assign chiw_title = 'Wie FlowCore funktioniert' %}
+      {% assign chiw_subtitle = 'Water Flossing ist nicht nur Druck. Es ist eine Kombination aus Pulsationsfrequenz und präziser Zielgenauigkeit, zwei Dinge, die Zahnseide physisch nicht nachbilden kann.' %}
+      {% assign chiw_empty_state = 'Fügen Sie Schritte über "Block hinzufügen" im Theme-Customizer hinzu.' %}
+      {% assign chiw_dot_label = 'Zu Schritt' %}
+    {% when 'fr' %}
+      {% assign chiw_label = 'La technologie' %}
+      {% assign chiw_title = 'Comment FlowCore fonctionne' %}
+      {% assign chiw_subtitle = 'L’hydropulsation ne repose pas uniquement sur la pression. C’est une combinaison de fréquence de pulsation et de précision ciblée, deux éléments que le fil dentaire ne peut pas reproduire physiquement.' %}
+      {% assign chiw_empty_state = 'Ajoutez des étapes via "Ajouter un bloc" dans le personnalisateur de thème.' %}
+      {% assign chiw_dot_label = 'Aller à l’étape' %}
+  {% endcase %}
+{% endif %}
 
 <style>
   #calqix-hiw-{{ section.id }} {
@@ -223,22 +255,74 @@
 <section id="calqix-hiw-{{ section.id }}" class="calqix-how-it-works">
   <div class="chiw-inner">
 
-    {% if section.settings.label != blank %}
-      <div class="chiw-label">{{ section.settings.label }}</div>
+    {% if chiw_label != blank %}
+      <div class="chiw-label">{{ chiw_label }}</div>
     {% endif %}
 
-    {% if section.settings.title != blank %}
-      <h2 class="chiw-title">{{ section.settings.title }}</h2>
+    {% if chiw_title != blank %}
+      <h2 class="chiw-title">{{ chiw_title }}</h2>
     {% endif %}
 
-    {% if section.settings.subtitle != blank %}
-      <p class="chiw-sub">{{ section.settings.subtitle }}</p>
+    {% if chiw_subtitle != blank %}
+      <p class="chiw-sub">{{ chiw_subtitle }}</p>
     {% endif %}
 
     {% if section.blocks.size > 0 %}
       <div class="chiw-grid">
         {% for block in section.blocks %}
           {% assign anim_index = forloop.index0 | modulo: 3 | plus: 1 %}
+          {% assign chiw_block_title = block.settings.title %}
+          {% assign chiw_block_description = block.settings.description %}
+          {% assign chiw_block_badge = block.settings.badge %}
+          {% if cq_is_flowcore %}
+            {% case cq_lang %}
+              {% when 'nl' %}
+                {% case forloop.index %}
+                  {% when 1 %}
+                    {% assign chiw_block_title = 'Pulserende druk' %}
+                    {% assign chiw_block_description = 'Met 1.600 pulsaties per minuut creëert FlowCore tussen de tanden een hydrodynamische zone die biofilm losmaakt, de kleverige bacterielaag die plaque en tandvleesontsteking veroorzaakt.' %}
+                    {% assign chiw_block_badge = '1.600 pulsaties/min' %}
+                  {% when 2 %}
+                    {% assign chiw_block_title = 'Subgingivale toegang' %}
+                    {% assign chiw_block_description = 'De precisienozzle reikt tot 6 mm onder de tandvleesrand, de kritieke zone voor parodontale gezondheid. Flossdraad reikt ongeveer 2 tot 3 mm. Dat verschil is op celniveau relevant.' %}
+                    {% assign chiw_block_badge = '6 mm diepte' %}
+                  {% when 3 %}
+                    {% assign chiw_block_title = 'Voorbereiding van het oppervlak' %}
+                    {% assign chiw_block_description = 'Door de plaquebarrière te verwijderen bereidt FlowCore schoon glazuur voor op contact met nano-HA. Remineralisatie is een proces van oppervlakthechting. Daarvoor is direct contact nodig. Daarom is de volgorde belangrijk.' %}
+                    {% assign chiw_block_badge = 'De CALQIX-methode' %}
+                {% endcase %}
+              {% when 'de' %}
+                {% case forloop.index %}
+                  {% when 1 %}
+                    {% assign chiw_block_title = 'Pulsierender Druck' %}
+                    {% assign chiw_block_description = 'Mit 1.600 Pulsationen pro Minute erzeugt FlowCore zwischen den Zähnen eine hydrodynamische Zone, die Biofilm löst, die klebrige Bakterienschicht, die Plaque und Zahnfleischentzündungen verursacht.' %}
+                    {% assign chiw_block_badge = '1.600 Pulsationen/Min' %}
+                  {% when 2 %}
+                    {% assign chiw_block_title = 'Subgingivaler Zugang' %}
+                    {% assign chiw_block_description = 'Die Präzisionsdüse erreicht bis zu 6 mm unter dem Zahnfleischrand, die kritische Zone für die parodontale Gesundheit. Zahnseide erreicht ungefähr 2 bis 3 mm. Dieser Unterschied ist auf zellulärer Ebene relevant.' %}
+                    {% assign chiw_block_badge = '6 mm Tiefe' %}
+                  {% when 3 %}
+                    {% assign chiw_block_title = 'Oberflächenvorbereitung' %}
+                    {% assign chiw_block_description = 'Durch das Entfernen der Plaquebarriere bereitet FlowCore sauberen Zahnschmelz auf den Kontakt mit nano-HA vor. Remineralisierung ist ein Prozess der Oberflächenbindung. Dafür ist direkter Zugang erforderlich. Deshalb ist die Reihenfolge entscheidend.' %}
+                    {% assign chiw_block_badge = 'Die CALQIX-Methode' %}
+                {% endcase %}
+              {% when 'fr' %}
+                {% case forloop.index %}
+                  {% when 1 %}
+                    {% assign chiw_block_title = 'Pression pulsée' %}
+                    {% assign chiw_block_description = 'À 1 600 pulsations par minute, FlowCore crée entre les dents une zone hydrodynamique qui déloge le biofilm, la couche bactérienne adhérente responsable de la plaque et de l’inflammation gingivale.' %}
+                    {% assign chiw_block_badge = '1 600 pulsations/min' %}
+                  {% when 2 %}
+                    {% assign chiw_block_title = 'Accès sous-gingival' %}
+                    {% assign chiw_block_description = 'L’embout de précision atteint jusqu’à 6 mm sous le rebord gingival, la zone critique pour la santé parodontale. Le fil dentaire atteint environ 2 à 3 mm. Cette différence compte au niveau cellulaire.' %}
+                    {% assign chiw_block_badge = 'Profondeur 6 mm' %}
+                  {% when 3 %}
+                    {% assign chiw_block_title = 'Préparation de surface' %}
+                    {% assign chiw_block_description = 'En éliminant la barrière de plaque, FlowCore prépare un émail propre au contact avec le nano-HA. La reminéralisation est un processus d’adhésion de surface. Elle nécessite un accès direct. C’est pourquoi la séquence est essentielle.' %}
+                    {% assign chiw_block_badge = 'La méthode CALQIX' %}
+                {% endcase %}
+            {% endcase %}
+          {% endif %}
           <div class="chiw-card" data-step-anim="{{ anim_index }}" {{ block.shopify_attributes }}>
 
             {% if block.settings.show_number %}
@@ -252,16 +336,16 @@
               </div>
             {% endif %}
 
-            {% if block.settings.title != blank %}
-              <h3 class="chiw-step-title">{{ block.settings.title }}</h3>
+            {% if chiw_block_title != blank %}
+              <h3 class="chiw-step-title">{{ chiw_block_title }}</h3>
             {% endif %}
 
-            {% if block.settings.description != blank %}
-              <p class="chiw-step-desc">{{ block.settings.description }}</p>
+            {% if chiw_block_description != blank %}
+              <p class="chiw-step-desc">{{ chiw_block_description }}</p>
             {% endif %}
 
-            {% if block.settings.badge != blank %}
-              <span class="chiw-badge">{{ block.settings.badge }}</span>
+            {% if chiw_block_badge != blank %}
+              <span class="chiw-badge">{{ chiw_block_badge }}</span>
             {% endif %}
 
           </div>
@@ -270,7 +354,7 @@
       <div class="chiw-mobile-nav" aria-hidden="true"></div>
     {% else %}
       <div style="padding: 40px; text-align: center; color: #9B9B9B; font-size: 13px; background: rgba(0,0,0,0.03);">
-        Voeg stappen toe via "Block toevoegen" in de Theme Customizer.
+        {{ chiw_empty_state }}
       </div>
     {% endif %}
 
@@ -338,7 +422,7 @@
           var dot = document.createElement('button');
           dot.type = 'button';
           dot.className = 'chiw-mobile-dot' + (i === 0 ? ' is-active' : '');
-          dot.setAttribute('aria-label', 'Go to step ' + (i + 1));
+          dot.setAttribute('aria-label', '{{ chiw_dot_label }} ' + (i + 1));
           dot.addEventListener('click', function() {
             cards[i].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
             setActive(i);

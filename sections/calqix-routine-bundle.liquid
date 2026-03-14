@@ -34,6 +34,12 @@
 {% assign btn_hover   = section.settings.button_hover %}
 {% assign pad_v       = section.settings.padding_vertical %}
 {% assign pad_h       = section.settings.padding_horizontal %}
+{% assign cq_lang = request.locale.iso_code | downcase | slice: 0, 2 %}
+{% assign cq_flowcore_handles = 'calqix-flowcore,flowcore-white,flowcore-green,flowcore-pink' | split: ',' %}
+{% assign cq_is_flowcore = false %}
+{% if product != blank and cq_flowcore_handles contains product.handle %}
+  {% assign cq_is_flowcore = true %}
+{% endif %}
 
 {% if section.settings.bundle_product_handle != blank %}
   {% assign bundle_product = all_products[section.settings.bundle_product_handle] %}
@@ -51,11 +57,81 @@
 {% assign soldout_waitlist_url = section.settings.soldout_waitlist_url | default: '/pages/contact' %}
 {% assign soldout_alt_label = section.settings.soldout_alt_label | default: 'Shop FlowCore only' %}
 {% assign soldout_alt_url = section.settings.soldout_alt_url | default: '/products/calqix-flowcore' %}
+{% assign crb_label = section.settings.label %}
+{% assign crb_title = section.settings.title %}
+{% assign crb_subtitle = section.settings.subtitle %}
+{% assign crb_card_label = section.settings.card_label %}
+{% assign crb_card_title = section.settings.card_title %}
+{% assign crb_card_quote = section.settings.card_quote %}
+{% assign crb_item_1 = section.settings.item_1 %}
+{% assign crb_item_2 = section.settings.item_2 %}
+{% assign crb_item_3 = section.settings.item_3 %}
+{% assign crb_item_4 = section.settings.item_4 %}
+{% assign crb_item_5 = section.settings.item_5 %}
+{% assign crb_save_text = section.settings.save_text %}
+{% assign crb_button_text = section.settings.button_text %}
+{% assign crb_soldout_label = 'Sold out' %}
+{% assign crb_dot_label = 'Go to routine slide' %}
 {% if section.settings.soldout_copy_variant == 'b' %}
   {% if section.settings.soldout_waitlist_label_b != blank %}{% assign soldout_waitlist_label = section.settings.soldout_waitlist_label_b %}{% endif %}
   {% if section.settings.soldout_waitlist_url_b != blank %}{% assign soldout_waitlist_url = section.settings.soldout_waitlist_url_b %}{% endif %}
   {% if section.settings.soldout_alt_label_b != blank %}{% assign soldout_alt_label = section.settings.soldout_alt_label_b %}{% endif %}
   {% if section.settings.soldout_alt_url_b != blank %}{% assign soldout_alt_url = section.settings.soldout_alt_url_b %}{% endif %}
+{% endif %}
+{% if cq_is_flowcore %}
+  {% case cq_lang %}
+    {% when 'nl' %}
+      {% assign crb_label = 'De CALQIX-routine' %}
+      {% assign crb_title = 'Spoelen. Herstellen. Herhalen.' %}
+      {% assign crb_subtitle = 'Twee producten. Eén klinisch protocol. Ontworpen om in volgorde te werken, niet los van elkaar.' %}
+      {% assign crb_card_label = 'Bundel & bespaar' %}
+      {% assign crb_card_title = 'FlowCore + glazuurtabletten' %}
+      {% assign crb_card_quote = 'De flosser maakt de weg vrij. De tablet herstelt. Samen is dat het complete mondzorgprotocol.' %}
+      {% assign crb_item_1 = 'FlowCore waterflosser' %}
+      {% assign crb_item_2 = 'CALQIX glazuurtabletten (30 dagen)' %}
+      {% assign crb_item_3 = 'Gratis reisetui' %}
+      {% assign crb_item_4 = 'Gratis priority-verzending' %}
+      {% assign crb_save_text = 'BESPAAR €14,95' %}
+      {% assign crb_button_text = 'Shop de bundel →' %}
+      {% assign soldout_waitlist_label = 'Stuur mij bericht bij beschikbaarheid' %}
+      {% assign soldout_alt_label = 'Shop alleen FlowCore' %}
+      {% assign crb_soldout_label = 'Uitverkocht' %}
+      {% assign crb_dot_label = 'Ga naar routineslide' %}
+    {% when 'de' %}
+      {% assign crb_label = 'Die CALQIX-Routine' %}
+      {% assign crb_title = 'Spülen. Wiederaufbauen. Wiederholen.' %}
+      {% assign crb_subtitle = 'Zwei Produkte. Ein klinisches Protokoll. Entwickelt, um in Reihenfolge zu wirken, nicht getrennt voneinander.' %}
+      {% assign crb_card_label = 'Bundle & sparen' %}
+      {% assign crb_card_title = 'FlowCore + Zahnschmelztabletten' %}
+      {% assign crb_card_quote = 'Die Munddusche schafft den Zugang. Die Tablette baut wieder auf. Zusammen ist das das vollständige Mundpflegeprotokoll.' %}
+      {% assign crb_item_1 = 'FlowCore Munddusche' %}
+      {% assign crb_item_2 = 'CALQIX Zahnschmelztabletten (30-Tage-Vorrat)' %}
+      {% assign crb_item_3 = 'Kostenloser Reisebeutel' %}
+      {% assign crb_item_4 = 'Kostenloser Priority-Versand' %}
+      {% assign crb_save_text = 'SPAREN SIE €14,95' %}
+      {% assign crb_button_text = 'Bundle shoppen →' %}
+      {% assign soldout_waitlist_label = 'Benachrichtigen Sie mich, wenn verfügbar' %}
+      {% assign soldout_alt_label = 'Nur FlowCore shoppen' %}
+      {% assign crb_soldout_label = 'Ausverkauft' %}
+      {% assign crb_dot_label = 'Zu Routine-Slide' %}
+    {% when 'fr' %}
+      {% assign crb_label = 'La routine CALQIX' %}
+      {% assign crb_title = 'Rincer. Reconstruire. Répéter.' %}
+      {% assign crb_subtitle = 'Deux produits. Un protocole clinique. Conçus pour agir en séquence, et non séparément.' %}
+      {% assign crb_card_label = 'Pack & économies' %}
+      {% assign crb_card_title = 'FlowCore + comprimés pour l’émail' %}
+      {% assign crb_card_quote = 'L’hydropulseur libère la voie. Le comprimé reconstruit. Ensemble, c’est le protocole complet de soin bucco-dentaire.' %}
+      {% assign crb_item_1 = 'Hydropulseur FlowCore' %}
+      {% assign crb_item_2 = 'Comprimés émail CALQIX (30 jours)' %}
+      {% assign crb_item_3 = 'Trousse de voyage offerte' %}
+      {% assign crb_item_4 = 'Livraison prioritaire offerte' %}
+      {% assign crb_save_text = 'ÉCONOMISEZ €14,95' %}
+      {% assign crb_button_text = 'Acheter le pack →' %}
+      {% assign soldout_waitlist_label = 'Me prévenir quand disponible' %}
+      {% assign soldout_alt_label = 'Acheter uniquement FlowCore' %}
+      {% assign crb_soldout_label = 'Rupture de stock' %}
+      {% assign crb_dot_label = 'Aller à la slide routine' %}
+  {% endcase %}
 {% endif %}
 
 <style>
@@ -520,28 +596,70 @@
 
     <!-- Left: Routine Steps -->
     <div class="crb-left">
-      {% if section.settings.label != blank %}
-        <div class="crb-label">{{ section.settings.label }}</div>
+      {% if crb_label != blank %}
+        <div class="crb-label">{{ crb_label }}</div>
       {% endif %}
-      {% if section.settings.title != blank %}
-        <h2 class="crb-title">{{ section.settings.title }}</h2>
+      {% if crb_title != blank %}
+        <h2 class="crb-title">{{ crb_title }}</h2>
       {% endif %}
-      {% if section.settings.subtitle != blank %}
-        <p class="crb-sub">{{ section.settings.subtitle }}</p>
+      {% if crb_subtitle != blank %}
+        <p class="crb-sub">{{ crb_subtitle }}</p>
       {% endif %}
 
       <div class="crb-steps">
         {% for block in section.blocks %}
+          {% assign crb_step_title = block.settings.title %}
+          {% assign crb_step_description = block.settings.description %}
+          {% if cq_is_flowcore %}
+            {% case cq_lang %}
+              {% when 'nl' %}
+                {% case forloop.index %}
+                  {% when 1 %}
+                    {% assign crb_step_title = 'Stap 1, Spoel met FlowCore' %}
+                    {% assign crb_step_description = '60–90 seconden. Verwijder plaque en bacteriën uit de interdentale ruimtes. Leg schoon glazuur bloot. Creëer het oppervlak dat nano-HA nodig heeft om te hechten.' %}
+                  {% when 2 %}
+                    {% assign crb_step_title = 'Stap 2, Poets met de glazuurtablet' %}
+                    {% assign crb_step_description = 'Twee minuten. Nano-HA-deeltjes integreren rechtstreeks in microlaesies in uw glazuur. Opbouw van binnenuit, op moleculair niveau.' %}
+                  {% when 3 %}
+                    {% assign crb_step_title = 'Stap 3, 30 dagen. Dan merkt u het verschil.' %}
+                    {% assign crb_step_description = 'Glazuurremineralisatie is cumulatief. Meetbare verbetering verschijnt na 30 dagen bij dagelijkse consistentie.' %}
+                {% endcase %}
+              {% when 'de' %}
+                {% case forloop.index %}
+                  {% when 1 %}
+                    {% assign crb_step_title = 'Schritt 1, Mit FlowCore spülen' %}
+                    {% assign crb_step_description = '60–90 Sekunden. Entfernen Sie Plaque und Bakterien aus den Zahnzwischenräumen. Legen Sie sauberen Zahnschmelz frei. Schaffen Sie die Oberfläche, die nano-HA zum Binden benötigt.' %}
+                  {% when 2 %}
+                    {% assign crb_step_title = 'Schritt 2, Mit der Zahnschmelztablette putzen' %}
+                    {% assign crb_step_description = 'Zwei Minuten. Nano-HA-Partikel integrieren sich direkt in Mikroläsionen Ihres Zahnschmelzes. Wiederaufbau von innen heraus, auf molekularer Ebene.' %}
+                  {% when 3 %}
+                    {% assign crb_step_title = 'Schritt 3, 30 Tage. Dann bemerken Sie den Unterschied.' %}
+                    {% assign crb_step_description = 'Die Remineralisierung des Zahnschmelzes ist kumulativ. Messbare Verbesserungen zeigen sich nach 30 Tagen bei täglicher Konsequenz.' %}
+                {% endcase %}
+              {% when 'fr' %}
+                {% case forloop.index %}
+                  {% when 1 %}
+                    {% assign crb_step_title = 'Étape 1, Rincer avec FlowCore' %}
+                    {% assign crb_step_description = '60 à 90 secondes. Éliminez la plaque et les bactéries des espaces interdentaires. Exposez un émail propre. Créez la surface dont le nano-HA a besoin pour se lier.' %}
+                  {% when 2 %}
+                    {% assign crb_step_title = 'Étape 2, Brosser avec le comprimé pour l’émail' %}
+                    {% assign crb_step_description = 'Deux minutes. Les particules de nano-HA s’intègrent directement dans les micro-lésions de votre émail. Une reconstruction depuis l’intérieur, au niveau moléculaire.' %}
+                  {% when 3 %}
+                    {% assign crb_step_title = 'Étape 3, 30 jours. Puis vous remarquerez la différence.' %}
+                    {% assign crb_step_description = 'La reminéralisation de l’émail est cumulative. Une amélioration mesurable apparaît après 30 jours avec une régularité quotidienne.' %}
+                {% endcase %}
+            {% endcase %}
+          {% endif %}
           <div class="crb-step" {{ block.shopify_attributes }}>
             {% if block.settings.icon != blank %}
               <div class="crb-step-icon">{{ block.settings.icon }}</div>
             {% endif %}
             <div>
-              {% if block.settings.title != blank %}
-                <h4>{{ block.settings.title }}</h4>
+              {% if crb_step_title != blank %}
+                <h4>{{ crb_step_title }}</h4>
               {% endif %}
-              {% if block.settings.description != blank %}
-                <p>{{ block.settings.description }}</p>
+              {% if crb_step_description != blank %}
+                <p>{{ crb_step_description }}</p>
               {% endif %}
             </div>
           </div>
@@ -557,28 +675,28 @@
         {% endif %}
 
         {% if bundle_sold_out %}
-          <div class="crb-soldout-badge">Uitverkocht</div>
+          <div class="crb-soldout-badge">{{ crb_soldout_label }}</div>
         {% endif %}
 
-        {% if section.settings.card_label != blank %}
-          <div class="crb-card-label">{{ section.settings.card_label }}</div>
+        {% if crb_card_label != blank %}
+          <div class="crb-card-label">{{ crb_card_label }}</div>
         {% endif %}
 
-        {% if section.settings.card_title != blank %}
-          <h3 class="crb-card-title">{{ section.settings.card_title }}</h3>
+        {% if crb_card_title != blank %}
+          <h3 class="crb-card-title">{{ crb_card_title }}</h3>
         {% endif %}
 
-        {% if section.settings.card_quote != blank %}
-          <p class="crb-card-body">{{ section.settings.card_quote }}</p>
+        {% if crb_card_quote != blank %}
+          <p class="crb-card-body">{{ crb_card_quote }}</p>
         {% endif %}
 
-        {% unless section.settings.item_1 == blank and section.settings.item_2 == blank and section.settings.item_3 == blank and section.settings.item_4 == blank %}
+        {% unless crb_item_1 == blank and crb_item_2 == blank and crb_item_3 == blank and crb_item_4 == blank %}
           <ul class="crb-items">
-            {% if section.settings.item_1 != blank %}<li>{{ section.settings.item_1 }}</li>{% endif %}
-            {% if section.settings.item_2 != blank %}<li>{{ section.settings.item_2 }}</li>{% endif %}
-            {% if section.settings.item_3 != blank %}<li>{{ section.settings.item_3 }}</li>{% endif %}
-            {% if section.settings.item_4 != blank %}<li>{{ section.settings.item_4 }}</li>{% endif %}
-            {% if section.settings.item_5 != blank %}<li>{{ section.settings.item_5 }}</li>{% endif %}
+            {% if crb_item_1 != blank %}<li>{{ crb_item_1 }}</li>{% endif %}
+            {% if crb_item_2 != blank %}<li>{{ crb_item_2 }}</li>{% endif %}
+            {% if crb_item_3 != blank %}<li>{{ crb_item_3 }}</li>{% endif %}
+            {% if crb_item_4 != blank %}<li>{{ crb_item_4 }}</li>{% endif %}
+            {% if crb_item_5 != blank %}<li>{{ crb_item_5 }}</li>{% endif %}
           </ul>
         {% endunless %}
 
@@ -588,14 +706,14 @@
             {% if section.settings.old_price != blank %}
               <div class="crb-old-price">{{ section.settings.old_price }}</div>
             {% endif %}
-            {% if section.settings.save_text != blank %}
-              <span class="crb-save">{{ section.settings.save_text }}</span>
+            {% if crb_save_text != blank %}
+              <span class="crb-save">{{ crb_save_text }}</span>
             {% endif %}
           </div>
         </div>
 
         {% if bundle_sold_out %}
-          <span class="crb-btn is-soldout" role="status" aria-live="polite">Uitverkocht</span>
+          <span class="crb-btn is-soldout" role="status" aria-live="polite">{{ crb_soldout_label }}</span>
           <div class="crb-soldout-actions">
             <a class="crb-soldout-link" href="{{ soldout_waitlist_url }}">
               {{ soldout_waitlist_label }}
@@ -606,7 +724,7 @@
           </div>
         {% else %}
           <a href="{{ bundle_url }}" class="crb-btn">
-            {{ section.settings.button_text }}
+            {{ crb_button_text }}
           </a>
         {% endif %}
       </div>
@@ -615,19 +733,61 @@
   </div>
 
   <div class="crb-mobile">
-    {% if section.settings.label != blank %}
-      <div class="crb-label">{{ section.settings.label }}</div>
+    {% if crb_label != blank %}
+      <div class="crb-label">{{ crb_label }}</div>
     {% endif %}
-    {% if section.settings.title != blank %}
-      <h2 class="crb-title">{{ section.settings.title }}</h2>
+    {% if crb_title != blank %}
+      <h2 class="crb-title">{{ crb_title }}</h2>
     {% endif %}
-    {% if section.settings.subtitle != blank %}
-      <p class="crb-sub">{{ section.settings.subtitle }}</p>
+    {% if crb_subtitle != blank %}
+      <p class="crb-sub">{{ crb_subtitle }}</p>
     {% endif %}
 
     <div class="crb-mobile-track">
       {% for block in section.blocks %}
         {% assign step_anim = forloop.index0 | modulo: 3 | plus: 1 %}
+        {% assign crb_step_title = block.settings.title %}
+        {% assign crb_step_description = block.settings.description %}
+        {% if cq_is_flowcore %}
+          {% case cq_lang %}
+            {% when 'nl' %}
+              {% case forloop.index %}
+                {% when 1 %}
+                  {% assign crb_step_title = 'Stap 1, Spoel met FlowCore' %}
+                  {% assign crb_step_description = '60–90 seconden. Verwijder plaque en bacteriën uit de interdentale ruimtes. Leg schoon glazuur bloot. Creëer het oppervlak dat nano-HA nodig heeft om te hechten.' %}
+                {% when 2 %}
+                  {% assign crb_step_title = 'Stap 2, Poets met de glazuurtablet' %}
+                  {% assign crb_step_description = 'Twee minuten. Nano-HA-deeltjes integreren rechtstreeks in microlaesies in uw glazuur. Opbouw van binnenuit, op moleculair niveau.' %}
+                {% when 3 %}
+                  {% assign crb_step_title = 'Stap 3, 30 dagen. Dan merkt u het verschil.' %}
+                  {% assign crb_step_description = 'Glazuurremineralisatie is cumulatief. Meetbare verbetering verschijnt na 30 dagen bij dagelijkse consistentie.' %}
+              {% endcase %}
+            {% when 'de' %}
+              {% case forloop.index %}
+                {% when 1 %}
+                  {% assign crb_step_title = 'Schritt 1, Mit FlowCore spülen' %}
+                  {% assign crb_step_description = '60–90 Sekunden. Entfernen Sie Plaque und Bakterien aus den Zahnzwischenräumen. Legen Sie sauberen Zahnschmelz frei. Schaffen Sie die Oberfläche, die nano-HA zum Binden benötigt.' %}
+                {% when 2 %}
+                  {% assign crb_step_title = 'Schritt 2, Mit der Zahnschmelztablette putzen' %}
+                  {% assign crb_step_description = 'Zwei Minuten. Nano-HA-Partikel integrieren sich direkt in Mikroläsionen Ihres Zahnschmelzes. Wiederaufbau von innen heraus, auf molekularer Ebene.' %}
+                {% when 3 %}
+                  {% assign crb_step_title = 'Schritt 3, 30 Tage. Dann bemerken Sie den Unterschied.' %}
+                  {% assign crb_step_description = 'Die Remineralisierung des Zahnschmelzes ist kumulativ. Messbare Verbesserungen zeigen sich nach 30 Tagen bei täglicher Konsequenz.' %}
+              {% endcase %}
+            {% when 'fr' %}
+              {% case forloop.index %}
+                {% when 1 %}
+                  {% assign crb_step_title = 'Étape 1, Rincer avec FlowCore' %}
+                  {% assign crb_step_description = '60 à 90 secondes. Éliminez la plaque et les bactéries des espaces interdentaires. Exposez un émail propre. Créez la surface dont le nano-HA a besoin pour se lier.' %}
+                {% when 2 %}
+                  {% assign crb_step_title = 'Étape 2, Brosser avec le comprimé pour l’émail' %}
+                  {% assign crb_step_description = 'Deux minutes. Les particules de nano-HA s’intègrent directement dans les micro-lésions de votre émail. Une reconstruction depuis l’intérieur, au niveau moléculaire.' %}
+                {% when 3 %}
+                  {% assign crb_step_title = 'Étape 3, 30 jours. Puis vous remarquerez la différence.' %}
+                  {% assign crb_step_description = 'La reminéralisation de l’émail est cumulative. Une amélioration mesurable apparaît après 30 jours avec une régularité quotidienne.' %}
+              {% endcase %}
+          {% endcase %}
+        {% endif %}
         <article class="crb-mobile-slide" data-step-anim="{{ step_anim }}" {{ block.shopify_attributes }}>
           <div class="crb-mobile-step-top">
             <span class="crb-mobile-step-num">{{ forloop.index }}</span>
@@ -635,11 +795,11 @@
               <span class="crb-mobile-step-icon">{{ block.settings.icon }}</span>
             {% endif %}
           </div>
-          {% if block.settings.title != blank %}
-            <h3 class="crb-mobile-step-title">{{ block.settings.title }}</h3>
+          {% if crb_step_title != blank %}
+            <h3 class="crb-mobile-step-title">{{ crb_step_title }}</h3>
           {% endif %}
-          {% if block.settings.description != blank %}
-            <p class="crb-mobile-step-desc">{{ block.settings.description }}</p>
+          {% if crb_step_description != blank %}
+            <p class="crb-mobile-step-desc">{{ crb_step_description }}</p>
           {% endif %}
         </article>
       {% endfor %}
@@ -647,26 +807,26 @@
       <article class="crb-mobile-slide crb-mobile-slide--bundle" data-step-anim="4">
         <div class="crb-mobile-step-top">
           <span class="crb-mobile-step-num">4</span>
-          <span class="crb-soldout-badge">Uitverkocht</span>
+          <span class="crb-soldout-badge">{{ crb_soldout_label }}</span>
         </div>
 
-        {% if section.settings.card_label != blank %}
-          <div class="crb-card-label">{{ section.settings.card_label }}</div>
+        {% if crb_card_label != blank %}
+          <div class="crb-card-label">{{ crb_card_label }}</div>
         {% endif %}
-        {% if section.settings.card_title != blank %}
-          <h3 class="crb-card-title">{{ section.settings.card_title }}</h3>
+        {% if crb_card_title != blank %}
+          <h3 class="crb-card-title">{{ crb_card_title }}</h3>
         {% endif %}
-        {% if section.settings.card_quote != blank %}
-          <p class="crb-card-body">{{ section.settings.card_quote }}</p>
+        {% if crb_card_quote != blank %}
+          <p class="crb-card-body">{{ crb_card_quote }}</p>
         {% endif %}
 
-        {% unless section.settings.item_1 == blank and section.settings.item_2 == blank and section.settings.item_3 == blank and section.settings.item_4 == blank %}
+        {% unless crb_item_1 == blank and crb_item_2 == blank and crb_item_3 == blank and crb_item_4 == blank %}
           <ul class="crb-items">
-            {% if section.settings.item_1 != blank %}<li>{{ section.settings.item_1 }}</li>{% endif %}
-            {% if section.settings.item_2 != blank %}<li>{{ section.settings.item_2 }}</li>{% endif %}
-            {% if section.settings.item_3 != blank %}<li>{{ section.settings.item_3 }}</li>{% endif %}
-            {% if section.settings.item_4 != blank %}<li>{{ section.settings.item_4 }}</li>{% endif %}
-            {% if section.settings.item_5 != blank %}<li>{{ section.settings.item_5 }}</li>{% endif %}
+            {% if crb_item_1 != blank %}<li>{{ crb_item_1 }}</li>{% endif %}
+            {% if crb_item_2 != blank %}<li>{{ crb_item_2 }}</li>{% endif %}
+            {% if crb_item_3 != blank %}<li>{{ crb_item_3 }}</li>{% endif %}
+            {% if crb_item_4 != blank %}<li>{{ crb_item_4 }}</li>{% endif %}
+            {% if crb_item_5 != blank %}<li>{{ crb_item_5 }}</li>{% endif %}
           </ul>
         {% endunless %}
 
@@ -676,12 +836,12 @@
             {% if section.settings.old_price != blank %}
               <div class="crb-old-price">{{ section.settings.old_price }}</div>
             {% endif %}
-            {% if section.settings.save_text != blank %}
-              <span class="crb-save">{{ section.settings.save_text }}</span>
+            {% if crb_save_text != blank %}
+              <span class="crb-save">{{ crb_save_text }}</span>
             {% endif %}
           </div>
         </div>
-        <span class="crb-btn is-soldout" role="status" aria-live="polite">Uitverkocht</span>
+        <span class="crb-btn is-soldout" role="status" aria-live="polite">{{ crb_soldout_label }}</span>
         <div class="crb-soldout-actions">
           <a class="crb-soldout-link" href="{{ soldout_waitlist_url }}">
             {{ soldout_waitlist_label }}
@@ -755,7 +915,7 @@
           var dot = document.createElement('button');
           dot.type = 'button';
           dot.className = 'crb-mobile-dot' + (i === 0 ? ' is-active' : '');
-          dot.setAttribute('aria-label', 'Go to routine slide ' + (i + 1));
+          dot.setAttribute('aria-label', '{{ crb_dot_label }} ' + (i + 1));
           dot.addEventListener('click', function() {
             slides[i].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
             setActive(i);

@@ -1,8 +1,61 @@
 {% assign cq_protocol_product = all_products['calqix-nano-ha-tablets'] %}
+{% assign cq_lang = request.locale.iso_code | downcase | slice: 0, 2 %}
+{% assign cq_flowcore_handles = 'calqix-flowcore,flowcore-white,flowcore-green,flowcore-pink' | split: ',' %}
+{% assign cq_is_flowcore = false %}
+{% if product != blank and cq_flowcore_handles contains product.handle %}
+  {% assign cq_is_flowcore = true %}
+{% endif %}
 
 {% if cq_protocol_product != blank and cq_protocol_product.available %}
   {% assign cq_protocol_variant = cq_protocol_product.selected_or_first_available_variant %}
   {% assign cq_flowcore_image = product.selected_or_first_available_variant.featured_media.preview_image | default: product.featured_image %}
+  {% assign ccr_label = 'THE CALQIX PROTOCOL' %}
+  {% assign ccr_title = 'Clean the surface. Then rebuild it.' %}
+  {% assign ccr_subtitle = 'FlowCore clears the path. CALQIX nano-HA tablets finish the job. Together, they form the only routine proven to support enamel remineralisation at a clinical level.' %}
+  {% assign ccr_step_1 = 'Step 01' %}
+  {% assign ccr_step_2 = 'Step 02' %}
+  {% assign ccr_flowcore_desc = 'Cordless oral irrigator, 1,600 pulses/min, 6mm subgingival reach.' %}
+  {% assign ccr_flowcore_status = 'In your cart' %}
+  {% assign ccr_tablet_desc = 'Fluoride-free enamel remineralisation. 30-day supply, monthly subscription.' %}
+  {% assign ccr_button_label = 'Add to routine' %}
+  {% assign ccr_link_label = 'Or shop the complete routine →' %}
+  {% if cq_is_flowcore %}
+    {% case cq_lang %}
+      {% when 'nl' %}
+        {% assign ccr_label = 'HET CALQIX-PROTOCOL' %}
+        {% assign ccr_title = 'Reinig het oppervlak. Herstel het daarna.' %}
+        {% assign ccr_subtitle = 'FlowCore maakt de weg vrij. CALQIX nano-HA-tabletten maken het proces af. Samen vormen ze de enige routine die klinisch bewezen glazuurremineralisatie ondersteunt.' %}
+        {% assign ccr_step_1 = 'Stap 01' %}
+        {% assign ccr_step_2 = 'Stap 02' %}
+        {% assign ccr_flowcore_desc = 'Draadloze monddouche, 1.600 pulsaties/min, 6 mm subgingivale reikwijdte.' %}
+        {% assign ccr_flowcore_status = 'In uw winkelwagen' %}
+        {% assign ccr_tablet_desc = 'Fluoridevrije glazuurremineralisatie. Voorraad voor 30 dagen, maandelijks abonnement.' %}
+        {% assign ccr_button_label = 'Toevoegen aan routine' %}
+        {% assign ccr_link_label = 'Of shop de volledige routine' %}
+      {% when 'de' %}
+        {% assign ccr_label = 'DAS CALQIX-PROTOKOLL' %}
+        {% assign ccr_title = 'Reinigen Sie die Oberfläche. Bauen Sie sie dann wieder auf.' %}
+        {% assign ccr_subtitle = 'FlowCore schafft den Zugang. CALQIX nano-HA-Tabletten vollenden den Prozess. Zusammen bilden sie die einzige Routine, die klinisch nachweislich die Remineralisierung des Zahnschmelzes unterstützt.' %}
+        {% assign ccr_step_1 = 'Schritt 01' %}
+        {% assign ccr_step_2 = 'Schritt 02' %}
+        {% assign ccr_flowcore_desc = 'Kabellose Munddusche, 1.600 Pulsationen/Min, 6 mm subgingivale Reichweite.' %}
+        {% assign ccr_flowcore_status = 'In Ihrem Warenkorb' %}
+        {% assign ccr_tablet_desc = 'Fluoridfreie Remineralisierung des Zahnschmelzes. 30-Tage-Vorrat, monatliches Abonnement.' %}
+        {% assign ccr_button_label = 'Zur Routine hinzufügen' %}
+        {% assign ccr_link_label = 'Oder die vollständige Routine shoppen' %}
+      {% when 'fr' %}
+        {% assign ccr_label = 'LE PROTOCOLE CALQIX' %}
+        {% assign ccr_title = 'Nettoyez la surface. Puis reconstruisez-la.' %}
+        {% assign ccr_subtitle = 'FlowCore libère la voie. Les comprimés CALQIX nano-HA complètent le travail. Ensemble, ils forment la seule routine dont l’efficacité à soutenir la reminéralisation de l’émail est démontrée à un niveau clinique.' %}
+        {% assign ccr_step_1 = 'Étape 01' %}
+        {% assign ccr_step_2 = 'Étape 02' %}
+        {% assign ccr_flowcore_desc = 'Hydropulseur sans fil, 1 600 pulsations/min, portée sous-gingivale de 6 mm.' %}
+        {% assign ccr_flowcore_status = 'Dans votre panier' %}
+        {% assign ccr_tablet_desc = 'Reminéralisation de l’émail sans fluor. Réserve de 30 jours, abonnement mensuel.' %}
+        {% assign ccr_button_label = 'Ajouter à la routine' %}
+        {% assign ccr_link_label = 'Ou acheter la routine complète' %}
+    {% endcase %}
+  {% endif %}
   <section id="calqix-complete-routine-{{ section.id }}" class="calqix-complete-routine">
     <style>
       #calqix-complete-routine-{{ section.id }} {
@@ -205,9 +258,9 @@
     </style>
 
     <div class="ccr-shell">
-      <p class="ccr-label">THE CALQIX PROTOCOL</p>
-      <h2 class="ccr-title">Clean the surface. Then rebuild it.</h2>
-      <p class="ccr-subtitle">FlowCore clears the path. CALQIX nano-HA tablets finish the job. Together, they form the only routine proven to support enamel remineralisation at a clinical level.</p>
+      <p class="ccr-label">{{ ccr_label }}</p>
+      <h2 class="ccr-title">{{ ccr_title }}</h2>
+      <p class="ccr-subtitle">{{ ccr_subtitle }}</p>
 
       <div class="ccr-grid">
         <article class="ccr-card ccr-card--flowcore">
@@ -216,12 +269,12 @@
               {{ cq_flowcore_image | image_url: width: 720 | image_tag: class: 'ccr-image', loading: 'lazy', widths: '360, 540, 720', sizes: '(max-width: 767px) 100vw, 340px', alt: product.title }}
             {% endif %}
           </div>
-          <p class="ccr-step">Step 01</p>
+          <p class="ccr-step">{{ ccr_step_1 }}</p>
           <h3 class="ccr-name">FlowCore</h3>
-          <p class="ccr-desc">Cordless oral irrigator, 1,600 pulses/min, 6mm subgingival reach.</p>
+          <p class="ccr-desc">{{ ccr_flowcore_desc }}</p>
           <div class="ccr-bottom">
             <span class="ccr-price">{{ product.selected_or_first_available_variant.price | money }}</span>
-            <span class="ccr-status">In your cart</span>
+            <span class="ccr-status">{{ ccr_flowcore_status }}</span>
           </div>
         </article>
 
@@ -231,9 +284,9 @@
               {{ cq_protocol_product.featured_image | image_url: width: 720 | image_tag: class: 'ccr-image', loading: 'lazy', widths: '360, 540, 720', sizes: '(max-width: 767px) 100vw, 340px', alt: cq_protocol_product.title }}
             {% endif %}
           </div>
-          <p class="ccr-step">Step 02</p>
+          <p class="ccr-step">{{ ccr_step_2 }}</p>
           <h3 class="ccr-name">CALQIX Nano-HA Tablets</h3>
-          <p class="ccr-desc">Fluoride-free enamel remineralisation. 30-day supply, monthly subscription.</p>
+          <p class="ccr-desc">{{ ccr_tablet_desc }}</p>
           <p class="ccr-price">{{ cq_protocol_variant.price | money }}</p>
           <product-form class="ccr-product-form" data-hide-errors="false">
             <div class="product-form__error-message-wrapper" role="alert" hidden>
@@ -243,7 +296,7 @@
               <input type="hidden" name="id" value="{{ cq_protocol_variant.id }}">
               <input type="hidden" name="quantity" value="1">
               <button type="submit" name="add" class="ccr-button">
-                <span>Add to routine</span>
+                <span>{{ ccr_button_label }}</span>
                 {% render 'button-loading-indicator' %}
               </button>
             </form>
@@ -252,7 +305,7 @@
       </div>
 
       <div class="ccr-link-row">
-        <a class="ccr-link" href="{{ routes.all_products_collection_url }}">Or shop the complete routine →</a>
+        <a class="ccr-link" href="{{ routes.all_products_collection_url }}">{{ ccr_link_label }}</a>
       </div>
     </div>
   </section>

@@ -9,6 +9,21 @@
   - Eerste accordion standaard open (instelbaar)
   - Custom CSS + JS per sectie
 {% endcomment %}
+{% assign cq_lang = request.locale.iso_code | downcase | slice: 0, 2 %}
+{% assign cq_flowcore_handles = 'calqix-flowcore,flowcore-white,flowcore-green,flowcore-pink' | split: ',' %}
+{% assign cq_is_flowcore = false %}
+{% if product != blank and cq_flowcore_handles contains product.handle %}
+  {% assign cq_is_flowcore = true %}
+{% endif %}
+{% assign cqa_empty_state = 'Voeg accordions toe via de Theme Customizer → "Block toevoegen"' %}
+{% if cq_is_flowcore %}
+  {% case cq_lang %}
+    {% when 'de' %}
+      {% assign cqa_empty_state = 'Fügen Sie Accordions über den Theme-Customizer → "Block hinzufügen" hinzu' %}
+    {% when 'fr' %}
+      {% assign cqa_empty_state = 'Ajoutez des accordéons via le personnalisateur de thème → "Ajouter un bloc"' %}
+  {% endcase %}
+{% endif %}
 
 {% assign border_col  = section.settings.border_color %}
 {% assign trigger_col = section.settings.trigger_color %}
@@ -306,15 +321,75 @@
       {% if block.settings.force_open %}
         {% assign is_default_open = true %}
       {% endif %}
+      {% assign cqa_title = block.settings.title %}
+      {% assign cqa_content = block.settings.content %}
+      {% if cq_is_flowcore %}
+        {% case cq_lang %}
+          {% when 'nl' %}
+            {% case forloop.index %}
+              {% when 1 %}
+                {% assign cqa_title = 'Beschrijving' %}
+                {% assign cqa_content = '<p><strong>Voordat uw glazuur zich kan herstellen, heeft het een schoon oppervlak nodig.</strong></p><p>Nano-hydroxyapatiet werkt door rechtstreeks aan tandglazuur te hechten. Plaque, bacteriën en resten blokkeren dat contact. FlowCore verwijdert die barrière, reikt 40% dieper in de interdentale ruimtes dan alleen een tandenborstel en maakt de weg vrij zodat remineralisatie daadwerkelijk kan werken.</p><p>Dit is stap 1 van de CALQIX-klinische routine.</p>' %}
+              {% when 2 %}
+                {% assign cqa_title = 'Voordelen' %}
+                {% assign cqa_content = '<ul><li>Verwijdert tot 99,9% van plaque met 1.600 pulsaties per minuut</li><li>Reikt 6 mm subgingivaal, dieper dan elke tandenborstel of flossdraad</li><li>4 drukstanden: Gentle, Clean, Pulse, Turbo</li><li>360 ml watertank, voldoende voor een volledige sessie zonder bijvullen</li><li>IPX7-waterdicht, veilig onder de douche te gebruiken</li><li>30 dagen batterijduur op één USB-C-lading</li><li>Ontworpen voor gebruik vóór uw CALQIX-glazuurtablet voor maximale remineralisatie</li></ul>' %}
+              {% when 3 %}
+                {% assign cqa_title = 'Gebruik' %}
+                {% assign cqa_content = '<ol><li>Vul het 360 ml reservoir met lauw water</li><li>Kies uw drukstand, begin met Gentle als u nieuw bent met een monddouche</li><li>Beweeg de tip in een hoek van 90° langs uw tandvleesrand en pauzeer 1 tot 2 seconden tussen de tanden</li><li>Leeg en spoel het reservoir na elk gebruik</li><li>Volg direct op met uw CALQIX-glazuurtablet voor de herstelfase</li></ol>' %}
+              {% when 4 %}
+                {% assign cqa_title = 'In de doos' %}
+                {% assign cqa_content = '<ul><li>1× FlowCore-apparaat</li><li>4× vervangingsnozzles (standaard, orthodontisch, parodontaal, tongreiniger)</li><li>1× USB-C-laadkabel</li><li>1× reisetui</li><li>Snelstartgids</li></ul><p></p>' %}
+              {% when 5 %}
+                {% assign cqa_title = 'Verzending en retouren' %}
+                {% assign cqa_content = '<p><strong>Nederland:</strong> 1 tot 2 werkdagen, gratis boven €80<br><strong>België / Duitsland:</strong> 2 tot 3 werkdagen, gratis boven €80<br><strong>Rest van de EU:</strong> 3 tot 5 werkdagen, vast tarief €5,95</p><p><strong>30 dagen retour</strong> op ongebruikte artikelen in de originele verpakking.<br><strong>2 jaar garantie</strong> op alle FlowCore-apparaten.</p>' %}
+            {% endcase %}
+          {% when 'de' %}
+            {% case forloop.index %}
+              {% when 1 %}
+                {% assign cqa_title = 'Beschreibung' %}
+                {% assign cqa_content = '<p><strong>Bevor sich Ihr Zahnschmelz wieder aufbauen kann, braucht er eine saubere Oberfläche.</strong></p><p>Nano-Hydroxylapatit wirkt, indem es sich direkt an den Zahnschmelz bindet. Plaque, Bakterien und Rückstände blockieren diesen Kontakt. FlowCore entfernt diese Barriere, erreicht die Zahnzwischenräume 40 % tiefer als eine Zahnbürste allein und schafft den Zugang, damit Remineralisierung tatsächlich wirken kann.</p><p>Dies ist Schritt 1 der klinischen CALQIX-Routine.</p>' %}
+              {% when 2 %}
+                {% assign cqa_title = 'Vorteile' %}
+                {% assign cqa_content = '<ul><li>Entfernt bis zu 99,9 % Plaque mit 1.600 Pulsationen pro Minute</li><li>Erreicht subgingival 6 mm, tiefer als jede Zahnbürste oder Zahnseide</li><li>4 Druckmodi: Gentle, Clean, Pulse, Turbo</li><li>360-ml-Wassertank, ausreichend für eine vollständige Sitzung ohne Nachfüllen</li><li>IPX7-wasserdicht, sicher für die Anwendung unter der Dusche</li><li>30 Tage Akkulaufzeit mit einer einzigen USB-C-Ladung</li><li>Entwickelt für die Anwendung vor Ihrer CALQIX-Zahnschmelztablette für maximale Remineralisierung</li></ul>' %}
+              {% when 3 %}
+                {% assign cqa_title = 'Anwendung' %}
+                {% assign cqa_content = '<ol><li>Füllen Sie den 360-ml-Tank mit lauwarmem Wasser</li><li>Wählen Sie Ihren Druckmodus, beginnen Sie mit Gentle, wenn Sie neu beim Water Flossing sind</li><li>Führen Sie die Spitze in einem 90°-Winkel entlang Ihres Zahnfleischrands und pausieren Sie 1 bis 2 Sekunden zwischen den Zähnen</li><li>Leeren und spülen Sie den Tank nach jeder Anwendung</li><li>Verwenden Sie direkt danach Ihre CALQIX-Zahnschmelztablette für die Wiederaufbauphase</li></ol>' %}
+              {% when 4 %}
+                {% assign cqa_title = 'Lieferumfang' %}
+                {% assign cqa_content = '<ul><li>1× FlowCore-Gerät</li><li>4× Ersatzdüsen (Standard, orthodontisch, parodontal, Zungenreiniger)</li><li>1× USB-C-Ladekabel</li><li>1× Reisebeutel</li><li>Schnellstartanleitung</li></ul><p></p>' %}
+              {% when 5 %}
+                {% assign cqa_title = 'Versand & Rückgabe' %}
+                {% assign cqa_content = '<p><strong>Niederlande:</strong> 1 bis 2 Werktage, kostenlos ab €80<br><strong>Belgien / Deutschland:</strong> 2 bis 3 Werktage, kostenlos ab €80<br><strong>Rest der EU:</strong> 3 bis 5 Werktage, Pauschale €5,95</p><p><strong>30 Tage Rückgabe</strong> für unbenutzte Artikel in der Originalverpackung.<br><strong>2 Jahre Garantie</strong> auf alle FlowCore-Geräte.</p>' %}
+            {% endcase %}
+          {% when 'fr' %}
+            {% case forloop.index %}
+              {% when 1 %}
+                {% assign cqa_title = 'Description' %}
+                {% assign cqa_content = '<p><strong>Avant que votre émail puisse se reconstruire, il a besoin d’une surface propre.</strong></p><p>Le nano-hydroxyapatite agit en se liant directement à l’émail dentaire. La plaque, les bactéries et les résidus bloquent ce contact. FlowCore enlève cette barrière, atteint les espaces interdentaires 40 % plus profondément qu’une brosse à dents seule et libère la voie pour que la reminéralisation puisse réellement agir.</p><p>Il s’agit de l’étape 1 de la routine clinique CALQIX.</p>' %}
+              {% when 2 %}
+                {% assign cqa_title = 'Bénéfices' %}
+                {% assign cqa_content = '<ul><li>Élimine jusqu’à 99,9 % de la plaque avec 1 600 pulsations par minute</li><li>Atteint 6 mm en sous-gingival, plus profondément que toute brosse à dents ou le fil dentaire</li><li>4 modes de pression : Gentle, Clean, Pulse, Turbo</li><li>Réservoir de 360 ml, couvre une séance complète sans remplissage</li><li>Étanche IPX7, sûr sous la douche</li><li>30 jours d’autonomie avec une seule charge USB-C</li><li>Conçu pour être utilisé avant votre comprimé d’émail CALQIX pour une reminéralisation maximale</li></ul>' %}
+              {% when 3 %}
+                {% assign cqa_title = 'Mode d’emploi' %}
+                {% assign cqa_content = '<ol><li>Remplissez le réservoir de 360 ml avec de l’eau tiède</li><li>Sélectionnez votre mode de pression, commencez par Gentle si vous débutez avec l’hydropulseur</li><li>Guidez l’embout le long du rebord gingival à un angle de 90° en marquant une pause de 1 à 2 secondes entre les dents</li><li>Videz et rincez le réservoir après chaque utilisation</li><li>Enchaînez immédiatement avec votre comprimé d’émail CALQIX pour la phase de reconstruction</li></ol>' %}
+              {% when 4 %}
+                {% assign cqa_title = 'Dans la boîte' %}
+                {% assign cqa_content = '<ul><li>1× appareil FlowCore</li><li>4× embouts de rechange (standard, orthodontique, parodontal, nettoyeur de langue)</li><li>1× câble de charge USB-C</li><li>1× trousse de voyage</li><li>Guide de démarrage rapide</li></ul><p></p>' %}
+              {% when 5 %}
+                {% assign cqa_title = 'Livraison et retours' %}
+                {% assign cqa_content = '<p><strong>Pays-Bas :</strong> 1 à 2 jours ouvrés, offert dès €80<br><strong>Belgique / Allemagne :</strong> 2 à 3 jours ouvrés, offert dès €80<br><strong>Reste de l’UE :</strong> 3 à 5 jours ouvrés, tarif fixe de €5,95</p><p><strong>Retours sous 30 jours</strong> pour les articles non utilisés dans leur emballage d’origine.<br><strong>Garantie de 2 ans</strong> sur tous les appareils FlowCore.</p>' %}
+            {% endcase %}
+        {% endcase %}
+      {% endif %}
 
       <div class="cqa-item {% if is_default_open %}open{% endif %}" {{ block.shopify_attributes }}>
         <button class="cqa-trigger" type="button" aria-controls="cqa-panel-{{ section.id }}-{{ block.id }}" aria-expanded="{% if is_default_open %}true{% else %}false{% endif %}">
-          {{ block.settings.title }}
+          {{ cqa_title }}
           <span class="cqa-icon" aria-hidden="true">+</span>
         </button>
         <div id="cqa-panel-{{ section.id }}-{{ block.id }}" class="cqa-body {% if is_default_open %}open{% endif %}" role="region" aria-hidden="{% if is_default_open %}false{% else %}true{% endif %}">
           <div class="cqa-content">
-            {{ block.settings.content }}
+            {{ cqa_content }}
           </div>
         </div>
       </div>
@@ -322,7 +397,7 @@
 
     {% if section.blocks.size == 0 %}
       <div style="padding: 24px 0; color: #9B9B9B; font-size: 13px; text-align: center;">
-        Voeg accordions toe via de Theme Customizer → "Block toevoegen"
+        {{ cqa_empty_state }}
       </div>
     {% endif %}
 

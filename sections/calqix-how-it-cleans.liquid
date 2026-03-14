@@ -716,15 +716,86 @@
   }
 </style>
 {% assign chc_fallback_image = product.selected_or_first_available_variant.featured_media.preview_image | default: product.featured_image %}
+{% assign cq_lang = request.locale.iso_code | downcase | slice: 0, 2 %}
+{% assign cq_flowcore_handles = 'calqix-flowcore,flowcore-white,flowcore-green,flowcore-pink' | split: ',' %}
+{% assign cq_is_flowcore = false %}
+{% if product != blank and cq_flowcore_handles contains product.handle %}
+  {% assign cq_is_flowcore = true %}
+{% endif %}
+{% assign chc_eyebrow_text = section.settings.eyebrow_text %}
+{% assign chc_heading_text = section.settings.heading_text %}
+{% assign chc_tablist_label = 'FlowCore cleaning steps' %}
+{% assign chc_progress_label = 'FlowCore cleaning step progress' %}
+{% assign chc_progress_button_label = 'Go to step' %}
+{% if cq_is_flowcore %}
+  {% case cq_lang %}
+    {% when 'nl' %}
+      {% assign chc_eyebrow_text = 'Het mechanisme' %}
+      {% assign chc_heading_text = 'Hoe FlowCore reinigt waar poetsen niet komt.' %}
+      {% assign chc_tablist_label = 'Reinigingsstappen van FlowCore' %}
+      {% assign chc_progress_label = 'Voortgang van FlowCore-reinigingsstappen' %}
+      {% assign chc_progress_button_label = 'Ga naar stap' %}
+    {% when 'de' %}
+      {% assign chc_eyebrow_text = 'Der Mechanismus' %}
+      {% assign chc_heading_text = 'Wie FlowCore dort reinigt, wo Zähneputzen nicht hinkommt.' %}
+      {% assign chc_tablist_label = 'Reinigungsschritte von FlowCore' %}
+      {% assign chc_progress_label = 'Fortschritt der FlowCore-Reinigungsschritte' %}
+      {% assign chc_progress_button_label = 'Zu Schritt' %}
+    {% when 'fr' %}
+      {% assign chc_eyebrow_text = 'Le mécanisme' %}
+      {% assign chc_heading_text = 'Comment FlowCore nettoie là où le brossage ne peut pas aller.' %}
+      {% assign chc_tablist_label = 'Étapes de nettoyage FlowCore' %}
+      {% assign chc_progress_label = 'Progression des étapes de nettoyage FlowCore' %}
+      {% assign chc_progress_button_label = 'Aller à l’étape' %}
+  {% endcase %}
+{% endif %}
 <section id="calqix-how-it-cleans-{{ section.id }}" class="calqix-how-it-cleans">
   <div class="chc-shell">
-    <p class="chc-label">{{ section.settings.eyebrow_text }}</p>
-    <h2 class="chc-heading">{{ section.settings.heading_text | newline_to_br }}</h2>
+    <p class="chc-label">{{ chc_eyebrow_text }}</p>
+    <h2 class="chc-heading">{{ chc_heading_text | newline_to_br }}</h2>
 
     <div class="chc-nav">
-      <div class="chc-nav-track" role="tablist" aria-label="FlowCore cleaning steps">
+      <div class="chc-nav-track" role="tablist" aria-label="{{ chc_tablist_label }}">
         {% if section.blocks.size > 0 %}
           {% for block in section.blocks %}
+            {% assign chc_pill_label = block.settings.pill_label | default: block.settings.step_number %}
+            {% if cq_is_flowcore %}
+              {% case cq_lang %}
+                {% when 'nl' %}
+                  {% case forloop.index %}
+                    {% when 1 %}
+                      {% assign chc_pill_label = '01 Positioneren' %}
+                    {% when 2 %}
+                      {% assign chc_pill_label = '02 Doordringen' %}
+                    {% when 3 %}
+                      {% assign chc_pill_label = '03 Uitspoelen' %}
+                    {% when 4 %}
+                      {% assign chc_pill_label = '04 Resultaat' %}
+                  {% endcase %}
+                {% when 'de' %}
+                  {% case forloop.index %}
+                    {% when 1 %}
+                      {% assign chc_pill_label = '01 Positionieren' %}
+                    {% when 2 %}
+                      {% assign chc_pill_label = '02 Eindringen' %}
+                    {% when 3 %}
+                      {% assign chc_pill_label = '03 Ausspülen' %}
+                    {% when 4 %}
+                      {% assign chc_pill_label = '04 Ergebnis' %}
+                  {% endcase %}
+                {% when 'fr' %}
+                  {% case forloop.index %}
+                    {% when 1 %}
+                      {% assign chc_pill_label = '01 Positionner' %}
+                    {% when 2 %}
+                      {% assign chc_pill_label = '02 Pénétrer' %}
+                    {% when 3 %}
+                      {% assign chc_pill_label = '03 Rincer' %}
+                    {% when 4 %}
+                      {% assign chc_pill_label = '04 Résultat' %}
+                  {% endcase %}
+              {% endcase %}
+            {% endif %}
             <button
               id="chc-tab-{{ section.id }}-{{ block.id }}"
               class="chc-pill{% if forloop.first %} is-active{% endif %}"
@@ -735,7 +806,7 @@
               aria-controls="chc-panel-{{ section.id }}-{{ block.id }}"
               data-step-index="{{ forloop.index0 }}"
             >
-              {{ block.settings.pill_label | default: block.settings.step_number }}
+              {{ chc_pill_label }}
             </button>
           {% endfor %}
         {% else %}
@@ -774,11 +845,88 @@
           {% assign chc_panel_image = block.settings.step_image | default: chc_fallback_image %}
           {% assign chc_step_number = block.settings.step_number %}
           {% assign chc_step_headline = block.settings.step_headline %}
+          {% assign chc_step_body = block.settings.step_body %}
           {% assign chc_callout_text = block.settings.callout_text %}
           {% assign chc_cta_label = block.settings.cta_label %}
           {% assign chc_cta_link = block.settings.cta_link | default: '#product-form' %}
           {% assign chc_cta_style = block.settings.cta_style | default: 'navy' %}
           {% assign chc_annotation_type = block.settings.annotation_type | default: 'none' %}
+          {% if cq_is_flowcore %}
+            {% case cq_lang %}
+              {% when 'nl' %}
+                {% case forloop.index %}
+                  {% when 1 %}
+                    {% assign chc_step_number = 'Stap 01' %}
+                    {% assign chc_step_headline = 'Positioneer langs de tandvleesrand.' %}
+                    {% capture chc_step_body %}<p>Houd de FlowCore-nozzle in een hoek van 90° tegen uw tanden,<br/>met de tip tegen de tandvleesrand. Dit is de invalshoek voor subgingivale toegang, de<br/>zone 2 tot 6 mm onder het weefseloppervlak waar bacteriën zich ophopen en waar een<br/>tandenborstel fysiek niet kan komen.</p>{% endcapture %}
+                    {% assign chc_callout_text = 'De juiste nozzlehoek vermindert weerstand en laat de precisiestraal met volledige druk de sulcus binnengaan.' %}
+                  {% when 2 %}
+                    {% assign chc_step_number = 'Stap 02' %}
+                    {% assign chc_step_headline = 'Dring 6 mm onder de tandvleesrand door.' %}
+                    {% capture chc_step_body %}<p>De precisiestraal van 0,6 mm gaat de ruimte tussen tand<br/>en tandvleesweefsel binnen en reikt tot 6 mm subgingivaal. Flossdraad reikt<br/>ongeveer 2 tot 3 mm. Met 1.600 pulsaties per minuut creëert de straal een<br/>hydrodynamische zone die biofilm fysiek verstoort, de bacteriële laag die<br/>plaque en tandvleesontsteking veroorzaakt.</p>{% endcapture %}
+                    {% assign chc_callout_text = 'Maximale penetratie van flossdraad: 2 tot 3 mm. Subgingivale reikwijdte van FlowCore: tot 6 mm. In dat verschil begint parodontale aandoening.' %}
+                  {% when 3 %}
+                    {% assign chc_step_number = 'Stap 03' %}
+                    {% assign chc_step_headline = 'Spoel de biofilmbarrière weg.' %}
+                    {% capture chc_step_body %}<p>Plaque is niet alleen voedselrest, maar een gestructureerde<br/>bacteriële gemeenschap die biofilm heet. Biofilm verzet zich tegen handmatige verwijdering en blokkeert<br/>de binding van nano-HA aan glazuur. De pulserende straal van FlowCore<br/>breekt biofilm fysiek open en spoelt die uit de interdentale ruimtes en onder de tandvleesrand weg,<br/>zodat remineralisatie toegang krijgt.</p>{% endcapture %}
+                    {% assign chc_callout_text = '99,9% plaqueverwijdering in klinische tests vergeleken met alleen poetsen. Journal of Clinical Dentistry, 2019.' %}
+                  {% when 4 %}
+                    {% assign chc_step_number = 'Stap 04' %}
+                    {% assign chc_step_headline = 'Schoon glazuur. Klaar om te herstellen.' %}
+                    {% capture chc_step_body %}<p>Nu de biofilmbarrière is verwijderd, ligt het glazuuroppervlak<br/>schoon en bloot. Nano-hydroxyapatiet uit uw CALQIX-tablet kan nu rechtstreeks<br/>hechten aan microlaesies in het glazuur. Remineralisatie is een contactproces,<br/>dus het vereist een schoon oppervlak. Daarom is de volgorde belangrijk: eerst spoelen,<br/>dan herstellen.</p>{% endcapture %}
+                    {% assign chc_callout_text = 'Dit is het CALQIX-klinische protocol. Stap 01: FlowCore. Stap 02: CALQIX nano-HA-tabletten.' %}
+                    {% assign chc_cta_label = 'Start het volledige protocol' %}
+                {% endcase %}
+              {% when 'de' %}
+                {% case forloop.index %}
+                  {% when 1 %}
+                    {% assign chc_step_number = 'Schritt 01' %}
+                    {% assign chc_step_headline = 'Entlang des Zahnfleischrands positionieren.' %}
+                    {% capture chc_step_body %}<p>Halten Sie die FlowCore-Düse in einem 90°-Winkel an Ihre Zähne,<br/>wobei die Spitze den Zahnfleischrand berührt. Das ist der Eintrittswinkel für den subgingivalen Zugang, die<br/>Zone 2 bis 6 mm unter der Gewebeoberfläche, in der sich Bakterien ansammeln und die eine<br/>Zahnbürste physisch nicht erreicht.</p>{% endcapture %}
+                    {% assign chc_callout_text = 'Der korrekte Düsenwinkel verringert den Widerstand und ermöglicht, dass der Präzisionsstrahl mit vollem Druck in den Sulkus eindringt.' %}
+                  {% when 2 %}
+                    {% assign chc_step_number = 'Schritt 02' %}
+                    {% assign chc_step_headline = 'Bis zu 6 mm unter den Zahnfleischrand eindringen.' %}
+                    {% capture chc_step_body %}<p>Der 0,6-mm-Präzisionsstrahl gelangt in den Raum zwischen Zahn<br/>und Zahnfleischgewebe und erreicht subgingival bis zu 6 mm. Zahnseide erreicht<br/>ungefähr 2 bis 3 mm. Mit 1.600 Pulsationen pro Minute erzeugt der Strahl eine<br/>hydrodynamische Zone, die Biofilm physisch aufbricht, die bakterielle Schicht, die<br/>Plaque und Zahnfleischentzündungen verursacht.</p>{% endcapture %}
+                    {% assign chc_callout_text = 'Maximale Eindringtiefe von Zahnseide: 2 bis 3 mm. Subgingivale Reichweite von FlowCore: bis zu 6 mm. In diesem Unterschied beginnt parodontale Erkrankung.' %}
+                  {% when 3 %}
+                    {% assign chc_step_number = 'Schritt 03' %}
+                    {% assign chc_step_headline = 'Die Biofilmbarriere ausspülen.' %}
+                    {% capture chc_step_body %}<p>Plaque ist nicht nur Speiserest, sondern eine strukturierte<br/>bakterielle Gemeinschaft namens Biofilm. Biofilm widersteht manueller Entfernung und blockiert,<br/>dass nano-HA an den Zahnschmelz bindet. Der pulsierende Strahl von FlowCore<br/>bricht Biofilm physisch auf und spült ihn aus den Zahnzwischenräumen und unter dem Zahnfleischrand heraus,<br/>sodass die Remineralisierung Zugang erhält.</p>{% endcapture %}
+                    {% assign chc_callout_text = '99,9 % Plaqueentfernung in klinischen Tests im Vergleich zum reinen Zähneputzen. Journal of Clinical Dentistry, 2019.' %}
+                  {% when 4 %}
+                    {% assign chc_step_number = 'Schritt 04' %}
+                    {% assign chc_step_headline = 'Sauberer Zahnschmelz. Bereit für den Wiederaufbau.' %}
+                    {% capture chc_step_body %}<p>Nachdem die Biofilmbarriere entfernt wurde, ist die Oberfläche des Zahnschmelzes<br/>freigelegt und sauber. Nano-Hydroxyapatit aus Ihrer CALQIX-Tablette kann nun direkt<br/>an Mikroläsionen im Zahnschmelz binden. Remineralisierung ist ein Kontaktprozess,<br/>sie erfordert eine saubere Oberfläche. Deshalb ist die Reihenfolge entscheidend: erst spülen,<br/>dann wiederaufbauen.</p>{% endcapture %}
+                    {% assign chc_callout_text = 'Dies ist das klinische CALQIX-Protokoll. Schritt 01: FlowCore. Schritt 02: CALQIX nano-HA-Tabletten.' %}
+                    {% assign chc_cta_label = 'Zum vollständigen Protokoll' %}
+                {% endcase %}
+              {% when 'fr' %}
+                {% case forloop.index %}
+                  {% when 1 %}
+                    {% assign chc_step_number = 'Étape 01' %}
+                    {% assign chc_step_headline = 'Positionnez le long du rebord gingival.' %}
+                    {% capture chc_step_body %}<p>Tenez l’embout FlowCore à un angle de 90° contre vos dents,<br/>la pointe au contact du rebord gingival. C’est l’angle d’entrée pour l’accès sous-gingival, la<br/>zone située 2 à 6 mm sous la surface tissulaire où les bactéries s’accumulent et qu’une<br/>brosse à dents ne peut physiquement pas atteindre.</p>{% endcapture %}
+                    {% assign chc_callout_text = 'Le bon angle d’embout réduit la résistance et permet au jet de précision d’entrer dans le sillon à pleine pression.' %}
+                  {% when 2 %}
+                    {% assign chc_step_number = 'Étape 02' %}
+                    {% assign chc_step_headline = 'Pénétrez jusqu’à 6 mm sous le rebord gingival.' %}
+                    {% capture chc_step_body %}<p>Le jet de précision de 0,6 mm pénètre dans l’espace entre la dent<br/>et le tissu gingival, atteignant jusqu’à 6 mm en sous-gingival. Le fil dentaire atteint<br/>environ 2 à 3 mm. À 1 600 pulsations par minute, le jet crée une<br/>zone hydrodynamique qui désorganise physiquement le biofilm, la couche bactérienne qui<br/>provoque la plaque et l’inflammation gingivale.</p>{% endcapture %}
+                    {% assign chc_callout_text = 'Pénétration maximale du fil dentaire : 2 à 3 mm. Portée sous-gingivale de FlowCore : jusqu’à 6 mm. C’est dans cet écart que débute la maladie parodontale.' %}
+                  {% when 3 %}
+                    {% assign chc_step_number = 'Étape 03' %}
+                    {% assign chc_step_headline = 'Rincez la barrière de biofilm.' %}
+                    {% capture chc_step_body %}<p>La plaque n’est pas seulement un débris alimentaire, c’est une communauté<br/>bactérienne structurée appelée biofilm. Le biofilm résiste à l’élimination manuelle et empêche<br/>le nano-HA de se lier à l’émail. Le jet pulsé de FlowCore<br/>désagrège physiquement le biofilm et le rince depuis les espaces interdentaires et sous le rebord gingival,<br/>libérant l’accès nécessaire à la reminéralisation.</p>{% endcapture %}
+                    {% assign chc_callout_text = 'Élimination de 99,9 % de la plaque lors des tests cliniques par rapport au brossage seul. Journal of Clinical Dentistry, 2019.' %}
+                  {% when 4 %}
+                    {% assign chc_step_number = 'Étape 04' %}
+                    {% assign chc_step_headline = 'Émail propre. Prêt à se reconstruire.' %}
+                    {% capture chc_step_body %}<p>Une fois la barrière de biofilm retirée, la surface de l’émail est<br/>propre et exposée. Le nano-hydroxyapatite de votre comprimé CALQIX peut désormais se lier directement<br/>aux micro-lésions de l’émail. La reminéralisation est un processus de contact,<br/>elle nécessite une surface propre. C’est pourquoi la séquence est essentielle : d’abord rincer,<br/>puis reconstruire.</p>{% endcapture %}
+                    {% assign chc_callout_text = 'Voici le protocole clinique CALQIX. Étape 01 : FlowCore. Étape 02 : comprimés CALQIX nano-HA.' %}
+                    {% assign chc_cta_label = 'Commencer le protocole complet' %}
+                {% endcase %}
+            {% endcase %}
+          {% endif %}
           {% case block.settings.image_position %}
             {% when 'top' %}
               {% assign chc_object_position = 'center top' %}
@@ -847,8 +995,8 @@
             <div class="chc-copy-slot">
               <p class="chc-step-label">{{ chc_step_number }}</p>
               <h3 class="chc-title">{{ chc_step_headline }}</h3>
-              {% if block.settings.step_body != blank %}
-                <div class="chc-body">{{ block.settings.step_body }}</div>
+              {% if chc_step_body != blank %}
+                <div class="chc-body">{{ chc_step_body }}</div>
               {% endif %}
               {% if chc_callout_text != blank %}
                 <div class="chc-callout">{{ chc_callout_text }}</div>
@@ -969,14 +1117,14 @@
       {% endif %}
     </div>
 
-    <div class="chc-progress" aria-label="FlowCore cleaning step progress">
+    <div class="chc-progress" aria-label="{{ chc_progress_label }}">
       {% if section.blocks.size > 0 %}
         {% for block in section.blocks %}
-          <button class="chc-progress-dot{% if forloop.first %} is-active{% endif %}" type="button" data-step-index="{{ forloop.index0 }}" aria-label="Go to step {{ forloop.index }}"></button>
+          <button class="chc-progress-dot{% if forloop.first %} is-active{% endif %}" type="button" data-step-index="{{ forloop.index0 }}" aria-label="{{ chc_progress_button_label }} {{ forloop.index }}"></button>
         {% endfor %}
       {% else %}
         {% for i in (1..4) %}
-          <button class="chc-progress-dot{% if forloop.first %} is-active{% endif %}" type="button" data-step-index="{{ forloop.index0 }}" aria-label="Go to step {{ forloop.index }}"></button>
+          <button class="chc-progress-dot{% if forloop.first %} is-active{% endif %}" type="button" data-step-index="{{ forloop.index0 }}" aria-label="{{ chc_progress_button_label }} {{ forloop.index }}"></button>
         {% endfor %}
       {% endif %}
     </div>

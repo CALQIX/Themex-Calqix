@@ -1,3 +1,68 @@
+{% assign cq_lang = request.locale.iso_code | downcase | slice: 0, 2 %}
+{% assign cq_flowcore_handles = 'calqix-flowcore,flowcore-white,flowcore-green,flowcore-pink' | split: ',' %}
+{% assign cq_is_flowcore = false %}
+{% if product != blank and cq_flowcore_handles contains product.handle %}
+  {% assign cq_is_flowcore = true %}
+{% endif %}
+{% assign faq_heading = 'Common questions' %}
+{% assign faq_q1 = 'How long does the battery last?' %}
+{% assign faq_a1 = 'A single USB-C charge powers the FlowCore for up to 30 days of daily use, based on 60 seconds per session. The LED indicator shows battery status. Charging takes approximately 4 hours from empty.' %}
+{% assign faq_q2 = 'Is it safe to use with braces or implants?' %}
+{% assign faq_a2 = 'Yes. The FlowCore includes a dedicated orthodontic nozzle for cleaning around brackets and wires, and a periodontal nozzle optimised for implant care. Start with Gentle mode if you are new to water flossing.' %}
+{% assign faq_q3 = 'How often should I use it?' %}
+{% assign faq_a3 = 'Once daily is sufficient for most users. Use it before brushing and before applying your CALQIX nano-HA tablet, so that remineralisation works on a clean enamel surface. Twice daily is safe and beneficial for users managing active gum inflammation.' %}
+{% assign faq_q4 = 'What is the difference between the 4 pressure modes?' %}
+{% assign faq_a4 = 'Gentle is recommended for first-time users and sensitive gums. Clean is the standard daily mode for most users. Pulse delivers an alternating pressure pattern effective for dislodging stubborn plaque. Turbo is maximum pressure for users who require deeper cleaning or have been advised by a dental professional.' %}
+{% assign faq_q5 = 'Can I use it in the shower?' %}
+{% assign faq_a5 = 'Yes. The FlowCore is IPX7 waterproof, meaning it is fully submersible up to 1 metre for 30 minutes. It is safe for shower use. Do not submerge the USB-C charging port while charging.' %}
+{% assign faq_q6 = 'What is included in the box?' %}
+{% assign faq_a6 = 'The FlowCore comes with one device, four replacement nozzles (standard, orthodontic, periodontal, tongue cleaner), one USB-C charging cable, one travel pouch, and a quick-start guide.' %}
+{% if cq_is_flowcore %}
+  {% case cq_lang %}
+    {% when 'nl' %}
+      {% assign faq_heading = 'Veelgestelde vragen' %}
+      {% assign faq_q1 = 'Hoe lang gaat de batterij mee?' %}
+      {% assign faq_a1 = 'Eén USB-C-lading laat de FlowCore bij dagelijks gebruik tot 30 dagen meegaan, uitgaand van 60 seconden per sessie. De LED-indicator toont de batterijstatus. Opladen vanaf leeg duurt ongeveer 4 uur.' %}
+      {% assign faq_q2 = 'Is het veilig bij een beugel of implantaten?' %}
+      {% assign faq_a2 = 'Ja. De FlowCore bevat een speciale orthodontische nozzle voor reiniging rond brackets en draden, en een parodontale nozzle die is afgestemd op implantaatverzorging. Start met de modus Gentle als u nog niet eerder een monddouche hebt gebruikt.' %}
+      {% assign faq_q3 = 'Hoe vaak moet ik hem gebruiken?' %}
+      {% assign faq_a3 = 'Eén keer per dag is voor de meeste gebruikers voldoende. Gebruik hem vóór het poetsen en vóór uw CALQIX nano-HA-tablet, zodat remineralisatie op een schoon glazuuroppervlak kan plaatsvinden. Twee keer per dag is veilig en zinvol voor gebruikers die actieve tandvleesontsteking onder controle houden.' %}
+      {% assign faq_q4 = 'Wat is het verschil tussen de 4 drukstanden?' %}
+      {% assign faq_a4 = 'Gentle wordt aanbevolen voor nieuwe gebruikers en gevoelig tandvlees. Clean is de standaardstand voor dagelijks gebruik. Pulse geeft een afwisselend drukpatroon dat helpt hardnekkige plaque los te maken. Turbo is de hoogste drukstand voor gebruikers die diepere reiniging nodig hebben of dit advies van een mondzorgprofessional hebben gekregen.' %}
+      {% assign faq_q5 = 'Kan ik hem onder de douche gebruiken?' %}
+      {% assign faq_a5 = 'Ja. De FlowCore is IPX7-waterdicht, wat betekent dat hij tot 30 minuten volledig ondergedompeld kan worden tot 1 meter diepte. Gebruik onder de douche is veilig. Dompel de USB-C-laadpoort niet onder tijdens het opladen.' %}
+      {% assign faq_q6 = 'Wat zit er in de doos?' %}
+      {% assign faq_a6 = 'De FlowCore wordt geleverd met één apparaat, vier vervangingsnozzles (standaard, orthodontisch, parodontaal, tongreiniger), één USB-C-laadkabel, één reisetui en een snelstartgids.' %}
+    {% when 'de' %}
+      {% assign faq_heading = 'Häufige Fragen' %}
+      {% assign faq_q1 = 'Wie lange hält der Akku?' %}
+      {% assign faq_a1 = 'Eine USB-C-Ladung versorgt den FlowCore bei täglicher Nutzung bis zu 30 Tage lang, ausgehend von 60 Sekunden pro Anwendung. Die LED-Anzeige zeigt den Akkustatus. Das Aufladen aus dem leeren Zustand dauert etwa 4 Stunden.' %}
+      {% assign faq_q2 = 'Ist die Anwendung mit einer Zahnspange oder Implantaten sicher?' %}
+      {% assign faq_a2 = 'Ja. Der FlowCore enthält eine spezielle orthodontische Düse zur Reinigung rund um Brackets und Drähte sowie eine parodontale Düse, die für die Pflege von Implantaten optimiert ist. Beginnen Sie mit dem Modus Gentle, wenn Sie neu beim Water Flossing sind.' %}
+      {% assign faq_q3 = 'Wie oft sollte ich ihn verwenden?' %}
+      {% assign faq_a3 = 'Einmal täglich ist für die meisten Anwender ausreichend. Verwenden Sie ihn vor dem Zähneputzen und vor Ihrer CALQIX nano-HA-Tablette, damit die Remineralisierung auf einer sauberen Schmelzoberfläche stattfinden kann. Zweimal täglich ist sicher und sinnvoll für Anwender, die eine aktive Zahnfleischentzündung kontrollieren.' %}
+      {% assign faq_q4 = 'Worin unterscheiden sich die 4 Druckmodi?' %}
+      {% assign faq_a4 = 'Gentle wird für Erstanwender und empfindliches Zahnfleisch empfohlen. Clean ist der Standardmodus für die tägliche Anwendung. Pulse liefert ein wechselndes Druckmuster, das hartnäckige Plaque effektiv löst. Turbo ist die höchste Druckstufe für Anwender, die eine tiefere Reinigung benötigen oder dies von einer zahnmedizinischen Fachperson empfohlen bekommen haben.' %}
+      {% assign faq_q5 = 'Kann ich ihn unter der Dusche verwenden?' %}
+      {% assign faq_a5 = 'Ja. Der FlowCore ist nach IPX7 wasserdicht, das heißt, er kann bis zu 30 Minuten lang vollständig in bis zu 1 Meter tiefes Wasser eingetaucht werden. Die Anwendung unter der Dusche ist sicher. Tauchen Sie den USB-C-Ladeanschluss während des Ladens nicht ins Wasser.' %}
+      {% assign faq_q6 = 'Was ist in der Box enthalten?' %}
+      {% assign faq_a6 = 'Der FlowCore wird mit einem Gerät, vier Ersatzdüsen (Standard, orthodontisch, parodontal, Zungenreiniger), einem USB-C-Ladekabel, einem Reisebeutel und einer Schnellstartanleitung geliefert.' %}
+    {% when 'fr' %}
+      {% assign faq_heading = 'Questions fréquentes' %}
+      {% assign faq_q1 = 'Quelle est l’autonomie de la batterie ?' %}
+      {% assign faq_a1 = 'Une charge USB-C permet au FlowCore de fonctionner jusqu’à 30 jours avec une utilisation quotidienne, sur la base de 60 secondes par session. Le voyant LED indique l’état de la batterie. Une charge complète depuis 0 prend environ 4 heures.' %}
+      {% assign faq_q2 = 'Est-il sûr avec un appareil orthodontique ou des implants ?' %}
+      {% assign faq_a2 = 'Oui. Le FlowCore comprend un embout orthodontique dédié pour nettoyer autour des bagues et des fils, ainsi qu’un embout parodontal optimisé pour le soin des implants. Commencez avec le mode Gentle si vous débutez avec l’hydropulseur.' %}
+      {% assign faq_q3 = 'À quelle fréquence dois-je l’utiliser ?' %}
+      {% assign faq_a3 = 'Une fois par jour suffit pour la plupart des utilisateurs. Utilisez-le avant le brossage et avant votre comprimé CALQIX nano-HA, afin que la reminéralisation agisse sur une surface d’émail propre. Deux utilisations par jour sont sûres et bénéfiques pour les utilisateurs qui gèrent une inflammation gingivale active.' %}
+      {% assign faq_q4 = 'Quelle est la différence entre les 4 modes de pression ?' %}
+      {% assign faq_a4 = 'Gentle est recommandé pour les nouveaux utilisateurs et les gencives sensibles. Clean est le mode quotidien standard pour la plupart des utilisateurs. Pulse délivre une pression alternée efficace pour déloger la plaque tenace. Turbo correspond à la pression maximale pour les utilisateurs qui ont besoin d’un nettoyage plus profond ou qui ont reçu ce conseil d’un professionnel dentaire.' %}
+      {% assign faq_q5 = 'Puis-je l’utiliser sous la douche ?' %}
+      {% assign faq_a5 = 'Oui. Le FlowCore est étanche IPX7, ce qui signifie qu’il peut être entièrement immergé jusqu’à 1 mètre pendant 30 minutes. Son utilisation sous la douche est sûre. N’immergez pas le port de charge USB-C pendant la charge.' %}
+      {% assign faq_q6 = 'Que contient la boîte ?' %}
+      {% assign faq_a6 = 'Le FlowCore est livré avec un appareil, quatre embouts de rechange (standard, orthodontique, parodontal, nettoyeur de langue), un câble de charge USB-C, une trousse de voyage et un guide de démarrage rapide.' %}
+  {% endcase %}
+{% endif %}
 <section id="calqix-product-faq-{{ section.id }}" class="calqix-product-faq">
   <style>
     #calqix-product-faq-{{ section.id }} {
@@ -165,77 +230,77 @@
     }
   </style>
 
-  <h2 class="cpf-heading">Common questions</h2>
+  <h2 class="cpf-heading">{{ faq_heading }}</h2>
 
   <div class="cqa-wrap">
     <div class="cqa-item open">
       <button class="cqa-trigger" type="button" aria-controls="cpf-panel-1-{{ section.id }}" aria-expanded="true">
-        How long does the battery last?
+        {{ faq_q1 }}
         <span class="cqa-icon" aria-hidden="true">+</span>
       </button>
       <div id="cpf-panel-1-{{ section.id }}" class="cqa-body" role="region" aria-hidden="false">
         <div class="cqa-content">
-          <p>A single USB-C charge powers the FlowCore for up to 30 days of daily use, based on 60 seconds per session. The LED indicator shows battery status. Charging takes approximately 4 hours from empty.</p>
+          <p>{{ faq_a1 }}</p>
         </div>
       </div>
     </div>
 
     <div class="cqa-item">
       <button class="cqa-trigger" type="button" aria-controls="cpf-panel-2-{{ section.id }}" aria-expanded="false">
-        Is it safe to use with braces or implants?
+        {{ faq_q2 }}
         <span class="cqa-icon" aria-hidden="true">+</span>
       </button>
       <div id="cpf-panel-2-{{ section.id }}" class="cqa-body" role="region" aria-hidden="true">
         <div class="cqa-content">
-          <p>Yes. The FlowCore includes a dedicated orthodontic nozzle for cleaning around brackets and wires, and a periodontal nozzle optimised for implant care. Start with Gentle mode if you are new to water flossing.</p>
+          <p>{{ faq_a2 }}</p>
         </div>
       </div>
     </div>
 
     <div class="cqa-item">
       <button class="cqa-trigger" type="button" aria-controls="cpf-panel-3-{{ section.id }}" aria-expanded="false">
-        How often should I use it?
+        {{ faq_q3 }}
         <span class="cqa-icon" aria-hidden="true">+</span>
       </button>
       <div id="cpf-panel-3-{{ section.id }}" class="cqa-body" role="region" aria-hidden="true">
         <div class="cqa-content">
-          <p>Once daily is sufficient for most users. Use it before brushing and before applying your CALQIX nano-HA tablet, so that remineralisation works on a clean enamel surface. Twice daily is safe and beneficial for users managing active gum inflammation.</p>
+          <p>{{ faq_a3 }}</p>
         </div>
       </div>
     </div>
 
     <div class="cqa-item">
       <button class="cqa-trigger" type="button" aria-controls="cpf-panel-4-{{ section.id }}" aria-expanded="false">
-        What is the difference between the 4 pressure modes?
+        {{ faq_q4 }}
         <span class="cqa-icon" aria-hidden="true">+</span>
       </button>
       <div id="cpf-panel-4-{{ section.id }}" class="cqa-body" role="region" aria-hidden="true">
         <div class="cqa-content">
-          <p>Gentle is recommended for first-time users and sensitive gums. Clean is the standard daily mode for most users. Pulse delivers an alternating pressure pattern effective for dislodging stubborn plaque. Turbo is maximum pressure for users who require deeper cleaning or have been advised by a dental professional.</p>
+          <p>{{ faq_a4 }}</p>
         </div>
       </div>
     </div>
 
     <div class="cqa-item">
       <button class="cqa-trigger" type="button" aria-controls="cpf-panel-5-{{ section.id }}" aria-expanded="false">
-        Can I use it in the shower?
+        {{ faq_q5 }}
         <span class="cqa-icon" aria-hidden="true">+</span>
       </button>
       <div id="cpf-panel-5-{{ section.id }}" class="cqa-body" role="region" aria-hidden="true">
         <div class="cqa-content">
-          <p>Yes. The FlowCore is IPX7 waterproof, meaning it is fully submersible up to 1 metre for 30 minutes. It is safe for shower use. Do not submerge the USB-C charging port while charging.</p>
+          <p>{{ faq_a5 }}</p>
         </div>
       </div>
     </div>
 
     <div class="cqa-item">
       <button class="cqa-trigger" type="button" aria-controls="cpf-panel-6-{{ section.id }}" aria-expanded="false">
-        What is included in the box?
+        {{ faq_q6 }}
         <span class="cqa-icon" aria-hidden="true">+</span>
       </button>
       <div id="cpf-panel-6-{{ section.id }}" class="cqa-body" role="region" aria-hidden="true">
         <div class="cqa-content">
-          <p>The FlowCore comes with one device, four replacement nozzles (standard, orthodontic, periodontal, tongue cleaner), one USB-C charging cable, one travel pouch, and a quick-start guide.</p>
+          <p>{{ faq_a6 }}</p>
         </div>
       </div>
     </div>
@@ -289,50 +354,50 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "How long does the battery last?",
+          "name": {{ faq_q1 | json }},
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "A single USB-C charge powers the FlowCore for up to 30 days of daily use, based on 60 seconds per session. The LED indicator shows battery status. Charging takes approximately 4 hours from empty."
+            "text": {{ faq_a1 | json }}
           }
         },
         {
           "@type": "Question",
-          "name": "Is it safe to use with braces or implants?",
+          "name": {{ faq_q2 | json }},
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. The FlowCore includes a dedicated orthodontic nozzle for cleaning around brackets and wires, and a periodontal nozzle optimised for implant care. Start with Gentle mode if you are new to water flossing."
+            "text": {{ faq_a2 | json }}
           }
         },
         {
           "@type": "Question",
-          "name": "How often should I use it?",
+          "name": {{ faq_q3 | json }},
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Once daily is sufficient for most users. Use it before brushing and before applying your CALQIX nano-HA tablet, so that remineralisation works on a clean enamel surface. Twice daily is safe and beneficial for users managing active gum inflammation."
+            "text": {{ faq_a3 | json }}
           }
         },
         {
           "@type": "Question",
-          "name": "What is the difference between the 4 pressure modes?",
+          "name": {{ faq_q4 | json }},
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Gentle is recommended for first-time users and sensitive gums. Clean is the standard daily mode for most users. Pulse delivers an alternating pressure pattern effective for dislodging stubborn plaque. Turbo is maximum pressure for users who require deeper cleaning or have been advised by a dental professional."
+            "text": {{ faq_a4 | json }}
           }
         },
         {
           "@type": "Question",
-          "name": "Can I use it in the shower?",
+          "name": {{ faq_q5 | json }},
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. The FlowCore is IPX7 waterproof, meaning it is fully submersible up to 1 metre for 30 minutes. It is safe for shower use. Do not submerge the USB-C charging port while charging."
+            "text": {{ faq_a5 | json }}
           }
         },
         {
           "@type": "Question",
-          "name": "What is included in the box?",
+          "name": {{ faq_q6 | json }},
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "The FlowCore comes with one device, four replacement nozzles (standard, orthodontic, periodontal, tongue cleaner), one USB-C charging cable, one travel pouch, and a quick-start guide."
+            "text": {{ faq_a6 | json }}
           }
         }
       ]

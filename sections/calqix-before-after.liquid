@@ -1,3 +1,28 @@
+{% assign cq_lang = request.locale.iso_code | downcase | slice: 0, 2 %}
+{% assign cq_flowcore_handles = 'calqix-flowcore,flowcore-white,flowcore-green,flowcore-pink' | split: ',' %}
+{% assign cq_is_flowcore = false %}
+{% if product != blank and cq_flowcore_handles contains product.handle %}
+  {% assign cq_is_flowcore = true %}
+{% endif %}
+{% assign cba_eyebrow = section.settings.eyebrow %}
+{% assign cba_title = section.settings.title %}
+{% assign cba_dot_label = 'Go to slide' %}
+{% if cq_is_flowcore %}
+  {% case cq_lang %}
+    {% when 'nl' %}
+      {% assign cba_eyebrow = 'De CALQIX-reis' %}
+      {% assign cba_title = 'Vooraf. In werking. Daarna.' %}
+      {% assign cba_dot_label = 'Ga naar slide' %}
+    {% when 'de' %}
+      {% assign cba_eyebrow = 'Die CALQIX-Reise' %}
+      {% assign cba_title = 'Vorher. In Aktion. Danach.' %}
+      {% assign cba_dot_label = 'Zu Slide' %}
+    {% when 'fr' %}
+      {% assign cba_eyebrow = 'Le parcours CALQIX' %}
+      {% assign cba_title = 'Avant. En action. Après.' %}
+      {% assign cba_dot_label = 'Aller à la slide' %}
+  {% endcase %}
+{% endif %}
 <section id="cba-{{ section.id }}" class="cba-section">
   <style>
     #cba-{{ section.id }} {
@@ -340,11 +365,11 @@
   <div class="cba-inner">
     {% if section.settings.eyebrow != blank or section.settings.title != blank %}
       <div class="cba-head">
-        {% if section.settings.eyebrow != blank %}
-          <p class="cba-eyebrow">{{ section.settings.eyebrow }}</p>
+        {% if cba_eyebrow != blank %}
+          <p class="cba-eyebrow">{{ cba_eyebrow }}</p>
         {% endif %}
-        {% if section.settings.title != blank %}
-          <h2 class="cba-title">{{ section.settings.title }}</h2>
+        {% if cba_title != blank %}
+          <h2 class="cba-title">{{ cba_title }}</h2>
         {% endif %}
       </div>
     {% endif %}
@@ -358,6 +383,59 @@
         {% assign heading_key = 'col' | append: i | append: '_heading' %}
         {% assign body_key = 'col' | append: i | append: '_body' %}
         {% assign url_key = 'col' | append: i | append: '_url' %}
+        {% assign cba_step_number = section.settings[number_key] %}
+        {% assign cba_badge = section.settings[badge_key] %}
+        {% assign cba_heading_text = section.settings[heading_key] %}
+        {% assign cba_body_text = section.settings[body_key] %}
+        {% if cq_is_flowcore %}
+          {% case cq_lang %}
+            {% when 'nl' %}
+              {% case i %}
+                {% when 1 %}
+                  {% assign cba_badge = 'Dag 0' %}
+                  {% assign cba_heading_text = 'Vooraf' %}
+                  {% assign cba_body_text = 'Plaque en bacteriën hopen zich op tussen de tanden en onder de tandvleesrand. Glazuur kan niet remineraliseren door biofilm heen. Die barrière moet eerst verwijderd worden.' %}
+                {% when 2 %}
+                  {% assign cba_badge = '60 seconden' %}
+                  {% assign cba_heading_text = 'In werking' %}
+                  {% assign cba_body_text = 'FlowCore levert 1.600 pulsaties per minuut en reikt 6 mm onder de tandvleesrand. Plaque, resten en bacteriën worden weggespoeld uit zones die een tandenborstel niet bereikt.' %}
+                {% when 3 %}
+                  {% assign cba_badge = 'Dag 30+' %}
+                  {% assign cba_heading_text = 'Daarna' %}
+                  {% assign cba_body_text = 'Schoon glazuur. Gezond tandvleesweefsel. Nu de oppervlakbarrière weg is, kan nano-HA uit uw CALQIX-tablet rechtstreeks aan glazuur hechten en remineraliseren.' %}
+              {% endcase %}
+            {% when 'de' %}
+              {% case i %}
+                {% when 1 %}
+                  {% assign cba_badge = 'Tag 0' %}
+                  {% assign cba_heading_text = 'Vorher' %}
+                  {% assign cba_body_text = 'Plaque und Bakterien sammeln sich zwischen den Zähnen und unter dem Zahnfleischrand. Zahnschmelz kann nicht durch Biofilm hindurch remineralisieren. Diese Barriere muss zuerst entfernt werden.' %}
+                {% when 2 %}
+                  {% assign cba_badge = '60 Sekunden' %}
+                  {% assign cba_heading_text = 'In Aktion' %}
+                  {% assign cba_body_text = 'FlowCore liefert 1.600 Pulsationen pro Minute und erreicht 6 mm unter dem Zahnfleischrand. Plaque, Rückstände und Bakterien werden aus Bereichen ausgespült, die eine Zahnbürste nicht erreicht.' %}
+                {% when 3 %}
+                  {% assign cba_badge = 'Tag 30+' %}
+                  {% assign cba_heading_text = 'Danach' %}
+                  {% assign cba_body_text = 'Sauberer Zahnschmelz. Gesundes Zahnfleischgewebe. Ist die Oberflächenbarriere entfernt, kann nano-HA aus Ihrer CALQIX-Tablette nun direkt an den Zahnschmelz binden und remineralisieren.' %}
+              {% endcase %}
+            {% when 'fr' %}
+              {% case i %}
+                {% when 1 %}
+                  {% assign cba_badge = 'Jour 0' %}
+                  {% assign cba_heading_text = 'Avant' %}
+                  {% assign cba_body_text = 'La plaque et les bactéries s’accumulent entre les dents et sous le rebord gingival. L’émail ne peut pas se reminéraliser à travers le biofilm. Cette barrière doit d’abord être retirée.' %}
+                {% when 2 %}
+                  {% assign cba_badge = '60 secondes' %}
+                  {% assign cba_heading_text = 'En action' %}
+                  {% assign cba_body_text = 'FlowCore délivre 1 600 pulsations par minute et atteint 6 mm sous le rebord gingival. La plaque, les débris et les bactéries sont rincés depuis des zones qu’une brosse à dents ne peut pas atteindre.' %}
+                {% when 3 %}
+                  {% assign cba_badge = 'Jour 30+' %}
+                  {% assign cba_heading_text = 'Après' %}
+                  {% assign cba_body_text = 'Émail propre. Tissu gingival sain. Une fois la barrière de surface retirée, le nano-HA de votre comprimé CALQIX peut désormais se lier directement à l’émail et reminéraliser.' %}
+              {% endcase %}
+          {% endcase %}
+        {% endif %}
 
         {% if section.settings[show_key] %}
           <article class="cba-col">
@@ -372,24 +450,24 @@
                       loading: 'lazy',
                       widths: '400, 600, 800, 1000, 1200',
                       sizes: '(max-width: 600px) 100vw, (max-width: 1200px) 33vw, 380px',
-                      alt: section.settings[heading_key]
+                      alt: cba_heading_text
                   }}
                 {% else %}
                   <div class="cba-media-fallback">
                     <span class="cba-media-fallback-symbol">⬡</span>
-                    <span class="cba-media-fallback-step">{{ section.settings[number_key] }}</span>
+                    <span class="cba-media-fallback-step">{{ cba_step_number }}</span>
                   </div>
                 {% endif %}
               {% if section.settings[url_key] != blank %}</a>{% endif %}
             </div>
 
             <div class="cba-step-row">
-              <span class="cba-step-number">{{ section.settings[number_key] }}</span>
-              <span class="cba-badge">{{ section.settings[badge_key] }}</span>
+              <span class="cba-step-number">{{ cba_step_number }}</span>
+              <span class="cba-badge">{{ cba_badge }}</span>
             </div>
 
-            <h3 class="cba-heading">{{ section.settings[heading_key] }}</h3>
-            <p class="cba-body">{{ section.settings[body_key] }}</p>
+            <h3 class="cba-heading">{{ cba_heading_text }}</h3>
+            <p class="cba-body">{{ cba_body_text }}</p>
           </article>
         {% endif %}
       {% endfor %}
@@ -465,7 +543,7 @@
             var dot = document.createElement('button');
             dot.type = 'button';
             dot.className = 'cba-mobile-dot' + (index === 0 ? ' is-active' : '');
-            dot.setAttribute('aria-label', 'Go to slide ' + (index + 1));
+            dot.setAttribute('aria-label', '{{ cba_dot_label }} ' + (index + 1));
             dot.addEventListener('click', function() {
               cards[index].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
               syncActive(index);

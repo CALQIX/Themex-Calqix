@@ -3,6 +3,19 @@
 
 {% assign background_rgb = section.settings.background_color | color_to_rgb %}
 {% assign text_rgb = section.settings.text_color | color_to_rgb %}
+{% assign cq_lang = request.locale.iso_code | downcase | slice: 0, 2 %}
+{% assign cq_flowcore_handles = 'calqix-flowcore,flowcore-white,flowcore-green,flowcore-pink' | split: ',' %}
+{% assign cq_is_flowcore = false %}
+{% if product != blank and cq_flowcore_handles contains product.handle %}
+  {% assign cq_is_flowcore = true %}
+{% endif %}
+{% assign cq_is_translated_flowcore = false %}
+{% if cq_is_flowcore %}
+  {% case cq_lang %}
+    {% when 'nl', 'de', 'fr' %}
+      {% assign cq_is_translated_flowcore = true %}
+  {% endcase %}
+{% endif %}
 
 <style>
   [id="shopify-section-{{ section.id }}"] {
@@ -189,15 +202,6 @@
           --color-button-secondary-text-hover: {{ block.settings.text_color }};
 
         {% endif %}
-      }
-      [data-block-id="{{ block.id }}"] .calqix-atc-note {
-        margin: 0 0 12px;
-        color: #6B7280;
-        font-family: "DM Sans", sans-serif;
-        font-size: 13px;
-        font-style: italic;
-        line-height: 1.5;
-        text-align: center;
       }
       [data-block-id="{{ block.id }}"] .wt-product__add-to-cart {
         width: 100%;
@@ -924,23 +928,31 @@
             {%- when 'custom_liquid' -%}
               {{ block.settings.custom_liquid }}
             {%- when 'calqix_badge' -%}
-              {%- if block.settings.text != blank -%}
+              {%- assign cq_calqix_badge_text = block.settings.text -%}
+              {%- if cq_is_translated_flowcore -%}
+                {%- assign cq_calqix_badge_text = 'calqix_flowcore.main.badge' | t -%}
+              {%- endif -%}
+              {%- if cq_calqix_badge_text != blank -%}
                 <div
                   class="calqix-product-badge"
                   data-block-id="{{ block.id }}"
                   {{ block.shopify_attributes }}
                 >
-                  {{ block.settings.text }}
+                  {{ cq_calqix_badge_text }}
                 </div>
               {%- endif -%}
             {%- when 'calqix_subtitle' -%}
-              {%- if block.settings.subtitle != blank -%}
+              {%- assign cq_calqix_subtitle = block.settings.subtitle -%}
+              {%- if cq_is_translated_flowcore -%}
+                {%- assign cq_calqix_subtitle = 'calqix_flowcore.main.subtitle_html' | t -%}
+              {%- endif -%}
+              {%- if cq_calqix_subtitle != blank -%}
                 <div
                   class="calqix-product-subtitle rte"
                   data-block-id="{{ block.id }}"
                   {{ block.shopify_attributes }}
                 >
-                  {{ block.settings.subtitle }}
+                  {{ cq_calqix_subtitle }}
                 </div>
               {%- endif -%}
             {%- when 'calqix_review_row' -%}
@@ -1828,7 +1840,6 @@
                     {% if block.settings.show_gift_card_recipient and product.gift_card? %}
                       {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
                     {% endif %}
-                    <p class="calqix-atc-note">Join thousands who stopped ignoring the signs.</p>
                     <div class="wt-product__add-to-cart_form--wrapper product-form__buttons">
                       {% if block.settings.show_qty_selector %}
                         {% render 'component-counter' %}
@@ -2494,6 +2505,14 @@
 
             {%- when 'calqix_colour_switcher' -%}
               {%- assign b = block.settings -%}
+              {%- assign ccs_label_text = b.label_text -%}
+              {%- assign ccs_highlight_text = b.highlight_text -%}
+              {%- assign ccs_helper_text = b.helper_text -%}
+              {%- if cq_is_translated_flowcore -%}
+                {%- assign ccs_label_text = 'calqix_flowcore.main.colour_label' | t -%}
+                {%- assign ccs_highlight_text = 'calqix_flowcore.main.highlight_text' | t -%}
+                {%- assign ccs_helper_text = 'calqix_flowcore.main.helper_text' | t -%}
+              {%- endif -%}
               <style>
                 #ccs-block-{{ block.id }} {
                   padding: {{ b.padding_vertical }}px 0;
@@ -2637,12 +2656,12 @@
               <div id="ccs-block-{{ block.id }}" class="calqix-colour-switcher-block" {{ block.shopify_attributes }}>
                 <div class="ccs-label">
                   {%- if b.show_active_name and ccs_active_name != blank -%}
-                    {{ b.label_text }}: <span class="ccs-active-name">{{ ccs_active_name }}</span>
-                    {%- if b.highlight_text != blank and b.highlight_product != blank and ccs_active_handle == b.highlight_product.handle -%}
-                      <span class="ccs-chip">{{ b.highlight_text }}</span>
+                    {{ ccs_label_text }}: <span class="ccs-active-name">{{ ccs_active_name }}</span>
+                    {%- if ccs_highlight_text != blank and b.highlight_product != blank and ccs_active_handle == b.highlight_product.handle -%}
+                      <span class="ccs-chip">{{ ccs_highlight_text }}</span>
                     {%- endif -%}
                   {%- else -%}
-                    {{ b.label_text }}
+                    {{ ccs_label_text }}
                   {%- endif -%}
                 </div>
                 {%- assign ccs_locale_root_url = request.path | split: '/products/' | first -%}
@@ -2696,8 +2715,8 @@
                     {%- endif -%}
                   {%- endfor -%}
                 </div>
-                {%- if b.helper_text != blank -%}
-                  <p class="ccs-helper">{{ b.helper_text }}</p>
+                {%- if ccs_helper_text != blank -%}
+                  <p class="ccs-helper">{{ ccs_helper_text }}</p>
                 {%- endif -%}
               </div>
               {%- if b.custom_js != blank -%}
@@ -2706,6 +2725,10 @@
 
             {%- when 'calqix_trust_badges' -%}
               {%- assign b = block.settings -%}
+              {%- assign ctb_shipping_text = b.shipping_text -%}
+              {%- if cq_is_translated_flowcore -%}
+                {%- assign ctb_shipping_text = 'calqix_flowcore.main.shipping_text' | t -%}
+              {%- endif -%}
               <style>
                 #ctb-block-{{ block.id }} {
                   background: {{ b.background_color }};
@@ -2791,14 +2814,29 @@
                       {%- assign ctb_ik = 'badge_' | append: i | append: '_icon' -%}
                       {%- assign ctb_imgk = 'badge_' | append: i | append: '_image' -%}
                       {%- assign ctb_uk = 'badge_' | append: i | append: '_url' -%}
+                      {%- assign ctb_text = b[ctb_tk] -%}
+                      {%- if cq_is_translated_flowcore -%}
+                        {%- case i -%}
+                          {%- when 1 -%}
+                            {%- assign ctb_text = 'calqix_flowcore.main.trust_badge_1' | t -%}
+                          {%- when 2 -%}
+                            {%- assign ctb_text = 'calqix_flowcore.main.trust_badge_2' | t -%}
+                          {%- when 3 -%}
+                            {%- assign ctb_text = 'calqix_flowcore.main.trust_badge_3' | t -%}
+                          {%- when 4 -%}
+                            {%- assign ctb_text = 'calqix_flowcore.main.trust_badge_4' | t -%}
+                          {%- when 5 -%}
+                            {%- assign ctb_text = 'calqix_flowcore.main.trust_badge_5' | t -%}
+                        {%- endcase -%}
+                      {%- endif -%}
                       {%- if b[ctb_tk] != blank -%}
                         {%- if b[ctb_uk] != blank -%}<a href="{{ b[ctb_uk] }}" class="ctb-badge">{%- else -%}<div class="ctb-badge">{%- endif -%}
                           {%- if b[ctb_imgk] != blank -%}
-                            <div class="ctb-icon"><img class="ctb-icon-image" src="{{ b[ctb_imgk] | image_url: width: 96 }}" alt="{{ b[ctb_tk] | escape }}" loading="lazy" width="{{ b.icon_size }}" height="{{ b.icon_size }}"></div>
+                            <div class="ctb-icon"><img class="ctb-icon-image" src="{{ b[ctb_imgk] | image_url: width: 96 }}" alt="{{ ctb_text | escape }}" loading="lazy" width="{{ b.icon_size }}" height="{{ b.icon_size }}"></div>
                           {%- elsif b[ctb_ik] != blank -%}
                             <div class="ctb-icon">{{ b[ctb_ik] }}</div>
                           {%- endif -%}
-                          <div class="ctb-text">{{ b[ctb_tk] }}</div>
+                          <div class="ctb-text">{{ ctb_text }}</div>
                         {%- if b[ctb_uk] != blank -%}</a>{%- else -%}</div>{%- endif -%}
                       {%- endif -%}
                     {%- endfor -%}
@@ -2807,7 +2845,7 @@
                 {%- if b.show_shipping -%}
                   <div class="ctb-shipping">
                     {%- if b.shipping_icon != blank -%}<span class="ctb-shipping-icon">{{ b.shipping_icon }}</span>{%- endif -%}
-                    <span>{{ b.shipping_text }}</span>
+                    <span>{{ ctb_shipping_text }}</span>
                   </div>
                 {%- endif -%}
               </div>

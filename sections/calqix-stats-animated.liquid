@@ -1,3 +1,43 @@
+{% assign cq_lang = request.locale.iso_code | downcase | slice: 0, 2 %}
+{% assign cq_flowcore_handles = 'calqix-flowcore,flowcore-white,flowcore-green,flowcore-pink' | split: ',' %}
+{% assign cq_is_flowcore = false %}
+{% if product != blank and cq_flowcore_handles contains product.handle %}
+  {% assign cq_is_flowcore = true %}
+{% endif %}
+{% assign csa_label_1 = 'Plaque removal' %}
+{% assign csa_source_1 = 'J. Clinical Dentistry, 2019' %}
+{% assign csa_label_2 = 'Subgingival reach' %}
+{% assign csa_source_2 = 'Below the gumline' %}
+{% assign csa_label_3 = 'Better than string floss' %}
+{% assign csa_source_3 = 'Cochrane Review, 2021' %}
+{% assign csa_label_4 = 'Deeper interdental cleaning' %}
+{% assign csa_source_4 = 'ADA, 2020' %}
+{% assign csa_link_label = 'View the full clinical evidence →' %}
+{% if cq_is_flowcore %}
+  {% case cq_lang %}
+    {% when 'nl' %}
+      {% assign csa_label_1 = 'Plaqueverwijdering' %}
+      {% assign csa_label_2 = 'Subgingivale reikwijdte' %}
+      {% assign csa_source_2 = 'Onder de tandvleesrand' %}
+      {% assign csa_label_3 = 'Beter dan flossdraad' %}
+      {% assign csa_label_4 = 'Diepere interdentale reiniging' %}
+      {% assign csa_link_label = 'Bekijk het volledige klinische bewijs' %}
+    {% when 'de' %}
+      {% assign csa_label_1 = 'Plaqueentfernung' %}
+      {% assign csa_label_2 = 'Subgingivale Reichweite' %}
+      {% assign csa_source_2 = 'Unter dem Zahnfleischrand' %}
+      {% assign csa_label_3 = 'Besser als Zahnseide' %}
+      {% assign csa_label_4 = 'Tiefere Reinigung der Zahnzwischenräume' %}
+      {% assign csa_link_label = 'Vollständige klinische Evidenz ansehen' %}
+    {% when 'fr' %}
+      {% assign csa_label_1 = 'Élimination de la plaque' %}
+      {% assign csa_label_2 = 'Portée sous-gingivale' %}
+      {% assign csa_source_2 = 'Sous le rebord gingival' %}
+      {% assign csa_label_3 = 'Plus efficace que le fil dentaire' %}
+      {% assign csa_label_4 = 'Nettoyage interdentaire plus profond' %}
+      {% assign csa_link_label = 'Voir l’ensemble des preuves cliniques' %}
+  {% endcase %}
+{% endif %}
 <section id="calqix-stats-animated-{{ section.id }}" class="calqix-stats-animated">
   <style>
     #calqix-stats-animated-{{ section.id }} {
@@ -131,8 +171,8 @@
           <span class="stat-number" data-stat-target="99.9" data-target="99.9" data-decimals="1">0</span>
           <span class="stat-suffix">%</span>
         </div>
-        <p class="csa-label">Plaque removal</p>
-        <p class="csa-source">J. Clinical Dentistry, 2019</p>
+        <p class="csa-label">{{ csa_label_1 }}</p>
+        <p class="csa-source">{{ csa_source_1 }}</p>
       </article>
 
       <article class="csa-stat">
@@ -140,8 +180,8 @@
           <span class="stat-number" data-stat-target="6" data-target="6" data-decimals="0">0</span>
           <span class="stat-suffix">mm</span>
         </div>
-        <p class="csa-label">Subgingival reach</p>
-        <p class="csa-source">Below the gumline</p>
+        <p class="csa-label">{{ csa_label_2 }}</p>
+        <p class="csa-source">{{ csa_source_2 }}</p>
       </article>
 
       <article class="csa-stat">
@@ -149,8 +189,8 @@
           <span class="stat-number" data-stat-target="51" data-target="51" data-decimals="0">0</span>
           <span class="stat-suffix">%</span>
         </div>
-        <p class="csa-label">Better than string floss</p>
-        <p class="csa-source">Cochrane Review, 2021</p>
+        <p class="csa-label">{{ csa_label_3 }}</p>
+        <p class="csa-source">{{ csa_source_3 }}</p>
       </article>
 
       <article class="csa-stat">
@@ -158,13 +198,13 @@
           <span class="stat-number" data-stat-target="40" data-target="40" data-decimals="0">0</span>
           <span class="stat-suffix">%</span>
         </div>
-        <p class="csa-label">Deeper interdental cleaning</p>
-        <p class="csa-source">ADA, 2020</p>
+        <p class="csa-label">{{ csa_label_4 }}</p>
+        <p class="csa-source">{{ csa_source_4 }}</p>
       </article>
     </div>
 
     <div class="csa-link-row">
-      <a class="csa-link" href="/pages/about-us">View the full clinical evidence →</a>
+      <a class="csa-link" href="/pages/about-us">{{ csa_link_label }}</a>
     </div>
   </div>
 
