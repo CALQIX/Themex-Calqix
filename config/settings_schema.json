@@ -1954,7 +1954,7 @@
         "type": "select",
         "id": "product_card_hover_animation",
         "label": "Hover animation",
-        "default": "lift",
+        "default": "lift_zoom",
         "options": [
           {
             "value": "none",
@@ -1971,16 +1971,54 @@
           {
             "value": "glow",
             "label": "Glow"
+          },
+          {
+            "value": "lift_zoom",
+            "label": "Lift + zoom"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "product_card_content_animation",
+        "label": "Text animation",
+        "default": "cascade",
+        "options": [
+          {
+            "value": "none",
+            "label": "None"
+          },
+          {
+            "value": "rise",
+            "label": "Rise"
+          },
+          {
+            "value": "cascade",
+            "label": "Cascade"
+          },
+          {
+            "value": "underline",
+            "label": "Title underline"
           }
         ]
       },
       {
         "type": "range",
+        "id": "product_card_animation_duration",
+        "min": 150,
+        "max": 700,
+        "step": 50,
+        "default": 300,
+        "unit": "ms",
+        "label": "Animation speed"
+      },
+      {
+        "type": "range",
         "id": "product_card_vertical_gap",
         "min": 2,
-        "max": 20,
+        "max": 28,
         "step": 1,
-        "default": 8,
+        "default": 10,
         "unit": "px",
         "label": "Spacing between text rows"
       },
@@ -2011,6 +2049,54 @@
       },
       {
         "type": "header",
+        "content": "Alignment"
+      },
+      {
+        "type": "select",
+        "id": "product_card_brand_alignment",
+        "default": "center",
+        "label": "Brand alignment",
+        "options": [
+          { "value": "left", "label": "Left" },
+          { "value": "center", "label": "Center" },
+          { "value": "right", "label": "Right" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "product_card_title_alignment",
+        "default": "center",
+        "label": "Title alignment",
+        "options": [
+          { "value": "left", "label": "Left" },
+          { "value": "center", "label": "Center" },
+          { "value": "right", "label": "Right" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "product_card_reviews_alignment",
+        "default": "center",
+        "label": "Reviews alignment",
+        "options": [
+          { "value": "left", "label": "Left" },
+          { "value": "center", "label": "Center" },
+          { "value": "right", "label": "Right" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "product_card_price_alignment",
+        "default": "center",
+        "label": "Price alignment",
+        "options": [
+          { "value": "left", "label": "Left" },
+          { "value": "center", "label": "Center" },
+          { "value": "right", "label": "Right" }
+        ]
+      },
+      {
+        "type": "header",
         "content": "Brand / vendor style"
       },
       {
@@ -2038,6 +2124,16 @@
       },
       {
         "type": "select",
+        "id": "product_card_brand_style",
+        "default": "normal",
+        "label": "Brand font style",
+        "options": [
+          { "value": "normal", "label": "Normal" },
+          { "value": "italic", "label": "Italic" }
+        ]
+      },
+      {
+        "type": "select",
         "id": "product_card_brand_weight",
         "default": "600",
         "label": "Brand weight",
@@ -2055,8 +2151,19 @@
         "label": "Brand text transform",
         "options": [
           { "value": "none", "label": "None" },
-          { "value": "uppercase", "label": "Uppercase" }
+          { "value": "uppercase", "label": "Uppercase" },
+          { "value": "capitalize", "label": "Capitalize" }
         ]
+      },
+      {
+        "type": "range",
+        "id": "product_card_brand_letter_spacing",
+        "min": 0,
+        "max": 6,
+        "step": 1,
+        "default": 1,
+        "unit": "px",
+        "label": "Brand letter spacing"
       },
       {
         "type": "color",
@@ -2093,6 +2200,16 @@
       },
       {
         "type": "select",
+        "id": "product_card_title_style",
+        "default": "normal",
+        "label": "Title font style",
+        "options": [
+          { "value": "normal", "label": "Normal" },
+          { "value": "italic", "label": "Italic" }
+        ]
+      },
+      {
+        "type": "select",
         "id": "product_card_title_weight",
         "default": "500",
         "label": "Title weight",
@@ -2106,7 +2223,7 @@
       {
         "type": "color",
         "id": "product_card_title_color",
-        "default": "#1A1F24",
+        "default": "#4B5563",
         "label": "Title color"
       },
       {
@@ -2144,6 +2261,16 @@
       },
       {
         "type": "select",
+        "id": "product_card_reviews_style",
+        "default": "normal",
+        "label": "Reviews font style",
+        "options": [
+          { "value": "normal", "label": "Normal" },
+          { "value": "italic", "label": "Italic" }
+        ]
+      },
+      {
+        "type": "select",
         "id": "product_card_reviews_weight",
         "default": "400",
         "label": "Reviews text weight",
@@ -2169,6 +2296,18 @@
         "default": 14,
         "unit": "px",
         "label": "Review icon size"
+      },
+      {
+        "type": "color",
+        "id": "product_card_review_star_color",
+        "default": "#D4AF37",
+        "label": "Filled star color"
+      },
+      {
+        "type": "color",
+        "id": "product_card_review_star_empty_color",
+        "default": "#D8DEE6",
+        "label": "Empty star color"
       },
       {
         "type": "header",
@@ -2199,6 +2338,16 @@
       },
       {
         "type": "select",
+        "id": "product_card_price_style",
+        "default": "normal",
+        "label": "Price font style",
+        "options": [
+          { "value": "normal", "label": "Normal" },
+          { "value": "italic", "label": "Italic" }
+        ]
+      },
+      {
+        "type": "select",
         "id": "product_card_price_weight",
         "default": "500",
         "label": "Price weight",
@@ -2212,13 +2361,13 @@
       {
         "type": "color",
         "id": "product_card_price_color",
-        "default": "#1A1F24",
+        "default": "#4B5563",
         "label": "Regular price color"
       },
       {
         "type": "color",
         "id": "product_card_price_sale_color",
-        "default": "#1A1F24",
+        "default": "#4B5563",
         "label": "Sale price color"
       },
       {

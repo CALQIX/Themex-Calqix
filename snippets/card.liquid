@@ -87,6 +87,38 @@
     assign show_reviews_row = true
   endif
 
+  assign product_card_brand_alignment = settings.product_card_brand_alignment | default: 'center'
+  assign product_card_brand_justify = 'center'
+  if product_card_brand_alignment == 'left'
+    assign product_card_brand_justify = 'flex-start'
+  elsif product_card_brand_alignment == 'right'
+    assign product_card_brand_justify = 'flex-end'
+  endif
+
+  assign product_card_title_alignment = settings.product_card_title_alignment | default: 'center'
+  assign product_card_title_justify = 'center'
+  if product_card_title_alignment == 'left'
+    assign product_card_title_justify = 'flex-start'
+  elsif product_card_title_alignment == 'right'
+    assign product_card_title_justify = 'flex-end'
+  endif
+
+  assign product_card_reviews_alignment = settings.product_card_reviews_alignment | default: 'center'
+  assign product_card_reviews_justify = 'center'
+  if product_card_reviews_alignment == 'left'
+    assign product_card_reviews_justify = 'flex-start'
+  elsif product_card_reviews_alignment == 'right'
+    assign product_card_reviews_justify = 'flex-end'
+  endif
+
+  assign product_card_price_alignment = settings.product_card_price_alignment | default: 'center'
+  assign product_card_price_justify = 'center'
+  if product_card_price_alignment == 'left'
+    assign product_card_price_justify = 'flex-start'
+  elsif product_card_price_alignment == 'right'
+    assign product_card_price_justify = 'flex-end'
+  endif
+
   assign product_card_brand_icon_render_size = settings.product_card_brand_icon_size | times: 2
 -%}
 
@@ -104,31 +136,48 @@
   <div
     class="card__container"
     data-card-hover="{{ settings.product_card_hover_animation }}"
+    data-card-copy-animation="{{ settings.product_card_content_animation }}"
     style="
       --aspect-ratio: {{ aspect_ratio }};
       --product-card-gap: {{ settings.product_card_vertical_gap }}px;
+      --product-card-animation-duration: {{ settings.product_card_animation_duration }}ms;
       --product-card-brand-font: {{ product_card_brand_font }};
       --product-card-brand-size: {{ settings.product_card_brand_size }}px;
       --product-card-brand-weight: {{ settings.product_card_brand_weight }};
+      --product-card-brand-style: {{ settings.product_card_brand_style }};
       --product-card-brand-transform: {{ settings.product_card_brand_transform }};
+      --product-card-brand-letter-spacing: {{ settings.product_card_brand_letter_spacing }}px;
       --product-card-brand-color: {{ settings.product_card_brand_color }};
       --product-card-brand-icon-size: {{ settings.product_card_brand_icon_size }}px;
+      --product-card-brand-align: {{ product_card_brand_alignment }};
+      --product-card-brand-justify: {{ product_card_brand_justify }};
       --product-card-title-font: {{ product_card_title_font }};
       --product-card-title-size: {{ settings.product_card_title_size }}px;
       --product-card-title-weight: {{ settings.product_card_title_weight }};
+      --product-card-title-style: {{ settings.product_card_title_style }};
       --product-card-title-color: {{ settings.product_card_title_color }};
       --product-card-title-hover-color: {{ settings.product_card_title_hover_color }};
+      --product-card-title-align: {{ product_card_title_alignment }};
+      --product-card-title-justify: {{ product_card_title_justify }};
       --product-card-reviews-font: {{ product_card_reviews_font }};
       --product-card-reviews-size: {{ settings.product_card_reviews_size }}px;
       --product-card-reviews-weight: {{ settings.product_card_reviews_weight }};
+      --product-card-reviews-style: {{ settings.product_card_reviews_style }};
       --product-card-reviews-color: {{ settings.product_card_reviews_color }};
       --product-card-star-size: {{ settings.product_card_review_star_size }}px;
+      --product-card-star-color: {{ settings.product_card_review_star_color }};
+      --product-card-star-empty-color: {{ settings.product_card_review_star_empty_color }};
+      --product-card-reviews-align: {{ product_card_reviews_alignment }};
+      --product-card-reviews-justify: {{ product_card_reviews_justify }};
       --product-card-price-font: {{ product_card_price_font }};
       --product-card-price-size: {{ settings.product_card_price_size }}px;
       --product-card-price-weight: {{ settings.product_card_price_weight }};
+      --product-card-price-style: {{ settings.product_card_price_style }};
       --product-card-price-color: {{ settings.product_card_price_color }};
       --product-card-price-sale-color: {{ settings.product_card_price_sale_color }};
       --product-card-price-compare-color: {{ settings.product_card_price_compare_color }};
+      --product-card-price-align: {{ product_card_price_alignment }};
+      --product-card-price-justify: {{ product_card_price_justify }};
       --product-card-image-radius: {{ settings.product_card_image_radius }}px;
     "
   >
@@ -347,11 +396,9 @@
       {% endif %}
     </div>
 
-    <div
-      class="card card--product-meta{% if text_alignment %} card--{{ text_alignment }}{% endif %}"
-    >
+    <div class="card card--product-meta">
       {% if show_brand_row %}
-        <p class="card__subtitle card__subtitle--brand">
+        <p class="card__subtitle card__subtitle--brand card__meta-row card__meta-row--brand">
           {% if settings.product_card_brand_icon != blank %}
             <span class="card__subtitle-icon" aria-hidden="true">
               {{
@@ -373,7 +420,7 @@
         </p>
       {% endif %}
 
-      <{{ title_tag }} class="card__title">
+      <{{ title_tag }} class="card__title card__meta-row card__meta-row--title">
         <a
           href="{{ url }}"
           tabindex="-1"
@@ -388,11 +435,13 @@
       </{{ title_tag }}>
 
       {% if show_reviews_row %}
-        {% render 'rating', reviews: reviews, text_alignment: text_alignment %}
+        <div class="card__reviews card__meta-row card__meta-row--reviews">
+          {% render 'rating', reviews: reviews, text_alignment: settings.product_card_reviews_alignment %}
+        </div>
       {% endif %}
 
       {% if price and collection_list != true %}
-        <div class="card__price">
+        <div class="card__price card__meta-row card__meta-row--price">
           {% if price_old -%}
             <span class="card__price__old">{{ price_old }}</span>
           {%- endif %}
@@ -403,7 +452,7 @@
           {% endif %}
         </div>
       {% elsif product and collection_list != true %}
-        <div class="card__price">
+        <div class="card__price card__meta-row card__meta-row--price">
           {% render 'price', product: product, show_compare_at_price: true, price_class: '' %}
         </div>
       {% endif %}
