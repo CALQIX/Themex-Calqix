@@ -93,6 +93,63 @@ class PageHeaderSection extends HTMLElement {
     }
   }
 
+  getRootPath() {
+    return new URL(
+      window.Shopify?.routes?.root || "/",
+      window.location.origin,
+    ).pathname;
+  }
+
+  isHomeUrl(url) {
+    return url.pathname === this.getRootPath() || url.pathname === "/";
+  }
+
+  forceScrollToTop() {
+    try {
+      window.history.scrollRestoration = "manual";
+    } catch (error) {}
+
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+    if (document.documentElement) {
+      document.documentElement.scrollTop = 0;
+    }
+
+    if (document.body) {
+      document.body.scrollTop = 0;
+    }
+  }
+
+  scheduleHomeTopReset() {
+    const run = () => {
+      window.requestAnimationFrame(() => {
+        this.forceScrollToTop();
+        window.setTimeout(() => this.forceScrollToTop(), 0);
+        window.setTimeout(() => this.forceScrollToTop(), 120);
+      });
+    };
+
+    run();
+    window.addEventListener("pageshow", run, { once: true });
+  }
+
+  initHomePageTopBehavior() {
+    const currentUrl = new URL(window.location.href);
+    if (!this.isHomeUrl(currentUrl) || currentUrl.hash) return;
+
+    let shouldForceTop = true;
+
+    try {
+      if (window.sessionStorage.getItem(this.forceHomeTopStorageKey) === "true") {
+        window.sessionStorage.removeItem(this.forceHomeTopStorageKey);
+      }
+    } catch (error) {}
+
+    if (shouldForceTop) {
+      this.scheduleHomeTopReset();
+    }
+  }
+
   enableStickyHeader() {
     if (!this.header) {
       console.error("Header element not found for enabling sticky header");
@@ -255,27 +312,13 @@ class PageHeaderSection extends HTMLElement {
     if (!logoLink) return;
 
     const targetUrl = new URL(logoLink.href, window.location.origin);
-    const currentUrl = new URL(window.location.href);
-    const isHomeTarget =
-      targetUrl.pathname === new URL(window.Shopify?.routes?.root || "/", window.location.origin).pathname ||
-      targetUrl.pathname === "/";
+    const isHomeTarget = this.isHomeUrl(targetUrl);
 
     if (!isHomeTarget) return;
 
-    try {
-      if (
-        window.sessionStorage.getItem(this.forceHomeTopStorageKey) === "true" &&
-        document.documentElement
-      ) {
-        window.requestAnimationFrame(() => {
-          window.scrollTo(0, 0);
-          window.history.scrollRestoration = "manual";
-          window.sessionStorage.removeItem(this.forceHomeTopStorageKey);
-        });
-      }
-    } catch (error) {}
-
     logoLink.addEventListener("click", (event) => {
+      const currentUrl = new URL(window.location.href);
+
       try {
         window.sessionStorage.setItem(this.forceHomeTopStorageKey, "true");
       } catch (error) {}
@@ -287,7 +330,7 @@ class PageHeaderSection extends HTMLElement {
 
       if (samePage) {
         event.preventDefault();
-        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        this.scheduleHomeTopReset();
       }
     });
   }
@@ -324,6 +367,7 @@ class PageHeaderSection extends HTMLElement {
   }
 
   init() {
+    this.initHomePageTopBehavior();
     this.initHomeLogoLinkBehavior();
     if (this.isSticky) {
       this.enableStickyHeader();
