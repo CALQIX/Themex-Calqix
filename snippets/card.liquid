@@ -32,6 +32,62 @@
   else
     assign card_alt = title | escape
   endif
+
+  assign product_card_brand_font = 'var(--font-base)'
+  if settings.product_card_brand_font == 'heading'
+    assign product_card_brand_font = 'var(--font-headings)'
+  elsif settings.product_card_brand_font == 'price'
+    assign product_card_brand_font = 'var(--font-price)'
+  elsif settings.product_card_brand_font == 'dm_serif'
+    assign product_card_brand_font = '"DM Serif Display", Georgia, serif'
+  elsif settings.product_card_brand_font == 'dm_sans'
+    assign product_card_brand_font = '"DM Sans", sans-serif'
+  endif
+
+  assign product_card_title_font = 'var(--font-base)'
+  if settings.product_card_title_font == 'heading'
+    assign product_card_title_font = 'var(--font-headings)'
+  elsif settings.product_card_title_font == 'price'
+    assign product_card_title_font = 'var(--font-price)'
+  elsif settings.product_card_title_font == 'dm_serif'
+    assign product_card_title_font = '"DM Serif Display", Georgia, serif'
+  elsif settings.product_card_title_font == 'dm_sans'
+    assign product_card_title_font = '"DM Sans", sans-serif'
+  endif
+
+  assign product_card_reviews_font = 'var(--font-base)'
+  if settings.product_card_reviews_font == 'heading'
+    assign product_card_reviews_font = 'var(--font-headings)'
+  elsif settings.product_card_reviews_font == 'price'
+    assign product_card_reviews_font = 'var(--font-price)'
+  elsif settings.product_card_reviews_font == 'dm_serif'
+    assign product_card_reviews_font = '"DM Serif Display", Georgia, serif'
+  elsif settings.product_card_reviews_font == 'dm_sans'
+    assign product_card_reviews_font = '"DM Sans", sans-serif'
+  endif
+
+  assign product_card_price_font = 'var(--font-price)'
+  if settings.product_card_price_font == 'heading'
+    assign product_card_price_font = 'var(--font-headings)'
+  elsif settings.product_card_price_font == 'base'
+    assign product_card_price_font = 'var(--font-base)'
+  elsif settings.product_card_price_font == 'dm_serif'
+    assign product_card_price_font = '"DM Serif Display", Georgia, serif'
+  elsif settings.product_card_price_font == 'dm_sans'
+    assign product_card_price_font = '"DM Sans", sans-serif'
+  endif
+
+  assign show_brand_row = false
+  if settings.product_card_show_brand and subtitle != blank
+    assign show_brand_row = true
+  endif
+
+  assign show_reviews_row = false
+  if settings.product_card_show_reviews and rating and reviews and collection_list != true
+    assign show_reviews_row = true
+  endif
+
+  assign product_card_brand_icon_render_size = settings.product_card_brand_icon_size | times: 2
 -%}
 
 {%- assign title_tag = title_tag | default: 'h3' -%}
@@ -45,7 +101,37 @@
     data-active-filters
   {% endif %}
 >
-  <div class="card__container" style="--aspect-ratio: {{ aspect_ratio }};">
+  <div
+    class="card__container"
+    data-card-hover="{{ settings.product_card_hover_animation }}"
+    style="
+      --aspect-ratio: {{ aspect_ratio }};
+      --product-card-gap: {{ settings.product_card_vertical_gap }}px;
+      --product-card-brand-font: {{ product_card_brand_font }};
+      --product-card-brand-size: {{ settings.product_card_brand_size }}px;
+      --product-card-brand-weight: {{ settings.product_card_brand_weight }};
+      --product-card-brand-transform: {{ settings.product_card_brand_transform }};
+      --product-card-brand-color: {{ settings.product_card_brand_color }};
+      --product-card-brand-icon-size: {{ settings.product_card_brand_icon_size }}px;
+      --product-card-title-font: {{ product_card_title_font }};
+      --product-card-title-size: {{ settings.product_card_title_size }}px;
+      --product-card-title-weight: {{ settings.product_card_title_weight }};
+      --product-card-title-color: {{ settings.product_card_title_color }};
+      --product-card-title-hover-color: {{ settings.product_card_title_hover_color }};
+      --product-card-reviews-font: {{ product_card_reviews_font }};
+      --product-card-reviews-size: {{ settings.product_card_reviews_size }}px;
+      --product-card-reviews-weight: {{ settings.product_card_reviews_weight }};
+      --product-card-reviews-color: {{ settings.product_card_reviews_color }};
+      --product-card-star-size: {{ settings.product_card_review_star_size }}px;
+      --product-card-price-font: {{ product_card_price_font }};
+      --product-card-price-size: {{ settings.product_card_price_size }}px;
+      --product-card-price-weight: {{ settings.product_card_price_weight }};
+      --product-card-price-color: {{ settings.product_card_price_color }};
+      --product-card-price-sale-color: {{ settings.product_card_price_sale_color }};
+      --product-card-price-compare-color: {{ settings.product_card_price_compare_color }};
+      --product-card-image-radius: {{ settings.product_card_image_radius }}px;
+    "
+  >
     <div class="card__picture-container">
       <a
         href="{{ url | default: '#' }}"
@@ -262,12 +348,21 @@
     </div>
 
     <div
-      class="card{% if text_alignment %} card--{{ text_alignment }}{% endif %}"
+      class="card card--product-meta{% if text_alignment %} card--{{ text_alignment }}{% endif %}"
     >
-      {% if section.settings.show_vendor == true %}
-        <p class="card__subtitle">
+      {% if show_brand_row %}
+        <p class="card__subtitle card__subtitle--brand">
+          {% if settings.product_card_brand_icon != blank %}
+            <span class="card__subtitle-icon" aria-hidden="true">
+              {{
+                settings.product_card_brand_icon
+                | image_url: width: product_card_brand_icon_render_size
+                | image_tag: widths: '20, 28, 40, 56, 64', class: 'card__subtitle-icon-image', alt: ''
+              }}
+            </span>
+          {% endif %}
           {% if enable_vendor_link %}
-            <a class="vendor-link" href="/collections/vendors?q={{ product.vendor }}">
+            <a class="vendor-link" href="{{ routes.collections_url }}/vendors?q={{ product.vendor | url_encode }}">
           {% endif %}
 
           {{ subtitle }}
@@ -276,10 +371,6 @@
             </a>
           {% endif %}
         </p>
-      {% endif %}
-
-      {% if show_vendor_prop == true %}
-        <p class="card__subtitle">{{ subtitle }}</p>
       {% endif %}
 
       <{{ title_tag }} class="card__title">
@@ -295,25 +386,26 @@
         {% endif %}
       </a>
       </{{ title_tag }}>
+
+      {% if show_reviews_row %}
+        {% render 'rating', reviews: reviews, text_alignment: text_alignment %}
+      {% endif %}
+
       {% if price and collection_list != true %}
         <div class="card__price">
           {% if price_old -%}
             <span class="card__price__old">{{ price_old }}</span>
           {%- endif %}
           {% if settings.currency_code_enabled %}
-            {{ price | money_with_currency }}
+            <span class="card__price__current">{{ price | money_with_currency }}</span>
           {% else %}
-            {{ price | money }}
+            <span class="card__price__current">{{ price | money }}</span>
           {% endif %}
         </div>
       {% elsif product and collection_list != true %}
         <div class="card__price">
           {% render 'price', product: product, show_compare_at_price: true, price_class: '' %}
         </div>
-      {% endif %}
-
-      {% if rating and reviews %}
-        {% render 'rating', reviews: reviews, text_alignment: text_alignment %}
       {% endif %}
     </div>
 

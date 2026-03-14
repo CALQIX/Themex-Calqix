@@ -723,57 +723,57 @@
       {
         "type": "liquid",
         "id": "fontfaces",
-        "label": "t:settings_schema.typography.settings.fontfaces.label",
+        "label": "t:settings_schema.typography.settings.fontfaces.label"
       },
       {
         "type": "text",
         "id": "custom_font_base",
-        "label": "t:settings_schema.typography.settings.base_font_name.label",
+        "label": "t:settings_schema.typography.settings.base_font_name.label"
       },
       {
         "type": "text",
         "id": "custom_font_base_weight",
-        "label": "t:settings_schema.typography.settings.base_font_weight.label",
+        "label": "t:settings_schema.typography.settings.base_font_weight.label"
       },
       {
         "type": "text",
         "id": "custom_font_heading",
-        "label": "t:settings_schema.typography.settings.heading_font_name.label",
+        "label": "t:settings_schema.typography.settings.heading_font_name.label"
       },
       {
         "type": "text",
         "id": "custom_font_heading_weight",
-        "label": "t:settings_schema.typography.settings.heading_font_weight.label",
+        "label": "t:settings_schema.typography.settings.heading_font_weight.label"
       },
       {
         "type": "text",
         "id": "custom_font_navigation",
-        "label": "t:settings_schema.typography.settings.navigation_font_name.label",
+        "label": "t:settings_schema.typography.settings.navigation_font_name.label"
       },
       {
         "type": "text",
         "id": "custom_font_navigation_weight",
-        "label": "t:settings_schema.typography.settings.navigation_font_weight.label",
+        "label": "t:settings_schema.typography.settings.navigation_font_weight.label"
       },
       {
         "type": "text",
         "id": "custom_font_button",
-        "label": "t:settings_schema.typography.settings.button_font_name.label",
+        "label": "t:settings_schema.typography.settings.button_font_name.label"
       },
       {
         "type": "text",
         "id": "custom_font_button_weight",
-        "label": "t:settings_schema.typography.settings.button_font_weight.label",
+        "label": "t:settings_schema.typography.settings.button_font_weight.label"
       },
       {
         "type": "text",
         "id": "custom_font_price",
-        "label": "t:settings_schema.typography.settings.price_font_name.label",
+        "label": "t:settings_schema.typography.settings.price_font_name.label"
       },
       {
         "type": "text",
         "id": "custom_font_price_weight",
-        "label": "t:settings_schema.typography.settings.price_font_weight.label",
+        "label": "t:settings_schema.typography.settings.price_font_weight.label"
       }
     ]
   },
@@ -1924,6 +1924,308 @@
         "type": "text",
         "id": "custom-badge-4-label",
         "label": "t:settings_schema.product-badges.settings.label"
+      }
+    ]
+  },
+  {
+    "name": "Product cards",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Content visibility"
+      },
+      {
+        "type": "checkbox",
+        "id": "product_card_show_brand",
+        "default": true,
+        "label": "Show brand / vendor"
+      },
+      {
+        "type": "checkbox",
+        "id": "product_card_show_reviews",
+        "default": true,
+        "label": "Show reviews"
+      },
+      {
+        "type": "header",
+        "content": "Layout and animation"
+      },
+      {
+        "type": "select",
+        "id": "product_card_hover_animation",
+        "label": "Hover animation",
+        "default": "lift",
+        "options": [
+          {
+            "value": "none",
+            "label": "None"
+          },
+          {
+            "value": "lift",
+            "label": "Lift"
+          },
+          {
+            "value": "zoom",
+            "label": "Image zoom"
+          },
+          {
+            "value": "glow",
+            "label": "Glow"
+          }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "product_card_vertical_gap",
+        "min": 2,
+        "max": 20,
+        "step": 1,
+        "default": 8,
+        "unit": "px",
+        "label": "Spacing between text rows"
+      },
+      {
+        "type": "range",
+        "id": "product_card_image_radius",
+        "min": 0,
+        "max": 30,
+        "step": 1,
+        "default": 0,
+        "unit": "px",
+        "label": "Image corner radius"
+      },
+      {
+        "type": "image_picker",
+        "id": "product_card_brand_icon",
+        "label": "Brand icon (optional)"
+      },
+      {
+        "type": "range",
+        "id": "product_card_brand_icon_size",
+        "min": 10,
+        "max": 32,
+        "step": 1,
+        "default": 14,
+        "unit": "px",
+        "label": "Brand icon size"
+      },
+      {
+        "type": "header",
+        "content": "Brand / vendor style"
+      },
+      {
+        "type": "select",
+        "id": "product_card_brand_font",
+        "default": "base",
+        "label": "Brand font",
+        "options": [
+          { "value": "base", "label": "Base font" },
+          { "value": "heading", "label": "Heading font" },
+          { "value": "price", "label": "Price font" },
+          { "value": "dm_sans", "label": "DM Sans" },
+          { "value": "dm_serif", "label": "DM Serif Display" }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "product_card_brand_size",
+        "min": 10,
+        "max": 24,
+        "step": 1,
+        "default": 12,
+        "unit": "px",
+        "label": "Brand size"
+      },
+      {
+        "type": "select",
+        "id": "product_card_brand_weight",
+        "default": "600",
+        "label": "Brand weight",
+        "options": [
+          { "value": "400", "label": "400" },
+          { "value": "500", "label": "500" },
+          { "value": "600", "label": "600" },
+          { "value": "700", "label": "700" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "product_card_brand_transform",
+        "default": "uppercase",
+        "label": "Brand text transform",
+        "options": [
+          { "value": "none", "label": "None" },
+          { "value": "uppercase", "label": "Uppercase" }
+        ]
+      },
+      {
+        "type": "color",
+        "id": "product_card_brand_color",
+        "default": "#1A3B5C",
+        "label": "Brand color"
+      },
+      {
+        "type": "header",
+        "content": "Title style"
+      },
+      {
+        "type": "select",
+        "id": "product_card_title_font",
+        "default": "base",
+        "label": "Title font",
+        "options": [
+          { "value": "base", "label": "Base font" },
+          { "value": "heading", "label": "Heading font" },
+          { "value": "price", "label": "Price font" },
+          { "value": "dm_sans", "label": "DM Sans" },
+          { "value": "dm_serif", "label": "DM Serif Display" }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "product_card_title_size",
+        "min": 12,
+        "max": 30,
+        "step": 1,
+        "default": 16,
+        "unit": "px",
+        "label": "Title size"
+      },
+      {
+        "type": "select",
+        "id": "product_card_title_weight",
+        "default": "500",
+        "label": "Title weight",
+        "options": [
+          { "value": "400", "label": "400" },
+          { "value": "500", "label": "500" },
+          { "value": "600", "label": "600" },
+          { "value": "700", "label": "700" }
+        ]
+      },
+      {
+        "type": "color",
+        "id": "product_card_title_color",
+        "default": "#1A1F24",
+        "label": "Title color"
+      },
+      {
+        "type": "color",
+        "id": "product_card_title_hover_color",
+        "default": "#1A3B5C",
+        "label": "Title hover color"
+      },
+      {
+        "type": "header",
+        "content": "Reviews style"
+      },
+      {
+        "type": "select",
+        "id": "product_card_reviews_font",
+        "default": "base",
+        "label": "Reviews font",
+        "options": [
+          { "value": "base", "label": "Base font" },
+          { "value": "heading", "label": "Heading font" },
+          { "value": "price", "label": "Price font" },
+          { "value": "dm_sans", "label": "DM Sans" },
+          { "value": "dm_serif", "label": "DM Serif Display" }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "product_card_reviews_size",
+        "min": 10,
+        "max": 20,
+        "step": 1,
+        "default": 12,
+        "unit": "px",
+        "label": "Reviews text size"
+      },
+      {
+        "type": "select",
+        "id": "product_card_reviews_weight",
+        "default": "400",
+        "label": "Reviews text weight",
+        "options": [
+          { "value": "400", "label": "400" },
+          { "value": "500", "label": "500" },
+          { "value": "600", "label": "600" },
+          { "value": "700", "label": "700" }
+        ]
+      },
+      {
+        "type": "color",
+        "id": "product_card_reviews_color",
+        "default": "#6B7280",
+        "label": "Reviews text color"
+      },
+      {
+        "type": "range",
+        "id": "product_card_review_star_size",
+        "min": 10,
+        "max": 24,
+        "step": 1,
+        "default": 14,
+        "unit": "px",
+        "label": "Review icon size"
+      },
+      {
+        "type": "header",
+        "content": "Price style"
+      },
+      {
+        "type": "select",
+        "id": "product_card_price_font",
+        "default": "price",
+        "label": "Price font",
+        "options": [
+          { "value": "price", "label": "Price font" },
+          { "value": "base", "label": "Base font" },
+          { "value": "heading", "label": "Heading font" },
+          { "value": "dm_sans", "label": "DM Sans" },
+          { "value": "dm_serif", "label": "DM Serif Display" }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "product_card_price_size",
+        "min": 12,
+        "max": 30,
+        "step": 1,
+        "default": 16,
+        "unit": "px",
+        "label": "Price size"
+      },
+      {
+        "type": "select",
+        "id": "product_card_price_weight",
+        "default": "500",
+        "label": "Price weight",
+        "options": [
+          { "value": "400", "label": "400" },
+          { "value": "500", "label": "500" },
+          { "value": "600", "label": "600" },
+          { "value": "700", "label": "700" }
+        ]
+      },
+      {
+        "type": "color",
+        "id": "product_card_price_color",
+        "default": "#1A1F24",
+        "label": "Regular price color"
+      },
+      {
+        "type": "color",
+        "id": "product_card_price_sale_color",
+        "default": "#1A1F24",
+        "label": "Sale price color"
+      },
+      {
+        "type": "color",
+        "id": "product_card_price_compare_color",
+        "default": "#9CA3AF",
+        "label": "Compare-at price color"
       }
     ]
   },

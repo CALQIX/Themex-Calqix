@@ -21,6 +21,7 @@ class PageHeaderSection extends HTMLElement {
     this.enabledClass = "sticky-enabled";
     this.showClass = "sticky-show";
     this.desktopHeaderWithMenuBarClass = "page-header--sticky-show-menubar-lg";
+    this.forceHomeTopStorageKey = "wt-force-home-top";
   }
 
   connectedCallback() {
@@ -249,6 +250,48 @@ class PageHeaderSection extends HTMLElement {
     if (sentinel) this.stickyHeaderObserver.observe(sentinel);
   }
 
+  initHomeLogoLinkBehavior() {
+    const logoLink = this.querySelector(".wt-header__logo__link");
+    if (!logoLink) return;
+
+    const targetUrl = new URL(logoLink.href, window.location.origin);
+    const currentUrl = new URL(window.location.href);
+    const isHomeTarget =
+      targetUrl.pathname === new URL(window.Shopify?.routes?.root || "/", window.location.origin).pathname ||
+      targetUrl.pathname === "/";
+
+    if (!isHomeTarget) return;
+
+    try {
+      if (
+        window.sessionStorage.getItem(this.forceHomeTopStorageKey) === "true" &&
+        document.documentElement
+      ) {
+        window.requestAnimationFrame(() => {
+          window.scrollTo(0, 0);
+          window.history.scrollRestoration = "manual";
+          window.sessionStorage.removeItem(this.forceHomeTopStorageKey);
+        });
+      }
+    } catch (error) {}
+
+    logoLink.addEventListener("click", (event) => {
+      try {
+        window.sessionStorage.setItem(this.forceHomeTopStorageKey, "true");
+      } catch (error) {}
+
+      const samePage =
+        targetUrl.pathname === currentUrl.pathname &&
+        targetUrl.search === currentUrl.search &&
+        !targetUrl.hash;
+
+      if (samePage) {
+        event.preventDefault();
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      }
+    });
+  }
+
   disableStickyHeader() {
     if (this.header) {
       // Remove classes added by sticky header
@@ -281,6 +324,7 @@ class PageHeaderSection extends HTMLElement {
   }
 
   init() {
+    this.initHomeLogoLinkBehavior();
     if (this.isSticky) {
       this.enableStickyHeader();
     } else {
