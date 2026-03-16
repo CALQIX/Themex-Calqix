@@ -2375,6 +2375,126 @@
         "id": "product_card_price_compare_color",
         "default": "#9CA3AF",
         "label": "Compare-at price color"
+      },
+      {
+        "type": "select",
+        "id": "product_card_sale_price_layout",
+        "default": "compare_first",
+        "label": "Sale price order",
+        "options": [
+          { "value": "compare_first", "label": "Old price first, current price second" },
+          { "value": "current_first", "label": "Current price first, old price second" }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "product_card_show_discount_percentage",
+        "default": true,
+        "label": "Show discount percentage"
+      },
+      {
+        "type": "range",
+        "id": "product_card_price_gap",
+        "min": 0,
+        "max": 20,
+        "step": 1,
+        "default": 8,
+        "unit": "px",
+        "label": "Price item spacing"
+      },
+      {
+        "type": "header",
+        "content": "Compare-at price style"
+      },
+      {
+        "type": "range",
+        "id": "product_card_price_compare_size",
+        "min": 10,
+        "max": 30,
+        "step": 1,
+        "default": 16,
+        "unit": "px",
+        "label": "Compare-at price size"
+      },
+      {
+        "type": "select",
+        "id": "product_card_price_compare_style",
+        "default": "normal",
+        "label": "Compare-at price font style",
+        "options": [
+          { "value": "normal", "label": "Normal" },
+          { "value": "italic", "label": "Italic" }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "product_card_price_compare_weight",
+        "default": "400",
+        "label": "Compare-at price weight",
+        "options": [
+          { "value": "400", "label": "400" },
+          { "value": "500", "label": "500" },
+          { "value": "600", "label": "600" },
+          { "value": "700", "label": "700" }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "product_card_price_compare_opacity",
+        "min": 10,
+        "max": 100,
+        "step": 5,
+        "default": 60,
+        "unit": "%",
+        "label": "Compare-at price opacity"
+      },
+      {
+        "type": "color",
+        "id": "product_card_price_compare_line_color",
+        "default": "#9CA3AF",
+        "label": "Compare-at line color"
+      },
+      {
+        "type": "range",
+        "id": "product_card_price_compare_line_thickness",
+        "min": 1,
+        "max": 4,
+        "step": 1,
+        "default": 1,
+        "unit": "px",
+        "label": "Compare-at line thickness"
+      },
+      {
+        "type": "header",
+        "content": "Discount percentage style"
+      },
+      {
+        "type": "color",
+        "id": "product_card_price_discount_color",
+        "default": "#6B7280",
+        "label": "Discount percentage color"
+      },
+      {
+        "type": "range",
+        "id": "product_card_price_discount_size",
+        "min": 10,
+        "max": 20,
+        "step": 1,
+        "default": 12,
+        "unit": "px",
+        "label": "Discount percentage size"
+      },
+      {
+        "type": "select",
+        "id": "product_card_price_discount_weight",
+        "default": "500",
+        "label": "Discount percentage weight",
+        "options": [
+          { "value": "400", "label": "400" },
+          { "value": "500", "label": "500" },
+          { "value": "600", "label": "600" },
+          { "value": "700", "label": "700" }
+        ]
       }
     ]
   },

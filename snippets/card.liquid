@@ -120,6 +120,8 @@
   endif
 
   assign product_card_brand_icon_render_size = settings.product_card_brand_icon_size | times: 2
+  assign product_card_show_discount_percentage = settings.product_card_show_discount_percentage
+  assign product_card_sale_price_layout = settings.product_card_sale_price_layout | default: 'compare_first'
 -%}
 
 {%- assign title_tag = title_tag | default: 'h3' -%}
@@ -176,6 +178,16 @@
       --product-card-price-color: {{ settings.product_card_price_color }};
       --product-card-price-sale-color: {{ settings.product_card_price_sale_color }};
       --product-card-price-compare-color: {{ settings.product_card_price_compare_color }};
+      --product-card-price-gap: {{ settings.product_card_price_gap }}px;
+      --product-card-price-compare-size: {{ settings.product_card_price_compare_size }}px;
+      --product-card-price-compare-weight: {{ settings.product_card_price_compare_weight }};
+      --product-card-price-compare-style: {{ settings.product_card_price_compare_style }};
+      --product-card-price-compare-opacity: {{ settings.product_card_price_compare_opacity }};
+      --product-card-price-compare-line-color: {{ settings.product_card_price_compare_line_color }};
+      --product-card-price-compare-line-thickness: {{ settings.product_card_price_compare_line_thickness }}px;
+      --product-card-price-discount-color: {{ settings.product_card_price_discount_color }};
+      --product-card-price-discount-size: {{ settings.product_card_price_discount_size }}px;
+      --product-card-price-discount-weight: {{ settings.product_card_price_discount_weight }};
       --product-card-price-align: {{ product_card_price_alignment }};
       --product-card-price-justify: {{ product_card_price_justify }};
       --product-card-image-radius: {{ settings.product_card_image_radius }}px;
@@ -442,18 +454,58 @@
 
       {% if price and collection_list != true %}
         <div class="card__price card__meta-row card__meta-row--price">
-          {% if price_old -%}
-            <span class="card__price__old">{{ price_old }}</span>
-          {%- endif %}
+          {% if price_old and product_card_sale_price_layout == 'compare_first' %}
+            <s class="card__price__compare">{{ price_old }}</s>
+          {% endif %}
           {% if settings.currency_code_enabled %}
             <span class="card__price__current">{{ price | money_with_currency }}</span>
           {% else %}
             <span class="card__price__current">{{ price | money }}</span>
           {% endif %}
+          {% if price_old and product_card_sale_price_layout == 'current_first' %}
+            <s class="card__price__compare">{{ price_old }}</s>
+          {% endif %}
         </div>
       {% elsif product and collection_list != true %}
-        <div class="card__price card__meta-row card__meta-row--price">
-          {% render 'price', product: product, show_compare_at_price: true, price_class: '' %}
+        {%- liquid
+          assign card_price_product = product | default: card_product
+          assign card_compare_at_price = card_price_product.compare_at_price
+          assign card_current_price = card_price_product.price | default: 1999
+          assign card_money_price = card_current_price | money
+          assign card_money_compare = card_compare_at_price | money
+          if settings.currency_code_enabled
+            assign card_money_price = card_current_price | money_with_currency
+            assign card_money_compare = card_compare_at_price | money_with_currency
+          endif
+          if card_price_product.price_varies
+            assign card_money_price = 'products.product.price.from_price_html' | t: price: card_money_price
+          endif
+          assign card_product_on_sale = false
+          if card_compare_at_price > card_current_price and card_price_product.quantity_price_breaks_configured? != true
+            assign card_product_on_sale = true
+          endif
+          assign show_card_compare_price = card_product_on_sale
+          if card_price_product.price_varies == false and card_price_product.compare_at_price_varies
+            assign show_card_compare_price = false
+          endif
+          assign card_discount_percentage = 0
+          if show_card_compare_price and card_compare_at_price > 0
+            assign card_discount_percentage = card_compare_at_price | minus: card_current_price | times: 100 | divided_by: card_compare_at_price
+          endif
+        -%}
+        <div class="card__price card__meta-row card__meta-row--price{% if card_product_on_sale %} card__price--on-sale{% endif %}">
+          {% if show_card_compare_price and product_card_sale_price_layout == 'compare_first' %}
+            <s class="card__price__compare">{{ card_money_compare }}</s>
+          {% endif %}
+          <span class="card__price__current{% if card_product_on_sale %} card__price__current--sale{% endif %}">
+            {{ card_money_price }}
+          </span>
+          {% if show_card_compare_price and product_card_show_discount_percentage %}
+            <span class="card__price__discount">-{{ card_discount_percentage }}%</span>
+          {% endif %}
+          {% if show_card_compare_price and product_card_sale_price_layout == 'current_first' %}
+            <s class="card__price__compare">{{ card_money_compare }}</s>
+          {% endif %}
         </div>
       {% endif %}
     </div>
