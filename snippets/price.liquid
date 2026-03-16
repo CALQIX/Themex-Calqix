@@ -72,32 +72,54 @@
         </span>
       {%- endif -%}
     </div>
-    <div class="price__sale {% if compare_at_price > price and main_product != true %}visible{% endif %} {%if compare_at_price > price and main_product %}visible-main-product{%endif%}">
-      <div class="price__sale__details-wrapper">
-        <span class="price-item price-item--sale price-item--last wt-product__price__final">
-          {{ money_price }}
-        </span>
-        {% if compare_at_price > price %}
+    <div class="price__sale {% if compare_at_price > price and main_product != true %}visible{% endif %} {% if compare_at_price > price and main_product %}visible-main-product price__sale--main-product{% endif %}">
+      {% if main_product and compare_at_price > price %}
+        <div class="price__sale__details-wrapper">
+          <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.regular_price' | t }}</span>
+          <span>
+            <s class="price-item price-item--regular wt-product__price__compare {% if compare_at_price <= price %}hidden{% endif %}">
+              {% if settings.currency_code_enabled %}
+                {{ compare_at_price | money_with_currency }}
+              {% else %}
+                {{ compare_at_price | money }}
+              {% endif %}
+            </s>
+          </span>
+          <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.sale_price' | t }}</span>
+          <span class="price-item price-item--sale price-item--last wt-product__price__final">
+            {{ money_price }}
+          </span>
           <span class="price-item--percent">
             -{{ compare_at_price | minus: price | times: 100 | divided_by: compare_at_price }}%
           </span>
-        {% endif %}
-      </div>
-      {%- unless product.price_varies == false and product.compare_at_price_varies %}
-        <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.sale_price' | t }}</span>
-        <div class="price__details">
-          <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.regular_price' | t }}</span>
         </div>
-        <span>
-          <s class="price-item price-item--regular {% if main_product != true %}price-item--lower{% endif %} wt-product__price__compare {% if compare_at_price <= price %}hidden{% endif %}">
-            {% if settings.currency_code_enabled %}
-              {{ compare_at_price | money_with_currency }}
-            {% else %}
-              {{ compare_at_price | money }}
-            {% endif %}
-          </s>
-        </span>
-      {%- endunless -%}
+      {% else %}
+        <div class="price__sale__details-wrapper">
+          <span class="price-item price-item--sale price-item--last wt-product__price__final">
+            {{ money_price }}
+          </span>
+          {% if compare_at_price > price %}
+            <span class="price-item--percent">
+              -{{ compare_at_price | minus: price | times: 100 | divided_by: compare_at_price }}%
+            </span>
+          {% endif %}
+        </div>
+        {%- unless product.price_varies == false and product.compare_at_price_varies %}
+          <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.sale_price' | t }}</span>
+          <div class="price__details">
+            <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.regular_price' | t }}</span>
+          </div>
+          <span>
+            <s class="price-item price-item--regular {% if main_product != true %}price-item--lower{% endif %} wt-product__price__compare {% if compare_at_price <= price %}hidden{% endif %}">
+              {% if settings.currency_code_enabled %}
+                {{ compare_at_price | money_with_currency }}
+              {% else %}
+                {{ compare_at_price | money }}
+              {% endif %}
+            </s>
+          </span>
+        {%- endunless -%}
+      {% endif %}
     </div>
     <small class="unit-price caption{% if product.selected_or_first_available_variant.unit_price_measurement == nil %} hidden{% endif %}">
       <span class="visually-hidden">{{ 'products.product.price.unit_price' | t }}</span>

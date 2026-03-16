@@ -88,6 +88,26 @@ body[class^="template-product"] .wt-product__info .wt-product__price {
   margin: 0 0 8px;
 }
 
+body[class^="template-product"] .wt-product__info .wt-product__price .price__sale--main-product {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__price .price__sale--main-product .price__sale__details-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__price .price__sale--main-product .wt-product__price__final,
+body[class^="template-product"] .wt-product__info .wt-product__price .price__sale--main-product .wt-product__price__compare,
+body[class^="template-product"] .wt-product__info .wt-product__price .price__sale--main-product .price-item--percent {
+  white-space: nowrap;
+}
+
 body[class^="template-product"] .wt-product__info .wt-product__price .price__regular .price-item,
 body[class^="template-product"] .wt-product__info .wt-product__price .price__sale .price-item,
 body[class^="template-product"] .wt-product__info .wt-product__price .price-item--sale,
@@ -115,6 +135,12 @@ body[class^="template-product"] .wt-product__info .wt-product__add-to-cart_form-
   gap: 12px;
   align-items: center;
   margin-bottom: 12px;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__add-to-cart,
+body[class^="template-product"] .wt-product__info .wt-product__add-to-cart_form.form,
+body[class^="template-product"] .wt-product__info .wt-product__add-to-cart_form--wrapper.product-form__buttons {
+  width: 100%;
 }
 
 body[class^="template-product"] .wt-product__info .counter-wrapper .counter {
@@ -168,6 +194,11 @@ body[class^="template-product"] .wt-product__info .wt-product__add-to-cart_form 
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__add-to-cart_form .product-form__submit.button--full-width {
+  width: auto;
+  flex: 1 1 auto;
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__add-to-cart_form .product-form__submit:hover {
@@ -267,7 +298,77 @@ body[class^="template-product"] .wt-product__info .wt-collapse__target--text str
 
 @media (max-width: 960px) {
   body[class^="template-product"] .wt-product__info .wt-product__name {
-    font-size: 32px;
+    font-size: 30px;
+  }
+
+  body[class^="template-product"] .wt-product__info .calqix-product-subtitle {
+    margin-bottom: 16px;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__price .price__sale--main-product,
+  body[class^="template-product"] .wt-product__info .wt-product__price .price__sale--main-product .price__sale__details-wrapper {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__price .price__sale--main-product .price-item--percent {
+    flex-shrink: 0;
+  }
+
+  body[class^="template-product"] .wt-product__info .calqix-colour-switcher-block {
+    margin: 0 0 10px !important;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__add-to-cart_form--wrapper.product-form__buttons {
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__add-to-cart .counter-wrapper {
+    width: 100px;
+    min-width: 100px;
+    flex: 0 0 100px;
+  }
+
+  body[class^="template-product"] .wt-product__info .counter-wrapper .counter {
+    width: 100%;
+    height: 54px;
+  }
+
+  body[class^="template-product"] .wt-product__info .counter-wrapper .counter button,
+  body[class^="template-product"] .wt-product__info .counter-wrapper .counter input.js-counter-quantity {
+    width: 33.333%;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__add-to-cart_form .product-form__submit {
+    height: 54px;
+    min-width: 0;
+    padding: 0 16px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__add-to-cart_form .product-form__submit span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body[class^="template-product"] .wt-product__info .calqix-buyitnow {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  body[class^="template-product"] .wt-product__info .calqix-trust-badges-block .ctb-grid > .ctb-badge:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: 220px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
