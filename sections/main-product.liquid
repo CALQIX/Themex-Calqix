@@ -88,10 +88,94 @@
         --font-text-scale: {{ block.settings.size_text_mobile | divided_by: 100.0 }};
     }
     {%- when 'price' -%}
+    {% assign mp_price_font_family = '"DM Serif Display", Georgia, serif' %}
+    {% case block.settings.price_font_family %}
+      {% when 'theme_price' %}
+        {% assign mp_price_font_family = 'var(--font-price)' %}
+      {% when 'theme_heading' %}
+        {% assign mp_price_font_family = 'var(--font-headline)' %}
+      {% when 'theme_body' %}
+        {% assign mp_price_font_family = 'var(--font-base)' %}
+      {% when 'dm_sans' %}
+        {% assign mp_price_font_family = '"DM Sans", sans-serif' %}
+    {% endcase %}
+    {% if block.settings.price_custom_font_family != blank %}
+      {% assign mp_price_font_family = block.settings.price_custom_font_family %}
+    {% endif %}
     [data-block-id="{{ block.id }}"]
     {
         --font-text-scale-desk: {{ block.settings.size_text | divided_by: 100.0 }};
         --font-text-scale: {{ block.settings.size_text_mobile | divided_by: 100.0 }};
+    }
+    #price-{{ section.id }} {
+        margin-top: {{ block.settings.price_margin_top }}px;
+        margin-bottom: {{ block.settings.price_margin_bottom }}px;
+    }
+    #price-{{ section.id }} .price--main-product-block .wt-product__price__final,
+    #price-{{ section.id }} .price--main-product-block .wt-product__price__compare,
+    #price-{{ section.id }} .price--main-product-block .variant-item__old-price {
+        font-family: {{ mp_price_font_family }};
+        font-style: {{ block.settings.price_font_style }};
+        font-weight: {{ block.settings.price_font_weight }};
+        letter-spacing: {{ block.settings.price_letter_spacing }}px;
+        line-height: {{ block.settings.price_line_height | divided_by: 100.0 }};
+        text-transform: {{ block.settings.price_text_transform }};
+    }
+    #price-{{ section.id }} .price--main-product-block .price__sale.visible,
+    #price-{{ section.id }} .price--main-product-block .price__sale.visible-main-product,
+    #price-{{ section.id }} .price--main-product-block .price__sale .price__sale__details-wrapper,
+    #price-{{ section.id }} .price--main-product-block .price__sale .price__details {
+        gap: {{ block.settings.price_group_gap }}px;
+    }
+    #price-{{ section.id }} .price--main-product-block.price:not(.price--on-sale) .wt-product__price__final,
+    #price-{{ section.id }} .price--main-product-block.price:not(.price--on-sale) .price__regular .price-item--regular {
+        color: {{ block.settings.price_regular_color }};
+    }
+    #price-{{ section.id }} .price--main-product-block.price.price--on-sale .price__sale .wt-product__price__final,
+    #price-{{ section.id }} .price--main-product-block.price.price--on-sale .price__sale .price-item--sale {
+        color: {{ block.settings.price_sale_color }};
+    }
+    #price-{{ section.id }} .price--main-product-block .wt-product__price__compare,
+    #price-{{ section.id }} .price--main-product-block .variant-item__old-price {
+        color: {{ block.settings.price_compare_color }};
+        text-decoration-color: {{ block.settings.price_compare_line_color }};
+        text-decoration-thickness: {{ block.settings.price_compare_line_thickness }}px;
+        opacity: {{ block.settings.price_compare_opacity | divided_by: 100.0 }};
+    }
+    #price-{{ section.id }} .price--main-product-block .wt-product__price__compare {
+        --custom-text-scale: {{ block.settings.compare_size_text_mobile | divided_by: 100.0 }};
+    }
+    #price-{{ section.id }} .price--main-product-block .variant-item__old-price {
+        font-size: calc(var(--font-base-size) * {{ block.settings.compare_size_text_mobile | divided_by: 100.0 }});
+    }
+    #price-{{ section.id }} .price--main-product-block .price__sale .price-item--percent {
+        color: {{ block.settings.discount_badge_text_color }};
+        background: {{ block.settings.discount_badge_background_color }};
+        border: {{ block.settings.discount_badge_border_width }}px solid {{ block.settings.discount_badge_border_color }};
+        border-radius: {{ block.settings.discount_badge_radius }}px;
+        padding: {{ block.settings.discount_badge_padding_vertical }}px {{ block.settings.discount_badge_padding_horizontal }}px;
+        font-family: {{ mp_price_font_family }};
+        font-size: {{ block.settings.discount_badge_font_size }}px;
+        font-style: normal;
+        font-weight: {{ block.settings.discount_badge_font_weight }};
+        line-height: 1;
+    }
+    #product-tax-{{ section.id }} {
+        color: {{ block.settings.price_note_color }};
+        font-size: {{ block.settings.price_note_size_mobile }}px;
+        line-height: 1.4;
+        margin-top: {{ block.settings.price_note_margin_top }}px;
+    }
+    @media (min-width: 900px) {
+      #price-{{ section.id }} .price--main-product-block .wt-product__price__compare {
+          --custom-text-scale: {{ block.settings.compare_size_text | divided_by: 100.0 }};
+      }
+      #price-{{ section.id }} .price--main-product-block .variant-item__old-price {
+          font-size: calc(var(--font-base-size) * {{ block.settings.compare_size_text | divided_by: 100.0 }});
+      }
+      #product-tax-{{ section.id }} {
+          font-size: {{ block.settings.price_note_size }}px;
+      }
     }
     {% when 'image' %}
     [data-block-id="{{ block.id }}"] {
@@ -1013,7 +1097,8 @@
                   product: product,
                   use_variant: true,
                   show_badges: true,
-                  price_class: 'price--large'
+                  price_class: 'price--large',
+                  price_scope_class: 'price--main-product-block'
                 -%}
               </div>
               {%- if product.quantity_price_breaks_configured? -%}
@@ -1021,7 +1106,7 @@
                   <span>{{ 'products.product.volume_pricing.note' | t }}</span>
                 </div>
               {%- endif -%}
-              <div class="product__tax caption rte {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}">
+              <div id="product-tax-{{ section.id }}" class="product__tax caption rte {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}">
                 {%- if cart.taxes_included and block.settings.show_tax_included -%}
                   {{ 'products.product.include_taxes' | t }}
                 {%- endif -%}
@@ -5231,53 +5316,366 @@
           "default": 100,
           "label": "t:sections.settings.settings.size-text-mobile.label",
           "unit": "%"
-        }
-      ]
-    },
-    {
-      "type": "separator",
-      "name": "t:sections.featured-product.blocks.separator.name",
-      "settings": [
-        {
-          "type": "checkbox",
-          "id": "show-separator-line",
-          "label": "t:sections.separator.settings.show-separator-line.label",
-          "default": true
         },
         {
           "type": "header",
-          "content": "t:sections.global.colors"
+          "content": "Price styling"
+        },
+        {
+          "type": "select",
+          "id": "price_font_family",
+          "label": "Price font family",
+          "default": "dm_serif",
+          "options": [
+            {
+              "value": "dm_serif",
+              "label": "DM Serif Display"
+            },
+            {
+              "value": "dm_sans",
+              "label": "DM Sans"
+            },
+            {
+              "value": "theme_price",
+              "label": "Theme price font"
+            },
+            {
+              "value": "theme_heading",
+              "label": "Theme heading font"
+            },
+            {
+              "value": "theme_body",
+              "label": "Theme body font"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "price_custom_font_family",
+          "label": "Custom CSS font-family override",
+          "info": "Optional. Example: Inter, sans-serif"
+        },
+        {
+          "type": "select",
+          "id": "price_font_weight",
+          "label": "Price font weight",
+          "default": "400",
+          "options": [
+            {
+              "value": "300",
+              "label": "300"
+            },
+            {
+              "value": "400",
+              "label": "400"
+            },
+            {
+              "value": "500",
+              "label": "500"
+            },
+            {
+              "value": "600",
+              "label": "600"
+            },
+            {
+              "value": "700",
+              "label": "700"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "price_font_style",
+          "label": "Price font style",
+          "default": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "label": "Normal"
+            },
+            {
+              "value": "italic",
+              "label": "Italic"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "price_text_transform",
+          "label": "Price text transform",
+          "default": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "uppercase",
+              "label": "Uppercase"
+            },
+            {
+              "value": "capitalize",
+              "label": "Capitalize"
+            },
+            {
+              "value": "lowercase",
+              "label": "Lowercase"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "price_letter_spacing",
+          "min": -2,
+          "max": 10,
+          "step": 1,
+          "default": 0,
+          "label": "Price letter spacing",
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "price_line_height",
+          "min": 80,
+          "max": 150,
+          "step": 5,
+          "default": 100,
+          "label": "Price line height",
+          "unit": "%"
         },
         {
           "type": "color",
-          "id": "color-background",
-          "default": "#000000",
-          "label": "t:sections.separator.settings.color-background.label"
+          "id": "price_regular_color",
+          "default": "#1A3B5C",
+          "label": "Regular price color"
+        },
+        {
+          "type": "color",
+          "id": "price_sale_color",
+          "default": "#1A3B5C",
+          "label": "Discounted price color"
+        },
+        {
+          "type": "color",
+          "id": "price_compare_color",
+          "default": "#1A3B5C",
+          "label": "Old price color"
+        },
+        {
+          "type": "color",
+          "id": "price_compare_line_color",
+          "default": "#1A3B5C",
+          "label": "Old price strike line color"
+        },
+        {
+          "type": "range",
+          "id": "compare_size_text",
+          "min": 50,
+          "max": 300,
+          "step": 10,
+          "default": 140,
+          "label": "Old price size desktop",
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "compare_size_text_mobile",
+          "min": 50,
+          "max": 300,
+          "step": 10,
+          "default": 100,
+          "label": "Old price size mobile",
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "price_compare_line_thickness",
+          "min": 1,
+          "max": 4,
+          "step": 1,
+          "default": 2,
+          "label": "Old price strike line thickness",
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "price_compare_opacity",
+          "min": 10,
+          "max": 100,
+          "step": 5,
+          "default": 100,
+          "label": "Old price opacity",
+          "unit": "%"
         },
         {
           "type": "header",
-          "content": "t:sections.global.section_spacing"
+          "content": "Discount badge styling"
+        },
+        {
+          "type": "color",
+          "id": "discount_badge_text_color",
+          "default": "#FFFFFF",
+          "label": "Discount badge text color"
+        },
+        {
+          "type": "color",
+          "id": "discount_badge_background_color",
+          "default": "#2B2B2B",
+          "label": "Discount badge background color"
+        },
+        {
+          "type": "color",
+          "id": "discount_badge_border_color",
+          "default": "#2B2B2B",
+          "label": "Discount badge border color"
         },
         {
           "type": "range",
-          "id": "margin-top",
+          "id": "discount_badge_border_width",
           "min": 0,
-          "max": 16,
-          "unit": "px",
-          "step": 4,
-          "default": 8,
-          "label": "t:sections.settings.settings.distance-top.label"
+          "max": 3,
+          "step": 1,
+          "default": 0,
+          "label": "Discount badge border width",
+          "unit": "px"
         },
         {
           "type": "range",
-          "id": "margin-bottom",
+          "id": "discount_badge_radius",
+          "min": 0,
+          "max": 30,
+          "step": 1,
+          "default": 7,
+          "label": "Discount badge border radius",
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "discount_badge_padding_vertical",
+          "min": 0,
+          "max": 12,
+          "step": 1,
+          "default": 4,
+          "label": "Discount badge vertical padding",
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "discount_badge_padding_horizontal",
+          "min": 0,
+          "max": 18,
+          "step": 1,
+          "default": 6,
+          "label": "Discount badge horizontal padding",
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "discount_badge_font_size",
+          "min": 8,
+          "max": 20,
+          "step": 1,
+          "default": 10,
+          "label": "Discount badge font size",
+          "unit": "px"
+        },
+        {
+          "type": "select",
+          "id": "discount_badge_font_weight",
+          "label": "Discount badge font weight",
+          "default": "600",
+          "options": [
+            {
+              "value": "400",
+              "label": "400"
+            },
+            {
+              "value": "500",
+              "label": "500"
+            },
+            {
+              "value": "600",
+              "label": "600"
+            },
+            {
+              "value": "700",
+              "label": "700"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Price note styling"
+        },
+        {
+          "type": "color",
+          "id": "price_note_color",
+          "default": "#7A7A7A",
+          "label": "Tax note color"
+        },
+        {
+          "type": "range",
+          "id": "price_note_size",
+          "min": 10,
+          "max": 18,
+          "step": 1,
+          "default": 12,
+          "label": "Tax note size desktop",
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "price_note_size_mobile",
+          "min": 10,
+          "max": 18,
+          "step": 1,
+          "default": 12,
+          "label": "Tax note size mobile",
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "price_note_margin_top",
           "min": 0,
           "max": 16,
-          "unit": "px",
-          "step": 4,
+          "step": 1,
+          "default": 4,
+          "label": "Tax note margin top",
+          "unit": "px"
+        },
+        {
+          "type": "header",
+          "content": "Spacing"
+        },
+        {
+          "type": "range",
+          "id": "price_margin_top",
+          "min": 0,
+          "max": 24,
+          "step": 2,
+          "default": 0,
+          "label": "Price margin top",
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "price_margin_bottom",
+          "min": 0,
+          "max": 24,
+          "step": 2,
           "default": 8,
-          "label": "t:sections.settings.settings.distance-bottom.label",
-          "info": "t:sections.settings.settings.distance-bottom.info"
+          "label": "Price margin bottom",
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "price_group_gap",
+          "min": 0,
+          "max": 20,
+          "step": 1,
+          "default": 4,
+          "label": "Price item gap",
+          "unit": "px"
         }
       ]
     },
