@@ -53,7 +53,38 @@
             "show_tax_included": true,
             "show_shipping_policy": false,
             "size_text": 140,
-            "size_text_mobile": 140
+            "size_text_mobile": 140,
+            "price_font_family": "dm_serif",
+            "price_custom_font_family": "",
+            "price_font_weight": "400",
+            "price_font_style": "normal",
+            "price_text_transform": "none",
+            "price_letter_spacing": 0,
+            "price_line_height": 100,
+            "price_regular_color": "#1a3b5c",
+            "price_sale_color": "#7ec850",
+            "price_compare_color": "#9b9b9b",
+            "price_compare_line_color": "#800404",
+            "compare_size_text": 100,
+            "compare_size_text_mobile": 100,
+            "price_compare_line_thickness": 3,
+            "price_compare_opacity": 50,
+            "discount_badge_text_color": "#ffffff",
+            "discount_badge_background_color": "#1a3b5c",
+            "discount_badge_border_color": "#2b2b2b",
+            "discount_badge_border_width": 0,
+            "discount_badge_radius": 7,
+            "discount_badge_padding_vertical": 4,
+            "discount_badge_padding_horizontal": 6,
+            "discount_badge_font_size": 10,
+            "discount_badge_font_weight": "500",
+            "price_note_color": "#7a7a7a",
+            "price_note_size": 12,
+            "price_note_size_mobile": 12,
+            "price_note_margin_top": 4,
+            "price_margin_top": 0,
+            "price_margin_bottom": 8,
+            "price_group_gap": 4
           }
         },
         "calqix_colour_switcher_gGdWaB": {
@@ -203,7 +234,7 @@
       ],
       "custom_css": [
         ".rte p:first-child,.rte ul:first-child,.rte li:first-child,.rte ol:first-child {margin-block-start: 0;}",
-        "body[class^=template-product] .wt-product__info .calqix-colour-switcher-block {margin: 0 0 5px !important;}"
+        "body[class^=\"template-product\"] .wt-product__info .calqix-colour-switcher-block {margin: 0 0 5px !important;}"
       ],
       "settings": {
         "enable_sticky_buy_button": true,
