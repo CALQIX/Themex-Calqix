@@ -23,18 +23,37 @@ function toSecretCandidates(secret) {
   return candidates;
 }
 
+function normalizeBase64(value) {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const normalizedValue = value.trim().replace(/-/g, '+').replace(/_/g, '/');
+
+  if (!normalizedValue) {
+    return null;
+  }
+
+  const paddedLength = Math.ceil(normalizedValue.length / 4) * 4;
+  return normalizedValue.padEnd(paddedLength, '=');
+}
+
 function verifyShopifyWebhook(rawBody, hmacHeader, secret) {
   if (!rawBody || !hmacHeader || !secret) {
     return false;
   }
 
   const bodyBuffer = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(rawBody, 'utf8');
-  const headerBuffer = Buffer.from(hmacHeader, 'utf8');
+  const normalizedHeader = normalizeBase64(hmacHeader);
+  const headerBuffer = normalizedHeader ? Buffer.from(normalizedHeader, 'base64') : null;
   const secretCandidates = toSecretCandidates(secret);
 
+  if (!headerBuffer || headerBuffer.length === 0) {
+    return false;
+  }
+
   return secretCandidates.some((candidate) => {
-    const generatedHash = crypto.createHmac('sha256', candidate).update(bodyBuffer).digest('base64');
-    const generatedBuffer = Buffer.from(generatedHash, 'utf8');
+    const generatedBuffer = crypto.createHmac('sha256', candidate).update(bodyBuffer).digest();
 
     if (generatedBuffer.length !== headerBuffer.length) {
       return false;
