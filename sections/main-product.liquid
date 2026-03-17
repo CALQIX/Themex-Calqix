@@ -1200,6 +1200,13 @@
                   {% assign bulletpoints = bulletpoints.value %}
                 {% endif %}
               {% endif %}
+              {%- if cq_is_translated_flowcore -%}
+                {%- capture cq_bp_text -%}{{ 'calqix_flowcore.main.bulletpoint_1' | t }}
+{{ 'calqix_flowcore.main.bulletpoint_2' | t }}
+{{ 'calqix_flowcore.main.bulletpoint_3' | t }}
+{{ 'calqix_flowcore.main.bulletpoint_4' | t }}{%- endcapture -%}
+                {% assign bulletpoints = cq_bp_text | strip | newline_to_br | split: '<br />' %}
+              {%- endif -%}
 
               <div
                 class="wt-product__features {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}"
@@ -3227,13 +3234,17 @@
               {% endif %}
 
             {% when 'payments_badge' %}
+              {%- assign cq_pb_content = block.settings.content -%}
+              {%- if cq_is_translated_flowcore -%}
+                {%- assign cq_pb_content = 'calqix_flowcore.main.payments_badge_content' | t -%}
+              {%- endif -%}
               <div
                 data-block-id="{{ block.id }}"
                 class=" {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}"
               >
                 <div class="wt-product__payments-badge">
                   <div class="wt-product__payments-badge__content">
-                    {{ block.settings.content }}
+                    {{ cq_pb_content }}
                   </div>
 
                   <div class="wt-product__payments-badge__icons">
