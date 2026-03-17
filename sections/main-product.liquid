@@ -121,6 +121,14 @@
         line-height: {{ block.settings.price_line_height | divided_by: 100.0 }};
         text-transform: {{ block.settings.price_text_transform }};
     }
+    #price-{{ section.id }} .price--main-product-block .wt-product__price__final {
+        font-size: calc(var(--font-base-size) * {{ block.settings.size_text_mobile | divided_by: 100.0 }});
+    }
+    @media (min-width: 900px) {
+      #price-{{ section.id }} .price--main-product-block .wt-product__price__final {
+          font-size: calc(var(--font-base-size) * {{ block.settings.size_text | divided_by: 100.0 }});
+      }
+    }
     #price-{{ section.id }} .price--main-product-block .price__sale.visible,
     #price-{{ section.id }} .price--main-product-block .price__sale.visible-main-product,
     #price-{{ section.id }} .price--main-product-block .price__sale .price__sale__details-wrapper,
