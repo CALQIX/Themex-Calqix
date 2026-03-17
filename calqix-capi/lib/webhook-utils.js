@@ -38,23 +38,9 @@ function reconstructJsonBody(body) {
   }
 }
 
-async function readRawBody(req) {
-  const rawBody = toBuffer(req && req.rawBody) || toBuffer(req && req.body);
-  if (rawBody) {
-    return rawBody;
-  }
-
-  const reconstructedBody = reconstructJsonBody(req && req.body);
-  if (reconstructedBody) {
-    return reconstructedBody;
-  }
-
+function readRequestStream(req) {
   if (!req || typeof req.on !== 'function') {
-    return null;
-  }
-
-  if (req.body && typeof req.body === 'object') {
-    return null;
+    return Promise.resolve(null);
   }
 
   return new Promise((resolve, reject) => {
@@ -72,6 +58,50 @@ async function readRawBody(req) {
   });
 }
 
+async function readRawBodyDetails(req) {
+  const directRawBody = toBuffer(req && req.rawBody);
+  if (directRawBody) {
+    return {
+      buffer: directRawBody,
+      source: 'req.rawBody'
+    };
+  }
+
+  const directBody = toBuffer(req && req.body);
+  if (directBody) {
+    return {
+      buffer: directBody,
+      source: 'req.body'
+    };
+  }
+
+  const streamedBody = await readRequestStream(req);
+  if (streamedBody && streamedBody.length > 0) {
+    return {
+      buffer: streamedBody,
+      source: 'stream'
+    };
+  }
+
+  const reconstructedBody = reconstructJsonBody(req && req.body);
+  if (reconstructedBody) {
+    return {
+      buffer: reconstructedBody,
+      source: 'reconstructed_json'
+    };
+  }
+
+  return {
+    buffer: null,
+    source: 'missing'
+  };
+}
+
+async function readRawBody(req) {
+  const result = await readRawBodyDetails(req);
+  return result.buffer;
+}
+
 function getClientIp(req) {
   const forwardedFor = getHeader(req, 'x-forwarded-for');
 
@@ -87,7 +117,8 @@ function getUserAgent(req) {
 }
 
 async function parseAndVerifyWebhook(req) {
-  const rawBody = await readRawBody(req);
+  const rawBodyDetails = await readRawBodyDetails(req);
+  const rawBody = rawBodyDetails.buffer;
   const hmacHeader = getHeader(req, 'x-shopify-hmac-sha256');
   const secret =
     typeof process.env.SHOPIFY_WEBHOOK_SECRET === 'string'
@@ -124,6 +155,14 @@ async function parseAndVerifyWebhook(req) {
   }
 
   if (!verifyShopifyWebhook(rawBody, hmacHeader, secret)) {
+    console.warn('[Webhook verification] invalid_hmac', {
+      bodySource: rawBodyDetails.source,
+      bodyLength: rawBody.length,
+      contentType: getHeader(req, 'content-type'),
+      contentLength: getHeader(req, 'content-length'),
+      hasParsedBodyObject: Boolean(req && req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body))
+    });
+
     return {
       ok: false,
       reason: 'invalid_hmac',
