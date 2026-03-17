@@ -3330,32 +3330,41 @@
         data-add-to-cart
       {% endif %}
       >
-        <button
-          aria-label="{{ 'products.product.add_to_cart' | t }}"
-          class="js-add-to-cart wt-product__sticky-buy__button button button--full-width button--secondary"
-          {% if product.has_only_default_variant and product.available %}
-            type="submit"
-            form="{{product_form_id}}"
-          {% endif %}
-        >
-          {% if settings['enable-bag-icon'] %}
-            {% render 'icons', id: 'bag' %}
-          {% endif %}
-
-          <span>
-          {% if product.has_only_default_variant and product.available %}
-              {{ 'products.product.add_to_cart' | t }}
-            {% elsif product.available == false %}
-              {{ 'products.product.sold_out' | t }}
-            {% elsif product.options.size == 1 %}
-              {{ 'products.product.choose_option' | t }}
-            {% else %}
-              {{ 'products.product.choose_options' | t }}
-            {% endif%}
-          </span>
-        </button>
+        <div class="cq-sticky__inner">
+          <div class="cq-sticky__info">
+            <span class="cq-sticky__title">{{ product.title }}</span>
+            <span class="cq-sticky__price">
+              {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+                <s class="cq-sticky__compare">{{ product.selected_or_first_available_variant.compare_at_price | money }}</s>
+              {%- endif -%}
+              {{ product.selected_or_first_available_variant.price | money }}
+            </span>
+          </div>
+          <button
+            aria-label="{{ 'products.product.add_to_cart' | t }}"
+            class="js-add-to-cart wt-product__sticky-buy__button cq-sticky__cta"
+            {% if product.has_only_default_variant and product.available %}
+              type="submit"
+              form="{{product_form_id}}"
+            {% endif %}
+          >
+            <span class="cq-sticky__cta-text">
+            {% if product.has_only_default_variant and product.available %}
+                {{ 'products.product.add_to_cart' | t }}
+              {% elsif product.available == false %}
+                {{ 'products.product.sold_out' | t }}
+              {% elsif product.options.size == 1 %}
+                {{ 'products.product.choose_option' | t }}
+              {% else %}
+                {{ 'products.product.choose_options' | t }}
+              {% endif%}
+            </span>
+          </button>
+        </div>
+        <div class="cq-sticky__trust">✓ {{ 'calqix_flowcore.main.trust_badge_1' | t }} · {{ 'calqix_flowcore.main.trust_badge_3' | t }}</div>
       </sticky-buy-button>
     {% endif %}
+
   </div>
 </section>
 
