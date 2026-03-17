@@ -7,16 +7,12 @@
 {% endfor %}
 
 {% if any_addon %}
-  <div class="wt-cart__addons" aria-label="Always perfect to have">
-    {% if settings.drawer_addons_heading != blank %}
-      <p class="wt-cart__addons__heading">{{ settings.drawer_addons_heading }}</p>
-    {% endif %}
+  <div class="wt-cart__addons" aria-label="{{ 'calqix_cart.addons_heading' | t }}">
+    <p class="wt-cart__addons__heading">{{ 'calqix_cart.addons_heading' | t }}</p>
 
     <div class="wt-cart__addons__list">
       {% for i in (1..2) %}
         {% assign show_key = 'drawer_addon_' | append: i | append: '_show' %}
-        {% assign title_key = 'drawer_addon_' | append: i | append: '_title' %}
-        {% assign text_key = 'drawer_addon_' | append: i | append: '_text' %}
         {% assign price_key = 'drawer_addon_' | append: i | append: '_price' %}
         {% assign product_key = 'drawer_addon_' | append: i | append: '_product' %}
         {% assign url_key = 'drawer_addon_' | append: i | append: '_url' %}
@@ -73,18 +69,17 @@
               data-addon-variant-id="{{ addon_product.selected_or_first_available_variant.id }}"
             {% endif %}
           >
+            {% assign cq_addon_title_key = 'calqix_cart.addon_' | append: i | append: '_title' %}
+            {% assign cq_addon_text_key = 'calqix_cart.addon_' | append: i | append: '_text' %}
+            {% assign cq_addon_price_key = 'calqix_cart.addon_' | append: i | append: '_price' %}
             <div class="wt-cart__addon-card__copy">
-              {% if settings[title_key] != blank %}
-                <p class="wt-cart__addon-card__title">{{ settings[title_key] }}</p>
-              {% endif %}
-              {% if settings[text_key] != blank %}
-                <p class="wt-cart__addon-card__text">{{ settings[text_key] }}</p>
-              {% endif %}
+              <p class="wt-cart__addon-card__title">{{ cq_addon_title_key | t }}</p>
+              <p class="wt-cart__addon-card__text">{{ cq_addon_text_key | t }}</p>
             </div>
 
             <div class="wt-cart__addon-card__actions">
               {% if settings[price_key] != blank %}
-                <span class="wt-cart__addon-card__price">{{ settings[price_key] }}</span>
+                <span class="wt-cart__addon-card__price">{{ cq_addon_price_key | t }}</span>
               {% endif %}
               {% if addon_product != blank and addon_product.selected_or_first_available_variant != blank %}
                 <product-form class="wt-cart__addon-product-form" data-hide-errors="true">
@@ -97,8 +92,8 @@
                     <button
                       type="submit"
                       class="wt-cart__addon-card__button"
-                      data-add-label="Add"
-                      data-added-label="Added"
+                      data-add-label="{{ 'calqix_cart.addon_add' | t }}"
+                      data-added-label="{{ 'calqix_cart.addon_added' | t }}"
                       {% unless addon_product.selected_or_first_available_variant.available %}
                         disabled
                       {% endunless %}
@@ -107,19 +102,19 @@
                       {% endif %}
                     >
                       {% if is_in_use %}
-                        In use
+                        {{ 'calqix_cart.addon_in_use' | t }}
                       {% elsif is_added %}
-                        Added
+                        {{ 'calqix_cart.addon_added' | t }}
                       {% elsif addon_product.selected_or_first_available_variant.available %}
-                        Add
+                        {{ 'calqix_cart.addon_add' | t }}
                       {% else %}
-                        Sold out
+                        {{ 'calqix_cart.addon_sold_out' | t }}
                       {% endif %}
                     </button>
                   </form>
                 </product-form>
               {% elsif final_url != blank %}
-                <a href="{{ final_url }}" class="wt-cart__addon-card__button">View</a>
+                <a href="{{ final_url }}" class="wt-cart__addon-card__button">{{ 'calqix_cart.addon_view' | t }}</a>
               {% endif %}
             </div>
           </article>

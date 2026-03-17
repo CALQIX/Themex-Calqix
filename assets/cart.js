@@ -688,7 +688,7 @@ class CartItems extends HTMLElement {
       fill.classList.add("wt-progress-bar__fill--complete");
       setTimeout(() => fill.classList.remove("wt-progress-bar__fill--complete"), 500);
       const text = barWrapper.querySelector(".wt-free-shipping-bar__text");
-      if (text) text.innerHTML = '<span class="wt-free-shipping-bar__success">\u{1F389} Free shipping unlocked!</span>';
+      if (text) { const successMsg = barWrapper.dataset.freeShippingSuccessText || 'Free shipping unlocked!'; text.innerHTML = `<span class="wt-free-shipping-bar__success">\u{1F389} ${successMsg}</span>`; }
       const remaining = parseInt(barWrapper.dataset.freeShippingRemainingCents || "0", 10);
       triggerShippingConfetti(previousRemaining || 0, remaining || 0, previousProgress || 0);
     }

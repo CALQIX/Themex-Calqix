@@ -13,7 +13,7 @@
   {% if cart_total_saved > 0 %}
     <div class="wt-cart__saved-row">
       <div class="wt-cart__saved-label">
-        <span class="text">Total saved</span>
+        <span class="text">{{ 'calqix_cart.total_saved' | t }}</span>
       </div>
       <div class="wt-cart__saved-value">
         {{ cart_total_saved | money_with_currency }}
@@ -111,7 +111,7 @@
   {% endif %}
 
   <span style="padding-top: 10px" class="wt-cart__subtitle__text wt-cart__subtitle__text--custom wt-cart__subtitle__text--taxes">
-    Taxes & duties included, shipping calculated at checkout.
+    {{ 'calqix_cart.taxes_duties' | t }}
   </span>
 
   {% assign show_trust_module = settings.drawer_module_trust %}

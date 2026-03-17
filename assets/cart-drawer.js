@@ -442,7 +442,8 @@ class CartDrawerSection extends HTMLElement {
       setTimeout(() => fill.classList.remove("wt-progress-bar__fill--complete"), 500);
       const text = wrapper.querySelector(".wt-free-shipping-bar__text");
       if (text) {
-        text.innerHTML = '<span class="wt-free-shipping-bar__success">\u{1F389} Free shipping unlocked!</span>';
+        const successMsg = wrapper.dataset.freeShippingSuccessText || 'Free shipping unlocked!';
+        text.innerHTML = `<span class="wt-free-shipping-bar__success">\u{1F389} ${successMsg}</span>`;
         text.classList.add("wt-free-shipping-bar__text--success");
       }
       return;

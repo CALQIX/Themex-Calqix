@@ -106,9 +106,7 @@
         {%- endfor -%}
       </div>
 
-      {%- if settings.cart_drawer_payment_show_trust_text and settings.cart_drawer_payment_trust_text != blank -%}
-        <p class="ccd-payment-trust">{{ settings.cart_drawer_payment_trust_text }}</p>
-      {%- endif -%}
+      <p class="ccd-payment-trust">{{ 'calqix_cart.trust_text' | t }}</p>
     </div>
   {%- endif -%}
 {%- endif -%}
