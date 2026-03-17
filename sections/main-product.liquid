@@ -102,11 +102,6 @@
     {% if block.settings.price_custom_font_family != blank %}
       {% assign mp_price_font_family = block.settings.price_custom_font_family %}
     {% endif %}
-    [data-block-id="{{ block.id }}"]
-    {
-        --font-text-scale-desk: {{ block.settings.size_text | divided_by: 100.0 }};
-        --font-text-scale: {{ block.settings.size_text_mobile | divided_by: 100.0 }};
-    }
     #price-{{ section.id }} {
         margin-top: {{ block.settings.price_margin_top }}px;
         margin-bottom: {{ block.settings.price_margin_bottom }}px;
@@ -122,11 +117,11 @@
         text-transform: {{ block.settings.price_text_transform }};
     }
     #price-{{ section.id }} .price--main-product-block .wt-product__price__final {
-        font-size: calc(var(--font-base-size) * {{ block.settings.size_text_mobile | divided_by: 100.0 }});
+        font-size: {{ block.settings.price_font_size_mobile }}px !important;
     }
     @media (min-width: 900px) {
       #price-{{ section.id }} .price--main-product-block .wt-product__price__final {
-          font-size: calc(var(--font-base-size) * {{ block.settings.size_text | divided_by: 100.0 }});
+          font-size: {{ block.settings.price_font_size_desktop }}px !important;
       }
     }
     #price-{{ section.id }} .price--main-product-block .price__sale.visible,
@@ -143,18 +138,19 @@
     #price-{{ section.id }} .price--main-product-block.price.price--on-sale .price__sale .price-item--sale {
         color: {{ block.settings.price_sale_color }};
     }
-    #price-{{ section.id }} .price--main-product-block .wt-product__price__compare,
-    #price-{{ section.id }} .price--main-product-block .variant-item__old-price {
-        color: {{ block.settings.price_compare_color }};
-        text-decoration-color: {{ block.settings.price_compare_line_color }};
-        text-decoration-thickness: {{ block.settings.price_compare_line_thickness }}px;
-        opacity: {{ block.settings.price_compare_opacity | divided_by: 100.0 }};
-    }
     #price-{{ section.id }} .price--main-product-block .wt-product__price__compare {
-        --custom-text-scale: {{ block.settings.compare_size_text_mobile | divided_by: 100.0 }};
+        font-size: {{ block.settings.old_price_font_size_mobile }}px !important;
     }
     #price-{{ section.id }} .price--main-product-block .variant-item__old-price {
-        font-size: calc(var(--font-base-size) * {{ block.settings.compare_size_text_mobile | divided_by: 100.0 }});
+        font-size: {{ block.settings.old_price_font_size_mobile }}px !important;
+    }
+    @media (min-width: 900px) {
+      #price-{{ section.id }} .price--main-product-block .wt-product__price__compare {
+          font-size: {{ block.settings.old_price_font_size_desktop }}px !important;
+      }
+      #price-{{ section.id }} .price--main-product-block .variant-item__old-price {
+          font-size: {{ block.settings.old_price_font_size_desktop }}px !important;
+      }
     }
     #price-{{ section.id }} .price--main-product-block .price__sale .price-item--percent {
         color: {{ block.settings.discount_badge_text_color }};
@@ -175,12 +171,6 @@
         margin-top: {{ block.settings.price_note_margin_top }}px;
     }
     @media (min-width: 900px) {
-      #price-{{ section.id }} .price--main-product-block .wt-product__price__compare {
-          --custom-text-scale: {{ block.settings.compare_size_text | divided_by: 100.0 }};
-      }
-      #price-{{ section.id }} .price--main-product-block .variant-item__old-price {
-          font-size: calc(var(--font-base-size) * {{ block.settings.compare_size_text | divided_by: 100.0 }});
-      }
       #product-tax-{{ section.id }} {
           font-size: {{ block.settings.price_note_size }}px;
       }
@@ -5308,23 +5298,23 @@
         },
         {
           "type": "range",
-          "id": "size_text",
-          "min": 50,
-          "max": 300,
-          "step": 10,
-          "default": 140,
-          "label": "t:sections.settings.settings.size-text.label",
-          "unit": "%"
+          "id": "price_font_size_desktop",
+          "min": 12,
+          "max": 60,
+          "step": 1,
+          "default": 28,
+          "label": "Price font size desktop",
+          "unit": "px"
         },
         {
           "type": "range",
-          "id": "size_text_mobile",
-          "min": 80,
-          "max": 300,
-          "step": 10,
-          "default": 100,
-          "label": "t:sections.settings.settings.size-text-mobile.label",
-          "unit": "%"
+          "id": "price_font_size_mobile",
+          "min": 12,
+          "max": 48,
+          "step": 1,
+          "default": 22,
+          "label": "Price font size mobile",
+          "unit": "px"
         },
         {
           "type": "header",
@@ -5478,23 +5468,23 @@
         },
         {
           "type": "range",
-          "id": "compare_size_text",
-          "min": 50,
-          "max": 300,
-          "step": 10,
-          "default": 140,
-          "label": "Old price size desktop",
-          "unit": "%"
+          "id": "old_price_font_size_desktop",
+          "min": 12,
+          "max": 60,
+          "step": 1,
+          "default": 22,
+          "label": "Old price font size desktop",
+          "unit": "px"
         },
         {
           "type": "range",
-          "id": "compare_size_text_mobile",
-          "min": 50,
-          "max": 300,
-          "step": 10,
-          "default": 100,
-          "label": "Old price size mobile",
-          "unit": "%"
+          "id": "old_price_font_size_mobile",
+          "min": 12,
+          "max": 48,
+          "step": 1,
+          "default": 18,
+          "label": "Old price font size mobile",
+          "unit": "px"
         },
         {
           "type": "range",
