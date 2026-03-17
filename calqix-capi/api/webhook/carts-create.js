@@ -4,9 +4,10 @@ const {
   buildContents,
   centsToMoney,
   countItems,
-  extractVariantIds,
+  extractContentIds,
   mergeCustomerData,
   parseAndVerifyWebhook,
+  resolveContentType,
   respondOk
 } = require('../../lib/webhook-utils');
 
@@ -71,8 +72,8 @@ async function handler(req, res) {
     const customData = {
       value: centsToMoney(cart.total_price),
       currency: cart.currency || 'EUR',
-      content_ids: extractVariantIds(lineItems),
-      content_type: 'product',
+      content_ids: extractContentIds(lineItems),
+      content_type: resolveContentType(lineItems),
       contents: buildContents(lineItems, getLineItemPrice),
       num_items: countItems(lineItems)
     };

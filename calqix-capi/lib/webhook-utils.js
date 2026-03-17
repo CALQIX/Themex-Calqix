@@ -226,17 +226,55 @@ function centsToMoney(value) {
   return Number((numericValue / 100).toFixed(2));
 }
 
-function extractVariantIds(lineItems = []) {
+function getCatalogItemReference(item) {
+  if (!item || typeof item !== 'object') {
+    return null;
+  }
+
+  const productId = item.product_id;
+  if (productId !== undefined && productId !== null && productId !== '') {
+    return {
+      id: String(productId),
+      type: 'product_group'
+    };
+  }
+
+  const variantId = item.variant_id;
+  if (variantId !== undefined && variantId !== null && variantId !== '') {
+    return {
+      id: String(variantId),
+      type: 'product'
+    };
+  }
+
+  return null;
+}
+
+function extractContentIds(lineItems = []) {
   return lineItems
-    .map((item) => item && item.variant_id)
-    .filter((variantId) => variantId !== undefined && variantId !== null && variantId !== '')
-    .map((variantId) => String(variantId));
+    .map((item) => getCatalogItemReference(item))
+    .filter(Boolean)
+    .map((reference) => reference.id);
+}
+
+function resolveContentType(lineItems = []) {
+  const references = lineItems
+    .map((item) => getCatalogItemReference(item))
+    .filter(Boolean);
+
+  if (references.length === 0) {
+    return 'product';
+  }
+
+  return references.every((reference) => reference.type === 'product_group') ? 'product_group' : 'product';
 }
 
 function buildContents(lineItems = [], getItemPrice) {
   return lineItems
     .map((item) => {
-      if (!item || item.variant_id === undefined || item.variant_id === null || item.variant_id === '') {
+      const reference = getCatalogItemReference(item);
+
+      if (!reference) {
         return null;
       }
 
@@ -244,7 +282,7 @@ function buildContents(lineItems = [], getItemPrice) {
       const itemPrice = getItemPrice ? getItemPrice(item) : toMoney(item.price);
 
       return {
-        id: String(item.variant_id),
+        id: reference.id,
         quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
         item_price: itemPrice
       };
@@ -267,12 +305,13 @@ module.exports = {
   buildContents,
   centsToMoney,
   countItems,
-  extractVariantIds,
+  extractContentIds,
   getClientIp,
   getUserAgent,
   mergeCustomerData,
   parseAndVerifyWebhook,
   readRawBody,
   respondOk,
+  resolveContentType,
   toMoney
 };

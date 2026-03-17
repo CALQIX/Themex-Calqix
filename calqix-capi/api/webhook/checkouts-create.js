@@ -3,10 +3,11 @@ const { sendEvent } = require('../../lib/meta-capi');
 const {
   buildContents,
   countItems,
-  extractVariantIds,
+  extractContentIds,
   mergeCustomerData,
   parseAndVerifyWebhook,
   respondOk,
+  resolveContentType,
   toMoney
 } = require('../../lib/webhook-utils');
 
@@ -94,8 +95,8 @@ async function handler(req, res) {
     const customData = {
       value: toMoney(checkout.total_price),
       currency: checkout.currency || 'EUR',
-      content_ids: extractVariantIds(lineItems),
-      content_type: 'product',
+      content_ids: extractContentIds(lineItems),
+      content_type: resolveContentType(lineItems),
       contents: buildContents(lineItems, getLineItemPrice),
       num_items: countItems(lineItems)
     };
