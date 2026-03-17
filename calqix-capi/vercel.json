@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/webhook/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/webhook/orders-paid",
+      "dest": "/api/webhook/orders-paid.js"
+    },
+    {
+      "src": "/api/webhook/checkouts-create",
+      "dest": "/api/webhook/checkouts-create.js"
+    },
+    {
+      "src": "/api/webhook/carts-create",
+      "dest": "/api/webhook/carts-create.js"
+    },
+    {
+      "src": "/api/webhook/customers-create",
+      "dest": "/api/webhook/customers-create.js"
+    }
+  ]
+}

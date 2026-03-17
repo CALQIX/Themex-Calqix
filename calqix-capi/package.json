@@ -1,0 +1,16 @@
+{
+  "name": "calqix-capi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Server-side Meta Conversions API integration for CALQIX Shopify webhooks",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "vercel dev",
+    "check": "node --check lib/hash.js && node --check lib/verify-webhook.js && node --check lib/meta-capi.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "node-fetch": "^2.7.0"
+  }
+}
