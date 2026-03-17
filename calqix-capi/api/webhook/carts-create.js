@@ -5,6 +5,8 @@ const {
   centsToMoney,
   countItems,
   extractContentIds,
+  extractExternalId,
+  extractMetaBrowserIds,
   mergeCustomerData,
   parseAndVerifyWebhook,
   resolveContentType,
@@ -36,6 +38,10 @@ function buildCartUserData(cart, fallbackIp, fallbackUserAgent) {
       country_code:
         cart &&
         ((cart.buyer_identity && cart.buyer_identity.country_code) || cart.country_code)
+    },
+    extractMetaBrowserIds(cart),
+    {
+      external_id: extractExternalId(cart)
     }
   );
 

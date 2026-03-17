@@ -4,6 +4,8 @@ const {
   buildContents,
   countItems,
   extractContentIds,
+  extractExternalId,
+  extractMetaBrowserIds,
   mergeCustomerData,
   parseAndVerifyWebhook,
   respondOk,
@@ -59,6 +61,10 @@ function buildCheckoutUserData(checkout, fallbackIp, fallbackUserAgent) {
         checkout &&
         ((checkout.billing_address && checkout.billing_address.country_code) ||
           (checkout.shipping_address && checkout.shipping_address.country_code))
+    },
+    extractMetaBrowserIds(checkout),
+    {
+      external_id: extractExternalId(checkout)
     }
   );
 

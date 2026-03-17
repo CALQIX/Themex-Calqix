@@ -3,6 +3,8 @@ const { sendEvent } = require('../../lib/meta-capi');
 const {
   buildContents,
   extractContentIds,
+  extractExternalId,
+  extractMetaBrowserIds,
   mergeCustomerData,
   parseAndVerifyWebhook,
   respondOk,
@@ -64,6 +66,10 @@ function buildOrderUserData(order, fallbackIp, fallbackUserAgent) {
           (order.customer &&
             order.customer.default_address &&
             order.customer.default_address.country_code))
+    },
+    extractMetaBrowserIds(order),
+    {
+      external_id: extractExternalId(order)
     }
   );
 

@@ -301,11 +301,47 @@ function respondOk(res, payload = { received: true }) {
   return res.status(200).json(payload);
 }
 
+function getNoteAttribute(noteAttributes, name) {
+  if (!Array.isArray(noteAttributes)) return undefined;
+
+  const entry = noteAttributes.find(
+    (attr) => attr && attr.name === name
+  );
+
+  return entry && entry.value ? entry.value : undefined;
+}
+
+function extractMetaBrowserIds(payload) {
+  if (!payload || typeof payload !== 'object') return {};
+
+  const noteAttributes =
+    payload.note_attributes || payload.attributes || [];
+
+  const fbc = getNoteAttribute(noteAttributes, '_meta_fbc');
+  const fbp = getNoteAttribute(noteAttributes, '_meta_fbp');
+
+  const result = {};
+  if (fbc) result.fbc = fbc;
+  if (fbp) result.fbp = fbp;
+  return result;
+}
+
+function extractExternalId(payload) {
+  if (!payload || typeof payload !== 'object') return undefined;
+
+  const customerId =
+    (payload.customer && payload.customer.id) || payload.customer_id;
+
+  return customerId ? String(customerId) : undefined;
+}
+
 module.exports = {
   buildContents,
   centsToMoney,
   countItems,
   extractContentIds,
+  extractExternalId,
+  extractMetaBrowserIds,
   getClientIp,
   getUserAgent,
   mergeCustomerData,

@@ -132,6 +132,10 @@ function formatUserData(customer = {}, ip, userAgent) {
   if (customer.fbc) userData.fbc = customer.fbc;
   if (customer.fbp) userData.fbp = customer.fbp;
 
+  if (customer.external_id) {
+    userData.external_id = [hash(String(customer.external_id))];
+  }
+
   return userData;
 }
 
