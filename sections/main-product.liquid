@@ -138,6 +138,13 @@
     #price-{{ section.id }} .price--main-product-block.price.price--on-sale .price__sale .price-item--sale {
         color: {{ block.settings.price_sale_color }};
     }
+    #price-{{ section.id }} .price--main-product-block .wt-product__price__compare,
+    #price-{{ section.id }} .price--main-product-block .variant-item__old-price {
+        color: {{ block.settings.price_compare_color }};
+        text-decoration-color: {{ block.settings.price_compare_line_color }};
+        text-decoration-thickness: {{ block.settings.price_compare_line_thickness }}px;
+        opacity: {{ block.settings.price_compare_opacity | divided_by: 100.0 }};
+    }
     #price-{{ section.id }} .price--main-product-block .wt-product__price__compare {
         font-size: {{ block.settings.old_price_font_size_mobile }}px !important;
     }
