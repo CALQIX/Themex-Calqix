@@ -78,7 +78,9 @@
             </div>
 
             <div class="wt-cart__addon-card__actions">
-              {% if settings[price_key] != blank %}
+              {% if addon_product != blank and is_priority_support == false %}
+                <span class="wt-cart__addon-card__price">{{ addon_product.price | money }}</span>
+              {% elsif settings[price_key] != blank %}
                 <span class="wt-cart__addon-card__price">{{ cq_addon_price_key | t }}</span>
               {% endif %}
               {% if addon_product != blank and addon_product.selected_or_first_available_variant != blank %}

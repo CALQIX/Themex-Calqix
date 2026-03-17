@@ -397,7 +397,10 @@
 }
 .wt-cart__drawer .wt-cart__item__thumb img,
 .wt-cart__drawer .wt-cart__item__thumb svg {
-  max-width: 12rem;
+  max-width: 80px;
+  width: 80px;
+  aspect-ratio: 1;
+  object-fit: cover;
 }
 .wt-cart__item__name {
   margin-top: 0;
@@ -1079,8 +1082,8 @@
 }
 .wt-cart__drawer .wt-cart__item {
   border-bottom-color: var(--calqix-border);
-  padding-top: 18px;
-  padding-bottom: 18px;
+  padding-top: 14px;
+  padding-bottom: 14px;
   transition: background-color 0.2s ease;
 }
 @media (hover: hover) {
@@ -1090,7 +1093,7 @@
 }
 .wt-cart__drawer .wt-cart__item__thumb img,
 .wt-cart__drawer .wt-cart__item__thumb svg {
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid rgba(26, 59, 92, 0.12);
   background: #f8fafc;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -1140,17 +1143,18 @@
   border: 1px solid var(--calqix-border);
   overflow: hidden;
   background: #ffffff;
-  height: 52px;
+  height: 36px;
 }
 .wt-cart__drawer .counter .js-counter-button {
   color: var(--calqix-navy-soft);
-  width: 44px;
+  width: 32px;
   height: 100%;
 }
 .wt-cart__drawer .counter .js-counter-quantity {
   color: var(--calqix-navy-soft);
   font-weight: 600;
-  width: 44px;
+  width: 32px;
+  font-size: 13px;
 }
 .wt-cart__drawer .counter-wrapper {
   position: relative;
@@ -1327,11 +1331,11 @@
     padding: 0 16px;
   }
   .wt-cart__drawer .wt-cart__item {
-    padding-top: 22px;
-    padding-bottom: 22px;
+    padding-top: 14px;
+    padding-bottom: 14px;
   }
   .wt-cart__drawer .wt-cart__item__body {
-    padding-left: 16px;
+    padding-left: 12px;
   }
   [dir=rtl] .wt-cart__drawer .wt-cart__item__body {
     padding-left: 0;
@@ -1341,15 +1345,15 @@
     line-height: 1.4;
   }
   .wt-cart__drawer .wt-cart__item__body .options {
-    margin: 10px 0 0 0;
-    line-height: 1.5;
+    margin: 4px 0 0 0;
+    line-height: 1.4;
   }
   .wt-cart__drawer .wt-cart__item__body .options .product-option {
-    margin-bottom: 6px;
+    margin-bottom: 2px;
   }
   .wt-cart__drawer .wt-cart__item__amount.cart-page {
-    margin-top: 12px;
-    row-gap: 10px;
+    margin-top: 8px;
+    row-gap: 6px;
   }
   .wt-cart__drawer .wt-cart__subtitle__text--taxes,
   .wt-cart__drawer .ccd-payment-label {
