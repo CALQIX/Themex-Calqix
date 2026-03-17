@@ -13,7 +13,11 @@ function toBuffer(value) {
 
 function getHeader(req, headerName) {
   const headers = req && req.headers ? req.headers : {};
-  const value = headers[headerName] || headers[headerName.toLowerCase()];
+  const normalizedHeaderName = String(headerName || '').toLowerCase();
+  const matchingKey = Object.keys(headers).find(
+    (key) => String(key || '').toLowerCase() === normalizedHeaderName
+  );
+  const value = matchingKey ? headers[matchingKey] : undefined;
 
   if (Array.isArray(value)) {
     return value[0];
@@ -22,10 +26,31 @@ function getHeader(req, headerName) {
   return value;
 }
 
+function reconstructJsonBody(body) {
+  if (!body || typeof body !== 'object') {
+    return null;
+  }
+
+  try {
+    return Buffer.from(JSON.stringify(body), 'utf8');
+  } catch (error) {
+    return null;
+  }
+}
+
 async function readRawBody(req) {
-  const rawBody = toBuffer(req.rawBody) || toBuffer(req.body);
+  const rawBody = toBuffer(req && req.rawBody) || toBuffer(req && req.body);
   if (rawBody) {
     return rawBody;
+  }
+
+  const reconstructedBody = reconstructJsonBody(req && req.body);
+  if (reconstructedBody) {
+    return reconstructedBody;
+  }
+
+  if (!req || typeof req.on !== 'function') {
+    return null;
   }
 
   if (req.body && typeof req.body === 'object') {
@@ -64,14 +89,35 @@ function getUserAgent(req) {
 async function parseAndVerifyWebhook(req) {
   const rawBody = await readRawBody(req);
   const hmacHeader = getHeader(req, 'x-shopify-hmac-sha256');
-  const secret = process.env.SHOPIFY_WEBHOOK_SECRET;
+  const secret =
+    typeof process.env.SHOPIFY_WEBHOOK_SECRET === 'string'
+      ? process.env.SHOPIFY_WEBHOOK_SECRET.trim()
+      : process.env.SHOPIFY_WEBHOOK_SECRET;
   const clientIp = getClientIp(req);
   const userAgent = getUserAgent(req);
 
-  if (!rawBody || !hmacHeader || !secret) {
+  if (!rawBody || rawBody.length === 0) {
     return {
       ok: false,
-      reason: 'missing_raw_body_or_hmac_or_secret',
+      reason: 'missing_raw_body',
+      clientIp,
+      userAgent
+    };
+  }
+
+  if (!hmacHeader) {
+    return {
+      ok: false,
+      reason: 'missing_hmac_header',
+      clientIp,
+      userAgent
+    };
+  }
+
+  if (!secret) {
+    return {
+      ok: false,
+      reason: 'missing_secret',
       clientIp,
       userAgent
     };
