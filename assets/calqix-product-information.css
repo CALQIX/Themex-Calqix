@@ -498,6 +498,66 @@ body[class^="template-product"] .wt-product__info .product__inventory svg circle
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   CRO: Stock Status — availability indicator above buy buttons
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes cq-stock-pulse-green {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(62, 214, 96, 0.45); }
+  50%      { box-shadow: 0 0 0 5px rgba(62, 214, 96, 0); }
+}
+
+@keyframes cq-stock-pulse-red {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+  50%      { box-shadow: 0 0 0 5px rgba(220, 53, 69, 0); }
+}
+
+body[class^="template-product"] .wt-product__info .calqix-stock-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--calqix-navy);
+  letter-spacing: 0.01em;
+}
+
+body[class^="template-product"] .wt-product__info .calqix-stock-status__dot {
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+body[class^="template-product"] .wt-product__info .calqix-stock-status--in-stock .calqix-stock-status__dot {
+  background: #3ed660;
+  animation: cq-stock-pulse-green 2.5s ease-in-out infinite;
+}
+
+body[class^="template-product"] .wt-product__info .calqix-stock-status--sold-out .calqix-stock-status__dot {
+  background: #dc3545;
+  animation: cq-stock-pulse-red 2.5s ease-in-out infinite;
+}
+
+body[class^="template-product"] .wt-product__info .calqix-stock-status--sold-out .calqix-stock-status__text {
+  color: #dc3545;
+}
+
+@media (max-width: 960px) {
+  body[class^="template-product"] .wt-product__info .calqix-stock-status {
+    font-size: 12.5px;
+    margin: 0 0 12px;
+  }
+
+  body[class^="template-product"] .wt-product__info .calqix-stock-status__dot {
+    width: 9px;
+    height: 9px;
+    min-width: 9px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
    CRO: Payment Badges — secure checkout trust strip
    ═══════════════════════════════════════════════════════════════ */
 
