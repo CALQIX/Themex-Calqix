@@ -1,0 +1,881 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign first_plan_group = product.selling_plan_groups | first
+  assign first_plan = first_plan_group.selling_plans | first
+  assign has_selling_plan = false
+  if first_plan
+    assign has_selling_plan = true
+  endif
+-%}
+
+<style>
+  /* ══════════════════════════════════════════════
+     OralBiome Pro — Variables & Reset
+     ══════════════════════════════════════════════ */
+  .ob {
+    --ob-navy: {{ section.settings.color_primary | default: '#1A3B5C' }};
+    --ob-navy-deep: #0f2438;
+    --ob-navy-light: #2e5a7d;
+    --ob-gold: {{ section.settings.color_accent | default: '#C9A84C' }};
+    --ob-gold-light: #e8c96a;
+    --ob-bg: {{ section.settings.color_background | default: '#F4F5F7' }};
+    --ob-white: #ffffff;
+    --ob-gray: #9b9b9b;
+    --ob-gray-light: #e4e4e0;
+    --ob-red: #dc3545;
+    --ob-green: #3ed660;
+    --ob-font-heading: "DM Serif Display", serif;
+    --ob-font-body: "DM Sans", sans-serif;
+    --ob-radius: 8px;
+    --ob-container: 1200px;
+    font-family: var(--ob-font-body);
+    color: var(--ob-navy);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .ob *, .ob *::before, .ob *::after { box-sizing: border-box; }
+  .ob img { max-width: 100%; height: auto; display: block; }
+  .ob__container { max-width: var(--ob-container); margin: 0 auto; padding: 0 20px; }
+
+  /* ══════════════════════════════════════════════
+     1. HERO
+     ══════════════════════════════════════════════ */
+  .ob-hero { background: var(--ob-white); padding: 40px 0; }
+  .ob-hero__inner { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
+  @media (min-width: 768px) {
+    .ob-hero__inner { grid-template-columns: 3fr 2fr; gap: 48px; }
+  }
+  .ob-hero__media { position: relative; border-radius: var(--ob-radius); overflow: hidden; background: var(--ob-bg); }
+  .ob-hero__media img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+  .ob-hero__info { display: flex; flex-direction: column; gap: 16px; }
+  .ob-hero__title {
+    font-family: var(--ob-font-heading);
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.15;
+    margin: 0;
+    color: var(--ob-navy);
+  }
+  .ob-hero__subtitle {
+    font-size: 14px;
+    color: var(--ob-gray);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  /* Rating */
+  .ob-hero__rating { display: flex; align-items: center; gap: 8px; }
+  .ob-hero__stars { display: flex; gap: 2px; color: var(--ob-gold); }
+  .ob-hero__stars svg { width: 16px; height: 16px; fill: currentColor; }
+  .ob-hero__rating-text { font-size: 13px; color: var(--ob-gray); }
+
+  /* Price */
+  .ob-hero__price { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .ob-hero__price-current {
+    font-family: var(--ob-font-heading);
+    font-size: 32px;
+    color: var(--ob-navy);
+    line-height: 1;
+  }
+  .ob-hero__price-compare {
+    font-size: 18px;
+    color: var(--ob-gray);
+    text-decoration: line-through;
+  }
+  .ob-hero__price-per { font-size: 13px; color: var(--ob-gray); }
+
+  /* Subscription toggle */
+  .ob-plan-toggle { display: flex; flex-direction: column; gap: 8px; }
+  .ob-plan-option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border: 2px solid var(--ob-gray-light);
+    border-radius: var(--ob-radius); cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .ob-plan-option:hover { border-color: var(--ob-navy-light); }
+  .ob-plan-option--active { border-color: var(--ob-gold); background: rgba(201,168,76,0.05); }
+  .ob-plan-option input { position: absolute; opacity: 0; pointer-events: none; }
+  .ob-plan-option__radio {
+    width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--ob-gray-light);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: border-color 0.2s;
+  }
+  .ob-plan-option--active .ob-plan-option__radio { border-color: var(--ob-gold); }
+  .ob-plan-option--active .ob-plan-option__radio::after {
+    content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--ob-gold);
+  }
+  .ob-plan-option__label { font-size: 14px; font-weight: 600; flex: 1; }
+  .ob-plan-option__price { font-size: 14px; font-weight: 600; color: var(--ob-navy); }
+  .ob-plan-option__badge {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    background: var(--ob-gold); color: var(--ob-white); padding: 3px 8px; border-radius: 4px;
+  }
+
+  /* Quantity */
+  .ob-hero__qty { display: flex; align-items: center; gap: 12px; }
+  .ob-hero__qty-label { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+  .ob-qty {
+    display: flex; align-items: center; border: 1px solid var(--ob-gray-light);
+    border-radius: var(--ob-radius); overflow: hidden;
+  }
+  .ob-qty__btn {
+    width: 40px; height: 40px; border: none; background: none; cursor: pointer;
+    font-size: 18px; color: var(--ob-navy); display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .ob-qty__btn:hover { background: var(--ob-bg); }
+  .ob-qty__input {
+    width: 44px; height: 40px; text-align: center; border: none; border-left: 1px solid var(--ob-gray-light);
+    border-right: 1px solid var(--ob-gray-light); font-size: 15px; font-weight: 600;
+    font-family: var(--ob-font-body); color: var(--ob-navy); background: none; outline: none;
+    -moz-appearance: textfield;
+  }
+  .ob-qty__input::-webkit-inner-spin-button,
+  .ob-qty__input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+  /* ATC */
+  @keyframes ob-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .ob-hero__atc {
+    width: 100%; height: 54px; border: none; border-radius: var(--ob-radius);
+    background: var(--ob-gold); color: var(--ob-navy);
+    font-family: var(--ob-font-body); font-size: 14px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+    position: relative; overflow: hidden; transition: transform 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .ob-hero__atc:hover {
+    transform: scale(1.015);
+    background: linear-gradient(90deg, var(--ob-gold) 0%, var(--ob-gold-light) 40%, var(--ob-gold) 80%);
+    background-size: 200% 100%;
+    animation: ob-shimmer 1.5s ease-in-out infinite;
+  }
+  .ob-hero__atc:active { transform: scale(0.98); }
+  .ob-hero__atc:disabled { opacity: 0.5; cursor: not-allowed; transform: none; animation: none; }
+  .ob-hero__atc-loader {
+    display: none; width: 20px; height: 20px; border: 2px solid rgba(26,59,92,0.2);
+    border-top-color: var(--ob-navy); border-radius: 50%;
+    animation: ob-spin 0.6s linear infinite;
+  }
+  @keyframes ob-spin { to { transform: rotate(360deg); } }
+  .ob-hero__atc--loading .ob-hero__atc-loader { display: block; }
+  .ob-hero__atc--loading .ob-hero__atc-text { display: none; }
+
+  /* Trust badges */
+  .ob-hero__trust {
+    display: flex; flex-wrap: wrap; gap: 12px; padding-top: 8px;
+    border-top: 1px solid var(--ob-gray-light); margin-top: 4px;
+  }
+  .ob-hero__trust-item {
+    display: flex; align-items: center; gap: 6px; font-size: 12px;
+    font-weight: 500; color: var(--ob-navy); letter-spacing: 0.02em;
+  }
+  .ob-hero__trust-item svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--ob-green); }
+
+  /* ══════════════════════════════════════════════
+     2. HOW IT WORKS
+     ══════════════════════════════════════════════ */
+  .ob-steps { background: var(--ob-navy); color: var(--ob-white); padding: 72px 0; }
+  .ob-steps__heading {
+    font-family: var(--ob-font-heading); font-size: clamp(26px, 3.5vw, 36px);
+    text-align: center; margin: 0 0 48px; color: var(--ob-white);
+  }
+  .ob-steps__grid { display: grid; grid-template-columns: 1fr; gap: 32px; }
+  @media (min-width: 768px) { .ob-steps__grid { grid-template-columns: repeat(3, 1fr); } }
+  .ob-step { text-align: center; }
+  .ob-step__icon {
+    width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;
+  }
+  .ob-step__icon svg { width: 32px; height: 32px; color: var(--ob-gold); }
+  .ob-step__num {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--ob-gold); margin-bottom: 8px;
+  }
+  .ob-step__title { font-family: var(--ob-font-heading); font-size: 20px; margin: 0 0 8px; }
+  .ob-step__text { font-size: 14px; color: rgba(255,255,255,0.7); max-width: 280px; margin: 0 auto; line-height: 1.6; }
+
+  /* ══════════════════════════════════════════════
+     3. SCIENCE
+     ══════════════════════════════════════════════ */
+  .ob-science { background: var(--ob-bg); padding: 72px 0; }
+  .ob-science__heading {
+    font-family: var(--ob-font-heading); font-size: clamp(26px, 3.5vw, 36px);
+    text-align: center; margin: 0 0 48px;
+  }
+  .ob-science__grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  @media (min-width: 600px) { .ob-science__grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 960px) { .ob-science__grid { grid-template-columns: repeat(4, 1fr); } }
+  .ob-strain {
+    background: var(--ob-white); border: 1px solid var(--ob-gray-light);
+    border-radius: var(--ob-radius); padding: 28px 24px;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .ob-strain:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(26,59,92,0.08); }
+  .ob-strain__icon {
+    width: 48px; height: 48px; border-radius: 50%; margin-bottom: 16px;
+    background: rgba(201,168,76,0.1); display: flex; align-items: center; justify-content: center;
+  }
+  .ob-strain__icon svg { width: 24px; height: 24px; color: var(--ob-gold); }
+  .ob-strain__name { font-family: var(--ob-font-heading); font-size: 18px; margin: 0 0 4px; }
+  .ob-strain__cfu { font-size: 11px; font-weight: 600; color: var(--ob-gold); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .ob-strain__benefit { font-size: 14px; color: var(--ob-gray); line-height: 1.5; margin: 0 0 16px; }
+  .ob-strain__toggle {
+    font-size: 13px; font-weight: 600; color: var(--ob-navy); cursor: pointer;
+    background: none; border: none; padding: 0; display: flex; align-items: center; gap: 4px;
+    font-family: var(--ob-font-body);
+  }
+  .ob-strain__toggle svg { width: 14px; height: 14px; transition: transform 0.25s; }
+  .ob-strain__toggle--open svg { transform: rotate(180deg); }
+  .ob-strain__detail {
+    max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+    font-size: 13px; color: var(--ob-gray); line-height: 1.6;
+  }
+  .ob-strain__detail--open { max-height: 200px; padding-top: 12px; }
+
+  /* ══════════════════════════════════════════════
+     4. COMPARISON
+     ══════════════════════════════════════════════ */
+  .ob-compare { background: var(--ob-white); padding: 72px 0; }
+  .ob-compare__heading {
+    font-family: var(--ob-font-heading); font-size: clamp(26px, 3.5vw, 36px);
+    text-align: center; margin: 0 0 48px;
+  }
+  .ob-compare__table {
+    width: 100%; max-width: 800px; margin: 0 auto; border-collapse: collapse;
+    border-radius: var(--ob-radius); overflow: hidden;
+    border: 1px solid var(--ob-gray-light);
+  }
+  .ob-compare__table th, .ob-compare__table td { padding: 16px 20px; text-align: left; font-size: 14px; }
+  .ob-compare__table thead th {
+    background: var(--ob-navy); color: var(--ob-white); font-weight: 600;
+    font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .ob-compare__table thead th:first-child { background: var(--ob-navy); }
+  .ob-compare__table thead th:last-child { background: var(--ob-gold); color: var(--ob-navy); }
+  .ob-compare__table tbody tr { border-bottom: 1px solid var(--ob-gray-light); }
+  .ob-compare__table tbody tr:last-child { border-bottom: none; }
+  .ob-compare__table tbody td { vertical-align: middle; }
+  .ob-compare__table tbody td:first-child { color: var(--ob-gray); }
+  .ob-compare__table tbody td:last-child { color: var(--ob-navy); font-weight: 500; }
+  .ob-compare__icon { display: inline-flex; align-items: center; gap: 8px; }
+  .ob-compare__icon svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .ob-compare__icon--x svg { color: var(--ob-red); }
+  .ob-compare__icon--check svg { color: var(--ob-green); }
+  @media (max-width: 600px) {
+    .ob-compare__table th, .ob-compare__table td { padding: 12px 14px; font-size: 13px; }
+  }
+
+  /* ══════════════════════════════════════════════
+     5. INGREDIENTS
+     ══════════════════════════════════════════════ */
+  .ob-ingredients { background: var(--ob-bg); padding: 72px 0; }
+  .ob-ingredients__heading {
+    font-family: var(--ob-font-heading); font-size: clamp(26px, 3.5vw, 36px);
+    text-align: center; margin: 0 0 16px;
+  }
+  .ob-ingredients__free {
+    text-align: center; font-size: 14px; color: var(--ob-green); font-weight: 600;
+    margin: 0 0 32px;
+  }
+  .ob-acc { max-width: 800px; margin: 0 auto; }
+  .ob-acc__item { border-bottom: 1px solid var(--ob-gray-light); }
+  .ob-acc__trigger {
+    width: 100%; background: none; border: none; padding: 20px 0; display: flex;
+    align-items: center; justify-content: space-between; cursor: pointer;
+    font-family: var(--ob-font-body); font-size: 15px; font-weight: 600; color: var(--ob-navy);
+    text-align: left;
+  }
+  .ob-acc__trigger svg {
+    width: 18px; height: 18px; color: var(--ob-gold); transition: transform 0.25s; flex-shrink: 0;
+  }
+  .ob-acc__trigger--open svg { transform: rotate(45deg); }
+  .ob-acc__content {
+    max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+    font-size: 14px; color: var(--ob-gray); line-height: 1.7;
+  }
+  .ob-acc__content--open { max-height: 500px; padding-bottom: 20px; }
+
+  /* ══════════════════════════════════════════════
+     6. REVIEWS
+     ══════════════════════════════════════════════ */
+  .ob-reviews { background: var(--ob-white); padding: 72px 0; }
+  .ob-reviews__heading {
+    font-family: var(--ob-font-heading); font-size: clamp(26px, 3.5vw, 36px);
+    text-align: center; margin: 0 0 32px;
+  }
+  .ob-reviews__empty {
+    text-align: center; padding: 48px 20px;
+    background: var(--ob-bg); border-radius: var(--ob-radius); max-width: 600px; margin: 0 auto;
+  }
+  .ob-reviews__empty p { font-size: 15px; color: var(--ob-gray); margin: 0 0 20px; }
+  .ob-reviews__empty-cta {
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px;
+    border: 2px solid var(--ob-navy); border-radius: var(--ob-radius);
+    background: none; color: var(--ob-navy); font-family: var(--ob-font-body);
+    font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s, color 0.2s; text-decoration: none;
+  }
+  .ob-reviews__empty-cta:hover { background: var(--ob-navy); color: var(--ob-white); }
+
+  /* ══════════════════════════════════════════════
+     7. FAQ
+     ══════════════════════════════════════════════ */
+  .ob-faq { background: var(--ob-bg); padding: 72px 0; }
+  .ob-faq__heading {
+    font-family: var(--ob-font-heading); font-size: clamp(26px, 3.5vw, 36px);
+    text-align: center; margin: 0 0 48px;
+  }
+
+  /* ══════════════════════════════════════════════
+     8. SUBSCRIPTION CTA
+     ══════════════════════════════════════════════ */
+  .ob-cta {
+    background: var(--ob-navy); color: var(--ob-white); padding: 72px 0; text-align: center;
+  }
+  .ob-cta__heading {
+    font-family: var(--ob-font-heading); font-size: clamp(26px, 4vw, 40px);
+    margin: 0 0 12px; color: var(--ob-white);
+  }
+  .ob-cta__sub { font-size: 16px; color: rgba(255,255,255,0.65); margin: 0 0 32px; }
+  .ob-cta__btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 16px 40px; border: none; border-radius: var(--ob-radius);
+    background: var(--ob-gold); color: var(--ob-navy);
+    font-family: var(--ob-font-body); font-size: 14px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+    transition: transform 0.2s; text-decoration: none;
+  }
+  .ob-cta__btn:hover { transform: scale(1.03); }
+
+  /* ══════════════════════════════════════════════
+     Utilities
+     ══════════════════════════════════════════════ */
+  .ob-sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); border: 0;
+  }
+</style>
+
+<div id="OralBiome-{{ section.id }}" class="ob" data-section-id="{{ section.id }}">
+
+  {%- comment -%} ═══ 1. HERO ═══ {%- endcomment -%}
+  <section class="ob-hero">
+    <div class="ob__container ob-hero__inner">
+      <div class="ob-hero__media">
+        {%- if product.featured_media -%}
+          {{ product.featured_media | image_url: width: 900 | image_tag:
+            loading: 'lazy',
+            sizes: '(min-width: 768px) 60vw, 100vw',
+            widths: '400, 600, 900, 1200',
+            alt: product.title
+          }}
+        {%- elsif section.settings.hero_image_override -%}
+          {{ section.settings.hero_image_override | image_url: width: 900 | image_tag:
+            loading: 'lazy',
+            sizes: '(min-width: 768px) 60vw, 100vw',
+            widths: '400, 600, 900, 1200',
+            alt: product.title
+          }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'ob-hero__placeholder' }}
+        {%- endif -%}
+      </div>
+
+      <div class="ob-hero__info">
+        <h1 class="ob-hero__title">{{ 'calqix_oralbiome.hero.title' | t }}</h1>
+        <p class="ob-hero__subtitle">{{ 'calqix_oralbiome.hero.subtitle' | t }}</p>
+
+        <div class="ob-hero__rating">
+          <div class="ob-hero__stars" aria-hidden="true">
+            {%- for i in (1..5) -%}
+              <svg viewBox="0 0 20 20"><path d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z"/></svg>
+            {%- endfor -%}
+          </div>
+          <span class="ob-hero__rating-text">4.8 — {{ 'calqix_oralbiome.hero.rating_text' | t }}</span>
+        </div>
+
+        <div class="ob-hero__price" data-ob-price>
+          {%- if has_selling_plan -%}
+            <span class="ob-hero__price-current" data-ob-price-sub>{{ first_plan.price | money }}</span>
+            <span class="ob-hero__price-compare" data-ob-price-once>{{ current_variant.price | money }}</span>
+            <span class="ob-hero__price-per">{{ 'calqix_oralbiome.hero.per_month' | t }}</span>
+          {%- else -%}
+            <span class="ob-hero__price-current">{{ current_variant.price | money }}</span>
+            {%- if current_variant.compare_at_price > current_variant.price -%}
+              <span class="ob-hero__price-compare">{{ current_variant.compare_at_price | money }}</span>
+            {%- endif -%}
+          {%- endif -%}
+        </div>
+
+        {%- if has_selling_plan -%}
+          <div class="ob-plan-toggle" data-ob-plan-toggle>
+            <label class="ob-plan-option ob-plan-option--active" data-ob-plan="subscribe">
+              <input type="radio" name="ob_plan" value="subscribe" checked>
+              <span class="ob-plan-option__radio"></span>
+              <span class="ob-plan-option__label">{{ 'calqix_oralbiome.hero.subscribe_label' | t }}</span>
+              <span class="ob-plan-option__badge">-20%</span>
+              <span class="ob-plan-option__price">{{ first_plan.price | money }}</span>
+            </label>
+            <label class="ob-plan-option" data-ob-plan="onetime">
+              <input type="radio" name="ob_plan" value="onetime">
+              <span class="ob-plan-option__radio"></span>
+              <span class="ob-plan-option__label">{{ 'calqix_oralbiome.hero.onetime_label' | t }}</span>
+              <span class="ob-plan-option__price">{{ current_variant.price | money }}</span>
+            </label>
+          </div>
+        {%- endif -%}
+
+        <div class="ob-hero__qty">
+          <span class="ob-hero__qty-label">{{ 'calqix_oralbiome.hero.qty_label' | t }}</span>
+          <div class="ob-qty">
+            <button type="button" class="ob-qty__btn" data-ob-qty-minus aria-label="Decrease quantity">−</button>
+            <input type="number" class="ob-qty__input" value="1" min="1" max="10" data-ob-qty-input aria-label="Quantity">
+            <button type="button" class="ob-qty__btn" data-ob-qty-plus aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="ob-hero__atc"
+          data-ob-atc
+          data-variant-id="{{ current_variant.id }}"
+          data-selling-plan-id="{{ first_plan.id | default: '' }}"
+          {% unless current_variant.available %}disabled{% endunless %}
+        >
+          <span class="ob-hero__atc-text">
+            {%- if current_variant.available -%}
+              {{ 'calqix_oralbiome.hero.add_to_cart' | t }}
+            {%- else -%}
+              {{ 'calqix_oralbiome.hero.sold_out' | t }}
+            {%- endif -%}
+          </span>
+          <span class="ob-hero__atc-loader"></span>
+        </button>
+
+        <div class="ob-hero__trust">
+          <span class="ob-hero__trust-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+            {{ 'calqix_oralbiome.hero.trust_vegan' | t }}
+          </span>
+          <span class="ob-hero__trust-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+            {{ 'calqix_oralbiome.hero.trust_sugar_free' | t }}
+          </span>
+          <span class="ob-hero__trust-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+            {{ 'calqix_oralbiome.hero.trust_clinical' | t }}
+          </span>
+          <span class="ob-hero__trust-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+            {{ 'calqix_oralbiome.hero.trust_eu' | t }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ═══ 2. HOW IT WORKS ═══ {%- endcomment -%}
+  {%- if section.settings.show_steps -%}
+  <section class="ob-steps">
+    <div class="ob__container">
+      <h2 class="ob-steps__heading">{{ 'calqix_oralbiome.steps.heading' | t }}</h2>
+      <div class="ob-steps__grid">
+        <div class="ob-step">
+          <div class="ob-step__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v6m0 0a3 3 0 003-3M12 8a3 3 0 01-3-3M7 22h10M9 22v-4a2 2 0 012-2h2a2 2 0 012 2v4"/>
+            </svg>
+          </div>
+          <div class="ob-step__num">{{ 'calqix_oralbiome.steps.step_label' | t }} 1</div>
+          <h3 class="ob-step__title">{{ 'calqix_oralbiome.steps.step1_title' | t }}</h3>
+          <p class="ob-step__text">{{ 'calqix_oralbiome.steps.step1_text' | t }}</p>
+        </div>
+        <div class="ob-step">
+          <div class="ob-step__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+            </svg>
+          </div>
+          <div class="ob-step__num">{{ 'calqix_oralbiome.steps.step_label' | t }} 2</div>
+          <h3 class="ob-step__title">{{ 'calqix_oralbiome.steps.step2_title' | t }}</h3>
+          <p class="ob-step__text">{{ 'calqix_oralbiome.steps.step2_text' | t }}</p>
+        </div>
+        <div class="ob-step">
+          <div class="ob-step__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 0118 0 9 9 0 01-18 0zm6-2c0-1.1.9-2 2-2h2c1.1 0 2 .9 2 2 0 1.5-2 2-2 3m-1 3h.01"/>
+            </svg>
+          </div>
+          <div class="ob-step__num">{{ 'calqix_oralbiome.steps.step_label' | t }} 3</div>
+          <h3 class="ob-step__title">{{ 'calqix_oralbiome.steps.step3_title' | t }}</h3>
+          <p class="ob-step__text">{{ 'calqix_oralbiome.steps.step3_text' | t }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  {%- endif -%}
+
+  {%- comment -%} ═══ 3. SCIENCE ═══ {%- endcomment -%}
+  {%- if section.settings.show_science -%}
+  <section class="ob-science">
+    <div class="ob__container">
+      <h2 class="ob-science__heading">{{ 'calqix_oralbiome.science.heading' | t }}</h2>
+      <div class="ob-science__grid">
+        {%- for i in (1..4) -%}
+          {%- capture strain_name -%}calqix_oralbiome.science.strain{{ i }}_name{%- endcapture -%}
+          {%- capture strain_cfu -%}calqix_oralbiome.science.strain{{ i }}_cfu{%- endcapture -%}
+          {%- capture strain_benefit -%}calqix_oralbiome.science.strain{{ i }}_benefit{%- endcapture -%}
+          {%- capture strain_detail -%}calqix_oralbiome.science.strain{{ i }}_detail{%- endcapture -%}
+          <div class="ob-strain">
+            <div class="ob-strain__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2m15.07-5.07l-2.83 2.83M9.76 14.24l-2.83 2.83m11.14 0l-2.83-2.83M9.76 9.76L6.93 6.93"/>
+              </svg>
+            </div>
+            <h3 class="ob-strain__name">{{ strain_name | t }}</h3>
+            <div class="ob-strain__cfu">{{ strain_cfu | t }}</div>
+            <p class="ob-strain__benefit">{{ strain_benefit | t }}</p>
+            <button type="button" class="ob-strain__toggle" data-ob-strain-toggle>
+              {{ 'calqix_oralbiome.science.learn_more' | t }}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="ob-strain__detail" data-ob-strain-detail>
+              <p>{{ strain_detail | t }}</p>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+  {%- endif -%}
+
+  {%- comment -%} ═══ 4. COMPARISON ═══ {%- endcomment -%}
+  {%- if section.settings.show_compare -%}
+  <section class="ob-compare">
+    <div class="ob__container">
+      <h2 class="ob-compare__heading">{{ 'calqix_oralbiome.compare.heading' | t }}</h2>
+      <table class="ob-compare__table">
+        <thead>
+          <tr>
+            <th>{{ 'calqix_oralbiome.compare.col_traditional' | t }}</th>
+            <th>{{ 'calqix_oralbiome.compare.col_calqix' | t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for i in (1..4) -%}
+            {%- capture row_trad -%}calqix_oralbiome.compare.row{{ i }}_trad{%- endcapture -%}
+            {%- capture row_calqix -%}calqix_oralbiome.compare.row{{ i }}_calqix{%- endcapture -%}
+            <tr>
+              <td>
+                <span class="ob-compare__icon ob-compare__icon--x">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                  {{ row_trad | t }}
+                </span>
+              </td>
+              <td>
+                <span class="ob-compare__icon ob-compare__icon--check">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                  {{ row_calqix | t }}
+                </span>
+              </td>
+            </tr>
+          {%- endfor -%}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {%- endif -%}
+
+  {%- comment -%} ═══ 5. INGREDIENTS ═══ {%- endcomment -%}
+  {%- if section.settings.show_ingredients -%}
+  <section class="ob-ingredients">
+    <div class="ob__container">
+      <h2 class="ob-ingredients__heading">{{ 'calqix_oralbiome.ingredients.heading' | t }}</h2>
+      <p class="ob-ingredients__free">{{ 'calqix_oralbiome.ingredients.free_from' | t }}</p>
+      <div class="ob-acc" data-ob-accordion>
+        <div class="ob-acc__item">
+          <button type="button" class="ob-acc__trigger" data-ob-acc-trigger>
+            <span>{{ 'calqix_oralbiome.ingredients.full_list_label' | t }}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="ob-acc__content" data-ob-acc-content>
+            <p>{{ 'calqix_oralbiome.ingredients.full_list' | t }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  {%- endif -%}
+
+  {%- comment -%} ═══ 6. REVIEWS ═══ {%- endcomment -%}
+  {%- if section.settings.show_reviews -%}
+  <section class="ob-reviews">
+    <div class="ob__container">
+      <h2 class="ob-reviews__heading">{{ 'calqix_oralbiome.reviews.heading' | t }}</h2>
+      <div id="judgeme_product_reviews" data-id="{{ product.id }}">{{ product.metafields.judgeme.widget | default: '' }}</div>
+      {%- unless product.metafields.judgeme.widget -%}
+        <div class="ob-reviews__empty">
+          <p>{{ 'calqix_oralbiome.reviews.be_first' | t }}</p>
+          <a href="#judgeme_product_reviews" class="ob-reviews__empty-cta">{{ 'calqix_oralbiome.reviews.write_review' | t }}</a>
+        </div>
+      {%- endunless -%}
+    </div>
+  </section>
+  {%- endif -%}
+
+  {%- comment -%} ═══ 7. FAQ ═══ {%- endcomment -%}
+  {%- if section.settings.show_faq -%}
+  <section class="ob-faq">
+    <div class="ob__container">
+      <h2 class="ob-faq__heading">{{ 'calqix_oralbiome.faq.heading' | t }}</h2>
+      <div class="ob-acc" data-ob-accordion>
+        {%- for i in (1..6) -%}
+          {%- capture faq_q -%}calqix_oralbiome.faq.q{{ i }}{%- endcapture -%}
+          {%- capture faq_a -%}calqix_oralbiome.faq.a{{ i }}{%- endcapture -%}
+          <div class="ob-acc__item">
+            <button type="button" class="ob-acc__trigger" data-ob-acc-trigger>
+              <span>{{ faq_q | t }}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <div class="ob-acc__content" data-ob-acc-content>
+              <p>{{ faq_a | t }}</p>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+  {%- endif -%}
+
+  {%- comment -%} ═══ 8. SUBSCRIPTION CTA ═══ {%- endcomment -%}
+  {%- if section.settings.show_cta -%}
+  <section class="ob-cta">
+    <div class="ob__container">
+      <h2 class="ob-cta__heading">{{ 'calqix_oralbiome.cta.heading' | t }}</h2>
+      <p class="ob-cta__sub">{{ 'calqix_oralbiome.cta.subtext' | t }}</p>
+      <a href="#OralBiome-{{ section.id }}" class="ob-cta__btn">{{ 'calqix_oralbiome.cta.button' | t }}</a>
+    </div>
+  </section>
+  {%- endif -%}
+
+</div>
+
+<script>
+  (function() {
+    const section = document.getElementById('OralBiome-{{ section.id }}');
+    if (!section) return;
+
+    /* ── Quantity selector ── */
+    const qtyInput = section.querySelector('[data-ob-qty-input]');
+    const qtyMinus = section.querySelector('[data-ob-qty-minus]');
+    const qtyPlus  = section.querySelector('[data-ob-qty-plus]');
+    if (qtyMinus) qtyMinus.addEventListener('click', () => {
+      const v = parseInt(qtyInput.value, 10);
+      if (v > 1) qtyInput.value = v - 1;
+    });
+    if (qtyPlus) qtyPlus.addEventListener('click', () => {
+      const v = parseInt(qtyInput.value, 10);
+      if (v < 10) qtyInput.value = v + 1;
+    });
+
+    /* ── Subscription plan toggle ── */
+    const planToggle = section.querySelector('[data-ob-plan-toggle]');
+    if (planToggle) {
+      const options = planToggle.querySelectorAll('.ob-plan-option');
+      const atcBtn  = section.querySelector('[data-ob-atc]');
+      options.forEach(opt => {
+        opt.addEventListener('click', () => {
+          options.forEach(o => o.classList.remove('ob-plan-option--active'));
+          opt.classList.add('ob-plan-option--active');
+          const radio = opt.querySelector('input');
+          radio.checked = true;
+          const isSub = radio.value === 'subscribe';
+          if (atcBtn) {
+            atcBtn.dataset.usePlan = isSub ? 'true' : 'false';
+          }
+          const priceEl = section.querySelector('[data-ob-price]');
+          if (priceEl) {
+            const subPrice  = priceEl.querySelector('[data-ob-price-sub]');
+            const oncePrice = priceEl.querySelector('[data-ob-price-once]');
+            if (subPrice && oncePrice) {
+              if (isSub) {
+                subPrice.style.display = ''; oncePrice.style.textDecoration = 'line-through';
+                subPrice.style.order = '-1';
+              } else {
+                oncePrice.style.textDecoration = 'none'; oncePrice.style.order = '-1';
+                subPrice.style.display = 'none';
+              }
+            }
+          }
+        });
+      });
+    }
+
+    /* ── AJAX Add to Cart ── */
+    const atcBtn = section.querySelector('[data-ob-atc]');
+    if (atcBtn) {
+      atcBtn.addEventListener('click', async () => {
+        if (atcBtn.disabled || atcBtn.classList.contains('ob-hero__atc--loading')) return;
+        atcBtn.classList.add('ob-hero__atc--loading');
+        const qty = parseInt(qtyInput ? qtyInput.value : 1, 10);
+        const body = {
+          id: parseInt(atcBtn.dataset.variantId, 10),
+          quantity: qty
+        };
+        const usePlan = atcBtn.dataset.usePlan !== 'false';
+        const planId = atcBtn.dataset.sellingPlanId;
+        if (usePlan && planId) body.selling_plan = parseInt(planId, 10);
+        try {
+          const res = await fetch('/cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          if (!res.ok) throw new Error('Cart error');
+          document.dispatchEvent(new CustomEvent('cart:refresh'));
+          const drawerToggle = document.querySelector('[data-cart-toggle]') || document.querySelector('.js-cart-toggle');
+          if (drawerToggle) drawerToggle.click();
+        } catch (e) {
+          console.error('[OralBiome] Add to cart failed:', e);
+        } finally {
+          atcBtn.classList.remove('ob-hero__atc--loading');
+        }
+      });
+    }
+
+    /* ── Accordions ── */
+    section.querySelectorAll('[data-ob-acc-trigger]').forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        const content = trigger.nextElementSibling;
+        const isOpen = trigger.classList.contains('ob-acc__trigger--open');
+        trigger.classList.toggle('ob-acc__trigger--open');
+        content.classList.toggle('ob-acc__content--open');
+        if (!isOpen) {
+          content.style.maxHeight = content.scrollHeight + 'px';
+        } else {
+          content.style.maxHeight = '0';
+        }
+      });
+    });
+
+    /* ── Strain detail toggles ── */
+    section.querySelectorAll('[data-ob-strain-toggle]').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const detail = toggle.nextElementSibling;
+        const isOpen = toggle.classList.contains('ob-strain__toggle--open');
+        toggle.classList.toggle('ob-strain__toggle--open');
+        detail.classList.toggle('ob-strain__detail--open');
+        if (!isOpen) {
+          detail.style.maxHeight = detail.scrollHeight + 'px';
+        } else {
+          detail.style.maxHeight = '0';
+        }
+      });
+    });
+
+    /* ── Smooth scroll for CTA ── */
+    section.querySelectorAll('.ob-cta__btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "OralBiome Pro",
+  "tag": "section",
+  "class": "ob-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "color_primary",
+      "label": "Primary color (navy)",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "color_accent",
+      "label": "Accent color (gold)",
+      "default": "#C9A84C"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "Section background",
+      "default": "#F4F5F7"
+    },
+    {
+      "type": "header",
+      "content": "Hero"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image_override",
+      "label": "Hero image override (optional)"
+    },
+    {
+      "type": "header",
+      "content": "Section visibility"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_steps",
+      "label": "Show How It Works",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_science",
+      "label": "Show Science section",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_compare",
+      "label": "Show Comparison table",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_ingredients",
+      "label": "Show Ingredients",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reviews",
+      "label": "Show Reviews",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_faq",
+      "label": "Show FAQ",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cta",
+      "label": "Show Subscription CTA",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "OralBiome Pro"
+    }
+  ]
+}
+{% endschema %}
