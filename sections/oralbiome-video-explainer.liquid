@@ -1,0 +1,170 @@
+<style>
+  .ob-video {
+    background: #0F2233;
+    padding: 48px 0;
+  }
+  .ob-video__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .ob-video__media {
+    width: 100%;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    background: rgba(255,255,255,0.05);
+  }
+  .ob-video__media img,
+  .ob-video__media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ob-video__play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 72px;
+    height: 72px;
+    background: rgba(201,168,76,0.9);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .ob-video__play-btn:hover {
+    background: #C9A84C;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+  .ob-video__play-btn svg {
+    width: 28px;
+    height: 28px;
+    margin-left: 3px;
+  }
+  .ob-video__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.05);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 20px;
+  }
+  .ob-video__content {
+    width: 100%;
+  }
+  .ob-video__eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #C9A84C;
+    margin: 0 0 12px;
+  }
+  .ob-video__heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    color: #FFFFFF;
+    margin: 0 0 16px;
+    line-height: 1.3;
+  }
+  .ob-video__body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.7;
+    margin: 0 0 20px;
+  }
+  .ob-video__cta {
+    display: inline-block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #C9A84C;
+    text-decoration: none;
+    transition: text-decoration 0.2s ease;
+  }
+  .ob-video__cta:hover { text-decoration: underline; }
+
+  @media (min-width: 1024px) {
+    .ob-video { padding: 80px 0; }
+    .ob-video__container {
+      flex-direction: row;
+      align-items: center;
+      gap: 48px;
+    }
+    .ob-video__media { width: 60%; flex-shrink: 0; }
+    .ob-video__content { width: 40%; }
+    .ob-video__heading { font-size: 28px; }
+  }
+</style>
+
+{%- assign has_video = false -%}
+{%- if section.settings.video != blank -%}
+  {%- assign has_video = true -%}
+{%- endif -%}
+
+<section class="ob-video" data-section-id="{{ section.id }}">
+  <div class="ob-video__container">
+    <div class="ob-video__media">
+      {%- if has_video -%}
+        {{ section.settings.video | video_tag: autoplay: false, loop: false, muted: false, controls: true, loading: 'lazy' }}
+      {%- elsif section.settings.cover_image != blank -%}
+        <img
+          src="{{ section.settings.cover_image | image_url: width: 800 }}"
+          srcset="{{ section.settings.cover_image | image_url: width: 480 }} 480w, {{ section.settings.cover_image | image_url: width: 800 }} 800w, {{ section.settings.cover_image | image_url: width: 1200 }} 1200w"
+          sizes="(min-width: 1024px) 60vw, 100vw"
+          alt="{{ section.settings.cover_image.alt | default: section.settings.heading | escape }}"
+          loading="lazy"
+          width="800"
+          height="450"
+        >
+        <button type="button" class="ob-video__play-btn" aria-label="{{ section.settings.play_label }}">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v18l16-9L8 5z" fill="#1A3B5C"/></svg>
+        </button>
+      {%- else -%}
+        <div class="ob-video__placeholder">{{ section.settings.placeholder_text }}</div>
+      {%- endif -%}
+    </div>
+    <div class="ob-video__content">
+      <p class="ob-video__eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="ob-video__heading">{{ section.settings.heading }}</h2>
+      <p class="ob-video__body">{{ section.settings.body }}</p>
+      {%- if section.settings.cta_text != blank -%}
+        <a href="{{ section.settings.cta_url }}" class="ob-video__cta">{{ section.settings.cta_text }} &rarr;</a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "OB Video Explainer",
+  "tag": "section",
+  "settings": [
+    { "type": "video", "id": "video", "label": "Video" },
+    { "type": "image_picker", "id": "cover_image", "label": "Cover image (if no video)" },
+    { "type": "text", "id": "play_label", "label": "Play button aria label", "default": "Play video" },
+    { "type": "text", "id": "placeholder_text", "label": "Placeholder text", "default": "Watch: How OralBiome Pro Works" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "THE SCIENCE" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Your mouth contains 700+ bacterial species. Most oral care kills them all." },
+    { "type": "textarea", "id": "body", "label": "Body text", "default": "OralBiome Pro takes a different approach. Instead of destroying your oral microbiome with antibacterial chemicals, our clinically studied probiotic strains restore the natural balance \u2014 crowding out harmful bacteria while supporting the beneficial ones that protect your teeth, gums, and breath." },
+    { "type": "text", "id": "cta_text", "label": "CTA text", "default": "Read the research" },
+    { "type": "url", "id": "cta_url", "label": "CTA link" }
+  ]
+}
+{% endschema %}

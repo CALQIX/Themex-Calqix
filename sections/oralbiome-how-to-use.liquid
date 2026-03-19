@@ -1,0 +1,210 @@
+<style>
+  .ob-howto {
+    background: #FFFFFF;
+    padding: 48px 0;
+  }
+  .ob-howto__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .ob-howto__header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .ob-howto__eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #C9A84C;
+    margin: 0 0 12px;
+  }
+  .ob-howto__heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: #1A3B5C;
+    margin: 0;
+    line-height: 1.3;
+  }
+  .ob-howto__steps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .ob-howto__step {
+    text-align: center;
+    position: relative;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  .ob-howto__step.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .ob-howto__step-visual {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 20px;
+  }
+  .ob-howto__step-number {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'DM Serif Display', serif;
+    font-size: 80px;
+    color: #C9A84C;
+    opacity: 0.12;
+    line-height: 1;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .ob-howto__step-image {
+    position: relative;
+    z-index: 1;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 2px solid #C9A84C;
+    overflow: hidden;
+    background: #F4F5F7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ob-howto__step-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ob-howto__step-image svg {
+    width: 64px;
+    height: 64px;
+  }
+  .ob-howto__step-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A3B5C;
+    margin: 0 0 8px;
+  }
+  .ob-howto__step-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: #6B7280;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .ob-howto__note {
+    text-align: center;
+    margin-top: 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-style: italic;
+    color: #6B7280;
+  }
+
+  @media (min-width: 768px) {
+    .ob-howto__steps { grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  }
+  @media (min-width: 1024px) {
+    .ob-howto { padding: 80px 0; }
+    .ob-howto__heading { font-size: 36px; }
+    .ob-howto__step-image { width: 280px; height: 280px; }
+    .ob-howto__step-number { font-size: 120px; }
+  }
+</style>
+
+<section class="ob-howto" data-section-id="{{ section.id }}">
+  <div class="ob-howto__container">
+    <div class="ob-howto__header">
+      <p class="ob-howto__eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="ob-howto__heading">{{ section.settings.heading }}</h2>
+    </div>
+    <div class="ob-howto__steps">
+      {%- for block in section.blocks -%}
+        <div class="ob-howto__step" {{ block.shopify_attributes }} style="transition-delay: {{ forloop.index0 | times: 150 }}ms">
+          <div class="ob-howto__step-visual">
+            <span class="ob-howto__step-number">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+            <div class="ob-howto__step-image">
+              {%- if block.settings.image != blank -%}
+                <img
+                  src="{{ block.settings.image | image_url: width: 560 }}"
+                  srcset="{{ block.settings.image | image_url: width: 400 }} 400w, {{ block.settings.image | image_url: width: 560 }} 560w"
+                  sizes="280px"
+                  alt="{{ block.settings.title | escape }}"
+                  loading="lazy"
+                  width="280"
+                  height="280"
+                >
+              {%- else -%}
+                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="20" stroke="#C9A84C" stroke-width="1.5" stroke-dasharray="4 3"/><text x="32" y="36" text-anchor="middle" font-family="DM Sans" font-size="14" fill="#C9A84C">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</text></svg>
+              {%- endif -%}
+            </div>
+          </div>
+          <h3 class="ob-howto__step-title">{{ block.settings.title }}</h3>
+          <p class="ob-howto__step-desc">{{ block.settings.description }}</p>
+        </div>
+      {%- endfor -%}
+    </div>
+    {%- if section.settings.note != blank -%}
+      <p class="ob-howto__note">{{ section.settings.note }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+<script>
+  (function() {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.ob-howto__step').forEach(function(step) {
+            step.classList.add('is-visible');
+          });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    var el = document.querySelector('[data-section-id="{{ section.id }}"] .ob-howto__steps');
+    if (el) observer.observe(el);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "OB How To Use",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "YOUR DAILY RITUAL" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "3 steps. 60 seconds. Done." },
+    { "type": "text", "id": "note", "label": "Note below steps", "default": "For best results, use daily before bed. Each jar contains a 30-day supply." }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Step image" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Step" },
+        { "type": "textarea", "id": "description", "label": "Description", "default": "Step description" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "OB How To Use",
+      "blocks": [
+        { "type": "step", "settings": { "title": "Brush & Floss", "description": "Complete your regular oral hygiene routine as normal." } },
+        { "type": "step", "settings": { "title": "Dissolve One Lozenge", "description": "Place one OralBiome Pro lozenge on your tongue. Let it dissolve slowly \u2014 do not chew." } },
+        { "type": "step", "settings": { "title": "Let Probiotics Colonize", "description": "Avoid eating or drinking for 30 minutes. The beneficial bacteria need time to colonize your oral cavity." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

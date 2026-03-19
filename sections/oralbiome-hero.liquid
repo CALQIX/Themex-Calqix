@@ -1,0 +1,705 @@
+{{ 'product.css' | asset_url | stylesheet_tag }}
+
+<style>
+  .ob-hero {
+    padding: 40px 0;
+    background: #FFFFFF;
+  }
+  .ob-hero__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .ob-hero__gallery {
+    width: 100%;
+  }
+  .ob-hero__main-image-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1;
+    background: #F4F5F7;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .ob-hero__main-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.4s ease;
+  }
+  .ob-hero__main-image-wrap:hover img {
+    transform: scale(1.05);
+  }
+  .ob-hero__thumbnails {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .ob-hero__thumbnails::-webkit-scrollbar { display: none; }
+  .ob-hero__thumb {
+    flex: 0 0 72px;
+    width: 72px;
+    height: 72px;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background: #F4F5F7;
+    scroll-snap-align: start;
+    transition: border-color 0.2s ease;
+  }
+  .ob-hero__thumb.is-active {
+    border-color: #C9A84C;
+  }
+  .ob-hero__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .ob-hero__info {
+    width: 100%;
+  }
+  .ob-hero__rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #1A3B5C;
+  }
+  .ob-hero__stars svg { width: 16px; height: 16px; fill: #C9A84C; }
+  .ob-hero__rating-text { font-family: 'DM Sans', sans-serif; font-size: 14px; color: #6B7280; }
+  .ob-hero__title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: #1A3B5C;
+    margin: 0 0 8px;
+    line-height: 1.2;
+  }
+  .ob-hero__subtitle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: #6B7280;
+    margin: 0 0 20px;
+  }
+  .ob-hero__benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ob-hero__benefit {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: #1A1A1A;
+    line-height: 1.4;
+  }
+  .ob-hero__benefit svg {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+  }
+  .ob-hero__divider {
+    height: 1px;
+    background: #E5E7EB;
+    margin: 0 0 20px;
+  }
+  .ob-hero__plans {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .ob-hero__plan-card {
+    position: relative;
+    border: 2px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .ob-hero__plan-card.is-active {
+    border-color: #C9A84C;
+    background: rgba(201,168,76,0.04);
+  }
+  .ob-hero__plan-card.is-active .ob-hero__plan-radio-dot {
+    background: #C9A84C;
+    box-shadow: inset 0 0 0 3px #fff, 0 0 0 2px #C9A84C;
+  }
+  .ob-hero__plan-badge {
+    position: absolute;
+    top: -11px;
+    left: 16px;
+    background: #C9A84C;
+    color: #1A3B5C;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 10px;
+    border-radius: 50px;
+  }
+  .ob-hero__plan-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .ob-hero__plan-radio {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #D1D5DB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .ob-hero__plan-radio-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+  .ob-hero__plan-label {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: #1A3B5C;
+  }
+  .ob-hero__plan-pricing {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+    padding-left: 30px;
+  }
+  .ob-hero__plan-price {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1A3B5C;
+  }
+  .ob-hero__plan-price-period {
+    font-size: 14px;
+    font-weight: 400;
+    color: #6B7280;
+  }
+  .ob-hero__plan-compare {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: #6B7280;
+    text-decoration: line-through;
+  }
+  .ob-hero__plan-save {
+    display: inline-block;
+    background: #2E7D32;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 50px;
+    text-transform: uppercase;
+  }
+  .ob-hero__plan-perday {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #6B7280;
+    padding-left: 30px;
+    margin-bottom: 12px;
+  }
+  .ob-hero__plan-benefits {
+    list-style: none;
+    padding: 0 0 0 30px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ob-hero__plan-benefit {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #1A1A1A;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ob-hero__plan-note {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #6B7280;
+    padding-left: 30px;
+    margin-top: 6px;
+  }
+  .ob-hero__frequency {
+    padding-left: 30px;
+    margin-top: 10px;
+  }
+  .ob-hero__frequency label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #6B7280;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .ob-hero__frequency select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 8px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    background: #fff;
+    color: #1A1A1A;
+    width: 100%;
+    max-width: 220px;
+    cursor: pointer;
+  }
+  .ob-hero__qty {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 16px;
+    justify-content: center;
+  }
+  .ob-hero__qty-btn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid #D1D5DB;
+    background: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1A3B5C;
+    transition: background 0.15s ease;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .ob-hero__qty-btn:first-child { border-radius: 50px 0 0 50px; }
+  .ob-hero__qty-btn:last-child { border-radius: 0 50px 50px 0; }
+  .ob-hero__qty-btn:hover { background: #F4F5F7; }
+  .ob-hero__qty-input {
+    width: 56px;
+    height: 44px;
+    border: 1px solid #D1D5DB;
+    border-left: none;
+    border-right: none;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    color: #1A3B5C;
+    -moz-appearance: textfield;
+  }
+  .ob-hero__qty-input::-webkit-inner-spin-button,
+  .ob-hero__qty-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .ob-hero__atc {
+    width: 100%;
+    height: 56px;
+    background: #C9A84C;
+    color: #1A3B5C;
+    border: none;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+  }
+  .ob-hero__atc:hover:not(:disabled) {
+    background: #b8953f;
+    transform: scale(1.02);
+  }
+  .ob-hero__atc:disabled { opacity: 0.6; cursor: not-allowed; }
+  .ob-hero__atc-spinner {
+    display: none;
+    width: 22px;
+    height: 22px;
+    border: 3px solid rgba(26,59,92,0.3);
+    border-top-color: #1A3B5C;
+    border-radius: 50%;
+    animation: ob-spin 0.6s linear infinite;
+  }
+  .ob-hero__atc.is-loading .ob-hero__atc-text { visibility: hidden; }
+  .ob-hero__atc.is-loading .ob-hero__atc-spinner { display: block; position: absolute; }
+  @keyframes ob-spin { to { transform: rotate(360deg); } }
+  .ob-hero__trust-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .ob-hero__trust-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #6B7280;
+  }
+  .ob-hero__trust-item svg { width: 16px; height: 16px; }
+  .ob-hero__guarantee {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 10px 16px;
+    background: #F4F5F7;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #1A3B5C;
+    font-weight: 600;
+  }
+  .ob-hero__guarantee svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  @media (min-width: 768px) {
+    .ob-hero__plans { flex-direction: row; }
+    .ob-hero__plan-card { flex: 1; }
+    .ob-hero__thumb { flex: 0 0 80px; width: 80px; height: 80px; }
+  }
+  @media (min-width: 1024px) {
+    .ob-hero { padding: 60px 0; }
+    .ob-hero__container { flex-direction: row; align-items: flex-start; gap: 48px; }
+    .ob-hero__gallery { width: 55%; position: sticky; top: 100px; }
+    .ob-hero__info { width: 45%; }
+    .ob-hero__title { font-size: 32px; }
+  }
+</style>
+
+<section class="ob-hero" data-section-id="{{ section.id }}">
+  <div class="ob-hero__container">
+    <div class="ob-hero__gallery">
+      <div class="ob-hero__main-image-wrap" aria-label="{{ section.settings.image_gallery_label }}">
+        {%- if product.featured_image -%}
+          <img
+            id="ob-hero-main-img"
+            src="{{ product.featured_image | image_url: width: 800 }}"
+            srcset="{{ product.featured_image | image_url: width: 400 }} 400w, {{ product.featured_image | image_url: width: 600 }} 600w, {{ product.featured_image | image_url: width: 800 }} 800w"
+            sizes="(min-width: 1024px) 55vw, 100vw"
+            alt="{{ product.featured_image.alt | escape }}"
+            loading="eager"
+            width="800"
+            height="800"
+          >
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- endif -%}
+      </div>
+      {%- if product.images.size > 1 -%}
+        <div class="ob-hero__thumbnails" role="list" aria-label="{{ section.settings.thumbnails_label }}">
+          {%- for image in product.images -%}
+            <button
+              type="button"
+              class="ob-hero__thumb{% if forloop.first %} is-active{% endif %}"
+              data-img-src="{{ image | image_url: width: 800 }}"
+              data-img-srcset="{{ image | image_url: width: 400 }} 400w, {{ image | image_url: width: 600 }} 600w, {{ image | image_url: width: 800 }} 800w"
+              data-img-alt="{{ image.alt | escape }}"
+              aria-label="{{ section.settings.thumbnail_select_label }} {{ forloop.index }}"
+              role="listitem"
+            >
+              <img
+                src="{{ image | image_url: width: 160 }}"
+                alt="{{ image.alt | escape }}"
+                loading="lazy"
+                width="80"
+                height="80"
+              >
+            </button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="ob-hero__info">
+      <a href="#oralbiome-reviews" class="ob-hero__rating" aria-label="{{ section.settings.reviews_aria_label }}">
+        <span class="ob-hero__stars">
+          {%- for i in (1..5) -%}
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z"/></svg>
+          {%- endfor -%}
+        </span>
+        <span class="ob-hero__rating-text">
+          <span class="jdgm-prev-badge" data-average-rating data-number-of-reviews></span>
+        </span>
+      </a>
+
+      <h1 class="ob-hero__title">{{ product.title }}</h1>
+      <p class="ob-hero__subtitle">{{ section.settings.subtitle }}</p>
+
+      <ul class="ob-hero__benefits">
+        <li class="ob-hero__benefit">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#C9A84C"/><path d="M6 10.5l2.5 2.5 5.5-5.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{ section.settings.benefit_1 }}
+        </li>
+        <li class="ob-hero__benefit">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#C9A84C"/><path d="M6 10.5l2.5 2.5 5.5-5.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{ section.settings.benefit_2 }}
+        </li>
+        <li class="ob-hero__benefit">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#C9A84C"/><path d="M6 10.5l2.5 2.5 5.5-5.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{ section.settings.benefit_3 }}
+        </li>
+      </ul>
+
+      <div class="ob-hero__divider"></div>
+
+      {%- assign sub_plan = nil -%}
+      {%- assign sub_plan_id = nil -%}
+      {%- for group in product.selling_plan_groups -%}
+        {%- for plan in group.selling_plans -%}
+          {%- if sub_plan == nil -%}
+            {%- assign sub_plan = plan -%}
+            {%- assign sub_plan_id = plan.id -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+
+      {%- assign current_variant = product.selected_or_first_available_variant -%}
+      {%- assign onetime_price = current_variant.price -%}
+      {%- if sub_plan -%}
+        {%- assign sub_price = onetime_price | minus: sub_plan.price_adjustments[0].value -%}
+      {%- else -%}
+        {%- assign sub_price = onetime_price -%}
+      {%- endif -%}
+
+      <div class="ob-hero__plans" role="radiogroup" aria-label="{{ section.settings.purchase_options_label }}">
+        <div class="ob-hero__plan-card is-active" data-plan="subscribe" role="radio" aria-checked="true" tabindex="0">
+          <span class="ob-hero__plan-badge">{{ section.settings.most_popular_badge }}</span>
+          <div class="ob-hero__plan-header">
+            <span class="ob-hero__plan-radio"><span class="ob-hero__plan-radio-dot"></span></span>
+            <span class="ob-hero__plan-label">{{ section.settings.subscribe_label }}</span>
+          </div>
+          <div class="ob-hero__plan-pricing">
+            <span class="ob-hero__plan-price">{{ sub_price | money }}<span class="ob-hero__plan-price-period">/{{ section.settings.month_label }}</span></span>
+            <span class="ob-hero__plan-compare">{{ onetime_price | money }}</span>
+            <span class="ob-hero__plan-save">{{ section.settings.save_badge }}</span>
+          </div>
+          <p class="ob-hero__plan-perday">{{ section.settings.per_day_text }}</p>
+          <ul class="ob-hero__plan-benefits">
+            <li class="ob-hero__plan-benefit">{{ section.settings.sub_benefit_1 }}</li>
+            <li class="ob-hero__plan-benefit">{{ section.settings.sub_benefit_2 }}</li>
+            <li class="ob-hero__plan-benefit">{{ section.settings.sub_benefit_3 }}</li>
+          </ul>
+          {%- if product.selling_plan_groups.size > 0 -%}
+            <div class="ob-hero__frequency">
+              <label for="ob-frequency-select">{{ section.settings.frequency_label }}</label>
+              <select id="ob-frequency-select" aria-label="{{ section.settings.frequency_label }}">
+                {%- for group in product.selling_plan_groups -%}
+                  {%- for plan in group.selling_plans -%}
+                    <option value="{{ plan.id }}"{% if plan.id == sub_plan_id %} selected{% endif %}>{{ plan.name }}</option>
+                  {%- endfor -%}
+                {%- endfor -%}
+              </select>
+            </div>
+          {%- endif -%}
+        </div>
+
+        <div class="ob-hero__plan-card" data-plan="onetime" role="radio" aria-checked="false" tabindex="0">
+          <div class="ob-hero__plan-header">
+            <span class="ob-hero__plan-radio"><span class="ob-hero__plan-radio-dot"></span></span>
+            <span class="ob-hero__plan-label">{{ section.settings.onetime_label }}</span>
+          </div>
+          <div class="ob-hero__plan-pricing">
+            <span class="ob-hero__plan-price">{{ onetime_price | money }}</span>
+          </div>
+          <ul class="ob-hero__plan-benefits">
+            <li class="ob-hero__plan-benefit">{{ section.settings.ot_benefit_1 }}</li>
+            <li class="ob-hero__plan-benefit">{{ section.settings.ot_benefit_2 }}</li>
+          </ul>
+          <p class="ob-hero__plan-note">{{ section.settings.onetime_note }}</p>
+        </div>
+      </div>
+
+      <div class="ob-hero__qty">
+        <button type="button" class="ob-hero__qty-btn" data-qty-change="-1" aria-label="{{ section.settings.decrease_qty_label }}">&#8722;</button>
+        <input type="number" class="ob-hero__qty-input" value="1" min="1" max="10" aria-label="{{ section.settings.qty_label }}">
+        <button type="button" class="ob-hero__qty-btn" data-qty-change="1" aria-label="{{ section.settings.increase_qty_label }}">&#43;</button>
+      </div>
+
+      <button
+        type="button"
+        class="ob-hero__atc"
+        data-variant-id="{{ current_variant.id }}"
+        {% unless current_variant.available %}disabled{% endunless %}
+        aria-label="{{ section.settings.add_to_cart_text }}"
+      >
+        <span class="ob-hero__atc-text">
+          {%- if current_variant.available -%}
+            {{ section.settings.add_to_cart_text }}
+          {%- else -%}
+            {{ section.settings.sold_out_text }}
+          {%- endif -%}
+        </span>
+        <span class="ob-hero__atc-spinner" aria-hidden="true"></span>
+      </button>
+
+      <div class="ob-hero__trust-row">
+        <span class="ob-hero__trust-item">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2C6 2 3 5 3 9c0 5 7 9 7 9s7-4 7-9c0-4-3-7-7-7z" stroke="#1A3B5C" stroke-width="1.5" fill="none"/><path d="M7.5 9l2 2 3.5-3.5" stroke="#1A3B5C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{ section.settings.trust_vegan }}
+        </span>
+        <span class="ob-hero__trust-item">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="7.5" stroke="#1A3B5C" stroke-width="1.5"/><path d="M7 10h6M10 7v6" stroke="#1A3B5C" stroke-width="1.5" stroke-linecap="round"/></svg>
+          {{ section.settings.trust_sugar_free }}
+        </span>
+        <span class="ob-hero__trust-item">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2l2.5 5h5.5l-4.5 3.5 1.5 5.5-5-3.5-5 3.5 1.5-5.5L2 7h5.5z" stroke="#1A3B5C" stroke-width="1.5" fill="none"/></svg>
+          {{ section.settings.trust_clinical }}
+        </span>
+        <span class="ob-hero__trust-item">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="14" height="14" rx="3" stroke="#1A3B5C" stroke-width="1.5"/><path d="M7 10l2 2 4-4" stroke="#1A3B5C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{ section.settings.trust_eu }}
+        </span>
+      </div>
+
+      <div class="ob-hero__guarantee">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 1L3 4.5V9c0 4.5 3 8.5 7 10 4-1.5 7-5.5 7-10V4.5L10 1z" stroke="#1A3B5C" stroke-width="1.5" fill="none"/><path d="M7 10l2 2 4-4" stroke="#1A3B5C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        {{ section.settings.guarantee_text }}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function() {
+    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!section) return;
+
+    var mainImg = section.querySelector('#ob-hero-main-img');
+    var thumbs = section.querySelectorAll('.ob-hero__thumb');
+    thumbs.forEach(function(thumb) {
+      thumb.addEventListener('click', function() {
+        thumbs.forEach(function(t) { t.classList.remove('is-active'); });
+        thumb.classList.add('is-active');
+        if (mainImg) {
+          mainImg.src = thumb.dataset.imgSrc;
+          mainImg.srcset = thumb.dataset.imgSrcset;
+          mainImg.alt = thumb.dataset.imgAlt || '';
+        }
+      });
+    });
+
+    var planCards = section.querySelectorAll('.ob-hero__plan-card');
+    var activePlan = 'subscribe';
+    planCards.forEach(function(card) {
+      card.addEventListener('click', function() {
+        planCards.forEach(function(c) {
+          c.classList.remove('is-active');
+          c.setAttribute('aria-checked', 'false');
+        });
+        card.classList.add('is-active');
+        card.setAttribute('aria-checked', 'true');
+        activePlan = card.dataset.plan;
+      });
+      card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+      });
+    });
+
+    var qtyInput = section.querySelector('.ob-hero__qty-input');
+    section.querySelectorAll('[data-qty-change]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var delta = parseInt(btn.dataset.qtyChange);
+        var val = parseInt(qtyInput.value) + delta;
+        if (val < 1) val = 1;
+        if (val > 10) val = 10;
+        qtyInput.value = val;
+      });
+    });
+
+    var atcBtn = section.querySelector('.ob-hero__atc');
+    atcBtn.addEventListener('click', function() {
+      if (atcBtn.disabled || atcBtn.classList.contains('is-loading')) return;
+      atcBtn.classList.add('is-loading');
+
+      var variantId = parseInt(atcBtn.dataset.variantId);
+      var qty = parseInt(qtyInput.value) || 1;
+      var body = { items: [{ id: variantId, quantity: qty }] };
+
+      if (activePlan === 'subscribe') {
+        var freqSelect = section.querySelector('#ob-frequency-select');
+        if (freqSelect) {
+          body.items[0].selling_plan = parseInt(freqSelect.value);
+        }
+      }
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      .then(function(res) { return res.json(); })
+      .then(function() {
+        document.dispatchEvent(new CustomEvent('cart:refresh'));
+        atcBtn.classList.remove('is-loading');
+      })
+      .catch(function() {
+        atcBtn.classList.remove('is-loading');
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "OralBiome Hero",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "Oral Probiotic Lozenges \u2014 3 Billion CFU | 4 Clinically Studied Strains | 30-Day Supply" },
+    { "type": "text", "id": "benefit_1", "label": "Benefit 1", "default": "Clinically studied strains for gum & teeth health" },
+    { "type": "text", "id": "benefit_2", "label": "Benefit 2", "default": "Targets bad breath at the source, not the symptom" },
+    { "type": "text", "id": "benefit_3", "label": "Benefit 3", "default": "Sugar-free, vegan, no refrigeration required" },
+    { "type": "text", "id": "most_popular_badge", "label": "Most popular badge", "default": "Most Popular" },
+    { "type": "text", "id": "subscribe_label", "label": "Subscribe label", "default": "Subscribe & Save" },
+    { "type": "text", "id": "month_label", "label": "Month label", "default": "month" },
+    { "type": "text", "id": "save_badge", "label": "Save badge", "default": "SAVE 20%" },
+    { "type": "text", "id": "per_day_text", "label": "Per day text", "default": "\u20ac0.67 per day" },
+    { "type": "text", "id": "sub_benefit_1", "label": "Subscription benefit 1", "default": "\ud83d\ude9a Free shipping every month" },
+    { "type": "text", "id": "sub_benefit_2", "label": "Subscription benefit 2", "default": "\ud83d\udd04 Skip, pause or cancel anytime" },
+    { "type": "text", "id": "sub_benefit_3", "label": "Subscription benefit 3", "default": "\ud83d\udcb0 60-day money-back guarantee" },
+    { "type": "text", "id": "frequency_label", "label": "Frequency label", "default": "Delivery frequency" },
+    { "type": "text", "id": "onetime_label", "label": "One-time label", "default": "One-Time Purchase" },
+    { "type": "text", "id": "ot_benefit_1", "label": "One-time benefit 1", "default": "\ud83d\ude9a Free shipping over \u20ac50" },
+    { "type": "text", "id": "ot_benefit_2", "label": "One-time benefit 2", "default": "\ud83d\udcb0 60-day money-back guarantee" },
+    { "type": "text", "id": "onetime_note", "label": "One-time note", "default": "or subscribe above and save \u20ac5/month" },
+    { "type": "text", "id": "add_to_cart_text", "label": "Add to cart text", "default": "Add to Cart" },
+    { "type": "text", "id": "sold_out_text", "label": "Sold out text", "default": "Sold Out" },
+    { "type": "text", "id": "trust_vegan", "label": "Trust: Vegan", "default": "Vegan" },
+    { "type": "text", "id": "trust_sugar_free", "label": "Trust: Sugar-Free", "default": "Sugar-Free" },
+    { "type": "text", "id": "trust_clinical", "label": "Trust: Clinically Studied", "default": "Clinically Studied" },
+    { "type": "text", "id": "trust_eu", "label": "Trust: EU Compliant", "default": "EU Compliant" },
+    { "type": "text", "id": "guarantee_text", "label": "Guarantee text", "default": "60-day money-back guarantee" },
+    { "type": "text", "id": "qty_label", "label": "Quantity label", "default": "Quantity" },
+    { "type": "text", "id": "decrease_qty_label", "label": "Decrease qty label", "default": "Decrease quantity" },
+    { "type": "text", "id": "increase_qty_label", "label": "Increase qty label", "default": "Increase quantity" },
+    { "type": "text", "id": "purchase_options_label", "label": "Purchase options aria label", "default": "Purchase options" },
+    { "type": "text", "id": "image_gallery_label", "label": "Image gallery aria label", "default": "Product image gallery" },
+    { "type": "text", "id": "thumbnails_label", "label": "Thumbnails aria label", "default": "Product thumbnails" },
+    { "type": "text", "id": "thumbnail_select_label", "label": "Thumbnail select label", "default": "View image" },
+    { "type": "text", "id": "reviews_aria_label", "label": "Reviews link aria label", "default": "Read customer reviews" }
+  ]
+}
+{% endschema %}

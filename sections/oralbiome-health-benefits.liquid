@@ -1,0 +1,187 @@
+<style>
+  .ob-benefits {
+    background: #F4F5F7;
+    padding: 48px 0;
+  }
+  .ob-benefits__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .ob-benefits__header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .ob-benefits__eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #C9A84C;
+    margin: 0 0 12px;
+  }
+  .ob-benefits__heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: #1A3B5C;
+    margin: 0;
+    line-height: 1.3;
+  }
+  .ob-benefits__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .ob-benefits__card {
+    background: #FFFFFF;
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  .ob-benefits__card.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow 0.3s ease;
+  }
+  .ob-benefits__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+  .ob-benefits__card-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+  .ob-benefits__card-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+  .ob-benefits__card-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A3B5C;
+    margin: 0 0 8px;
+  }
+  .ob-benefits__card-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: #6B7280;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  @media (min-width: 768px) {
+    .ob-benefits__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1024px) {
+    .ob-benefits { padding: 80px 0; }
+    .ob-benefits__heading { font-size: 36px; }
+    .ob-benefits__grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  }
+</style>
+
+<section class="ob-benefits" data-section-id="{{ section.id }}">
+  <div class="ob-benefits__container">
+    <div class="ob-benefits__header">
+      <p class="ob-benefits__eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="ob-benefits__heading">{{ section.settings.heading }}</h2>
+    </div>
+    <div class="ob-benefits__grid">
+
+      <div class="ob-benefits__card">
+        <div class="ob-benefits__card-icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 8c-4 0-7 3-7 8s3 10 5 13h4c2-3 5-8 5-13s-3-8-7-8z" stroke="#1A3B5C" stroke-width="2"/><path d="M24 38v2M20 34h8" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/><path d="M16 18c-2 0-4 1-4 3s2 4 4 4" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/><path d="M32 18c2 0 4 1 4 3s-2 4-4 4" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h3 class="ob-benefits__card-title">{{ section.settings.card_1_title }}</h3>
+        <p class="ob-benefits__card-desc">{{ section.settings.card_1_desc }}</p>
+      </div>
+
+      <div class="ob-benefits__card">
+        <div class="ob-benefits__card-icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 24c0-4 3-6 6-6s4 2 6 4c2-2 3-4 6-4s6 2 6 6c0 6-8 12-12 14C16 36 8 30 8 24" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/><path d="M20 20l-4 8M28 20l4 8M22 28h4" stroke="#1A3B5C" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <h3 class="ob-benefits__card-title">{{ section.settings.card_2_title }}</h3>
+        <p class="ob-benefits__card-desc">{{ section.settings.card_2_desc }}</p>
+      </div>
+
+      <div class="ob-benefits__card">
+        <div class="ob-benefits__card-icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="14" stroke="#1A3B5C" stroke-width="2"/><circle cx="24" cy="24" r="8" stroke="#1A3B5C" stroke-width="1.5" stroke-dasharray="3 2"/><circle cx="24" cy="24" r="3" fill="#1A3B5C"/></svg>
+        </div>
+        <h3 class="ob-benefits__card-title">{{ section.settings.card_3_title }}</h3>
+        <p class="ob-benefits__card-desc">{{ section.settings.card_3_desc }}</p>
+      </div>
+
+      <div class="ob-benefits__card">
+        <div class="ob-benefits__card-icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 6L12 12v10c0 9 5 17 12 20 7-3 12-11 12-20V12L24 6z" stroke="#1A3B5C" stroke-width="2"/><path d="M18 24l4 4 8-8" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3 class="ob-benefits__card-title">{{ section.settings.card_4_title }}</h3>
+        <p class="ob-benefits__card-desc">{{ section.settings.card_4_desc }}</p>
+      </div>
+
+      <div class="ob-benefits__card">
+        <div class="ob-benefits__card-icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 8c-4 0-7 3-7 8s3 10 5 13h4c2-3 5-8 5-13s-3-8-7-8z" stroke="#1A3B5C" stroke-width="2"/><path d="M18 24l4 4 6-6" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 38v2" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h3 class="ob-benefits__card-title">{{ section.settings.card_5_title }}</h3>
+        <p class="ob-benefits__card-desc">{{ section.settings.card_5_desc }}</p>
+      </div>
+
+      <div class="ob-benefits__card">
+        <div class="ob-benefits__card-icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 12c-5 0-10 4-10 9 0 6 4 10 10 12 6-2 10-6 10-12 0-5-5-9-10-9z" stroke="#1A3B5C" stroke-width="2"/><path d="M24 18v8M20 22h8" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <h3 class="ob-benefits__card-title">{{ section.settings.card_6_title }}</h3>
+        <p class="ob-benefits__card-desc">{{ section.settings.card_6_desc }}</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  (function() {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var cards = entry.target.querySelectorAll('.ob-benefits__card');
+          cards.forEach(function(card, i) {
+            setTimeout(function() { card.classList.add('is-visible'); }, i * 100);
+          });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    var grid = document.querySelector('[data-section-id="{{ section.id }}"] .ob-benefits__grid');
+    if (grid) observer.observe(grid);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "OB Health Benefits",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "WHY ORALBIOME PRO" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Clinically studied benefits for your oral health" },
+    { "type": "text", "id": "card_1_title", "label": "Card 1 title", "default": "Healthier Gums" },
+    { "type": "textarea", "id": "card_1_desc", "label": "Card 1 description", "default": "L. reuteri DSM 17938 is proven in 70+ clinical studies to reduce gingival inflammation and bleeding." },
+    { "type": "text", "id": "card_2_title", "label": "Card 2 title", "default": "Fresh Breath at the Source" },
+    { "type": "textarea", "id": "card_2_desc", "label": "Card 2 description", "default": "BLIS K12 crowds out the sulphur-producing bacteria that cause halitosis \u2014 no masking, real results." },
+    { "type": "text", "id": "card_3_title", "label": "Card 3 title", "default": "Plaque Defense" },
+    { "type": "textarea", "id": "card_3_desc", "label": "Card 3 description", "default": "BLIS M18 produces enzymes that break down plaque biofilm and neutralize oral pH." },
+    { "type": "text", "id": "card_4_title", "label": "Card 4 title", "default": "Immune Support" },
+    { "type": "textarea", "id": "card_4_desc", "label": "Card 4 description", "default": "A balanced oral microbiome is your body\u2019s first line of defense. Support it daily." },
+    { "type": "text", "id": "card_5_title", "label": "Card 5 title", "default": "Cavity Protection" },
+    { "type": "textarea", "id": "card_5_desc", "label": "Card 5 description", "default": "Xylitol actively inhibits Streptococcus mutans, the primary bacteria responsible for tooth decay." },
+    { "type": "text", "id": "card_6_title", "label": "Card 6 title", "default": "Whole-Body Connection" },
+    { "type": "textarea", "id": "card_6_desc", "label": "Card 6 description", "default": "Research links oral microbiome health to cardiovascular, cognitive, and metabolic wellness." }
+  ]
+}
+{% endschema %}

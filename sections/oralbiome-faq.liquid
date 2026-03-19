@@ -1,0 +1,170 @@
+<style>
+  .ob-faq {
+    background: #F4F5F7;
+    padding: 48px 0;
+  }
+  .ob-faq__container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .ob-faq__heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: #1A3B5C;
+    text-align: center;
+    margin: 0 0 40px;
+    line-height: 1.3;
+  }
+  .ob-faq__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .ob-faq__item {
+    border-bottom: 1px solid #E5E7EB;
+  }
+  .ob-faq__item:first-child {
+    border-top: 1px solid #E5E7EB;
+  }
+  .ob-faq__question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A3B5C;
+    line-height: 1.4;
+  }
+  .ob-faq__question:focus-visible {
+    outline: 2px solid #C9A84C;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  .ob-faq__icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 22px;
+    color: #C9A84C;
+    transition: transform 0.3s ease;
+    line-height: 1;
+  }
+  .ob-faq__item.is-open .ob-faq__icon {
+    transform: rotate(45deg);
+  }
+  .ob-faq__answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+    padding: 0 0 0 0;
+  }
+  .ob-faq__item.is-open .ob-faq__answer {
+    max-height: 600px;
+    padding: 0 0 18px 0;
+  }
+  .ob-faq__answer-inner {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: #6B7280;
+    line-height: 1.7;
+  }
+
+  @media (min-width: 1024px) {
+    .ob-faq { padding: 80px 0; }
+    .ob-faq__heading { font-size: 36px; }
+  }
+</style>
+
+<section class="ob-faq" data-section-id="{{ section.id }}">
+  <div class="ob-faq__container">
+    <h2 class="ob-faq__heading">{{ section.settings.heading }}</h2>
+    <div class="ob-faq__list" role="list">
+      {%- for block in section.blocks -%}
+        <div class="ob-faq__item" role="listitem" {{ block.shopify_attributes }}>
+          <button
+            type="button"
+            class="ob-faq__question"
+            aria-expanded="false"
+            aria-controls="ob-faq-answer-{{ block.id }}"
+          >
+            <span>{{ block.settings.question }}</span>
+            <span class="ob-faq__icon" aria-hidden="true">+</span>
+          </button>
+          <div class="ob-faq__answer" id="ob-faq-answer-{{ block.id }}" role="region">
+            <div class="ob-faq__answer-inner">{{ block.settings.answer }}</div>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<script>
+  (function() {
+    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!section) return;
+    var items = section.querySelectorAll('.ob-faq__item');
+    items.forEach(function(item) {
+      var btn = item.querySelector('.ob-faq__question');
+      btn.addEventListener('click', function() {
+        var isOpen = item.classList.contains('is-open');
+        items.forEach(function(it) {
+          it.classList.remove('is-open');
+          it.querySelector('.ob-faq__question').setAttribute('aria-expanded', 'false');
+        });
+        if (!isOpen) {
+          item.classList.add('is-open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "OB FAQ",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Frequently Asked Questions" }
+  ],
+  "blocks": [
+    {
+      "type": "faq",
+      "name": "FAQ item",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "Question?" },
+        { "type": "textarea", "id": "answer", "label": "Answer", "default": "Answer text." }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "OB FAQ",
+      "blocks": [
+        { "type": "faq", "settings": { "question": "How do I use OralBiome Pro?", "answer": "After brushing and flossing, place one lozenge on your tongue and let it dissolve slowly. Do not chew. Avoid eating or drinking for 30 minutes afterwards. For best results, use before bed." } },
+        { "type": "faq", "settings": { "question": "How long before I notice results?", "answer": "Many users report fresher breath within the first week. For gum health improvements, consistent daily use for 4\u20138 weeks is typically needed, as the oral microbiome takes time to rebalance." } },
+        { "type": "faq", "settings": { "question": "Can children use this product?", "answer": "OralBiome Pro is suitable for children aged 4 and above who can safely dissolve a lozenge without chewing. The strains in our formula have been studied in pediatric populations." } },
+        { "type": "faq", "settings": { "question": "Is this different from gut probiotics?", "answer": "Yes. Gut probiotics are designed to survive stomach acid and colonize the intestines. OralBiome Pro is formulated to dissolve in the mouth, delivering beneficial bacteria directly to the oral cavity where they\u2019re needed." } },
+        { "type": "faq", "settings": { "question": "Do I need to refrigerate it?", "answer": "No. OralBiome Pro is shelf-stable at room temperature (below 25\u00b0C). Store in a cool, dry place away from direct sunlight." } },
+        { "type": "faq", "settings": { "question": "Can I use it alongside mouthwash?", "answer": "We recommend using OralBiome Pro AFTER mouthwash, not before. Antibacterial mouthwash can reduce the effectiveness of the probiotic strains. Ideally, wait 30 minutes after mouthwash before using your lozenge." } },
+        { "type": "faq", "settings": { "question": "Is it safe during pregnancy?", "answer": "The strains in OralBiome Pro have been used in clinical studies with pregnant women. However, we always recommend consulting your healthcare provider before starting any new supplement during pregnancy." } },
+        { "type": "faq", "settings": { "question": "How does the subscription work?", "answer": "Your first order ships immediately. Subsequent orders ship automatically every 30 days (or your chosen frequency). You can skip, pause, or cancel anytime from your account dashboard \u2014 no commitments, no penalties." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

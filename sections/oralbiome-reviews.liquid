@@ -1,0 +1,359 @@
+<style>
+  .ob-reviews {
+    background: #FFFFFF;
+    padding: 48px 0;
+  }
+  .ob-reviews__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .ob-reviews__header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .ob-reviews__eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #C9A84C;
+    margin: 0 0 12px;
+  }
+  .ob-reviews__heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: #1A3B5C;
+    margin: 0 0 16px;
+    line-height: 1.3;
+  }
+  .ob-reviews__aggregate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .ob-reviews__big-number {
+    font-family: 'DM Serif Display', serif;
+    font-size: 48px;
+    color: #1A3B5C;
+    line-height: 1;
+  }
+  .ob-reviews__agg-right {
+    text-align: left;
+  }
+  .ob-reviews__stars-row {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 4px;
+  }
+  .ob-reviews__stars-row svg {
+    width: 18px;
+    height: 18px;
+    fill: #C9A84C;
+  }
+  .ob-reviews__count {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #6B7280;
+  }
+  .ob-reviews__filters {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .ob-reviews__filter-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 16px;
+    border: 1px solid #D1D5DB;
+    border-radius: 50px;
+    background: #FFFFFF;
+    color: #6B7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .ob-reviews__filter-btn.is-active,
+  .ob-reviews__filter-btn:hover {
+    background: #1A3B5C;
+    color: #FFFFFF;
+    border-color: #1A3B5C;
+  }
+  .ob-reviews__carousel-wrap {
+    position: relative;
+  }
+  .ob-reviews__track {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+  }
+  .ob-reviews__track::-webkit-scrollbar { display: none; }
+  .ob-reviews__card {
+    flex: 0 0 calc(100% - 16px);
+    min-width: 280px;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 24px;
+    scroll-snap-align: start;
+  }
+  .ob-reviews__card-stars {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 12px;
+  }
+  .ob-reviews__card-stars svg {
+    width: 16px;
+    height: 16px;
+    fill: #C9A84C;
+  }
+  .ob-reviews__card-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1A3B5C;
+    margin: 0 0 8px;
+  }
+  .ob-reviews__card-body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: #6B7280;
+    line-height: 1.6;
+    margin: 0 0 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .ob-reviews__card-body.is-expanded {
+    -webkit-line-clamp: unset;
+  }
+  .ob-reviews__read-more {
+    background: none;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #C9A84C;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .ob-reviews__card-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #F0F0F0;
+  }
+  .ob-reviews__card-author {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1A3B5C;
+  }
+  .ob-reviews__card-verified {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    color: #2E7D32;
+    background: rgba(46,125,50,0.08);
+    padding: 2px 8px;
+    border-radius: 50px;
+  }
+  .ob-reviews__card-date {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #9CA3AF;
+    margin-left: auto;
+  }
+  .ob-reviews__write {
+    display: block;
+    margin: 32px auto 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 32px;
+    border: 2px solid #1A3B5C;
+    border-radius: 4px;
+    background: transparent;
+    color: #1A3B5C;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .ob-reviews__write:hover {
+    background: #1A3B5C;
+    color: #FFFFFF;
+  }
+  .ob-reviews__judgeme {
+    margin-top: 32px;
+  }
+
+  @media (min-width: 768px) {
+    .ob-reviews__card { flex: 0 0 calc(50% - 12px); }
+  }
+  @media (min-width: 1024px) {
+    .ob-reviews { padding: 80px 0; }
+    .ob-reviews__heading { font-size: 36px; }
+    .ob-reviews__card { flex: 0 0 calc(33.33% - 11px); }
+  }
+</style>
+
+<section class="ob-reviews" id="oralbiome-reviews" data-section-id="{{ section.id }}">
+  <div class="ob-reviews__container">
+    <div class="ob-reviews__header">
+      <p class="ob-reviews__eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="ob-reviews__heading">{{ section.settings.heading }}</h2>
+      <div class="ob-reviews__aggregate">
+        <span class="ob-reviews__big-number">{{ section.settings.avg_rating }}</span>
+        <div class="ob-reviews__agg-right">
+          <div class="ob-reviews__stars-row">
+            {%- for i in (1..5) -%}
+              <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z"/></svg>
+            {%- endfor -%}
+          </div>
+          <span class="ob-reviews__count">{{ section.settings.based_on_text }}</span>
+        </div>
+      </div>
+    </div>
+
+    {%- if section.settings.show_filters -%}
+      <div class="ob-reviews__filters" role="tablist">
+        <button class="ob-reviews__filter-btn is-active" data-filter="all" role="tab" aria-selected="true">{{ section.settings.filter_all }}</button>
+        <button class="ob-reviews__filter-btn" data-filter="gum" role="tab" aria-selected="false">{{ section.settings.filter_gum }}</button>
+        <button class="ob-reviews__filter-btn" data-filter="breath" role="tab" aria-selected="false">{{ section.settings.filter_breath }}</button>
+        <button class="ob-reviews__filter-btn" data-filter="subscription" role="tab" aria-selected="false">{{ section.settings.filter_sub }}</button>
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.use_judgeme -%}
+      <div class="ob-reviews__judgeme">
+        <div id="judgeme_product_reviews" data-id="{{ product.id }}">{{ product.metafields.judgeme.widget }}</div>
+      </div>
+    {%- else -%}
+      <div class="ob-reviews__carousel-wrap">
+        <div class="ob-reviews__track">
+          {%- for block in section.blocks -%}
+            <div class="ob-reviews__card" data-tags="{{ block.settings.tags }}" {{ block.shopify_attributes }}>
+              <div class="ob-reviews__card-stars">
+                {%- assign stars = block.settings.stars | default: 5 -%}
+                {%- for i in (1..stars) -%}
+                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z"/></svg>
+                {%- endfor -%}
+              </div>
+              {%- if block.settings.title != blank -%}
+                <h3 class="ob-reviews__card-title">{{ block.settings.title }}</h3>
+              {%- endif -%}
+              <p class="ob-reviews__card-body">{{ block.settings.body }}</p>
+              <button type="button" class="ob-reviews__read-more" aria-label="{{ section.settings.read_more_label }}">{{ section.settings.read_more_label }}</button>
+              <div class="ob-reviews__card-footer">
+                <span class="ob-reviews__card-author">{{ block.settings.author }}</span>
+                {%- if block.settings.verified -%}
+                  <span class="ob-reviews__card-verified">{{ section.settings.verified_text }}</span>
+                {%- endif -%}
+                {%- if block.settings.date != blank -%}
+                  <span class="ob-reviews__card-date">{{ block.settings.date }}</span>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+
+      <button type="button" class="ob-reviews__write" aria-label="{{ section.settings.write_review_text }}">{{ section.settings.write_review_text }}</button>
+    {%- endif -%}
+  </div>
+</section>
+
+<script>
+  (function() {
+    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!section) return;
+
+    var readMoreBtns = section.querySelectorAll('.ob-reviews__read-more');
+    readMoreBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var body = btn.previousElementSibling;
+        if (body) {
+          body.classList.toggle('is-expanded');
+          btn.textContent = body.classList.contains('is-expanded') ? '{{ section.settings.read_less_label }}' : '{{ section.settings.read_more_label }}';
+        }
+      });
+    });
+
+    var filterBtns = section.querySelectorAll('.ob-reviews__filter-btn');
+    var cards = section.querySelectorAll('.ob-reviews__card');
+    filterBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        filterBtns.forEach(function(b) { b.classList.remove('is-active'); b.setAttribute('aria-selected', 'false'); });
+        btn.classList.add('is-active');
+        btn.setAttribute('aria-selected', 'true');
+        var filter = btn.dataset.filter;
+        cards.forEach(function(card) {
+          if (filter === 'all' || (card.dataset.tags && card.dataset.tags.indexOf(filter) !== -1)) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "OB Reviews",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "REAL RESULTS" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "What our customers are saying" },
+    { "type": "text", "id": "avg_rating", "label": "Average rating", "default": "4.8" },
+    { "type": "text", "id": "based_on_text", "label": "Based on text", "default": "Based on 127 reviews" },
+    { "type": "checkbox", "id": "use_judgeme", "label": "Use Judge.me widget", "default": false },
+    { "type": "checkbox", "id": "show_filters", "label": "Show filter tabs", "default": true },
+    { "type": "text", "id": "filter_all", "label": "Filter: All", "default": "All" },
+    { "type": "text", "id": "filter_gum", "label": "Filter: Gum Health", "default": "Gum Health" },
+    { "type": "text", "id": "filter_breath", "label": "Filter: Fresh Breath", "default": "Fresh Breath" },
+    { "type": "text", "id": "filter_sub", "label": "Filter: Subscription", "default": "Subscription" },
+    { "type": "text", "id": "verified_text", "label": "Verified badge text", "default": "Verified" },
+    { "type": "text", "id": "read_more_label", "label": "Read more label", "default": "Read more" },
+    { "type": "text", "id": "read_less_label", "label": "Read less label", "default": "Read less" },
+    { "type": "text", "id": "write_review_text", "label": "Write review button", "default": "Write a Review" }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        { "type": "range", "id": "stars", "label": "Stars", "min": 1, "max": 5, "step": 1, "default": 5 },
+        { "type": "text", "id": "title", "label": "Title" },
+        { "type": "textarea", "id": "body", "label": "Review text", "default": "Review body text." },
+        { "type": "text", "id": "author", "label": "Author name", "default": "Customer" },
+        { "type": "checkbox", "id": "verified", "label": "Verified buyer", "default": true },
+        { "type": "text", "id": "date", "label": "Date", "default": "2025-01-15" },
+        { "type": "text", "id": "tags", "label": "Tags (comma-separated)", "default": "gum,breath" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "OB Reviews",
+      "blocks": [
+        { "type": "review", "settings": { "title": "Finally something that actually works", "body": "I\u2019ve tried every mouthwash and toothpaste for my gum issues. After 3 weeks with OralBiome Pro, my dentist noticed the improvement. The bleeding has almost completely stopped.", "author": "Sarah M.", "date": "2025-03-02", "tags": "gum" } },
+        { "type": "review", "settings": { "title": "Morning breath is gone", "body": "My partner noticed the difference before I did. No more morning breath issue. I just let the lozenge dissolve before bed and wake up feeling fresh. Simple and effective.", "author": "Thomas K.", "date": "2025-02-18", "tags": "breath" } },
+        { "type": "review", "settings": { "title": "Great subscription experience", "body": "Love the subscribe and save option. It arrives every month right on time, and I never have to think about reordering. The product itself is excellent \u2014 pleasant mint taste and easy to use.", "author": "Lisa V.", "date": "2025-02-05", "tags": "subscription" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

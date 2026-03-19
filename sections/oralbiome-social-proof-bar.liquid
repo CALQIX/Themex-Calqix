@@ -1,0 +1,125 @@
+<style>
+  .ob-proof {
+    background: #1A3B5C;
+    padding: 20px 0;
+    overflow: hidden;
+  }
+  .ob-proof__track {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .ob-proof__track::-webkit-scrollbar { display: none; }
+  .ob-proof__item {
+    flex: 0 0 auto;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    scroll-snap-align: start;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .ob-proof__item.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .ob-proof__icon {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+  }
+  .ob-proof__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+  .ob-proof__text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #FFFFFF;
+    white-space: nowrap;
+  }
+  @media (min-width: 768px) {
+    .ob-proof__track {
+      justify-content: center;
+      gap: 32px;
+      overflow-x: visible;
+    }
+    .ob-proof__item { min-width: auto; }
+    .ob-proof__text { font-size: 14px; }
+  }
+</style>
+
+<section class="ob-proof" data-section-id="{{ section.id }}">
+  <div class="ob-proof__track">
+    <div class="ob-proof__item" style="transition-delay:0s">
+      <span class="ob-proof__icon">
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="14" r="6" stroke="#C9A84C" stroke-width="1.5"/><path d="M14 4v3M14 21v3M4 14h3M21 14h3M7.05 7.05l2.12 2.12M18.83 18.83l2.12 2.12M7.05 20.95l2.12-2.12M18.83 9.17l2.12-2.12" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </span>
+      <span class="ob-proof__text">{{ section.settings.item_1 }}</span>
+    </div>
+    <div class="ob-proof__item" style="transition-delay:0.1s">
+      <span class="ob-proof__icon">
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 3L7 6.5V12c0 5 3.5 9.5 7 11 3.5-1.5 7-6 7-11V6.5L14 3z" stroke="#C9A84C" stroke-width="1.5"/></svg>
+      </span>
+      <span class="ob-proof__text">{{ section.settings.item_2 }}</span>
+    </div>
+    <div class="ob-proof__item" style="transition-delay:0.2s">
+      <span class="ob-proof__icon">
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 4c-2 3-4 4-4 8 0 3.3 1.8 6 4 6s4-2.7 4-6c0-4-2-5-4-8z" stroke="#C9A84C" stroke-width="1.5"/><path d="M11 18c0 1.7 1.3 3 3 3s3-1.3 3-3" stroke="#C9A84C" stroke-width="1.5"/></svg>
+      </span>
+      <span class="ob-proof__text">{{ section.settings.item_3 }}</span>
+    </div>
+    <div class="ob-proof__item" style="transition-delay:0.3s">
+      <span class="ob-proof__icon">
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 6c-2 0-4 2-4 5 0 2 1 3.5 2.5 4.5L11 24h6l-1.5-8.5C17 14.5 18 13 18 11c0-3-2-5-4-5z" stroke="#C9A84C" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="ob-proof__text">{{ section.settings.item_4 }}</span>
+    </div>
+    <div class="ob-proof__item" style="transition-delay:0.4s">
+      <span class="ob-proof__icon">
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="6" width="18" height="16" rx="2" stroke="#C9A84C" stroke-width="1.5"/><path d="M5 10h18M9 6V4M19 6V4" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </span>
+      <span class="ob-proof__text">{{ section.settings.item_5 }}</span>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function() {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var items = entry.target.querySelectorAll('.ob-proof__item');
+          items.forEach(function(item) { item.classList.add('is-visible'); });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (section) observer.observe(section);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "OB Social Proof Bar",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "item_1", "label": "Item 1", "default": "70+ Clinical Studies" },
+    { "type": "text", "id": "item_2", "label": "Item 2", "default": "3 Billion CFU Per Lozenge" },
+    { "type": "text", "id": "item_3", "label": "Item 3", "default": "4 Clinically Studied Strains" },
+    { "type": "text", "id": "item_4", "label": "Item 4", "default": "Recommended by Dental Professionals" },
+    { "type": "text", "id": "item_5", "label": "Item 5", "default": "Made for Daily Use" }
+  ]
+}
+{% endschema %}

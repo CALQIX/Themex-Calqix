@@ -1,0 +1,152 @@
+<style>
+  .ob-cta {
+    position: relative;
+    background: #0F2233;
+    padding: 48px 0;
+    overflow: hidden;
+  }
+  .ob-cta__pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    background-image:
+      linear-gradient(30deg, #C9A84C 12%, transparent 12.5%, transparent 87%, #C9A84C 87.5%, #C9A84C),
+      linear-gradient(150deg, #C9A84C 12%, transparent 12.5%, transparent 87%, #C9A84C 87.5%, #C9A84C),
+      linear-gradient(30deg, #C9A84C 12%, transparent 12.5%, transparent 87%, #C9A84C 87.5%, #C9A84C),
+      linear-gradient(150deg, #C9A84C 12%, transparent 12.5%, transparent 87%, #C9A84C 87.5%, #C9A84C),
+      linear-gradient(60deg, rgba(201,168,76,0.5) 25%, transparent 25.5%, transparent 75%, rgba(201,168,76,0.5) 75%, rgba(201,168,76,0.5)),
+      linear-gradient(60deg, rgba(201,168,76,0.5) 25%, transparent 25.5%, transparent 75%, rgba(201,168,76,0.5) 75%, rgba(201,168,76,0.5));
+    background-size: 40px 70px;
+    background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
+    pointer-events: none;
+  }
+  .ob-cta__container {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+    text-align: center;
+  }
+  .ob-cta__heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: #FFFFFF;
+    margin: 0 0 12px;
+    line-height: 1.3;
+  }
+  .ob-cta__subheading {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    color: rgba(255,255,255,0.8);
+    margin: 0 0 28px;
+  }
+  .ob-cta__pills {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .ob-cta__pill {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #FFFFFF;
+    border: 1px solid rgba(201,168,76,0.6);
+    border-radius: 50px;
+    padding: 6px 16px;
+    white-space: nowrap;
+  }
+  .ob-cta__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    padding: 0 40px;
+    background: #C9A84C;
+    color: #1A3B5C;
+    border: none;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    max-width: 400px;
+    width: 100%;
+    text-decoration: none;
+  }
+  .ob-cta__button:hover {
+    background: #b8953f;
+    transform: scale(1.02);
+  }
+  .ob-cta__alt {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin: 14px 0 0;
+  }
+
+  @media (min-width: 1024px) {
+    .ob-cta { padding: 80px 0; }
+    .ob-cta__heading { font-size: 40px; }
+    .ob-cta__subheading { font-size: 18px; }
+  }
+</style>
+
+<section class="ob-cta" data-section-id="{{ section.id }}">
+  <div class="ob-cta__pattern" aria-hidden="true"></div>
+  <div class="ob-cta__container">
+    <h2 class="ob-cta__heading">{{ section.settings.heading }}</h2>
+    <p class="ob-cta__subheading">{{ section.settings.subheading }}</p>
+    <div class="ob-cta__pills">
+      {%- if section.settings.pill_1 != blank -%}<span class="ob-cta__pill">{{ section.settings.pill_1 }}</span>{%- endif -%}
+      {%- if section.settings.pill_2 != blank -%}<span class="ob-cta__pill">{{ section.settings.pill_2 }}</span>{%- endif -%}
+      {%- if section.settings.pill_3 != blank -%}<span class="ob-cta__pill">{{ section.settings.pill_3 }}</span>{%- endif -%}
+      {%- if section.settings.pill_4 != blank -%}<span class="ob-cta__pill">{{ section.settings.pill_4 }}</span>{%- endif -%}
+    </div>
+    <button type="button" class="ob-cta__button" aria-label="{{ section.settings.button_text }}">{{ section.settings.button_text }}</button>
+    {%- if section.settings.alt_text != blank -%}
+      <p class="ob-cta__alt">{{ section.settings.alt_text }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+<script>
+  (function() {
+    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!section) return;
+    var btn = section.querySelector('.ob-cta__button');
+    if (!btn) return;
+    btn.addEventListener('click', function() {
+      var hero = document.querySelector('.ob-hero');
+      if (hero) {
+        hero.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(function() {
+          var subCard = hero.querySelector('[data-plan="subscribe"]');
+          if (subCard && !subCard.classList.contains('is-active')) {
+            subCard.click();
+          }
+        }, 600);
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "OB Subscription CTA",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Your mouth deserves daily balance." },
+    { "type": "text", "id": "subheading", "label": "Subheading", "default": "\u20ac0.67 per day for a clinically supported oral microbiome." },
+    { "type": "text", "id": "pill_1", "label": "Pill 1", "default": "Free Shipping" },
+    { "type": "text", "id": "pill_2", "label": "Pill 2", "default": "Skip Anytime" },
+    { "type": "text", "id": "pill_3", "label": "Pill 3", "default": "60-Day Guarantee" },
+    { "type": "text", "id": "pill_4", "label": "Pill 4", "default": "Cancel in 1 Click" },
+    { "type": "text", "id": "button_text", "label": "Button text", "default": "Subscribe & Save 20%" },
+    { "type": "text", "id": "alt_text", "label": "Alternative text", "default": "or try a one-time purchase \u2014 \u20ac24.95" }
+  ]
+}
+{% endschema %}
