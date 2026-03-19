@@ -1,29 +1,29 @@
 <style>
   .ob-proof {
     background: #1A3B5C;
-    padding: 20px 0;
+    padding: 10px 0;
     overflow: hidden;
+    height: 44px;
   }
-  .ob-proof__track {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
+  .ob-proof__marquee {
     display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    width: max-content;
+    animation: ob-marquee 30s linear infinite;
   }
-  .ob-proof__track::-webkit-scrollbar { display: none; }
+  .ob-proof__marquee:hover,
+  .ob-proof__marquee.is-paused {
+    animation-play-state: paused;
+  }
+  @keyframes ob-marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
   .ob-proof__item {
     flex: 0 0 auto;
-    min-width: 200px;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 16px;
-    scroll-snap-align: start;
+    padding: 0 24px;
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 0.5s ease, transform 0.5s ease;
@@ -34,33 +34,38 @@
   }
   .ob-proof__icon {
     flex-shrink: 0;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
   }
-  .ob-proof__icon svg {
-    width: 100%;
-    height: 100%;
-  }
+  .ob-proof__icon svg { width: 100%; height: 100%; }
   .ob-proof__text {
     font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     font-weight: 600;
     color: #FFFFFF;
     white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
+
   @media (min-width: 768px) {
-    .ob-proof__track {
+    .ob-proof { height: auto; padding: 16px 0; }
+    .ob-proof__marquee {
+      animation: none;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
       justify-content: center;
       gap: 32px;
-      overflow-x: visible;
     }
-    .ob-proof__item { min-width: auto; }
-    .ob-proof__text { font-size: 14px; }
+    .ob-proof__set--dup { display: none; }
+    .ob-proof__item { padding: 0; }
+    .ob-proof__text { font-size: 13px; }
   }
 </style>
 
-<section class="ob-proof" data-section-id="{{ section.id }}">
-  <div class="ob-proof__track">
+{%- capture proof_items -%}
     <div class="ob-proof__item" style="transition-delay:0s">
       <span class="ob-proof__icon">
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="14" r="6" stroke="#C9A84C" stroke-width="1.5"/><path d="M14 4v3M14 21v3M4 14h3M21 14h3M7.05 7.05l2.12 2.12M18.83 18.83l2.12 2.12M7.05 20.95l2.12-2.12M18.83 9.17l2.12-2.12" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -91,22 +96,38 @@
       </span>
       <span class="ob-proof__text">{{ section.settings.item_5 }}</span>
     </div>
+{%- endcapture -%}
+
+<section class="ob-proof" data-section-id="{{ section.id }}">
+  <div class="ob-proof__marquee">
+    <div class="ob-proof__set">{{ proof_items }}</div>
+    <div class="ob-proof__set ob-proof__set--dup" aria-hidden="true">{{ proof_items }}</div>
   </div>
 </section>
 
 <script>
   (function() {
+    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!section) return;
+    var marquee = section.querySelector('.ob-proof__marquee');
+
     var observer = new IntersectionObserver(function(entries) {
       entries.forEach(function(entry) {
         if (entry.isIntersecting) {
           var items = entry.target.querySelectorAll('.ob-proof__item');
-          items.forEach(function(item) { item.classList.add('is-visible'); });
+          items.forEach(function(item, i) {
+            setTimeout(function() { item.classList.add('is-visible'); }, i * 100);
+          });
           observer.unobserve(entry.target);
         }
       });
     }, { threshold: 0.2 });
-    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
-    if (section) observer.observe(section);
+    observer.observe(section);
+
+    if (marquee) {
+      marquee.addEventListener('touchstart', function() { marquee.classList.add('is-paused'); }, { passive: true });
+      marquee.addEventListener('touchend', function() { marquee.classList.remove('is-paused'); }, { passive: true });
+    }
   })();
 </script>
 

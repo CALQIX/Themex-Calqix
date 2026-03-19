@@ -125,10 +125,23 @@
   .ob-ingr__arrow svg { width: 18px; height: 18px; }
   .ob-ingr__arrow--prev { left: -16px; }
   .ob-ingr__arrow--next { right: -16px; }
+  .ob-ingr__dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 0 0;
+  }
+  .ob-ingr__dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.3); border: none; padding: 0;
+    cursor: pointer; transition: background 0.2s ease;
+  }
+  .ob-ingr__dot.is-active { background: #C9A84C; }
 
   @media (min-width: 768px) {
     .ob-ingr__card { flex: 0 0 calc(33.33% - 11px); min-width: 260px; }
     .ob-ingr__arrow { display: flex; }
+    .ob-ingr__dots { display: none; }
   }
   @media (min-width: 1024px) {
     .ob-ingr { padding: 80px 0; }
@@ -176,6 +189,11 @@
         <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 4l5 5-5 5" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
+    <div class="ob-ingr__dots">
+      {%- for block in section.blocks -%}
+        <button type="button" class="ob-ingr__dot{% if forloop.first %} is-active{% endif %}" data-card="{{ forloop.index0 }}" aria-label="{{ block.settings.name }}"></button>
+      {%- endfor -%}
+    </div>
   </div>
 </section>
 
@@ -196,6 +214,25 @@
     if (nextBtn) {
       nextBtn.addEventListener('click', function() {
         track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      });
+    }
+    var cards = track.querySelectorAll('.ob-ingr__card');
+    var dots = section.querySelectorAll('.ob-ingr__dot');
+    if (dots.length > 0 && cards.length > 0) {
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var idx = Array.prototype.indexOf.call(cards, entry.target);
+            dots.forEach(function(d, i) { d.classList.toggle('is-active', i === idx); });
+          }
+        });
+      }, { root: track, threshold: 0.6 });
+      cards.forEach(function(c) { io.observe(c); });
+      dots.forEach(function(dot) {
+        dot.addEventListener('click', function() {
+          var idx = parseInt(dot.dataset.card);
+          if (cards[idx]) cards[idx].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+        });
       });
     }
   })();

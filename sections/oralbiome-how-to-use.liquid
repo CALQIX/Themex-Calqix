@@ -29,11 +29,19 @@
     line-height: 1.3;
   }
   .ob-howto__steps {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 40px;
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 8px;
   }
+  .ob-howto__steps::-webkit-scrollbar { display: none; }
   .ob-howto__step {
+    flex: 0 0 80%;
+    min-width: 260px;
+    scroll-snap-align: center;
     text-align: center;
     position: relative;
     opacity: 0;
@@ -101,9 +109,21 @@
     margin-left: auto;
     margin-right: auto;
   }
+  .ob-howto__dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 0 0;
+  }
+  .ob-howto__dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #D1D5DB; border: none; padding: 0;
+    cursor: pointer; transition: background 0.2s ease;
+  }
+  .ob-howto__dot.is-active { background: #C9A84C; }
   .ob-howto__note {
     text-align: center;
-    margin-top: 40px;
+    margin-top: 24px;
     font-family: 'DM Sans', sans-serif;
     font-size: 14px;
     font-style: italic;
@@ -111,7 +131,14 @@
   }
 
   @media (min-width: 768px) {
-    .ob-howto__steps { grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .ob-howto__steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      overflow: visible;
+    }
+    .ob-howto__step { flex: none; min-width: 0; }
+    .ob-howto__dots { display: none; }
   }
   @media (min-width: 1024px) {
     .ob-howto { padding: 80px 0; }
@@ -153,6 +180,11 @@
         </div>
       {%- endfor -%}
     </div>
+    <div class="ob-howto__dots">
+      {%- for block in section.blocks -%}
+        <button type="button" class="ob-howto__dot{% if forloop.first %} is-active{% endif %}" data-step="{{ forloop.index0 }}" aria-label="Step {{ forloop.index }}"></button>
+      {%- endfor -%}
+    </div>
     {%- if section.settings.note != blank -%}
       <p class="ob-howto__note">{{ section.settings.note }}</p>
     {%- endif -%}
@@ -161,18 +193,39 @@
 
 <script>
   (function() {
+    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!section) return;
+    var stepsTrack = section.querySelector('.ob-howto__steps');
+    var steps = section.querySelectorAll('.ob-howto__step');
+    var dots = section.querySelectorAll('.ob-howto__dot');
+
     var observer = new IntersectionObserver(function(entries) {
       entries.forEach(function(entry) {
         if (entry.isIntersecting) {
-          entry.target.querySelectorAll('.ob-howto__step').forEach(function(step) {
-            step.classList.add('is-visible');
-          });
+          steps.forEach(function(step) { step.classList.add('is-visible'); });
           observer.unobserve(entry.target);
         }
       });
     }, { threshold: 0.15 });
-    var el = document.querySelector('[data-section-id="{{ section.id }}"] .ob-howto__steps');
-    if (el) observer.observe(el);
+    if (stepsTrack) observer.observe(stepsTrack);
+
+    if (stepsTrack && dots.length > 0) {
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var idx = Array.prototype.indexOf.call(steps, entry.target);
+            dots.forEach(function(d, i) { d.classList.toggle('is-active', i === idx); });
+          }
+        });
+      }, { root: stepsTrack, threshold: 0.6 });
+      steps.forEach(function(s) { io.observe(s); });
+      dots.forEach(function(dot) {
+        dot.addEventListener('click', function() {
+          var idx = parseInt(dot.dataset.step);
+          if (steps[idx]) steps[idx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        });
+      });
+    }
   })();
 </script>
 

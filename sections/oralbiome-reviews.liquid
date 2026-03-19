@@ -89,23 +89,33 @@
   }
   .ob-reviews__track {
     display: flex;
+    flex-direction: column;
     gap: 16px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    scroll-behavior: smooth;
   }
-  .ob-reviews__track::-webkit-scrollbar { display: none; }
   .ob-reviews__card {
-    flex: 0 0 calc(100% - 16px);
-    min-width: 280px;
+    width: 100%;
     background: #FFFFFF;
     border: 1px solid #E5E7EB;
     border-radius: 8px;
-    padding: 24px;
-    scroll-snap-align: start;
+    padding: 20px;
   }
+  .ob-reviews__card.is-hidden-mobile { display: none; }
+  .ob-reviews__show-more {
+    display: block;
+    margin: 20px auto 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #C9A84C;
+    background: none;
+    border: 1px solid #C9A84C;
+    border-radius: 50px;
+    padding: 10px 28px;
+    cursor: pointer;
+    min-height: 44px;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .ob-reviews__show-more:hover { background: #C9A84C; color: #1A3B5C; }
   .ob-reviews__card-stars {
     display: flex;
     gap: 2px;
@@ -199,7 +209,18 @@
   }
 
   @media (min-width: 768px) {
-    .ob-reviews__card { flex: 0 0 calc(50% - 12px); }
+    .ob-reviews__track {
+      flex-direction: row;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .ob-reviews__track::-webkit-scrollbar { display: none; }
+    .ob-reviews__card { flex: 0 0 calc(50% - 12px); min-width: 300px; scroll-snap-align: start; }
+    .ob-reviews__card.is-hidden-mobile { display: block; }
+    .ob-reviews__show-more { display: none; }
   }
   @media (min-width: 1024px) {
     .ob-reviews { padding: 80px 0; }
@@ -269,6 +290,7 @@
         </div>
       </div>
 
+      <button type="button" class="ob-reviews__show-more" aria-label="{{ section.settings.show_more_label }}">{{ section.settings.show_more_label }}</button>
       <button type="button" class="ob-reviews__write" aria-label="{{ section.settings.write_review_text }}">{{ section.settings.write_review_text }}</button>
     {%- endif -%}
   </div>
@@ -305,8 +327,38 @@
             card.style.display = 'none';
           }
         });
+        applyMobileLimit();
       });
     });
+
+    var mobileLimit = 3;
+    var showMoreBtn = section.querySelector('.ob-reviews__show-more');
+    function applyMobileLimit() {
+      if (window.innerWidth >= 768) {
+        cards.forEach(function(c) { c.classList.remove('is-hidden-mobile'); });
+        if (showMoreBtn) showMoreBtn.style.display = 'none';
+        return;
+      }
+      var visibleCount = 0;
+      cards.forEach(function(card) {
+        if (card.style.display === 'none') return;
+        visibleCount++;
+        if (visibleCount > mobileLimit) {
+          card.classList.add('is-hidden-mobile');
+        } else {
+          card.classList.remove('is-hidden-mobile');
+        }
+      });
+      if (showMoreBtn) showMoreBtn.style.display = visibleCount > mobileLimit ? '' : 'none';
+    }
+    if (showMoreBtn) {
+      showMoreBtn.addEventListener('click', function() {
+        cards.forEach(function(c) { c.classList.remove('is-hidden-mobile'); });
+        showMoreBtn.style.display = 'none';
+      });
+    }
+    applyMobileLimit();
+    window.addEventListener('resize', applyMobileLimit);
   })();
 </script>
 
@@ -326,6 +378,7 @@
     { "type": "text", "id": "filter_breath", "label": "Filter: Fresh Breath", "default": "Fresh Breath" },
     { "type": "text", "id": "filter_sub", "label": "Filter: Subscription", "default": "Subscription" },
     { "type": "text", "id": "verified_text", "label": "Verified badge text", "default": "Verified" },
+    { "type": "text", "id": "show_more_label", "label": "Show more reviews button", "default": "Show More Reviews" },
     { "type": "text", "id": "read_more_label", "label": "Read more label", "default": "Read more" },
     { "type": "text", "id": "read_less_label", "label": "Read less label", "default": "Read less" },
     { "type": "text", "id": "write_review_text", "label": "Write review button", "default": "Write a Review" }

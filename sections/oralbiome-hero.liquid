@@ -1,22 +1,110 @@
-{{ 'product.css' | asset_url | stylesheet_tag }}
-
 <style>
-  .ob-hero {
-    padding: 40px 0;
-    background: #FFFFFF;
-  }
-  .ob-hero__container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
+  :root { --page-padding: 20px; }
+  .ob-hero { padding: 0 0 40px; background: #FFFFFF; }
+  .ob-hero__content {
     display: flex;
     flex-direction: column;
-    gap: 32px;
   }
-  .ob-hero__gallery {
+
+  .ob-hero__gallery { order: 1; width: 100%; }
+  .ob-hero__review-badge { order: 2; }
+  .ob-hero__info { order: 3; padding: 0 var(--page-padding); }
+  .ob-hero__purchase { order: 4; padding: 0 var(--page-padding); }
+
+  .ob-hero__carousel {
+    position: relative;
+    background: #1A3B5C;
+    width: 100vw;
+    margin-left: calc(-1 * var(--page-padding));
+  }
+  .ob-hero__slides {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .ob-hero__slides::-webkit-scrollbar { display: none; }
+  .ob-hero__slide {
+    flex: 0 0 100%;
+    min-width: 100%;
+    scroll-snap-align: center;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1A3B5C;
+  }
+  .ob-hero__slide img {
     width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
+  .ob-hero__promo-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #C9A84C;
+    color: #1A3B5C;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 5px 12px;
+    border-radius: 50px;
+    z-index: 2;
+  }
+  .ob-hero__benefit-overlay {
+    position: absolute;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    z-index: 2;
+    opacity: 0.85;
+  }
+  .ob-hero__swipe-hint {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.5);
+    z-index: 2;
+    pointer-events: none;
+  }
+  .ob-hero__swipe-hint svg { width: 20px; height: 20px; }
+  .ob-hero__dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 0;
+    background: #1A3B5C;
+  }
+  .ob-hero__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #E5E7EB;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .ob-hero__dot.is-active { background: #C9A84C; }
+
   .ob-hero__main-image-wrap {
+    display: none;
     position: relative;
     width: 100%;
     aspect-ratio: 1/1;
@@ -28,21 +116,14 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    transition: transform 0.4s ease;
+    transition: opacity 0.3s ease, transform 0.4s ease;
   }
-  .ob-hero__main-image-wrap:hover img {
-    transform: scale(1.05);
-  }
+  .ob-hero__main-image-wrap:hover img { transform: scale(1.05); }
   .ob-hero__thumbnails {
-    display: flex;
+    display: none;
     gap: 8px;
     margin-top: 12px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
   }
-  .ob-hero__thumbnails::-webkit-scrollbar { display: none; }
   .ob-hero__thumb {
     flex: 0 0 72px;
     width: 72px;
@@ -52,48 +133,46 @@
     cursor: pointer;
     border: 2px solid transparent;
     background: #F4F5F7;
-    scroll-snap-align: start;
     transition: border-color 0.2s ease;
   }
-  .ob-hero__thumb.is-active {
-    border-color: #C9A84C;
-  }
-  .ob-hero__thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-  .ob-hero__info {
-    width: 100%;
-  }
-  .ob-hero__rating {
-    display: inline-flex;
+  .ob-hero__thumb.is-active { border-color: #C9A84C; }
+  .ob-hero__thumb img { width: 100%; height: 100%; object-fit: contain; }
+
+  .product-review-badge {
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
-    margin-bottom: 12px;
+    padding: 12px 16px;
+    background: #FFFFFF;
+    border-top: 1px solid #E5E7EB;
+    border-bottom: 1px solid #E5E7EB;
     cursor: pointer;
-    text-decoration: none;
-    color: #1A3B5C;
+    min-height: 48px;
   }
-  .ob-hero__stars svg { width: 16px; height: 16px; fill: #C9A84C; }
-  .ob-hero__rating-text { font-family: 'DM Sans', sans-serif; font-size: 14px; color: #6B7280; }
+  .product-review-badge__stars { display: flex; gap: 2px; }
+  .product-review-badge__stars svg { width: 14px; height: 14px; fill: #C9A84C; }
+  .product-review-badge__rating { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: #1A3B5C; }
+  .product-review-badge__separator { color: #D1D5DB; font-size: 12px; }
+  .product-review-badge__count { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #6B7280; text-decoration: underline; }
+
   .ob-hero__title {
     font-family: 'DM Serif Display', serif;
-    font-size: 28px;
+    font-size: 24px;
     color: #1A3B5C;
-    margin: 0 0 8px;
+    margin: 16px 0 8px;
     line-height: 1.2;
   }
   .ob-hero__subtitle {
     font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
+    font-size: 14px;
     color: #6B7280;
-    margin: 0 0 20px;
+    margin: 0 0 16px;
   }
   .ob-hero__benefits {
     list-style: none;
     padding: 0;
-    margin: 0 0 20px;
+    margin: 0 0 16px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -107,39 +186,61 @@
     color: #1A1A1A;
     line-height: 1.4;
   }
-  .ob-hero__benefit svg {
-    flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-    margin-top: 1px;
-  }
-  .ob-hero__divider {
-    height: 1px;
-    background: #E5E7EB;
-    margin: 0 0 20px;
-  }
+  .ob-hero__benefit svg { flex-shrink: 0; width: 18px; height: 18px; margin-top: 1px; }
+  .ob-hero__divider { height: 1px; background: #E5E7EB; margin: 0 0 16px; }
+
   .ob-hero__plans {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
   .ob-hero__plan-card {
     position: relative;
-    border: 2px solid #E5E7EB;
     border-radius: 8px;
-    padding: 20px;
+    padding: 16px;
     cursor: pointer;
     transition: border-color 0.2s ease, background 0.2s ease;
   }
-  .ob-hero__plan-card.is-active {
-    border-color: #C9A84C;
+  .ob-hero__plan-card[data-plan="subscribe"] {
+    border: none;
+    border-top: 3px solid #C9A84C;
     background: rgba(201,168,76,0.04);
+  }
+  .ob-hero__plan-card[data-plan="subscribe"].is-active {
+    background: rgba(201,168,76,0.06);
+  }
+  .ob-hero__plan-card[data-plan="onetime"] {
+    border: 1px solid #E5E7EB;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+    opacity: 0;
+    transition: max-height 0.35s ease, opacity 0.25s ease, padding 0.35s ease;
+  }
+  .ob-hero__plan-card[data-plan="onetime"].is-expanded {
+    max-height: 400px;
+    opacity: 1;
+    padding: 16px;
   }
   .ob-hero__plan-card.is-active .ob-hero__plan-radio-dot {
     background: #C9A84C;
     box-shadow: inset 0 0 0 3px #fff, 0 0 0 2px #C9A84C;
   }
+  .ob-hero__onetime-toggle {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #6B7280;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 0;
+    margin-bottom: 12px;
+  }
+  .ob-hero__onetime-toggle:hover { color: #1A3B5C; }
   .ob-hero__plan-badge {
     position: absolute;
     top: -11px;
@@ -176,12 +277,7 @@
     border-radius: 50%;
     transition: all 0.2s ease;
   }
-  .ob-hero__plan-label {
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    color: #1A3B5C;
-  }
+  .ob-hero__plan-label { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 15px; color: #1A3B5C; }
   .ob-hero__plan-pricing {
     display: flex;
     align-items: baseline;
@@ -190,87 +286,18 @@
     margin-bottom: 6px;
     padding-left: 30px;
   }
-  .ob-hero__plan-price {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: #1A3B5C;
-  }
-  .ob-hero__plan-price-period {
-    font-size: 14px;
-    font-weight: 400;
-    color: #6B7280;
-  }
-  .ob-hero__plan-compare {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: #6B7280;
-    text-decoration: line-through;
-  }
-  .ob-hero__plan-save {
-    display: inline-block;
-    background: #2E7D32;
-    color: #fff;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 50px;
-    text-transform: uppercase;
-  }
-  .ob-hero__plan-perday {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: #6B7280;
-    padding-left: 30px;
-    margin-bottom: 12px;
-  }
-  .ob-hero__plan-benefits {
-    list-style: none;
-    padding: 0 0 0 30px;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .ob-hero__plan-benefit {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: #1A1A1A;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .ob-hero__plan-note {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: #6B7280;
-    padding-left: 30px;
-    margin-top: 6px;
-  }
-  .ob-hero__frequency {
-    padding-left: 30px;
-    margin-top: 10px;
-  }
-  .ob-hero__frequency label {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: #6B7280;
-    display: block;
-    margin-bottom: 4px;
-  }
-  .ob-hero__frequency select {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    padding: 8px 12px;
-    border: 1px solid #D1D5DB;
-    border-radius: 4px;
-    background: #fff;
-    color: #1A1A1A;
-    width: 100%;
-    max-width: 220px;
-    cursor: pointer;
-  }
+  .ob-hero__plan-price { font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1A3B5C; }
+  .ob-hero__plan-price-period { font-size: 14px; font-weight: 400; color: #6B7280; }
+  .ob-hero__plan-compare { font-family: 'DM Sans', sans-serif; font-size: 14px; color: #6B7280; text-decoration: line-through; }
+  .ob-hero__plan-save { display: inline-block; background: #2E7D32; color: #fff; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 50px; text-transform: uppercase; }
+  .ob-hero__plan-perday { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #6B7280; padding-left: 30px; margin-bottom: 12px; }
+  .ob-hero__plan-benefits { list-style: none; padding: 0 0 0 30px; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+  .ob-hero__plan-benefit { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #1A1A1A; display: flex; align-items: center; gap: 6px; }
+  .ob-hero__plan-note { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #6B7280; padding-left: 30px; margin-top: 6px; }
+  .ob-hero__frequency { padding-left: 30px; margin-top: 10px; }
+  .ob-hero__frequency label { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #6B7280; display: block; margin-bottom: 4px; }
+  .ob-hero__frequency select { font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 4px; background: #fff; color: #1A1A1A; width: 100%; max-width: 220px; height: 40px; cursor: pointer; }
+
   .ob-hero__qty {
     display: flex;
     align-items: center;
@@ -279,131 +306,166 @@
     justify-content: center;
   }
   .ob-hero__qty-btn {
-    width: 44px;
-    height: 44px;
-    border: 1px solid #D1D5DB;
-    background: #fff;
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #1A3B5C;
-    transition: background 0.15s ease;
+    width: 44px; height: 44px;
+    border: 1px solid #D1D5DB; background: #fff;
+    font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #1A3B5C; transition: background 0.15s ease;
     font-family: 'DM Sans', sans-serif;
   }
   .ob-hero__qty-btn:first-child { border-radius: 50px 0 0 50px; }
   .ob-hero__qty-btn:last-child { border-radius: 0 50px 50px 0; }
   .ob-hero__qty-btn:hover { background: #F4F5F7; }
   .ob-hero__qty-input {
-    width: 56px;
-    height: 44px;
-    border: 1px solid #D1D5DB;
-    border-left: none;
-    border-right: none;
-    text-align: center;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    color: #1A3B5C;
-    -moz-appearance: textfield;
+    width: 56px; height: 44px;
+    border: 1px solid #D1D5DB; border-left: none; border-right: none;
+    text-align: center; font-family: 'DM Sans', sans-serif; font-size: 16px;
+    color: #1A3B5C; -moz-appearance: textfield;
   }
   .ob-hero__qty-input::-webkit-inner-spin-button,
   .ob-hero__qty-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
   .ob-hero__atc {
-    width: 100%;
-    height: 56px;
-    background: #C9A84C;
-    color: #1A3B5C;
-    border: none;
-    border-radius: 4px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.15s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    width: 100%; height: 56px;
+    background: #C9A84C; color: #1A3B5C; border: none; border-radius: 4px;
+    font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: background 0.2s ease, transform 0.15s ease;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
     position: relative;
   }
-  .ob-hero__atc:hover:not(:disabled) {
-    background: #b8953f;
-    transform: scale(1.02);
-  }
+  .ob-hero__atc:hover:not(:disabled) { background: #b8953f; transform: scale(1.02); }
+  .ob-hero__atc:active:not(:disabled) { transform: scale(0.98); }
   .ob-hero__atc:disabled { opacity: 0.6; cursor: not-allowed; }
   .ob-hero__atc-spinner {
-    display: none;
-    width: 22px;
-    height: 22px;
-    border: 3px solid rgba(26,59,92,0.3);
-    border-top-color: #1A3B5C;
-    border-radius: 50%;
-    animation: ob-spin 0.6s linear infinite;
+    display: none; width: 22px; height: 22px;
+    border: 3px solid rgba(26,59,92,0.3); border-top-color: #1A3B5C;
+    border-radius: 50%; animation: ob-spin 0.6s linear infinite;
   }
   .ob-hero__atc.is-loading .ob-hero__atc-text { visibility: hidden; }
   .ob-hero__atc.is-loading .ob-hero__atc-spinner { display: block; position: absolute; }
   @keyframes ob-spin { to { transform: rotate(360deg); } }
+
   .ob-hero__trust-row {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-top: 16px;
+    display: flex; justify-content: center; gap: 16px;
+    flex-wrap: wrap; margin-top: 16px;
   }
   .ob-hero__trust-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    color: #6B7280;
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'DM Sans', sans-serif; font-size: 11px;
+    color: #6B7280; text-transform: uppercase;
   }
   .ob-hero__trust-item svg { width: 16px; height: 16px; }
   .ob-hero__guarantee {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 14px;
-    padding: 10px 16px;
-    background: #F4F5F7;
-    border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: #1A3B5C;
-    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; margin-top: 14px; padding: 12px 16px;
+    background: #F4F5F7; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    color: #1A3B5C; font-weight: 600;
   }
   .ob-hero__guarantee svg { width: 18px; height: 18px; flex-shrink: 0; }
 
+  .ob-hero__sticky-bar {
+    display: none;
+    position: fixed; bottom: 0; left: 0; width: 100%;
+    height: 64px; background: #1A3B5C; z-index: 999;
+    padding: 8px 16px; padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    align-items: center; justify-content: space-between;
+    transform: translateY(100%); transition: transform 0.3s ease;
+  }
+  .ob-hero__sticky-bar.is-visible {
+    display: flex;
+    transform: translateY(0);
+  }
+  .ob-hero__sticky-price {
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    font-weight: 700; color: #FFFFFF;
+  }
+  .ob-hero__sticky-atc {
+    width: 140px; height: 48px;
+    background: #C9A84C; color: #1A3B5C; border: none; border-radius: 4px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: background 0.2s ease;
+  }
+  .ob-hero__sticky-atc:hover { background: #b8953f; }
+
   @media (min-width: 768px) {
-    .ob-hero__plans { flex-direction: row; }
-    .ob-hero__plan-card { flex: 1; }
+    .ob-hero__content {
+      max-width: 1200px; margin: 0 auto; padding: 40px 20px;
+      flex-direction: row; flex-wrap: wrap; gap: 32px;
+    }
+    .ob-hero__gallery { order: 1; width: 50%; }
+    .ob-hero__info { order: 2; width: calc(50% - 32px); padding: 0; }
+    .ob-hero__review-badge { order: unset; }
+    .ob-hero__purchase { order: unset; padding: 0; }
+    .ob-hero__carousel { display: none; }
+    .ob-hero__main-image-wrap { display: block; }
+    .ob-hero__thumbnails { display: flex; }
     .ob-hero__thumb { flex: 0 0 80px; width: 80px; height: 80px; }
+    .ob-hero__plan-card[data-plan="onetime"] {
+      max-height: none; opacity: 1; padding: 16px; border: 1px solid #E5E7EB;
+    }
+    .ob-hero__onetime-toggle { display: none; }
+    .product-review-badge {
+      justify-content: flex-start; padding: 0 0 12px 0;
+      background: transparent; border: none;
+    }
+    .ob-hero__sticky-bar { display: none !important; }
   }
   @media (min-width: 1024px) {
-    .ob-hero { padding: 60px 0; }
-    .ob-hero__container { flex-direction: row; align-items: flex-start; gap: 48px; }
-    .ob-hero__gallery { width: 55%; position: sticky; top: 100px; }
-    .ob-hero__info { width: 45%; }
+    .ob-hero__content { padding: 60px 20px; gap: 48px; }
+    .ob-hero__gallery { width: 55%; position: sticky; top: 100px; align-self: flex-start; }
+    .ob-hero__info { width: calc(45% - 48px); }
     .ob-hero__title { font-size: 32px; }
+    .ob-hero__subtitle { font-size: 15px; }
+    .ob-hero__thumb { flex: 0 0 80px; }
   }
 </style>
 
 <section class="ob-hero" data-section-id="{{ section.id }}">
-  <div class="ob-hero__container">
+  <div class="ob-hero__content">
+
     <div class="ob-hero__gallery">
+      <div class="ob-hero__carousel" aria-label="{{ section.settings.image_gallery_label }}">
+        {%- if section.settings.promo_badge != blank -%}
+          <span class="ob-hero__promo-badge">{{ section.settings.promo_badge }}</span>
+        {%- endif -%}
+        {%- if section.settings.benefit_overlay != blank -%}
+          <span class="ob-hero__benefit-overlay">{{ section.settings.benefit_overlay }}</span>
+        {%- endif -%}
+        <span class="ob-hero__swipe-hint" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div class="ob-hero__slides">
+          {%- for image in product.images -%}
+            <div class="ob-hero__slide">
+              <img
+                src="{{ image | image_url: width: 800 }}"
+                srcset="{{ image | image_url: width: 400 }} 400w, {{ image | image_url: width: 800 }} 800w"
+                sizes="100vw"
+                alt="{{ image.alt | escape }}"
+                {% if forloop.first %}loading="eager"{% else %}loading="lazy"{% endif %}
+                width="800" height="800"
+              >
+            </div>
+          {%- endfor -%}
+          {%- if product.images.size == 0 -%}
+            <div class="ob-hero__slide">{{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}</div>
+          {%- endif -%}
+        </div>
+        <div class="ob-hero__dots">
+          {%- for image in product.images -%}
+            <button type="button" class="ob-hero__dot{% if forloop.first %} is-active{% endif %}" data-slide="{{ forloop.index0 }}" aria-label="Slide {{ forloop.index }}"></button>
+          {%- endfor -%}
+        </div>
+      </div>
+
       <div class="ob-hero__main-image-wrap" aria-label="{{ section.settings.image_gallery_label }}">
         {%- if product.featured_image -%}
           <img
             id="ob-hero-main-img"
             src="{{ product.featured_image | image_url: width: 800 }}"
-            srcset="{{ product.featured_image | image_url: width: 400 }} 400w, {{ product.featured_image | image_url: width: 600 }} 600w, {{ product.featured_image | image_url: width: 800 }} 800w"
-            sizes="(min-width: 1024px) 55vw, 100vw"
+            srcset="{{ product.featured_image | image_url: width: 400 }} 400w, {{ product.featured_image | image_url: width: 800 }} 800w, {{ product.featured_image | image_url: width: 1200 }} 1200w"
+            sizes="(min-width: 1024px) 55vw, 50vw"
             alt="{{ product.featured_image.alt | escape }}"
-            loading="eager"
-            width="800"
-            height="800"
+            loading="eager" width="800" height="800"
           >
         {%- else -%}
           {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
@@ -416,36 +478,32 @@
               type="button"
               class="ob-hero__thumb{% if forloop.first %} is-active{% endif %}"
               data-img-src="{{ image | image_url: width: 800 }}"
-              data-img-srcset="{{ image | image_url: width: 400 }} 400w, {{ image | image_url: width: 600 }} 600w, {{ image | image_url: width: 800 }} 800w"
+              data-img-srcset="{{ image | image_url: width: 400 }} 400w, {{ image | image_url: width: 800 }} 800w, {{ image | image_url: width: 1200 }} 1200w"
               data-img-alt="{{ image.alt | escape }}"
               aria-label="{{ section.settings.thumbnail_select_label }} {{ forloop.index }}"
               role="listitem"
             >
-              <img
-                src="{{ image | image_url: width: 160 }}"
-                alt="{{ image.alt | escape }}"
-                loading="lazy"
-                width="80"
-                height="80"
-              >
+              <img src="{{ image | image_url: width: 160 }}" alt="{{ image.alt | escape }}" loading="lazy" width="80" height="80">
             </button>
           {%- endfor -%}
         </div>
       {%- endif -%}
     </div>
 
-    <div class="ob-hero__info">
-      <a href="#oralbiome-reviews" class="ob-hero__rating" aria-label="{{ section.settings.reviews_aria_label }}">
-        <span class="ob-hero__stars">
+    <div class="ob-hero__review-badge">
+      <div class="product-review-badge" data-scroll-to="reviews">
+        <div class="product-review-badge__stars">
           {%- for i in (1..5) -%}
-            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z"/></svg>
+            <svg viewBox="0 0 24 24" fill="#C9A84C" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
           {%- endfor -%}
-        </span>
-        <span class="ob-hero__rating-text">
-          <span class="jdgm-prev-badge" data-average-rating data-number-of-reviews></span>
-        </span>
-      </a>
+        </div>
+        <span class="product-review-badge__rating">{{ product.metafields.reviews.rating.value | default: '4.8' }}</span>
+        <span class="product-review-badge__separator">&bull;</span>
+        <span class="product-review-badge__count">{{ product.metafields.reviews.rating_count | default: '127' }} {{ section.settings.reviews_text }}</span>
+      </div>
+    </div>
 
+    <div class="ob-hero__info">
       <h1 class="ob-hero__title">{{ product.title }}</h1>
       <p class="ob-hero__subtitle">{{ section.settings.subtitle }}</p>
 
@@ -465,7 +523,9 @@
       </ul>
 
       <div class="ob-hero__divider"></div>
+    </div>
 
+    <div class="ob-hero__purchase">
       {%- assign sub_plan = nil -%}
       {%- assign sub_plan_id = nil -%}
       {%- for group in product.selling_plan_groups -%}
@@ -516,6 +576,8 @@
             </div>
           {%- endif -%}
         </div>
+
+        <button type="button" class="ob-hero__onetime-toggle">{{ section.settings.onetime_toggle_text }}</button>
 
         <div class="ob-hero__plan-card" data-plan="onetime" role="radio" aria-checked="false" tabindex="0">
           <div class="ob-hero__plan-header">
@@ -581,12 +643,44 @@
       </div>
     </div>
   </div>
+
+  <div class="ob-hero__sticky-bar" aria-hidden="true">
+    <span class="ob-hero__sticky-price">{{ sub_price | money }}/{{ section.settings.month_label }}</span>
+    <button type="button" class="ob-hero__sticky-atc">{{ section.settings.add_to_cart_text }}</button>
+  </div>
 </section>
 
 <script>
   (function() {
     var section = document.querySelector('[data-section-id="{{ section.id }}"]');
     if (!section) return;
+
+    var slides = section.querySelector('.ob-hero__slides');
+    var dots = section.querySelectorAll('.ob-hero__dot');
+    if (slides && dots.length > 0) {
+      var slideEls = slides.querySelectorAll('.ob-hero__slide');
+      var ioSlide = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var idx = Array.prototype.indexOf.call(slideEls, entry.target);
+            dots.forEach(function(d, i) { d.classList.toggle('is-active', i === idx); });
+          }
+        });
+      }, { root: slides, threshold: 0.6 });
+      slideEls.forEach(function(s) { ioSlide.observe(s); });
+      dots.forEach(function(dot) {
+        dot.addEventListener('click', function() {
+          var idx = parseInt(dot.dataset.slide);
+          slideEls[idx] && slideEls[idx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        });
+      });
+      setTimeout(function() {
+        if (slides.scrollLeft === 0 && slideEls.length > 1) {
+          slides.scrollBy({ left: 30, behavior: 'smooth' });
+          setTimeout(function() { slides.scrollBy({ left: -30, behavior: 'smooth' }); }, 400);
+        }
+      }, 1200);
+    }
 
     var mainImg = section.querySelector('#ob-hero-main-img');
     var thumbs = section.querySelectorAll('.ob-hero__thumb');
@@ -595,12 +689,32 @@
         thumbs.forEach(function(t) { t.classList.remove('is-active'); });
         thumb.classList.add('is-active');
         if (mainImg) {
-          mainImg.src = thumb.dataset.imgSrc;
-          mainImg.srcset = thumb.dataset.imgSrcset;
-          mainImg.alt = thumb.dataset.imgAlt || '';
+          mainImg.style.opacity = '0';
+          setTimeout(function() {
+            mainImg.src = thumb.dataset.imgSrc;
+            mainImg.srcset = thumb.dataset.imgSrcset;
+            mainImg.alt = thumb.dataset.imgAlt || '';
+            mainImg.style.opacity = '1';
+          }, 150);
         }
       });
     });
+
+    var reviewBadge = section.querySelector('.product-review-badge');
+    if (reviewBadge) {
+      reviewBadge.addEventListener('click', function() {
+        var target = document.getElementById('oralbiome-reviews');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    var onetimeToggle = section.querySelector('.ob-hero__onetime-toggle');
+    var onetimeCard = section.querySelector('[data-plan="onetime"]');
+    if (onetimeToggle && onetimeCard) {
+      onetimeToggle.addEventListener('click', function() {
+        onetimeCard.classList.toggle('is-expanded');
+      });
+    }
 
     var planCards = section.querySelectorAll('.ob-hero__plan-card');
     var activePlan = 'subscribe';
@@ -613,6 +727,7 @@
         card.classList.add('is-active');
         card.setAttribute('aria-checked', 'true');
         activePlan = card.dataset.plan;
+        if (card.dataset.plan === 'onetime') card.classList.add('is-expanded');
       });
       card.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
@@ -630,22 +745,17 @@
       });
     });
 
-    var atcBtn = section.querySelector('.ob-hero__atc');
-    atcBtn.addEventListener('click', function() {
+    function doAddToCart() {
+      var atcBtn = section.querySelector('.ob-hero__atc');
       if (atcBtn.disabled || atcBtn.classList.contains('is-loading')) return;
       atcBtn.classList.add('is-loading');
-
       var variantId = parseInt(atcBtn.dataset.variantId);
       var qty = parseInt(qtyInput.value) || 1;
       var body = { items: [{ id: variantId, quantity: qty }] };
-
       if (activePlan === 'subscribe') {
         var freqSelect = section.querySelector('#ob-frequency-select');
-        if (freqSelect) {
-          body.items[0].selling_plan = parseInt(freqSelect.value);
-        }
+        if (freqSelect) body.items[0].selling_plan = parseInt(freqSelect.value);
       }
-
       fetch('/cart/add.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -656,10 +766,31 @@
         document.dispatchEvent(new CustomEvent('cart:refresh'));
         atcBtn.classList.remove('is-loading');
       })
-      .catch(function() {
-        atcBtn.classList.remove('is-loading');
-      });
-    });
+      .catch(function() { atcBtn.classList.remove('is-loading'); });
+    }
+
+    section.querySelector('.ob-hero__atc').addEventListener('click', doAddToCart);
+
+    var stickyBar = section.querySelector('.ob-hero__sticky-bar');
+    var stickyAtc = section.querySelector('.ob-hero__sticky-atc');
+    if (stickyBar && stickyAtc) {
+      stickyAtc.addEventListener('click', doAddToCart);
+      var heroAtc = section.querySelector('.ob-hero__atc');
+      if (heroAtc && 'IntersectionObserver' in window) {
+        var stickyObs = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              stickyBar.classList.remove('is-visible');
+              stickyBar.setAttribute('aria-hidden', 'true');
+            } else {
+              stickyBar.classList.add('is-visible');
+              stickyBar.setAttribute('aria-hidden', 'false');
+            }
+          });
+        }, { threshold: 0 });
+        stickyObs.observe(heroAtc);
+      }
+    }
   })();
 </script>
 
@@ -672,6 +803,9 @@
     { "type": "text", "id": "benefit_1", "label": "Benefit 1", "default": "Clinically studied strains for gum & teeth health" },
     { "type": "text", "id": "benefit_2", "label": "Benefit 2", "default": "Targets bad breath at the source, not the symptom" },
     { "type": "text", "id": "benefit_3", "label": "Benefit 3", "default": "Sugar-free, vegan, no refrigeration required" },
+    { "type": "text", "id": "promo_badge", "label": "Promo badge (mobile image overlay)", "default": "" },
+    { "type": "text", "id": "benefit_overlay", "label": "Benefit overlay on images (mobile)", "default": "3 Billion CFU | 4 Strains" },
+    { "type": "text", "id": "reviews_text", "label": "Reviews label", "default": "reviews" },
     { "type": "text", "id": "most_popular_badge", "label": "Most popular badge", "default": "Most Popular" },
     { "type": "text", "id": "subscribe_label", "label": "Subscribe label", "default": "Subscribe & Save" },
     { "type": "text", "id": "month_label", "label": "Month label", "default": "month" },
@@ -682,6 +816,7 @@
     { "type": "text", "id": "sub_benefit_3", "label": "Subscription benefit 3", "default": "\ud83d\udcb0 60-day money-back guarantee" },
     { "type": "text", "id": "frequency_label", "label": "Frequency label", "default": "Delivery frequency" },
     { "type": "text", "id": "onetime_label", "label": "One-time label", "default": "One-Time Purchase" },
+    { "type": "text", "id": "onetime_toggle_text", "label": "One-time toggle (mobile)", "default": "Or buy once \u2014 \u20ac24.95 \u203a" },
     { "type": "text", "id": "ot_benefit_1", "label": "One-time benefit 1", "default": "\ud83d\ude9a Free shipping over \u20ac50" },
     { "type": "text", "id": "ot_benefit_2", "label": "One-time benefit 2", "default": "\ud83d\udcb0 60-day money-back guarantee" },
     { "type": "text", "id": "onetime_note", "label": "One-time note", "default": "or subscribe above and save \u20ac5/month" },
@@ -691,7 +826,7 @@
     { "type": "text", "id": "trust_sugar_free", "label": "Trust: Sugar-Free", "default": "Sugar-Free" },
     { "type": "text", "id": "trust_clinical", "label": "Trust: Clinically Studied", "default": "Clinically Studied" },
     { "type": "text", "id": "trust_eu", "label": "Trust: EU Compliant", "default": "EU Compliant" },
-    { "type": "text", "id": "guarantee_text", "label": "Guarantee text", "default": "60-day money-back guarantee" },
+    { "type": "text", "id": "guarantee_text", "label": "Guarantee text", "default": "60-day money-back guarantee \u2014 no questions asked." },
     { "type": "text", "id": "qty_label", "label": "Quantity label", "default": "Quantity" },
     { "type": "text", "id": "decrease_qty_label", "label": "Decrease qty label", "default": "Decrease quantity" },
     { "type": "text", "id": "increase_qty_label", "label": "Increase qty label", "default": "Increase quantity" },
