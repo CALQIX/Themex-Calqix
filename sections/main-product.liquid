@@ -1955,6 +1955,9 @@
                     {% if block.settings.show_gift_card_recipient and product.gift_card? %}
                       {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
                     {% endif %}
+                    {% if product.selling_plan_groups != empty %}
+                      {%- render 'calqix-subscribe-widget' -%}
+                    {% endif %}
                     <div class="wt-product__add-to-cart_form--wrapper product-form__buttons">
                       {% if block.settings.show_qty_selector %}
                         {% render 'component-counter' %}

@@ -1,0 +1,276 @@
+{%- comment -%}
+  CALQIX Subscribe & Save Widget
+  Renders a Subscribe & Save / One-Time Purchase toggle.
+  Place inside a product form. Only renders if the product has selling plans.
+{%- endcomment -%}
+
+{%- if product.selling_plan_groups.size > 0 -%}
+{%- assign cq_spg = product.selling_plan_groups[0] -%}
+{%- assign cq_sp = cq_spg.selling_plans[0] -%}
+{%- assign cq_v = product.selected_or_first_available_variant -%}
+{%- assign cq_ot = cq_v.price -%}
+{%- assign cq_adj = cq_sp.price_adjustments[0] -%}
+
+{%- if cq_adj.value_type == 'percentage' -%}
+  {%- assign cq_disc = cq_ot | times: cq_adj.value | divided_by: 100 -%}
+  {%- assign cq_sub = cq_ot | minus: cq_disc -%}
+  {%- assign cq_pct = cq_adj.value -%}
+{%- elsif cq_adj.value_type == 'fixed_amount' -%}
+  {%- assign cq_sub = cq_ot | minus: cq_adj.value -%}
+  {%- assign cq_pct = cq_adj.value | times: 100 | divided_by: cq_ot -%}
+{%- else -%}
+  {%- assign cq_sub = cq_adj.value -%}
+  {%- assign cq_pct = cq_ot | minus: cq_adj.value | times: 100 | divided_by: cq_ot -%}
+{%- endif -%}
+
+{%- assign cq_perday = cq_sub | divided_by: 30 -%}
+
+<style>
+  @keyframes cq-sw-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(201,168,76,0.35); }
+    50%  { box-shadow: 0 0 0 6px rgba(201,168,76,0.10); }
+    100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+  }
+  @keyframes cq-sw-pop {
+    0%   { transform: scale(0.7); opacity: 0; }
+    60%  { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes cq-sw-fade {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .cq-sw { margin: 16px 0; }
+
+  .cq-sw__tabs {
+    display: flex; gap: 0; margin-bottom: 0;
+    border-radius: 8px 8px 0 0; overflow: hidden;
+    border: 2px solid #E5E7EB; border-bottom: none;
+  }
+  .cq-sw__tab {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 14px 12px; background: #FAFAFA;
+    border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    color: #6B7280; position: relative;
+    transition: background 0.25s ease, color 0.25s ease;
+    -webkit-tap-highlight-color: transparent; min-height: 48px;
+  }
+  .cq-sw__tab + .cq-sw__tab { border-left: 1px solid #E5E7EB; }
+  .cq-sw__tab.is-active { background: #1a3b5c; color: #FFFFFF; }
+  .cq-sw__tab.is-active .cq-sw__tab-save {
+    animation: cq-sw-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+
+  .cq-sw__tab-radio {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.35);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s ease;
+  }
+  .cq-sw__tab:not(.is-active) .cq-sw__tab-radio { border-color: #D1D5DB; }
+  .cq-sw__tab-radio-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: transparent; transition: background 0.2s ease;
+  }
+  .cq-sw__tab.is-active .cq-sw__tab-radio { border-color: #C9A84C; }
+  .cq-sw__tab.is-active .cq-sw__tab-radio-dot { background: #C9A84C; }
+
+  .cq-sw__tab-save {
+    background: #2E7D32; color: #fff;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 50px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+
+  .cq-sw__detail {
+    border: 2px solid #E5E7EB; border-top: none;
+    border-radius: 0 0 8px 8px; padding: 20px 16px;
+    position: relative; overflow: hidden;
+    transition: border-color 0.3s ease;
+  }
+  .cq-sw__detail.is-sub-active {
+    border-color: #C9A84C;
+    animation: cq-sw-pulse 1.8s ease-out 0.3s 1;
+  }
+  .cq-sw__tabs:has(.cq-sw__tab[data-plan="subscribe"].is-active) {
+    border-color: #C9A84C;
+  }
+
+  .cq-sw__panel { display: none; }
+  .cq-sw__panel.is-visible {
+    display: block; animation: cq-sw-fade 0.3s ease both;
+  }
+
+  .cq-sw__badge {
+    display: inline-block;
+    background: #C9A84C; color: #1a3b5c;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 3px 10px; border-radius: 50px; margin-bottom: 10px;
+  }
+  .cq-sw__pricing {
+    display: flex; align-items: baseline;
+    gap: 8px; flex-wrap: wrap; margin-bottom: 4px;
+  }
+  .cq-sw__price {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px; font-weight: 400; color: #1a3b5c;
+  }
+  .cq-sw__price-period { font-size: 14px; font-weight: 400; color: #6B7280; }
+  .cq-sw__compare {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: #9CA3AF; text-decoration: line-through;
+  }
+  .cq-sw__save {
+    display: inline-block; background: #2E7D32; color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 50px; text-transform: uppercase;
+    animation: cq-sw-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
+  }
+  .cq-sw__perday {
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    color: #6B7280; margin-bottom: 14px;
+  }
+
+  .cq-sw__benefits {
+    list-style: none; padding: 0; margin: 0 0 2px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px;
+  }
+  .cq-sw__benefit {
+    font-family: 'DM Sans', sans-serif; font-size: 12.5px;
+    color: #1A1A1A; display: flex; align-items: flex-start;
+    gap: 6px; line-height: 1.35;
+    animation: cq-sw-fade 0.35s ease both;
+  }
+  .cq-sw__benefit:nth-child(1) { animation-delay: 0.05s; }
+  .cq-sw__benefit:nth-child(2) { animation-delay: 0.10s; }
+  .cq-sw__benefit:nth-child(3) { animation-delay: 0.15s; }
+  .cq-sw__benefit:nth-child(4) { animation-delay: 0.20s; }
+
+  .cq-sw__note {
+    font-family: 'DM Sans', sans-serif; font-size: 12px;
+    color: #6B7280; margin-top: 10px; font-style: italic;
+  }
+
+  .cq-sw__frequency { margin-top: 12px; }
+  .cq-sw__frequency label {
+    font-family: 'DM Sans', sans-serif; font-size: 12px;
+    color: #6B7280; display: block; margin-bottom: 4px;
+  }
+  .cq-sw__frequency select {
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px;
+    background: #fff; color: #1A1A1A; width: 100%; max-width: 220px;
+    height: 38px; cursor: pointer;
+  }
+
+  @media (max-width: 480px) {
+    .cq-sw__tab { font-size: 12px; padding: 12px 8px; gap: 5px; }
+    .cq-sw__tab-save { font-size: 9px; padding: 2px 5px; }
+    .cq-sw__price { font-size: 24px; }
+    .cq-sw__benefits { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="cq-sw" data-selling-plan-id="{{ cq_sp.id }}">
+  <div class="cq-sw__tabs" role="radiogroup" aria-label="Purchase options">
+    <button type="button" class="cq-sw__tab is-active" data-plan="subscribe" role="radio" aria-checked="true">
+      <span class="cq-sw__tab-radio"><span class="cq-sw__tab-radio-dot"></span></span>
+      Subscribe &amp; Save
+      <span class="cq-sw__tab-save">SAVE {{ cq_pct }}%</span>
+    </button>
+    <button type="button" class="cq-sw__tab" data-plan="onetime" role="radio" aria-checked="false">
+      <span class="cq-sw__tab-radio"><span class="cq-sw__tab-radio-dot"></span></span>
+      One-Time Purchase
+    </button>
+  </div>
+
+  <div class="cq-sw__detail is-sub-active">
+    <div class="cq-sw__panel is-visible" data-panel="subscribe">
+      <span class="cq-sw__badge">Most Popular</span>
+      <div class="cq-sw__pricing">
+        <span class="cq-sw__price">{{ cq_sub | money }}<span class="cq-sw__price-period"> /month</span></span>
+        <span class="cq-sw__compare">{{ cq_ot | money }}</span>
+        <span class="cq-sw__save">SAVE {{ cq_pct }}%</span>
+      </div>
+      <p class="cq-sw__perday">{{ cq_perday | money }} per day</p>
+      <ul class="cq-sw__benefits">
+        <li class="cq-sw__benefit">🚀 Free shipping every month</li>
+        <li class="cq-sw__benefit">🔄 Skip, pause or cancel anytime</li>
+        <li class="cq-sw__benefit">🔥 60-day money-back guarantee</li>
+        <li class="cq-sw__benefit">🛡️ No commitment</li>
+      </ul>
+      {%- if cq_spg.selling_plans.size > 1 -%}
+        <div class="cq-sw__frequency">
+          <label for="cq-sw-freq">Delivery frequency</label>
+          <select id="cq-sw-freq">
+            {%- for plan in cq_spg.selling_plans -%}
+              <option value="{{ plan.id }}"{% if plan.id == cq_sp.id %} selected{% endif %}>{{ plan.name }}</option>
+            {%- endfor -%}
+          </select>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="cq-sw__panel" data-panel="onetime">
+      <div class="cq-sw__pricing">
+        <span class="cq-sw__price">{{ cq_ot | money }}</span>
+      </div>
+      <ul class="cq-sw__benefits">
+        <li class="cq-sw__benefit">🚀 Free shipping over €50</li>
+        <li class="cq-sw__benefit">🔥 60-day money-back guarantee</li>
+      </ul>
+      <p class="cq-sw__note">or subscribe above and save {{ cq_pct }}%</p>
+    </div>
+  </div>
+
+  <input type="hidden" name="selling_plan" class="cq-sw__sp-input" value="{{ cq_sp.id }}">
+</div>
+
+<script>
+(function(){
+  var w = document.querySelector('.cq-sw');
+  if (!w) return;
+  var tabs = w.querySelectorAll('.cq-sw__tab');
+  var panels = w.querySelectorAll('.cq-sw__panel');
+  var detail = w.querySelector('.cq-sw__detail');
+  var spInput = w.querySelector('.cq-sw__sp-input');
+  var defaultId = w.dataset.sellingPlanId;
+
+  function switchPlan(plan) {
+    tabs.forEach(function(t) {
+      var active = t.dataset.plan === plan;
+      t.classList.toggle('is-active', active);
+      t.setAttribute('aria-checked', active ? 'true' : 'false');
+    });
+    panels.forEach(function(p) {
+      p.classList.toggle('is-visible', p.dataset.panel === plan);
+    });
+    detail.classList.toggle('is-sub-active', plan === 'subscribe');
+    if (plan === 'subscribe') {
+      spInput.name = 'selling_plan';
+      spInput.value = defaultId;
+    } else {
+      spInput.name = '';
+      spInput.value = '';
+    }
+  }
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() { switchPlan(tab.dataset.plan); });
+  });
+
+  var freq = w.querySelector('#cq-sw-freq');
+  if (freq) {
+    freq.addEventListener('change', function() {
+      defaultId = freq.value;
+      spInput.value = freq.value;
+    });
+  }
+})();
+</script>
+{%- endif -%}
