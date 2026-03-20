@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "breadcrumbs": {
@@ -16,7 +25,7 @@
         "calqix_badge_ob01": {
           "type": "calqix_badge",
           "settings": {
-            "text": "⬡ Step 2 of the CALQIX Routine"
+            "text": "⬡ Step 3 of the CALQIX Routine"
           }
         },
         "rating_ob01": {
@@ -195,15 +204,113 @@
         "margin-bottom": 0
       }
     },
-    "oralbiome-social-proof-bar": { "type": "oralbiome-social-proof-bar" },
-    "oralbiome-video-explainer": { "type": "oralbiome-video-explainer" },
-    "oralbiome-health-benefits": { "type": "oralbiome-health-benefits" },
-    "oralbiome-how-to-use": { "type": "oralbiome-how-to-use" },
-    "oralbiome-ingredients": { "type": "oralbiome-ingredients" },
-    "oralbiome-comparison": { "type": "oralbiome-comparison" },
-    "oralbiome-reviews": { "type": "oralbiome-reviews" },
-    "oralbiome-faq": { "type": "oralbiome-faq" },
-    "oralbiome-subscription-cta": { "type": "oralbiome-subscription-cta" }
+    "oralbiome-social-proof-bar": {
+      "type": "oralbiome-social-proof-bar",
+      "settings": {
+        "item_1": "70+ Clinical Studies",
+        "item_2": "3 Billion CFU Per Lozenge",
+        "item_3": "4 Clinically Studied Strains",
+        "item_4": "Recommended by Dental Professionals",
+        "item_5": "Made for Daily Use"
+      }
+    },
+    "oralbiome-video-explainer": {
+      "type": "oralbiome-video-explainer",
+      "settings": {
+        "play_label": "Play video",
+        "placeholder_text": "Watch: How OralBiome Pro Works",
+        "eyebrow": "THE SCIENCE",
+        "heading": "Your mouth contains 700+ bacterial species. Most oral care kills them all.",
+        "body": "OralBiome Pro takes a different approach. Instead of destroying your oral microbiome with antibacterial chemicals, our clinically studied probiotic strains restore the natural balance — crowding out harmful bacteria while supporting the beneficial ones that protect your teeth, gums, and breath.",
+        "cta_text": "Read the research",
+        "cta_url": ""
+      }
+    },
+    "oralbiome-health-benefits": {
+      "type": "oralbiome-health-benefits",
+      "settings": {
+        "eyebrow": "WHY ORALBIOME PRO",
+        "heading": "Clinically studied benefits for your oral health",
+        "card_1_title": "Healthier Gums",
+        "card_1_desc": "L. reuteri DSM 17938 is proven in 70+ clinical studies to reduce gingival inflammation and bleeding.",
+        "card_2_title": "Fresh Breath at the Source",
+        "card_2_desc": "BLIS K12 crowds out the sulphur-producing bacteria that cause halitosis — no masking, real results.",
+        "card_3_title": "Plaque Defense",
+        "card_3_desc": "BLIS M18 produces enzymes that break down plaque biofilm and neutralize oral pH.",
+        "card_4_title": "Immune Support",
+        "card_4_desc": "A balanced oral microbiome is your body’s first line of defense. Support it daily.",
+        "card_5_title": "Cavity Protection",
+        "card_5_desc": "Xylitol actively inhibits Streptococcus mutans, the primary bacteria responsible for tooth decay.",
+        "card_6_title": "Whole-Body Connection",
+        "card_6_desc": "Research links oral microbiome health to cardiovascular, cognitive, and metabolic wellness."
+      }
+    },
+    "oralbiome-how-to-use": {
+      "type": "oralbiome-how-to-use",
+      "settings": {
+        "eyebrow": "YOUR DAILY RITUAL",
+        "heading": "3 steps. 60 seconds. Done.",
+        "note": "For best results, use daily before bed. Each jar contains a 30-day supply."
+      }
+    },
+    "oralbiome-ingredients": {
+      "type": "oralbiome-ingredients",
+      "settings": {
+        "eyebrow": "PREMIUM INGREDIENTS",
+        "heading": "It’s what’s on the inside that counts.",
+        "prev_label": "Previous ingredient",
+        "next_label": "Next ingredient"
+      }
+    },
+    "oralbiome-comparison": {
+      "type": "oralbiome-comparison",
+      "settings": {
+        "heading": "Not all oral care is created equal.",
+        "col_feature": "Feature",
+        "col_mouthwash": "Mouthwash",
+        "col_toothpaste": "Antibacterial Toothpaste",
+        "col_oralbiome": "OralBiome Pro"
+      }
+    },
+    "oralbiome-reviews": {
+      "type": "oralbiome-reviews",
+      "settings": {
+        "eyebrow": "REAL RESULTS",
+        "heading": "What our customers are saying",
+        "avg_rating": "4.8",
+        "based_on_text": "Based on 127 reviews",
+        "use_judgeme": false,
+        "show_filters": true,
+        "filter_all": "All",
+        "filter_gum": "Gum Health",
+        "filter_breath": "Fresh Breath",
+        "filter_sub": "Subscription",
+        "verified_text": "Verified",
+        "show_more_label": "Show More Reviews",
+        "read_more_label": "Read more",
+        "read_less_label": "Read less",
+        "write_review_text": "Write a Review"
+      }
+    },
+    "oralbiome-faq": {
+      "type": "oralbiome-faq",
+      "settings": {
+        "heading": "Frequently Asked Questions"
+      }
+    },
+    "oralbiome-subscription-cta": {
+      "type": "oralbiome-subscription-cta",
+      "settings": {
+        "heading": "Your mouth deserves daily balance.",
+        "subheading": "€0.67 per day for a clinically supported oral microbiome.",
+        "pill_1": "Free Shipping",
+        "pill_2": "Skip Anytime",
+        "pill_3": "60-Day Guarantee",
+        "pill_4": "Cancel in 1 Click",
+        "button_text": "Subscribe & Save 20%",
+        "alt_text": "or try a one-time purchase — €24.95"
+      }
+    }
   },
   "order": [
     "breadcrumbs",
