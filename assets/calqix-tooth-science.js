@@ -497,11 +497,11 @@
     function centerActiveTab() {
       const activeTab = tabs.find((button) => button.getAttribute('data-tooth-type') === state.tooth);
       if (!activeTab) return;
-      activeTab.scrollIntoView({
-        behavior: reduceMotion ? 'auto' : 'smooth',
-        inline: 'center',
-        block: 'nearest'
-      });
+      const container = activeTab.closest('[data-ts-tooth-tabs]');
+      if (container) {
+        const scrollLeft = activeTab.offsetLeft - container.offsetWidth / 2 + activeTab.offsetWidth / 2;
+        container.scrollTo({ left: scrollLeft, behavior: reduceMotion ? 'auto' : 'smooth' });
+      }
     }
 
     function updateScrollHint() {
