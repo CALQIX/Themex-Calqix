@@ -17,11 +17,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 10px 20px;
+    gap: 6px;
+    padding: 8px 16px;
+    margin: 5px 0 10px;
     background: #1A3B5C;
+    border-radius: 5px;
     cursor: pointer;
-    min-height: 44px;
+    min-height: 40px;
     -webkit-tap-highlight-color: transparent;
     transition: background 0.2s ease;
     position: relative;
@@ -37,10 +39,10 @@
   }
   .prb:active::after { opacity: 1; }
   .prb__stars { display: flex; gap: 2px; flex-shrink: 0; }
-  .prb__stars svg { width: 14px; height: 14px; }
+  .prb__stars svg { width: 12px; height: 12px; }
   .prb__rating {
     font-family: 'DM Serif Display', serif;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 400;
     color: #FFFFFF;
     line-height: 1;
@@ -52,7 +54,7 @@
   }
   .prb__count {
     font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     color: rgba(255,255,255,0.7);
     letter-spacing: 0.02em;

@@ -20,9 +20,11 @@ body[class^="template-product"] .wt-product__info {
 
 /* Badge */
 body[class^="template-product"] .wt-product__info .calqix-product-badge {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  width: fit-content;
   background: rgba(201, 168, 76, 0.1);
   border: 1px solid rgba(201, 168, 76, 0.3);
   color: var(--calqix-gold);
@@ -31,7 +33,7 @@ body[class^="template-product"] .wt-product__info .calqix-product-badge {
   text-transform: uppercase;
   font-weight: 700;
   padding: 5px 14px;
-  margin: 0 0 16px;
+  margin: 0 auto 16px;
 }
 
 /* Title + subtitle */
