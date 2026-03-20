@@ -31,57 +31,132 @@
   .ob-benefits__grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 16px;
   }
+
+  /* ── Card base ── */
   .ob-benefits__card {
     background: #FFFFFF;
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 20px;
-    box-shadow: none;
-    border-bottom: 1px solid #E5E7EB;
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     gap: 16px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(26,59,92,0.06);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     opacity: 0;
     transform: translateY(20px);
+    position: relative;
+    overflow: hidden;
   }
-  .ob-benefits__card:last-child { border-bottom: none; }
+  .ob-benefits__card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, #C9A84C, rgba(201,168,76,0.2));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .ob-benefits__card.is-visible::before { opacity: 1; }
+
+  /* ── Unique per-tile mobile entrance animations ── */
+  @keyframes ob-bene-slide-right {
+    from { opacity: 0; transform: translateX(-30px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes ob-bene-slide-left {
+    from { opacity: 0; transform: translateX(30px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes ob-bene-scale-up {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes ob-bene-fade-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes ob-bene-rotate-in {
+    from { opacity: 0; transform: translateY(16px) rotate(-2deg); }
+    to   { opacity: 1; transform: translateY(0) rotate(0); }
+  }
+  @keyframes ob-bene-pop {
+    from { opacity: 0; transform: scale(0.9) translateY(12px); }
+    60%  { transform: scale(1.03) translateY(-2px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes ob-bene-icon-pulse {
+    0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+    50%      { filter: drop-shadow(0 0 8px rgba(201,168,76,0.4)); }
+  }
+  @keyframes ob-bene-gold-line {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+  }
+
   .ob-benefits__card.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow 0.3s ease;
+    animation-fill-mode: both;
+    animation-duration: 0.55s;
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
-  .ob-benefits__card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-  }
+  .ob-benefits__card:nth-child(1).is-visible { animation-name: ob-bene-slide-right; animation-delay: 0s; }
+  .ob-benefits__card:nth-child(2).is-visible { animation-name: ob-bene-slide-left;  animation-delay: 0.08s; }
+  .ob-benefits__card:nth-child(3).is-visible { animation-name: ob-bene-scale-up;    animation-delay: 0.16s; }
+  .ob-benefits__card:nth-child(4).is-visible { animation-name: ob-bene-rotate-in;   animation-delay: 0.24s; }
+  .ob-benefits__card:nth-child(5).is-visible { animation-name: ob-bene-pop;         animation-delay: 0.32s; }
+  .ob-benefits__card:nth-child(6).is-visible { animation-name: ob-bene-fade-up;     animation-delay: 0.40s; }
+
+  /* ── Icon ── */
   .ob-benefits__card-icon {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
+    background: rgba(26,59,92,0.04);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    box-sizing: border-box;
   }
-  .ob-benefits__card-body { flex: 1; min-width: 0; }
+  .ob-benefits__card.is-visible .ob-benefits__card-icon {
+    animation: ob-bene-icon-pulse 3s ease-in-out infinite;
+  }
   .ob-benefits__card-icon svg {
     width: 100%;
     height: 100%;
   }
+
+  /* ── Body (title + desc wrapper) ── */
+  .ob-benefits__card-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
   .ob-benefits__card-title {
     font-family: 'DM Sans', sans-serif;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: #1A3B5C;
-    margin: 0 0 8px;
+    margin: 0;
+    line-height: 1.3;
   }
   .ob-benefits__card-desc {
     font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
+    font-size: 13.5px;
     color: #6B7280;
-    line-height: 1.6;
+    line-height: 1.55;
     margin: 0;
   }
 
+  /* ═══════════════════════════════════════
+     Tablet (≥768px)
+     ═══════════════════════════════════════ */
   @media (min-width: 768px) {
     .ob-benefits__grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
     .ob-benefits__card {
@@ -89,16 +164,27 @@
       align-items: center;
       text-align: center;
       padding: 28px;
-      border-bottom: none;
+      border-radius: 14px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     }
-    .ob-benefits__card-icon { width: 48px; height: 48px; margin-bottom: 0; }
+    .ob-benefits__card::before { display: none; }
+    .ob-benefits__card-body { align-items: center; gap: 8px; }
+    .ob-benefits__card-icon { width: 48px; height: 48px; }
+    .ob-benefits__card-title { font-size: 18px; }
+    .ob-benefits__card-desc { font-size: 14px; }
+    .ob-benefits__card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
   }
+
+  /* ═══════════════════════════════════════
+     Desktop (≥1024px)
+     ═══════════════════════════════════════ */
   @media (min-width: 1024px) {
     .ob-benefits { padding: 80px 0; }
     .ob-benefits__heading { font-size: 36px; }
     .ob-benefits__grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .ob-benefits__card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
   }
 </style>
 
@@ -114,48 +200,60 @@
         <div class="ob-benefits__card-icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 8c-4 0-7 3-7 8s3 10 5 13h4c2-3 5-8 5-13s-3-8-7-8z" stroke="#1A3B5C" stroke-width="2"/><path d="M24 38v2M20 34h8" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/><path d="M16 18c-2 0-4 1-4 3s2 4 4 4" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/><path d="M32 18c2 0 4 1 4 3s-2 4-4 4" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/></svg>
         </div>
-        <h3 class="ob-benefits__card-title">{{ section.settings.card_1_title }}</h3>
-        <p class="ob-benefits__card-desc">{{ section.settings.card_1_desc }}</p>
+        <div class="ob-benefits__card-body">
+          <h3 class="ob-benefits__card-title">{{ section.settings.card_1_title }}</h3>
+          <p class="ob-benefits__card-desc">{{ section.settings.card_1_desc }}</p>
+        </div>
       </div>
 
       <div class="ob-benefits__card">
         <div class="ob-benefits__card-icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 24c0-4 3-6 6-6s4 2 6 4c2-2 3-4 6-4s6 2 6 6c0 6-8 12-12 14C16 36 8 30 8 24" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/><path d="M20 20l-4 8M28 20l4 8M22 28h4" stroke="#1A3B5C" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
-        <h3 class="ob-benefits__card-title">{{ section.settings.card_2_title }}</h3>
-        <p class="ob-benefits__card-desc">{{ section.settings.card_2_desc }}</p>
+        <div class="ob-benefits__card-body">
+          <h3 class="ob-benefits__card-title">{{ section.settings.card_2_title }}</h3>
+          <p class="ob-benefits__card-desc">{{ section.settings.card_2_desc }}</p>
+        </div>
       </div>
 
       <div class="ob-benefits__card">
         <div class="ob-benefits__card-icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="14" stroke="#1A3B5C" stroke-width="2"/><circle cx="24" cy="24" r="8" stroke="#1A3B5C" stroke-width="1.5" stroke-dasharray="3 2"/><circle cx="24" cy="24" r="3" fill="#1A3B5C"/></svg>
         </div>
-        <h3 class="ob-benefits__card-title">{{ section.settings.card_3_title }}</h3>
-        <p class="ob-benefits__card-desc">{{ section.settings.card_3_desc }}</p>
+        <div class="ob-benefits__card-body">
+          <h3 class="ob-benefits__card-title">{{ section.settings.card_3_title }}</h3>
+          <p class="ob-benefits__card-desc">{{ section.settings.card_3_desc }}</p>
+        </div>
       </div>
 
       <div class="ob-benefits__card">
         <div class="ob-benefits__card-icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 6L12 12v10c0 9 5 17 12 20 7-3 12-11 12-20V12L24 6z" stroke="#1A3B5C" stroke-width="2"/><path d="M18 24l4 4 8-8" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <h3 class="ob-benefits__card-title">{{ section.settings.card_4_title }}</h3>
-        <p class="ob-benefits__card-desc">{{ section.settings.card_4_desc }}</p>
+        <div class="ob-benefits__card-body">
+          <h3 class="ob-benefits__card-title">{{ section.settings.card_4_title }}</h3>
+          <p class="ob-benefits__card-desc">{{ section.settings.card_4_desc }}</p>
+        </div>
       </div>
 
       <div class="ob-benefits__card">
         <div class="ob-benefits__card-icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 8c-4 0-7 3-7 8s3 10 5 13h4c2-3 5-8 5-13s-3-8-7-8z" stroke="#1A3B5C" stroke-width="2"/><path d="M18 24l4 4 6-6" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 38v2" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/></svg>
         </div>
-        <h3 class="ob-benefits__card-title">{{ section.settings.card_5_title }}</h3>
-        <p class="ob-benefits__card-desc">{{ section.settings.card_5_desc }}</p>
+        <div class="ob-benefits__card-body">
+          <h3 class="ob-benefits__card-title">{{ section.settings.card_5_title }}</h3>
+          <p class="ob-benefits__card-desc">{{ section.settings.card_5_desc }}</p>
+        </div>
       </div>
 
       <div class="ob-benefits__card">
         <div class="ob-benefits__card-icon">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 12c-5 0-10 4-10 9 0 6 4 10 10 12 6-2 10-6 10-12 0-5-5-9-10-9z" stroke="#1A3B5C" stroke-width="2"/><path d="M24 18v8M20 22h8" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/></svg>
         </div>
-        <h3 class="ob-benefits__card-title">{{ section.settings.card_6_title }}</h3>
-        <p class="ob-benefits__card-desc">{{ section.settings.card_6_desc }}</p>
+        <div class="ob-benefits__card-body">
+          <h3 class="ob-benefits__card-title">{{ section.settings.card_6_title }}</h3>
+          <p class="ob-benefits__card-desc">{{ section.settings.card_6_desc }}</p>
+        </div>
       </div>
 
     </div>
@@ -169,12 +267,12 @@
         if (entry.isIntersecting) {
           var cards = entry.target.querySelectorAll('.ob-benefits__card');
           cards.forEach(function(card, i) {
-            setTimeout(function() { card.classList.add('is-visible'); }, i * 100);
+            setTimeout(function() { card.classList.add('is-visible'); }, i * 120);
           });
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.15 });
+    }, { threshold: 0.1 });
     var grid = document.querySelector('[data-section-id="{{ section.id }}"] .ob-benefits__grid');
     if (grid) observer.observe(grid);
   })();
