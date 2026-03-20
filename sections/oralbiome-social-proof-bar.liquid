@@ -9,7 +9,10 @@
     overflow: hidden;
     user-select: none;
     -webkit-user-select: none;
-    padding: 14px 0;
+    padding: 0;
+    height: 48px;
+    display: flex;
+    align-items: center;
   }
 
   /* ── Keyframes ── */
@@ -68,11 +71,15 @@
     display: flex;
     align-items: center;
     overflow-x: auto;
-    scroll-snap-type: x mandatory;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     scroll-behavior: auto;
     gap: 0;
+    width: 100%;
+    height: 100%;
+    flex-shrink: 0;
   }
   .ob-proof__track::-webkit-scrollbar { display: none; }
 
@@ -80,13 +87,12 @@
   .ob-proof__item {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
+    gap: 8px;
     flex: 0 0 auto;
     scroll-snap-align: start;
     box-sizing: border-box;
-    padding: 0 16px;
-    transition: opacity 0.4s ease;
+    padding: 0 14px;
+    height: 48px;
   }
 
   /* ── Icon ── */
@@ -124,7 +130,7 @@
      Item width = 30% → 3 items = 90%, 4th peeks 10%
      ═══════════════════════════════════════ */
   @media (min-width: 960px) {
-    .ob-proof__item { width: 30%; min-width: 30%; }
+    .ob-proof__item { width: calc(100% / 3.35); min-width: 220px; }
     .ob-proof__text { font-size: 12.5px; letter-spacing: 0.08em; }
   }
 
@@ -133,7 +139,7 @@
      Item width = 32% → ~96%, 4th peeks
      ═══════════════════════════════════════ */
   @media (min-width: 600px) and (max-width: 959px) {
-    .ob-proof__item { width: 32%; min-width: 32%; }
+    .ob-proof__item { width: calc(100% / 3.25); min-width: 200px; }
   }
 
   /* ═══════════════════════════════════════
@@ -141,8 +147,9 @@
      Item width = 46% → 92%, 3rd peeks
      ═══════════════════════════════════════ */
   @media (max-width: 599px) {
-    .ob-proof__item { width: 46%; min-width: 46%; }
-    .ob-proof__text { font-size: 11px; }
+    .ob-proof__item { width: calc(100% / 2.3); min-width: 160px; }
+    .ob-proof__text { font-size: 10.5px; letter-spacing: 0.03em; }
+    .ob-proof__icon { width: 18px; height: 18px; }
   }
 
   /* ── Nav arrows (hidden by default, all breakpoints) ── */
