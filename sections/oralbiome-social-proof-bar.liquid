@@ -1,134 +1,426 @@
 <style>
+  /* ════════════════════════════════════════
+     OB Social Proof Bar — CALQIX clinical
+     ════════════════════════════════════════ */
   .ob-proof {
     background: #1A3B5C;
-    padding: 10px 0;
+    position: relative;
     overflow: hidden;
-    height: 44px;
+    user-select: none;
+    -webkit-user-select: none;
   }
-  .ob-proof__marquee {
-    display: flex;
-    width: max-content;
-    animation: ob-marquee 30s linear infinite;
+
+  /* ── Keyframes ── */
+  @keyframes ob-icon-pulse {
+    0%, 100% { filter: drop-shadow(0 0 0 rgba(201,168,76,0)); transform: scale(1); }
+    50% { filter: drop-shadow(0 0 6px rgba(201,168,76,0.45)); transform: scale(1.1); }
   }
-  .ob-proof__marquee:hover,
-  .ob-proof__marquee.is-paused {
-    animation-play-state: paused;
+  @keyframes ob-glow-sweep {
+    0%   { opacity: 0.25; }
+    50%  { opacity: 0.65; }
+    100% { opacity: 0.25; }
   }
-  @keyframes ob-marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+  @keyframes ob-fade-in-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
+  @keyframes ob-progress-fill {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+  @keyframes ob-shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* ── Subtle top/bottom glow lines ── */
+  .ob-proof::before,
+  .ob-proof::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 5%, rgba(201,168,76,0.35) 50%, transparent 95%);
+    animation: ob-glow-sweep 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .ob-proof::before { top: 0; }
+  .ob-proof::after  { bottom: 0; animation-delay: 2s; }
+
+  /* ── Icon ── */
+  .ob-proof__icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    animation: ob-icon-pulse 3s ease-in-out infinite;
+  }
+  .ob-proof__icon svg { width: 100%; height: 100%; }
+  .ob-proof__item:nth-child(1) .ob-proof__icon { animation-delay: 0s; }
+  .ob-proof__item:nth-child(2) .ob-proof__icon { animation-delay: 0.6s; }
+  .ob-proof__item:nth-child(3) .ob-proof__icon { animation-delay: 1.2s; }
+  .ob-proof__item:nth-child(4) .ob-proof__icon { animation-delay: 1.8s; }
+  .ob-proof__item:nth-child(5) .ob-proof__icon { animation-delay: 2.4s; }
+
+  /* ── Text ── */
+  .ob-proof__text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Item ── */
   .ob-proof__item {
-    flex: 0 0 auto;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 0 24px;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-  }
-  .ob-proof__item.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .ob-proof__icon {
-    flex-shrink: 0;
-    width: 24px;
-    height: 24px;
-  }
-  .ob-proof__icon svg { width: 100%; height: 100%; }
-  .ob-proof__text {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #FFFFFF;
-    white-space: nowrap;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    flex: 0 0 auto;
   }
 
-  @media (min-width: 768px) {
-    .ob-proof { height: auto; padding: 16px 0; }
-    .ob-proof__marquee {
-      animation: none;
-      width: 100%;
+  /* ── Gold separator dot (desktop) ── */
+  .ob-proof__sep {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.5);
+    flex-shrink: 0;
+    animation: ob-glow-sweep 2.5s ease-in-out infinite;
+  }
+  .ob-proof__sep:nth-of-type(2) { animation-delay: 0.6s; }
+  .ob-proof__sep:nth-of-type(3) { animation-delay: 1.2s; }
+  .ob-proof__sep:nth-of-type(4) { animation-delay: 1.8s; }
+
+  /* ═══════════════════════════════════════
+     DESKTOP (≥960px) — horizontal row
+     ═══════════════════════════════════════ */
+  @media (min-width: 960px) {
+    .ob-proof { padding: 14px 0; }
+    .ob-proof__track {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0 20px;
-      justify-content: center;
-      gap: 32px;
+      padding: 0 24px;
+      gap: 0;
     }
-    .ob-proof__set--dup { display: none; }
-    .ob-proof__item { padding: 0; }
-    .ob-proof__text { font-size: 13px; }
+    .ob-proof__sep { margin: 0 22px; }
+    .ob-proof__item {
+      animation: ob-fade-in-up 0.5s ease both;
+    }
+    .ob-proof__item:nth-child(1) { animation-delay: 0s; }
+    .ob-proof__item:nth-child(2) { animation-delay: 0.08s; }
+    .ob-proof__item:nth-child(3) { animation-delay: 0.16s; }
+    .ob-proof__item:nth-child(4) { animation-delay: 0.24s; }
+    .ob-proof__item:nth-child(5) { animation-delay: 0.32s; }
+    .ob-proof__nav,
+    .ob-proof__dots,
+    .ob-proof__progress { display: none !important; }
+  }
+
+  /* ═══════════════════════════════════════
+     MOBILE / TABLET (<960px) — carousel
+     ═══════════════════════════════════════ */
+  @media (max-width: 959px) {
+    .ob-proof { padding: 14px 0 18px; }
+
+    .ob-proof__track {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      scroll-behavior: auto;
+    }
+    .ob-proof__track::-webkit-scrollbar { display: none; }
+
+    .ob-proof__item {
+      scroll-snap-align: center;
+      min-width: 100%;
+      justify-content: center;
+      padding: 0 20px;
+      box-sizing: border-box;
+      opacity: 0.35;
+      transform: scale(0.92);
+      transition: opacity 0.45s cubic-bezier(0.4,0,0.2,1),
+                  transform 0.45s cubic-bezier(0.4,0,0.2,1);
+    }
+    .ob-proof__item.is-active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .ob-proof__sep { display: none; }
+
+    /* ── Nav arrows (hidden by default) ── */
+    .ob-proof__nav {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      z-index: 3;
+    }
+    .ob-proof:hover .ob-proof__nav,
+    .ob-proof__nav.is-visible {
+      opacity: 1;
+    }
+    .ob-proof__nav-btn {
+      pointer-events: auto;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin: 0 8px;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .ob-proof__nav-btn:hover {
+      background: rgba(201,168,76,0.2);
+      box-shadow: 0 0 10px rgba(201,168,76,0.2);
+      transform: scale(1.12);
+    }
+    .ob-proof__nav-btn:active {
+      transform: scale(0.9);
+    }
+    .ob-proof__nav-btn svg { width: 12px; height: 12px; }
+
+    /* ── Progress dots (hidden by default) ── */
+    .ob-proof__dots {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      z-index: 3;
+    }
+    .ob-proof:hover .ob-proof__dots,
+    .ob-proof__dots.is-visible {
+      opacity: 1;
+    }
+    .ob-proof__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      transition: background 0.35s, transform 0.35s, box-shadow 0.35s;
+      cursor: pointer;
+    }
+    .ob-proof__dot.is-current {
+      background: #C9A84C;
+      transform: scale(1.4);
+      box-shadow: 0 0 8px rgba(201,168,76,0.55);
+    }
+
+    /* ── Animated progress bar ── */
+    .ob-proof__progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: rgba(255,255,255,0.06);
+      z-index: 3;
+      overflow: hidden;
+    }
+    .ob-proof__progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, rgba(201,168,76,0.3), #C9A84C, rgba(201,168,76,0.3));
+      background-size: 200% 100%;
+      transform-origin: left;
+      transform: scaleX(0);
+      animation: ob-progress-fill 3s linear infinite, ob-shimmer 3s ease-in-out infinite;
+    }
+    .ob-proof__progress-fill.is-paused {
+      animation-play-state: paused;
+    }
   }
 </style>
 
-{%- capture proof_items -%}
-    <div class="ob-proof__item" style="transition-delay:0s">
+<section class="ob-proof" data-section-id="{{ section.id }}">
+  <div class="ob-proof__track" data-ob-track>
+    <div class="ob-proof__item" data-ob-item>
       <span class="ob-proof__icon">
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="14" cy="14" r="6" stroke="#C9A84C" stroke-width="1.5"/><path d="M14 4v3M14 21v3M4 14h3M21 14h3M7.05 7.05l2.12 2.12M18.83 18.83l2.12 2.12M7.05 20.95l2.12-2.12M18.83 9.17l2.12-2.12" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round"/></svg>
       </span>
       <span class="ob-proof__text">{{ section.settings.item_1 }}</span>
     </div>
-    <div class="ob-proof__item" style="transition-delay:0.1s">
+    <span class="ob-proof__sep" aria-hidden="true"></span>
+    <div class="ob-proof__item" data-ob-item>
       <span class="ob-proof__icon">
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 3L7 6.5V12c0 5 3.5 9.5 7 11 3.5-1.5 7-6 7-11V6.5L14 3z" stroke="#C9A84C" stroke-width="1.5"/></svg>
       </span>
       <span class="ob-proof__text">{{ section.settings.item_2 }}</span>
     </div>
-    <div class="ob-proof__item" style="transition-delay:0.2s">
+    <span class="ob-proof__sep" aria-hidden="true"></span>
+    <div class="ob-proof__item" data-ob-item>
       <span class="ob-proof__icon">
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 4c-2 3-4 4-4 8 0 3.3 1.8 6 4 6s4-2.7 4-6c0-4-2-5-4-8z" stroke="#C9A84C" stroke-width="1.5"/><path d="M11 18c0 1.7 1.3 3 3 3s3-1.3 3-3" stroke="#C9A84C" stroke-width="1.5"/></svg>
       </span>
       <span class="ob-proof__text">{{ section.settings.item_3 }}</span>
     </div>
-    <div class="ob-proof__item" style="transition-delay:0.3s">
+    <span class="ob-proof__sep" aria-hidden="true"></span>
+    <div class="ob-proof__item" data-ob-item>
       <span class="ob-proof__icon">
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 6c-2 0-4 2-4 5 0 2 1 3.5 2.5 4.5L11 24h6l-1.5-8.5C17 14.5 18 13 18 11c0-3-2-5-4-5z" stroke="#C9A84C" stroke-width="1.5" stroke-linejoin="round"/></svg>
       </span>
       <span class="ob-proof__text">{{ section.settings.item_4 }}</span>
     </div>
-    <div class="ob-proof__item" style="transition-delay:0.4s">
+    <span class="ob-proof__sep" aria-hidden="true"></span>
+    <div class="ob-proof__item" data-ob-item>
       <span class="ob-proof__icon">
         <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="6" width="18" height="16" rx="2" stroke="#C9A84C" stroke-width="1.5"/><path d="M5 10h18M9 6V4M19 6V4" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round"/></svg>
       </span>
       <span class="ob-proof__text">{{ section.settings.item_5 }}</span>
     </div>
-{%- endcapture -%}
-
-<section class="ob-proof" data-section-id="{{ section.id }}">
-  <div class="ob-proof__marquee">
-    <div class="ob-proof__set">{{ proof_items }}</div>
-    <div class="ob-proof__set ob-proof__set--dup" aria-hidden="true">{{ proof_items }}</div>
   </div>
+
+  <div class="ob-proof__nav" aria-hidden="true">
+    <button class="ob-proof__nav-btn" data-ob-prev type="button" aria-label="Previous">
+      <svg viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="ob-proof__nav-btn" data-ob-next type="button" aria-label="Next">
+      <svg viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <div class="ob-proof__dots" aria-hidden="true">
+    <span class="ob-proof__dot" data-ob-dot="0"></span>
+    <span class="ob-proof__dot" data-ob-dot="1"></span>
+    <span class="ob-proof__dot" data-ob-dot="2"></span>
+    <span class="ob-proof__dot" data-ob-dot="3"></span>
+    <span class="ob-proof__dot" data-ob-dot="4"></span>
+  </div>
+
+  <div class="ob-proof__progress"><div class="ob-proof__progress-fill" data-ob-progress></div></div>
 </section>
 
 <script>
-  (function() {
-    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
-    if (!section) return;
-    var marquee = section.querySelector('.ob-proof__marquee');
+(function(){
+  var root = document.querySelector('[data-section-id="{{ section.id }}"]');
+  if (!root) return;
 
-    var observer = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          var items = entry.target.querySelectorAll('.ob-proof__item');
-          items.forEach(function(item, i) {
-            setTimeout(function() { item.classList.add('is-visible'); }, i * 100);
-          });
-          observer.unobserve(entry.target);
-        }
+  var track   = root.querySelector('[data-ob-track]');
+  var items   = root.querySelectorAll('[data-ob-item]');
+  var dots    = root.querySelectorAll('[data-ob-dot]');
+  var nav     = root.querySelector('.ob-proof__nav');
+  var dotWrap = root.querySelector('.ob-proof__dots');
+  var prog    = root.querySelector('[data-ob-progress]');
+  var prevBtn = root.querySelector('[data-ob-prev]');
+  var nextBtn = root.querySelector('[data-ob-next]');
+
+  var count   = items.length;
+  var idx     = 0;
+  var timer   = null;
+  var INTERVAL = 3000;
+  var mq      = window.matchMedia('(max-width: 959px)');
+
+  function setActive(i) {
+    idx = ((i % count) + count) % count;
+    items.forEach(function(el, n) { el.classList.toggle('is-active', n === idx); });
+    dots.forEach(function(d, n)  { d.classList.toggle('is-current', n === idx); });
+    items[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    restartProgress();
+  }
+
+  function next() { setActive(idx + 1); }
+  function prev() { setActive(idx - 1); }
+
+  function startAuto() { stopAuto(); timer = setInterval(next, INTERVAL); }
+  function stopAuto()  { if (timer) { clearInterval(timer); timer = null; } }
+
+  function restartProgress() {
+    if (!prog) return;
+    prog.classList.remove('is-paused');
+    prog.style.animation = 'none';
+    prog.offsetHeight;
+    prog.style.animation = '';
+  }
+
+  function flashNav() {
+    if (nav) nav.classList.add('is-visible');
+    if (dotWrap) dotWrap.classList.add('is-visible');
+    clearTimeout(flashNav._t);
+    flashNav._t = setTimeout(function() {
+      if (nav) nav.classList.remove('is-visible');
+      if (dotWrap) dotWrap.classList.remove('is-visible');
+    }, 2500);
+  }
+
+  function initMobile() {
+    setActive(0);
+    startAuto();
+
+    if (prevBtn) prevBtn.addEventListener('click', function() { prev(); startAuto(); });
+    if (nextBtn) nextBtn.addEventListener('click', function() { next(); startAuto(); });
+    dots.forEach(function(d) {
+      d.addEventListener('click', function() {
+        setActive(parseInt(d.dataset.obDot, 10));
+        startAuto();
       });
-    }, { threshold: 0.2 });
-    observer.observe(section);
+    });
 
-    if (marquee) {
-      marquee.addEventListener('touchstart', function() { marquee.classList.add('is-paused'); }, { passive: true });
-      marquee.addEventListener('touchend', function() { marquee.classList.remove('is-paused'); }, { passive: true });
-    }
-  })();
+    var scrollEnd;
+    track.addEventListener('scroll', function() {
+      stopAuto();
+      flashNav();
+      if (prog) prog.classList.add('is-paused');
+      clearTimeout(scrollEnd);
+      scrollEnd = setTimeout(function() {
+        var center = track.scrollLeft + track.offsetWidth / 2;
+        var best = 0, bestDist = Infinity;
+        items.forEach(function(el, n) {
+          var d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - center);
+          if (d < bestDist) { bestDist = d; best = n; }
+        });
+        idx = best;
+        items.forEach(function(el, n) { el.classList.toggle('is-active', n === idx); });
+        dots.forEach(function(d, n)  { d.classList.toggle('is-current', n === idx); });
+        startAuto();
+      }, 120);
+    }, { passive: true });
+
+    root.addEventListener('touchstart', flashNav, { passive: true });
+  }
+
+  function destroyMobile() {
+    stopAuto();
+    items.forEach(function(el) { el.classList.remove('is-active'); });
+    dots.forEach(function(d)  { d.classList.remove('is-current'); });
+  }
+
+  function onResize() {
+    if (mq.matches) { initMobile(); } else { destroyMobile(); }
+  }
+
+  var io = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) { onResize(); io.disconnect(); }
+  }, { threshold: 0.15 });
+  io.observe(root);
+
+  if (mq.addEventListener) {
+    mq.addEventListener('change', onResize);
+  } else {
+    mq.addListener(onResize);
+  }
+})();
 </script>
 
 {% schema %}
