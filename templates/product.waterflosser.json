@@ -30,6 +30,7 @@
         },
         "rating_tHpFGr": {
           "type": "rating",
+          "disabled": true,
           "settings": {}
         },
         "title": {
@@ -162,8 +163,10 @@
           "type": "payments_badge",
           "settings": {
             "content": "<p>Guaranteed safe & secure checkout</p>",
+            "desktop_text_horizontal_position": "center",
             "badge_type": "payment_icons",
-            "desktop_text_horizontal_position": "center"
+            "color-body-text": "rgba(0,0,0,0)",
+            "background_color": "rgba(0,0,0,0)"
           }
         },
         "calqix_trust_badges_i3QXMQ": {
