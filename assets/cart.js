@@ -480,6 +480,11 @@ class CartItems extends HTMLElement {
       const toCents = parseInt(nextPriceNode.dataset.cents || "0", 10);
       currentPriceNode.dataset.cents = `${toCents}`;
       countMoneyValue(currentPriceNode, fromCents, toCents, 320, currencyCode);
+      const currentOldPrice = currentNode.querySelector(".cart-item__old-price");
+      const nextOldPrice = templateNode.querySelector(".cart-item__old-price");
+      if (currentOldPrice && nextOldPrice) {
+        currentOldPrice.textContent = nextOldPrice.textContent;
+      }
     } else {
       const currentWrapper = currentNode.querySelector(".wt-cart__item__price-wrapper");
       const templateWrapper = templateNode.querySelector(".wt-cart__item__price-wrapper");
