@@ -1,6 +1,7 @@
 <style>
   /* ════════════════════════════════════════
-     OB Social Proof Bar — CALQIX clinical v2
+     OB Social Proof Bar — CALQIX clinical v3
+     Scrolling carousel on all breakpoints
      ════════════════════════════════════════ */
   .ob-proof {
     background: #1A3B5C;
@@ -8,18 +9,13 @@
     overflow: hidden;
     user-select: none;
     -webkit-user-select: none;
+    padding: 14px 0;
   }
 
   /* ── Keyframes ── */
   @keyframes ob-icon-glow {
-    0%, 100% {
-      filter: drop-shadow(0 0 2px rgba(201,168,76,0.2));
-      transform: scale(1);
-    }
-    50% {
-      filter: drop-shadow(0 0 10px rgba(201,168,76,0.7)) drop-shadow(0 0 20px rgba(201,168,76,0.3));
-      transform: scale(1.18);
-    }
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(201,168,76,0.2)); transform: scale(1); }
+    50%      { filter: drop-shadow(0 0 10px rgba(201,168,76,0.7)) drop-shadow(0 0 20px rgba(201,168,76,0.3)); transform: scale(1.18); }
   }
   @keyframes ob-bar-shimmer {
     0%   { background-position: -100% 0; }
@@ -33,77 +29,70 @@
     0%, 100% { text-shadow: 0 0 0 transparent; }
     50%      { text-shadow: 0 0 8px rgba(201,168,76,0.3); }
   }
-  @keyframes ob-dot-breathe {
-    0%, 100% { box-shadow: 0 0 2px rgba(201,168,76,0.3); transform: scale(1); }
-    50%      { box-shadow: 0 0 8px rgba(201,168,76,0.7); transform: scale(1.5); }
-  }
-  @keyframes ob-fade-in-up {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
   @keyframes ob-progress-fill {
     from { transform: scaleX(0); }
     to   { transform: scaleX(1); }
   }
-  @keyframes ob-shimmer {
+  @keyframes ob-shimmer-bar {
     0%   { background-position: -200% center; }
     100% { background-position: 200% center; }
   }
 
-  /* ── Animated shimmer band across the bar ── */
+  /* ── Shimmer band across the bar ── */
   .ob-proof::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(
-      110deg,
-      transparent 25%,
-      rgba(201,168,76,0.06) 37%,
-      rgba(201,168,76,0.12) 50%,
-      rgba(201,168,76,0.06) 63%,
-      transparent 75%
-    );
+    background: linear-gradient(110deg, transparent 25%, rgba(201,168,76,0.06) 37%, rgba(201,168,76,0.12) 50%, rgba(201,168,76,0.06) 63%, transparent 75%);
     background-size: 200% 100%;
     animation: ob-bar-shimmer 6s ease-in-out infinite;
     pointer-events: none;
     z-index: 1;
   }
 
-  /* ── Gold glow lines top + bottom ── */
+  /* ── Gold glow lines ── */
   .ob-proof__glow-top,
   .ob-proof__glow-bottom {
-    position: absolute;
-    left: 0; right: 0;
-    height: 1px;
+    position: absolute; left: 0; right: 0; height: 1px;
     background: linear-gradient(90deg, transparent 5%, rgba(201,168,76,0.5) 50%, transparent 95%);
     animation: ob-glow-line 3s ease-in-out infinite;
-    pointer-events: none;
-    z-index: 2;
+    pointer-events: none; z-index: 2;
   }
   .ob-proof__glow-top { top: 0; }
   .ob-proof__glow-bottom { bottom: 0; animation-delay: 1.5s; }
 
-  /* ── Track ── */
+  /* ── Track — scrollable on all breakpoints ── */
   .ob-proof__track {
     position: relative;
     z-index: 2;
     display: flex;
     align-items: center;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-behavior: auto;
+    gap: 0;
   }
+  .ob-proof__track::-webkit-scrollbar { display: none; }
 
-  /* ── Item ── */
+  /* ── Item base ── */
   .ob-proof__item {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     flex: 0 0 auto;
+    scroll-snap-align: start;
+    box-sizing: border-box;
+    padding: 0 16px;
+    transition: opacity 0.4s ease;
   }
 
   /* ── Icon ── */
   .ob-proof__icon {
     flex-shrink: 0;
-    width: 22px;
-    height: 22px;
+    width: 22px; height: 22px;
     animation: ob-icon-glow 2.8s ease-in-out infinite;
   }
   .ob-proof__icon svg { width: 100%; height: 100%; }
@@ -131,184 +120,114 @@
   .ob-proof__item:nth-of-type(5) .ob-proof__text { animation-delay: 3.2s; }
 
   /* ═══════════════════════════════════════
-     DESKTOP (≥960px) — horizontal row
+     PC (≥960px): 3 visible + 4th peek
+     Item width = 30% → 3 items = 90%, 4th peeks 10%
      ═══════════════════════════════════════ */
   @media (min-width: 960px) {
-    .ob-proof { padding: 14px 0; }
-    .ob-proof__track {
-      justify-content: center;
-      gap: 0;
-      padding: 0 20px;
-    }
-    .ob-proof__item {
-      animation: ob-fade-in-up 0.6s ease both;
-    }
-    .ob-proof__item:nth-of-type(1) { animation-delay: 0s; }
-    .ob-proof__item:nth-of-type(2) { animation-delay: 0.1s; }
-    .ob-proof__item:nth-of-type(3) { animation-delay: 0.2s; }
-    .ob-proof__item:nth-of-type(4) { animation-delay: 0.3s; }
-    .ob-proof__item:nth-of-type(5) { animation-delay: 0.4s; }
-
-    /* CSS separator dot between items via ::after */
-    .ob-proof__item:not(:last-of-type)::after {
-      content: '';
-      display: inline-block;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: #C9A84C;
-      margin-left: 16px;
-      flex-shrink: 0;
-      animation: ob-dot-breathe 2.5s ease-in-out infinite;
-    }
-    .ob-proof__item:nth-of-type(1)::after { animation-delay: 0.3s; }
-    .ob-proof__item:nth-of-type(2)::after { animation-delay: 0.9s; }
-    .ob-proof__item:nth-of-type(3)::after { animation-delay: 1.5s; }
-    .ob-proof__item:nth-of-type(4)::after { animation-delay: 2.1s; }
-    .ob-proof__item + .ob-proof__item { margin-left: 16px; }
-
-    .ob-proof__nav,
-    .ob-proof__dots,
-    .ob-proof__progress { display: none !important; }
-  }
-
-  /* ── Large desktop: slightly bigger text ── */
-  @media (min-width: 1280px) {
+    .ob-proof__item { width: 30%; min-width: 30%; }
     .ob-proof__text { font-size: 12.5px; letter-spacing: 0.08em; }
-    .ob-proof__item:not(:last-of-type)::after { margin-left: 22px; }
-    .ob-proof__item + .ob-proof__item { margin-left: 22px; }
   }
 
   /* ═══════════════════════════════════════
-     MOBILE / TABLET (<960px) — carousel
+     Tablet (600–959px): 3 visible + 4th peek
+     Item width = 32% → ~96%, 4th peeks
      ═══════════════════════════════════════ */
-  @media (max-width: 959px) {
-    .ob-proof { padding: 14px 0 18px; }
+  @media (min-width: 600px) and (max-width: 959px) {
+    .ob-proof__item { width: 32%; min-width: 32%; }
+  }
 
-    .ob-proof__track {
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      scroll-behavior: auto;
-    }
-    .ob-proof__track::-webkit-scrollbar { display: none; }
+  /* ═══════════════════════════════════════
+     Mobile (<600px): 2 visible + 3rd peek
+     Item width = 46% → 92%, 3rd peeks
+     ═══════════════════════════════════════ */
+  @media (max-width: 599px) {
+    .ob-proof__item { width: 46%; min-width: 46%; }
+    .ob-proof__text { font-size: 11px; }
+  }
 
-    .ob-proof__item {
-      scroll-snap-align: center;
-      min-width: 100%;
-      justify-content: center;
-      padding: 0 20px;
-      box-sizing: border-box;
-      opacity: 0.3;
-      transform: scale(0.9);
-      transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1),
-                  transform 0.5s cubic-bezier(0.4,0,0.2,1);
-    }
-    .ob-proof__item.is-active {
-      opacity: 1;
-      transform: scale(1);
-    }
+  /* ── Nav arrows (hidden by default, all breakpoints) ── */
+  .ob-proof__nav {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: 4;
+  }
+  .ob-proof:hover .ob-proof__nav,
+  .ob-proof__nav.is-visible {
+    opacity: 1;
+  }
+  .ob-proof__nav-btn {
+    pointer-events: auto;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    margin: 0 6px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.25s;
+  }
+  .ob-proof__nav-btn:hover {
+    background: rgba(201,168,76,0.25);
+    box-shadow: 0 0 12px rgba(201,168,76,0.3);
+    transform: scale(1.15);
+  }
+  .ob-proof__nav-btn:active { transform: scale(0.88); }
+  .ob-proof__nav-btn svg { width: 12px; height: 12px; }
 
-    /* ── Nav arrows (hidden by default) ── */
-    .ob-proof__nav {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.35s ease;
-      z-index: 3;
-    }
-    .ob-proof:hover .ob-proof__nav,
-    .ob-proof__nav.is-visible {
-      opacity: 1;
-    }
-    .ob-proof__nav-btn {
-      pointer-events: auto;
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #fff;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      margin: 0 8px;
-      transition: background 0.2s, transform 0.15s, box-shadow 0.25s;
-    }
-    .ob-proof__nav-btn:hover {
-      background: rgba(201,168,76,0.25);
-      box-shadow: 0 0 12px rgba(201,168,76,0.3);
-      transform: scale(1.15);
-    }
-    .ob-proof__nav-btn:active { transform: scale(0.88); }
-    .ob-proof__nav-btn svg { width: 12px; height: 12px; }
+  /* ── Progress bar (bottom) ── */
+  .ob-proof__progress {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 2px;
+    background: rgba(255,255,255,0.06);
+    z-index: 4;
+    overflow: hidden;
+  }
+  .ob-proof__progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(201,168,76,0.3), #C9A84C, rgba(201,168,76,0.3));
+    background-size: 200% 100%;
+    transform-origin: left;
+    transform: scaleX(0);
+    animation: ob-progress-fill 3s linear infinite, ob-shimmer-bar 3s ease-in-out infinite;
+  }
+  .ob-proof__progress-fill.is-paused {
+    animation-play-state: paused;
+  }
 
-    /* ── Progress dots (hidden by default) ── */
-    .ob-proof__dots {
-      position: absolute;
-      bottom: 4px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 8px;
-      opacity: 0;
-      transition: opacity 0.35s ease;
-      z-index: 3;
-    }
-    .ob-proof:hover .ob-proof__dots,
-    .ob-proof__dots.is-visible {
-      opacity: 1;
-    }
-    .ob-proof__dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.25);
-      transition: background 0.35s, transform 0.35s, box-shadow 0.35s;
-      cursor: pointer;
-    }
-    .ob-proof__dot.is-current {
-      background: #C9A84C;
-      transform: scale(1.5);
-      box-shadow: 0 0 10px rgba(201,168,76,0.6);
-    }
-
-    /* ── Animated progress bar ── */
-    .ob-proof__progress {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: rgba(255,255,255,0.06);
-      z-index: 3;
-      overflow: hidden;
-    }
-    .ob-proof__progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, rgba(201,168,76,0.3), #C9A84C, rgba(201,168,76,0.3));
-      background-size: 200% 100%;
-      transform-origin: left;
-      transform: scaleX(0);
-      animation: ob-progress-fill 3s linear infinite, ob-shimmer 3s ease-in-out infinite;
-    }
-    .ob-proof__progress-fill.is-paused {
-      animation-play-state: paused;
-    }
+  /* ── Fade edges for sneak-peek effect ── */
+  .ob-proof__fade-left,
+  .ob-proof__fade-right {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 40px;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .ob-proof__fade-left {
+    left: 0;
+    background: linear-gradient(to right, #1A3B5C 0%, transparent 100%);
+  }
+  .ob-proof__fade-right {
+    right: 0;
+    background: linear-gradient(to left, #1A3B5C 0%, transparent 100%);
   }
 </style>
 
 <section class="ob-proof" data-section-id="{{ section.id }}">
   <span class="ob-proof__glow-top" aria-hidden="true"></span>
   <span class="ob-proof__glow-bottom" aria-hidden="true"></span>
+  <span class="ob-proof__fade-left" aria-hidden="true"></span>
+  <span class="ob-proof__fade-right" aria-hidden="true"></span>
 
   <div class="ob-proof__track" data-ob-track>
     <div class="ob-proof__item" data-ob-item>
@@ -352,14 +271,6 @@
     </button>
   </div>
 
-  <div class="ob-proof__dots" aria-hidden="true">
-    <span class="ob-proof__dot" data-ob-dot="0"></span>
-    <span class="ob-proof__dot" data-ob-dot="1"></span>
-    <span class="ob-proof__dot" data-ob-dot="2"></span>
-    <span class="ob-proof__dot" data-ob-dot="3"></span>
-    <span class="ob-proof__dot" data-ob-dot="4"></span>
-  </div>
-
   <div class="ob-proof__progress"><div class="ob-proof__progress-fill" data-ob-progress></div></div>
 </section>
 
@@ -370,118 +281,106 @@
 
   var track   = root.querySelector('[data-ob-track]');
   var items   = root.querySelectorAll('[data-ob-item]');
-  var dots    = root.querySelectorAll('[data-ob-dot]');
   var nav     = root.querySelector('.ob-proof__nav');
-  var dotWrap = root.querySelector('.ob-proof__dots');
   var prog    = root.querySelector('[data-ob-progress]');
   var prevBtn = root.querySelector('[data-ob-prev]');
   var nextBtn = root.querySelector('[data-ob-next]');
 
-  var count     = items.length;
-  var idx       = 0;
-  var timer     = null;
-  var INTERVAL  = 3000;
-  var mq        = window.matchMedia('(max-width: 959px)');
-  var mobileInit = false;
+  var count    = items.length;
+  var timer    = null;
+  var INTERVAL = 3000;
+  var ready    = false;
 
-  function setActive(i) {
-    idx = ((i % count) + count) % count;
-    items.forEach(function(el, n) { el.classList.toggle('is-active', n === idx); });
-    dots.forEach(function(d, n)  { d.classList.toggle('is-current', n === idx); });
-    items[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  function getItemWidth() {
+    return items[0] ? items[0].offsetWidth : 200;
+  }
+
+  function scrollByOne(dir) {
+    var w = getItemWidth();
+    track.scrollBy({ left: dir * w, behavior: 'smooth' });
     restartProgress();
   }
 
-  function next() { setActive(idx + 1); }
-  function prev() { setActive(idx - 1); }
+  function scrollNext() {
+    var maxScroll = track.scrollWidth - track.clientWidth;
+    if (track.scrollLeft >= maxScroll - 2) {
+      track.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      scrollByOne(1);
+    }
+    restartProgress();
+  }
 
-  function startAuto() { stopAuto(); timer = setInterval(next, INTERVAL); }
+  function scrollPrev() {
+    if (track.scrollLeft <= 2) {
+      track.scrollTo({ left: track.scrollWidth, behavior: 'smooth' });
+    } else {
+      scrollByOne(-1);
+    }
+    restartProgress();
+  }
+
+  function startAuto() { stopAuto(); timer = setInterval(scrollNext, INTERVAL); }
   function stopAuto()  { if (timer) { clearInterval(timer); timer = null; } }
 
   function restartProgress() {
     if (!prog) return;
-    prog.classList.remove('is-paused');
     prog.style.animation = 'none';
     void prog.offsetHeight;
     prog.style.animation = '';
+    prog.classList.remove('is-paused');
   }
 
   function flashNav() {
     if (nav) nav.classList.add('is-visible');
-    if (dotWrap) dotWrap.classList.add('is-visible');
     clearTimeout(flashNav._t);
     flashNav._t = setTimeout(function() {
       if (nav) nav.classList.remove('is-visible');
-      if (dotWrap) dotWrap.classList.remove('is-visible');
     }, 2500);
   }
 
-  function onPrev() { prev(); startAuto(); }
-  function onNext() { next(); startAuto(); }
-  function onDotClick() {
-    setActive(parseInt(this.dataset.obDot, 10));
+  function init() {
+    if (ready) return;
+    ready = true;
+
     startAuto();
-  }
+    restartProgress();
 
-  var scrollEnd;
-  function onScroll() {
-    stopAuto();
-    flashNav();
-    if (prog) prog.classList.add('is-paused');
-    clearTimeout(scrollEnd);
-    scrollEnd = setTimeout(function() {
-      var center = track.scrollLeft + track.offsetWidth / 2;
-      var best = 0, bestDist = Infinity;
-      items.forEach(function(el, n) {
-        var d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - center);
-        if (d < bestDist) { bestDist = d; best = n; }
-      });
-      idx = best;
-      items.forEach(function(el, n) { el.classList.toggle('is-active', n === idx); });
-      dots.forEach(function(d, n)  { d.classList.toggle('is-current', n === idx); });
-      startAuto();
-    }, 120);
-  }
+    prevBtn && prevBtn.addEventListener('click', function() { scrollPrev(); startAuto(); });
+    nextBtn && nextBtn.addEventListener('click', function() { scrollNext(); startAuto(); });
 
-  function initMobile() {
-    if (mobileInit) return;
-    mobileInit = true;
-    setActive(0);
-    startAuto();
-    if (prevBtn) prevBtn.addEventListener('click', onPrev);
-    if (nextBtn) nextBtn.addEventListener('click', onNext);
-    dots.forEach(function(d) { d.addEventListener('click', onDotClick); });
-    track.addEventListener('scroll', onScroll, { passive: true });
-    root.addEventListener('touchstart', flashNav, { passive: true });
-  }
+    var scrollTimeout;
+    var userScrolling = false;
+    track.addEventListener('scroll', function() {
+      if (!userScrolling) return;
+      stopAuto();
+      flashNav();
+      if (prog) prog.classList.add('is-paused');
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(function() {
+        startAuto();
+      }, 1500);
+    }, { passive: true });
 
-  function destroyMobile() {
-    if (!mobileInit) return;
-    mobileInit = false;
-    stopAuto();
-    items.forEach(function(el) { el.classList.remove('is-active'); });
-    dots.forEach(function(d)  { d.classList.remove('is-current'); });
-    if (prevBtn) prevBtn.removeEventListener('click', onPrev);
-    if (nextBtn) nextBtn.removeEventListener('click', onNext);
-    dots.forEach(function(d) { d.removeEventListener('click', onDotClick); });
-    track.removeEventListener('scroll', onScroll);
-    root.removeEventListener('touchstart', flashNav);
-  }
+    track.addEventListener('pointerdown', function() { userScrolling = true; }, { passive: true });
+    track.addEventListener('pointerup',   function() {
+      setTimeout(function() { userScrolling = false; }, 200);
+    }, { passive: true });
+    track.addEventListener('touchstart', function() {
+      userScrolling = true;
+      flashNav();
+    }, { passive: true });
+    track.addEventListener('touchend', function() {
+      setTimeout(function() { userScrolling = false; }, 200);
+    }, { passive: true });
 
-  function onResize() {
-    if (mq.matches) { initMobile(); } else { destroyMobile(); }
+    root.addEventListener('mouseenter', flashNav);
   }
 
   var io = new IntersectionObserver(function(entries) {
-    if (entries[0].isIntersecting) { onResize(); io.disconnect(); }
+    if (entries[0].isIntersecting) { init(); io.disconnect(); }
   }, { threshold: 0.15 });
   io.observe(root);
-
-  if (mq.addEventListener) {
-    mq.addEventListener('change', onResize);
-  } else {
-    mq.addListener(onResize);
-  }
 })();
 </script>
 
