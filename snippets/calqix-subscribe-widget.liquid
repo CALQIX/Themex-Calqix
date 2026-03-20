@@ -4,23 +4,33 @@
   Place inside a product form. Only renders if the product has selling plans.
 {%- endcomment -%}
 
-{%- if product.selling_plan_groups.size > 0 -%}
-{%- assign cq_spg = product.selling_plan_groups[0] -%}
-{%- assign cq_sp = cq_spg.selling_plans[0] -%}
 {%- assign cq_v = product.selected_or_first_available_variant -%}
 {%- assign cq_ot = cq_v.price -%}
-{%- assign cq_adj = cq_sp.price_adjustments[0] -%}
+{%- assign cq_has_plans = false -%}
+{%- assign cq_sp_id = '' -%}
 
-{%- if cq_adj.value_type == 'percentage' -%}
-  {%- assign cq_disc = cq_ot | times: cq_adj.value | divided_by: 100 -%}
-  {%- assign cq_sub = cq_ot | minus: cq_disc -%}
-  {%- assign cq_pct = cq_adj.value -%}
-{%- elsif cq_adj.value_type == 'fixed_amount' -%}
-  {%- assign cq_sub = cq_ot | minus: cq_adj.value -%}
-  {%- assign cq_pct = cq_adj.value | times: 100 | divided_by: cq_ot -%}
+{%- if product.selling_plan_groups.size > 0 -%}
+  {%- assign cq_has_plans = true -%}
+  {%- assign cq_spg = product.selling_plan_groups[0] -%}
+  {%- assign cq_sp = cq_spg.selling_plans[0] -%}
+  {%- assign cq_sp_id = cq_sp.id -%}
+  {%- assign cq_adj = cq_sp.price_adjustments[0] -%}
+
+  {%- if cq_adj.value_type == 'percentage' -%}
+    {%- assign cq_disc = cq_ot | times: cq_adj.value | divided_by: 100 -%}
+    {%- assign cq_sub = cq_ot | minus: cq_disc -%}
+    {%- assign cq_pct = cq_adj.value -%}
+  {%- elsif cq_adj.value_type == 'fixed_amount' -%}
+    {%- assign cq_sub = cq_ot | minus: cq_adj.value -%}
+    {%- assign cq_pct = cq_adj.value | times: 100 | divided_by: cq_ot -%}
+  {%- else -%}
+    {%- assign cq_sub = cq_adj.value -%}
+    {%- assign cq_pct = cq_ot | minus: cq_adj.value | times: 100 | divided_by: cq_ot -%}
+  {%- endif -%}
 {%- else -%}
-  {%- assign cq_sub = cq_adj.value -%}
-  {%- assign cq_pct = cq_ot | minus: cq_adj.value | times: 100 | divided_by: cq_ot -%}
+  {%- assign cq_pct = 20 -%}
+  {%- assign cq_disc = cq_ot | times: cq_pct | divided_by: 100 -%}
+  {%- assign cq_sub = cq_ot | minus: cq_disc -%}
 {%- endif -%}
 
 {%- assign cq_perday = cq_sub | divided_by: 30 -%}
@@ -184,7 +194,7 @@
   }
 </style>
 
-<div class="cq-sw" data-selling-plan-id="{{ cq_sp.id }}">
+<div class="cq-sw" data-selling-plan-id="{{ cq_sp_id }}">
   <div class="cq-sw__scroll">
     <div class="cq-sw__cards" role="radiogroup" aria-label="Purchase options">
       <button type="button" class="cq-sw__card is-active" data-plan="subscribe" role="radio" aria-checked="true">
@@ -238,7 +248,7 @@
     </div>
   </div>
 
-  <input type="hidden" name="selling_plan" class="cq-sw__sp-input" value="{{ cq_sp.id }}">
+  <input type="hidden" name="selling_plan" class="cq-sw__sp-input" value="{{ cq_sp_id }}">
 </div>
 
 <script>
@@ -283,4 +293,3 @@
   }
 })();
 </script>
-{%- endif -%}
