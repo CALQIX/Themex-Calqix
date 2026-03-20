@@ -1,55 +1,132 @@
+{%- comment -%}
+  Product Review Badge — compact bar below product gallery (mobile-only by default).
+  Renders: ★★★★★  4.8  ·  Based on 127 reviews
+  On click → smooth scroll to reviews section with clinical highlight.
+
+  Usage:
+    {% render 'product-review-badge', badge_rating: '4.8', badge_count: '127', badge_label: 'reviews' %}
+  Or auto-detect from product metafields if no args passed.
+{%- endcomment -%}
+
+{%- assign _rb_rating = badge_rating | default: product.metafields.reviews.rating.value | default: '4.8' -%}
+{%- assign _rb_count  = badge_count  | default: product.metafields.reviews.rating_count | default: '127' -%}
+{%- assign _rb_label  = badge_label  | default: 'reviews' -%}
+
 <style>
-  .product-review-badge {
+  .prb {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 12px 16px;
-    background: #FFFFFF;
-    border-top: 1px solid #E5E7EB;
-    border-bottom: 1px solid #E5E7EB;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #1A3B5C;
     cursor: pointer;
-    min-height: 48px;
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s ease;
+    position: relative;
+    overflow: hidden;
   }
-  .product-review-badge__stars { display: flex; gap: 2px; }
-  .product-review-badge__stars svg { width: 14px; height: 14px; fill: #C9A84C; }
-  .product-review-badge__rating { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: #1A3B5C; }
-  .product-review-badge__separator { color: #D1D5DB; font-size: 12px; }
-  .product-review-badge__count { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #6B7280; text-decoration: underline; }
+  .prb::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(201,168,76,0.08) 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .prb:active::after { opacity: 1; }
+  .prb__stars { display: flex; gap: 2px; flex-shrink: 0; }
+  .prb__stars svg { width: 14px; height: 14px; }
+  .prb__rating {
+    font-family: 'DM Serif Display', serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: #FFFFFF;
+    line-height: 1;
+  }
+  .prb__sep {
+    color: rgba(255,255,255,0.3);
+    font-size: 10px;
+    line-height: 1;
+  }
+  .prb__count {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.02em;
+  }
   @media (min-width: 768px) {
-    .product-review-badge {
-      justify-content: flex-start;
-      padding: 0 0 12px 0;
-      background: transparent;
-      border: none;
-    }
+    .prb { display: none; }
+  }
+
+  @keyframes prb-highlight {
+    0%   { box-shadow: 0 0 0 0 rgba(201,168,76,0.4); }
+    40%  { box-shadow: 0 0 0 6px rgba(201,168,76,0.15); }
+    100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+  }
+  .prb-target-highlight {
+    animation: prb-highlight 0.8s ease-out;
   }
 </style>
 
-{%- assign badge_rating = product.metafields.reviews.rating.value | default: '4.8' -%}
-{%- assign badge_count = product.metafields.reviews.rating_count | default: '127' -%}
-{%- assign badge_label = badge_reviews_label | default: 'reviews' -%}
-{%- assign badge_scroll_target = badge_scroll_to | default: 'reviews' -%}
-
-<div class="product-review-badge" data-scroll-to="{{ badge_scroll_target }}">
-  <div class="product-review-badge__stars">
+<div class="prb" role="button" tabindex="0" aria-label="{{ _rb_rating }} out of 5 — {{ _rb_count }} {{ _rb_label }}">
+  <span class="prb__stars">
     {%- for i in (1..5) -%}
-      <svg viewBox="0 0 24 24" fill="#C9A84C" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#C9A84C"/></svg>
     {%- endfor -%}
-  </div>
-  <span class="product-review-badge__rating">{{ badge_rating }}</span>
-  <span class="product-review-badge__separator">&bull;</span>
-  <span class="product-review-badge__count">{{ badge_count }} {{ badge_label }}</span>
+  </span>
+  <span class="prb__rating">{{ _rb_rating }}</span>
+  <span class="prb__sep">&bull;</span>
+  <span class="prb__count">Based on {{ _rb_count }} {{ _rb_label }}</span>
 </div>
 
 <script>
-  (function() {
-    var badges = document.querySelectorAll('.product-review-badge[data-scroll-to]');
+  (function(){
+    var badges = document.querySelectorAll('.prb');
+    if (!badges.length) return;
+
+    function findReviewSection() {
+      var selectors = [
+        '#oralbiome-reviews',
+        '[id^="cq-reviews-"]',
+        '#judgeme_product_reviews',
+        '.lumicore-testimonials-grid',
+        '.calqix-reviews',
+        '.ob-reviews',
+        '[data-reviews-section]'
+      ];
+      for (var i = 0; i < selectors.length; i++) {
+        var el = document.querySelector(selectors[i]);
+        if (el) return el;
+      }
+      return null;
+    }
+
+    function scrollToReviews() {
+      var target = findReviewSection();
+      if (!target) return;
+      var headerH = document.querySelector('.page-header')
+        ? document.querySelector('.page-header').offsetHeight
+        : 0;
+      var y = target.getBoundingClientRect().top + window.pageYOffset - headerH - 16;
+
+      window.scrollTo({ top: y, behavior: 'smooth' });
+
+      setTimeout(function() {
+        target.classList.add('prb-target-highlight');
+        target.addEventListener('animationend', function handler() {
+          target.classList.remove('prb-target-highlight');
+          target.removeEventListener('animationend', handler);
+        });
+      }, 600);
+    }
+
     badges.forEach(function(badge) {
-      badge.addEventListener('click', function() {
-        var targetId = badge.dataset.scrollTo;
-        var el = document.getElementById(targetId) || document.querySelector('[id*="' + targetId + '"]');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      badge.addEventListener('click', scrollToReviews);
+      badge.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollToReviews(); }
       });
     });
   })();
