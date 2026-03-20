@@ -899,3 +899,224 @@ body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__trust {
   }
 }
 
+
+/* ═══════════════════════════════════════════════════════════════
+   OralBiome — tighter stock ↔ widget spacing
+   ═══════════════════════════════════════════════════════════════ */
+body.template-product-oralbiome .wt-product__info .calqix-stock-status {
+  margin-bottom: 10px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   OralBiome — ATC redesign: [−] [ADD TO CART] [+]  ·  Qty below
+   Uses display:contents to flatten counter-wrapper into the grid.
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes cq-atc-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(27,42,74,0.25); }
+  50%  { box-shadow: 0 0 0 6px rgba(27,42,74,0.08); }
+  100% { box-shadow: 0 0 0 0 rgba(27,42,74,0); }
+}
+@keyframes cq-atc-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+body.template-product-oralbiome .wt-product__info .wt-product__add-to-cart_form--wrapper.product-form__buttons {
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  grid-template-rows: auto auto;
+  gap: 0 10px;
+  align-items: stretch;
+  margin-bottom: 12px;
+}
+
+/* Flatten counter-wrapper and counter so children join the grid */
+body.template-product-oralbiome .wt-product__info .counter-wrapper,
+body.template-product-oralbiome .wt-product__info .counter-wrapper .counter {
+  display: contents !important;
+  border: none !important;
+  height: auto !important;
+}
+
+/* ── Shared button base for −/+ ── */
+body.template-product-oralbiome .wt-product__info .counter-wrapper .counter button {
+  width: 52px;
+  height: 56px;
+  border: 2px solid var(--calqix-gray-light, #e4e4e0);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--calqix-navy, #1a3b5c);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s cubic-bezier(0.4,0,0.2,1),
+              background 0.2s cubic-bezier(0.4,0,0.2,1),
+              transform 0.15s cubic-bezier(0.4,0,0.2,1),
+              box-shadow 0.2s ease;
+}
+body.template-product-oralbiome .wt-product__info .counter-wrapper .counter button:hover {
+  border-color: var(--calqix-navy, #1a3b5c);
+  background: var(--calqix-off-white, #f7f5f2);
+  transform: scale(1.06);
+  box-shadow: 0 2px 8px rgba(27,42,74,0.10);
+}
+body.template-product-oralbiome .wt-product__info .counter-wrapper .counter button:active {
+  transform: scale(0.94);
+  box-shadow: none;
+}
+
+body.template-product-oralbiome .wt-product__info .counter-wrapper .counter button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Minus → col 1, row 1 ── */
+body.template-product-oralbiome .wt-product__info .counter-wrapper .counter .js-counter-decrease {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* ── Plus → col 3, row 1 ── */
+body.template-product-oralbiome .wt-product__info .counter-wrapper .counter .js-counter-increase {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+/* ── Quantity input → centered below the row ── */
+body.template-product-oralbiome .wt-product__info .counter-wrapper .counter input.js-counter-quantity {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--calqix-navy, #1a3b5c);
+  letter-spacing: 0.06em;
+  border: none;
+  background: none;
+  width: auto;
+  height: auto;
+  padding: 6px 0 0;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+body.template-product-oralbiome .wt-product__info .counter-wrapper .counter input.js-counter-quantity:focus {
+  opacity: 1;
+  outline: none;
+}
+
+/* ── ATC Button → col 2, row 1 ── */
+body.template-product-oralbiome .wt-product__info .wt-product__add-to-cart_form .product-form__submit {
+  grid-column: 2;
+  grid-row: 1;
+  height: 56px;
+  border-radius: 12px;
+  background: var(--calqix-navy, #1a3b5c) !important;
+  color: #fff !important;
+  border: none !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.25s cubic-bezier(0.4,0,0.2,1),
+              transform 0.15s cubic-bezier(0.4,0,0.2,1),
+              box-shadow 0.3s ease;
+  animation: cq-atc-glow 3s ease-in-out infinite;
+}
+
+body.template-product-oralbiome .wt-product__info .wt-product__add-to-cart_form .product-form__submit::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255,255,255,0.08) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: cq-atc-shimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+body.template-product-oralbiome .wt-product__info .wt-product__add-to-cart_form .product-form__submit:hover {
+  background: var(--calqix-navy-light, #24456e) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(27,42,74,0.22);
+}
+
+body.template-product-oralbiome .wt-product__info .wt-product__add-to-cart_form .product-form__submit:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 6px rgba(27,42,74,0.15);
+}
+
+body.template-product-oralbiome .wt-product__info .wt-product__add-to-cart_form .product-form__submit.button--full-width {
+  width: auto;
+  flex: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   OralBiome — Mobile (≤960px)
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 960px) {
+  body.template-product-oralbiome .wt-product__info .calqix-stock-status {
+    margin-bottom: 8px;
+  }
+
+  body.template-product-oralbiome .wt-product__info .wt-product__add-to-cart_form--wrapper.product-form__buttons {
+    grid-template-columns: 48px 1fr 48px;
+    gap: 0 8px;
+  }
+
+  body.template-product-oralbiome .wt-product__info .counter-wrapper .counter button {
+    width: 48px;
+    height: 50px;
+    border-radius: 10px;
+  }
+
+  body.template-product-oralbiome .wt-product__info .wt-product__add-to-cart_form .product-form__submit {
+    height: 50px;
+    border-radius: 10px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  body.template-product-oralbiome .wt-product__info .counter-wrapper .counter input.js-counter-quantity {
+    font-size: 11px;
+    padding-top: 4px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   OralBiome — Small mobile (≤380px)
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 380px) {
+  body.template-product-oralbiome .wt-product__info .wt-product__add-to-cart_form--wrapper.product-form__buttons {
+    grid-template-columns: 42px 1fr 42px;
+    gap: 0 6px;
+  }
+
+  body.template-product-oralbiome .wt-product__info .counter-wrapper .counter button {
+    width: 42px;
+    height: 46px;
+    border-radius: 8px;
+  }
+
+  body.template-product-oralbiome .wt-product__info .wt-product__add-to-cart_form .product-form__submit {
+    height: 46px;
+    border-radius: 8px;
+    font-size: 11px;
+    padding: 0 10px;
+  }
+}
+
