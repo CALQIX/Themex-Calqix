@@ -1,6 +1,6 @@
 {%- comment -%}
-  CALQIX Subscribe & Save Widget
-  Renders a Subscribe & Save / One-Time Purchase toggle.
+  CALQIX Subscribe & Save Widget — v2
+  Horizontal scrollable plan cards · corner SAVE badge · CALQIX SVG icons
   Place inside a product form. Only renders if the product has selling plans.
 {%- endcomment -%}
 
@@ -25,184 +25,197 @@
 
 {%- assign cq_perday = cq_sub | divided_by: 30 -%}
 
+{%- capture cq_icon_truck -%}<svg class="cq-sw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="18.5" r="2"/></svg>{%- endcapture -%}
+{%- capture cq_icon_refresh -%}<svg class="cq-sw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>{%- endcapture -%}
+{%- capture cq_icon_shield -%}<svg class="cq-sw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>{%- endcapture -%}
+{%- capture cq_icon_calendar -%}<svg class="cq-sw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M9 16l2 2 4-4"/></svg>{%- endcapture -%}
+
 <style>
-  @keyframes cq-sw-pulse {
-    0%   { box-shadow: 0 0 0 0 rgba(201,168,76,0.35); }
-    50%  { box-shadow: 0 0 0 6px rgba(201,168,76,0.10); }
-    100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
-  }
-  @keyframes cq-sw-pop {
-    0%   { transform: scale(0.7); opacity: 0; }
-    60%  { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-  }
   @keyframes cq-sw-fade {
-    from { opacity: 0; transform: translateY(6px); }
+    from { opacity: 0; transform: translateY(4px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
   .cq-sw { margin: 16px 0; }
 
-  .cq-sw__tabs {
-    display: flex; gap: 0; margin-bottom: 0;
-    border-radius: 8px 8px 0 0; overflow: hidden;
-    border: 2px solid #E5E7EB; border-bottom: none;
+  .cq-sw__scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 1px;
   }
-  .cq-sw__tab {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    gap: 8px; padding: 14px 12px; background: #FAFAFA;
-    border: none; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
-    color: #6B7280; position: relative;
-    transition: background 0.25s ease, color 0.25s ease;
-    -webkit-tap-highlight-color: transparent; min-height: 48px;
-  }
-  .cq-sw__tab + .cq-sw__tab { border-left: 1px solid #E5E7EB; }
-  .cq-sw__tab.is-active { background: #1a3b5c; color: #FFFFFF; }
-  .cq-sw__tab.is-active .cq-sw__tab-save {
-    animation: cq-sw-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  .cq-sw__scroll::-webkit-scrollbar { display: none; }
+
+  .cq-sw__cards {
+    display: flex;
+    gap: 8px;
+    min-width: min-content;
   }
 
-  .cq-sw__tab-radio {
-    width: 18px; height: 18px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.35);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: all 0.2s ease;
+  .cq-sw__card {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 150px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px 14px 14px;
+    background: #FAFAFA;
+    border: 2px solid #E5E7EB;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    overflow: visible;
   }
-  .cq-sw__tab:not(.is-active) .cq-sw__tab-radio { border-color: #D1D5DB; }
-  .cq-sw__tab-radio-dot {
+  .cq-sw__card.is-active {
+    background: #F8F5EE;
+    border-color: #C9A84C;
+  }
+
+  .cq-sw__card-badge {
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    background: #2E7D32;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 0 7px 0 7px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    z-index: 1;
+    line-height: 1;
+  }
+
+  .cq-sw__card-radio {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid #D1D5DB; flex-shrink: 0; margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s ease;
+  }
+  .cq-sw__card.is-active .cq-sw__card-radio { border-color: #C9A84C; }
+  .cq-sw__card-radio-dot {
     width: 10px; height: 10px; border-radius: 50%;
     background: transparent; transition: background 0.2s ease;
   }
-  .cq-sw__tab.is-active .cq-sw__tab-radio { border-color: #C9A84C; }
-  .cq-sw__tab.is-active .cq-sw__tab-radio-dot { background: #C9A84C; }
+  .cq-sw__card.is-active .cq-sw__card-radio-dot { background: #C9A84C; }
 
-  .cq-sw__tab-save {
-    background: #2E7D32; color: #fff;
-    font-size: 10px; font-weight: 700;
-    padding: 2px 7px; border-radius: 50px;
-    text-transform: uppercase; letter-spacing: 0.3px;
-    white-space: nowrap;
+  .cq-sw__card-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .cq-sw__card-label {
+    font-size: 13px; font-weight: 700; color: #1a3b5c; line-height: 1.25;
+  }
+  .cq-sw__card-price {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px; font-weight: 400; color: #1a3b5c; line-height: 1.15;
+  }
+  .cq-sw__card-price-period {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px; font-weight: 400; color: #6B7280;
+  }
+  .cq-sw__card-compare {
+    font-size: 12px; color: #9CA3AF; text-decoration: line-through;
+  }
+  .cq-sw__card-sub {
+    font-size: 11px; color: #6B7280; margin-top: 1px;
   }
 
   .cq-sw__detail {
-    border: 2px solid #E5E7EB; border-top: none;
-    border-radius: 0 0 8px 8px; padding: 20px 16px;
-    position: relative; overflow: hidden;
+    border: 2px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fff;
+    margin-top: 8px;
     transition: border-color 0.3s ease;
   }
-  .cq-sw__detail.is-sub-active {
-    border-color: #C9A84C;
-    animation: cq-sw-pulse 1.8s ease-out 0.3s 1;
-  }
-  .cq-sw__tabs:has(.cq-sw__tab[data-plan="subscribe"].is-active) {
-    border-color: #C9A84C;
-  }
+  .cq-sw__detail.is-sub-active { border-color: #C9A84C; }
 
   .cq-sw__panel { display: none; }
   .cq-sw__panel.is-visible {
-    display: block; animation: cq-sw-fade 0.3s ease both;
-  }
-
-  .cq-sw__badge {
-    display: inline-block;
-    background: #C9A84C; color: #1a3b5c;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 10px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.5px;
-    padding: 3px 10px; border-radius: 50px; margin-bottom: 10px;
-  }
-  .cq-sw__pricing {
-    display: flex; align-items: baseline;
-    gap: 8px; flex-wrap: wrap; margin-bottom: 4px;
-  }
-  .cq-sw__price {
-    font-family: 'DM Serif Display', serif;
-    font-size: 28px; font-weight: 400; color: #1a3b5c;
-  }
-  .cq-sw__price-period { font-size: 14px; font-weight: 400; color: #6B7280; }
-  .cq-sw__compare {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px; color: #9CA3AF; text-decoration: line-through;
-  }
-  .cq-sw__save {
-    display: inline-block; background: #2E7D32; color: #fff;
-    font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700;
-    padding: 2px 8px; border-radius: 50px; text-transform: uppercase;
-    animation: cq-sw-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
-  }
-  .cq-sw__perday {
-    font-family: 'DM Sans', sans-serif; font-size: 13px;
-    color: #6B7280; margin-bottom: 14px;
+    display: block;
+    animation: cq-sw-fade 0.25s ease both;
   }
 
   .cq-sw__benefits {
-    list-style: none; padding: 0; margin: 0 0 2px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px;
+    list-style: none; padding: 0; margin: 0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px;
   }
   .cq-sw__benefit {
     font-family: 'DM Sans', sans-serif; font-size: 12.5px;
-    color: #1A1A1A; display: flex; align-items: flex-start;
-    gap: 6px; line-height: 1.35;
-    animation: cq-sw-fade 0.35s ease both;
+    color: #1a1a1a; display: flex; align-items: flex-start;
+    gap: 8px; line-height: 1.4;
   }
-  .cq-sw__benefit:nth-child(1) { animation-delay: 0.05s; }
-  .cq-sw__benefit:nth-child(2) { animation-delay: 0.10s; }
-  .cq-sw__benefit:nth-child(3) { animation-delay: 0.15s; }
-  .cq-sw__benefit:nth-child(4) { animation-delay: 0.20s; }
+  .cq-sw__icon {
+    flex-shrink: 0; width: 16px; height: 16px;
+    color: #1a3b5c; margin-top: 1px;
+  }
+
+  .cq-sw__frequency {
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid #F3F4F6;
+  }
+  .cq-sw__frequency label {
+    font-family: 'DM Sans', sans-serif; font-size: 12px;
+    color: #6B7280; display: block; margin-bottom: 5px;
+  }
+  .cq-sw__frequency select {
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px;
+    background: #fff; color: #1a1a1a; width: 100%; max-width: 240px;
+    height: 38px; cursor: pointer;
+  }
 
   .cq-sw__note {
     font-family: 'DM Sans', sans-serif; font-size: 12px;
     color: #6B7280; margin-top: 10px; font-style: italic;
   }
 
-  .cq-sw__frequency { margin-top: 12px; }
-  .cq-sw__frequency label {
-    font-family: 'DM Sans', sans-serif; font-size: 12px;
-    color: #6B7280; display: block; margin-bottom: 4px;
-  }
-  .cq-sw__frequency select {
-    font-family: 'DM Sans', sans-serif; font-size: 13px;
-    padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px;
-    background: #fff; color: #1A1A1A; width: 100%; max-width: 220px;
-    height: 38px; cursor: pointer;
-  }
-
   @media (max-width: 480px) {
-    .cq-sw__tab { font-size: 12px; padding: 12px 8px; gap: 5px; }
-    .cq-sw__tab-save { font-size: 9px; padding: 2px 5px; }
-    .cq-sw__price { font-size: 24px; }
+    .cq-sw__card { min-width: 130px; padding: 14px 10px 12px; }
+    .cq-sw__card-label { font-size: 12px; }
+    .cq-sw__card-price { font-size: 18px; }
     .cq-sw__benefits { grid-template-columns: 1fr; }
   }
 </style>
 
 <div class="cq-sw" data-selling-plan-id="{{ cq_sp.id }}">
-  <div class="cq-sw__tabs" role="radiogroup" aria-label="Purchase options">
-    <button type="button" class="cq-sw__tab is-active" data-plan="subscribe" role="radio" aria-checked="true">
-      <span class="cq-sw__tab-radio"><span class="cq-sw__tab-radio-dot"></span></span>
-      Subscribe &amp; Save
-      <span class="cq-sw__tab-save">SAVE {{ cq_pct }}%</span>
-    </button>
-    <button type="button" class="cq-sw__tab" data-plan="onetime" role="radio" aria-checked="false">
-      <span class="cq-sw__tab-radio"><span class="cq-sw__tab-radio-dot"></span></span>
-      One-Time Purchase
-    </button>
+  <div class="cq-sw__scroll">
+    <div class="cq-sw__cards" role="radiogroup" aria-label="Purchase options">
+      <button type="button" class="cq-sw__card is-active" data-plan="subscribe" role="radio" aria-checked="true">
+        <span class="cq-sw__card-badge">Save {{ cq_pct }}%</span>
+        <span class="cq-sw__card-radio"><span class="cq-sw__card-radio-dot"></span></span>
+        <div class="cq-sw__card-body">
+          <span class="cq-sw__card-label">Subscribe &amp; Save</span>
+          <span class="cq-sw__card-price">{{ cq_sub | money }}<span class="cq-sw__card-price-period"> /month</span></span>
+          <span class="cq-sw__card-compare">{{ cq_ot | money }}</span>
+          <span class="cq-sw__card-sub">{{ cq_perday | money }} per day</span>
+        </div>
+      </button>
+
+      <button type="button" class="cq-sw__card" data-plan="onetime" role="radio" aria-checked="false">
+        <span class="cq-sw__card-radio"><span class="cq-sw__card-radio-dot"></span></span>
+        <div class="cq-sw__card-body">
+          <span class="cq-sw__card-label">One-Time Purchase</span>
+          <span class="cq-sw__card-price">{{ cq_ot | money }}</span>
+          <span class="cq-sw__card-sub">Single order</span>
+        </div>
+      </button>
+    </div>
   </div>
 
   <div class="cq-sw__detail is-sub-active">
     <div class="cq-sw__panel is-visible" data-panel="subscribe">
-      <span class="cq-sw__badge">Most Popular</span>
-      <div class="cq-sw__pricing">
-        <span class="cq-sw__price">{{ cq_sub | money }}<span class="cq-sw__price-period"> /month</span></span>
-        <span class="cq-sw__compare">{{ cq_ot | money }}</span>
-        <span class="cq-sw__save">SAVE {{ cq_pct }}%</span>
-      </div>
-      <p class="cq-sw__perday">{{ cq_perday | money }} per day</p>
       <ul class="cq-sw__benefits">
-        <li class="cq-sw__benefit">🚀 Free shipping every month</li>
-        <li class="cq-sw__benefit">🔄 Skip, pause or cancel anytime</li>
-        <li class="cq-sw__benefit">🔥 60-day money-back guarantee</li>
-        <li class="cq-sw__benefit">🛡️ No commitment</li>
+        <li class="cq-sw__benefit">{{ cq_icon_truck }}Free shipping every month</li>
+        <li class="cq-sw__benefit">{{ cq_icon_refresh }}Skip, pause or cancel anytime</li>
+        <li class="cq-sw__benefit">{{ cq_icon_shield }}60-day money-back guarantee</li>
+        <li class="cq-sw__benefit">{{ cq_icon_calendar }}No commitment required</li>
       </ul>
       {%- if cq_spg.selling_plans.size > 1 -%}
         <div class="cq-sw__frequency">
@@ -217,14 +230,11 @@
     </div>
 
     <div class="cq-sw__panel" data-panel="onetime">
-      <div class="cq-sw__pricing">
-        <span class="cq-sw__price">{{ cq_ot | money }}</span>
-      </div>
       <ul class="cq-sw__benefits">
-        <li class="cq-sw__benefit">🚀 Free shipping over €50</li>
-        <li class="cq-sw__benefit">🔥 60-day money-back guarantee</li>
+        <li class="cq-sw__benefit">{{ cq_icon_truck }}Free shipping on orders over €80</li>
+        <li class="cq-sw__benefit">{{ cq_icon_shield }}60-day money-back guarantee</li>
       </ul>
-      <p class="cq-sw__note">or subscribe above and save {{ cq_pct }}%</p>
+      <p class="cq-sw__note">Subscribe above to save {{ cq_pct }}% on every order.</p>
     </div>
   </div>
 
@@ -235,17 +245,17 @@
 (function(){
   var w = document.querySelector('.cq-sw');
   if (!w) return;
-  var tabs = w.querySelectorAll('.cq-sw__tab');
+  var cards = w.querySelectorAll('.cq-sw__card');
   var panels = w.querySelectorAll('.cq-sw__panel');
   var detail = w.querySelector('.cq-sw__detail');
   var spInput = w.querySelector('.cq-sw__sp-input');
   var defaultId = w.dataset.sellingPlanId;
 
   function switchPlan(plan) {
-    tabs.forEach(function(t) {
-      var active = t.dataset.plan === plan;
-      t.classList.toggle('is-active', active);
-      t.setAttribute('aria-checked', active ? 'true' : 'false');
+    cards.forEach(function(c) {
+      var active = c.dataset.plan === plan;
+      c.classList.toggle('is-active', active);
+      c.setAttribute('aria-checked', active ? 'true' : 'false');
     });
     panels.forEach(function(p) {
       p.classList.toggle('is-visible', p.dataset.panel === plan);
@@ -260,8 +270,8 @@
     }
   }
 
-  tabs.forEach(function(tab) {
-    tab.addEventListener('click', function() { switchPlan(tab.dataset.plan); });
+  cards.forEach(function(card) {
+    card.addEventListener('click', function() { switchPlan(card.dataset.plan); });
   });
 
   var freq = w.querySelector('#cq-sw-freq');
