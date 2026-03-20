@@ -138,23 +138,7 @@
   .ob-hero__thumb.is-active { border-color: #C9A84C; }
   .ob-hero__thumb img { width: 100%; height: 100%; object-fit: contain; }
 
-  .product-review-badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 12px 16px;
-    background: #FFFFFF;
-    border-top: 1px solid #E5E7EB;
-    border-bottom: 1px solid #E5E7EB;
-    cursor: pointer;
-    min-height: 48px;
-  }
-  .product-review-badge__stars { display: flex; gap: 2px; }
-  .product-review-badge__stars svg { width: 14px; height: 14px; fill: #C9A84C; }
-  .product-review-badge__rating { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: #1A3B5C; }
-  .product-review-badge__separator { color: #D1D5DB; font-size: 12px; }
-  .product-review-badge__count { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #6B7280; text-decoration: underline; }
+  /* Old inline review-badge CSS removed — now rendered by shared snippet */
 
   .ob-hero__title {
     font-family: 'DM Serif Display', serif;
@@ -189,114 +173,178 @@
   .ob-hero__benefit svg { flex-shrink: 0; width: 18px; height: 18px; margin-top: 1px; }
   .ob-hero__divider { height: 1px; background: #E5E7EB; margin: 0 0 16px; }
 
-  .ob-hero__plans {
+  /* ── Purchase toggle tabs ── */
+  @keyframes ob-card-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(201,168,76,0.35); }
+    50%  { box-shadow: 0 0 0 6px rgba(201,168,76,0.10); }
+    100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+  }
+  @keyframes ob-save-pop {
+    0%   { transform: scale(0.7); opacity: 0; }
+    60%  { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes ob-benefit-fade {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .ob-hero__plan-tabs {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .ob-hero__plan-card {
-    position: relative;
-    border-radius: 8px;
-    padding: 16px;
-    cursor: pointer;
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-  .ob-hero__plan-card[data-plan="subscribe"] {
-    border: none;
-    border-top: 3px solid #C9A84C;
-    background: rgba(201,168,76,0.04);
-  }
-  .ob-hero__plan-card[data-plan="subscribe"].is-active {
-    background: rgba(201,168,76,0.06);
-  }
-  .ob-hero__plan-card[data-plan="onetime"] {
-    border: 1px solid #E5E7EB;
-    max-height: 0;
+    gap: 0;
+    margin-bottom: 0;
+    border-radius: 8px 8px 0 0;
     overflow: hidden;
-    padding: 0;
-    opacity: 0;
-    transition: max-height 0.35s ease, opacity 0.25s ease, padding 0.35s ease;
+    border: 2px solid #E5E7EB;
+    border-bottom: none;
   }
-  .ob-hero__plan-card[data-plan="onetime"].is-expanded {
-    max-height: 400px;
-    opacity: 1;
-    padding: 16px;
-  }
-  .ob-hero__plan-card.is-active .ob-hero__plan-radio-dot {
-    background: #C9A84C;
-    box-shadow: inset 0 0 0 3px #fff, 0 0 0 2px #C9A84C;
-  }
-  .ob-hero__onetime-toggle {
-    display: block;
-    width: 100%;
-    text-align: center;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: #6B7280;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px 0;
-    margin-bottom: 12px;
-  }
-  .ob-hero__onetime-toggle:hover { color: #1A3B5C; }
-  .ob-hero__plan-badge {
-    position: absolute;
-    top: -11px;
-    left: 16px;
-    background: #C9A84C;
-    color: #1A3B5C;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 3px 10px;
-    border-radius: 50px;
-  }
-  .ob-hero__plan-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
-  }
-  .ob-hero__plan-radio {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 2px solid #D1D5DB;
+  .ob-hero__plan-tab {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-  }
-  .ob-hero__plan-radio-dot {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-  }
-  .ob-hero__plan-label { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 15px; color: #1A3B5C; }
-  .ob-hero__plan-pricing {
-    display: flex;
-    align-items: baseline;
     gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 6px;
-    padding-left: 30px;
+    padding: 14px 12px;
+    background: #FAFAFA;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6B7280;
+    position: relative;
+    transition: background 0.25s ease, color 0.25s ease;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 48px;
   }
-  .ob-hero__plan-price { font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1A3B5C; }
+  .ob-hero__plan-tab + .ob-hero__plan-tab {
+    border-left: 1px solid #E5E7EB;
+  }
+  .ob-hero__plan-tab.is-active {
+    background: #1A3B5C;
+    color: #FFFFFF;
+  }
+  .ob-hero__plan-tab.is-active .ob-hero__tab-save {
+    animation: ob-save-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .ob-hero__tab-radio {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.35);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s ease;
+  }
+  .ob-hero__plan-tab:not(.is-active) .ob-hero__tab-radio {
+    border-color: #D1D5DB;
+  }
+  .ob-hero__tab-radio-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: transparent; transition: background 0.2s ease;
+  }
+  .ob-hero__plan-tab.is-active .ob-hero__tab-radio {
+    border-color: #C9A84C;
+  }
+  .ob-hero__plan-tab.is-active .ob-hero__tab-radio-dot {
+    background: #C9A84C;
+  }
+  .ob-hero__tab-save {
+    background: #2E7D32; color: #fff;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 50px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+
+  /* ── Detail card (below tabs) ── */
+  .ob-hero__plan-detail {
+    border: 2px solid #E5E7EB;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 20px 16px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+  }
+  .ob-hero__plan-detail.is-sub-active {
+    border-color: #C9A84C;
+    animation: ob-card-pulse 1.8s ease-out 0.3s 1;
+  }
+  .ob-hero__plan-detail.is-sub-active .ob-hero__plan-tabs {
+    border-color: #C9A84C;
+  }
+  .ob-hero__plan-tabs:has(.ob-hero__plan-tab[data-plan="subscribe"].is-active) {
+    border-color: #C9A84C;
+  }
+  .ob-hero__plan-badge {
+    display: inline-block;
+    background: #C9A84C; color: #1A3B5C;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 3px 10px; border-radius: 50px;
+    margin-bottom: 10px;
+  }
+  .ob-hero__plan-pricing {
+    display: flex; align-items: baseline;
+    gap: 8px; flex-wrap: wrap; margin-bottom: 4px;
+  }
+  .ob-hero__plan-price {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px; font-weight: 400; color: #1A3B5C;
+  }
   .ob-hero__plan-price-period { font-size: 14px; font-weight: 400; color: #6B7280; }
-  .ob-hero__plan-compare { font-family: 'DM Sans', sans-serif; font-size: 14px; color: #6B7280; text-decoration: line-through; }
-  .ob-hero__plan-save { display: inline-block; background: #2E7D32; color: #fff; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 50px; text-transform: uppercase; }
-  .ob-hero__plan-perday { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #6B7280; padding-left: 30px; margin-bottom: 12px; }
-  .ob-hero__plan-benefits { list-style: none; padding: 0 0 0 30px; margin: 0; display: flex; flex-direction: column; gap: 6px; }
-  .ob-hero__plan-benefit { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #1A1A1A; display: flex; align-items: center; gap: 6px; }
-  .ob-hero__plan-note { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #6B7280; padding-left: 30px; margin-top: 6px; }
-  .ob-hero__frequency { padding-left: 30px; margin-top: 10px; }
-  .ob-hero__frequency label { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #6B7280; display: block; margin-bottom: 4px; }
-  .ob-hero__frequency select { font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 4px; background: #fff; color: #1A1A1A; width: 100%; max-width: 220px; height: 40px; cursor: pointer; }
+  .ob-hero__plan-compare {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: #9CA3AF; text-decoration: line-through;
+  }
+  .ob-hero__plan-save {
+    display: inline-block; background: #2E7D32; color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 50px; text-transform: uppercase;
+    animation: ob-save-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
+  }
+  .ob-hero__plan-perday {
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    color: #6B7280; margin-bottom: 14px;
+  }
+
+  .ob-hero__plan-benefits {
+    list-style: none; padding: 0; margin: 0 0 2px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px;
+  }
+  .ob-hero__plan-benefit {
+    font-family: 'DM Sans', sans-serif; font-size: 12.5px;
+    color: #1A1A1A; display: flex; align-items: flex-start;
+    gap: 6px; line-height: 1.35;
+    animation: ob-benefit-fade 0.35s ease both;
+  }
+  .ob-hero__plan-benefit:nth-child(1) { animation-delay: 0.05s; }
+  .ob-hero__plan-benefit:nth-child(2) { animation-delay: 0.10s; }
+  .ob-hero__plan-benefit:nth-child(3) { animation-delay: 0.15s; }
+  .ob-hero__plan-benefit:nth-child(4) { animation-delay: 0.20s; }
+  .ob-hero__plan-note {
+    font-family: 'DM Sans', sans-serif; font-size: 12px;
+    color: #6B7280; margin-top: 10px; font-style: italic;
+  }
+
+  .ob-hero__frequency { margin-top: 12px; }
+  .ob-hero__frequency label {
+    font-family: 'DM Sans', sans-serif; font-size: 12px;
+    color: #6B7280; display: block; margin-bottom: 4px;
+  }
+  .ob-hero__frequency select {
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 6px;
+    background: #fff; color: #1A1A1A; width: 100%; max-width: 220px;
+    height: 38px; cursor: pointer;
+  }
+
+  /* Panel switching */
+  .ob-hero__plan-panel { display: none; }
+  .ob-hero__plan-panel.is-visible {
+    display: block;
+    animation: ob-benefit-fade 0.3s ease both;
+  }
 
   .ob-hero__qty {
     display: flex;
@@ -401,14 +449,8 @@
     .ob-hero__main-image-wrap { display: block; }
     .ob-hero__thumbnails { display: flex; }
     .ob-hero__thumb { flex: 0 0 80px; width: 80px; height: 80px; }
-    .ob-hero__plan-card[data-plan="onetime"] {
-      max-height: none; opacity: 1; padding: 16px; border: 1px solid #E5E7EB;
-    }
-    .ob-hero__onetime-toggle { display: none; }
-    .product-review-badge {
-      justify-content: flex-start; padding: 0 0 12px 0;
-      background: transparent; border: none;
-    }
+    .ob-hero__plan-tabs { border-radius: 8px 8px 0 0; }
+    .ob-hero__plan-detail { border-radius: 0 0 8px 8px; }
     .ob-hero__sticky-bar { display: none !important; }
   }
   @media (min-width: 1024px) {
@@ -536,13 +578,24 @@
         {%- assign sub_price = onetime_price -%}
       {%- endif -%}
 
-      <div class="ob-hero__plans" role="radiogroup" aria-label="{{ section.settings.purchase_options_label }}">
-        <div class="ob-hero__plan-card is-active" data-plan="subscribe" role="radio" aria-checked="true" tabindex="0">
+      <!-- ── Toggle tabs ── -->
+      <div class="ob-hero__plan-tabs" role="radiogroup" aria-label="{{ section.settings.purchase_options_label }}">
+        <button type="button" class="ob-hero__plan-tab is-active" data-plan="subscribe" role="radio" aria-checked="true">
+          <span class="ob-hero__tab-radio"><span class="ob-hero__tab-radio-dot"></span></span>
+          {{ section.settings.subscribe_label }}
+          <span class="ob-hero__tab-save">{{ section.settings.save_badge }}</span>
+        </button>
+        <button type="button" class="ob-hero__plan-tab" data-plan="onetime" role="radio" aria-checked="false">
+          <span class="ob-hero__tab-radio"><span class="ob-hero__tab-radio-dot"></span></span>
+          {{ section.settings.onetime_label }}
+        </button>
+      </div>
+
+      <!-- ── Detail card ── -->
+      <div class="ob-hero__plan-detail is-sub-active">
+        <!-- Subscribe panel -->
+        <div class="ob-hero__plan-panel is-visible" data-panel="subscribe">
           <span class="ob-hero__plan-badge">{{ section.settings.most_popular_badge }}</span>
-          <div class="ob-hero__plan-header">
-            <span class="ob-hero__plan-radio"><span class="ob-hero__plan-radio-dot"></span></span>
-            <span class="ob-hero__plan-label">{{ section.settings.subscribe_label }}</span>
-          </div>
           <div class="ob-hero__plan-pricing">
             <span class="ob-hero__plan-price">{{ sub_price | money }}<span class="ob-hero__plan-price-period">/{{ section.settings.month_label }}</span></span>
             <span class="ob-hero__plan-compare">{{ onetime_price | money }}</span>
@@ -553,6 +606,7 @@
             <li class="ob-hero__plan-benefit">{{ section.settings.sub_benefit_1 }}</li>
             <li class="ob-hero__plan-benefit">{{ section.settings.sub_benefit_2 }}</li>
             <li class="ob-hero__plan-benefit">{{ section.settings.sub_benefit_3 }}</li>
+            <li class="ob-hero__plan-benefit">{{ section.settings.sub_benefit_4 }}</li>
           </ul>
           {%- if product.selling_plan_groups.size > 0 -%}
             <div class="ob-hero__frequency">
@@ -568,13 +622,8 @@
           {%- endif -%}
         </div>
 
-        <button type="button" class="ob-hero__onetime-toggle">{{ section.settings.onetime_toggle_text }}</button>
-
-        <div class="ob-hero__plan-card" data-plan="onetime" role="radio" aria-checked="false" tabindex="0">
-          <div class="ob-hero__plan-header">
-            <span class="ob-hero__plan-radio"><span class="ob-hero__plan-radio-dot"></span></span>
-            <span class="ob-hero__plan-label">{{ section.settings.onetime_label }}</span>
-          </div>
+        <!-- One-time panel -->
+        <div class="ob-hero__plan-panel" data-panel="onetime">
           <div class="ob-hero__plan-pricing">
             <span class="ob-hero__plan-price">{{ onetime_price | money }}</span>
           </div>
@@ -691,30 +740,28 @@
       });
     });
 
-    var onetimeToggle = section.querySelector('.ob-hero__onetime-toggle');
-    var onetimeCard = section.querySelector('[data-plan="onetime"]');
-    if (onetimeToggle && onetimeCard) {
-      onetimeToggle.addEventListener('click', function() {
-        onetimeCard.classList.toggle('is-expanded');
+    var planTabs = section.querySelectorAll('.ob-hero__plan-tab');
+    var planPanels = section.querySelectorAll('.ob-hero__plan-panel');
+    var planDetail = section.querySelector('.ob-hero__plan-detail');
+    var activePlan = 'subscribe';
+
+    function switchPlan(plan) {
+      activePlan = plan;
+      planTabs.forEach(function(t) {
+        var isActive = t.dataset.plan === plan;
+        t.classList.toggle('is-active', isActive);
+        t.setAttribute('aria-checked', isActive ? 'true' : 'false');
       });
+      planPanels.forEach(function(p) {
+        p.classList.toggle('is-visible', p.dataset.panel === plan);
+      });
+      if (planDetail) {
+        planDetail.classList.toggle('is-sub-active', plan === 'subscribe');
+      }
     }
 
-    var planCards = section.querySelectorAll('.ob-hero__plan-card');
-    var activePlan = 'subscribe';
-    planCards.forEach(function(card) {
-      card.addEventListener('click', function() {
-        planCards.forEach(function(c) {
-          c.classList.remove('is-active');
-          c.setAttribute('aria-checked', 'false');
-        });
-        card.classList.add('is-active');
-        card.setAttribute('aria-checked', 'true');
-        activePlan = card.dataset.plan;
-        if (card.dataset.plan === 'onetime') card.classList.add('is-expanded');
-      });
-      card.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
-      });
+    planTabs.forEach(function(tab) {
+      tab.addEventListener('click', function() { switchPlan(tab.dataset.plan); });
     });
 
     var qtyInput = section.querySelector('.ob-hero__qty-input');
@@ -797,6 +844,7 @@
     { "type": "text", "id": "sub_benefit_1", "label": "Subscription benefit 1", "default": "\ud83d\ude9a Free shipping every month" },
     { "type": "text", "id": "sub_benefit_2", "label": "Subscription benefit 2", "default": "\ud83d\udd04 Skip, pause or cancel anytime" },
     { "type": "text", "id": "sub_benefit_3", "label": "Subscription benefit 3", "default": "\ud83d\udcb0 60-day money-back guarantee" },
+    { "type": "text", "id": "sub_benefit_4", "label": "Subscription benefit 4", "default": "\ud83d\udee1\ufe0f Skip, pause or cancel anytime" },
     { "type": "text", "id": "frequency_label", "label": "Frequency label", "default": "Delivery frequency" },
     { "type": "text", "id": "onetime_label", "label": "One-time label", "default": "One-Time Purchase" },
     { "type": "text", "id": "onetime_toggle_text", "label": "One-time toggle (mobile)", "default": "Or buy once \u2014 \u20ac24.95 \u203a" },
