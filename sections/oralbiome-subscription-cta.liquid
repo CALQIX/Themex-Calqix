@@ -94,6 +94,24 @@
     color: rgba(255,255,255,0.5);
     margin: 14px 0 0;
   }
+  .ob-cta__alt-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding: 0;
+    transition: color 0.2s ease;
+  }
+  .ob-cta__alt-btn:hover { color: rgba(255,255,255,0.7); }
+  .ob-cta__button-spinner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   @media (min-width: 768px) {
     .ob-cta__pills {
@@ -123,32 +141,181 @@
       {%- if section.settings.pill_3 != blank -%}<span class="ob-cta__pill">{{ section.settings.pill_3 }}</span>{%- endif -%}
       {%- if section.settings.pill_4 != blank -%}<span class="ob-cta__pill">{{ section.settings.pill_4 }}</span>{%- endif -%}
     </div>
-    <button type="button" class="ob-cta__button" aria-label="{{ section.settings.button_text }}">{{ section.settings.button_text }}</button>
-    {%- if section.settings.alt_text != blank -%}
-      <p class="ob-cta__alt">{{ section.settings.alt_text }}</p>
-    {%- endif -%}
+    {%- assign selling_plan_id = nil -%}
+    {%- for group in product.selling_plan_groups -%}
+      {%- for plan in group.selling_plans -%}
+        {%- if selling_plan_id == nil -%}
+          {%- assign selling_plan_id = plan.id -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endfor -%}
+
+    <button
+      type="button"
+      class="ob-cta__button"
+      id="oralbiome-cta-subscribe"
+      data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+      data-selling-plan-id="{{ selling_plan_id }}"
+      aria-label="{{ section.settings.button_text }}"
+    >
+      <span class="ob-cta__button-text">{{ section.settings.button_text }}</span>
+      <span class="ob-cta__button-spinner" style="display:none;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" stroke-dasharray="60" stroke-dashoffset="20">
+            <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </span>
+    </button>
+    <p class="ob-cta__alt">
+      or <button type="button" class="ob-cta__alt-btn" id="oralbiome-cta-onetime">try a one-time purchase at {{ product.price | money }}</button>
+    </p>
   </div>
 </section>
 
 <script>
-  (function() {
-    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
-    if (!section) return;
-    var btn = section.querySelector('.ob-cta__button');
-    if (!btn) return;
-    btn.addEventListener('click', function() {
-      var hero = document.querySelector('.ob-hero');
-      if (hero) {
-        hero.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        setTimeout(function() {
-          var subCard = hero.querySelector('[data-plan="subscribe"]');
-          if (subCard && !subCard.classList.contains('is-active')) {
-            subCard.click();
-          }
-        }, 600);
+(function() {
+  var ctaBtn = document.getElementById('oralbiome-cta-subscribe');
+  var onetimeBtn = document.getElementById('oralbiome-cta-onetime');
+  if (!ctaBtn) return;
+
+  var defaultText = ctaBtn.querySelector('.ob-cta__button-text').textContent;
+
+  /* ── Helpers ── */
+  function getVariantId() {
+    var id = ctaBtn.dataset.variantId;
+    if (id) return parseInt(id);
+    var input = document.querySelector('input[name="id"], select[name="id"], [data-variant-id]');
+    if (input) return parseInt(input.value || input.dataset.variantId);
+    return null;
+  }
+
+  function getSellingPlanId() {
+    var id = ctaBtn.dataset.sellingPlanId;
+    if (id) return parseInt(id);
+    var input = document.querySelector('input[name="selling_plan"]:checked, select[name="selling_plan"], [data-selling-plan-id]');
+    if (input) return parseInt(input.value || input.dataset.sellingPlanId);
+    return null;
+  }
+
+  function openCartDrawer() {
+    document.dispatchEvent(new CustomEvent('cart:refresh'));
+    var drawer = document.querySelector('cart-drawer')
+      || document.querySelector('.cart-drawer')
+      || document.querySelector('[data-cart-drawer]')
+      || document.querySelector('#CartDrawer');
+    if (drawer) {
+      if (typeof drawer.open === 'function') { drawer.open(); }
+      else if (drawer.classList) {
+        drawer.classList.add('is-open', 'active', 'drawer--is-open');
+        document.body.classList.add('overflow-hidden', 'drawer-open');
       }
+    } else {
+      var icon = document.querySelector('a[href="/cart"]')
+        || document.querySelector('.header__icon--cart')
+        || document.querySelector('[data-cart-toggle]')
+        || document.querySelector('.cart-icon-bubble');
+      if (icon) icon.click();
+    }
+    fetch('/cart.js').then(function(r){ return r.json(); }).then(function(cart){
+      var badges = document.querySelectorAll('.cart-count-bubble span, .cart-count, [data-cart-count], .header__cart-count');
+      badges.forEach(function(b){ b.textContent = cart.item_count; });
     });
-  })();
+  }
+
+  function setBtnState(btn, txtEl, spinnerEl, state, label) {
+    if (state === 'loading') {
+      txtEl.style.display = 'none';
+      spinnerEl.style.display = 'inline-flex';
+      btn.disabled = true;
+      btn.style.pointerEvents = 'none';
+    } else if (state === 'success') {
+      spinnerEl.style.display = 'none';
+      txtEl.textContent = label || 'Added to cart';
+      txtEl.style.display = 'inline';
+      btn.style.background = '#2E7D32';
+      btn.style.color = '#FFFFFF';
+    } else if (state === 'error') {
+      spinnerEl.style.display = 'none';
+      txtEl.textContent = label || 'Something went wrong';
+      txtEl.style.display = 'inline';
+      btn.style.background = '#DC2626';
+      btn.style.color = '#FFFFFF';
+    } else {
+      txtEl.textContent = label || defaultText;
+      txtEl.style.display = 'inline';
+      spinnerEl.style.display = 'none';
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.disabled = false;
+      btn.style.pointerEvents = '';
+    }
+  }
+
+  function resetBtn(btn, txtEl, spinnerEl) {
+    setTimeout(function() { setBtnState(btn, txtEl, spinnerEl, 'idle', defaultText); }, 3000);
+  }
+
+  /* ── Subscribe button ── */
+  ctaBtn.addEventListener('click', function() {
+    var variantId = getVariantId();
+    if (!variantId) { console.error('No variant found'); return; }
+    var sellingPlanId = getSellingPlanId();
+    var txtEl = ctaBtn.querySelector('.ob-cta__button-text');
+    var spinnerEl = ctaBtn.querySelector('.ob-cta__button-spinner');
+
+    setBtnState(ctaBtn, txtEl, spinnerEl, 'loading');
+
+    var item = { id: variantId, quantity: 1 };
+    if (sellingPlanId) item.selling_plan = sellingPlanId;
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: [item] })
+    })
+    .then(function(res) {
+      if (!res.ok) throw new Error('Failed to add to cart');
+      return res.json();
+    })
+    .then(function() {
+      setBtnState(ctaBtn, txtEl, spinnerEl, 'success');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(openCartDrawer, 400);
+      resetBtn(ctaBtn, txtEl, spinnerEl);
+    })
+    .catch(function(err) {
+      console.error('Add to cart error:', err);
+      setBtnState(ctaBtn, txtEl, spinnerEl, 'error');
+      resetBtn(ctaBtn, txtEl, spinnerEl);
+    });
+  });
+
+  /* ── One-time purchase button ── */
+  if (onetimeBtn) {
+    onetimeBtn.addEventListener('click', function() {
+      var variantId = getVariantId();
+      if (!variantId) return;
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: [{ id: variantId, quantity: 1 }] })
+      })
+      .then(function(res) {
+        if (!res.ok) throw new Error('Failed');
+        return res.json();
+      })
+      .then(function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(openCartDrawer, 400);
+      })
+      .catch(function(err) {
+        console.error('One-time add to cart error:', err);
+      });
+    });
+  }
+})();
 </script>
 
 {% schema %}
@@ -162,8 +329,7 @@
     { "type": "text", "id": "pill_2", "label": "Pill 2", "default": "Skip Anytime" },
     { "type": "text", "id": "pill_3", "label": "Pill 3", "default": "60-Day Guarantee" },
     { "type": "text", "id": "pill_4", "label": "Pill 4", "default": "Cancel in 1 Click" },
-    { "type": "text", "id": "button_text", "label": "Button text", "default": "Subscribe & Save 20%" },
-    { "type": "text", "id": "alt_text", "label": "Alternative text", "default": "or try a one-time purchase \u2014 \u20ac24.95" }
+    { "type": "text", "id": "button_text", "label": "Button text", "default": "Subscribe & Save 20%" }
   ]
 }
 {% endschema %}
