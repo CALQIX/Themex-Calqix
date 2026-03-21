@@ -168,7 +168,7 @@
       </span>
     </button>
     <p class="ob-cta__alt">
-      or <button type="button" class="ob-cta__alt-btn" id="oralbiome-cta-onetime">try a one-time purchase at {{ product.price | money }}</button>
+      {{ 'calqix_oralbiome.cta.onetime_prefix' | t }} <button type="button" class="ob-cta__alt-btn" id="oralbiome-cta-onetime">{{ 'calqix_oralbiome.cta.onetime_label' | t }} {{ product.price | money }}</button>
     </p>
   </div>
 </section>
@@ -231,13 +231,13 @@
       btn.style.pointerEvents = 'none';
     } else if (state === 'success') {
       spinnerEl.style.display = 'none';
-      txtEl.textContent = label || 'Added to cart';
+      txtEl.textContent = label || '{{ 'calqix_oralbiome.cta.added_to_cart' | t | escape }}';
       txtEl.style.display = 'inline';
       btn.style.background = '#2E7D32';
       btn.style.color = '#FFFFFF';
     } else if (state === 'error') {
       spinnerEl.style.display = 'none';
-      txtEl.textContent = label || 'Something went wrong';
+      txtEl.textContent = label || '{{ 'calqix_oralbiome.cta.error' | t | escape }}';
       txtEl.style.display = 'inline';
       btn.style.background = '#DC2626';
       btn.style.color = '#FFFFFF';

@@ -86,10 +86,10 @@
     {%- endif -%}
 
     <div class="oralbiome-faq__filters">
-      <button class="faq-filter-btn is-active" data-category="all" type="button">All</button>
-      <button class="faq-filter-btn" data-category="product" type="button">Product</button>
-      <button class="faq-filter-btn" data-category="usage" type="button">Usage</button>
-      <button class="faq-filter-btn" data-category="subscription" type="button">Subscription</button>
+      <button class="faq-filter-btn is-active" data-category="all" type="button">{{ 'calqix_oralbiome.faq.filter_all' | t | default: 'Alle' }}</button>
+      <button class="faq-filter-btn" data-category="product" type="button">{{ 'calqix_oralbiome.faq.filter_product' | t | default: 'Product' }}</button>
+      <button class="faq-filter-btn" data-category="usage" type="button">{{ 'calqix_oralbiome.faq.filter_usage' | t | default: 'Gebruik' }}</button>
+      <button class="faq-filter-btn" data-category="subscription" type="button">{{ 'calqix_oralbiome.faq.filter_subscription' | t | default: 'Abonnement' }}</button>
     </div>
 
     <div class="oralbiome-faq__list">

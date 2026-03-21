@@ -10,7 +10,7 @@
 
 {%- assign _rb_rating = badge_rating | default: product.metafields.reviews.rating.value | default: '4.8' -%}
 {%- assign _rb_count  = badge_count  | default: product.metafields.reviews.rating_count | default: '127' -%}
-{%- assign _rb_label  = badge_label  | default: 'reviews' -%}
+{%- assign _rb_label  = badge_label  | default: 'calqix_oralbiome.hero.rating_text' | t -%}
 
 <style>
   .prb {
@@ -81,7 +81,7 @@
   </span>
   <span class="prb__rating">{{ _rb_rating }}</span>
   <span class="prb__sep">&bull;</span>
-  <span class="prb__count">Based on {{ _rb_count }} {{ _rb_label }}</span>
+  <span class="prb__count">{{ 'blogs.article.based_on' | t | default: 'Gebaseerd op' }} {{ _rb_count }} {{ _rb_label }}</span>
 </div>
 
 <script>
