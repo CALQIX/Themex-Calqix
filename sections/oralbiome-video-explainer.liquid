@@ -166,11 +166,23 @@
       {%- endif -%}
     </div>
     <div class="ob-video__content">
-      <p class="ob-video__eyebrow">{{ section.settings.eyebrow }}</p>
-      <h2 class="ob-video__heading">{{ section.settings.heading }}</h2>
-      <p class="ob-video__body">{{ section.settings.body }}</p>
+      {%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
+      {%- if _ob_lang != 'en' -%}
+        {%- assign _ob_vid_eyebrow = 'calqix_oralbiome.video.eyebrow' | t -%}
+        {%- assign _ob_vid_heading = 'calqix_oralbiome.video.heading' | t -%}
+        {%- assign _ob_vid_body = 'calqix_oralbiome.video.body' | t -%}
+        {%- assign _ob_vid_cta = 'calqix_oralbiome.video.cta_text' | t -%}
+      {%- else -%}
+        {%- assign _ob_vid_eyebrow = section.settings.eyebrow -%}
+        {%- assign _ob_vid_heading = section.settings.heading -%}
+        {%- assign _ob_vid_body = section.settings.body -%}
+        {%- assign _ob_vid_cta = section.settings.cta_text -%}
+      {%- endif -%}
+      <p class="ob-video__eyebrow">{{ _ob_vid_eyebrow }}</p>
+      <h2 class="ob-video__heading">{{ _ob_vid_heading }}</h2>
+      <p class="ob-video__body">{{ _ob_vid_body }}</p>
       {%- if section.settings.cta_text != blank -%}
-        <a href="{{ section.settings.cta_url }}" class="ob-video__cta">{{ section.settings.cta_text }} &rarr;</a>
+        <a href="{{ section.settings.cta_url }}" class="ob-video__cta">{{ _ob_vid_cta }} &rarr;</a>
       {%- endif -%}
     </div>
   </div>

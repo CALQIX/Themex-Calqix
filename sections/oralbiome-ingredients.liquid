@@ -189,11 +189,20 @@
   }
 </style>
 
+{%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
+{%- if _ob_lang != 'en' -%}
+  {%- assign _ob_ingr_eyebrow = 'calqix_oralbiome.ingredients.heading' | t -%}
+  {%- assign _ob_ingr_heading = section.settings.heading -%}
+{%- else -%}
+  {%- assign _ob_ingr_eyebrow = section.settings.eyebrow -%}
+  {%- assign _ob_ingr_heading = section.settings.heading -%}
+{%- endif -%}
+
 <section class="ob-ingr" data-section-id="{{ section.id }}">
   <div class="ob-ingr__container">
     <div class="ob-ingr__header">
-      <p class="ob-ingr__eyebrow">{{ section.settings.eyebrow }}</p>
-      <h2 class="ob-ingr__heading">{{ section.settings.heading }}</h2>
+      <p class="ob-ingr__eyebrow">{{ _ob_ingr_eyebrow }}</p>
+      <h2 class="ob-ingr__heading">{{ _ob_ingr_heading }}</h2>
     </div>
     <div class="ob-ingr__carousel-wrap">
       <button type="button" class="ob-ingr__arrow ob-ingr__arrow--prev" aria-label="{{ section.settings.prev_label }}">

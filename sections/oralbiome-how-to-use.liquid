@@ -148,11 +148,22 @@
   }
 </style>
 
+{%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
+{%- if _ob_lang != 'en' -%}
+  {%- assign _ob_howto_eyebrow = 'calqix_oralbiome.steps.eyebrow' | t -%}
+  {%- assign _ob_howto_heading = 'calqix_oralbiome.steps.heading' | t -%}
+  {%- assign _ob_howto_note = 'calqix_oralbiome.steps.note' | t -%}
+{%- else -%}
+  {%- assign _ob_howto_eyebrow = section.settings.eyebrow -%}
+  {%- assign _ob_howto_heading = section.settings.heading -%}
+  {%- assign _ob_howto_note = section.settings.note -%}
+{%- endif -%}
+
 <section class="ob-howto" data-section-id="{{ section.id }}">
   <div class="ob-howto__container">
     <div class="ob-howto__header">
-      <p class="ob-howto__eyebrow">{{ section.settings.eyebrow }}</p>
-      <h2 class="ob-howto__heading">{{ section.settings.heading }}</h2>
+      <p class="ob-howto__eyebrow">{{ _ob_howto_eyebrow }}</p>
+      <h2 class="ob-howto__heading">{{ _ob_howto_heading }}</h2>
     </div>
     <div class="ob-howto__steps">
       {%- for block in section.blocks -%}
@@ -175,8 +186,17 @@
               {%- endif -%}
             </div>
           </div>
-          <h3 class="ob-howto__step-title">{{ block.settings.title }}</h3>
-          <p class="ob-howto__step-desc">{{ block.settings.description }}</p>
+          {%- if _ob_lang != 'en' -%}
+            {%- capture _ob_step_title_key -%}calqix_oralbiome.steps.step{{ forloop.index }}_title{%- endcapture -%}
+            {%- capture _ob_step_text_key -%}calqix_oralbiome.steps.step{{ forloop.index }}_text{%- endcapture -%}
+            {%- assign _ob_step_title = _ob_step_title_key | t -%}
+            {%- assign _ob_step_text = _ob_step_text_key | t -%}
+          {%- else -%}
+            {%- assign _ob_step_title = block.settings.title -%}
+            {%- assign _ob_step_text = block.settings.description -%}
+          {%- endif -%}
+          <h3 class="ob-howto__step-title">{{ _ob_step_title }}</h3>
+          <p class="ob-howto__step-desc">{{ _ob_step_text }}</p>
         </div>
       {%- endfor -%}
     </div>
@@ -186,7 +206,7 @@
       {%- endfor -%}
     </div>
     {%- if section.settings.note != blank -%}
-      <p class="ob-howto__note">{{ section.settings.note }}</p>
+      <p class="ob-howto__note">{{ _ob_howto_note }}</p>
     {%- endif -%}
   </div>
 </section>

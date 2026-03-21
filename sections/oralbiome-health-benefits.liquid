@@ -188,11 +188,44 @@
   }
 </style>
 
+{%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
+{%- if _ob_lang != 'en' -%}
+  {%- assign _ob_ben_eyebrow = 'calqix_oralbiome.benefits.eyebrow' | t -%}
+  {%- assign _ob_ben_heading = 'calqix_oralbiome.benefits.heading' | t -%}
+  {%- assign _ob_ben_c1t = 'calqix_oralbiome.benefits.card_1_title' | t -%}
+  {%- assign _ob_ben_c1d = 'calqix_oralbiome.benefits.card_1_desc' | t -%}
+  {%- assign _ob_ben_c2t = 'calqix_oralbiome.benefits.card_2_title' | t -%}
+  {%- assign _ob_ben_c2d = 'calqix_oralbiome.benefits.card_2_desc' | t -%}
+  {%- assign _ob_ben_c3t = 'calqix_oralbiome.benefits.card_3_title' | t -%}
+  {%- assign _ob_ben_c3d = 'calqix_oralbiome.benefits.card_3_desc' | t -%}
+  {%- assign _ob_ben_c4t = 'calqix_oralbiome.benefits.card_4_title' | t -%}
+  {%- assign _ob_ben_c4d = 'calqix_oralbiome.benefits.card_4_desc' | t -%}
+  {%- assign _ob_ben_c5t = 'calqix_oralbiome.benefits.card_5_title' | t -%}
+  {%- assign _ob_ben_c5d = 'calqix_oralbiome.benefits.card_5_desc' | t -%}
+  {%- assign _ob_ben_c6t = 'calqix_oralbiome.benefits.card_6_title' | t -%}
+  {%- assign _ob_ben_c6d = 'calqix_oralbiome.benefits.card_6_desc' | t -%}
+{%- else -%}
+  {%- assign _ob_ben_eyebrow = section.settings.eyebrow -%}
+  {%- assign _ob_ben_heading = section.settings.heading -%}
+  {%- assign _ob_ben_c1t = section.settings.card_1_title -%}
+  {%- assign _ob_ben_c1d = section.settings.card_1_desc -%}
+  {%- assign _ob_ben_c2t = section.settings.card_2_title -%}
+  {%- assign _ob_ben_c2d = section.settings.card_2_desc -%}
+  {%- assign _ob_ben_c3t = section.settings.card_3_title -%}
+  {%- assign _ob_ben_c3d = section.settings.card_3_desc -%}
+  {%- assign _ob_ben_c4t = section.settings.card_4_title -%}
+  {%- assign _ob_ben_c4d = section.settings.card_4_desc -%}
+  {%- assign _ob_ben_c5t = section.settings.card_5_title -%}
+  {%- assign _ob_ben_c5d = section.settings.card_5_desc -%}
+  {%- assign _ob_ben_c6t = section.settings.card_6_title -%}
+  {%- assign _ob_ben_c6d = section.settings.card_6_desc -%}
+{%- endif -%}
+
 <section class="ob-benefits" data-section-id="{{ section.id }}">
   <div class="ob-benefits__container">
     <div class="ob-benefits__header">
-      <p class="ob-benefits__eyebrow">{{ section.settings.eyebrow }}</p>
-      <h2 class="ob-benefits__heading">{{ section.settings.heading }}</h2>
+      <p class="ob-benefits__eyebrow">{{ _ob_ben_eyebrow }}</p>
+      <h2 class="ob-benefits__heading">{{ _ob_ben_heading }}</h2>
     </div>
     <div class="ob-benefits__grid">
 
@@ -201,8 +234,8 @@
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 8c-4 0-7 3-7 8s3 10 5 13h4c2-3 5-8 5-13s-3-8-7-8z" stroke="#1A3B5C" stroke-width="2"/><path d="M24 38v2M20 34h8" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/><path d="M16 18c-2 0-4 1-4 3s2 4 4 4" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/><path d="M32 18c2 0 4 1 4 3s-2 4-4 4" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/></svg>
         </div>
         <div class="ob-benefits__card-body">
-          <h3 class="ob-benefits__card-title">{{ section.settings.card_1_title }}</h3>
-          <p class="ob-benefits__card-desc">{{ section.settings.card_1_desc }}</p>
+          <h3 class="ob-benefits__card-title">{{ _ob_ben_c1t }}</h3>
+          <p class="ob-benefits__card-desc">{{ _ob_ben_c1d }}</p>
         </div>
       </div>
 
@@ -211,8 +244,8 @@
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 24c0-4 3-6 6-6s4 2 6 4c2-2 3-4 6-4s6 2 6 6c0 6-8 12-12 14C16 36 8 30 8 24" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/><path d="M20 20l-4 8M28 20l4 8M22 28h4" stroke="#1A3B5C" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
         <div class="ob-benefits__card-body">
-          <h3 class="ob-benefits__card-title">{{ section.settings.card_2_title }}</h3>
-          <p class="ob-benefits__card-desc">{{ section.settings.card_2_desc }}</p>
+          <h3 class="ob-benefits__card-title">{{ _ob_ben_c2t }}</h3>
+          <p class="ob-benefits__card-desc">{{ _ob_ben_c2d }}</p>
         </div>
       </div>
 
@@ -221,8 +254,8 @@
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="14" stroke="#1A3B5C" stroke-width="2"/><circle cx="24" cy="24" r="8" stroke="#1A3B5C" stroke-width="1.5" stroke-dasharray="3 2"/><circle cx="24" cy="24" r="3" fill="#1A3B5C"/></svg>
         </div>
         <div class="ob-benefits__card-body">
-          <h3 class="ob-benefits__card-title">{{ section.settings.card_3_title }}</h3>
-          <p class="ob-benefits__card-desc">{{ section.settings.card_3_desc }}</p>
+          <h3 class="ob-benefits__card-title">{{ _ob_ben_c3t }}</h3>
+          <p class="ob-benefits__card-desc">{{ _ob_ben_c3d }}</p>
         </div>
       </div>
 
@@ -231,8 +264,8 @@
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 6L12 12v10c0 9 5 17 12 20 7-3 12-11 12-20V12L24 6z" stroke="#1A3B5C" stroke-width="2"/><path d="M18 24l4 4 8-8" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div class="ob-benefits__card-body">
-          <h3 class="ob-benefits__card-title">{{ section.settings.card_4_title }}</h3>
-          <p class="ob-benefits__card-desc">{{ section.settings.card_4_desc }}</p>
+          <h3 class="ob-benefits__card-title">{{ _ob_ben_c4t }}</h3>
+          <p class="ob-benefits__card-desc">{{ _ob_ben_c4d }}</p>
         </div>
       </div>
 
@@ -241,8 +274,8 @@
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 8c-4 0-7 3-7 8s3 10 5 13h4c2-3 5-8 5-13s-3-8-7-8z" stroke="#1A3B5C" stroke-width="2"/><path d="M18 24l4 4 6-6" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 38v2" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/></svg>
         </div>
         <div class="ob-benefits__card-body">
-          <h3 class="ob-benefits__card-title">{{ section.settings.card_5_title }}</h3>
-          <p class="ob-benefits__card-desc">{{ section.settings.card_5_desc }}</p>
+          <h3 class="ob-benefits__card-title">{{ _ob_ben_c5t }}</h3>
+          <p class="ob-benefits__card-desc">{{ _ob_ben_c5d }}</p>
         </div>
       </div>
 
@@ -251,8 +284,8 @@
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 12c-5 0-10 4-10 9 0 6 4 10 10 12 6-2 10-6 10-12 0-5-5-9-10-9z" stroke="#1A3B5C" stroke-width="2"/><path d="M24 18v8M20 22h8" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round"/></svg>
         </div>
         <div class="ob-benefits__card-body">
-          <h3 class="ob-benefits__card-title">{{ section.settings.card_6_title }}</h3>
-          <p class="ob-benefits__card-desc">{{ section.settings.card_6_desc }}</p>
+          <h3 class="ob-benefits__card-title">{{ _ob_ben_c6t }}</h3>
+          <p class="ob-benefits__card-desc">{{ _ob_ben_c6d }}</p>
         </div>
       </div>
 

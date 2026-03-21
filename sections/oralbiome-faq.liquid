@@ -75,12 +75,19 @@
   }
 </style>
 
+{%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
+{%- if _ob_lang != 'en' -%}
+  {%- assign _ob_faq_heading = 'calqix_oralbiome.faq.heading' | t -%}
+{%- else -%}
+  {%- assign _ob_faq_heading = section.settings.heading -%}
+{%- endif -%}
+
 <section class="oralbiome-faq" data-section-id="{{ section.id }}">
   <div class="oralbiome-faq__container">
     {%- if section.settings.eyebrow != blank -%}
       <span class="oralbiome-faq__eyebrow">{{ section.settings.eyebrow }}</span>
     {%- endif -%}
-    <h2 class="oralbiome-faq__heading">{{ section.settings.heading }}</h2>
+    <h2 class="oralbiome-faq__heading">{{ _ob_faq_heading }}</h2>
     {%- if section.settings.subheading != blank -%}
       <div class="oralbiome-faq__subheading">{{ section.settings.subheading }}</div>
     {%- endif -%}

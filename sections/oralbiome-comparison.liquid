@@ -235,9 +235,20 @@
   }
 </style>
 
+{%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
+{%- if _ob_lang != 'en' -%}
+  {%- assign _ob_cmp_heading = 'calqix_oralbiome.compare.heading' | t -%}
+  {%- assign _ob_cmp_col_trad = 'calqix_oralbiome.compare.col_traditional' | t -%}
+  {%- assign _ob_cmp_col_calqix = 'calqix_oralbiome.compare.col_calqix' | t -%}
+{%- else -%}
+  {%- assign _ob_cmp_heading = section.settings.heading -%}
+  {%- assign _ob_cmp_col_trad = section.settings.col_mouthwash -%}
+  {%- assign _ob_cmp_col_calqix = section.settings.col_oralbiome -%}
+{%- endif -%}
+
 <section class="ob-compare" data-section-id="{{ section.id }}">
   <div class="ob-compare__container">
-    <h2 class="ob-compare__heading">{{ section.settings.heading }}</h2>
+    <h2 class="ob-compare__heading">{{ _ob_cmp_heading }}</h2>
 
     <div class="ob-compare__scroll-wrap">
       <div class="ob-compare__scroll-hint" data-ob-compare-hint>

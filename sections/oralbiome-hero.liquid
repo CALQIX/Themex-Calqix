@@ -463,6 +463,63 @@
   }
 </style>
 
+{%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
+{%- if _ob_lang == 'nl' -%}
+  {%- assign _ob_subtitle        = 'calqix_oralbiome.hero.subtitle' | t -%}
+  {%- assign _ob_benefit_1       = 'calqix_oralbiome.hero.benefit_1' | t -%}
+  {%- assign _ob_benefit_2       = 'calqix_oralbiome.hero.benefit_2' | t -%}
+  {%- assign _ob_benefit_3       = 'calqix_oralbiome.hero.benefit_3' | t -%}
+  {%- assign _ob_benefit_overlay = 'calqix_oralbiome.hero.benefit_overlay' | t -%}
+  {%- assign _ob_subscribe_label = 'calqix_oralbiome.hero.subscribe_label' | t -%}
+  {%- assign _ob_save_badge      = 'calqix_oralbiome.hero.save_badge' | t -%}
+  {%- assign _ob_most_popular    = 'calqix_oralbiome.hero.most_popular_badge' | t -%}
+  {%- assign _ob_month_label     = 'calqix_oralbiome.hero.month_label' | t -%}
+  {%- assign _ob_per_day         = 'calqix_oralbiome.hero.per_day_text' | t -%}
+  {%- assign _ob_sub_benefit_1   = 'calqix_oralbiome.hero.sub_benefit_1' | t -%}
+  {%- assign _ob_sub_benefit_2   = 'calqix_oralbiome.hero.sub_benefit_2' | t -%}
+  {%- assign _ob_sub_benefit_3   = 'calqix_oralbiome.hero.sub_benefit_3' | t -%}
+  {%- assign _ob_sub_benefit_4   = 'calqix_oralbiome.hero.sub_benefit_4' | t -%}
+  {%- assign _ob_frequency_label = 'calqix_oralbiome.hero.frequency_label' | t -%}
+  {%- assign _ob_onetime_label   = 'calqix_oralbiome.hero.onetime_label' | t -%}
+  {%- assign _ob_ot_benefit_1    = 'calqix_oralbiome.hero.ot_benefit_1' | t -%}
+  {%- assign _ob_ot_benefit_2    = 'calqix_oralbiome.hero.ot_benefit_2' | t -%}
+  {%- assign _ob_onetime_note    = 'calqix_oralbiome.hero.onetime_note' | t -%}
+  {%- assign _ob_add_to_cart     = 'calqix_oralbiome.hero.add_to_cart' | t -%}
+  {%- assign _ob_sold_out        = 'calqix_oralbiome.hero.sold_out' | t -%}
+  {%- assign _ob_trust_vegan     = 'calqix_oralbiome.hero.trust_vegan' | t -%}
+  {%- assign _ob_trust_sugar     = 'calqix_oralbiome.hero.trust_sugar_free' | t -%}
+  {%- assign _ob_trust_clinical  = 'calqix_oralbiome.hero.trust_clinical' | t -%}
+  {%- assign _ob_trust_eu        = 'calqix_oralbiome.hero.trust_eu' | t -%}
+  {%- assign _ob_guarantee       = 'calqix_oralbiome.hero.guarantee_text' | t -%}
+{%- else -%}
+  {%- assign _ob_subtitle        = section.settings.subtitle -%}
+  {%- assign _ob_benefit_1       = section.settings.benefit_1 -%}
+  {%- assign _ob_benefit_2       = section.settings.benefit_2 -%}
+  {%- assign _ob_benefit_3       = section.settings.benefit_3 -%}
+  {%- assign _ob_benefit_overlay = section.settings.benefit_overlay -%}
+  {%- assign _ob_subscribe_label = section.settings.subscribe_label -%}
+  {%- assign _ob_save_badge      = section.settings.save_badge -%}
+  {%- assign _ob_most_popular    = section.settings.most_popular_badge -%}
+  {%- assign _ob_month_label     = section.settings.month_label -%}
+  {%- assign _ob_per_day         = section.settings.per_day_text -%}
+  {%- assign _ob_sub_benefit_1   = section.settings.sub_benefit_1 -%}
+  {%- assign _ob_sub_benefit_2   = section.settings.sub_benefit_2 -%}
+  {%- assign _ob_sub_benefit_3   = section.settings.sub_benefit_3 -%}
+  {%- assign _ob_sub_benefit_4   = section.settings.sub_benefit_4 -%}
+  {%- assign _ob_frequency_label = section.settings.frequency_label -%}
+  {%- assign _ob_onetime_label   = section.settings.onetime_label -%}
+  {%- assign _ob_ot_benefit_1    = section.settings.ot_benefit_1 -%}
+  {%- assign _ob_ot_benefit_2    = section.settings.ot_benefit_2 -%}
+  {%- assign _ob_onetime_note    = section.settings.onetime_note -%}
+  {%- assign _ob_add_to_cart     = section.settings.add_to_cart_text -%}
+  {%- assign _ob_sold_out        = section.settings.sold_out_text -%}
+  {%- assign _ob_trust_vegan     = section.settings.trust_vegan -%}
+  {%- assign _ob_trust_sugar     = section.settings.trust_sugar_free -%}
+  {%- assign _ob_trust_clinical  = section.settings.trust_clinical -%}
+  {%- assign _ob_trust_eu        = section.settings.trust_eu -%}
+  {%- assign _ob_guarantee       = section.settings.guarantee_text -%}
+{%- endif -%}
+
 <section class="ob-hero" data-section-id="{{ section.id }}">
   <div class="ob-hero__content">
 
@@ -538,20 +595,20 @@
 
     <div class="ob-hero__info">
       <h1 class="ob-hero__title">{{ product.title }}</h1>
-      <p class="ob-hero__subtitle">{{ section.settings.subtitle }}</p>
+      <p class="ob-hero__subtitle">{{ _ob_subtitle }}</p>
 
       <ul class="ob-hero__benefits">
         <li class="ob-hero__benefit">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#C9A84C"/><path d="M6 10.5l2.5 2.5 5.5-5.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          {{ section.settings.benefit_1 }}
+          {{ _ob_benefit_1 }}
         </li>
         <li class="ob-hero__benefit">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#C9A84C"/><path d="M6 10.5l2.5 2.5 5.5-5.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          {{ section.settings.benefit_2 }}
+          {{ _ob_benefit_2 }}
         </li>
         <li class="ob-hero__benefit">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="#C9A84C"/><path d="M6 10.5l2.5 2.5 5.5-5.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          {{ section.settings.benefit_3 }}
+          {{ _ob_benefit_3 }}
         </li>
       </ul>
 
@@ -582,12 +639,12 @@
       <div class="ob-hero__plan-tabs" role="radiogroup" aria-label="{{ section.settings.purchase_options_label }}">
         <button type="button" class="ob-hero__plan-tab is-active" data-plan="subscribe" role="radio" aria-checked="true">
           <span class="ob-hero__tab-radio"><span class="ob-hero__tab-radio-dot"></span></span>
-          {{ section.settings.subscribe_label }}
-          <span class="ob-hero__tab-save">{{ section.settings.save_badge }}</span>
+          {{ _ob_subscribe_label }}
+          <span class="ob-hero__tab-save">{{ _ob_save_badge }}</span>
         </button>
         <button type="button" class="ob-hero__plan-tab" data-plan="onetime" role="radio" aria-checked="false">
           <span class="ob-hero__tab-radio"><span class="ob-hero__tab-radio-dot"></span></span>
-          {{ section.settings.onetime_label }}
+          {{ _ob_onetime_label }}
         </button>
       </div>
 
@@ -595,23 +652,23 @@
       <div class="ob-hero__plan-detail is-sub-active">
         <!-- Subscribe panel -->
         <div class="ob-hero__plan-panel is-visible" data-panel="subscribe">
-          <span class="ob-hero__plan-badge">{{ section.settings.most_popular_badge }}</span>
+          <span class="ob-hero__plan-badge">{{ _ob_most_popular }}</span>
           <div class="ob-hero__plan-pricing">
-            <span class="ob-hero__plan-price">{{ sub_price | money }}<span class="ob-hero__plan-price-period">/{{ section.settings.month_label }}</span></span>
+            <span class="ob-hero__plan-price">{{ sub_price | money }}<span class="ob-hero__plan-price-period">/{{ _ob_month_label }}</span></span>
             <span class="ob-hero__plan-compare">{{ onetime_price | money }}</span>
-            <span class="ob-hero__plan-save">{{ section.settings.save_badge }}</span>
+            <span class="ob-hero__plan-save">{{ _ob_save_badge }}</span>
           </div>
-          <p class="ob-hero__plan-perday">{{ section.settings.per_day_text }}</p>
+          <p class="ob-hero__plan-perday">{{ _ob_per_day }}</p>
           <ul class="ob-hero__plan-benefits">
-            <li class="ob-hero__plan-benefit">{{ section.settings.sub_benefit_1 }}</li>
-            <li class="ob-hero__plan-benefit">{{ section.settings.sub_benefit_2 }}</li>
-            <li class="ob-hero__plan-benefit">{{ section.settings.sub_benefit_3 }}</li>
-            <li class="ob-hero__plan-benefit">{{ section.settings.sub_benefit_4 }}</li>
+            <li class="ob-hero__plan-benefit">{{ _ob_sub_benefit_1 }}</li>
+            <li class="ob-hero__plan-benefit">{{ _ob_sub_benefit_2 }}</li>
+            <li class="ob-hero__plan-benefit">{{ _ob_sub_benefit_3 }}</li>
+            <li class="ob-hero__plan-benefit">{{ _ob_sub_benefit_4 }}</li>
           </ul>
           {%- if product.selling_plan_groups.size > 0 -%}
             <div class="ob-hero__frequency">
-              <label for="ob-frequency-select">{{ section.settings.frequency_label }}</label>
-              <select id="ob-frequency-select" aria-label="{{ section.settings.frequency_label }}">
+              <label for="ob-frequency-select">{{ _ob_frequency_label }}</label>
+              <select id="ob-frequency-select" aria-label="{{ _ob_frequency_label }}">
                 {%- for group in product.selling_plan_groups -%}
                   {%- for plan in group.selling_plans -%}
                     <option value="{{ plan.id }}"{% if plan.id == sub_plan_id %} selected{% endif %}>{{ plan.name }}</option>
@@ -628,10 +685,10 @@
             <span class="ob-hero__plan-price">{{ onetime_price | money }}</span>
           </div>
           <ul class="ob-hero__plan-benefits">
-            <li class="ob-hero__plan-benefit">{{ section.settings.ot_benefit_1 }}</li>
-            <li class="ob-hero__plan-benefit">{{ section.settings.ot_benefit_2 }}</li>
+            <li class="ob-hero__plan-benefit">{{ _ob_ot_benefit_1 }}</li>
+            <li class="ob-hero__plan-benefit">{{ _ob_ot_benefit_2 }}</li>
           </ul>
-          <p class="ob-hero__plan-note">{{ section.settings.onetime_note }}</p>
+          <p class="ob-hero__plan-note">{{ _ob_onetime_note }}</p>
         </div>
       </div>
 
@@ -646,13 +703,13 @@
         class="ob-hero__atc"
         data-variant-id="{{ current_variant.id }}"
         {% unless current_variant.available %}disabled{% endunless %}
-        aria-label="{{ section.settings.add_to_cart_text }}"
+        aria-label="{{ _ob_add_to_cart }}"
       >
         <span class="ob-hero__atc-text">
           {%- if current_variant.available -%}
-            {{ section.settings.add_to_cart_text }}
+            {{ _ob_add_to_cart }}
           {%- else -%}
-            {{ section.settings.sold_out_text }}
+            {{ _ob_sold_out }}
           {%- endif -%}
         </span>
         <span class="ob-hero__atc-spinner" aria-hidden="true"></span>
@@ -661,32 +718,32 @@
       <div class="ob-hero__trust-row">
         <span class="ob-hero__trust-item">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2C6 2 3 5 3 9c0 5 7 9 7 9s7-4 7-9c0-4-3-7-7-7z" stroke="#1A3B5C" stroke-width="1.5" fill="none"/><path d="M7.5 9l2 2 3.5-3.5" stroke="#1A3B5C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          {{ section.settings.trust_vegan }}
+          {{ _ob_trust_vegan }}
         </span>
         <span class="ob-hero__trust-item">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="7.5" stroke="#1A3B5C" stroke-width="1.5"/><path d="M7 10h6M10 7v6" stroke="#1A3B5C" stroke-width="1.5" stroke-linecap="round"/></svg>
-          {{ section.settings.trust_sugar_free }}
+          {{ _ob_trust_sugar }}
         </span>
         <span class="ob-hero__trust-item">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2l2.5 5h5.5l-4.5 3.5 1.5 5.5-5-3.5-5 3.5 1.5-5.5L2 7h5.5z" stroke="#1A3B5C" stroke-width="1.5" fill="none"/></svg>
-          {{ section.settings.trust_clinical }}
+          {{ _ob_trust_clinical }}
         </span>
         <span class="ob-hero__trust-item">
           <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="14" height="14" rx="3" stroke="#1A3B5C" stroke-width="1.5"/><path d="M7 10l2 2 4-4" stroke="#1A3B5C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          {{ section.settings.trust_eu }}
+          {{ _ob_trust_eu }}
         </span>
       </div>
 
       <div class="ob-hero__guarantee">
         <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 1L3 4.5V9c0 4.5 3 8.5 7 10 4-1.5 7-5.5 7-10V4.5L10 1z" stroke="#1A3B5C" stroke-width="1.5" fill="none"/><path d="M7 10l2 2 4-4" stroke="#1A3B5C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        {{ section.settings.guarantee_text }}
+        {{ _ob_guarantee }}
       </div>
     </div>
   </div>
 
   <div class="ob-hero__sticky-bar" aria-hidden="true">
-    <span class="ob-hero__sticky-price">{{ sub_price | money }}/{{ section.settings.month_label }}</span>
-    <button type="button" class="ob-hero__sticky-atc">{{ section.settings.add_to_cart_text }}</button>
+    <span class="ob-hero__sticky-price">{{ sub_price | money }}/{{ _ob_month_label }}</span>
+    <button type="button" class="ob-hero__sticky-atc">{{ _ob_add_to_cart }}</button>
   </div>
 </section>
 
