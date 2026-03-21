@@ -112,16 +112,22 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #C9A84C;
+    background: rgba(255, 255, 252, 0.92);
     border: none;
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 2;
-    transition: background 0.2s ease;
+    opacity: 0;
+    transition: opacity 0.25s ease, background 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
   }
-  .ob-ingr__arrow:hover { background: #b8953f; }
+  .ob-ingr__carousel-wrap:hover .ob-ingr__arrow { opacity: 1; }
+  .ob-ingr__arrow:hover {
+    background: #ffffff;
+    transform: translateY(-50%) scale(1.08);
+  }
   .ob-ingr__arrow svg { width: 18px; height: 18px; }
   .ob-ingr__arrow--prev { left: -16px; }
   .ob-ingr__arrow--next { right: -16px; }
@@ -137,7 +143,36 @@
     cursor: pointer; transition: background 0.2s ease;
   }
   .ob-ingr__dot.is-active { background: #C9A84C; }
+  .ob-ingr__scroll-hint {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 0 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.04em;
+    animation: obIngrHintPulse 2s ease-in-out infinite;
+    transition: opacity 0.4s ease;
+  }
+  .ob-ingr__scroll-hint.is-hidden { opacity: 0; pointer-events: none; }
+  .ob-ingr__scroll-hint svg {
+    width: 14px; height: 14px;
+    animation: obIngrHintSlide 1.5s ease-in-out infinite;
+  }
+  @keyframes obIngrHintPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+  @keyframes obIngrHintSlide {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(5px); }
+  }
 
+  @media (max-width: 767px) {
+    .ob-ingr__scroll-hint { display: flex; }
+  }
   @media (min-width: 768px) {
     .ob-ingr__card { flex: 0 0 calc(33.33% - 11px); min-width: 260px; }
     .ob-ingr__arrow { display: flex; }
@@ -194,6 +229,10 @@
         <button type="button" class="ob-ingr__dot{% if forloop.first %} is-active{% endif %}" data-card="{{ forloop.index0 }}" aria-label="{{ block.settings.name }}"></button>
       {%- endfor -%}
     </div>
+    <div class="ob-ingr__scroll-hint" data-ob-ingr-hint>
+      <span>Swipe</span>
+      <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
   </div>
 </section>
 
@@ -204,20 +243,65 @@
     var track = section.querySelector('.ob-ingr__track');
     var prevBtn = section.querySelector('.ob-ingr__arrow--prev');
     var nextBtn = section.querySelector('.ob-ingr__arrow--next');
+    var hint = section.querySelector('[data-ob-ingr-hint]');
     if (!track) return;
-    var scrollAmount = 300;
-    if (prevBtn) {
-      prevBtn.addEventListener('click', function() {
-        track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      });
-    }
-    if (nextBtn) {
-      nextBtn.addEventListener('click', function() {
-        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      });
-    }
+
     var cards = track.querySelectorAll('.ob-ingr__card');
     var dots = section.querySelectorAll('.ob-ingr__dot');
+    var autoTimer = null;
+    var paused = false;
+    var hintDismissed = false;
+
+    function getStep() {
+      var card = cards[0];
+      if (!card) return 300;
+      return card.offsetWidth + 16;
+    }
+
+    function scrollNext() {
+      var max = track.scrollWidth - track.clientWidth;
+      if (track.scrollLeft >= max - 4) {
+        track.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        track.scrollBy({ left: getStep(), behavior: 'smooth' });
+      }
+    }
+
+    function scrollPrev() {
+      var max = track.scrollWidth - track.clientWidth;
+      if (track.scrollLeft <= 4) {
+        track.scrollTo({ left: max, behavior: 'smooth' });
+      } else {
+        track.scrollBy({ left: -getStep(), behavior: 'smooth' });
+      }
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', scrollPrev);
+    if (nextBtn) nextBtn.addEventListener('click', scrollNext);
+
+    function startAuto() {
+      stopAuto();
+      autoTimer = setInterval(function() {
+        if (!paused) scrollNext();
+      }, 3000);
+    }
+    function stopAuto() {
+      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    }
+
+    track.addEventListener('mousedown', function() { paused = true; });
+    track.addEventListener('mouseup', function() { paused = false; });
+    track.addEventListener('mouseleave', function() { paused = false; });
+    track.addEventListener('touchstart', function() { paused = true; }, { passive: true });
+    track.addEventListener('touchend', function() { paused = false; });
+
+    track.addEventListener('scroll', function() {
+      if (!hintDismissed && hint) {
+        hintDismissed = true;
+        hint.classList.add('is-hidden');
+      }
+    }, { passive: true });
+
     if (dots.length > 0 && cards.length > 0) {
       var io = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
@@ -235,6 +319,13 @@
         });
       });
     }
+
+    var sectionObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) { startAuto(); } else { stopAuto(); }
+      });
+    }, { threshold: 0.15 });
+    sectionObs.observe(section);
   })();
 </script>
 
