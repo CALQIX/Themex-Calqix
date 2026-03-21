@@ -422,10 +422,22 @@
     "oralbiome-comparison": {
       "type": "oralbiome-comparison",
       "blocks": {
-        "row_jd6QjA": {
+        "row_1_kills": {
           "type": "row",
           "settings": {
-            "feature": "Feature",
+            "feature": "Kills harmful bacteria",
+            "mouthwash": "yes",
+            "mouthwash_note": "",
+            "toothpaste": "yes",
+            "toothpaste_note": "",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
+          }
+        },
+        "row_2_preserves": {
+          "type": "row",
+          "settings": {
+            "feature": "Preserves beneficial bacteria",
             "mouthwash": "no",
             "mouthwash_note": "",
             "toothpaste": "no",
@@ -433,13 +445,81 @@
             "oralbiome": "yes",
             "oralbiome_note": ""
           }
+        },
+        "row_3_breath": {
+          "type": "row",
+          "settings": {
+            "feature": "Addresses bad breath at the source",
+            "mouthwash": "no",
+            "mouthwash_note": "",
+            "toothpaste": "no",
+            "toothpaste_note": "",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
+          }
+        },
+        "row_4_gum": {
+          "type": "row",
+          "settings": {
+            "feature": "Supports gum health long-term",
+            "mouthwash": "no",
+            "mouthwash_note": "",
+            "toothpaste": "partial",
+            "toothpaste_note": "Partially",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
+          }
+        },
+        "row_5_rebuild": {
+          "type": "row",
+          "settings": {
+            "feature": "Rebuilds oral microbiome",
+            "mouthwash": "no",
+            "mouthwash_note": "",
+            "toothpaste": "no",
+            "toothpaste_note": "",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
+          }
+        },
+        "row_6_safe": {
+          "type": "row",
+          "settings": {
+            "feature": "Safe for daily use without side effects",
+            "mouthwash": "no",
+            "mouthwash_note": "",
+            "toothpaste": "yes",
+            "toothpaste_note": "",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
+          }
+        },
+        "row_7_clinical": {
+          "type": "row",
+          "settings": {
+            "feature": "Clinically studied ingredients",
+            "mouthwash": "no",
+            "mouthwash_note": "",
+            "toothpaste": "partial",
+            "toothpaste_note": "Varies",
+            "oralbiome": "yes_text",
+            "oralbiome_note": "70+ studies"
+          }
         }
       },
       "block_order": [
-        "row_jd6QjA"
+        "row_1_kills",
+        "row_2_preserves",
+        "row_3_breath",
+        "row_4_gum",
+        "row_5_rebuild",
+        "row_6_safe",
+        "row_7_clinical"
       ],
       "settings": {
         "heading": "Not all oral care is created equal.",
+        "mobile_heading": "Why OralBiome Pro is different",
+        "mobile_note": "Unlike traditional mouthwash and antibacterial toothpaste, OralBiome Pro restores your oral microbiome instead of destroying it.",
         "col_feature": "Feature",
         "col_mouthwash": "Mouthwash",
         "col_toothpaste": "Antibacterial Toothpaste",

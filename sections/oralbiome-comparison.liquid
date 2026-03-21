@@ -2,9 +2,10 @@
   .ob-compare {
     background: #F4F5F7;
     padding: 48px 0;
+    overflow: hidden;
   }
   .ob-compare__container {
-    max-width: 1000px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 0 20px;
   }
@@ -16,6 +17,8 @@
     margin: 0 0 40px;
     line-height: 1.3;
   }
+
+  /* ── Desktop table ── */
   .ob-compare__table {
     display: none;
     width: 100%;
@@ -23,104 +26,160 @@
     border-spacing: 0;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
     background: #FFFFFF;
   }
   .ob-compare__table th,
   .ob-compare__table td {
-    padding: 14px 16px;
+    padding: 16px;
     font-family: 'DM Sans', sans-serif;
     font-size: 14px;
     text-align: center;
-    border-bottom: 1px solid #F0F0F0;
+    border-bottom: 1px solid #F3F4F6;
     vertical-align: middle;
   }
-  .ob-compare__table th {
+  .ob-compare__table thead th {
+    font-size: 11px;
     font-weight: 700;
-    font-size: 13px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1.5px;
+    color: #1A3B5C;
+    background: transparent;
+    border-bottom: 2px solid #E5E7EB;
+  }
+  .ob-compare__table thead th:last-child {
+    background: rgba(201,168,76,0.08);
+    border-top: 3px solid #C9A84C;
+    position: relative;
+    overflow: hidden;
+  }
+  .ob-compare__table thead th:last-child::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%; height: 100%;
+    background: linear-gradient(105deg, transparent 20%, rgba(201,168,76,0.12) 45%, rgba(201,168,76,0.2) 50%, rgba(201,168,76,0.12) 55%, transparent 80%);
+    animation: obCompareShimmer 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes obCompareShimmer {
+    0% { left: -100%; }
+    100% { left: 200%; }
   }
   .ob-compare__table th:first-child,
   .ob-compare__table td:first-child {
     text-align: left;
-    font-weight: 600;
-    color: #1A3B5C;
+    font-weight: 500;
+    color: #1A1A1A;
     padding-left: 20px;
   }
-  .ob-compare__table thead th {
-    background: #F4F5F7;
-    color: #6B7280;
-  }
-  .ob-compare__table thead th:last-child {
-    background: rgba(201,168,76,0.12);
-    color: #1A3B5C;
-    border-top: 3px solid #C9A84C;
-  }
   .ob-compare__table td:last-child {
-    background: rgba(201,168,76,0.04);
+    background: rgba(201,168,76,0.08);
+  }
+  .ob-compare__table tbody tr:nth-child(even) td {
+    background-color: #F9FAFB;
+  }
+  .ob-compare__table tbody tr:nth-child(even) td:last-child {
+    background: rgba(201,168,76,0.06);
   }
   .ob-compare__table tbody tr:last-child td { border-bottom: none; }
-  .ob-compare__check {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: #2E7D32;
+  .ob-compare__table tbody tr {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.4s ease, transform 0.4s ease, background-color 0.2s ease;
   }
-  .ob-compare__check svg { width: 14px; height: 14px; }
-  .ob-compare__cross {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: #E5E7EB;
+  .ob-compare__table tbody tr.is-visible {
+    opacity: 1;
+    transform: translateY(0);
   }
-  .ob-compare__cross svg { width: 12px; height: 12px; }
-  .ob-compare__partial {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    color: #6B7280;
-    font-style: italic;
+  .ob-compare__table tbody tr:hover td {
+    background-color: rgba(201,168,76,0.04);
+  }
+  .ob-compare__table tbody tr:hover td:last-child {
+    background-color: rgba(201,168,76,0.12);
   }
 
-  .ob-compare__mobile {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  /* ── Icons ── */
+  .comparison-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
-  .ob-compare__mobile-card {
-    background: #FFFFFF;
-    border-radius: 8px;
-    padding: 16px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  .comparison-icon--yes svg circle {
+    transition: transform 0.3s ease;
+    transform-origin: center;
+  }
+  .is-visible .comparison-icon--yes svg circle {
+    animation: obCompareCheckPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes obCompareCheckPop {
+    0% { transform: scale(0.6); }
+    100% { transform: scale(1); }
+  }
+  .comparison-partial {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #9CA3AF;
+    font-style: italic;
+  }
+  .comparison-extra {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: #2E7D32;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+
+  /* ── Mobile checklist ── */
+  .comparison-mobile { display: block; }
+  .comparison-mobile__heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #1A3B5C;
+    text-align: center;
+    margin: 0 0 24px;
+    line-height: 1.3;
+  }
+  .comparison-mobile__item {
     display: flex;
     align-items: center;
     gap: 12px;
-  }
-  .ob-compare__mobile-card .ob-compare__check {
-    flex-shrink: 0;
-  }
-  .ob-compare__mobile-text {
+    padding: 14px 0;
+    border-bottom: 1px solid #F3F4F6;
     font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: #1A3B5C;
-    line-height: 1.4;
+    font-size: 15px;
+    color: #1A1A1A;
+    opacity: 0;
+    transform: translateX(16px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
   }
-  .ob-compare__mobile-sub {
-    display: block;
-    font-size: 12px;
+  .comparison-mobile__item.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .comparison-mobile__item:last-child { border-bottom: none; }
+  .comparison-mobile__item .comparison-icon { flex-shrink: 0; }
+  .comparison-mobile__note {
+    margin-top: 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
     color: #6B7280;
-    margin-top: 2px;
+    font-style: italic;
+    line-height: 1.6;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.5s ease 0.3s;
   }
+  .comparison-mobile__note.is-visible { opacity: 1; }
 
   @media (min-width: 768px) {
     .ob-compare__table { display: table; }
-    .ob-compare__mobile { display: none; }
+    .comparison-mobile,
+    .comparison-mobile__heading,
+    .comparison-mobile__note { display: none !important; }
+  }
+  @media (max-width: 767px) {
+    .ob-compare__heading { display: none; }
   }
   @media (min-width: 1024px) {
     .ob-compare { padding: 80px 0; }
@@ -133,6 +192,7 @@
 <section class="ob-compare" data-section-id="{{ section.id }}">
   <div class="ob-compare__container">
     <h2 class="ob-compare__heading">{{ section.settings.heading }}</h2>
+    <h2 class="comparison-mobile__heading">{{ section.settings.mobile_heading }}</h2>
 
     <table class="ob-compare__table" role="table">
       <thead>
@@ -145,33 +205,30 @@
       </thead>
       <tbody>
         {%- for block in section.blocks -%}
-          <tr {{ block.shopify_attributes }}>
+          <tr {{ block.shopify_attributes }} data-ob-compare-row>
             <td>{{ block.settings.feature }}</td>
             <td>
               {%- if block.settings.mouthwash == 'yes' -%}
-                <span class="ob-compare__check"><svg viewBox="0 0 14 14" fill="none"><path d="M3 7l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               {%- elsif block.settings.mouthwash == 'partial' -%}
-                <span class="ob-compare__partial">{{ block.settings.mouthwash_note }}</span>
+                <span class="comparison-partial">{{ block.settings.mouthwash_note | default: 'Partially' }}</span>
               {%- else -%}
-                <span class="ob-compare__cross"><svg viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
+                <span class="comparison-icon comparison-icon--no"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#E5E7EB"/><path d="M15 9l-6 6M9 9l6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
               {%- endif -%}
             </td>
             <td>
               {%- if block.settings.toothpaste == 'yes' -%}
-                <span class="ob-compare__check"><svg viewBox="0 0 14 14" fill="none"><path d="M3 7l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               {%- elsif block.settings.toothpaste == 'partial' -%}
-                <span class="ob-compare__partial">{{ block.settings.toothpaste_note }}</span>
+                <span class="comparison-partial">{{ block.settings.toothpaste_note | default: 'Partially' }}</span>
               {%- else -%}
-                <span class="ob-compare__cross"><svg viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
+                <span class="comparison-icon comparison-icon--no"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#E5E7EB"/><path d="M15 9l-6 6M9 9l6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
               {%- endif -%}
             </td>
             <td>
-              {%- if block.settings.oralbiome == 'yes' -%}
-                <span class="ob-compare__check"><svg viewBox="0 0 14 14" fill="none"><path d="M3 7l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              {%- elsif block.settings.oralbiome == 'partial' -%}
-                <span class="ob-compare__partial">{{ block.settings.oralbiome_note }}</span>
-              {%- else -%}
-                <span class="ob-compare__cross"><svg viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
+              <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              {%- if block.settings.oralbiome == 'yes_text' and block.settings.oralbiome_note != blank -%}
+                <span class="comparison-extra">{{ block.settings.oralbiome_note }}</span>
               {%- endif -%}
             </td>
           </tr>
@@ -179,23 +236,66 @@
       </tbody>
     </table>
 
-    <div class="ob-compare__mobile" role="list">
+    <div class="comparison-mobile" role="list">
       {%- for block in section.blocks -%}
-        {%- if block.settings.oralbiome == 'yes' -%}
-          <div class="ob-compare__mobile-card" role="listitem" {{ block.shopify_attributes }}>
-            <span class="ob-compare__check"><svg viewBox="0 0 14 14" fill="none"><path d="M3 7l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-            <span class="ob-compare__mobile-text">
-              {{ block.settings.feature }}
-              {%- if block.settings.oralbiome_note != blank -%}
-                <span class="ob-compare__mobile-sub">{{ block.settings.oralbiome_note }}</span>
-              {%- endif -%}
-            </span>
-          </div>
-        {%- endif -%}
+        <div class="comparison-mobile__item" role="listitem" {{ block.shopify_attributes }} data-ob-compare-mobile>
+          <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span>
+            {{ block.settings.feature }}
+            {%- if block.settings.oralbiome == 'yes_text' and block.settings.oralbiome_note != blank -%}
+              — {{ block.settings.oralbiome_note }}
+            {%- endif -%}
+          </span>
+        </div>
       {%- endfor -%}
     </div>
+    <p class="comparison-mobile__note" data-ob-compare-note>{{ section.settings.mobile_note }}</p>
   </div>
 </section>
+
+<script>
+  (function() {
+    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!section) return;
+
+    var rows = section.querySelectorAll('[data-ob-compare-row]');
+    var mobileItems = section.querySelectorAll('[data-ob-compare-mobile]');
+    var note = section.querySelector('[data-ob-compare-note]');
+
+    function stagger(entries, cls) {
+      var delay = 0;
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !entry.target.classList.contains(cls)) {
+          setTimeout(function() { entry.target.classList.add(cls); }, delay);
+          delay += 80;
+        }
+      });
+    }
+
+    if (rows.length) {
+      var tableObs = new IntersectionObserver(function(entries) {
+        stagger(entries, 'is-visible');
+      }, { threshold: 0.15 });
+      rows.forEach(function(r) { tableObs.observe(r); });
+    }
+
+    if (mobileItems.length) {
+      var mobileObs = new IntersectionObserver(function(entries) {
+        stagger(entries, 'is-visible');
+      }, { threshold: 0.15 });
+      mobileItems.forEach(function(m) { mobileObs.observe(m); });
+    }
+
+    if (note) {
+      var noteObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) entry.target.classList.add('is-visible');
+        });
+      }, { threshold: 0.3 });
+      noteObs.observe(note);
+    }
+  })();
+</script>
 
 {% schema %}
 {
@@ -203,6 +303,8 @@
   "tag": "section",
   "settings": [
     { "type": "text", "id": "heading", "label": "Heading", "default": "Not all oral care is created equal." },
+    { "type": "text", "id": "mobile_heading", "label": "Mobile heading", "default": "Why OralBiome Pro is different" },
+    { "type": "textarea", "id": "mobile_note", "label": "Mobile note", "default": "Unlike traditional mouthwash and antibacterial toothpaste, OralBiome Pro restores your oral microbiome instead of destroying it." },
     { "type": "text", "id": "col_feature", "label": "Feature column header", "default": "Feature" },
     { "type": "text", "id": "col_mouthwash", "label": "Mouthwash column header", "default": "Mouthwash" },
     { "type": "text", "id": "col_toothpaste", "label": "Toothpaste column header", "default": "Antibacterial Toothpaste" },
@@ -211,15 +313,44 @@
   "blocks": [
     {
       "type": "row",
-      "name": "Comparison row",
+      "name": "Comparison Row",
       "settings": [
         { "type": "text", "id": "feature", "label": "Feature name", "default": "Feature" },
-        { "type": "select", "id": "mouthwash", "label": "Mouthwash", "options": [{ "value": "yes", "label": "Yes" }, { "value": "no", "label": "No" }, { "value": "partial", "label": "Partial" }], "default": "no" },
-        { "type": "text", "id": "mouthwash_note", "label": "Mouthwash note (if partial)" },
-        { "type": "select", "id": "toothpaste", "label": "Toothpaste", "options": [{ "value": "yes", "label": "Yes" }, { "value": "no", "label": "No" }, { "value": "partial", "label": "Partial" }], "default": "no" },
-        { "type": "text", "id": "toothpaste_note", "label": "Toothpaste note (if partial)" },
-        { "type": "select", "id": "oralbiome", "label": "OralBiome Pro", "options": [{ "value": "yes", "label": "Yes" }, { "value": "no", "label": "No" }, { "value": "partial", "label": "Partial" }], "default": "yes" },
-        { "type": "text", "id": "oralbiome_note", "label": "OralBiome note (if partial)" }
+        {
+          "type": "select",
+          "id": "mouthwash",
+          "label": "Mouthwash",
+          "options": [
+            { "value": "no", "label": "\u2717 No" },
+            { "value": "yes", "label": "\u2713 Yes" },
+            { "value": "partial", "label": "~ Partial" }
+          ],
+          "default": "no"
+        },
+        { "type": "text", "id": "mouthwash_note", "label": "Mouthwash custom text (if Partial)", "default": "Partially" },
+        {
+          "type": "select",
+          "id": "toothpaste",
+          "label": "Antibacterial Toothpaste",
+          "options": [
+            { "value": "no", "label": "\u2717 No" },
+            { "value": "yes", "label": "\u2713 Yes" },
+            { "value": "partial", "label": "~ Partial" }
+          ],
+          "default": "no"
+        },
+        { "type": "text", "id": "toothpaste_note", "label": "Toothpaste custom text (if Partial)", "default": "Partially" },
+        {
+          "type": "select",
+          "id": "oralbiome",
+          "label": "OralBiome Pro",
+          "options": [
+            { "value": "yes", "label": "\u2713 Yes" },
+            { "value": "yes_text", "label": "\u2713 Yes + text" }
+          ],
+          "default": "yes"
+        },
+        { "type": "text", "id": "oralbiome_note", "label": "OralBiome Pro extra text (if Yes + text)", "default": "" }
       ]
     }
   ],
@@ -229,11 +360,11 @@
       "blocks": [
         { "type": "row", "settings": { "feature": "Kills harmful bacteria", "mouthwash": "yes", "toothpaste": "yes", "oralbiome": "yes" } },
         { "type": "row", "settings": { "feature": "Preserves beneficial bacteria", "mouthwash": "no", "toothpaste": "no", "oralbiome": "yes" } },
-        { "type": "row", "settings": { "feature": "Addresses bad breath at source", "mouthwash": "no", "mouthwash_note": "Masks only", "toothpaste": "no", "oralbiome": "yes" } },
+        { "type": "row", "settings": { "feature": "Addresses bad breath at the source", "mouthwash": "no", "toothpaste": "no", "oralbiome": "yes" } },
         { "type": "row", "settings": { "feature": "Supports gum health long-term", "mouthwash": "no", "toothpaste": "partial", "toothpaste_note": "Partially", "oralbiome": "yes" } },
         { "type": "row", "settings": { "feature": "Rebuilds oral microbiome", "mouthwash": "no", "toothpaste": "no", "oralbiome": "yes" } },
-        { "type": "row", "settings": { "feature": "Safe daily use without side effects", "mouthwash": "no", "toothpaste": "yes", "oralbiome": "yes" } },
-        { "type": "row", "settings": { "feature": "Clinically studied strains", "mouthwash": "no", "toothpaste": "no", "oralbiome": "yes", "oralbiome_note": "70+ studies" } }
+        { "type": "row", "settings": { "feature": "Safe for daily use without side effects", "mouthwash": "no", "toothpaste": "yes", "oralbiome": "yes" } },
+        { "type": "row", "settings": { "feature": "Clinically studied ingredients", "mouthwash": "no", "toothpaste": "partial", "toothpaste_note": "Varies", "oralbiome": "yes_text", "oralbiome_note": "70+ studies" } }
       ]
     }
   ]
