@@ -92,7 +92,6 @@
 
     <div class="oralbiome-faq__list">
       {%- for block in section.blocks -%}
-        {%- if block.type == 'faq_item' -%}
           <div class="faq-item"
                data-category="{{ block.settings.category }}"
                data-animate
@@ -113,7 +112,6 @@
               <div class="faq-answer__inner">{{ block.settings.answer }}</div>
             </div>
           </div>
-        {%- endif -%}
       {%- endfor -%}
     </div>
   </div>
