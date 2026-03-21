@@ -89,13 +89,13 @@
               class="cao-atc"
               {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}
             >
-              {% if product.selected_or_first_available_variant.available %}Add to cart{% else %}Sold out{% endif %}
+              {% if product.selected_or_first_available_variant.available %}{{ 'products.product.add_to_cart' | t }}{% else %}{{ 'products.product.sold_out' | t }}{% endif %}
             </button>
           </div>
         {% endform %}
 
         <p class="cao-trust">
-          ✓ Ships in 2 business days &nbsp;·&nbsp; ✓ 30-day money-back guarantee &nbsp;·&nbsp; ✓ Free over €80
+          ✓ {{ 'calqix_product.trust.ships_2_days' | t | default: 'Verzending binnen 2 werkdagen' }} &nbsp;·&nbsp; ✓ {{ 'calqix_product.trust.money_back' | t | default: '30 dagen niet-goed-geld-terug' }} &nbsp;·&nbsp; ✓ {{ 'calqix_product.trust.free_shipping' | t | default: 'Gratis boven €80' }}
         </p>
       </div>
     </div>
@@ -219,7 +219,7 @@
                   {% if comp.selected_or_first_available_variant != blank %}
                     <form method="post" action="/cart/add" class="cao-card-form">
                       <input type="hidden" name="id" value="{{ comp.selected_or_first_available_variant.id }}">
-                      <button type="submit" class="cao-card-atc">Add to cart</button>
+                      <button type="submit" class="cao-card-atc">{{ 'products.product.add_to_cart' | t }}</button>
                     </form>
                   {% endif %}
                 </article>
@@ -248,7 +248,7 @@
                     {% if item.selected_or_first_available_variant != blank %}
                       <form method="post" action="/cart/add" class="cao-card-form">
                         <input type="hidden" name="id" value="{{ item.selected_or_first_available_variant.id }}">
-                        <button type="submit" class="cao-card-atc">Add to cart</button>
+                        <button type="submit" class="cao-card-atc">{{ 'products.product.add_to_cart' | t }}</button>
                       </form>
                     {% endif %}
                   </article>
