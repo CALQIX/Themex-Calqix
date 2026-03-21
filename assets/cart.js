@@ -59,12 +59,14 @@ class CartRemoveButton extends HTMLElement {
       cartLine.classList.add("wt-cart-line--remove-pending", "wt-cart-line--remove-flash");
       cartLine.style.maxHeight = `${cartLine.scrollHeight}px`;
       requestAnimationFrame(() => {
-        cartLine.style.maxHeight = "0px";
-        cartLine.style.opacity = "0";
+        requestAnimationFrame(() => {
+          cartLine.style.maxHeight = "0px";
+          cartLine.style.opacity = "0";
+        });
       });
       setTimeout(() => {
         cartItems.updateQuantity(this.dataset.index, 0);
-      }, 320);
+      }, 380);
     });
   }
 }
@@ -414,13 +416,19 @@ class CartItems extends HTMLElement {
 
     existingByKey.forEach((node, key) => {
       if (incomingKeys.has(key)) return;
+      if (node.classList.contains("wt-cart-line--remove-pending")) {
+        setTimeout(() => node.remove(), 400);
+        return;
+      }
       node.classList.add("wt-cart-line--remove-pending", "wt-cart-line--remove-flash");
       node.style.maxHeight = `${node.scrollHeight}px`;
       requestAnimationFrame(() => {
-        node.style.maxHeight = "0px";
-        node.style.opacity = "0";
+        requestAnimationFrame(() => {
+          node.style.maxHeight = "0px";
+          node.style.opacity = "0";
+        });
       });
-      setTimeout(() => node.remove(), 320);
+      setTimeout(() => node.remove(), 400);
     });
 
     itemsFromCart.forEach((item, index) => {
@@ -445,8 +453,10 @@ class CartItems extends HTMLElement {
     });
 
     this.syncDrawerIndexes(currentList, itemsFromCart);
-    this.syncDrawerShellFromTemplate(drawerRoot, incomingInner);
-    this.updateCartBubbleSection(parsedState);
+    setTimeout(() => {
+      this.syncDrawerShellFromTemplate(drawerRoot, incomingInner);
+      this.updateCartBubbleSection(parsedState);
+    }, 60);
   }
 
   updateDrawerItemInPlace(currentNode, templateNode, itemData) {

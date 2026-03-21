@@ -1553,9 +1553,35 @@
   box-shadow: none;
 }
 @media (max-width: 599px) {
+  .wt-cart__addons {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .wt-cart__addons__heading {
+    padding-left: calc(var(--gap, 8px) * 2);
+  }
+  .wt-cart__addons__list {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0 calc(var(--gap, 8px) * 2) 4px;
+    scroll-padding-left: calc(var(--gap, 8px) * 2);
+  }
+  .wt-cart__addons__list::-webkit-scrollbar { display: none; }
   .wt-cart__addon-card {
+    flex: 0 0 82%;
+    min-width: 0;
+    scroll-snap-align: start;
     align-items: center;
     flex-direction: row;
+    animation: wtAddonSlideIn 0.45s cubic-bezier(0.22, 0.68, 0, 1.04) both;
+  }
+  .wt-cart__addon-card:nth-child(2) {
+    animation-delay: 0.08s;
   }
   .wt-cart__addon-card__actions {
     align-items: flex-end;
@@ -1582,8 +1608,19 @@
 .wt-cart__drawer .cart-item.wt-cart-line--remove-pending {
   overflow: hidden;
   transform-origin: top;
-  transition: max-height 0.32s ease-in, opacity 0.32s ease-in, transform 0.32s ease-in;
-  transform: translateX(60px);
+  will-change: max-height, opacity, transform;
+  transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              margin 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+              border-width 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(40px);
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-width: 0 !important;
 }
 .wt-cart__drawer .cart-item.wt-cart-line--remove-flash {
   animation: wtCartLineRemoveFlash 0.4s ease;
@@ -1828,6 +1865,10 @@
 }
 @keyframes wtCartSpin {
   to { transform: rotate(360deg); }
+}
+@keyframes wtAddonSlideIn {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
 }
 @keyframes wtCartTrashShake {
   0% { transform: translateX(0); }
