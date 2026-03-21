@@ -1220,7 +1220,7 @@
 .wt-cart__drawer .wt-cart__cta {
   background: var(--calqix-navy-soft);
   color: #ffffff;
-  border-radius: 0;
+  border-radius: 5px;
   min-height: 52px;
   border: 1px solid transparent;
   box-shadow: 0 2px 0 rgba(15, 36, 56, 0.08);
@@ -1283,9 +1283,9 @@
 
 /* Payment row tuned for CALQIX look */
 .wt-cart__drawer .ccd-payment-row {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--calqix-border);
+  margin-top: 5px;
+  padding-top: 0;
+  border-top: none;
 }
 .wt-cart__drawer .ccd-payment-label {
   margin-bottom: 10px;
@@ -1299,10 +1299,10 @@
 .wt-cart__drawer .ccd-payment-icon {
   min-width: 58px;
   min-height: calc(var(--ccd-payment-icon-height, 20px) + 10px);
-  border: 1px solid rgba(15, 36, 56, 0.14);
-  border-radius: 6px;
-  background: #ffffff;
-  box-shadow: 0 1px 0 rgba(15, 36, 56, 0.04);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 .wt-cart__drawer .ccd-payment-icon .icon,
 .wt-cart__drawer .ccd-payment-custom-img {
@@ -1391,20 +1391,23 @@
   .wt-cart__drawer .counter .js-counter-quantity {
     font-size: var(--drawer-mobile-qty-size);
   }
+  .wt-cart__drawer__footer {
+    padding-top: 5px;
+  }
   .wt-cart__drawer .ccd-payment-icon {
-    min-width: 54px;
+    min-width: 0;
+    padding: 0 3px;
+    border: none;
+    background: transparent;
+    box-shadow: none;
   }
   .wt-cart__drawer .ccd-payment-icons {
     flex-wrap: nowrap;
-    gap: 4px;
+    gap: 3px;
   }
   .wt-cart__drawer .ccd-payment-icon .icon,
   .wt-cart__drawer .ccd-payment-custom-img {
     height: var(--ccd-payment-icon-height-mobile, var(--ccd-payment-icon-height, 20px));
-  }
-  .wt-cart__drawer .ccd-payment-icon {
-    min-width: 0;
-    padding: 0 4px;
   }
   .wt-cart__drawer .wt-cart__subtitle__text {
     text-align: center;
@@ -1536,6 +1539,7 @@
   letter-spacing: 0.08em;
   font-weight: 700;
   text-decoration: none;
+  white-space: nowrap;
   transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
