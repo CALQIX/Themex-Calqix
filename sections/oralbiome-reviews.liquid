@@ -1,231 +1,60 @@
 <style>
-  .ob-reviews {
-    background: #FFFFFF;
-    padding: 48px 0;
-  }
-  .ob-reviews__container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-  .ob-reviews__header {
-    text-align: center;
-    margin-bottom: 32px;
-  }
-  .ob-reviews__eyebrow {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: #C9A84C;
-    margin: 0 0 12px;
-  }
-  .ob-reviews__heading {
-    font-family: 'DM Serif Display', serif;
-    font-size: 28px;
-    color: #1A3B5C;
-    margin: 0 0 16px;
-    line-height: 1.3;
-  }
-  .ob-reviews__aggregate {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 8px;
-  }
-  .ob-reviews__big-number {
-    font-family: 'DM Serif Display', serif;
-    font-size: 48px;
-    color: #1A3B5C;
-    line-height: 1;
-  }
-  .ob-reviews__agg-right {
-    text-align: left;
-  }
-  .ob-reviews__stars-row {
-    display: flex;
-    gap: 2px;
-    margin-bottom: 4px;
-  }
-  .ob-reviews__stars-row svg {
-    width: 18px;
-    height: 18px;
-    fill: #C9A84C;
-  }
-  .ob-reviews__count {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: #6B7280;
-  }
-  .ob-reviews__filters {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 32px;
-  }
-  .ob-reviews__filter-btn {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 6px 16px;
-    border: 1px solid #D1D5DB;
-    border-radius: 50px;
-    background: #FFFFFF;
-    color: #6B7280;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .ob-reviews__filter-btn.is-active,
-  .ob-reviews__filter-btn:hover {
-    background: #1A3B5C;
-    color: #FFFFFF;
-    border-color: #1A3B5C;
-  }
-  .ob-reviews__carousel-wrap {
-    position: relative;
-  }
-  .ob-reviews__track {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .ob-reviews__card {
-    width: 100%;
-    background: #FFFFFF;
-    border: 1px solid #E5E7EB;
-    border-radius: 8px;
-    padding: 20px;
-  }
-  .ob-reviews__card.is-hidden-mobile { display: none; }
-  .ob-reviews__show-more {
-    display: block;
-    margin: 20px auto 0;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: #C9A84C;
-    background: none;
-    border: 1px solid #C9A84C;
-    border-radius: 50px;
-    padding: 10px 28px;
-    cursor: pointer;
-    min-height: 44px;
-    transition: background 0.2s ease, color 0.2s ease;
-  }
-  .ob-reviews__show-more:hover { background: #C9A84C; color: #1A3B5C; }
-  .ob-reviews__card-stars {
-    display: flex;
-    gap: 2px;
-    margin-bottom: 12px;
-  }
-  .ob-reviews__card-stars svg {
-    width: 16px;
-    height: 16px;
-    fill: #C9A84C;
-  }
-  .ob-reviews__card-title {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    color: #1A3B5C;
-    margin: 0 0 8px;
-  }
-  .ob-reviews__card-body {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: #6B7280;
-    line-height: 1.6;
-    margin: 0 0 16px;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .ob-reviews__card-body.is-expanded {
-    -webkit-line-clamp: unset;
-  }
-  .ob-reviews__read-more {
-    background: none;
-    border: none;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #C9A84C;
-    cursor: pointer;
-    padding: 0;
-    margin-bottom: 12px;
-    display: block;
-  }
-  .ob-reviews__card-footer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding-top: 12px;
-    border-top: 1px solid #F0F0F0;
-  }
-  .ob-reviews__card-author {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #1A3B5C;
-  }
-  .ob-reviews__card-verified {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    color: #2E7D32;
-    background: rgba(46,125,50,0.08);
-    padding: 2px 8px;
-    border-radius: 50px;
-  }
-  .ob-reviews__card-date {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    color: #9CA3AF;
-    margin-left: auto;
-  }
-  .ob-reviews__write {
-    display: block;
-    margin: 32px auto 0;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    padding: 12px 32px;
-    border: 2px solid #1A3B5C;
-    border-radius: 4px;
-    background: transparent;
-    color: #1A3B5C;
-    cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
-  }
-  .ob-reviews__write:hover {
-    background: #1A3B5C;
-    color: #FFFFFF;
-  }
-  .ob-reviews__judgeme {
-    margin-top: 32px;
-  }
-
+  .ob-reviews { background: #F4F5F7; padding: 48px 16px; }
+  .ob-reviews__container { max-width: 1000px; margin: 0 auto; padding: 0; }
+  .ob-reviews__header { text-align: center; margin-bottom: 32px; }
+  .ob-reviews__eyebrow { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; color: #C9A84C; margin: 0 0 12px; }
+  .ob-reviews__heading { font-family: 'DM Serif Display', serif; font-size: 28px; color: #1A3B5C; margin: 0 0 32px; line-height: 1.3; }
+  .ob-reviews__aggregate { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 24px; }
+  .ob-reviews__big-number { font-family: 'DM Serif Display', serif; font-size: 44px; color: #1A3B5C; line-height: 1; }
+  .ob-reviews__agg-stars { display: flex; gap: 2px; }
+  .ob-reviews__agg-stars svg { width: 22px; height: 22px; }
+  .ob-reviews__count { font-family: 'DM Sans', sans-serif; font-size: 14px; color: #6B7280; }
+  .ob-reviews__breakdown { max-width: 400px; margin: 0 auto 32px; }
+  .ob-reviews__bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .ob-reviews__bar-label { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #6B7280; width: 30px; text-align: right; flex-shrink: 0; }
+  .ob-reviews__bar-track { flex: 1; height: 8px; background: #E5E7EB; border-radius: 4px; overflow: hidden; }
+  .ob-reviews__bar-fill { height: 8px; background: #C9A84C; border-radius: 4px; transition: width 0.6s ease; }
+  .ob-reviews__bar-count { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #6B7280; width: 24px; text-align: right; flex-shrink: 0; }
+  .ob-reviews__filters { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-wrap: nowrap; padding-bottom: 4px; }
+  .ob-reviews__filters::-webkit-scrollbar { display: none; }
+  .ob-reviews__filter-btn { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 8px 20px; border: 1px solid #E5E7EB; border-radius: 50px; background: #fff; color: #6B7280; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; flex-shrink: 0; }
+  .ob-reviews__filter-btn:hover { border-color: #1A3B5C; color: #1A3B5C; }
+  .ob-reviews__filter-btn.is-active { background: #1A3B5C; color: #fff; border-color: #1A3B5C; }
+  .ob-reviews__grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .ob-reviews__card { background: #fff; border: 1px solid #E5E7EB; border-radius: 8px; padding: 20px; opacity: 0; transform: translateY(12px); transition: opacity 0.4s ease, transform 0.4s ease; }
+  .ob-reviews__card.is-visible { opacity: 1; transform: translateY(0); }
+  .ob-reviews__card-stars { display: flex; gap: 1px; }
+  .ob-reviews__card-stars svg { width: 14px; height: 14px; }
+  .ob-reviews__card-title { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; color: #1A3B5C; margin: 12px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ob-reviews__card-body { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #6B7280; line-height: 1.6; margin: 8px 0 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .ob-reviews__card-body.is-expanded { -webkit-line-clamp: unset; }
+  .ob-reviews__read-more { background: none; border: none; font-family: 'DM Sans', sans-serif; font-size: 12px; color: #C9A84C; cursor: pointer; padding: 0; margin-top: 6px; display: none; }
+  .ob-reviews__read-more:hover { text-decoration: underline; }
+  .ob-reviews__read-more.is-needed { display: inline; }
+  .ob-reviews__card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 12px; border-top: 1px solid #F3F4F6; }
+  .ob-reviews__card-reviewer { display: flex; flex-direction: column; }
+  .ob-reviews__card-name { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: #1A3B5C; }
+  .ob-reviews__card-country { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #6B7280; }
+  .ob-reviews__card-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .ob-reviews__card-verified { display: inline-flex; align-items: center; gap: 4px; background: #F0FDF4; color: #2E7D32; font-family: 'DM Sans', sans-serif; font-size: 11px; padding: 2px 8px; border-radius: 50px; }
+  .ob-reviews__card-date { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #D1D5DB; }
+  .ob-reviews__show-more { display: block; margin: 32px auto 0; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 12px 32px; border: 1px solid #1A3B5C; border-radius: 4px; background: transparent; color: #1A3B5C; cursor: pointer; transition: background 0.2s ease, color 0.2s ease; }
+  .ob-reviews__show-more:hover { background: #1A3B5C; color: #fff; }
+  .ob-reviews__write { display: block; margin: 16px auto 0; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 12px 32px; border: 1px solid #C9A84C; border-radius: 4px; background: transparent; color: #C9A84C; cursor: pointer; transition: background 0.2s ease, color 0.2s ease; text-decoration: none; text-align: center; }
+  .ob-reviews__write:hover { background: #C9A84C; color: #1A3B5C; }
+  .ob-reviews__judgeme { margin-top: 32px; }
   @media (min-width: 768px) {
-    .ob-reviews__track {
-      flex-direction: row;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .ob-reviews__track::-webkit-scrollbar { display: none; }
-    .ob-reviews__card { flex: 0 0 calc(50% - 12px); min-width: 300px; scroll-snap-align: start; }
-    .ob-reviews__card.is-hidden-mobile { display: block; }
-    .ob-reviews__show-more { display: none; }
+    .ob-reviews { padding: 48px 0; }
+    .ob-reviews__container { padding: 0 20px; }
+    .ob-reviews__grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .ob-reviews__aggregate { flex-direction: row; gap: 12px; }
+    .ob-reviews__big-number { font-size: 56px; }
+    .ob-reviews__card { padding: 24px; }
   }
   @media (min-width: 1024px) {
     .ob-reviews { padding: 80px 0; }
     .ob-reviews__heading { font-size: 36px; }
-    .ob-reviews__card { flex: 0 0 calc(33.33% - 11px); }
+    .ob-reviews__grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
   }
 </style>
 
@@ -236,24 +65,18 @@
       <h2 class="ob-reviews__heading">{{ section.settings.heading }}</h2>
       <div class="ob-reviews__aggregate">
         <span class="ob-reviews__big-number">{{ section.settings.avg_rating }}</span>
-        <div class="ob-reviews__agg-right">
-          <div class="ob-reviews__stars-row">
-            {%- for i in (1..5) -%}
-              <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z"/></svg>
-            {%- endfor -%}
-          </div>
-          <span class="ob-reviews__count">{{ section.settings.based_on_text }}</span>
+        <div class="ob-reviews__agg-stars">
+          {%- for i in (1..5) -%}
+            <svg viewBox="0 0 24 24" fill="#C9A84C"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          {%- endfor -%}
         </div>
+        <span class="ob-reviews__count">{{ section.settings.based_on_text }}</span>
       </div>
+      <div class="ob-reviews__breakdown" data-ob-breakdown></div>
     </div>
 
     {%- if section.settings.show_filters -%}
-      <div class="ob-reviews__filters" role="tablist">
-        <button class="ob-reviews__filter-btn is-active" data-filter="all" role="tab" aria-selected="true">{{ section.settings.filter_all }}</button>
-        <button class="ob-reviews__filter-btn" data-filter="gum" role="tab" aria-selected="false">{{ section.settings.filter_gum }}</button>
-        <button class="ob-reviews__filter-btn" data-filter="breath" role="tab" aria-selected="false">{{ section.settings.filter_breath }}</button>
-        <button class="ob-reviews__filter-btn" data-filter="subscription" role="tab" aria-selected="false">{{ section.settings.filter_sub }}</button>
-      </div>
+      <div class="ob-reviews__filters" role="tablist" data-ob-filters></div>
     {%- endif -%}
 
     {%- if section.settings.use_judgeme -%}
@@ -261,105 +84,283 @@
         <div id="judgeme_product_reviews" data-id="{{ product.id }}">{{ product.metafields.judgeme.widget }}</div>
       </div>
     {%- else -%}
-      <div class="ob-reviews__carousel-wrap">
-        <div class="ob-reviews__track">
-          {%- for block in section.blocks -%}
-            <div class="ob-reviews__card" data-tags="{{ block.settings.tags }}" {{ block.shopify_attributes }}>
-              <div class="ob-reviews__card-stars">
-                {%- assign stars = block.settings.stars | default: 5 -%}
-                {%- for i in (1..stars) -%}
-                  <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z"/></svg>
-                {%- endfor -%}
-              </div>
-              {%- if block.settings.title != blank -%}
-                <h3 class="ob-reviews__card-title">{{ block.settings.title }}</h3>
-              {%- endif -%}
-              <p class="ob-reviews__card-body">{{ block.settings.body }}</p>
-              <button type="button" class="ob-reviews__read-more" aria-label="{{ section.settings.read_more_label }}">{{ section.settings.read_more_label }}</button>
-              <div class="ob-reviews__card-footer">
-                <span class="ob-reviews__card-author">{{ block.settings.author }}</span>
-                {%- if block.settings.verified -%}
-                  <span class="ob-reviews__card-verified">{{ section.settings.verified_text }}</span>
-                {%- endif -%}
-                {%- if block.settings.date != blank -%}
-                  <span class="ob-reviews__card-date">{{ block.settings.date }}</span>
-                {%- endif -%}
-              </div>
-            </div>
-          {%- endfor -%}
-        </div>
-      </div>
-
-      <button type="button" class="ob-reviews__show-more" aria-label="{{ section.settings.show_more_label }}">{{ section.settings.show_more_label }}</button>
-      <button type="button" class="ob-reviews__write" aria-label="{{ section.settings.write_review_text }}">{{ section.settings.write_review_text }}</button>
+      <div class="ob-reviews__grid" data-ob-grid></div>
+      <button type="button" class="ob-reviews__show-more" data-ob-show-more>{{ section.settings.show_more_label }}</button>
+      <a class="ob-reviews__write" href="{{ section.settings.write_review_url | default: '#write-review' }}">{{ section.settings.write_review_text }}</a>
     {%- endif -%}
   </div>
 </section>
 
 <script>
-  (function() {
-    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
-    if (!section) return;
+(function(){
+  var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+  if (!section) return;
+  var useJudgeme = {{ section.settings.use_judgeme | json }};
+  if (useJudgeme) return;
 
-    var readMoreBtns = section.querySelectorAll('.ob-reviews__read-more');
-    readMoreBtns.forEach(function(btn) {
+  var R = [
+    {id:1,n:"Juliette J.",cc:"BE",co:"Belgium",r:5,t:"Tandvlees bloedt niet meer",b:"Na jaren van bloedend tandvlees bij het flossen is het eindelijk gestopt. Gebruik OralBiome Pro nu 5 weken elke avond voor het slapen. Mijn mondhygiënist was positief verrast bij de laatste controle.",tg:["gum_health"],d:"2026-03-19"},
+    {id:2,n:"Manon L.",cc:"FR",co:"France",r:5,t:"Great for sensitive gums",b:"I have very sensitive gums and most products irritate them further. This is gentle — it's just a lozenge that dissolves. No burning, no stinging. And my gums are actually improving. Highly recommend.",tg:["gum_health"],d:"2026-03-18"},
+    {id:3,n:"Valentina M.",cc:"AT",co:"Austria",r:4,t:"Better than any breath mint",b:"Breath mints mask the problem. This actually addresses it. I work in client-facing meetings all day and the confidence boost alone is worth it. Fresh breath lasts well into the afternoon. Five stars.",tg:["fresh_breath"],d:"2026-03-18"},
+    {id:4,n:"Marieke v.",cc:"NL",co:"Netherlands",r:4,t:"Auch für empfindliches Zahnfleisch",b:"Ich habe sehr empfindliches Zahnfleisch und die meisten Produkte reizen es zusätzlich. Diese Lutschtablette ist sanft — kein Brennen, kein Stechen. Und mein Zahnfleisch erholt sich tatsächlich. Five stars.",tg:["gum_health"],d:"2026-03-17"},
+    {id:5,n:"Anna M.",cc:"AT",co:"Austria",r:5,t:"Took a few weeks to notice",b:"Honestly, the first week I didn't feel much difference. By week 3, I realised I hadn't had that metallic taste in my mouth that I usually get. By week 5, my gums stopped bleeding when I floss. Patience pays off.",tg:["gum_health"],d:"2026-03-17"},
+    {id:6,n:"Louise M.",cc:"BE",co:"Belgium",r:5,t:"Zahnfleisch deutlich verbessert",b:"Nach jahrelangen Zahnfleischproblemen endlich eine Verbesserung. Benutze OralBiome Pro seit 6 Wochen täglich vor dem Schlafengehen. Mein Zahnarzt hat den Unterschied bei der letzten Kontrolle bestätigt.",tg:["gum_health"],d:"2026-03-16"},
+    {id:7,n:"Raphaël M.",cc:"FR",co:"France",r:5,t:"Weniger Plaque-Aufbau",b:"Meine Dentalhygienikerin hat bei der letzten Reinigung deutlich weniger Plaque festgestellt. Ich habe sonst nichts an meiner Routine geändert — nur OralBiome Pro hinzugefügt.",tg:["gum_health"],d:"2026-03-16"},
+    {id:8,n:"David S.",cc:"DE",co:"Germany",r:5,t:"Subscription delivery is reliable",b:"Always arrives on time, well packaged. I've been on the monthly subscription for 4 months now. Never had an issue. The product itself keeps working — my oral health has genuinely improved. Great addition to my routine.",tg:["subscription"],d:"2026-03-16"},
+    {id:9,n:"Iris B.",cc:"NL",co:"Netherlands",r:5,t:"Easy to travel with",b:"No liquids, no refrigeration needed. I travel for work constantly and this just goes in my toiletry bag. One tablet before bed, done. So much easier than carrying mouthwash through airport security.",tg:["general"],d:"2026-03-14"},
+    {id:10,n:"Lukas S.",cc:"AT",co:"Austria",r:4,t:"Wissenschaftlich fundiert",b:"Was mich überzeugt hat: L. reuteri ist in über 70 klinischen Studien untersucht. Das ist kein Marketing — das ist Evidenz. Die meisten Produkte in diesem Bereich können das nicht vorweisen.",tg:["general"],d:"2026-03-13"},
+    {id:11,n:"Katharina B.",cc:"AT",co:"Austria",r:5,t:"Halitosis finally under control",b:"I've dealt with chronic halitosis for over a decade. Tried everything. This is the first product that seems to address the underlying bacterial imbalance rather than just covering the smell. It's not perfect yet, but it's the best improvement I've had. Impressed.",tg:["fresh_breath"],d:"2026-03-12"},
+    {id:12,n:"Stefan P.",cc:"AT",co:"Austria",r:5,t:"Wissenschaftlich fundiert",b:"Was mich überzeugt hat: L. reuteri ist in über 70 klinischen Studien untersucht. Das ist kein Marketing — das ist Evidenz. Die meisten Produkte in diesem Bereich können das nicht vorweisen. Impressed.",tg:["general"],d:"2026-03-12"},
+    {id:13,n:"Jonas K.",cc:"DE",co:"Germany",r:4,t:"Minder plaque bij de tandarts",b:"Bij mijn halfjaarlijkse controle zei de mondhygiënist dat er opvallend minder tandplaque was. Ik heb verder niks veranderd aan mijn routine, behalve OralBiome Pro toegevoegd.",tg:["gum_health"],d:"2026-03-11"},
+    {id:14,n:"Jan R.",cc:"DE",co:"Germany",r:5,t:"Milde smaak, makkelijk in gebruik",b:"Eén tabletje voor het slapen op je tong leggen en laten oplossen. Smaakt licht naar munt. Niet opdringerig. Past perfect in mijn avondroutine. Would buy again.",tg:["general"],d:"2026-03-11"},
+    {id:15,n:"Leon W.",cc:"DE",co:"Germany",r:5,t:"Eindelijk iets dat werkt tegen slechte adem",b:"Ik had al jaren last van een slechte adem die niet wegginng met poetsen of mondwater. Na 4 weken OralBiome Pro is het drastisch verbeterd. Het pakt de oorzaak aan in plaats van het te maskeren. Five stars.",tg:["fresh_breath"],d:"2026-03-11"},
+    {id:16,n:"Bram S.",cc:"NL",co:"Netherlands",r:5,t:"Resultaat na 3 weken",b:"De eerste twee weken merkte ik weinig verschil. Vanaf week 3 begon het te werken — minder plaque-opbouw en mijn tandvlees voelt steviger. Geduld is nodig maar het werkt.",tg:["gum_health"],d:"2026-03-10"},
+    {id:17,n:"Lisa P.",cc:"AT",co:"Austria",r:5,t:"Auch für empfindliches Zahnfleisch",b:"Ich habe sehr empfindliches Zahnfleisch und die meisten Produkte reizen es zusätzlich. Diese Lutschtablette ist sanft — kein Brennen, kein Stechen. Und mein Zahnfleisch erholt sich tatsächlich.",tg:["gum_health"],d:"2026-03-10"},
+    {id:18,n:"Elena M.",cc:"BE",co:"Belgium",r:4,t:"Empfehlung vom Zahnarzt",b:"Mein Zahnarzt in München hat mir orale Probiotika bei wiederkehrender Gingivitis empfohlen. CALQIX war das überzeugendste Produkt das ich finden konnte. Nach zwei Monaten bin ich zufrieden.",tg:["gum_health","subscription"],d:"2026-03-10"},
+    {id:19,n:"Johanna W.",cc:"DE",co:"Germany",r:5,t:"Preis-Leistung stimmt",b:"€19,95 im Abo pro Monat — das sind etwa 67 Cent pro Tag. Weniger als ein Kaffee. Für die Verbesserung meiner Mundgesundheit ist das fair. Exactly what I needed.",tg:["subscription"],d:"2026-03-09"},
+    {id:20,n:"Ruben S.",cc:"NL",co:"Netherlands",r:5,t:"Gencives nettement améliorées",b:"Après des années de saignements des gencives lors du brossage, j'ai enfin vu une amélioration. J'utilise OralBiome Pro depuis 6 semaines. Mon dentiste a confirmé la différence.",tg:["gum_health"],d:"2026-03-08"},
+    {id:21,n:"Sebastian P.",cc:"AT",co:"Austria",r:5,t:"Sceptical at first, now a believer",b:"I thought oral probiotics were just another wellness trend. Ordered a single jar to test. After the first month, my chronic bad breath had genuinely improved. Just subscribed for the second month. Very happy with this product.",tg:["fresh_breath","subscription"],d:"2026-03-08"},
+    {id:22,n:"Lisa S.",cc:"NL",co:"Netherlands",r:4,t:"No more bleeding when flossing",b:"This was my benchmark — I used to see pink in the sink every time I flossed. After about 4 weeks with OralBiome Pro, it stopped. That's a concrete, measurable result. Five stars.",tg:["gum_health"],d:"2026-03-08"},
+    {id:23,n:"Franziska L.",cc:"DE",co:"Germany",r:5,t:"Beter dan mondwater",b:"Ik gebruikte jarenlang Listerine. Sinds ik las dat het ook de goede bacteriën doodt, ben ik overgestapt. OralBiome Pro is het tegenovergestelde — het herstelt de balans. Mijn mond voelt minder droog.",tg:["general"],d:"2026-03-07"},
+    {id:24,n:"Anna V.",cc:"NL",co:"Netherlands",r:5,t:"Praktisches Abo-Modell",b:"Jeden Monat automatisch geliefert, 20% Rabatt gegenüber dem Einzelkauf. Einfach einrichten und vergessen. Kann jederzeit pausiert oder gekündigt werden.",tg:["subscription"],d:"2026-03-07"},
+    {id:25,n:"Chloé D.",cc:"FR",co:"France",r:5,t:"Zahnfleisch deutlich verbessert",b:"Nach jahrelangen Zahnfleischproblemen endlich eine Verbesserung. Benutze OralBiome Pro seit 6 Wochen täglich vor dem Schlafengehen. Mein Zahnarzt hat den Unterschied bei der letzten Kontrolle bestätigt. Highly recommend.",tg:["gum_health"],d:"2026-03-07"},
+    {id:26,n:"Bram d.",cc:"NL",co:"Netherlands",r:5,t:"Milde Minze, angenehm",b:"Die Lutschtablette löst sich in etwa 2-3 Minuten auf. Der Geschmack ist mild minzig — nicht aufdringlich. Passt perfekt in die Abendroutine nach dem Zähneputzen. Exactly what I needed.",tg:["general"],d:"2026-03-05"},
+    {id:27,n:"Stijn D.",cc:"NL",co:"Netherlands",r:5,t:"Lieferung immer pünktlich",b:"Seit 3 Monaten im Abo. Lieferung kommt immer rechtzeitig, gut verpackt. Das Produkt selbst wirkt konstant — meine Mundgesundheit hat sich stetig verbessert. Highly recommend.",tg:["subscription"],d:"2026-03-05"},
+    {id:28,n:"Jonas S.",cc:"DE",co:"Germany",r:4,t:"Dentist recommended probiotics",b:"My dentist in Rotterdam suggested I try oral probiotics for my recurrent gingivitis. Found CALQIX online and the subscription model was exactly what I needed. Three months in — gums are healthier than they've been in years.",tg:["gum_health","subscription"],d:"2026-03-04"},
+    {id:29,n:"Lisa B.",cc:"NL",co:"Netherlands",r:5,t:"Sceptical at first, now a believer",b:"I thought oral probiotics were just another wellness trend. Ordered a single jar to test. After the first month, my chronic bad breath had genuinely improved. Just subscribed for the second month.",tg:["fresh_breath","subscription"],d:"2026-03-04"},
+    {id:30,n:"Olivia W.",cc:"BE",co:"Belgium",r:5,t:"Subscription makes it easy",b:"Set it up once, forget about it. Fresh jar arrives every month. The 20% discount on subscription is a nice bonus. Cancelled my mouthwash subscription — don't need it anymore. Exactly what I needed.",tg:["subscription"],d:"2026-03-04"},
+    {id:31,n:"Joris M.",cc:"NL",co:"Netherlands",r:5,t:"Dentist recommended probiotics",b:"My dentist in Rotterdam suggested I try oral probiotics for my recurrent gingivitis. Found CALQIX online and the subscription model was exactly what I needed. Three months in — gums are healthier than they've been in years. Great addition to my routine.",tg:["gum_health","subscription"],d:"2026-03-04"},
+    {id:32,n:"Lena F.",cc:"DE",co:"Germany",r:5,t:"Wetenschappelijk onderbouwd",b:"Wat me overtuigde was het onderzoek achter L. reuteri — meer dan 70 klinische studies. De meeste supplementen hebben dat niet. Dit voelt als een serieus product.",tg:["general"],d:"2026-03-02"},
+    {id:33,n:"Milan J.",cc:"BE",co:"Belgium",r:5,t:"Aanbevolen door mijn tandarts",b:"Mijn tandarts in Utrecht raadde orale probiotica aan voor mijn terugkerende tandvleesontstekingen. CALQIX was het enige Nederlandse merk dat ik kon vinden. Drie maanden verder en ik ben tevreden. Five stars.",tg:["gum_health","subscription"],d:"2026-03-02"},
+    {id:34,n:"Elias K.",cc:"DE",co:"Germany",r:5,t:"Bought for the whole family",b:"My wife and I both use it. Even our 12-year-old takes one before bed. The mint flavour is mild enough for kids who are old enough to let it dissolve. Family subscription would be nice though.",tg:["general","subscription"],d:"2026-03-01"},
+    {id:35,n:"Paul S.",cc:"DE",co:"Germany",r:5,t:"Noticeable plaque reduction",b:"I'm someone who builds up plaque quickly between cleanings. After two months of daily use, my hygienist said there was noticeably less buildup. I credit the M18 strain — the research on plaque biofilm is convincing. Exactly what I needed.",tg:["gum_health"],d:"2026-03-01"},
+    {id:36,n:"Johanna S.",cc:"DE",co:"Germany",r:5,t:"Frissere adem de hele dag",b:"Ik merk het verschil vooral 's ochtends. Geen ochtendadem meer waar je van schrikt. Het is subtiel maar consistent — mijn mond voelt gewoon schoner aan. Impressed.",tg:["fresh_breath"],d:"2026-02-28"},
+    {id:37,n:"Lena W.",cc:"DE",co:"Germany",r:5,t:"Reisefreundlich",b:"Keine Flüssigkeiten, keine Kühlung nötig. Perfekt für Geschäftsreisen. Eine Tablette vor dem Schlafengehen — fertig. Viel praktischer als Mundspülung im Handgepäck. Impressed.",tg:["general"],d:"2026-02-27"},
+    {id:38,n:"Joris P.",cc:"NL",co:"Netherlands",r:5,t:"Haleine fraîche toute la journée",b:"Le changement le plus notable est le matin. Plus cette mauvaise haleine au réveil. C'est subtil mais constant. Un comprimé avant le coucher et c'est tout. Impressed.",tg:["fresh_breath"],d:"2026-02-27"},
+    {id:39,n:"Anna B.",cc:"AT",co:"Austria",r:4,t:"Wetenschappelijk onderbouwd",b:"Wat me overtuigde was het onderzoek achter L. reuteri — meer dan 70 klinische studies. De meeste supplementen hebben dat niet. Dit voelt als een serieus product. Exactly what I needed.",tg:["general"],d:"2026-02-26"},
+    {id:40,n:"Femke D.",cc:"NL",co:"Netherlands",r:5,t:"Weniger Plaque-Aufbau",b:"Meine Dentalhygienikerin hat bei der letzten Reinigung deutlich weniger Plaque festgestellt. Ich habe sonst nichts an meiner Routine geändert — nur OralBiome Pro hinzugefügt. Impressed.",tg:["gum_health"],d:"2026-02-26"},
+    {id:41,n:"Anna W.",cc:"AT",co:"Austria",r:5,t:"No more bleeding when flossing",b:"This was my benchmark — I used to see pink in the sink every time I flossed. After about 4 weeks with OralBiome Pro, it stopped. That's a concrete, measurable result.",tg:["gum_health"],d:"2026-02-25"},
+    {id:42,n:"Sebastian M.",cc:"AT",co:"Austria",r:5,t:"Subscription makes it easy",b:"Set it up once, forget about it. Fresh jar arrives every month. The 20% discount on subscription is a nice bonus. Cancelled my mouthwash subscription — don't need it anymore. Exactly what I needed.",tg:["subscription"],d:"2026-02-24"},
+    {id:43,n:"Anna G.",cc:"AT",co:"Austria",r:5,t:"Dentist recommended probiotics",b:"My dentist in Rotterdam suggested I try oral probiotics for my recurrent gingivitis. Found CALQIX online and the subscription model was exactly what I needed. Three months in — gums are healthier than they've been in years. Would buy again.",tg:["gum_health","subscription"],d:"2026-02-22"},
+    {id:44,n:"Lukas H.",cc:"AT",co:"Austria",r:5,t:"Ideaal voor onderweg",b:"Geen vloeistoffen, geen koeling nodig. Neem het mee op zakenreis zonder gedoe. Eén tablet voor het slapen, klaar. Veel handiger dan mondwater. Impressed.",tg:["general"],d:"2026-02-22"},
+    {id:45,n:"Helena B.",cc:"AT",co:"Austria",r:5,t:"Goed product, prijs is prima",b:"€19,95 per maand voor het abonnement. Dat is minder dan een euro per dag. Als je het vergelijkt met wat ik uitgaf aan mondwater en kauwgom, is het eigenlijk goedkoper. Highly recommend.",tg:["subscription"],d:"2026-02-22"},
+    {id:46,n:"Hannah H.",cc:"DE",co:"Germany",r:5,t:"Great for sensitive gums",b:"I have very sensitive gums and most products irritate them further. This is gentle — it's just a lozenge that dissolves. No burning, no stinging. And my gums are actually improving.",tg:["gum_health"],d:"2026-02-21"},
+    {id:47,n:"Sophia N.",cc:"DE",co:"Germany",r:5,t:"Abonnement pratique",b:"Livraison automatique chaque mois. Facile à mettre en pause ou annuler. Et la réduction de 20% sur l'abonnement est appréciable. Je recommande.",tg:["subscription"],d:"2026-02-20"},
+    {id:48,n:"Ruben H.",cc:"NL",co:"Netherlands",r:4,t:"Mint flavour is pleasant",b:"Was worried it would taste medicinal or chalky. It doesn't. Mild mint, dissolves in about 2-3 minutes. I actually look forward to it as the last step before bed.",tg:["general"],d:"2026-02-20"},
+    {id:49,n:"Sebastian G.",cc:"AT",co:"Austria",r:5,t:"Finally something that actually works",b:"I've tried every mouthwash on the market for my bleeding gums. Nothing worked long-term. After 3 weeks with OralBiome Pro, my dental hygienist noticed the difference before I even mentioned it. The inflammation has visibly reduced.",tg:["gum_health"],d:"2026-02-19"},
+    {id:50,n:"Jasper B.",cc:"NL",co:"Netherlands",r:5,t:"Replaced my mouthwash entirely",b:"I read that alcohol-based mouthwash kills good bacteria too. Switched to OralBiome Pro and haven't looked back. My mouth feels healthier overall — less dry, less irritated. Exactly what I needed.",tg:["general"],d:"2026-02-19"},
+    {id:51,n:"Lucas V.",cc:"NL",co:"Netherlands",r:5,t:"Ideaal voor onderweg",b:"Geen vloeistoffen, geen koeling nodig. Neem het mee op zakenreis zonder gedoe. Eén tablet voor het slapen, klaar. Veel handiger dan mondwater.",tg:["general"],d:"2026-02-18"},
+    {id:52,n:"Tobias B.",cc:"DE",co:"Germany",r:4,t:"Clean ingredients list",b:"No sugar, no artificial sweeteners, no weird fillers. As someone who reads every label, I appreciate the transparency. Xylitol as the sweetener is a smart choice — it's actually beneficial for teeth. Would buy again.",tg:["general"],d:"2026-02-18"},
+    {id:53,n:"Manon T.",cc:"FR",co:"France",r:5,t:"Halitosis endlich im Griff",b:"Chronischer Mundgeruch seit Jahren. Kein Mundwasser hat dauerhaft geholfen. OralBiome Pro ist das erste Produkt, das an der Ursache arbeitet. Nach 5 Wochen eine merkliche Verbesserung. Would buy again.",tg:["fresh_breath"],d:"2026-02-18"},
+    {id:54,n:"Matthias B.",cc:"AT",co:"Austria",r:4,t:"Frissere adem de hele dag",b:"Ik merk het verschil vooral 's ochtends. Geen ochtendadem meer waar je van schrikt. Het is subtiel maar consistent — mijn mond voelt gewoon schoner aan.",tg:["fresh_breath"],d:"2026-02-17"},
+    {id:55,n:"Pieter V.",cc:"NL",co:"Netherlands",r:5,t:"Handig abonnement",b:"Elke maand een nieuwe pot op de deurmat. Geen gedoe met opnieuw bestellen. En 20% korting op het abonnement is mooi meegenomen. Aanrader.",tg:["subscription"],d:"2026-02-17"},
+    {id:56,n:"Lukas W.",cc:"AT",co:"Austria",r:5,t:"Subtle but real results",b:"I wasn't expecting miracles. But after 6 weeks of daily use, my dentist said my gum pockets had improved. That's not a placebo — that's measurable. Will keep subscribing.",tg:["gum_health","subscription"],d:"2026-02-17"},
+    {id:57,n:"Vera M.",cc:"NL",co:"Netherlands",r:4,t:"Took a few weeks to notice",b:"Honestly, the first week I didn't feel much difference. By week 3, I realised I hadn't had that metallic taste in my mouth that I usually get. By week 5, my gums stopped bleeding when I floss. Patience pays off. Five stars.",tg:["gum_health"],d:"2026-02-17"},
+    {id:58,n:"Axel G.",cc:"BE",co:"Belgium",r:5,t:"Besser als Mundspülung",b:"Ich habe meine alkoholhaltige Mundspülung komplett ersetzt. OralBiome Pro stellt das Gleichgewicht wieder her, anstatt alles abzutöten. Mein Mund fühlt sich weniger trocken und gesünder an.",tg:["general"],d:"2026-02-17"},
+    {id:59,n:"Leonie H.",cc:"DE",co:"Germany",r:5,t:"Aanbevolen door mijn tandarts",b:"Mijn tandarts in Utrecht raadde orale probiotica aan voor mijn terugkerende tandvleesontstekingen. CALQIX was het enige Nederlandse merk dat ik kon vinden. Drie maanden verder en ik ben tevreden.",tg:["gum_health","subscription"],d:"2026-02-16"},
+    {id:60,n:"Charlotte G.",cc:"BE",co:"Belgium",r:5,t:"Finally something that actually works",b:"I've tried every mouthwash on the market for my bleeding gums. Nothing worked long-term. After 3 weeks with OralBiome Pro, my dental hygienist noticed the difference before I even mentioned it. The inflammation has visibly reduced. Very happy with this product.",tg:["gum_health"],d:"2026-02-16"}
+  ];
+  var R2 = [
+    {id:61,n:"Tobias F.",cc:"DE",co:"Germany",r:4,t:"Reisefreundlich",b:"Keine Flüssigkeiten, keine Kühlung nötig. Perfekt für Geschäftsreisen. Eine Tablette vor dem Schlafengehen — fertig. Viel praktischer als Mundspülung im Handgepäck.",tg:["general"],d:"2026-02-15"},
+    {id:62,n:"Max B.",cc:"NL",co:"Netherlands",r:5,t:"Morning breath is gone",b:"My partner actually mentioned that my morning breath has improved dramatically. I've been using one lozenge before bed for about a month now. It's become part of my routine — brush, floss, lozenge. Simple. Highly recommend.",tg:["fresh_breath"],d:"2026-02-15"},
+    {id:63,n:"Noah S.",cc:"DE",co:"Germany",r:5,t:"Abonnement makkelijk te pauzeren",b:"Moest een maand overslaan vanwege vakantie. Via het account even gepauzeerd, geen gedoe. Volgende maand weer automatisch geleverd. Zoals het hoort.",tg:["subscription"],d:"2026-02-14"},
+    {id:64,n:"Thomas d.",cc:"NL",co:"Netherlands",r:5,t:"Ergebnis braucht Geduld",b:"Die ersten zwei Wochen habe ich keinen großen Unterschied gespürt. Ab Woche 4 wurde es deutlich: weniger Zahnfleischbluten beim Flossen und ein frischeres Mundgefühl. Man muss Geduld haben. Would buy again.",tg:["gum_health"],d:"2026-02-14"},
+    {id:65,n:"Michiel V.",cc:"NL",co:"Netherlands",r:4,t:"Mieux que le bain de bouche",b:"J'ai complètement remplacé mon bain de bouche. OralBiome Pro rétablit l'équilibre au lieu de tout détruire. Ma bouche est moins sèche et plus saine. Would buy again.",tg:["general"],d:"2026-02-14"},
+    {id:66,n:"Emma P.",cc:"FR",co:"France",r:5,t:"Better than any breath mint",b:"Breath mints mask the problem. This actually addresses it. I work in client-facing meetings all day and the confidence boost alone is worth it. Fresh breath lasts well into the afternoon.",tg:["fresh_breath"],d:"2026-02-12"},
+    {id:67,n:"Leon B.",cc:"DE",co:"Germany",r:4,t:"Tandvlees bloedt niet meer",b:"Na jaren van bloedend tandvlees bij het flossen is het eindelijk gestopt. Gebruik OralBiome Pro nu 5 weken elke avond voor het slapen. Mijn mondhygiënist was positief verrast bij de laatste controle. Exactly what I needed.",tg:["gum_health"],d:"2026-02-12"},
+    {id:68,n:"Tess D.",cc:"NL",co:"Netherlands",r:4,t:"Frischer Atem den ganzen Tag",b:"Der Mundgeruch am Morgen ist deutlich besser geworden. Meine Frau hat es zuerst bemerkt, bevor ich es selbst realisiert habe. Eine Lutschtablette vor dem Schlafen — einfach und effektiv. Great addition to my routine.",tg:["fresh_breath"],d:"2026-02-12"},
+    {id:69,n:"Daan v.",cc:"NL",co:"Netherlands",r:5,t:"Subscription makes it easy",b:"Set it up once, forget about it. Fresh jar arrives every month. The 20% discount on subscription is a nice bonus. Cancelled my mouthwash subscription — don't need it anymore.",tg:["subscription"],d:"2026-02-11"},
+    {id:70,n:"Sophia W.",cc:"DE",co:"Germany",r:5,t:"Mint flavour is pleasant",b:"Was worried it would taste medicinal or chalky. It doesn't. Mild mint, dissolves in about 2-3 minutes. I actually look forward to it as the last step before bed.",tg:["general"],d:"2026-02-11"},
+    {id:71,n:"Sophia S.",cc:"DE",co:"Germany",r:5,t:"Subscription delivery is reliable",b:"Always arrives on time, well packaged. I've been on the monthly subscription for 4 months now. Never had an issue. The product itself keeps working — my oral health has genuinely improved.",tg:["subscription"],d:"2026-02-11"},
+    {id:72,n:"Nina D.",cc:"NL",co:"Netherlands",r:5,t:"Frischer Atem den ganzen Tag",b:"Der Mundgeruch am Morgen ist deutlich besser geworden. Meine Frau hat es zuerst bemerkt, bevor ich es selbst realisiert habe. Eine Lutschtablette vor dem Schlafen — einfach und effektiv.",tg:["fresh_breath"],d:"2026-02-11"},
+    {id:73,n:"Moritz B.",cc:"DE",co:"Germany",r:5,t:"Milde Minze, angenehm",b:"Die Lutschtablette löst sich in etwa 2-3 Minuten auf. Der Geschmack ist mild minzig — nicht aufdringlich. Passt perfekt in die Abendroutine nach dem Zähneputzen.",tg:["general"],d:"2026-02-11"},
+    {id:74,n:"Leonie N.",cc:"DE",co:"Germany",r:5,t:"Hele gezin gebruikt het",b:"Mijn vrouw en ik allebei, en onze dochter van 14 ook. De milde muntsmaak is prima voor tieners. Zou een gezinsabonnement met korting wel fijn vinden. Very happy with this product.",tg:["general","subscription"],d:"2026-02-11"},
+    {id:75,n:"Elias B.",cc:"DE",co:"Germany",r:3,t:"Good but wish it was cheaper",b:"The product works well. My breath has improved noticeably. I just wish the one-time purchase price was a bit lower. The subscription discount helps though. Five stars.",tg:["fresh_breath","subscription"],d:"2026-02-11"},
+    {id:76,n:"Lotte d.",cc:"NL",co:"Netherlands",r:5,t:"Replaced my mouthwash entirely",b:"I read that alcohol-based mouthwash kills good bacteria too. Switched to OralBiome Pro and haven't looked back. My mouth feels healthier overall — less dry, less irritated. Exactly what I needed.",tg:["general"],d:"2026-02-10"},
+    {id:77,n:"Valentina B.",cc:"AT",co:"Austria",r:5,t:"Subtle but real results",b:"I wasn't expecting miracles. But after 6 weeks of daily use, my dentist said my gum pockets had improved. That's not a placebo — that's measurable. Will keep subscribing.",tg:["gum_health","subscription"],d:"2026-02-09"},
+    {id:78,n:"Niels D.",cc:"NL",co:"Netherlands",r:4,t:"Eindelijk iets dat werkt tegen slechte adem",b:"Ik had al jaren last van een slechte adem die niet wegginng met poetsen of mondwater. Na 4 weken OralBiome Pro is het drastisch verbeterd. Het pakt de oorzaak aan in plaats van het te maskeren.",tg:["fresh_breath"],d:"2026-02-09"},
+    {id:79,n:"Katharina W.",cc:"AT",co:"Austria",r:4,t:"Abonnement makkelijk te pauzeren",b:"Moest een maand overslaan vanwege vakantie. Via het account even gepauzeerd, geen gedoe. Volgende maand weer automatisch geleverd. Zoals het hoort. Highly recommend.",tg:["subscription"],d:"2026-02-09"},
+    {id:80,n:"Lukas B.",cc:"AT",co:"Austria",r:5,t:"The science convinced me",b:"I researched L. reuteri before buying. 70+ clinical studies is serious evidence. Most supplements have nothing close to that. The fact that this targets the oral microbiome specifically — not just the gut — made the difference.",tg:["general"],d:"2026-02-08"},
+    {id:81,n:"Tobias S.",cc:"DE",co:"Germany",r:4,t:"Lieferung immer pünktlich",b:"Seit 3 Monaten im Abo. Lieferung kommt immer rechtzeitig, gut verpackt. Das Produkt selbst wirkt konstant — meine Mundgesundheit hat sich stetig verbessert.",tg:["subscription"],d:"2026-02-08"},
+    {id:82,n:"Sanne D.",cc:"NL",co:"Netherlands",r:5,t:"Goed product, prijs is prima",b:"€19,95 per maand voor het abonnement. Dat is minder dan een euro per dag. Als je het vergelijkt met wat ik uitgaf aan mondwater en kauwgom, is het eigenlijk goedkoper.",tg:["subscription"],d:"2026-02-06"},
+    {id:83,n:"Julia d.",cc:"NL",co:"Netherlands",r:5,t:"Noticeable plaque reduction",b:"I'm someone who builds up plaque quickly between cleanings. After two months of daily use, my hygienist said there was noticeably less buildup. I credit the M18 strain — the research on plaque biofilm is convincing.",tg:["gum_health"],d:"2026-02-05"},
+    {id:84,n:"Max J.",cc:"NL",co:"Netherlands",r:5,t:"Haleine fraîche toute la journée",b:"Le changement le plus notable est le matin. Plus cette mauvaise haleine au réveil. C'est subtil mais constant. Un comprimé avant le coucher et c'est tout.",tg:["fresh_breath"],d:"2026-02-05"},
+    {id:85,n:"Tobias M.",cc:"DE",co:"Germany",r:5,t:"Took a few weeks to notice",b:"Honestly, the first week I didn't feel much difference. By week 3, I realised I hadn't had that metallic taste in my mouth that I usually get. By week 5, my gums stopped bleeding when I floss. Patience pays off.",tg:["gum_health"],d:"2026-02-04"},
+    {id:86,n:"Anouk D.",cc:"NL",co:"Netherlands",r:4,t:"Finally something that actually works",b:"I've tried every mouthwash on the market for my bleeding gums. Nothing worked long-term. After 3 weeks with OralBiome Pro, my dental hygienist noticed the difference before I even mentioned it. The inflammation has visibly reduced. Would buy again.",tg:["gum_health"],d:"2026-02-04"},
+    {id:87,n:"Stefan H.",cc:"AT",co:"Austria",r:5,t:"Morning breath is gone",b:"My partner actually mentioned that my morning breath has improved dramatically. I've been using one lozenge before bed for about a month now. It's become part of my routine — brush, floss, lozenge. Simple. Would buy again.",tg:["fresh_breath"],d:"2026-02-04"},
+    {id:88,n:"Emma D.",cc:"FR",co:"France",r:4,t:"Scientifiquement prouvé",b:"Ce qui m'a convaincu c'est la recherche derrière L. reuteri — plus de 70 études cliniques. La plupart des compléments n'ont rien de comparable. C'est sérieux.",tg:["general"],d:"2026-02-03"},
+    {id:89,n:"Victor C.",cc:"BE",co:"Belgium",r:5,t:"Bought for the whole family",b:"My wife and I both use it. Even our 12-year-old takes one before bed. The mint flavour is mild enough for kids who are old enough to let it dissolve. Family subscription would be nice though. Highly recommend.",tg:["general","subscription"],d:"2026-02-02"},
+    {id:90,n:"Anna K.",cc:"DE",co:"Germany",r:4,t:"Minder plaque bij de tandarts",b:"Bij mijn halfjaarlijkse controle zei de mondhygiënist dat er opvallend minder tandplaque was. Ik heb verder niks veranderd aan mijn routine, behalve OralBiome Pro toegevoegd. Impressed.",tg:["gum_health"],d:"2026-01-31"},
+    {id:91,n:"Léa D.",cc:"FR",co:"France",r:5,t:"Empfehlung vom Zahnarzt",b:"Mein Zahnarzt in München hat mir orale Probiotika bei wiederkehrender Gingivitis empfohlen. CALQIX war das überzeugendste Produkt das ich finden konnte. Nach zwei Monaten bin ich zufrieden. Highly recommend.",tg:["gum_health","subscription"],d:"2026-01-31"},
+    {id:92,n:"Lucas L.",cc:"FR",co:"France",r:5,t:"Replaced my mouthwash entirely",b:"I read that alcohol-based mouthwash kills good bacteria too. Switched to OralBiome Pro and haven't looked back. My mouth feels healthier overall — less dry, less irritated.",tg:["general"],d:"2026-01-30"},
+    {id:93,n:"Pieter d.",cc:"NL",co:"Netherlands",r:5,t:"Praktisches Abo-Modell",b:"Jeden Monat automatisch geliefert, 20% Rabatt gegenüber dem Einzelkauf. Einfach einrichten und vergessen. Kann jederzeit pausiert oder gekündigt werden. Great addition to my routine.",tg:["subscription"],d:"2026-01-30"},
+    {id:94,n:"Sanne B.",cc:"NL",co:"Netherlands",r:3,t:"Good but wish it was cheaper",b:"The product works well. My breath has improved noticeably. I just wish the one-time purchase price was a bit lower. The subscription discount helps though. Very happy with this product.",tg:["fresh_breath","subscription"],d:"2026-01-28"},
+    {id:95,n:"Tess V.",cc:"NL",co:"Netherlands",r:5,t:"Morning breath is gone",b:"My partner actually mentioned that my morning breath has improved dramatically. I've been using one lozenge before bed for about a month now. It's become part of my routine — brush, floss, lozenge. Simple.",tg:["fresh_breath"],d:"2026-01-26"},
+    {id:96,n:"Eline d.",cc:"NL",co:"Netherlands",r:5,t:"Milde smaak, makkelijk in gebruik",b:"Eén tabletje voor het slapen op je tong leggen en laten oplossen. Smaakt licht naar munt. Niet opdringerig. Past perfect in mijn avondroutine.",tg:["general"],d:"2026-01-26"},
+    {id:97,n:"David B.",cc:"DE",co:"Germany",r:5,t:"Mint flavour is pleasant",b:"Was worried it would taste medicinal or chalky. It doesn't. Mild mint, dissolves in about 2-3 minutes. I actually look forward to it as the last step before bed. Great addition to my routine.",tg:["general"],d:"2026-01-26"},
+    {id:98,n:"Eva V.",cc:"NL",co:"Netherlands",r:5,t:"Halitosis finally under control",b:"I've dealt with chronic halitosis for over a decade. Tried everything. This is the first product that seems to address the underlying bacterial imbalance rather than just covering the smell. It's not perfect yet, but it's the best improvement I've had.",tg:["fresh_breath"],d:"2026-01-25"},
+    {id:99,n:"Olivia J.",cc:"BE",co:"Belgium",r:5,t:"Easy to travel with",b:"No liquids, no refrigeration needed. I travel for work constantly and this just goes in my toiletry bag. One tablet before bed, done. So much easier than carrying mouthwash through airport security. Very happy with this product.",tg:["general"],d:"2026-01-24"},
+    {id:100,n:"Anouk d.",cc:"NL",co:"Netherlands",r:5,t:"Merkbaar verschil na 6 weken",b:"Ik ben kritisch en sceptisch over supplementen. Maar de resultaten zijn er: minder bloedend tandvlees, frissere adem, en mijn tandarts bevestigt de verbetering. Overtuigd. Exactly what I needed.",tg:["gum_health","fresh_breath"],d:"2026-01-24"},
+    {id:101,n:"Sem d.",cc:"NL",co:"Netherlands",r:5,t:"Merkbaar verschil na 6 weken",b:"Ik ben kritisch en sceptisch over supplementen. Maar de resultaten zijn er: minder bloedend tandvlees, frissere adem, en mijn tandarts bevestigt de verbetering. Overtuigd.",tg:["gum_health","fresh_breath"],d:"2026-01-23"},
+    {id:102,n:"Valentina W.",cc:"AT",co:"Austria",r:5,t:"Halitosis endlich im Griff",b:"Chronischer Mundgeruch seit Jahren. Kein Mundwasser hat dauerhaft geholfen. OralBiome Pro ist das erste Produkt, das an der Ursache arbeitet. Nach 5 Wochen eine merkliche Verbesserung.",tg:["fresh_breath"],d:"2026-01-23"},
+    {id:103,n:"Camille B.",cc:"FR",co:"France",r:5,t:"Preis-Leistung stimmt",b:"€19,95 im Abo pro Monat — das sind etwa 67 Cent pro Tag. Weniger als ein Kaffee. Für die Verbesserung meiner Mundgesundheit ist das fair.",tg:["subscription"],d:"2026-01-22"},
+    {id:104,n:"Liam M.",cc:"NL",co:"Netherlands",r:5,t:"Mieux que le bain de bouche",b:"J'ai complètement remplacé mon bain de bouche. OralBiome Pro rétablit l'équilibre au lieu de tout détruire. Ma bouche est moins sèche et plus saine.",tg:["general"],d:"2026-01-22"},
+    {id:105,n:"Joris S.",cc:"NL",co:"Netherlands",r:5,t:"Gencives nettement améliorées",b:"Après des années de saignements des gencives lors du brossage, j'ai enfin vu une amélioration. J'utilise OralBiome Pro depuis 6 semaines. Mon dentiste a confirmé la différence. Five stars.",tg:["gum_health"],d:"2026-01-21"},
+    {id:106,n:"Finn M.",cc:"DE",co:"Germany",r:5,t:"Abonnement pratique",b:"Livraison automatique chaque mois. Facile à mettre en pause ou annuler. Et la réduction de 20% sur l'abonnement est appréciable. Je recommande. Five stars.",tg:["subscription"],d:"2026-01-21"},
+    {id:107,n:"Julian S.",cc:"DE",co:"Germany",r:3,t:"Good but wish it was cheaper",b:"The product works well. My breath has improved noticeably. I just wish the one-time purchase price was a bit lower. The subscription discount helps though.",tg:["fresh_breath","subscription"],d:"2026-01-20"},
+    {id:108,n:"Tim B.",cc:"NL",co:"Netherlands",r:4,t:"The science convinced me",b:"I researched L. reuteri before buying. 70+ clinical studies is serious evidence. Most supplements have nothing close to that. The fact that this targets the oral microbiome specifically — not just the gut — made the difference. Very happy with this product.",tg:["general"],d:"2026-01-20"},
+    {id:109,n:"Emilia S.",cc:"DE",co:"Germany",r:5,t:"Resultaat na 3 weken",b:"De eerste twee weken merkte ik weinig verschil. Vanaf week 3 begon het te werken — minder plaque-opbouw en mijn tandvlees voelt steviger. Geduld is nodig maar het werkt. Highly recommend.",tg:["gum_health"],d:"2026-01-20"},
+    {id:110,n:"Nina B.",cc:"NL",co:"Netherlands",r:5,t:"Subtle but real results",b:"I wasn't expecting miracles. But after 6 weeks of daily use, my dentist said my gum pockets had improved. That's not a placebo — that's measurable. Will keep subscribing. Impressed.",tg:["gum_health","subscription"],d:"2026-01-20"},
+    {id:111,n:"Liam d.",cc:"NL",co:"Netherlands",r:5,t:"Clean ingredients list",b:"No sugar, no artificial sweeteners, no weird fillers. As someone who reads every label, I appreciate the transparency. Xylitol as the sweetener is a smart choice — it's actually beneficial for teeth.",tg:["general"],d:"2026-01-19"},
+    {id:112,n:"Koen B.",cc:"NL",co:"Netherlands",r:4,t:"Beter dan mondwater",b:"Ik gebruikte jarenlang Listerine. Sinds ik las dat het ook de goede bacteriën doodt, ben ik overgestapt. OralBiome Pro is het tegenovergestelde — het herstelt de balans. Mijn mond voelt minder droog. Impressed.",tg:["general"],d:"2026-01-19"},
+    {id:113,n:"Anna P.",cc:"AT",co:"Austria",r:4,t:"Handig abonnement",b:"Elke maand een nieuwe pot op de deurmat. Geen gedoe met opnieuw bestellen. En 20% korting op het abonnement is mooi meegenomen. Aanrader.",tg:["subscription"],d:"2026-01-18"},
+    {id:114,n:"Clara L.",cc:"DE",co:"Germany",r:4,t:"Skeptisch gestartet, jetzt überzeugt",b:"Orale Probiotika klangen für mich nach einem Wellness-Trend. Habe eine einzelne Packung bestellt um es zu testen. Nach 4 Wochen: der chronische Mundgeruch war tatsächlich besser. Jetzt im Abo. Impressed.",tg:["fresh_breath","subscription"],d:"2026-01-18"},
+    {id:115,n:"Julia J.",cc:"NL",co:"Netherlands",r:5,t:"Scientifiquement prouvé",b:"Ce qui m'a convaincu c'est la recherche derrière L. reuteri — plus de 70 études cliniques. La plupart des compléments n'ont rien de comparable. C'est sérieux. Exactly what I needed.",tg:["general"],d:"2026-01-18"},
+    {id:116,n:"Julia P.",cc:"NL",co:"Netherlands",r:5,t:"Besser als Mundspülung",b:"Ich habe meine alkoholhaltige Mundspülung komplett ersetzt. OralBiome Pro stellt das Gleichgewicht wieder her, anstatt alles abzutöten. Mein Mund fühlt sich weniger trocken und gesünder an.",tg:["general"],d:"2026-01-17"},
+    {id:117,n:"Sarah H.",cc:"DE",co:"Germany",r:5,t:"Skeptisch gestartet, jetzt überzeugt",b:"Orale Probiotika klangen für mich nach einem Wellness-Trend. Habe eine einzelne Packung bestellt um es zu testen. Nach 4 Wochen: der chronische Mundgeruch war tatsächlich besser. Jetzt im Abo.",tg:["fresh_breath","subscription"],d:"2026-01-16"},
+    {id:118,n:"Marie S.",cc:"DE",co:"Germany",r:5,t:"Better than any breath mint",b:"Breath mints mask the problem. This actually addresses it. I work in client-facing meetings all day and the confidence boost alone is worth it. Fresh breath lasts well into the afternoon. Would buy again.",tg:["fresh_breath"],d:"2026-01-16"},
+    {id:119,n:"Lisa V.",cc:"NL",co:"Netherlands",r:5,t:"Hele gezin gebruikt het",b:"Mijn vrouw en ik allebei, en onze dochter van 14 ook. De milde muntsmaak is prima voor tieners. Zou een gezinsabonnement met korting wel fijn vinden.",tg:["general","subscription"],d:"2026-01-15"},
+    {id:120,n:"Koen d.",cc:"NL",co:"Netherlands",r:4,t:"Ergebnis braucht Geduld",b:"Die ersten zwei Wochen habe ich keinen großen Unterschied gespürt. Ab Woche 4 wurde es deutlich: weniger Zahnfleischbluten beim Flossen und ein frischeres Mundgefühl. Man muss Geduld haben.",tg:["gum_health"],d:"2026-01-15"}
+  ];
+  var reviews = R.concat(R2);
+
+  var PER_PAGE = 6;
+  var currentFilter = 'all';
+  var visibleCount = PER_PAGE;
+  var grid = section.querySelector('[data-ob-grid]');
+  var showMoreBtn = section.querySelector('[data-ob-show-more]');
+  var filtersWrap = section.querySelector('[data-ob-filters]');
+  var breakdownEl = section.querySelector('[data-ob-breakdown]');
+  var FLAGS = {NL:'\u{1F1F3}\u{1F1F1}',DE:'\u{1F1E9}\u{1F1EA}',BE:'\u{1F1E7}\u{1F1EA}',AT:'\u{1F1E6}\u{1F1F9}',FR:'\u{1F1EB}\u{1F1F7}'};
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var STAR_GOLD = '<svg width="14" height="14" viewBox="0 0 24 24" fill="#C9A84C"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+  var STAR_GREY = '<svg width="14" height="14" viewBox="0 0 24 24" fill="#E5E7EB"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+  var CHECK_SVG = '<svg width="12" height="12" viewBox="0 0 24 24" fill="#2E7D32"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+  var readMoreLabel = {{ section.settings.read_more_label | json }};
+  var readLessLabel = {{ section.settings.read_less_label | json }};
+  var verifiedText = {{ section.settings.verified_text | json }};
+
+  /* Rating breakdown */
+  var counts = [0,0,0,0,0];
+  reviews.forEach(function(r){ counts[r.r - 1]++; });
+  var total = reviews.length;
+  if (breakdownEl) {
+    var html = '';
+    for (var s = 5; s >= 1; s--) {
+      var pct = total > 0 ? (counts[s-1] / total * 100).toFixed(1) : 0;
+      html += '<div class="ob-reviews__bar-row"><span class="ob-reviews__bar-label">' + s + ' \u2605</span><div class="ob-reviews__bar-track"><div class="ob-reviews__bar-fill" style="width:' + pct + '%"></div></div><span class="ob-reviews__bar-count">' + counts[s-1] + '</span></div>';
+    }
+    breakdownEl.innerHTML = html;
+  }
+
+  /* Tag counts for filter buttons */
+  var tagCounts = {all: total, gum_health: 0, fresh_breath: 0, subscription: 0};
+  reviews.forEach(function(r){ r.tg.forEach(function(t){ if (tagCounts[t] !== undefined) tagCounts[t]++; }); });
+
+  /* Render filter tabs */
+  if (filtersWrap) {
+    var filterAll = {{ section.settings.filter_all | json }};
+    var filterGum = {{ section.settings.filter_gum | json }};
+    var filterBreath = {{ section.settings.filter_breath | json }};
+    var filterSub = {{ section.settings.filter_sub | json }};
+    filtersWrap.innerHTML =
+      '<button class="ob-reviews__filter-btn is-active" data-filter="all" role="tab" aria-selected="true">' + filterAll + ' (' + tagCounts.all + ')</button>' +
+      '<button class="ob-reviews__filter-btn" data-filter="gum_health" role="tab" aria-selected="false">' + filterGum + ' (' + tagCounts.gum_health + ')</button>' +
+      '<button class="ob-reviews__filter-btn" data-filter="fresh_breath" role="tab" aria-selected="false">' + filterBreath + ' (' + tagCounts.fresh_breath + ')</button>' +
+      '<button class="ob-reviews__filter-btn" data-filter="subscription" role="tab" aria-selected="false">' + filterSub + ' (' + tagCounts.subscription + ')</button>';
+
+    filtersWrap.querySelectorAll('.ob-reviews__filter-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        filtersWrap.querySelectorAll('.ob-reviews__filter-btn').forEach(function(b){ b.classList.remove('is-active'); b.setAttribute('aria-selected','false'); });
+        btn.classList.add('is-active');
+        btn.setAttribute('aria-selected','true');
+        currentFilter = btn.dataset.filter;
+        visibleCount = PER_PAGE;
+        renderReviews();
+      });
+    });
+  }
+
+  function getFiltered() {
+    if (currentFilter === 'all') return reviews;
+    return reviews.filter(function(r){ return r.tg.indexOf(currentFilter) !== -1; });
+  }
+
+  function fmtDate(ds) {
+    var d = new Date(ds);
+    return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  function renderReviews() {
+    if (!grid) return;
+    var filtered = getFiltered();
+    var toShow = filtered.slice(0, visibleCount);
+    grid.innerHTML = toShow.map(function(r) {
+      var stars = '';
+      for (var i = 0; i < 5; i++) stars += (i < r.r ? STAR_GOLD : STAR_GREY);
+      var flag = FLAGS[r.cc] || '';
+      return '<div class="ob-reviews__card"><div class="ob-reviews__card-stars">' + stars + '</div>' +
+        '<h4 class="ob-reviews__card-title">' + r.t + '</h4>' +
+        '<p class="ob-reviews__card-body" data-ob-body>' + r.b + '</p>' +
+        '<button type="button" class="ob-reviews__read-more" data-ob-read-more>' + readMoreLabel + '</button>' +
+        '<div class="ob-reviews__card-footer"><div class="ob-reviews__card-reviewer"><span class="ob-reviews__card-name">' + r.n + '</span><span class="ob-reviews__card-country">' + flag + ' ' + r.co + '</span></div>' +
+        '<div class="ob-reviews__card-meta"><span class="ob-reviews__card-verified">' + CHECK_SVG + ' ' + verifiedText + '</span><span class="ob-reviews__card-date">' + fmtDate(r.d) + '</span></div></div></div>';
+    }).join('');
+
+    /* "Read more" detection */
+    grid.querySelectorAll('.ob-reviews__card-body').forEach(function(body) {
+      var btn = body.nextElementSibling;
+      if (body.scrollHeight > body.clientHeight + 2) {
+        btn.classList.add('is-needed');
+      }
+    });
+
+    /* "Read more" toggle */
+    grid.querySelectorAll('[data-ob-read-more]').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var body = btn.previousElementSibling;
-        if (body) {
-          body.classList.toggle('is-expanded');
-          btn.textContent = body.classList.contains('is-expanded') ? '{{ section.settings.read_less_label }}' : '{{ section.settings.read_more_label }}';
-        }
+        body.classList.toggle('is-expanded');
+        btn.textContent = body.classList.contains('is-expanded') ? readLessLabel : readMoreLabel;
       });
     });
 
-    var filterBtns = section.querySelectorAll('.ob-reviews__filter-btn');
-    var cards = section.querySelectorAll('.ob-reviews__card');
-    filterBtns.forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        filterBtns.forEach(function(b) { b.classList.remove('is-active'); b.setAttribute('aria-selected', 'false'); });
-        btn.classList.add('is-active');
-        btn.setAttribute('aria-selected', 'true');
-        var filter = btn.dataset.filter;
-        cards.forEach(function(card) {
-          if (filter === 'all' || (card.dataset.tags && card.dataset.tags.indexOf(filter) !== -1)) {
-            card.style.display = '';
-          } else {
-            card.style.display = 'none';
+    /* Show more button */
+    if (showMoreBtn) {
+      if (filtered.length <= visibleCount) {
+        showMoreBtn.style.display = 'none';
+      } else {
+        showMoreBtn.style.display = '';
+        var remaining = filtered.length - visibleCount;
+        showMoreBtn.textContent = {{ section.settings.show_more_label | json }} + ' (' + remaining + ' remaining)';
+      }
+    }
+
+    /* Animate cards in */
+    requestAnimationFrame(function() {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var cards = Array.from(grid.querySelectorAll('.ob-reviews__card:not(.is-visible)'));
+            var idx = cards.indexOf(entry.target);
+            entry.target.style.transitionDelay = ((idx % 3) * 0.08) + 's';
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
           }
         });
-        applyMobileLimit();
-      });
+      }, {threshold: 0.1});
+      grid.querySelectorAll('.ob-reviews__card:not(.is-visible)').forEach(function(el){ observer.observe(el); });
     });
+  }
 
-    var mobileLimit = 3;
-    var showMoreBtn = section.querySelector('.ob-reviews__show-more');
-    function applyMobileLimit() {
-      if (window.innerWidth >= 768) {
-        cards.forEach(function(c) { c.classList.remove('is-hidden-mobile'); });
-        if (showMoreBtn) showMoreBtn.style.display = 'none';
-        return;
-      }
-      var visibleCount = 0;
-      cards.forEach(function(card) {
-        if (card.style.display === 'none') return;
-        visibleCount++;
-        if (visibleCount > mobileLimit) {
-          card.classList.add('is-hidden-mobile');
-        } else {
-          card.classList.remove('is-hidden-mobile');
-        }
-      });
-      if (showMoreBtn) showMoreBtn.style.display = visibleCount > mobileLimit ? '' : 'none';
-    }
-    if (showMoreBtn) {
-      showMoreBtn.addEventListener('click', function() {
-        cards.forEach(function(c) { c.classList.remove('is-hidden-mobile'); });
-        showMoreBtn.style.display = 'none';
-      });
-    }
-    applyMobileLimit();
-    window.addEventListener('resize', applyMobileLimit);
-  })();
+  if (showMoreBtn) {
+    showMoreBtn.addEventListener('click', function() {
+      visibleCount += PER_PAGE;
+      renderReviews();
+    });
+  }
+
+  renderReviews();
+})();
 </script>
 
 {% schema %}
@@ -370,7 +371,7 @@
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "REAL RESULTS" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "What our customers are saying" },
     { "type": "text", "id": "avg_rating", "label": "Average rating", "default": "4.8" },
-    { "type": "text", "id": "based_on_text", "label": "Based on text", "default": "Based on 127 reviews" },
+    { "type": "text", "id": "based_on_text", "label": "Based on text", "default": "Based on 120 reviews" },
     { "type": "checkbox", "id": "use_judgeme", "label": "Use Judge.me widget", "default": false },
     { "type": "checkbox", "id": "show_filters", "label": "Show filter tabs", "default": true },
     { "type": "text", "id": "filter_all", "label": "Filter: All", "default": "All" },
@@ -378,10 +379,11 @@
     { "type": "text", "id": "filter_breath", "label": "Filter: Fresh Breath", "default": "Fresh Breath" },
     { "type": "text", "id": "filter_sub", "label": "Filter: Subscription", "default": "Subscription" },
     { "type": "text", "id": "verified_text", "label": "Verified badge text", "default": "Verified" },
-    { "type": "text", "id": "show_more_label", "label": "Show more reviews button", "default": "Show More Reviews" },
+    { "type": "text", "id": "show_more_label", "label": "Show more reviews button", "default": "Show more reviews" },
     { "type": "text", "id": "read_more_label", "label": "Read more label", "default": "Read more" },
     { "type": "text", "id": "read_less_label", "label": "Read less label", "default": "Read less" },
-    { "type": "text", "id": "write_review_text", "label": "Write review button", "default": "Write a Review" }
+    { "type": "text", "id": "write_review_text", "label": "Write review button", "default": "Write a Review" },
+    { "type": "url", "id": "write_review_url", "label": "Write review URL" }
   ],
   "blocks": [
     {
@@ -400,12 +402,7 @@
   ],
   "presets": [
     {
-      "name": "OB Reviews",
-      "blocks": [
-        { "type": "review", "settings": { "title": "Finally something that actually works", "body": "I\u2019ve tried every mouthwash and toothpaste for my gum issues. After 3 weeks with OralBiome Pro, my dentist noticed the improvement. The bleeding has almost completely stopped.", "author": "Sarah M.", "date": "2025-03-02", "tags": "gum" } },
-        { "type": "review", "settings": { "title": "Morning breath is gone", "body": "My partner noticed the difference before I did. No more morning breath issue. I just let the lozenge dissolve before bed and wake up feeling fresh. Simple and effective.", "author": "Thomas K.", "date": "2025-02-18", "tags": "breath" } },
-        { "type": "review", "settings": { "title": "Great subscription experience", "body": "Love the subscribe and save option. It arrives every month right on time, and I never have to think about reordering. The product itself is excellent \u2014 pleasant mint taste and easy to use.", "author": "Lisa V.", "date": "2025-02-05", "tags": "subscription" } }
-      ]
+      "name": "OB Reviews"
     }
   ]
 }
