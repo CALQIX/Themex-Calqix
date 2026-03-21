@@ -342,6 +342,64 @@
     },
     "oralbiome-ingredients": {
       "type": "oralbiome-ingredients",
+      "blocks": {
+        "ingredient_8JLT8Q": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Ingredient",
+            "description": "Description of the ingredient.",
+            "dosage": "100M CFU"
+          }
+        },
+        "ingredient_CrMh9H": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Ingredient",
+            "description": "Description of the ingredient.",
+            "dosage": "100M CFU"
+          }
+        },
+        "ingredient_GkAYqR": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Ingredient",
+            "description": "Description of the ingredient.",
+            "dosage": "100M CFU"
+          }
+        },
+        "ingredient_Px3paj": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Ingredient",
+            "description": "Description of the ingredient.",
+            "dosage": "100M CFU"
+          }
+        },
+        "ingredient_R74dFN": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Ingredient",
+            "description": "Description of the ingredient.",
+            "dosage": "100M CFU"
+          }
+        },
+        "ingredient_bPT6AP": {
+          "type": "ingredient",
+          "settings": {
+            "name": "Ingredient",
+            "description": "Description of the ingredient.",
+            "dosage": "100M CFU"
+          }
+        }
+      },
+      "block_order": [
+        "ingredient_8JLT8Q",
+        "ingredient_CrMh9H",
+        "ingredient_GkAYqR",
+        "ingredient_Px3paj",
+        "ingredient_R74dFN",
+        "ingredient_bPT6AP"
+      ],
       "settings": {
         "eyebrow": "PREMIUM INGREDIENTS",
         "heading": "It’s what’s on the inside that counts.",
@@ -351,6 +409,23 @@
     },
     "oralbiome-comparison": {
       "type": "oralbiome-comparison",
+      "blocks": {
+        "row_jd6QjA": {
+          "type": "row",
+          "settings": {
+            "feature": "Feature",
+            "mouthwash": "no",
+            "mouthwash_note": "",
+            "toothpaste": "no",
+            "toothpaste_note": "",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
+          }
+        }
+      },
+      "block_order": [
+        "row_jd6QjA"
+      ],
       "settings": {
         "heading": "Not all oral care is created equal.",
         "col_feature": "Feature",
