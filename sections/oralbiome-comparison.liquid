@@ -130,81 +130,78 @@
     margin-left: 6px;
   }
 
-  /* ── Scroll wrapper (mobile horizontal scroll) ── */
-  .ob-compare__scroll-wrap { position: relative; }
+  /* ── Scroll wrapper ── */
+  .ob-compare__scroll-wrap { max-width: 900px; margin: 0 auto; }
+  .ob-compare__scroll-hint { display: none; }
   .ob-compare__scroll {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    scroll-behavior: smooth;
+    overflow-x: visible;
   }
-  .ob-compare__scroll::-webkit-scrollbar { display: none; }
-
-  /* ── Oval arrow buttons ── */
-  .ob-compare__arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 44px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(255, 255, 252, 0.94);
-    border: none;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 5;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-    transition: opacity 0.25s ease, background 0.2s ease, transform 0.2s ease;
-  }
-  .ob-compare__arrow:active {
-    transform: translateY(-50%) scale(0.94);
-  }
-  .ob-compare__arrow svg { width: 16px; height: 16px; }
-  .ob-compare__arrow--prev { left: 4px; }
-  .ob-compare__arrow--next { right: 4px; }
-
-  /* ── Mobile note ── */
-  .comparison-mobile__note {
-    margin-top: 20px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: #6B7280;
-    font-style: italic;
-    line-height: 1.6;
-    text-align: center;
-    display: none;
-    opacity: 0;
-    transition: opacity 0.5s ease 0.3s;
-  }
-  .comparison-mobile__note.is-visible { opacity: 1; }
-
-  /* ── Hide old mobile checklist ── */
-  .comparison-mobile,
-  .comparison-mobile__heading { display: none !important; }
 
   @media (max-width: 767px) {
-    .ob-compare { overflow: visible; }
-    .ob-compare__heading { font-size: 22px; margin-bottom: 24px; }
+    .ob-compare { overflow: visible; padding: 40px 0; }
+    .ob-compare__heading { font-size: 26px; margin-bottom: 24px; padding: 0 16px; }
+
+    /* Scroll hint */
+    .ob-compare__scroll-hint {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+      padding: 0 16px 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: #6B7280;
+      animation: obCompareNudge 1.5s ease-in-out infinite;
+    }
+    @keyframes obCompareNudge {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(6px); }
+    }
+    .ob-compare__scroll-hint.is-hidden {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    /* Scroll container */
+    .ob-compare__scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity;
+      padding-bottom: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: #C9A84C #E5E7EB;
+    }
+    .ob-compare__scroll::-webkit-scrollbar { height: 4px; }
+    .ob-compare__scroll::-webkit-scrollbar-track { background: #E5E7EB; border-radius: 2px; }
+    .ob-compare__scroll::-webkit-scrollbar-thumb { background: #C9A84C; border-radius: 2px; }
+
+    /* Table forced width */
     .ob-compare__table {
-      min-width: 600px;
+      min-width: 680px;
+      width: 680px;
       border-radius: 0;
-      overflow: visible;
     }
     .ob-compare__table th,
     .ob-compare__table td {
-      padding: 12px 10px;
-      font-size: 13px;
+      padding: 12px 8px;
+      font-size: 12px;
     }
     .ob-compare__table thead th { font-size: 9px; letter-spacing: 1px; }
+
+    /* Sticky feature column */
     .ob-compare__table th:first-child,
     .ob-compare__table td:first-child {
       position: sticky;
       left: 0;
       z-index: 2;
       background: #fff;
-      box-shadow: 2px 0 6px rgba(0,0,0,0.06);
+      min-width: 160px;
+      max-width: 160px;
+      font-size: 13px;
+      padding-left: 12px;
+      padding-right: 8px;
+      box-shadow: 4px 0 8px rgba(0, 0, 0, 0.04);
     }
     .ob-compare__table thead th:first-child {
       background: #F4F5F7;
@@ -213,8 +210,22 @@
     .ob-compare__table tbody tr:nth-child(even) td:first-child {
       background: #F9FAFB;
     }
-    .ob-compare__arrow { display: flex; }
-    .comparison-mobile__note { display: block; }
+
+    /* Gold OralBiome column on mobile */
+    .ob-compare__table th:last-child,
+    .ob-compare__table td:last-child {
+      background: rgba(201, 168, 76, 0.06);
+    }
+    .ob-compare__table tbody tr:nth-child(even) td:last-child {
+      background: rgba(201, 168, 76, 0.08);
+    }
+
+    /* Other columns */
+    .ob-compare__table th:not(:first-child),
+    .ob-compare__table td:not(:first-child) {
+      min-width: 140px;
+      text-align: center;
+    }
   }
   @media (min-width: 1024px) {
     .ob-compare { padding: 80px 0; }
@@ -229,9 +240,10 @@
     <h2 class="ob-compare__heading">{{ section.settings.heading }}</h2>
 
     <div class="ob-compare__scroll-wrap">
-      <button type="button" class="ob-compare__arrow ob-compare__arrow--prev" aria-label="Previous" data-ob-compare-prev>
-        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 4L6 9l5 5" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+      <div class="ob-compare__scroll-hint" data-ob-compare-hint>
+        <span>Scroll to compare</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
       <div class="ob-compare__scroll" data-ob-compare-scroll>
         <table class="ob-compare__table" role="table">
           <thead>
@@ -275,11 +287,7 @@
           </tbody>
         </table>
       </div>
-      <button type="button" class="ob-compare__arrow ob-compare__arrow--next" aria-label="Next" data-ob-compare-next>
-        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 4l5 5-5 5" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
     </div>
-    <p class="comparison-mobile__note" data-ob-compare-note>{{ section.settings.mobile_note }}</p>
   </div>
 </section>
 
@@ -290,9 +298,7 @@
 
     var rows = section.querySelectorAll('[data-ob-compare-row]');
     var scroll = section.querySelector('[data-ob-compare-scroll]');
-    var prevBtn = section.querySelector('[data-ob-compare-prev]');
-    var nextBtn = section.querySelector('[data-ob-compare-next]');
-    var note = section.querySelector('[data-ob-compare-note]');
+    var hint = section.querySelector('[data-ob-compare-hint]');
 
     function stagger(entries, cls) {
       var delay = 0;
@@ -311,23 +317,10 @@
       rows.forEach(function(r) { tableObs.observe(r); });
     }
 
-    if (scroll) {
-      var step = 160;
-      if (prevBtn) prevBtn.addEventListener('click', function() {
-        scroll.scrollBy({ left: -step, behavior: 'smooth' });
-      });
-      if (nextBtn) nextBtn.addEventListener('click', function() {
-        scroll.scrollBy({ left: step, behavior: 'smooth' });
-      });
-    }
-
-    if (note) {
-      var noteObs = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) entry.target.classList.add('is-visible');
-        });
-      }, { threshold: 0.3 });
-      noteObs.observe(note);
+    if (scroll && hint) {
+      scroll.addEventListener('scroll', function() {
+        hint.classList.add('is-hidden');
+      }, { once: true });
     }
   })();
 </script>
