@@ -19,37 +19,42 @@
     overflow: hidden;
     aspect-ratio: 16/9;
     background: rgba(255,255,255,0.05);
+    cursor: pointer;
   }
-  .ob-video__media img,
   .ob-video__media video {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
   }
-  .ob-video__play-btn {
+  .ob-video__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ob-video__pause-indicator {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: 72px;
-    height: 72px;
-    background: rgba(201,168,76,0.9);
-    border: none;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 64px;
+    height: 64px;
+    background: rgba(15, 34, 51, 0.65);
     border-radius: 50%;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s ease, transform 0.2s ease;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
   }
-  .ob-video__play-btn:hover {
-    background: #C9A84C;
-    transform: translate(-50%, -50%) scale(1.08);
+  .ob-video__media.is-paused .ob-video__pause-indicator {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
-  .ob-video__play-btn svg {
-    width: 28px;
-    height: 28px;
-    margin-left: 3px;
+  .ob-video__pause-indicator svg {
+    width: 22px;
+    height: 22px;
   }
   .ob-video__placeholder {
     display: flex;
@@ -123,9 +128,29 @@
 
 <section class="ob-video" data-section-id="{{ section.id }}">
   <div class="ob-video__container">
-    <div class="ob-video__media">
+    <div class="ob-video__media" data-ob-video-wrap>
       {%- if has_video -%}
-        {{ section.settings.video | video_tag: autoplay: false, loop: false, muted: false, controls: true, loading: 'lazy' }}
+        <video
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="auto"
+          {%- if section.settings.cover_image != blank %}
+            poster="{{ section.settings.cover_image | image_url: width: 1200 }}"
+          {%- endif %}
+          data-ob-video
+        >
+          {%- for source in section.settings.video.sources -%}
+            <source src="{{ source.url }}" type="{{ source.mime_type }}">
+          {%- endfor -%}
+        </video>
+        <div class="ob-video__pause-indicator" aria-hidden="true">
+          <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="3" width="5" height="16" rx="1" fill="#ffffff"/>
+            <rect x="13" y="3" width="5" height="16" rx="1" fill="#ffffff"/>
+          </svg>
+        </div>
       {%- elsif section.settings.cover_image != blank -%}
         <img
           src="{{ section.settings.cover_image | image_url: width: 800 }}"
@@ -136,9 +161,6 @@
           width="800"
           height="450"
         >
-        <button type="button" class="ob-video__play-btn" aria-label="{{ section.settings.play_label }}">
-          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v18l16-9L8 5z" fill="#1A3B5C"/></svg>
-        </button>
       {%- else -%}
         <div class="ob-video__placeholder">{{ section.settings.placeholder_text }}</div>
       {%- endif -%}
@@ -154,13 +176,58 @@
   </div>
 </section>
 
+<script>
+  (function () {
+    var wrap = document.querySelector('[data-section-id="{{ section.id }}"] [data-ob-video-wrap]');
+    if (!wrap) return;
+    var video = wrap.querySelector('[data-ob-video]');
+    if (!video) return;
+
+    var isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+    function pauseVideo() {
+      video.pause();
+      wrap.classList.add('is-paused');
+    }
+    function playVideo() {
+      video.play().catch(function () {});
+      wrap.classList.remove('is-paused');
+    }
+
+    if (!isMobile) {
+      wrap.addEventListener('mouseenter', pauseVideo);
+      wrap.addEventListener('mouseleave', playVideo);
+    }
+
+    wrap.addEventListener('click', function () {
+      if (video.paused) {
+        playVideo();
+      } else {
+        pauseVideo();
+      }
+    });
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          video.play().catch(function () {});
+          wrap.classList.remove('is-paused');
+        } else {
+          video.pause();
+        }
+      });
+    }, { threshold: 0.25 });
+    observer.observe(wrap);
+  })();
+</script>
+
 {% schema %}
 {
   "name": "OB Video Explainer",
   "tag": "section",
   "settings": [
     { "type": "video", "id": "video", "label": "Video" },
-    { "type": "image_picker", "id": "cover_image", "label": "Cover image (if no video)" },
+    { "type": "image_picker", "id": "cover_image", "label": "Cover / poster image" },
     { "type": "text", "id": "play_label", "label": "Play button aria label", "default": "Play video" },
     { "type": "text", "id": "placeholder_text", "label": "Placeholder text", "default": "Watch: How OralBiome Pro Works" },
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "THE SCIENCE" },
