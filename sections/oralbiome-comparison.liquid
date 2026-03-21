@@ -20,7 +20,7 @@
 
   /* ── Desktop table ── */
   .ob-compare__table {
-    display: none;
+    display: table;
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
@@ -130,56 +130,89 @@
     margin-left: 6px;
   }
 
-  /* ── Mobile checklist ── */
-  .comparison-mobile { display: block; }
-  .comparison-mobile__heading {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    color: #1A3B5C;
-    text-align: center;
-    margin: 0 0 24px;
-    line-height: 1.3;
+  /* ── Scroll wrapper (mobile horizontal scroll) ── */
+  .ob-compare__scroll-wrap { position: relative; }
+  .ob-compare__scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
   }
-  .comparison-mobile__item {
-    display: flex;
+  .ob-compare__scroll::-webkit-scrollbar { display: none; }
+
+  /* ── Oval arrow buttons ── */
+  .ob-compare__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 252, 0.94);
+    border: none;
+    cursor: pointer;
+    display: none;
     align-items: center;
-    gap: 12px;
-    padding: 14px 0;
-    border-bottom: 1px solid #F3F4F6;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    color: #1A1A1A;
-    opacity: 0;
-    transform: translateX(16px);
-    transition: opacity 0.35s ease, transform 0.35s ease;
+    justify-content: center;
+    z-index: 5;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    transition: opacity 0.25s ease, background 0.2s ease, transform 0.2s ease;
   }
-  .comparison-mobile__item.is-visible {
-    opacity: 1;
-    transform: translateX(0);
+  .ob-compare__arrow:active {
+    transform: translateY(-50%) scale(0.94);
   }
-  .comparison-mobile__item:last-child { border-bottom: none; }
-  .comparison-mobile__item .comparison-icon { flex-shrink: 0; }
+  .ob-compare__arrow svg { width: 16px; height: 16px; }
+  .ob-compare__arrow--prev { left: 4px; }
+  .ob-compare__arrow--next { right: 4px; }
+
+  /* ── Mobile note ── */
   .comparison-mobile__note {
-    margin-top: 24px;
+    margin-top: 20px;
     font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     color: #6B7280;
     font-style: italic;
     line-height: 1.6;
     text-align: center;
+    display: none;
     opacity: 0;
     transition: opacity 0.5s ease 0.3s;
   }
   .comparison-mobile__note.is-visible { opacity: 1; }
 
-  @media (min-width: 768px) {
-    .ob-compare__table { display: table; }
-    .comparison-mobile,
-    .comparison-mobile__heading,
-    .comparison-mobile__note { display: none !important; }
-  }
+  /* ── Hide old mobile checklist ── */
+  .comparison-mobile,
+  .comparison-mobile__heading { display: none !important; }
+
   @media (max-width: 767px) {
-    .ob-compare__heading { display: none; }
+    .ob-compare__heading { font-size: 22px; margin-bottom: 24px; }
+    .ob-compare__table {
+      min-width: 600px;
+      border-radius: 0;
+    }
+    .ob-compare__table th,
+    .ob-compare__table td {
+      padding: 12px 10px;
+      font-size: 13px;
+    }
+    .ob-compare__table thead th { font-size: 9px; letter-spacing: 1px; }
+    .ob-compare__table th:first-child,
+    .ob-compare__table td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: #fff;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.06);
+    }
+    .ob-compare__table thead th:first-child {
+      background: #F4F5F7;
+      z-index: 3;
+    }
+    .ob-compare__table tbody tr:nth-child(even) td:first-child {
+      background: #F9FAFB;
+    }
+    .ob-compare__arrow { display: flex; }
+    .comparison-mobile__note { display: block; }
   }
   @media (min-width: 1024px) {
     .ob-compare { padding: 80px 0; }
@@ -192,62 +225,57 @@
 <section class="ob-compare" data-section-id="{{ section.id }}">
   <div class="ob-compare__container">
     <h2 class="ob-compare__heading">{{ section.settings.heading }}</h2>
-    <h2 class="comparison-mobile__heading">{{ section.settings.mobile_heading }}</h2>
 
-    <table class="ob-compare__table" role="table">
-      <thead>
-        <tr>
-          <th>{{ section.settings.col_feature }}</th>
-          <th>{{ section.settings.col_mouthwash }}</th>
-          <th>{{ section.settings.col_toothpaste }}</th>
-          <th>{{ section.settings.col_oralbiome }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {%- for block in section.blocks -%}
-          <tr {{ block.shopify_attributes }} data-ob-compare-row>
-            <td>{{ block.settings.feature }}</td>
-            <td>
-              {%- if block.settings.mouthwash == 'yes' -%}
-                <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              {%- elsif block.settings.mouthwash == 'partial' -%}
-                <span class="comparison-partial">{{ block.settings.mouthwash_note | default: 'Partially' }}</span>
-              {%- else -%}
-                <span class="comparison-icon comparison-icon--no"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#E5E7EB"/><path d="M15 9l-6 6M9 9l6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
-              {%- endif -%}
-            </td>
-            <td>
-              {%- if block.settings.toothpaste == 'yes' -%}
-                <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              {%- elsif block.settings.toothpaste == 'partial' -%}
-                <span class="comparison-partial">{{ block.settings.toothpaste_note | default: 'Partially' }}</span>
-              {%- else -%}
-                <span class="comparison-icon comparison-icon--no"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#E5E7EB"/><path d="M15 9l-6 6M9 9l6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
-              {%- endif -%}
-            </td>
-            <td>
-              <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              {%- if block.settings.oralbiome == 'yes_text' and block.settings.oralbiome_note != blank -%}
-                <span class="comparison-extra">{{ block.settings.oralbiome_note }}</span>
-              {%- endif -%}
-            </td>
-          </tr>
-        {%- endfor -%}
-      </tbody>
-    </table>
-
-    <div class="comparison-mobile" role="list">
-      {%- for block in section.blocks -%}
-        <div class="comparison-mobile__item" role="listitem" {{ block.shopify_attributes }} data-ob-compare-mobile>
-          <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          <span>
-            {{ block.settings.feature }}
-            {%- if block.settings.oralbiome == 'yes_text' and block.settings.oralbiome_note != blank -%}
-              — {{ block.settings.oralbiome_note }}
-            {%- endif -%}
-          </span>
-        </div>
-      {%- endfor -%}
+    <div class="ob-compare__scroll-wrap">
+      <button type="button" class="ob-compare__arrow ob-compare__arrow--prev" aria-label="Previous" data-ob-compare-prev>
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 4L6 9l5 5" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="ob-compare__scroll" data-ob-compare-scroll>
+        <table class="ob-compare__table" role="table">
+          <thead>
+            <tr>
+              <th>{{ section.settings.col_feature }}</th>
+              <th>{{ section.settings.col_mouthwash }}</th>
+              <th>{{ section.settings.col_toothpaste }}</th>
+              <th>{{ section.settings.col_oralbiome }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%- for block in section.blocks -%}
+              <tr {{ block.shopify_attributes }} data-ob-compare-row>
+                <td>{{ block.settings.feature }}</td>
+                <td>
+                  {%- if block.settings.mouthwash == 'yes' -%}
+                    <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  {%- elsif block.settings.mouthwash == 'partial' -%}
+                    <span class="comparison-partial">{{ block.settings.mouthwash_note | default: 'Partially' }}</span>
+                  {%- else -%}
+                    <span class="comparison-icon comparison-icon--no"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#E5E7EB"/><path d="M15 9l-6 6M9 9l6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
+                  {%- endif -%}
+                </td>
+                <td>
+                  {%- if block.settings.toothpaste == 'yes' -%}
+                    <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  {%- elsif block.settings.toothpaste == 'partial' -%}
+                    <span class="comparison-partial">{{ block.settings.toothpaste_note | default: 'Partially' }}</span>
+                  {%- else -%}
+                    <span class="comparison-icon comparison-icon--no"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#E5E7EB"/><path d="M15 9l-6 6M9 9l6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
+                  {%- endif -%}
+                </td>
+                <td>
+                  <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  {%- if block.settings.oralbiome == 'yes_text' and block.settings.oralbiome_note != blank -%}
+                    <span class="comparison-extra">{{ block.settings.oralbiome_note }}</span>
+                  {%- endif -%}
+                </td>
+              </tr>
+            {%- endfor -%}
+          </tbody>
+        </table>
+      </div>
+      <button type="button" class="ob-compare__arrow ob-compare__arrow--next" aria-label="Next" data-ob-compare-next>
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 4l5 5-5 5" stroke="#1A3B5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>
     <p class="comparison-mobile__note" data-ob-compare-note>{{ section.settings.mobile_note }}</p>
   </div>
@@ -259,7 +287,9 @@
     if (!section) return;
 
     var rows = section.querySelectorAll('[data-ob-compare-row]');
-    var mobileItems = section.querySelectorAll('[data-ob-compare-mobile]');
+    var scroll = section.querySelector('[data-ob-compare-scroll]');
+    var prevBtn = section.querySelector('[data-ob-compare-prev]');
+    var nextBtn = section.querySelector('[data-ob-compare-next]');
     var note = section.querySelector('[data-ob-compare-note]');
 
     function stagger(entries, cls) {
@@ -279,11 +309,14 @@
       rows.forEach(function(r) { tableObs.observe(r); });
     }
 
-    if (mobileItems.length) {
-      var mobileObs = new IntersectionObserver(function(entries) {
-        stagger(entries, 'is-visible');
-      }, { threshold: 0.15 });
-      mobileItems.forEach(function(m) { mobileObs.observe(m); });
+    if (scroll) {
+      var step = 160;
+      if (prevBtn) prevBtn.addEventListener('click', function() {
+        scroll.scrollBy({ left: -step, behavior: 'smooth' });
+      });
+      if (nextBtn) nextBtn.addEventListener('click', function() {
+        scroll.scrollBy({ left: step, behavior: 'smooth' });
+      });
     }
 
     if (note) {
