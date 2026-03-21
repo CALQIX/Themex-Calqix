@@ -450,8 +450,14 @@
     #cq-signup-{{ section.id }} .cqs-form {
       flex-direction: column;
     }
+    #cq-signup-{{ section.id }} .cqs-input {
+      flex: none;
+      width: 100%;
+      min-height: 50px;
+    }
     #cq-signup-{{ section.id }} .cqs-btn {
       width: 100%;
+      min-height: 50px;
       justify-content: center;
     }
     #cq-signup-{{ section.id }} .cqs-perks {
@@ -922,6 +928,24 @@
       try {
         window.sessionStorage.setItem('cqs-signup-scroll-' + SID, String(window.scrollY || window.pageYOffset || 0));
       } catch (error) {}
+
+      /* ── Push to Klaviyo for immediate flow triggering ── */
+      if (input && input.value) {
+        var email = input.value.trim();
+        if (email) {
+          var _learnq = window._learnq || [];
+          _learnq.push(['identify', {
+            '$email': email,
+            '$consent': ['email'],
+            '$source': 'CALQIX Email Signup'
+          }]);
+          _learnq.push(['track', 'Newsletter Signup', {
+            source: 'calqix_email_signup',
+            section_id: SID
+          }]);
+        }
+      }
+
       if (submitBtn) submitBtn.classList.add('loading');
     });
   }
