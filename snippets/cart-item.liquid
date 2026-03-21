@@ -70,7 +70,7 @@
             {{ item.final_price | money }}
           </strong>
         </div>
-      {% elsif item.variant.compare_at_price > item.variant.price and cart_page %}
+      {% elsif item.variant.compare_at_price > item.final_price and cart_page %}
         <div class="cart-item__discounted-prices">
           <span class="visually-hidden">
             {{ 'products.product.price.regular_price' | t }}
@@ -82,7 +82,7 @@
             {{ 'products.product.price.sale_price' | t }}
           </span>
           <span class="price price--end price--end-sale">
-            {{ item.variant.price | money }}
+            {{ item.final_price | money }}
           </span>
         </div>
       {%- elsif cart_page -%}
@@ -243,7 +243,7 @@
               {{ item.final_line_price | money }}
             </span>
           </div>
-        {% elsif item.variant.compare_at_price > item.variant.price %}
+        {% elsif item.variant.compare_at_price > item.final_price %}
           <div class="cart-item__discounted-prices">
             <span class="visually-hidden">
               {{ 'products.product.price.regular_price' | t }}
@@ -256,9 +256,9 @@
             </span>
             <span
               class="price price--end price--end-sale cart-item__line-price"
-              data-cents="{{ item.variant.price | times: item.quantity }}"
+              data-cents="{{ item.final_line_price }}"
             >
-              {{ item.variant.price | times: item.quantity | money }}
+              {{ item.final_line_price | money }}
             </span>
           </div>
         {%- else -%}
