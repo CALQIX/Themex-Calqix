@@ -464,7 +464,7 @@
 </style>
 
 {%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
-{%- if _ob_lang == 'nl' -%}
+{%- if _ob_lang != 'en' -%}
   {%- assign _ob_subtitle        = 'calqix_oralbiome.hero.subtitle' | t -%}
   {%- assign _ob_benefit_1       = 'calqix_oralbiome.hero.benefit_1' | t -%}
   {%- assign _ob_benefit_2       = 'calqix_oralbiome.hero.benefit_2' | t -%}
@@ -528,8 +528,8 @@
         {%- if section.settings.promo_badge != blank -%}
           <span class="ob-hero__promo-badge">{{ section.settings.promo_badge }}</span>
         {%- endif -%}
-        {%- if section.settings.benefit_overlay != blank -%}
-          <span class="ob-hero__benefit-overlay">{{ section.settings.benefit_overlay }}</span>
+        {%- if _ob_benefit_overlay != blank -%}
+          <span class="ob-hero__benefit-overlay">{{ _ob_benefit_overlay }}</span>
         {%- endif -%}
         <span class="ob-hero__swipe-hint" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <div class="ob-hero__slides">
