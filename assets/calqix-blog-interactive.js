@@ -20,6 +20,7 @@
     initTOCTracking();
     initMobileTOC();
     initScrollAnimations();
+    initContentAnimations();
   }
 
   /* ───────────────────────────────────────
@@ -246,6 +247,33 @@
     }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
     animated.forEach(function (el) { observer.observe(el); });
+  }
+
+  /* ───────────────────────────────────────
+     9. CONTENT ANIMATIONS (h2, img, hr)
+     ─────────────────────────────────────── */
+  function initContentAnimations() {
+    var headings = document.querySelectorAll('.blog-content h2');
+    var images   = document.querySelectorAll('.blog-content img');
+    var dividers = document.querySelectorAll('.blog-content hr, .blog-divider');
+
+    var allElements = [];
+    headings.forEach(function (el) { allElements.push(el); });
+    images.forEach(function (el) { allElements.push(el); });
+    dividers.forEach(function (el) { allElements.push(el); });
+
+    if (!allElements.length) return;
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+    allElements.forEach(function (el) { observer.observe(el); });
   }
 
 })();
