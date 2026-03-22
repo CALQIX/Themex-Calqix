@@ -1,0 +1,1017 @@
+{% comment %}
+  CALQIX Blog Article — Premium interactive research blog section
+  Linked from "Read the research" CTA in oralbiome-video-explainer
+{% endcomment %}
+
+<style>
+  /* ═══════════════════════════════════════
+     BRAND TOKENS
+     ═══════════════════════════════════════ */
+  .calqix-blog {
+    --calqix-navy: #1A3B5C;
+    --calqix-gold: #C9A84C;
+    --calqix-bg-light: #F4F5F7;
+    --calqix-bg-dark: #0F2233;
+    --calqix-white: #FFFFFF;
+    --calqix-green: #2E7D32;
+    --calqix-text: #1A1A1A;
+    --calqix-muted: #6B7280;
+    --calqix-border: #E5E7EB;
+    --calqix-font-heading: 'DM Serif Display', serif;
+    --calqix-font-body: 'DM Sans', sans-serif;
+    --calqix-font-mono: 'DM Mono', monospace;
+  }
+
+  /* ═══════════════════════════════════════
+     A. READING PROGRESS BAR
+     ═══════════════════════════════════════ */
+  .blog-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--calqix-gold);
+    z-index: 1000;
+    width: 0%;
+    transition: width 0.1s linear;
+    pointer-events: none;
+  }
+
+  /* ═══════════════════════════════════════
+     B. HERO BANNER
+     ═══════════════════════════════════════ */
+  .blog-hero {
+    position: relative;
+    background: #0F2233;
+    height: 420px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .blog-hero__particles {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .blog-hero__particle {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--calqix-gold);
+    opacity: 0;
+    animation: particle-float var(--duration) var(--delay) infinite ease-in-out;
+  }
+  @keyframes particle-float {
+    0%   { transform: translate(0, 0) scale(0); opacity: 0; }
+    10%  { opacity: var(--max-opacity); transform: scale(1); }
+    90%  { opacity: var(--max-opacity); }
+    100% { transform: translate(var(--drift-x), -400px) scale(0.5); opacity: 0; }
+  }
+
+  .blog-hero__inner {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 700px;
+    padding: 0 24px;
+  }
+  .blog-hero__category {
+    display: inline-block;
+    border: 1px solid var(--calqix-gold);
+    color: var(--calqix-gold);
+    font-family: var(--calqix-font-body);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 5px 16px;
+    border-radius: 50px;
+    margin-bottom: 20px;
+  }
+  .blog-hero__title {
+    font-family: var(--calqix-font-heading);
+    font-size: 44px;
+    color: var(--calqix-white);
+    line-height: 1.15;
+    margin: 0 0 16px;
+  }
+  .blog-hero__meta {
+    font-family: var(--calqix-font-body);
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin: 0;
+  }
+  .blog-hero__meta span + span::before {
+    content: '|';
+    margin: 0 10px;
+  }
+  .blog-hero__scroll-line {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, var(--calqix-gold), transparent);
+    margin: 24px auto 0;
+    animation: scroll-pulse 2s ease-in-out infinite;
+  }
+  @keyframes scroll-pulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(0.6); }
+    50%      { opacity: 1; transform: scaleY(1); }
+  }
+
+  /* ═══════════════════════════════════════
+     C. ARTICLE LAYOUT (TOC + content)
+     ═══════════════════════════════════════ */
+  .blog-layout {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 1200px) {
+    .blog-layout {
+      display: grid;
+      grid-template-columns: 200px 720px;
+      gap: 48px;
+      max-width: 1000px;
+    }
+  }
+
+  /* TABLE OF CONTENTS — desktop */
+  .blog-toc {
+    display: none;
+  }
+  @media (min-width: 1200px) {
+    .blog-toc {
+      display: block;
+      position: sticky;
+      top: 80px;
+      align-self: start;
+      max-height: calc(100vh - 160px);
+      overflow-y: auto;
+    }
+  }
+  .blog-toc__heading {
+    font-family: var(--calqix-font-body);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--calqix-muted);
+    margin: 0 0 12px;
+  }
+  .blog-toc__item {
+    display: block;
+    padding: 8px 0 8px 16px;
+    font-family: var(--calqix-font-body);
+    font-size: 12px;
+    color: var(--calqix-muted);
+    text-decoration: none;
+    border-left: 2px solid var(--calqix-border);
+    transition: all 0.2s ease;
+    line-height: 1.4;
+  }
+  .blog-toc__item.is-active {
+    color: var(--calqix-navy);
+    font-weight: 600;
+    border-left-color: var(--calqix-gold);
+  }
+  .blog-toc__item:hover {
+    color: var(--calqix-navy);
+  }
+
+  /* MOBILE TOC — floating pill + sheet */
+  .blog-toc-mobile__trigger {
+    display: none;
+  }
+  .blog-toc-mobile__overlay {
+    display: none;
+  }
+  .blog-toc-mobile__sheet {
+    display: none;
+  }
+
+  @media (max-width: 1199px) {
+    .blog-toc-mobile__trigger {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 900;
+      background: var(--calqix-navy);
+      color: var(--calqix-white);
+      border: none;
+      border-radius: 50px;
+      padding: 10px 20px;
+      font-family: var(--calqix-font-body);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+    .blog-toc-mobile__trigger svg {
+      width: 16px;
+      height: 16px;
+    }
+    .blog-toc-mobile__overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 950;
+    }
+    .blog-toc-mobile__overlay.is-open { display: block; }
+
+    .blog-toc-mobile__sheet {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 960;
+      background: var(--calqix-white);
+      border-radius: 16px 16px 0 0;
+      padding: 24px 24px 40px;
+      max-height: 60vh;
+      overflow-y: auto;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
+    }
+    .blog-toc-mobile__sheet.is-open { display: block; }
+    .blog-toc-mobile__sheet .blog-toc__heading {
+      margin-bottom: 16px;
+    }
+    .blog-toc-mobile__sheet .blog-toc__item {
+      font-size: 14px;
+      padding: 10px 0 10px 16px;
+    }
+  }
+
+  /* ═══════════════════════════════════════
+     D. ARTICLE BODY TYPOGRAPHY
+     ═══════════════════════════════════════ */
+  .blog-content {
+    padding: 64px 24px;
+    min-width: 0;
+  }
+
+  .blog-content h2 {
+    font-family: var(--calqix-font-heading);
+    font-size: 28px;
+    color: var(--calqix-navy);
+    margin: 48px 0 16px;
+    line-height: 1.3;
+  }
+  .blog-content h3 {
+    font-family: var(--calqix-font-body);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--calqix-navy);
+    margin: 36px 0 12px;
+  }
+  .blog-content p {
+    font-family: var(--calqix-font-body);
+    font-size: 16px;
+    color: var(--calqix-text);
+    line-height: 1.8;
+    margin: 0 0 20px;
+  }
+  .blog-content a {
+    color: var(--calqix-gold);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s;
+  }
+  .blog-content a:hover { color: var(--calqix-navy); }
+  .blog-content strong { color: var(--calqix-navy); font-weight: 600; }
+
+  .blog-content blockquote {
+    border-left: 3px solid var(--calqix-gold);
+    margin: 32px 0;
+    padding: 20px 24px;
+    background: var(--calqix-bg-light);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: var(--calqix-muted);
+  }
+  .blog-content ul, .blog-content ol {
+    padding-left: 24px;
+    margin: 0 0 20px;
+  }
+  .blog-content li {
+    margin-bottom: 8px;
+    line-height: 1.7;
+  }
+  .blog-content img {
+    width: 100%;
+    border-radius: 8px;
+    margin: 32px 0;
+  }
+
+  /* Scroll-entrance animation */
+  .blog-content [data-animate] {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .blog-content [data-animate].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ═══════════════════════════════════════
+     D1. STAT COUNTER
+     ═══════════════════════════════════════ */
+  .blog-stat {
+    text-align: center;
+    padding: 40px 24px;
+    margin: 40px 0;
+    background: var(--calqix-bg-light);
+    border-radius: 8px;
+    border: 1px solid var(--calqix-border);
+  }
+  .blog-stat__number {
+    font-family: var(--calqix-font-heading);
+    font-size: 64px;
+    color: var(--calqix-navy);
+    line-height: 1;
+  }
+  .blog-stat__suffix {
+    font-family: var(--calqix-font-heading);
+    font-size: 40px;
+    color: var(--calqix-gold);
+  }
+  .blog-stat__label {
+    display: block;
+    margin-top: 8px;
+    font-family: var(--calqix-font-body);
+    font-size: 14px;
+    color: var(--calqix-muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  /* ═══════════════════════════════════════
+     D2. BEFORE / AFTER SLIDER
+     ═══════════════════════════════════════ */
+  .blog-compare {
+    position: relative;
+    margin: 40px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: ew-resize;
+    user-select: none;
+    -webkit-user-select: none;
+    aspect-ratio: 16/9;
+  }
+  .blog-compare__before,
+  .blog-compare__after {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+  .blog-compare__before { z-index: 1; }
+  .blog-compare__after  { z-index: 2; clip-path: inset(0 50% 0 0); }
+  .blog-compare__before img,
+  .blog-compare__after img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    margin: 0; border-radius: 0;
+  }
+  .blog-compare__handle {
+    position: absolute;
+    top: 0; bottom: 0; left: 50%;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  .blog-compare__handle-line {
+    flex: 1;
+    width: 2px;
+    background: var(--calqix-gold);
+  }
+  .blog-compare__handle-circle {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--calqix-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+  }
+  .blog-compare__label {
+    position: absolute;
+    bottom: 16px;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-family: var(--calqix-font-body);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 4;
+  }
+  .blog-compare__label--before {
+    left: 16px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+  }
+  .blog-compare__label--after {
+    right: 16px;
+    background: var(--calqix-gold);
+    color: var(--calqix-navy);
+  }
+
+  /* ═══════════════════════════════════════
+     D3. CITATION POPUP
+     ═══════════════════════════════════════ */
+  .blog-cite { position: relative; display: inline; }
+  .blog-cite__trigger {
+    color: var(--calqix-gold);
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 12px;
+    vertical-align: super;
+    transition: color 0.2s;
+  }
+  .blog-cite__trigger:hover { color: var(--calqix-navy); }
+  .blog-cite__popup {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    padding: 16px;
+    background: var(--calqix-white);
+    border: 1px solid var(--calqix-border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--calqix-text);
+    z-index: 10;
+  }
+  .blog-cite__popup::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--calqix-white);
+  }
+  .blog-cite.is-open .blog-cite__popup {
+    display: block;
+    animation: cite-pop 0.2s ease-out;
+  }
+  @keyframes cite-pop {
+    from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+
+  /* ═══════════════════════════════════════
+     D4. INGREDIENT TOOLTIP
+     ═══════════════════════════════════════ */
+  .blog-ingredient {
+    color: var(--calqix-navy);
+    font-weight: 600;
+    border-bottom: 2px dotted var(--calqix-gold);
+    cursor: help;
+    position: relative;
+  }
+  .blog-ingredient__tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    min-width: 240px;
+    padding: 16px;
+    background: var(--calqix-bg-dark);
+    color: white;
+    border-radius: 8px;
+    font-size: 13px;
+    z-index: 10;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+  .blog-ingredient__tooltip-name {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .blog-ingredient__tooltip-cfu {
+    display: inline-block;
+    background: var(--calqix-gold);
+    color: var(--calqix-navy);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 50px;
+    margin-bottom: 8px;
+  }
+  .blog-ingredient__tooltip-benefit {
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    display: block;
+  }
+  .blog-ingredient:hover .blog-ingredient__tooltip {
+    display: block;
+    animation: cite-pop 0.2s ease-out;
+  }
+
+  /* ═══════════════════════════════════════
+     E. ARTICLE FOOTER
+     ═══════════════════════════════════════ */
+
+  /* Tags */
+  .blog-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 24px;
+    max-width: 720px;
+    margin: 0 auto 40px;
+  }
+  .blog-tags__item {
+    display: inline-block;
+    padding: 5px 14px;
+    border: 1px solid var(--calqix-border);
+    border-radius: 50px;
+    font-family: var(--calqix-font-body);
+    font-size: 12px;
+    color: var(--calqix-muted);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .blog-tags__item:hover {
+    border-color: var(--calqix-gold);
+    color: var(--calqix-navy);
+  }
+
+  /* Author card */
+  .blog-author {
+    max-width: 720px;
+    margin: 0 auto 48px;
+    padding: 0 24px;
+  }
+  .blog-author__card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--calqix-navy);
+    border-radius: 12px;
+    padding: 24px 28px;
+  }
+  .blog-author__image {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid var(--calqix-gold);
+  }
+  .blog-author__name {
+    font-family: var(--calqix-font-heading);
+    font-size: 18px;
+    color: var(--calqix-white);
+    margin: 0 0 2px;
+  }
+  .blog-author__title {
+    font-family: var(--calqix-font-body);
+    font-size: 12px;
+    color: var(--calqix-gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 6px;
+  }
+  .blog-author__bio {
+    font-family: var(--calqix-font-body);
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* Related articles */
+  .blog-related {
+    max-width: 1000px;
+    margin: 0 auto 64px;
+    padding: 0 24px;
+  }
+  .blog-related__heading {
+    font-family: var(--calqix-font-heading);
+    font-size: 24px;
+    color: var(--calqix-navy);
+    margin: 0 0 24px;
+    text-align: center;
+  }
+  .blog-related__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  @media (min-width: 640px) {
+    .blog-related__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 960px) {
+    .blog-related__grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .blog-related__card {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--calqix-border);
+    text-decoration: none;
+    transition: box-shadow 0.2s, transform 0.2s;
+    display: block;
+    background: var(--calqix-white);
+  }
+  .blog-related__card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+  .blog-related__card-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+  }
+  .blog-related__card-body {
+    padding: 16px;
+  }
+  .blog-related__card-cat {
+    font-family: var(--calqix-font-body);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--calqix-gold);
+    margin: 0 0 6px;
+  }
+  .blog-related__card-title {
+    font-family: var(--calqix-font-heading);
+    font-size: 17px;
+    color: var(--calqix-navy);
+    margin: 0 0 6px;
+    line-height: 1.3;
+  }
+  .blog-related__card-time {
+    font-family: var(--calqix-font-body);
+    font-size: 12px;
+    color: var(--calqix-muted);
+  }
+
+  /* CTA Banner */
+  .blog-cta {
+    background: var(--calqix-bg-light);
+    padding: 48px 24px;
+    text-align: center;
+    margin-bottom: 0;
+  }
+  .blog-cta__inner {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .blog-cta__eyebrow {
+    font-family: var(--calqix-font-body);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--calqix-gold);
+    margin: 0 0 12px;
+  }
+  .blog-cta__heading {
+    font-family: var(--calqix-font-heading);
+    font-size: 28px;
+    color: var(--calqix-navy);
+    margin: 0 0 12px;
+    line-height: 1.3;
+  }
+  .blog-cta__text {
+    font-family: var(--calqix-font-body);
+    font-size: 15px;
+    color: var(--calqix-muted);
+    margin: 0 0 24px;
+    line-height: 1.6;
+  }
+  .blog-cta__button {
+    display: inline-block;
+    background: var(--calqix-gold);
+    color: var(--calqix-navy);
+    font-family: var(--calqix-font-body);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 14px 36px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .blog-cta__button:hover {
+    background: #b8953f;
+    transform: translateY(-1px);
+  }
+
+  /* ═══════════════════════════════════════
+     MOBILE RESPONSIVE
+     ═══════════════════════════════════════ */
+  @media (max-width: 767px) {
+    .blog-hero { height: 280px; }
+    .blog-hero__title { font-size: 26px; padding: 0 16px; }
+    .blog-hero__meta { font-size: 12px; }
+
+    .blog-content { padding: 40px 16px; }
+    .blog-content h2 { font-size: 22px; margin-top: 36px; }
+    .blog-content h3 { font-size: 17px; }
+    .blog-content p { font-size: 15px; }
+
+    .blog-stat__number { font-size: 48px; }
+    .blog-stat { padding: 32px 16px; margin: 32px 0; }
+
+    .blog-compare { aspect-ratio: 4/3; margin: 24px -16px; border-radius: 0; }
+
+    .blog-cite__popup {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      top: auto;
+      transform: none;
+      width: 100%;
+      border-radius: 12px 12px 0 0;
+      max-height: 50vh;
+    }
+    .blog-cite__popup::after { display: none; }
+
+    .blog-toc { display: none; }
+    .blog-layout { display: block; }
+
+    .blog-author__card { flex-direction: column; text-align: center; }
+    .blog-related__heading { font-size: 20px; }
+    .blog-cta__heading { font-size: 22px; }
+  }
+
+  @media (min-width: 768px) and (max-width: 1199px) {
+    .blog-hero { height: 360px; }
+    .blog-hero__title { font-size: 36px; }
+  }
+</style>
+
+{%- comment -%} ─── READING PROGRESS BAR ─── {%- endcomment -%}
+{%- if section.settings.show_progress_bar -%}
+  <div class="blog-progress" aria-hidden="true"></div>
+{%- endif -%}
+
+{%- comment -%} ─── HERO BANNER ─── {%- endcomment -%}
+<div class="calqix-blog">
+  <header class="blog-hero">
+    <div class="blog-hero__particles" aria-hidden="true">
+      {%- for i in (1..30) -%}
+        {%- assign size = i | modulo: 4 | plus: 3 -%}
+        {%- assign left = i | times: 3.33 | modulo: 100 -%}
+        {%- assign duration = i | modulo: 20 | plus: 20 -%}
+        {%- assign delay = i | modulo: 15 -%}
+        {%- assign opacity = i | modulo: 3 | times: 5 | plus: 8 -%}
+        <div class="blog-hero__particle" style="
+          width: {{ size }}px;
+          height: {{ size }}px;
+          left: {{ left }}%;
+          bottom: -10px;
+          --duration: {{ duration }}s;
+          --delay: {{ delay }}s;
+          --drift-x: {{ i | modulo: 60 | minus: 30 }}px;
+          --max-opacity: 0.{{ opacity }};
+        "></div>
+      {%- endfor -%}
+    </div>
+
+    <div class="blog-hero__inner">
+      {%- if article.tags.size > 0 -%}
+        <span class="blog-hero__category">{{ article.tags.first | upcase }}</span>
+      {%- endif -%}
+
+      <h1 class="blog-hero__title">{{ article.title }}</h1>
+
+      <p class="blog-hero__meta">
+        <span>{{ section.settings.author_name | default: article.author }}</span>
+        {%- assign word_count = article.content | strip_html | split: ' ' | size -%}
+        {%- assign read_time = word_count | divided_by: 200 | plus: 1 -%}
+        <span>{{ read_time }} min read</span>
+        <span>{{ article.published_at | date: '%B %d, %Y' }}</span>
+      </p>
+
+      <div class="blog-hero__scroll-line" aria-hidden="true"></div>
+    </div>
+  </header>
+
+  {%- comment -%} ─── TOC + ARTICLE BODY ─── {%- endcomment -%}
+  <div class="blog-layout">
+
+    {%- comment -%} Desktop TOC sidebar {%- endcomment -%}
+    {%- if section.settings.show_toc -%}
+      <nav class="blog-toc" aria-label="Table of contents">
+        <p class="blog-toc__heading">Contents</p>
+        {%- comment -%}
+          TOC items are generated from h2 headings inside the article content.
+          We parse the article HTML for h2 tags with IDs and render links.
+        {%- endcomment -%}
+        {%- assign toc_content = article.content -%}
+        {%- assign toc_parts = toc_content | split: '<h2' -%}
+        {%- for part in toc_parts -%}
+          {%- if forloop.first -%}{%- continue -%}{%- endif -%}
+          {%- assign id_split = part | split: 'id="' -%}
+          {%- if id_split.size > 1 -%}
+            {%- assign heading_id = id_split[1] | split: '"' | first -%}
+            {%- assign heading_text = part | split: '>' | last | split: '</h2>' | first | strip_html -%}
+            <a class="blog-toc__item" href="#{{ heading_id }}">{{ heading_text }}</a>
+          {%- endif -%}
+        {%- endfor -%}
+      </nav>
+    {%- endif -%}
+
+    {%- comment -%} Article content {%- endcomment -%}
+    <article class="blog-content">
+      {{ article.content }}
+    </article>
+  </div>
+
+  {%- comment -%} ─── TAGS ─── {%- endcomment -%}
+  {%- if article.tags.size > 0 -%}
+    <div class="blog-tags">
+      {%- for tag in article.tags -%}
+        <a class="blog-tags__item" href="{{ blog.url }}/tagged/{{ tag | handle }}">{{ tag }}</a>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} ─── AUTHOR CARD ─── {%- endcomment -%}
+  {%- if section.settings.show_author_card -%}
+    <div class="blog-author">
+      <div class="blog-author__card">
+        {%- if section.settings.author_image -%}
+          <img
+            class="blog-author__image"
+            src="{{ section.settings.author_image | image_url: width: 128 }}"
+            alt="{{ section.settings.author_name | escape }}"
+            width="64"
+            height="64"
+            loading="lazy"
+          >
+        {%- else -%}
+          <div class="blog-author__image" style="background:var(--calqix-gold);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--calqix-navy);font-weight:700;">
+            {{ section.settings.author_name | slice: 0, 1 | upcase }}
+          </div>
+        {%- endif -%}
+        <div>
+          <p class="blog-author__name">{{ section.settings.author_name }}</p>
+          <p class="blog-author__title">{{ section.settings.author_title }}</p>
+          <p class="blog-author__bio">{{ section.settings.author_bio }}</p>
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} ─── RELATED ARTICLES ─── {%- endcomment -%}
+  {%- if blog.articles.size > 1 -%}
+    <div class="blog-related">
+      <h2 class="blog-related__heading">Continue reading</h2>
+      <div class="blog-related__grid">
+        {%- assign related_count = 0 -%}
+        {%- for related in blog.articles -%}
+          {%- if related.id == article.id -%}{%- continue -%}{%- endif -%}
+          {%- if related_count >= 3 -%}{%- break -%}{%- endif -%}
+          <a class="blog-related__card" href="{{ related.url }}">
+            {%- if related.image -%}
+              <img
+                class="blog-related__card-img"
+                src="{{ related.image | image_url: width: 600 }}"
+                alt="{{ related.title | escape }}"
+                loading="lazy"
+                width="600"
+                height="338"
+              >
+            {%- endif -%}
+            <div class="blog-related__card-body">
+              {%- if related.tags.size > 0 -%}
+                <p class="blog-related__card-cat">{{ related.tags.first }}</p>
+              {%- endif -%}
+              <p class="blog-related__card-title">{{ related.title }}</p>
+              {%- assign r_words = related.content | strip_html | split: ' ' | size -%}
+              {%- assign r_time = r_words | divided_by: 200 | plus: 1 -%}
+              <p class="blog-related__card-time">{{ r_time }} min read</p>
+            </div>
+          </a>
+          {%- assign related_count = related_count | plus: 1 -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} ─── CTA BANNER ─── {%- endcomment -%}
+  {%- if section.settings.show_cta_banner -%}
+    <div class="blog-cta">
+      <div class="blog-cta__inner">
+        <p class="blog-cta__eyebrow">ORALBIOME PRO</p>
+        <h2 class="blog-cta__heading">Experience the science yourself</h2>
+        <p class="blog-cta__text">3 billion CFU. 4 clinically studied strains. One lozenge a day for a healthier oral microbiome.</p>
+        {%- assign ob_product = all_products['oralbiome-pro'] -%}
+        {%- if ob_product -%}
+          <a class="blog-cta__button" href="{{ ob_product.url }}">Try OralBiome Pro</a>
+        {%- else -%}
+          <a class="blog-cta__button" href="/collections/all">Shop Now</a>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} ─── MOBILE TOC TRIGGER + SHEET ─── {%- endcomment -%}
+  {%- if section.settings.show_toc -%}
+    <button class="blog-toc-mobile__trigger" type="button" aria-label="Jump to section">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
+      Contents
+    </button>
+    <div class="blog-toc-mobile__overlay" aria-hidden="true"></div>
+    <div class="blog-toc-mobile__sheet">
+      <p class="blog-toc__heading">Contents</p>
+      {%- assign toc_content2 = article.content -%}
+      {%- assign toc_parts2 = toc_content2 | split: '<h2' -%}
+      {%- for part in toc_parts2 -%}
+        {%- if forloop.first -%}{%- continue -%}{%- endif -%}
+        {%- assign id_split2 = part | split: 'id="' -%}
+        {%- if id_split2.size > 1 -%}
+          {%- assign heading_id2 = id_split2[1] | split: '"' | first -%}
+          {%- assign heading_text2 = part | split: '>' | last | split: '</h2>' | first | strip_html -%}
+          <a class="blog-toc__item" href="#{{ heading_id2 }}">{{ heading_text2 }}</a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
+</div>
+
+<script src="{{ 'calqix-blog-interactive.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "CALQIX Blog Article",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_progress_bar",
+      "label": "Show reading progress bar",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_toc",
+      "label": "Show table of contents (desktop)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author_card",
+      "label": "Show author card",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "author_name",
+      "label": "Author name",
+      "default": "Dr. Elena Hartwell"
+    },
+    {
+      "type": "text",
+      "id": "author_title",
+      "label": "Author title",
+      "default": "Dental Science Specialist"
+    },
+    {
+      "type": "textarea",
+      "id": "author_bio",
+      "label": "Author bio",
+      "default": "Dr. Hartwell specializes in preventive dentistry and oral microbiome research. She advises CALQIX on clinical evidence and product formulation."
+    },
+    {
+      "type": "image_picker",
+      "id": "author_image",
+      "label": "Author image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cta_banner",
+      "label": "Show product CTA at bottom",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX Blog Article"
+    }
+  ]
+}
+{% endschema %}
