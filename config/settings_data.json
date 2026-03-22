@@ -147,27 +147,6 @@
     "colors_solid_button_labels": "#d43c3c",
     "content_for_index": [],
     "blocks": {
-      "17151115064775110295": {
-        "type": "shopify://apps/recharge-subscriptions/blocks/recharge-theme/371eed76-0b44-4869-9813-730372ea378e",
-        "disabled": false,
-        "settings": {
-          "color_brand": "#1a3b5c",
-          "contrast_color": "#FFFFFF",
-          "color_brand_secondary": "#2e5a7d",
-          "corners": "8px",
-          "app_background": "#f8fafb",
-          "app_container": 1200,
-          "app_vertical_padding": 32,
-          "images_aspect_ratio": "1",
-          "cards_background": "#FFFFFF",
-          "cards_border_color": "rgba(0,0,0,0)"
-        }
-      },
-      "16798170927650018749": {
-        "type": "shopify://apps/recharge-subscriptions/blocks/storefront-experiences/371eed76-0b44-4869-9813-730372ea378e",
-        "disabled": false,
-        "settings": {}
-      },
       "1232542678405107163": {
         "type": "shopify://apps/instafeed/blocks/head-block/c447db20-095d-4a10-9725-b5977662c9d5",
         "disabled": false,
@@ -186,6 +165,32 @@
       "9139608461449719892": {
         "type": "shopify://apps/chatwill-ai-chatbot/blocks/aichatbot/e7b73941-aea6-4bde-bb29-6e9e414581d0",
         "disabled": false,
+        "settings": {}
+      },
+      "341186785192672687": {
+        "type": "shopify://apps/seal-subscriptions/blocks/subscription-script-append/13b25004-a140-4ab7-b5fe-29918f759699",
+        "disabled": false,
+        "settings": {}
+      },
+      "17151115064775110295": {
+        "type": "shopify://apps/recharge-subscriptions/blocks/recharge-theme/371eed76-0b44-4869-9813-730372ea378e",
+        "disabled": true,
+        "settings": {
+          "color_brand": "#1a3b5c",
+          "contrast_color": "#ffffff",
+          "color_brand_secondary": "#2e5a7d",
+          "corners": "8px",
+          "app_background": "#f8fafb",
+          "app_container": 1200,
+          "app_vertical_padding": 32,
+          "images_aspect_ratio": "1",
+          "cards_background": "#ffffff",
+          "cards_border_color": "rgba(0,0,0,0)"
+        }
+      },
+      "16798170927650018749": {
+        "type": "shopify://apps/recharge-subscriptions/blocks/storefront-experiences/371eed76-0b44-4869-9813-730372ea378e",
+        "disabled": true,
         "settings": {}
       }
     }
