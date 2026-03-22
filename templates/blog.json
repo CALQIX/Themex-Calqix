@@ -11,7 +11,20 @@
   "sections": {
     "main": {
       "type": "main-blog",
-      "settings": {}
+      "settings": {
+        "show_blog_title": true,
+        "show_image": true,
+        "show_date": true,
+        "show_author": false,
+        "image_ratio": "square",
+        "column_alignment": "left",
+        "columns_desktop": "3",
+        "button_select": "primary",
+        "size_heading": 100,
+        "size_heading_mobile": 100,
+        "margin-top": 20,
+        "margin-bottom": 20
+      }
     }
   },
   "order": [
