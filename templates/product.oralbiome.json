@@ -103,20 +103,20 @@
             "swatch_1_product": "oralbiome-pro-freshmint",
             "swatch_1_border": false,
             "swatch_1_border_color": "#cccccc",
-            "swatch_2_name": "Clinical White",
-            "swatch_2_product": "",
-            "swatch_2_border": true,
+            "swatch_2_name": "Grape",
+            "swatch_2_product": "oralbiome-pro-grape",
+            "swatch_2_border": false,
             "swatch_2_border_color": "#cccccc",
-            "swatch_3_name": "Lime Green",
-            "swatch_3_product": "",
+            "swatch_3_name": "Peach",
+            "swatch_3_product": "oralbiome-pro-peach",
             "swatch_3_border": false,
             "swatch_3_border_color": "#cccccc",
-            "swatch_4_name": "Blush Pink",
-            "swatch_4_product": "",
+            "swatch_4_name": "Citrus Orange",
+            "swatch_4_product": "oralbiome-pro-citrus-orange",
             "swatch_4_border": false,
             "swatch_4_border_color": "#cccccc",
-            "swatch_5_name": "",
-            "swatch_5_product": "",
+            "swatch_5_name": "Cool Mint",
+            "swatch_5_product": "oralbiome-pro-cool-mint",
             "swatch_5_border": false,
             "swatch_5_border_color": "#cccccc",
             "swatch_6_name": "",
@@ -125,7 +125,7 @@
             "swatch_6_border_color": "#cccccc",
             "label_text": "Taste",
             "show_active_name": true,
-            "highlight_product": "oralbiome-pro-freshmint",
+            "highlight_product": "oralbiome-pro-peach",
             "highlight_text": "Most chosen",
             "helper_text": "All taste are delicious. Choose your favourite.",
             "label_color": "#1a3b5c",
@@ -133,7 +133,7 @@
             "label_size": 12,
             "label_gap": 12,
             "swatch_shape": "round",
-            "swatch_size": 52,
+            "swatch_size": 60,
             "swatch_gap": 10,
             "active_border_color": "#1a3b5c",
             "tooltip_bg": "#1a3b5c",
@@ -427,8 +427,11 @@
           "settings": {
             "feature": "Kills harmful bacteria",
             "mouthwash": "yes",
+            "mouthwash_note": "Partially",
             "toothpaste": "yes",
-            "oralbiome": "yes"
+            "toothpaste_note": "Partially",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
           }
         },
         "row_2_preserves": {
@@ -436,8 +439,11 @@
           "settings": {
             "feature": "Preserves beneficial bacteria",
             "mouthwash": "no",
+            "mouthwash_note": "Partially",
             "toothpaste": "no",
-            "oralbiome": "yes"
+            "toothpaste_note": "Partially",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
           }
         },
         "row_3_breath": {
@@ -445,8 +451,11 @@
           "settings": {
             "feature": "Addresses bad breath at the source",
             "mouthwash": "no",
+            "mouthwash_note": "Partially",
             "toothpaste": "no",
-            "oralbiome": "yes"
+            "toothpaste_note": "Partially",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
           }
         },
         "row_4_gum": {
@@ -454,9 +463,11 @@
           "settings": {
             "feature": "Supports gum health long-term",
             "mouthwash": "no",
+            "mouthwash_note": "Partially",
             "toothpaste": "partial",
             "toothpaste_note": "Partially",
-            "oralbiome": "yes"
+            "oralbiome": "yes",
+            "oralbiome_note": ""
           }
         },
         "row_5_rebuild": {
@@ -464,8 +475,11 @@
           "settings": {
             "feature": "Rebuilds oral microbiome",
             "mouthwash": "no",
+            "mouthwash_note": "Partially",
             "toothpaste": "no",
-            "oralbiome": "yes"
+            "toothpaste_note": "Partially",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
           }
         },
         "row_6_safe": {
@@ -473,8 +487,11 @@
           "settings": {
             "feature": "Safe for daily use without side effects",
             "mouthwash": "no",
+            "mouthwash_note": "Partially",
             "toothpaste": "yes",
-            "oralbiome": "yes"
+            "toothpaste_note": "Partially",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
           }
         },
         "row_7_clinical": {
@@ -482,6 +499,7 @@
           "settings": {
             "feature": "Clinically studied ingredients",
             "mouthwash": "no",
+            "mouthwash_note": "Partially",
             "toothpaste": "partial",
             "toothpaste_note": "Varies",
             "oralbiome": "yes_text",
@@ -499,7 +517,9 @@
         "row_7_clinical"
       ],
       "settings": {
+        "eyebrow": "COMPARISON",
         "heading": "Not all oral care is created equal.",
+        "note": "Unlike traditional mouthwash and antibacterial toothpaste, OralBiome Pro restores your oral microbiome instead of destroying it.",
         "col_feature": "Feature",
         "col_mouthwash": "Mouthwash",
         "col_toothpaste": "Antibacterial Toothpaste",
@@ -514,8 +534,11 @@
           "settings": {
             "feature": "Kills harmful bacteria",
             "mouthwash": "yes",
+            "mouthwash_note": "",
             "toothpaste": "yes",
-            "oralbiome": "yes"
+            "toothpaste_note": "",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
           }
         },
         "mrow_2": {
@@ -523,8 +546,11 @@
           "settings": {
             "feature": "Preserves beneficial bacteria",
             "mouthwash": "no",
+            "mouthwash_note": "",
             "toothpaste": "no",
-            "oralbiome": "yes"
+            "toothpaste_note": "",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
           }
         },
         "mrow_3": {
@@ -532,8 +558,11 @@
           "settings": {
             "feature": "Addresses bad breath at the source",
             "mouthwash": "no",
+            "mouthwash_note": "",
             "toothpaste": "no",
-            "oralbiome": "yes"
+            "toothpaste_note": "",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
           }
         },
         "mrow_4": {
@@ -541,9 +570,11 @@
           "settings": {
             "feature": "Supports gum health long-term",
             "mouthwash": "no",
+            "mouthwash_note": "",
             "toothpaste": "partial",
             "toothpaste_note": "Partially",
-            "oralbiome": "yes"
+            "oralbiome": "yes",
+            "oralbiome_note": ""
           }
         },
         "mrow_5": {
@@ -551,8 +582,11 @@
           "settings": {
             "feature": "Rebuilds oral microbiome",
             "mouthwash": "no",
+            "mouthwash_note": "",
             "toothpaste": "no",
-            "oralbiome": "yes"
+            "toothpaste_note": "",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
           }
         },
         "mrow_6": {
@@ -560,8 +594,11 @@
           "settings": {
             "feature": "Safe for daily use without side effects",
             "mouthwash": "no",
+            "mouthwash_note": "",
             "toothpaste": "yes",
-            "oralbiome": "yes"
+            "toothpaste_note": "",
+            "oralbiome": "yes",
+            "oralbiome_note": ""
           }
         },
         "mrow_7": {
@@ -569,6 +606,7 @@
           "settings": {
             "feature": "Clinically studied ingredients",
             "mouthwash": "no",
+            "mouthwash_note": "",
             "toothpaste": "partial",
             "toothpaste_note": "Varies",
             "oralbiome": "yes_text",
