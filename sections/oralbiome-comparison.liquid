@@ -1,239 +1,486 @@
 <style>
-  .ob-compare {
-    background: #F4F5F7;
-    padding: 48px 0;
-    overflow: hidden;
-  }
-  .ob-compare__container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-  .ob-compare__heading {
-    font-family: 'DM Serif Display', serif;
-    font-size: 28px;
-    color: #1A3B5C;
-    text-align: center;
-    margin: 0 0 40px;
-    line-height: 1.3;
+  /* ═══ Hide on mobile — the card scroller handles small screens ═══ */
+  @media (max-width: 767px) {
+    .ob-dt { display: none !important; }
   }
 
-  /* ── Desktop table ── */
-  .ob-compare__table {
-    display: table;
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    border-radius: 8px;
+  /* ═══ BASE ═══ */
+  .ob-dt {
+    padding: 64px 0 56px;
+    background: linear-gradient(180deg, #F8F9FB 0%, #FFFFFF 40%, #F4F5F7 100%);
     overflow: hidden;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-    background: #FFFFFF;
   }
-  .ob-compare__table th,
-  .ob-compare__table td {
-    padding: 16px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
+  .ob-dt__wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ═══ HEADER ═══ */
+  .ob-dt__header {
     text-align: center;
-    border-bottom: 1px solid #F3F4F6;
-    vertical-align: middle;
+    margin-bottom: 40px;
   }
-  .ob-compare__table thead th {
+  .ob-dt__eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: #C9A84C;
+    margin: 0 0 12px;
+  }
+  .ob-dt__heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 34px;
+    color: #1A3B5C;
+    line-height: 1.2;
+    margin: 0 0 16px;
+  }
+  .ob-dt__subtitle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    color: #6B7280;
+    line-height: 1.6;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  /* ═══ COLUMN HEADERS ═══ */
+  .ob-dt__cols {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 0;
+    margin-bottom: 2px;
+  }
+  .ob-dt__col-head {
+    padding: 20px 16px 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .ob-dt__col-head--feature {
+    text-align: left;
+    padding-left: 24px;
+  }
+  .ob-dt__col-label {
+    font-family: 'DM Sans', sans-serif;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    color: #1A3B5C;
-    background: transparent;
-    border-bottom: 2px solid #E5E7EB;
+    color: #6B7280;
+    margin: 0 0 6px;
   }
-  .ob-compare__table thead th:last-child {
-    background: rgba(201,168,76,0.08);
+  .ob-dt__col-score {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #9CA3AF;
+    line-height: 1;
+    margin: 0;
+  }
+  .ob-dt__col-denom {
+    font-size: 11px;
+    color: #9CA3AF;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── Winner column header ── */
+  .ob-dt__col-head--winner {
+    background: linear-gradient(180deg, rgba(201,168,76,0.10) 0%, rgba(201,168,76,0.03) 100%);
+    border-radius: 16px 16px 0 0;
     border-top: 3px solid #C9A84C;
-    position: relative;
-    overflow: hidden;
   }
-  .ob-compare__table thead th:last-child::after {
+  .ob-dt__col-head--winner .ob-dt__col-label {
+    color: #C9A84C;
+  }
+  .ob-dt__col-head--winner .ob-dt__col-score {
+    color: #1A3B5C;
+  }
+  .ob-dt__col-head--winner::after {
     content: '';
     position: absolute;
     top: 0; left: -100%;
     width: 60%; height: 100%;
-    background: linear-gradient(105deg, transparent 20%, rgba(201,168,76,0.12) 45%, rgba(201,168,76,0.2) 50%, rgba(201,168,76,0.12) 55%, transparent 80%);
-    animation: obCompareShimmer 4s ease-in-out infinite;
+    background: linear-gradient(105deg, transparent 20%, rgba(201,168,76,0.08) 45%, rgba(201,168,76,0.16) 50%, rgba(201,168,76,0.08) 55%, transparent 80%);
+    animation: obDtShimmer 5s ease-in-out infinite;
     pointer-events: none;
   }
-  @keyframes obCompareShimmer {
-    0% { left: -100%; }
+  @keyframes obDtShimmer {
+    0%   { left: -100%; }
     100% { left: 200%; }
   }
-  .ob-compare__table th:first-child,
-  .ob-compare__table td:first-child {
-    text-align: left;
-    font-weight: 500;
-    color: #1A1A1A;
-    padding-left: 20px;
-  }
-  .ob-compare__table td:last-child {
-    background: rgba(201,168,76,0.08);
-  }
-  .ob-compare__table tbody tr:nth-child(even) td {
-    background-color: #F9FAFB;
-  }
-  .ob-compare__table tbody tr:nth-child(even) td:last-child {
-    background: rgba(201,168,76,0.06);
-  }
-  .ob-compare__table tbody tr:last-child td { border-bottom: none; }
-  .ob-compare__table tbody tr {
-    opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.4s ease, transform 0.4s ease, background-color 0.2s ease;
-  }
-  .ob-compare__table tbody tr.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .ob-compare__table tbody tr:hover td {
-    background-color: rgba(201,168,76,0.04);
-  }
-  .ob-compare__table tbody tr:hover td:last-child {
-    background-color: rgba(201,168,76,0.12);
-  }
 
-  /* ── Icons ── */
-  .comparison-icon {
+  /* ── Crown badge ── */
+  .ob-dt__crown {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-bottom: 4px;
   }
-  .comparison-icon--yes svg circle {
-    transition: transform 0.3s ease;
-    transform-origin: center;
+
+  /* ═══ FEATURE ROWS ═══ */
+  .ob-dt__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
-  .is-visible .comparison-icon--yes svg circle {
-    animation: obCompareCheckPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  .ob-dt__row {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 0;
+    background: #FFFFFF;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    transform: translateY(16px);
   }
-  @keyframes obCompareCheckPop {
-    0% { transform: scale(0.6); }
-    100% { transform: scale(1); }
+  .ob-dt__row.is-visible {
+    opacity: 1;
+    transform: translateY(0);
   }
-  .comparison-partial {
+  .ob-dt__row:hover {
+    box-shadow: 0 6px 24px rgba(26,59,92,0.10);
+    transform: translateY(-2px) !important;
+    z-index: 2;
+    position: relative;
+  }
+
+  /* ── Cells ── */
+  .ob-dt__cell {
+    padding: 18px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #F3F4F6;
+    transition: background-color 0.25s ease;
+  }
+  .ob-dt__cell:last-child {
+    border-right: none;
+  }
+  .ob-dt__cell--feature {
+    justify-content: flex-start;
+    padding-left: 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1F2937;
+  }
+
+  /* ── OralBiome column accent ── */
+  .ob-dt__cell--ob {
+    background: rgba(201,168,76,0.04);
+    position: relative;
+  }
+  .ob-dt__row:hover .ob-dt__cell--ob {
+    background: rgba(201,168,76,0.12);
+  }
+  .ob-dt__row:hover .ob-dt__cell:not(.ob-dt__cell--ob) {
+    background: rgba(26,59,92,0.02);
+  }
+
+  /* ═══ ICONS ═══ */
+  .ob-dt__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .ob-dt__icon svg {
+    opacity: 0;
+    transform: scale(0.4);
+    transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .ob-dt__row.is-visible .ob-dt__icon svg {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .ob-dt__partial {
     font-family: 'DM Sans', sans-serif;
     font-size: 13px;
-    color: #9CA3AF;
+    color: #D97706;
+    font-weight: 500;
     font-style: italic;
   }
-  .comparison-extra {
+  .ob-dt__extra {
     font-family: 'DM Sans', sans-serif;
     font-size: 12px;
     color: #2E7D32;
-    font-weight: 600;
-    margin-left: 6px;
+    font-weight: 700;
   }
 
-  /* ── Scroll wrapper ── */
-  .ob-compare__scroll-wrap { max-width: 900px; margin: 0 auto; }
-  .ob-compare__scroll-hint { display: none; }
-  .ob-compare__scroll {
-    overflow-x: visible;
+  /* ── Winner glow on OralBiome checks ── */
+  .ob-dt__cell--ob .ob-dt__icon svg circle {
+    filter: drop-shadow(0 0 0 rgba(46,125,50,0));
+  }
+  .ob-dt__row.is-visible .ob-dt__cell--ob .ob-dt__icon svg circle {
+    animation: obDtGlow 2.5s ease-in-out infinite 0.6s;
+  }
+  @keyframes obDtGlow {
+    0%, 100% { filter: drop-shadow(0 0 0 rgba(46,125,50,0)); }
+    50%      { filter: drop-shadow(0 0 8px rgba(46,125,50,0.3)); }
   }
 
-  /* ── Hide desktop table on mobile (mobile uses separate section) ── */
-  @media (max-width: 767px) {
-    .ob-compare { display: none; }
+  /* ═══ VERDICT BAR ═══ */
+  .ob-dt__verdict {
+    margin-top: 32px;
+    padding: 24px 32px;
+    background: #1A3B5C;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  @media (min-width: 1024px) {
-    .ob-compare { padding: 80px 0; }
-    .ob-compare__heading { font-size: 36px; }
-    .ob-compare__table th,
-    .ob-compare__table td { padding: 16px 20px; }
+  .ob-dt__verdict.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .ob-dt__verdict-badge {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #C9A84C 0%, #d4b86a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(201,168,76,0.3);
+  }
+  .ob-dt__verdict-body {
+    flex: 1;
+  }
+  .ob-dt__verdict-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: #FFFFFF;
+    margin: 0 0 4px;
+  }
+  .ob-dt__verdict-text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+    margin: 0;
+    line-height: 1.5;
+  }
+  .ob-dt__verdict-text strong {
+    color: #C9A84C;
+    font-weight: 700;
+  }
+
+  /* ═══ TABLET (768 – 1023) ═══ */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .ob-dt { padding: 48px 0 40px; }
+    .ob-dt__heading { font-size: 28px; }
+    .ob-dt__subtitle { font-size: 15px; }
+    .ob-dt__cols,
+    .ob-dt__row { grid-template-columns: 1.4fr 1fr 1fr 1fr; }
+    .ob-dt__cell { padding: 14px 12px; }
+    .ob-dt__cell--feature { font-size: 14px; padding-left: 16px; }
+    .ob-dt__col-head { padding: 16px 12px 12px; }
+    .ob-dt__verdict { padding: 20px 24px; }
+    .ob-dt__verdict-title { font-size: 16px; }
+  }
+
+  /* ═══ LARGE DESKTOP (1200+) ═══ */
+  @media (min-width: 1200px) {
+    .ob-dt { padding: 96px 0 80px; }
+    .ob-dt__wrap { max-width: 1040px; }
+    .ob-dt__heading { font-size: 40px; }
+    .ob-dt__cell--feature { font-size: 16px; }
+    .ob-dt__cell { padding: 20px 20px; }
   }
 </style>
+
+{%- comment -%} ── Tally scores from blocks ── {%- endcomment -%}
+{%- assign ob_wins = 0 -%}
+{%- assign mw_wins = 0 -%}
+{%- assign tp_wins = 0 -%}
+{%- for block in section.blocks -%}
+  {%- if block.settings.mouthwash == 'yes' -%}{%- assign mw_wins = mw_wins | plus: 1 -%}{%- endif -%}
+  {%- if block.settings.toothpaste == 'yes' -%}{%- assign tp_wins = tp_wins | plus: 1 -%}{%- endif -%}
+  {%- assign ob_wins = ob_wins | plus: 1 -%}
+{%- endfor -%}
 
 {%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
 {%- if _ob_lang != 'en' -%}
   {%- assign _ob_cmp_heading = 'calqix_oralbiome.compare.heading' | t -%}
-  {%- assign _ob_cmp_col_trad = 'calqix_oralbiome.compare.col_traditional' | t -%}
-  {%- assign _ob_cmp_col_calqix = 'calqix_oralbiome.compare.col_calqix' | t -%}
 {%- else -%}
   {%- assign _ob_cmp_heading = section.settings.heading -%}
-  {%- assign _ob_cmp_col_trad = section.settings.col_mouthwash -%}
-  {%- assign _ob_cmp_col_calqix = section.settings.col_oralbiome -%}
 {%- endif -%}
 
-<section class="ob-compare" data-section-id="{{ section.id }}">
-  <div class="ob-compare__container">
-    <h2 class="ob-compare__heading">{{ _ob_cmp_heading }}</h2>
+<section class="ob-dt" data-section-id="{{ section.id }}" data-ob-dt>
+  <div class="ob-dt__wrap">
 
-    <div class="ob-compare__scroll-wrap">
-      <div class="ob-compare__scroll-hint" data-ob-compare-hint>
-        <span>Scroll to compare</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    {%- comment -%} ── Header ── {%- endcomment -%}
+    <div class="ob-dt__header">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ob-dt__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 class="ob-dt__heading">{{ _ob_cmp_heading }}</h2>
+      {%- if section.settings.note != blank -%}
+        <p class="ob-dt__subtitle">{{ section.settings.note }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} ── Column headers with score counters ── {%- endcomment -%}
+    <div class="ob-dt__cols">
+      <div class="ob-dt__col-head ob-dt__col-head--feature">
+        <p class="ob-dt__col-label">{{ section.settings.col_feature }}</p>
       </div>
-      <div class="ob-compare__scroll" data-ob-compare-scroll>
-        <table class="ob-compare__table" role="table">
-          <thead>
-            <tr>
-              <th>{{ section.settings.col_feature }}</th>
-              <th>{{ section.settings.col_mouthwash }}</th>
-              <th>{{ section.settings.col_toothpaste }}</th>
-              <th>{{ section.settings.col_oralbiome }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {%- for block in section.blocks -%}
-              <tr {{ block.shopify_attributes }} data-ob-compare-row>
-                <td>{{ block.settings.feature }}</td>
-                <td>
-                  {%- if block.settings.mouthwash == 'yes' -%}
-                    <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  {%- elsif block.settings.mouthwash == 'partial' -%}
-                    <span class="comparison-partial">{{ block.settings.mouthwash_note | default: 'Partially' }}</span>
-                  {%- else -%}
-                    <span class="comparison-icon comparison-icon--no"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#E5E7EB"/><path d="M15 9l-6 6M9 9l6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
-                  {%- endif -%}
-                </td>
-                <td>
-                  {%- if block.settings.toothpaste == 'yes' -%}
-                    <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  {%- elsif block.settings.toothpaste == 'partial' -%}
-                    <span class="comparison-partial">{{ block.settings.toothpaste_note | default: 'Partially' }}</span>
-                  {%- else -%}
-                    <span class="comparison-icon comparison-icon--no"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#E5E7EB"/><path d="M15 9l-6 6M9 9l6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
-                  {%- endif -%}
-                </td>
-                <td>
-                  <span class="comparison-icon comparison-icon--yes"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  {%- if block.settings.oralbiome == 'yes_text' and block.settings.oralbiome_note != blank -%}
-                    <span class="comparison-extra">{{ block.settings.oralbiome_note }}</span>
-                  {%- endif -%}
-                </td>
-              </tr>
-            {%- endfor -%}
-          </tbody>
-        </table>
+      <div class="ob-dt__col-head">
+        <p class="ob-dt__col-label">{{ section.settings.col_mouthwash }}</p>
+        <p class="ob-dt__col-score" data-ob-dt-count="{{ mw_wins }}">0</p>
+        <span class="ob-dt__col-denom">/ {{ section.blocks.size }}</span>
+      </div>
+      <div class="ob-dt__col-head">
+        <p class="ob-dt__col-label">{{ section.settings.col_toothpaste }}</p>
+        <p class="ob-dt__col-score" data-ob-dt-count="{{ tp_wins }}">0</p>
+        <span class="ob-dt__col-denom">/ {{ section.blocks.size }}</span>
+      </div>
+      <div class="ob-dt__col-head ob-dt__col-head--winner">
+        <div class="ob-dt__crown">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M2 8l4 12h12l4-12-5 4-5-8-5 8-5-4z" fill="#C9A84C" stroke="#C9A84C" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="12" cy="4" r="1.5" fill="#C9A84C"/>
+            <circle cx="2" cy="8" r="1.5" fill="#C9A84C"/>
+            <circle cx="22" cy="8" r="1.5" fill="#C9A84C"/>
+          </svg>
+        </div>
+        <p class="ob-dt__col-label">{{ section.settings.col_oralbiome }}</p>
+        <p class="ob-dt__col-score" data-ob-dt-count="{{ ob_wins }}">0</p>
+        <span class="ob-dt__col-denom">/ {{ section.blocks.size }}</span>
       </div>
     </div>
+
+    {%- comment -%} ── Feature rows ── {%- endcomment -%}
+    <div class="ob-dt__rows">
+      {%- for block in section.blocks -%}
+        <div class="ob-dt__row" data-ob-dt-row {{ block.shopify_attributes }}>
+          <div class="ob-dt__cell ob-dt__cell--feature">
+            {{ block.settings.feature }}
+          </div>
+
+          {%- comment -%} Mouthwash {%- endcomment -%}
+          <div class="ob-dt__cell">
+            {%- if block.settings.mouthwash == 'yes' -%}
+              <span class="ob-dt__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            {%- elsif block.settings.mouthwash == 'partial' -%}
+              <span class="ob-dt__icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#F59E0B"/><path d="M8 12h8" stroke="#FFF" stroke-width="2" stroke-linecap="round"/></svg>
+                <span class="ob-dt__partial">{{ block.settings.mouthwash_note | default: 'Partially' }}</span>
+              </span>
+            {%- else -%}
+              <span class="ob-dt__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#E5E7EB"/><path d="M15 9l-6 6M9 9l6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
+            {%- endif -%}
+          </div>
+
+          {%- comment -%} Toothpaste {%- endcomment -%}
+          <div class="ob-dt__cell">
+            {%- if block.settings.toothpaste == 'yes' -%}
+              <span class="ob-dt__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            {%- elsif block.settings.toothpaste == 'partial' -%}
+              <span class="ob-dt__icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#F59E0B"/><path d="M8 12h8" stroke="#FFF" stroke-width="2" stroke-linecap="round"/></svg>
+                <span class="ob-dt__partial">{{ block.settings.toothpaste_note | default: 'Partially' }}</span>
+              </span>
+            {%- else -%}
+              <span class="ob-dt__icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#E5E7EB"/><path d="M15 9l-6 6M9 9l6 6" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/></svg></span>
+            {%- endif -%}
+          </div>
+
+          {%- comment -%} OralBiome (always winner) {%- endcomment -%}
+          <div class="ob-dt__cell ob-dt__cell--ob">
+            <span class="ob-dt__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              {%- if block.settings.oralbiome == 'yes_text' and block.settings.oralbiome_note != blank -%}
+                <span class="ob-dt__extra">{{ block.settings.oralbiome_note }}</span>
+              {%- endif -%}
+            </span>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    {%- comment -%} ── Verdict bar ── {%- endcomment -%}
+    <div class="ob-dt__verdict" data-ob-dt-verdict>
+      <div class="ob-dt__verdict-badge">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z" fill="#FFF"/>
+        </svg>
+      </div>
+      <div class="ob-dt__verdict-body">
+        <p class="ob-dt__verdict-title">The clear winner</p>
+        <p class="ob-dt__verdict-text"><strong>OralBiome Pro</strong> outperforms in <strong>{{ ob_wins }}/{{ section.blocks.size }}</strong> categories — the only oral care solution that restores your microbiome.</p>
+      </div>
+    </div>
+
   </div>
 </section>
 
 <script>
   (function() {
-    var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    var section = document.querySelector('[data-ob-dt]');
     if (!section) return;
 
-    var rows = section.querySelectorAll('[data-ob-compare-row]');
-
+    /* ── Staggered row reveal ── */
+    var rows = section.querySelectorAll('[data-ob-dt-row]');
     if (rows.length) {
       var delay = 0;
-      var tableObs = new IntersectionObserver(function(entries) {
+      var rObs = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
           if (entry.isIntersecting && !entry.target.classList.contains('is-visible')) {
-            setTimeout(function() { entry.target.classList.add('is-visible'); }, delay);
-            delay += 80;
+            var d = delay;
+            setTimeout(function() { entry.target.classList.add('is-visible'); }, d);
+            delay += 100;
+            rObs.unobserve(entry.target);
           }
         });
-      }, { threshold: 0.15 });
-      rows.forEach(function(r) { tableObs.observe(r); });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+      rows.forEach(function(r) { rObs.observe(r); });
+    }
+
+    /* ── Verdict reveal ── */
+    var verdict = section.querySelector('[data-ob-dt-verdict]');
+    if (verdict) {
+      var vObs = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+          verdict.classList.add('is-visible');
+          vObs.disconnect();
+        }
+      }, { threshold: 0.3 });
+      vObs.observe(verdict);
+    }
+
+    /* ── Score counter animation ── */
+    var counters = section.querySelectorAll('[data-ob-dt-count]');
+    if (counters.length) {
+      var cObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var el = entry.target;
+            var target = parseInt(el.getAttribute('data-ob-dt-count'), 10);
+            var current = 0;
+            var step = function() {
+              if (current < target) {
+                current++;
+                el.textContent = current;
+                setTimeout(step, 120);
+              }
+            };
+            step();
+            cObs.unobserve(el);
+          }
+        });
+      }, { threshold: 0.5 });
+      counters.forEach(function(c) { cObs.observe(c); });
     }
   })();
 </script>
@@ -243,9 +490,9 @@
   "name": "OB Comparison",
   "tag": "section",
   "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "COMPARISON" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Not all oral care is created equal." },
-    { "type": "text", "id": "mobile_heading", "label": "Mobile heading", "default": "Why OralBiome Pro is different" },
-    { "type": "textarea", "id": "mobile_note", "label": "Mobile note", "default": "Unlike traditional mouthwash and antibacterial toothpaste, OralBiome Pro restores your oral microbiome instead of destroying it." },
+    { "type": "textarea", "id": "note", "label": "Subtitle", "default": "Unlike traditional mouthwash and antibacterial toothpaste, OralBiome Pro restores your oral microbiome instead of destroying it." },
     { "type": "text", "id": "col_feature", "label": "Feature column header", "default": "Feature" },
     { "type": "text", "id": "col_mouthwash", "label": "Mouthwash column header", "default": "Mouthwash" },
     { "type": "text", "id": "col_toothpaste", "label": "Toothpaste column header", "default": "Antibacterial Toothpaste" },
@@ -291,7 +538,7 @@
           ],
           "default": "yes"
         },
-        { "type": "text", "id": "oralbiome_note", "label": "OralBiome Pro extra text (if Yes + text)", "default": "" }
+        { "type": "text", "id": "oralbiome_note", "label": "OralBiome Pro extra text (if Yes + text)" }
       ]
     }
   ],
