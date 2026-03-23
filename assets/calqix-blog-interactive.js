@@ -12,11 +12,13 @@
   document.addEventListener('DOMContentLoaded', init);
 
   function init() {
+    initDynamicTOC();
     initReadingProgress();
     initStatCounters();
     initCompareSliders();
     initCitations();
     initIngredientTooltips();
+    initGlossaryTooltips();
     initTOCTracking();
     initMobileTOC();
     initScrollAnimations();
@@ -171,6 +173,181 @@
         '<span class="blog-ingredient__tooltip-benefit">' + benefit + '</span>';
       el.appendChild(tip);
     });
+  }
+
+  /* ───────────────────────────────────────
+     5b. GLOSSARY TOOLTIPS
+     ─────────────────────────────────────── */
+  function initGlossaryTooltips() {
+    var article = document.querySelector('.blog-content');
+    if (!article) return;
+
+    var glossary = [
+      { term: 'oral microbiome', def: 'The community of bacteria, fungi and other micro-organisms that naturally live in your mouth.' },
+      { term: 'microbiome', def: 'A community of trillions of micro-organisms living together in a specific environment, such as your mouth or gut.' },
+      { term: 'biofilm', def: 'A thin, sticky layer of bacteria that forms on surfaces like your teeth and gums.' },
+      { term: 'dysbiosis', def: 'An imbalance in your microbial community where harmful species outnumber beneficial ones.' },
+      { term: 'pathogenic', def: 'Capable of causing disease or infection.' },
+      { term: 'pathogens', def: 'Micro-organisms that can cause disease or infection.' },
+      { term: 'periodontal', def: 'Relating to the gums and bone structures that support your teeth.' },
+      { term: 'gingivitis', def: 'Early-stage gum disease causing redness, swelling and bleeding of the gums.' },
+      { term: 'periodontitis', def: 'Advanced gum disease where the bone supporting the teeth starts to break down.' },
+      { term: 'Lactobacillus reuteri', def: 'A beneficial probiotic bacterium clinically studied for reducing gum inflammation and supporting oral health.' },
+      { term: 'L. reuteri', def: 'Short for Lactobacillus reuteri — a probiotic strain that helps reduce harmful oral bacteria.' },
+      { term: 'S. salivarius K12', def: 'A probiotic strain naturally found in healthy mouths, studied for reducing bad-breath bacteria.' },
+      { term: 'S. salivarius M18', def: 'A probiotic strain researched for reducing plaque and supporting enamel health.' },
+      { term: 'Streptococcus salivarius', def: 'A species of beneficial bacteria naturally present in a healthy mouth.' },
+      { term: 'CFU', def: 'Colony Forming Units — a measure of how many live, active bacteria are in each dose.' },
+      { term: 'nano-hydroxyapatite', def: 'A nano-sized form of the mineral that makes up 97% of tooth enamel, used to remineralise and repair teeth.' },
+      { term: 'hydroxyapatite', def: 'The natural mineral that forms the hard structure of tooth enamel and bone.' },
+      { term: 'remineralisation', def: 'The natural process of restoring lost minerals to tooth enamel, making it stronger.' },
+      { term: 'remineralization', def: 'The natural process of restoring lost minerals to tooth enamel, making it stronger.' },
+      { term: 'demineralisation', def: 'The loss of minerals from tooth enamel caused by acid-producing bacteria.' },
+      { term: 'demineralization', def: 'The loss of minerals from tooth enamel caused by acid-producing bacteria.' },
+      { term: 'enamel', def: 'The hard, outer layer of your teeth that protects against decay and sensitivity.' },
+      { term: 'plaque', def: 'A soft, sticky film of bacteria that constantly forms on your teeth and can lead to cavities.' },
+      { term: 'halitosis', def: 'The medical term for chronic bad breath, often caused by specific bacteria in the mouth.' },
+      { term: 'bacteriocins', def: 'Natural antimicrobial substances produced by good bacteria to fight harmful ones.' },
+      { term: 'antimicrobial', def: 'A substance that kills or stops the growth of micro-organisms like bacteria.' },
+      { term: 'probiotic', def: 'Live beneficial micro-organisms that, when consumed in the right amounts, support your health.' },
+      { term: 'probiotics', def: 'Live beneficial micro-organisms that support health when taken in adequate amounts.' },
+      { term: 'clinical study', def: 'A scientific research trial conducted on human participants to test safety and effectiveness.' },
+      { term: 'peer-reviewed', def: 'Research that has been evaluated and approved by independent experts before publication.' },
+      { term: 'in vitro', def: 'Experiments performed in a lab (e.g. in a test tube), not inside a living body.' },
+      { term: 'in vivo', def: 'Experiments or studies conducted inside a living organism.' },
+      { term: 'double-blind', def: 'A study design where neither participants nor researchers know who receives the treatment or placebo.' },
+      { term: 'placebo', def: 'An inactive treatment (e.g. sugar pill) used as a comparison in clinical studies.' },
+      { term: 'systemic', def: 'Affecting the whole body, not just one area — oral bacteria can enter the bloodstream.' },
+      { term: 'subgingival', def: 'Below the gum line — the area between your gums and teeth where bacteria can hide.' },
+      { term: 'supragingival', def: 'Above the gum line — the visible surface of teeth where plaque first forms.' },
+      { term: 'colonisation', def: 'The process of bacteria establishing themselves and multiplying in a specific area.' },
+      { term: 'colonization', def: 'The process of bacteria establishing themselves and multiplying in a specific area.' },
+      { term: 'gingival', def: 'Relating to the gums.' },
+      { term: 'inflammatory', def: 'Causing or related to inflammation — the body\'s response to irritation or infection.' },
+      { term: 'cariogenic', def: 'Capable of causing tooth decay (cavities).' },
+      { term: 'encapsulation', def: 'A technology that coats probiotics in a protective layer so they stay alive until they reach the target area.' }
+    ];
+
+    /* sort longest-first so multi-word terms match before sub-terms */
+    glossary.sort(function (a, b) { return b.term.length - a.term.length; });
+
+    var walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, null, false);
+    var textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    var matched = {}; /* track first-occurrence-only per term */
+
+    textNodes.forEach(function (node) {
+      if (!node.parentNode) return;
+      var parent = node.parentNode;
+      /* skip if already inside a tooltip, heading, link, or script */
+      if (parent.closest && (parent.closest('.blog-glossary') || parent.closest('a') || parent.closest('h1') || parent.closest('h2') || parent.closest('h3') || parent.closest('script') || parent.closest('style'))) return;
+      if (parent.tagName === 'A' || parent.tagName === 'H2' || parent.tagName === 'H3') return;
+
+      var text = node.nodeValue;
+      var replacements = [];
+
+      glossary.forEach(function (g) {
+        if (matched[g.term.toLowerCase()]) return;
+        var regex = new RegExp('\\b(' + g.term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')\\b', 'i');
+        var m = regex.exec(text);
+        if (m) {
+          replacements.push({ index: m.index, length: m[0].length, original: m[0], def: g.def, termKey: g.term.toLowerCase() });
+        }
+      });
+
+      if (!replacements.length) return;
+
+      /* only keep first match per node to avoid overlapping */
+      replacements.sort(function (a, b) { return a.index - b.index; });
+      var filtered = [];
+      var lastEnd = 0;
+      replacements.forEach(function (r) {
+        if (r.index >= lastEnd) {
+          filtered.push(r);
+          lastEnd = r.index + r.length;
+        }
+      });
+
+      var frag = document.createDocumentFragment();
+      var pos = 0;
+      filtered.forEach(function (r) {
+        if (matched[r.termKey]) {
+          /* already matched elsewhere, skip */
+          return;
+        }
+        matched[r.termKey] = true;
+        if (r.index > pos) frag.appendChild(document.createTextNode(text.slice(pos, r.index)));
+        var span = document.createElement('span');
+        span.className = 'blog-glossary';
+        span.setAttribute('tabindex', '0');
+        span.setAttribute('role', 'button');
+        span.setAttribute('aria-label', r.original + ': ' + r.def);
+        span.innerHTML = r.original + '<span class="blog-glossary__tip">' + r.def + '</span>';
+        frag.appendChild(span);
+        pos = r.index + r.length;
+      });
+      if (pos < text.length) frag.appendChild(document.createTextNode(text.slice(pos)));
+      if (pos > 0) parent.replaceChild(frag, node);
+    });
+
+    /* toggle on tap for mobile */
+    document.addEventListener('click', function (e) {
+      var gl = e.target.closest('.blog-glossary');
+      document.querySelectorAll('.blog-glossary.is-open').forEach(function (el) {
+        if (el !== gl) el.classList.remove('is-open');
+      });
+      if (gl) {
+        e.preventDefault();
+        gl.classList.toggle('is-open');
+      }
+    });
+  }
+
+  /* ───────────────────────────────────────
+     5c. DYNAMIC TOC GENERATION
+     ─────────────────────────────────────── */
+  function initDynamicTOC() {
+    var article = document.querySelector('.blog-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2');
+    if (!headings.length) return;
+
+    /* ensure every h2 has an id */
+    headings.forEach(function (h, i) {
+      if (!h.id) {
+        var slug = h.textContent.trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-');
+        h.id = slug || ('section-' + (i + 1));
+      }
+    });
+
+    /* populate desktop TOC */
+    var desktopNav = document.querySelector('.blog-toc');
+    if (desktopNav && !desktopNav.querySelectorAll('.blog-toc__item').length) {
+      headings.forEach(function (h) {
+        var a = document.createElement('a');
+        a.className = 'blog-toc__item';
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.trim();
+        desktopNav.appendChild(a);
+      });
+    }
+
+    /* populate mobile TOC sheet */
+    var mobileSheet = document.querySelector('.blog-toc-mobile__sheet');
+    if (mobileSheet && !mobileSheet.querySelectorAll('.blog-toc__item').length) {
+      headings.forEach(function (h) {
+        var a = document.createElement('a');
+        a.className = 'blog-toc__item';
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.trim();
+        mobileSheet.appendChild(a);
+      });
+    }
   }
 
   /* ───────────────────────────────────────
