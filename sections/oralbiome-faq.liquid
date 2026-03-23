@@ -67,6 +67,7 @@
 
   /* ── Mobile ── */
   @media (max-width: 767px) {
+    .oralbiome-faq__filters { justify-content: flex-start; padding: 0 16px 4px; }
     .faq-trigger { padding: 16px; gap: 12px; }
     .faq-number { display: none; }
     .faq-question { font-size: 14px; }
@@ -87,7 +88,7 @@
 {%- if _ob_faq_translated -%}
   {%- assign _ob_faq_eyebrow = 'calqix_oralbiome.faq.eyebrow' | t -%}
   {%- assign _ob_faq_heading = 'calqix_oralbiome.faq.heading' | t -%}
-  {%- assign _ob_faq_subheading = 'calqix_oralbiome.faq.subheading' | t -%}
+  {%- assign _ob_faq_subheading = 'calqix_oralbiome.faq.subheading_html' | t -%}
 {%- endif -%}
 
 <section class="oralbiome-faq" data-section-id="{{ section.id }}">

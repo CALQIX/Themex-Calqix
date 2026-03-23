@@ -15,7 +15,7 @@
   .ob-reviews__bar-track { flex: 1; height: 8px; background: #E5E7EB; border-radius: 4px; overflow: hidden; }
   .ob-reviews__bar-fill { height: 8px; background: #C9A84C; border-radius: 4px; transition: width 0.6s ease; }
   .ob-reviews__bar-count { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #6B7280; width: 24px; text-align: right; flex-shrink: 0; }
-  .ob-reviews__filters { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-wrap: nowrap; padding-bottom: 4px; }
+  .ob-reviews__filters { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-wrap: nowrap; padding: 0 0 4px; }
   .ob-reviews__filters::-webkit-scrollbar { display: none; }
   .ob-reviews__filter-btn { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 8px 20px; border: 1px solid #E5E7EB; border-radius: 50px; background: #fff; color: #6B7280; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; flex-shrink: 0; }
   .ob-reviews__filter-btn:hover { border-color: #1A3B5C; background: #1A3B5C; color: #fff; }
@@ -43,6 +43,9 @@
   .ob-reviews__write { display: block; margin: 16px auto 0; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 12px 32px; border: 1px solid #C9A84C; border-radius: 4px; background: transparent; color: #C9A84C; cursor: pointer; transition: background 0.2s ease, color 0.2s ease; text-decoration: none; text-align: center; }
   .ob-reviews__write:hover { background: #C9A84C; color: #1A3B5C; }
   .ob-reviews__judgeme { margin-top: 32px; }
+  @media (max-width: 767px) {
+    .ob-reviews__filters { justify-content: flex-start; padding: 0 16px 4px; }
+  }
   @media (min-width: 768px) {
     .ob-reviews { padding: 48px 0; }
     .ob-reviews__container { padding: 0 20px; }
