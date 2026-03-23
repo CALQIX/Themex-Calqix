@@ -190,12 +190,16 @@
 </style>
 
 {%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
-{%- if _ob_lang != 'en' -%}
-  {%- assign _ob_ingr_eyebrow = 'calqix_oralbiome.ingredients.heading' | t -%}
-  {%- assign _ob_ingr_heading = section.settings.heading -%}
-{%- else -%}
-  {%- assign _ob_ingr_eyebrow = section.settings.eyebrow -%}
-  {%- assign _ob_ingr_heading = section.settings.heading -%}
+{%- assign _ob_ingr_eyebrow = section.settings.eyebrow -%}
+{%- assign _ob_ingr_heading = section.settings.heading -%}
+{%- assign _ob_ingr_swipe = 'Swipe' -%}
+{%- if _ob_lang == 'nl' or _ob_lang == 'de' or _ob_lang == 'fr' -%}
+  {%- assign _ob_ingr_eyebrow = 'calqix_oralbiome.ingredients.eyebrow' | t -%}
+  {%- assign _ob_ingr_heading = 'calqix_oralbiome.ingredients.heading' | t -%}
+  {%- if _ob_lang == 'nl' -%}{%- assign _ob_ingr_swipe = 'Veeg' -%}
+  {%- elsif _ob_lang == 'de' -%}{%- assign _ob_ingr_swipe = 'Wischen' -%}
+  {%- elsif _ob_lang == 'fr' -%}{%- assign _ob_ingr_swipe = 'Glissez' -%}
+  {%- endif -%}
 {%- endif -%}
 
 <section class="ob-ingr" data-section-id="{{ section.id }}">
@@ -242,7 +246,7 @@
       {%- endfor -%}
     </div>
     <div class="ob-ingr__scroll-hint" data-ob-ingr-hint>
-      <span>Swipe</span>
+      <span>{{ _ob_ingr_swipe }}</span>
       <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
   </div>

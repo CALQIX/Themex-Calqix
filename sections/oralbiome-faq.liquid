@@ -76,20 +76,28 @@
 </style>
 
 {%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
-{%- if _ob_lang != 'en' -%}
+{%- assign _ob_faq_translated = false -%}
+{%- if _ob_lang == 'nl' or _ob_lang == 'de' or _ob_lang == 'fr' -%}
+  {%- assign _ob_faq_translated = true -%}
+{%- endif -%}
+
+{%- assign _ob_faq_eyebrow = section.settings.eyebrow -%}
+{%- assign _ob_faq_heading = section.settings.heading -%}
+{%- assign _ob_faq_subheading = section.settings.subheading -%}
+{%- if _ob_faq_translated -%}
+  {%- assign _ob_faq_eyebrow = 'calqix_oralbiome.faq.eyebrow' | t -%}
   {%- assign _ob_faq_heading = 'calqix_oralbiome.faq.heading' | t -%}
-{%- else -%}
-  {%- assign _ob_faq_heading = section.settings.heading -%}
+  {%- assign _ob_faq_subheading = 'calqix_oralbiome.faq.subheading' | t -%}
 {%- endif -%}
 
 <section class="oralbiome-faq" data-section-id="{{ section.id }}">
   <div class="oralbiome-faq__container">
-    {%- if section.settings.eyebrow != blank -%}
-      <span class="oralbiome-faq__eyebrow">{{ section.settings.eyebrow }}</span>
+    {%- if _ob_faq_eyebrow != blank -%}
+      <span class="oralbiome-faq__eyebrow">{{ _ob_faq_eyebrow }}</span>
     {%- endif -%}
     <h2 class="oralbiome-faq__heading">{{ _ob_faq_heading }}</h2>
-    {%- if section.settings.subheading != blank -%}
-      <div class="oralbiome-faq__subheading">{{ section.settings.subheading }}</div>
+    {%- if _ob_faq_subheading != blank -%}
+      <div class="oralbiome-faq__subheading">{{ _ob_faq_subheading }}</div>
     {%- endif -%}
 
     <div class="oralbiome-faq__filters">
@@ -111,14 +119,28 @@
                     aria-expanded="false"
                     aria-controls="faq-answer-{{ section.id }}-{{ forloop.index }}">
               <span class="faq-number">{{ forloop.index | prepend: '00' | slice: -2, 2 }}</span>
-              <span class="faq-question">{{ block.settings.question }}</span>
+              {%- if _ob_faq_translated -%}
+                {%- assign _ob_faq_qkey = 'calqix_oralbiome.faq.q' | append: forloop.index -%}
+                {%- assign _ob_faq_q = _ob_faq_qkey | t -%}
+                {%- if _ob_faq_q == _ob_faq_qkey -%}{%- assign _ob_faq_q = block.settings.question -%}{%- endif -%}
+              {%- else -%}
+                {%- assign _ob_faq_q = block.settings.question -%}
+              {%- endif -%}
+              <span class="faq-question">{{ _ob_faq_q }}</span>
               <span class="faq-icon">
                 <svg class="faq-icon__line-h" width="20" height="20" viewBox="0 0 20 20"><line x1="4" y1="10" x2="16" y2="10" stroke="#C9A84C" stroke-width="2" stroke-linecap="round"/></svg>
                 <svg class="faq-icon__line-v" width="20" height="20" viewBox="0 0 20 20"><line x1="10" y1="4" x2="10" y2="16" stroke="#C9A84C" stroke-width="2" stroke-linecap="round"/></svg>
               </span>
             </button>
             <div class="faq-answer" id="faq-answer-{{ section.id }}-{{ forloop.index }}">
-              <div class="faq-answer__inner">{{ block.settings.answer }}</div>
+              {%- if _ob_faq_translated -%}
+                {%- assign _ob_faq_akey = 'calqix_oralbiome.faq.a' | append: forloop.index -%}
+                {%- assign _ob_faq_a = _ob_faq_akey | t -%}
+                {%- if _ob_faq_a == _ob_faq_akey -%}{%- assign _ob_faq_a = block.settings.answer -%}{%- endif -%}
+              {%- else -%}
+                {%- assign _ob_faq_a = block.settings.answer -%}
+              {%- endif -%}
+              <div class="faq-answer__inner">{{ _ob_faq_a }}</div>
             </div>
           </div>
       {%- endfor -%}

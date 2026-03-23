@@ -310,10 +310,26 @@
 {%- endfor -%}
 
 {%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
-{%- if _ob_lang != 'en' -%}
-  {%- assign _ob_cmp_heading = 'calqix_oralbiome.compare.heading' | t -%}
-{%- else -%}
-  {%- assign _ob_cmp_heading = section.settings.heading -%}
+{%- assign _ob_dt_translated = false -%}
+{%- if _ob_lang == 'nl' or _ob_lang == 'de' or _ob_lang == 'fr' -%}
+  {%- assign _ob_dt_translated = true -%}
+{%- endif -%}
+
+{%- assign _ob_dt_eyebrow = section.settings.eyebrow -%}
+{%- assign _ob_cmp_heading = section.settings.heading -%}
+{%- assign _ob_dt_note = section.settings.note -%}
+{%- assign _ob_dt_col_feature = section.settings.col_feature -%}
+{%- assign _ob_dt_col_mw = section.settings.col_mouthwash -%}
+{%- assign _ob_dt_col_tp = section.settings.col_toothpaste -%}
+{%- assign _ob_dt_col_ob = section.settings.col_oralbiome -%}
+{%- if _ob_dt_translated -%}
+  {%- assign _ob_dt_eyebrow = 'calqix_oralbiome.compare_desktop.eyebrow' | t -%}
+  {%- assign _ob_cmp_heading = 'calqix_oralbiome.compare_desktop.heading' | t -%}
+  {%- assign _ob_dt_note = 'calqix_oralbiome.compare_desktop.note' | t -%}
+  {%- assign _ob_dt_col_feature = 'calqix_oralbiome.compare_desktop.col_feature' | t -%}
+  {%- assign _ob_dt_col_mw = 'calqix_oralbiome.compare_desktop.col_mouthwash' | t -%}
+  {%- assign _ob_dt_col_tp = 'calqix_oralbiome.compare_desktop.col_toothpaste' | t -%}
+  {%- assign _ob_dt_col_ob = 'calqix_oralbiome.compare_desktop.col_oralbiome' | t -%}
 {%- endif -%}
 
 <section class="ob-dt" data-section-id="{{ section.id }}" data-ob-dt>
@@ -321,27 +337,27 @@
 
     {%- comment -%} ── Header ── {%- endcomment -%}
     <div class="ob-dt__header">
-      {%- if section.settings.eyebrow != blank -%}
-        <p class="ob-dt__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- if _ob_dt_eyebrow != blank -%}
+        <p class="ob-dt__eyebrow">{{ _ob_dt_eyebrow }}</p>
       {%- endif -%}
       <h2 class="ob-dt__heading">{{ _ob_cmp_heading }}</h2>
-      {%- if section.settings.note != blank -%}
-        <p class="ob-dt__subtitle">{{ section.settings.note }}</p>
+      {%- if _ob_dt_note != blank -%}
+        <p class="ob-dt__subtitle">{{ _ob_dt_note }}</p>
       {%- endif -%}
     </div>
 
     {%- comment -%} ── Column headers with score counters ── {%- endcomment -%}
     <div class="ob-dt__cols">
       <div class="ob-dt__col-head ob-dt__col-head--feature">
-        <p class="ob-dt__col-label">{{ section.settings.col_feature }}</p>
+        <p class="ob-dt__col-label">{{ _ob_dt_col_feature }}</p>
       </div>
       <div class="ob-dt__col-head">
-        <p class="ob-dt__col-label">{{ section.settings.col_mouthwash }}</p>
+        <p class="ob-dt__col-label">{{ _ob_dt_col_mw }}</p>
         <p class="ob-dt__col-score" data-ob-dt-count="{{ mw_wins }}">0</p>
         <span class="ob-dt__col-denom">/ {{ section.blocks.size }}</span>
       </div>
       <div class="ob-dt__col-head">
-        <p class="ob-dt__col-label">{{ section.settings.col_toothpaste }}</p>
+        <p class="ob-dt__col-label">{{ _ob_dt_col_tp }}</p>
         <p class="ob-dt__col-score" data-ob-dt-count="{{ tp_wins }}">0</p>
         <span class="ob-dt__col-denom">/ {{ section.blocks.size }}</span>
       </div>
@@ -354,7 +370,7 @@
             <circle cx="22" cy="8" r="1.5" fill="#C9A84C"/>
           </svg>
         </div>
-        <p class="ob-dt__col-label">{{ section.settings.col_oralbiome }}</p>
+        <p class="ob-dt__col-label">{{ _ob_dt_col_ob }}</p>
         <p class="ob-dt__col-score" data-ob-dt-count="{{ ob_wins }}">0</p>
         <span class="ob-dt__col-denom">/ {{ section.blocks.size }}</span>
       </div>
@@ -365,7 +381,14 @@
       {%- for block in section.blocks -%}
         <div class="ob-dt__row" data-ob-dt-row {{ block.shopify_attributes }}>
           <div class="ob-dt__cell ob-dt__cell--feature">
-            {{ block.settings.feature }}
+            {%- if _ob_dt_translated -%}
+              {%- assign _ob_dt_fkey = 'calqix_oralbiome.compare_mobile.feature_' | append: forloop.index -%}
+              {%- assign _ob_dt_feature = _ob_dt_fkey | t -%}
+              {%- if _ob_dt_feature == _ob_dt_fkey -%}{%- assign _ob_dt_feature = block.settings.feature -%}{%- endif -%}
+            {%- else -%}
+              {%- assign _ob_dt_feature = block.settings.feature -%}
+            {%- endif -%}
+            {{ _ob_dt_feature }}
           </div>
 
           {%- comment -%} Mouthwash {%- endcomment -%}
@@ -417,8 +440,15 @@
         </svg>
       </div>
       <div class="ob-dt__verdict-body">
-        <p class="ob-dt__verdict-title">The clear winner</p>
-        <p class="ob-dt__verdict-text"><strong>OralBiome Pro</strong> outperforms in <strong>{{ ob_wins }}/{{ section.blocks.size }}</strong> categories — the only oral care solution that restores your microbiome.</p>
+        {%- if _ob_dt_translated -%}
+          {%- assign _ob_dt_vtitle = 'calqix_oralbiome.compare_desktop.verdict_title' | t -%}
+          {%- assign _ob_dt_vhtml = 'calqix_oralbiome.compare_desktop.verdict_html' | t -%}
+          <p class="ob-dt__verdict-title">{{ _ob_dt_vtitle }}</p>
+          <p class="ob-dt__verdict-text">{{ _ob_dt_vhtml | replace: '__WINS__', ob_wins | replace: '__TOTAL__', section.blocks.size }}</p>
+        {%- else -%}
+          <p class="ob-dt__verdict-title">The clear winner</p>
+          <p class="ob-dt__verdict-text"><strong>OralBiome Pro</strong> outperforms in <strong>{{ ob_wins }}/{{ section.blocks.size }}</strong> categories — the only oral care solution that restores your microbiome.</p>
+        {%- endif -%}
       </div>
     </div>
 

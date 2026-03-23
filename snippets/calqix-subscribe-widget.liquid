@@ -9,6 +9,20 @@
 {%- assign cq_has_plans = false -%}
 {%- assign cq_sp_id = '' -%}
 
+{%- assign cq_sw_subscribe_save = 'calqix_oralbiome.widget.subscribe_save' | t -%}
+{%- assign cq_sw_one_time = 'calqix_oralbiome.widget.one_time' | t -%}
+{%- assign cq_sw_save_pct = 'calqix_oralbiome.widget.save_pct' | t -%}
+{%- assign cq_sw_per_month = 'calqix_oralbiome.widget.per_month' | t -%}
+{%- assign cq_sw_per_day = 'calqix_oralbiome.widget.per_day' | t -%}
+{%- assign cq_sw_benefit_shipping = 'calqix_oralbiome.widget.benefit_shipping' | t -%}
+{%- assign cq_sw_benefit_skip = 'calqix_oralbiome.widget.benefit_skip' | t -%}
+{%- assign cq_sw_benefit_guarantee = 'calqix_oralbiome.widget.benefit_guarantee' | t -%}
+{%- assign cq_sw_benefit_no_commit = 'calqix_oralbiome.widget.benefit_no_commit' | t -%}
+{%- assign cq_sw_frequency_label = 'calqix_oralbiome.widget.frequency_label' | t -%}
+{%- assign cq_sw_ot_shipping = 'calqix_oralbiome.widget.ot_shipping' | t -%}
+{%- assign cq_sw_ot_guarantee = 'calqix_oralbiome.widget.ot_guarantee' | t -%}
+{%- assign cq_sw_ot_save_note = 'calqix_oralbiome.widget.ot_save_note' | t -%}
+
 {%- if product.selling_plan_groups.size > 0 -%}
   {%- assign cq_has_plans = true -%}
   {%- assign cq_spg = product.selling_plan_groups[0] -%}
@@ -206,13 +220,13 @@
   <div class="cq-sw__tabs-scroll">
     <div class="cq-sw__tabs is-sub-active" role="radiogroup" aria-label="Purchase options">
       <button type="button" class="cq-sw__tab is-active" data-plan="subscribe" role="radio" aria-checked="true">
-        <span class="cq-sw__tab-badge">Save {{ cq_pct }}%</span>
+        <span class="cq-sw__tab-badge">{{ cq_sw_save_pct }} {{ cq_pct }}%</span>
         <span class="cq-sw__tab-radio"><span class="cq-sw__tab-radio-dot"></span></span>
-        Subscribe &amp; Save
+        {{ cq_sw_subscribe_save }}
       </button>
       <button type="button" class="cq-sw__tab" data-plan="onetime" role="radio" aria-checked="false">
         <span class="cq-sw__tab-radio"><span class="cq-sw__tab-radio-dot"></span></span>
-        One-Time Purchase
+        {{ cq_sw_one_time }}
       </button>
     </div>
   </div>
@@ -220,19 +234,19 @@
   <div class="cq-sw__detail is-sub-active">
     <div class="cq-sw__panel is-visible" data-panel="subscribe">
       <div class="cq-sw__pricing">
-        <span class="cq-sw__price">{{ cq_sub | money }}<span class="cq-sw__price-period"> /month</span></span>
+        <span class="cq-sw__price">{{ cq_sub | money }}<span class="cq-sw__price-period"> {{ cq_sw_per_month }}</span></span>
         <span class="cq-sw__compare">{{ cq_ot | money }}</span>
       </div>
-      <p class="cq-sw__perday">{{ cq_perday | money }} per day</p>
+      <p class="cq-sw__perday">{{ cq_perday | money }} {{ cq_sw_per_day }}</p>
       <ul class="cq-sw__benefits">
-        <li class="cq-sw__benefit">{{ cq_icon_truck }}Free shipping every month</li>
-        <li class="cq-sw__benefit">{{ cq_icon_refresh }}Skip, pause or cancel anytime</li>
-        <li class="cq-sw__benefit">{{ cq_icon_shield }}60-day money-back guarantee</li>
-        <li class="cq-sw__benefit">{{ cq_icon_calendar }}No commitment required</li>
+        <li class="cq-sw__benefit">{{ cq_icon_truck }}{{ cq_sw_benefit_shipping }}</li>
+        <li class="cq-sw__benefit">{{ cq_icon_refresh }}{{ cq_sw_benefit_skip }}</li>
+        <li class="cq-sw__benefit">{{ cq_icon_shield }}{{ cq_sw_benefit_guarantee }}</li>
+        <li class="cq-sw__benefit">{{ cq_icon_calendar }}{{ cq_sw_benefit_no_commit }}</li>
       </ul>
       {%- if cq_has_plans and cq_spg.selling_plans.size > 1 -%}
         <div class="cq-sw__frequency">
-          <label for="cq-sw-freq">Delivery frequency</label>
+          <label for="cq-sw-freq">{{ cq_sw_frequency_label }}</label>
           <select id="cq-sw-freq">
             {%- for plan in cq_spg.selling_plans -%}
               <option value="{{ plan.id }}"{% if plan.id == cq_sp.id %} selected{% endif %}>{{ plan.name }}</option>
@@ -247,10 +261,10 @@
         <span class="cq-sw__price">{{ cq_ot | money }}</span>
       </div>
       <ul class="cq-sw__benefits">
-        <li class="cq-sw__benefit">{{ cq_icon_truck }}Free shipping on orders over €80</li>
-        <li class="cq-sw__benefit">{{ cq_icon_shield }}60-day money-back guarantee</li>
+        <li class="cq-sw__benefit">{{ cq_icon_truck }}{{ cq_sw_ot_shipping }}</li>
+        <li class="cq-sw__benefit">{{ cq_icon_shield }}{{ cq_sw_ot_guarantee }}</li>
       </ul>
-      <p class="cq-sw__note">Subscribe above to save {{ cq_pct }}% on every order.</p>
+      <p class="cq-sw__note">{{ cq_sw_ot_save_note }}</p>
     </div>
   </div>
 

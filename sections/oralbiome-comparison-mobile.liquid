@@ -306,6 +306,30 @@
   }
 </style>
 
+{%- comment -%} ── Locale detection ── {%- endcomment -%}
+{%- assign ob_cm_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
+{%- assign ob_cm_translated = false -%}
+{%- if ob_cm_lang == 'nl' or ob_cm_lang == 'de' or ob_cm_lang == 'fr' -%}
+  {%- assign ob_cm_translated = true -%}
+{%- endif -%}
+
+{%- assign ob_cm_eyebrow = section.settings.eyebrow -%}
+{%- assign ob_cm_heading = section.settings.heading -%}
+{%- assign ob_cm_note = section.settings.note -%}
+{%- assign ob_cm_label_mw = section.settings.label_mouthwash -%}
+{%- assign ob_cm_label_tp = section.settings.label_toothpaste -%}
+{%- assign ob_cm_label_ob = section.settings.label_oralbiome -%}
+{%- assign ob_cm_swipe = 'Swipe to compare' -%}
+{%- if ob_cm_translated -%}
+  {%- assign ob_cm_eyebrow = 'calqix_oralbiome.compare_mobile.eyebrow' | t -%}
+  {%- assign ob_cm_heading = 'calqix_oralbiome.compare_mobile.heading' | t -%}
+  {%- assign ob_cm_note = 'calqix_oralbiome.compare_mobile.note' | t -%}
+  {%- assign ob_cm_label_mw = 'calqix_oralbiome.compare_mobile.label_mouthwash' | t -%}
+  {%- assign ob_cm_label_tp = 'calqix_oralbiome.compare_mobile.label_toothpaste' | t -%}
+  {%- assign ob_cm_label_ob = 'calqix_oralbiome.compare_mobile.label_oralbiome' | t -%}
+  {%- assign ob_cm_swipe = 'calqix_oralbiome.compare_mobile.swipe_hint' | t -%}
+{%- endif -%}
+
 {%- comment -%} ── Tally scores from blocks ── {%- endcomment -%}
 {%- assign ob_wins = 0 -%}
 {%- assign mw_wins = 0 -%}
@@ -319,30 +343,30 @@
 <section class="ob-cm" data-section-id="{{ section.id }}" data-ob-cm>
 
   <div class="ob-cm__header">
-    <p class="ob-cm__eyebrow">{{ section.settings.eyebrow }}</p>
-    <h2 class="ob-cm__title">{{ section.settings.heading }}</h2>
-    {%- if section.settings.note != blank -%}
-      <p class="ob-cm__note">{{ section.settings.note }}</p>
+    <p class="ob-cm__eyebrow">{{ ob_cm_eyebrow }}</p>
+    <h2 class="ob-cm__title">{{ ob_cm_heading }}</h2>
+    {%- if ob_cm_note != blank -%}
+      <p class="ob-cm__note">{{ ob_cm_note }}</p>
     {%- endif -%}
   </div>
 
   <div class="ob-cm__score">
     <div class="ob-cm__score-item">
       <span class="ob-cm__score-num" data-ob-cm-count="{{ mw_wins }}">0</span>
-      <span class="ob-cm__score-label">{{ section.settings.label_mouthwash }}</span>
+      <span class="ob-cm__score-label">{{ ob_cm_label_mw }}</span>
     </div>
     <div class="ob-cm__score-item">
       <span class="ob-cm__score-num" data-ob-cm-count="{{ tp_wins }}">0</span>
-      <span class="ob-cm__score-label">{{ section.settings.label_toothpaste }}</span>
+      <span class="ob-cm__score-label">{{ ob_cm_label_tp }}</span>
     </div>
     <div class="ob-cm__score-item">
       <span class="ob-cm__score-num" data-ob-cm-count="{{ ob_wins }}">0</span>
-      <span class="ob-cm__score-label">{{ section.settings.label_oralbiome }}</span>
+      <span class="ob-cm__score-label">{{ ob_cm_label_ob }}</span>
     </div>
   </div>
 
   <div class="ob-cm__hint" data-ob-cm-hint>
-    <span>Swipe to compare</span>
+    <span>{{ ob_cm_swipe }}</span>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
   </div>
 
@@ -351,12 +375,19 @@
       <div class="ob-cm__card" data-ob-cm-card {{ block.shopify_attributes }}>
         <div class="ob-cm__card-head">
           <p class="ob-cm__card-idx">{{ forloop.index }} / {{ forloop.length }}</p>
-          <p class="ob-cm__card-feature">{{ block.settings.feature }}</p>
+          {%- if ob_cm_translated -%}
+            {%- assign ob_cm_fkey = 'calqix_oralbiome.compare_mobile.feature_' | append: forloop.index -%}
+            {%- assign ob_cm_feature = ob_cm_fkey | t -%}
+            {%- if ob_cm_feature == ob_cm_fkey -%}{%- assign ob_cm_feature = block.settings.feature -%}{%- endif -%}
+          {%- else -%}
+            {%- assign ob_cm_feature = block.settings.feature -%}
+          {%- endif -%}
+          <p class="ob-cm__card-feature">{{ ob_cm_feature }}</p>
         </div>
         <div class="ob-cm__grid">
           {%- comment -%} Mouthwash {%- endcomment -%}
           <div class="ob-cm__col">
-            <span class="ob-cm__col-label">{{ section.settings.label_mouthwash }}</span>
+            <span class="ob-cm__col-label">{{ ob_cm_label_mw }}</span>
             <span class="ob-cm__col-icon">
               {%- if block.settings.mouthwash == 'yes' -%}
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -372,7 +403,7 @@
           </div>
           {%- comment -%} Toothpaste {%- endcomment -%}
           <div class="ob-cm__col">
-            <span class="ob-cm__col-label">{{ section.settings.label_toothpaste }}</span>
+            <span class="ob-cm__col-label">{{ ob_cm_label_tp }}</span>
             <span class="ob-cm__col-icon">
               {%- if block.settings.toothpaste == 'yes' -%}
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -388,7 +419,7 @@
           </div>
           {%- comment -%} OralBiome (always winner) {%- endcomment -%}
           <div class="ob-cm__col ob-cm__col--ob">
-            <span class="ob-cm__col-label">{{ section.settings.label_oralbiome }}</span>
+            <span class="ob-cm__col-label">{{ ob_cm_label_ob }}</span>
             <span class="ob-cm__col-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#2E7D32"/><path d="M7 12.5l3 3 7-7" stroke="#FFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
@@ -412,8 +443,13 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#1A3B5C"/></svg>
     </div>
     <p class="ob-cm__verdict-text">
-      <strong>OralBiome Pro wins {{ ob_wins }}/{{ ob_wins }}</strong> categories.
-      The only product that restores instead of destroys.
+      {%- if ob_cm_translated -%}
+        {%- assign ob_cm_verdict = 'calqix_oralbiome.compare_mobile.verdict_html' | t -%}
+        {{ ob_cm_verdict | replace: '__WINS__', ob_wins | replace: '__TOTAL__', ob_wins }}
+      {%- else -%}
+        <strong>OralBiome Pro wins {{ ob_wins }}/{{ ob_wins }}</strong> categories.
+        The only product that restores instead of destroys.
+      {%- endif -%}
     </p>
   </div>
 

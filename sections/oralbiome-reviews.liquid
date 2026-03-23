@@ -59,18 +59,19 @@
 </style>
 
 {%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
-{%- if _ob_lang != 'en' -%}
+{%- assign _ob_rev_eyebrow = section.settings.eyebrow -%}
+{%- assign _ob_rev_heading = section.settings.heading -%}
+{%- assign _ob_rev_write = section.settings.write_review_text -%}
+{%- if _ob_lang == 'nl' or _ob_lang == 'de' or _ob_lang == 'fr' -%}
+  {%- assign _ob_rev_eyebrow = 'calqix_oralbiome.reviews.eyebrow' | t -%}
   {%- assign _ob_rev_heading = 'calqix_oralbiome.reviews.heading' | t -%}
   {%- assign _ob_rev_write = 'calqix_oralbiome.reviews.write_review' | t -%}
-{%- else -%}
-  {%- assign _ob_rev_heading = section.settings.heading -%}
-  {%- assign _ob_rev_write = section.settings.write_review_text -%}
 {%- endif -%}
 
 <section class="ob-reviews" id="oralbiome-reviews" data-section-id="{{ section.id }}">
   <div class="ob-reviews__container">
     <div class="ob-reviews__header">
-      <p class="ob-reviews__eyebrow">{{ section.settings.eyebrow }}</p>
+      <p class="ob-reviews__eyebrow">{{ _ob_rev_eyebrow }}</p>
       <h2 class="ob-reviews__heading">{{ _ob_rev_heading }}</h2>
       <div class="ob-reviews__aggregate">
         <span class="ob-reviews__big-number">{{ section.settings.avg_rating }}</span>

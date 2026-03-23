@@ -16,6 +16,17 @@
       {% assign cq_is_translated_flowcore = true %}
   {% endcase %}
 {% endif %}
+{% assign cq_is_oralbiome = false %}
+{% if product != blank and product.template_suffix == 'oralbiome' %}
+  {% assign cq_is_oralbiome = true %}
+{% endif %}
+{% assign cq_is_translated_oralbiome = false %}
+{% if cq_is_oralbiome %}
+  {% case cq_lang %}
+    {% when 'nl', 'de', 'fr' %}
+      {% assign cq_is_translated_oralbiome = true %}
+  {% endcase %}
+{% endif %}
 
 <style>
   [id="shopify-section-{{ section.id }}"] {
@@ -1022,6 +1033,8 @@
               {%- assign cq_calqix_badge_text = block.settings.text -%}
               {%- if cq_is_translated_flowcore -%}
                 {%- assign cq_calqix_badge_text = 'calqix_flowcore.main.badge' | t -%}
+              {%- elsif cq_is_translated_oralbiome -%}
+                {%- assign cq_calqix_badge_text = 'calqix_oralbiome.main.badge' | t -%}
               {%- endif -%}
               {%- if cq_calqix_badge_text != blank -%}
                 <div
@@ -1036,6 +1049,8 @@
               {%- assign cq_calqix_subtitle = block.settings.subtitle -%}
               {%- if cq_is_translated_flowcore -%}
                 {%- assign cq_calqix_subtitle = 'calqix_flowcore.main.subtitle_html' | t -%}
+              {%- elsif cq_is_translated_oralbiome -%}
+                {%- assign cq_calqix_subtitle = 'calqix_oralbiome.main.subtitle_html' | t -%}
               {%- endif -%}
               {%- if cq_calqix_subtitle != blank -%}
                 <div
@@ -1207,6 +1222,12 @@
 {{ 'calqix_flowcore.main.bulletpoint_2' | t }}
 {{ 'calqix_flowcore.main.bulletpoint_3' | t }}
 {{ 'calqix_flowcore.main.bulletpoint_4' | t }}{%- endcapture -%}
+                {% assign bulletpoints = cq_bp_text | strip | newline_to_br | split: '<br />' %}
+              {%- elsif cq_is_translated_oralbiome -%}
+                {%- capture cq_bp_text -%}{{ 'calqix_oralbiome.main.bulletpoint_1' | t }}
+{{ 'calqix_oralbiome.main.bulletpoint_2' | t }}
+{{ 'calqix_oralbiome.main.bulletpoint_3' | t }}
+{{ 'calqix_oralbiome.main.bulletpoint_4' | t }}{%- endcapture -%}
                 {% assign bulletpoints = cq_bp_text | strip | newline_to_br | split: '<br />' %}
               {%- endif -%}
 
@@ -2630,6 +2651,10 @@
                 {%- assign ccs_label_text = 'calqix_flowcore.main.colour_label' | t -%}
                 {%- assign ccs_highlight_text = 'calqix_flowcore.main.highlight_text' | t -%}
                 {%- assign ccs_helper_text = 'calqix_flowcore.main.helper_text' | t -%}
+              {%- elsif cq_is_translated_oralbiome -%}
+                {%- assign ccs_label_text = 'calqix_oralbiome.main.taste_label' | t -%}
+                {%- assign ccs_highlight_text = 'calqix_oralbiome.main.taste_highlight' | t -%}
+                {%- assign ccs_helper_text = 'calqix_oralbiome.main.taste_helper' | t -%}
               {%- endif -%}
               <style>
                 #ccs-block-{{ block.id }} {
@@ -2846,6 +2871,8 @@
               {%- assign ctb_shipping_text = b.shipping_text -%}
               {%- if cq_is_translated_flowcore -%}
                 {%- assign ctb_shipping_text = 'calqix_flowcore.main.shipping_text' | t -%}
+              {%- elsif cq_is_translated_oralbiome -%}
+                {%- assign ctb_shipping_text = 'calqix_oralbiome.main.shipping_text' | t -%}
               {%- endif -%}
               <style>
                 #ctb-block-{{ block.id }} {
@@ -2946,6 +2973,9 @@
                           {%- when 5 -%}
                             {%- assign ctb_text = 'calqix_flowcore.main.trust_badge_5' | t -%}
                         {%- endcase -%}
+                      {%- elsif cq_is_translated_oralbiome and i <= 4 -%}
+                        {%- assign ctb_ob_key = 'calqix_oralbiome.main.trust_' | append: i -%}
+                        {%- assign ctb_text = ctb_ob_key | t -%}
                       {%- endif -%}
                       {%- if b[ctb_tk] != blank -%}
                         {%- if b[ctb_uk] != blank -%}<a href="{{ b[ctb_uk] }}" class="ctb-badge">{%- else -%}<div class="ctb-badge">{%- endif -%}
