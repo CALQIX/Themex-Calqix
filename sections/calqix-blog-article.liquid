@@ -1057,35 +1057,9 @@
       </nav>
     {%- endif -%}
 
-    {%- comment -%} Article content — with scientific name formatting {%- endcomment -%}
-    {%- capture article_html -%}{{ article.content }}{%- endcapture -%}
-    {%- comment -%} Full genus+species first (longer strings before abbreviations) {%- endcomment -%}
-    {%- assign article_html = article_html
-      | replace: 'Streptococcus salivarius K12', '<em>Streptococcus salivarius</em><span class="sci-nowrap">&nbsp;K12</span>'
-      | replace: 'Streptococcus salivarius M18', '<em>Streptococcus salivarius</em><span class="sci-nowrap">&nbsp;M18</span>'
-      | replace: 'Streptococcus salivarius', '<em>Streptococcus salivarius</em>'
-      | replace: 'Streptococcus mutans', '<em>Streptococcus mutans</em>'
-      | replace: 'Porphyromonas gingivalis', '<em>Porphyromonas gingivalis</em>'
-      | replace: 'Lactobacillus reuteri', '<em>Lactobacillus reuteri</em>'
-    -%}
-    {%- comment -%} Abbreviated forms — use nowrap spans {%- endcomment -%}
-    {%- assign article_html = article_html
-      | replace: 'S. salivarius K12', '<em><span class="sci-nowrap">S. salivarius</span></em><span class="sci-nowrap">&nbsp;K12</span>'
-      | replace: 'S. salivarius M18', '<em><span class="sci-nowrap">S. salivarius</span></em><span class="sci-nowrap">&nbsp;M18</span>'
-      | replace: 'S. salivarius', '<em><span class="sci-nowrap">S. salivarius</span></em>'
-      | replace: 'S. mutans', '<em><span class="sci-nowrap">S. mutans</span></em>'
-      | replace: 'P. gingivalis', '<em><span class="sci-nowrap">P. gingivalis</span></em>'
-      | replace: 'L. reuteri', '<em><span class="sci-nowrap">L. reuteri</span></em>'
-    -%}
-    {%- comment -%} Genus-only italic {%- endcomment -%}
-    {%- assign article_html = article_html | replace: 'Rothia', '<em>Rothia</em>' -%}
-    {%- comment -%} Nowrap for compound terms {%- endcomment -%}
-    {%- assign article_html = article_html
-      | replace: 'nano-hydroxyapatite', '<span class="sci-nowrap">nano-hydroxyapatite</span>'
-      | replace: 'nano-HA', '<span class="sci-nowrap">nano-HA</span>'
-    -%}
+    {%- comment -%} Article content — scientific names are italicised by JS (text-nodes only) {%- endcomment -%}
     <article class="blog-content">
-      {{ article_html }}
+      {{ article.content }}
     </article>
   </div>
 

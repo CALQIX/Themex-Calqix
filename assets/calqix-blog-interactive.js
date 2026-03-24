@@ -12,6 +12,7 @@
   document.addEventListener('DOMContentLoaded', init);
 
   function init() {
+    initScientificNames();
     initDynamicTOC();
     initReadingProgress();
     initStatCounters();
@@ -23,6 +24,76 @@
     initMobileTOC();
     initScrollAnimations();
     initContentAnimations();
+  }
+
+  /* ───────────────────────────────────────
+     0. SCIENTIFIC NAME ITALICISATION (text-nodes only)
+     ─────────────────────────────────────── */
+  function initScientificNames() {
+    var article = document.querySelector('.blog-content');
+    if (!article) return;
+
+    var rules = [
+      { find: 'Streptococcus salivarius K12', html: '<em>Streptococcus salivarius</em>\u00a0K12' },
+      { find: 'Streptococcus salivarius M18', html: '<em>Streptococcus salivarius</em>\u00a0M18' },
+      { find: 'Streptococcus salivarius', html: '<em>Streptococcus salivarius</em>' },
+      { find: 'Streptococcus mutans', html: '<em>Streptococcus mutans</em>' },
+      { find: 'Porphyromonas gingivalis', html: '<em>Porphyromonas gingivalis</em>' },
+      { find: 'Lactobacillus reuteri', html: '<em>Lactobacillus reuteri</em>' },
+      { find: 'S. salivarius K12', html: '<em><span class="sci-nowrap">S.\u00a0salivarius</span></em>\u00a0K12' },
+      { find: 'S. salivarius M18', html: '<em><span class="sci-nowrap">S.\u00a0salivarius</span></em>\u00a0M18' },
+      { find: 'S. salivarius', html: '<em><span class="sci-nowrap">S.\u00a0salivarius</span></em>' },
+      { find: 'S. mutans', html: '<em><span class="sci-nowrap">S.\u00a0mutans</span></em>' },
+      { find: 'P. gingivalis', html: '<em><span class="sci-nowrap">P.\u00a0gingivalis</span></em>' },
+      { find: 'L. reuteri', html: '<em><span class="sci-nowrap">L.\u00a0reuteri</span></em>' },
+      { find: 'Rothia', html: '<em>Rothia</em>' },
+      { find: 'nano-hydroxyapatite', html: '<span class="sci-nowrap">nano-hydroxyapatite</span>' },
+      { find: 'nano-HA', html: '<span class="sci-nowrap">nano-HA</span>' }
+    ];
+
+    var walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, null, false);
+    var textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    textNodes.forEach(function (node) {
+      if (!node.parentNode) return;
+      var parent = node.parentNode;
+      if (parent.closest && (parent.closest('a') || parent.closest('script') || parent.closest('style') || parent.closest('.blog-glossary'))) return;
+      if (parent.tagName === 'EM' || parent.tagName === 'A') return;
+
+      var text = node.nodeValue;
+      var parts = [];
+      var cursor = 0;
+
+      while (cursor < text.length) {
+        var earliest = null;
+        for (var r = 0; r < rules.length; r++) {
+          var idx = text.indexOf(rules[r].find, cursor);
+          if (idx !== -1 && (earliest === null || idx < earliest.idx || (idx === earliest.idx && rules[r].find.length > earliest.len))) {
+            earliest = { idx: idx, len: rules[r].find.length, html: rules[r].html };
+          }
+        }
+        if (!earliest) break;
+        if (earliest.idx > cursor) parts.push({ type: 'text', value: text.slice(cursor, earliest.idx) });
+        parts.push({ type: 'html', value: earliest.html });
+        cursor = earliest.idx + earliest.len;
+      }
+
+      if (!parts.length) return;
+      if (cursor < text.length) parts.push({ type: 'text', value: text.slice(cursor) });
+
+      var frag = document.createDocumentFragment();
+      parts.forEach(function (p) {
+        if (p.type === 'text') {
+          frag.appendChild(document.createTextNode(p.value));
+        } else {
+          var tmp = document.createElement('span');
+          tmp.innerHTML = p.value;
+          while (tmp.firstChild) frag.appendChild(tmp.firstChild);
+        }
+      });
+      parent.replaceChild(frag, node);
+    });
   }
 
   /* ───────────────────────────────────────
