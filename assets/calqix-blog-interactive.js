@@ -337,15 +337,15 @@
       });
     }
 
-    /* populate mobile TOC sheet */
-    var mobileSheet = document.querySelector('.blog-toc-mobile__sheet');
-    if (mobileSheet && !mobileSheet.querySelectorAll('.blog-toc__item').length) {
+    /* populate mobile TOC accordion */
+    var mobileInner = document.querySelector('.blog-toc-mobile__body-inner');
+    if (mobileInner && !mobileInner.querySelectorAll('.blog-toc__item').length) {
       headings.forEach(function (h) {
         var a = document.createElement('a');
         a.className = 'blog-toc__item';
         a.href = '#' + h.id;
         a.textContent = h.textContent.trim();
-        mobileSheet.appendChild(a);
+        mobileInner.appendChild(a);
       });
     }
   }
@@ -376,11 +376,13 @@
         e.preventDefault();
         var target = document.getElementById(item.getAttribute('href').substring(1));
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        /* close mobile modal if open */
-        var modal = document.querySelector('.blog-toc-mobile__sheet');
-        if (modal) modal.classList.remove('is-open');
-        var overlay = document.querySelector('.blog-toc-mobile__overlay');
-        if (overlay) overlay.classList.remove('is-open');
+        /* close mobile accordion if open */
+        var mobileWrap = document.querySelector('.blog-toc-mobile');
+        if (mobileWrap) {
+          mobileWrap.classList.remove('is-open');
+          var trigger = mobileWrap.querySelector('.blog-toc-mobile__trigger');
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        }
       });
     });
   }
@@ -389,22 +391,14 @@
      7. MOBILE TOC MODAL
      ─────────────────────────────────────── */
   function initMobileTOC() {
+    var wrapper = document.querySelector('.blog-toc-mobile');
     var btn = document.querySelector('.blog-toc-mobile__trigger');
-    var sheet = document.querySelector('.blog-toc-mobile__sheet');
-    var overlay = document.querySelector('.blog-toc-mobile__overlay');
-    if (!btn || !sheet) return;
+    if (!wrapper || !btn) return;
 
     btn.addEventListener('click', function () {
-      sheet.classList.toggle('is-open');
-      if (overlay) overlay.classList.toggle('is-open');
+      var isOpen = wrapper.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
-
-    if (overlay) {
-      overlay.addEventListener('click', function () {
-        sheet.classList.remove('is-open');
-        overlay.classList.remove('is-open');
-      });
-    }
   }
 
   /* ───────────────────────────────────────

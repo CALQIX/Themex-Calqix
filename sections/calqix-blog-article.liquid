@@ -143,20 +143,21 @@
   }
 
   /* =============================================
-     LAYOUT — TOC SIDEBAR + CONTENT
+     LAYOUT — CONTENT + TOC SIDEBAR (right)
      ============================================= */
   .blog-layout {
     display: block;
-    max-width: 720px;
+    max-width: 680px;
     margin: 0 auto;
     padding: 0 24px;
   }
-  @media (min-width: 1200px) {
+  @media (min-width: 1024px) {
     .blog-layout {
       display: grid;
-      grid-template-columns: 180px 1fr;
-      gap: 64px;
-      max-width: 1020px;
+      grid-template-columns: 1fr 240px;
+      gap: 48px;
+      max-width: 1080px;
+      align-items: start;
     }
   }
 
@@ -166,119 +167,116 @@
   .blog-toc {
     display: none;
   }
-  @media (min-width: 1200px) {
+  @media (min-width: 1024px) {
     .blog-toc {
       display: block;
       position: sticky;
-      top: 80px;
+      top: 120px;
       align-self: start;
-      padding-top: 64px;
+      order: 2;
+      background: #F4F5F7;
+      border-left: 3px solid #C9A84C;
+      border-radius: 8px;
+      padding: 20px 24px;
+      max-width: 240px;
+    }
+    .blog-content {
+      order: 1;
     }
   }
   .blog-toc__heading,
   .blog-toc__label {
     font-family: var(--calqix-font-body);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--calqix-gold);
-    margin-bottom: 16px;
+    font-variant: small-caps;
+    text-transform: lowercase;
+    letter-spacing: 0.08em;
+    color: var(--calqix-navy);
+    margin: 0 0 14px;
     display: block;
   }
   .blog-toc__item {
     display: block;
-    padding: 8px 0 8px 16px;
+    padding: 6px 0;
     font-family: var(--calqix-font-body);
-    font-size: 12px;
-    color: var(--calqix-navy);
+    font-size: 14px;
+    color: var(--calqix-muted);
     text-decoration: none;
-    border-left: 2px solid var(--calqix-border);
-    transition: all 0.3s ease;
-    line-height: 1.4;
+    transition: color 0.3s ease, font-weight 0.2s ease;
+    line-height: 1.7;
   }
   .blog-toc__item:hover {
     color: var(--calqix-navy);
-    padding-left: 20px;
   }
   .blog-toc__item.is-active {
-    color: var(--calqix-navy);
+    color: var(--calqix-gold);
     font-weight: 600;
-    border-left-color: var(--calqix-gold);
-    padding-left: 20px;
   }
 
-  /* MOBILE TOC — floating pill + sheet */
-  .blog-toc-mobile__trigger {
+  /* MOBILE TOC — inline accordion below article */
+  .blog-toc-mobile {
     display: none;
   }
-  .blog-toc-mobile__overlay {
-    display: none;
-  }
-  .blog-toc-mobile__sheet {
-    display: none;
-  }
-  @media (max-width: 1199px) {
+  @media (max-width: 1023px) {
+    .blog-toc-mobile {
+      display: block;
+      max-width: 680px;
+      margin: 0 auto 40px;
+      padding: 0 24px;
+    }
     .blog-toc-mobile__trigger {
       display: flex;
       align-items: center;
-      gap: 6px;
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 900;
+      justify-content: space-between;
+      width: 100%;
       background: var(--calqix-navy);
       color: var(--calqix-white);
       border: none;
-      border-radius: 50px;
-      padding: 10px 20px;
+      border-radius: 8px;
+      padding: 14px 20px;
       font-family: var(--calqix-font-body);
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      letter-spacing: 0.02em;
     }
-    .blog-toc-mobile__trigger svg {
-      width: 16px;
-      height: 16px;
+    .blog-toc-mobile__trigger span {
+      pointer-events: none;
     }
-    .blog-toc-mobile__overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 950;
+    .blog-toc-mobile__body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      background: var(--calqix-bg-light);
+      border-radius: 0 0 8px 8px;
     }
-    .blog-toc-mobile__overlay.is-open { display: block; }
-    .blog-toc-mobile__sheet {
-      display: none;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 960;
-      background: var(--calqix-white);
-      border-radius: 16px 16px 0 0;
-      padding: 24px 24px 40px;
-      max-height: 60vh;
-      overflow-y: auto;
-      box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
+    .blog-toc-mobile.is-open .blog-toc-mobile__body {
+      max-height: 600px;
     }
-    .blog-toc-mobile__sheet.is-open { display: block; }
-    .blog-toc-mobile__sheet .blog-toc__heading {
-      margin-bottom: 16px;
+    .blog-toc-mobile__body-inner {
+      padding: 16px 20px 20px;
     }
-    .blog-toc-mobile__sheet .blog-toc__item {
+    .blog-toc-mobile .blog-toc__heading {
+      margin-bottom: 12px;
+    }
+    .blog-toc-mobile .blog-toc__item {
+      display: block;
       font-size: 14px;
-      padding: 10px 0 10px 16px;
-      color: var(--calqix-navy) !important;
-      display: block !important;
-      opacity: 1 !important;
-      visibility: visible !important;
+      padding: 8px 0;
+      color: var(--calqix-navy);
       font-weight: 500;
       line-height: 1.5;
+      text-decoration: none;
+      font-family: var(--calqix-font-body);
     }
+    .blog-toc-mobile .blog-toc__item.is-active {
+      color: var(--calqix-gold);
+      font-weight: 600;
+    }
+  }
+  @media (min-width: 1024px) {
+    .blog-toc-mobile { display: none !important; }
   }
 
   /* =============================================
@@ -299,6 +297,7 @@
     opacity: 0;
     transform: translateY(16px);
     transition: opacity 0.6s ease, transform 0.6s ease;
+    scroll-margin-top: 80px;
   }
   .blog-content h2.is-visible {
     opacity: 1;
@@ -985,7 +984,6 @@
     }
     .blog-cite__popup::after { display: none; }
 
-    .blog-toc { display: none; }
     .blog-layout { display: block; padding: 0 16px; }
 
     .blog-author__card { flex-direction: column; text-align: center; }
@@ -993,10 +991,13 @@
     .blog-cta__heading { font-size: 22px; }
   }
 
-  @media (min-width: 768px) and (max-width: 1199px) {
+  @media (min-width: 768px) and (max-width: 1023px) {
     .blog-hero { min-height: 400px; }
     .blog-hero__title { font-size: 40px; }
   }
+
+  /* Scientific names — prevent line breaks on compound terms */
+  .sci-nowrap { white-space: nowrap; }
 </style>
 
 {%- comment -%} ─── READING PROGRESS BAR ─── {%- endcomment -%}
@@ -1049,31 +1050,42 @@
   {%- comment -%} ─── TOC + ARTICLE BODY ─── {%- endcomment -%}
   <div class="blog-layout">
 
-    {%- comment -%} Desktop TOC sidebar {%- endcomment -%}
+    {%- comment -%} Desktop TOC sidebar — JS will populate links from h2 headings {%- endcomment -%}
     {%- if section.settings.show_toc -%}
       <nav class="blog-toc" aria-label="Table of contents">
-        <p class="blog-toc__heading">Contents</p>
-        {%- comment -%}
-          TOC items are generated from h2 headings inside the article content.
-          We parse the article HTML for h2 tags with IDs and render links.
-        {%- endcomment -%}
-        {%- assign toc_content = article.content -%}
-        {%- assign toc_parts = toc_content | split: '<h2' -%}
-        {%- for part in toc_parts -%}
-          {%- if forloop.first -%}{%- continue -%}{%- endif -%}
-          {%- assign id_split = part | split: 'id="' -%}
-          {%- if id_split.size > 1 -%}
-            {%- assign heading_id = id_split[1] | split: '"' | first -%}
-            {%- assign heading_text = part | split: '>' | last | split: '</h2>' | first | strip_html -%}
-            <a class="blog-toc__item" href="#{{ heading_id }}">{{ heading_text }}</a>
-          {%- endif -%}
-        {%- endfor -%}
+        <p class="blog-toc__heading">In this article</p>
       </nav>
     {%- endif -%}
 
-    {%- comment -%} Article content {%- endcomment -%}
+    {%- comment -%} Article content — with scientific name formatting {%- endcomment -%}
+    {%- capture article_html -%}{{ article.content }}{%- endcapture -%}
+    {%- comment -%} Full genus+species first (longer strings before abbreviations) {%- endcomment -%}
+    {%- assign article_html = article_html
+      | replace: 'Streptococcus salivarius K12', '<em>Streptococcus salivarius</em><span class="sci-nowrap">&nbsp;K12</span>'
+      | replace: 'Streptococcus salivarius M18', '<em>Streptococcus salivarius</em><span class="sci-nowrap">&nbsp;M18</span>'
+      | replace: 'Streptococcus salivarius', '<em>Streptococcus salivarius</em>'
+      | replace: 'Streptococcus mutans', '<em>Streptococcus mutans</em>'
+      | replace: 'Porphyromonas gingivalis', '<em>Porphyromonas gingivalis</em>'
+      | replace: 'Lactobacillus reuteri', '<em>Lactobacillus reuteri</em>'
+    -%}
+    {%- comment -%} Abbreviated forms — use nowrap spans {%- endcomment -%}
+    {%- assign article_html = article_html
+      | replace: 'S. salivarius K12', '<em><span class="sci-nowrap">S. salivarius</span></em><span class="sci-nowrap">&nbsp;K12</span>'
+      | replace: 'S. salivarius M18', '<em><span class="sci-nowrap">S. salivarius</span></em><span class="sci-nowrap">&nbsp;M18</span>'
+      | replace: 'S. salivarius', '<em><span class="sci-nowrap">S. salivarius</span></em>'
+      | replace: 'S. mutans', '<em><span class="sci-nowrap">S. mutans</span></em>'
+      | replace: 'P. gingivalis', '<em><span class="sci-nowrap">P. gingivalis</span></em>'
+      | replace: 'L. reuteri', '<em><span class="sci-nowrap">L. reuteri</span></em>'
+    -%}
+    {%- comment -%} Genus-only italic {%- endcomment -%}
+    {%- assign article_html = article_html | replace: 'Rothia', '<em>Rothia</em>' -%}
+    {%- comment -%} Nowrap for compound terms {%- endcomment -%}
+    {%- assign article_html = article_html
+      | replace: 'nano-hydroxyapatite', '<span class="sci-nowrap">nano-hydroxyapatite</span>'
+      | replace: 'nano-HA', '<span class="sci-nowrap">nano-HA</span>'
+    -%}
     <article class="blog-content">
-      {{ article.content }}
+      {{ article_html }}
     </article>
   </div>
 
@@ -1108,6 +1120,20 @@
           <p class="blog-author__name">{{ section.settings.author_name }}</p>
           <p class="blog-author__title">{{ section.settings.author_title }}</p>
           <p class="blog-author__bio">{{ section.settings.author_bio }}</p>
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} ─── MOBILE TOC — inline accordion (below article, above "Continue reading") ─── {%- endcomment -%}
+  {%- if section.settings.show_toc -%}
+    <div class="blog-toc-mobile">
+      <button class="blog-toc-mobile__trigger" type="button" aria-expanded="false">
+        <span>Contents ↕</span>
+      </button>
+      <div class="blog-toc-mobile__body">
+        <div class="blog-toc-mobile__body-inner">
+          <p class="blog-toc__heading">In this article</p>
         </div>
       </div>
     </div>
@@ -1163,29 +1189,6 @@
           <a class="blog-cta__button" href="/collections/teeth-withening">Shop Now</a>
         {%- endif -%}
       </div>
-    </div>
-  {%- endif -%}
-
-  {%- comment -%} ─── MOBILE TOC TRIGGER + SHEET ─── {%- endcomment -%}
-  {%- if section.settings.show_toc -%}
-    <button class="blog-toc-mobile__trigger" type="button" aria-label="Jump to section">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
-      Contents
-    </button>
-    <div class="blog-toc-mobile__overlay" aria-hidden="true"></div>
-    <div class="blog-toc-mobile__sheet">
-      <p class="blog-toc__heading">Contents</p>
-      {%- assign toc_content2 = article.content -%}
-      {%- assign toc_parts2 = toc_content2 | split: '<h2' -%}
-      {%- for part in toc_parts2 -%}
-        {%- if forloop.first -%}{%- continue -%}{%- endif -%}
-        {%- assign id_split2 = part | split: 'id="' -%}
-        {%- if id_split2.size > 1 -%}
-          {%- assign heading_id2 = id_split2[1] | split: '"' | first -%}
-          {%- assign heading_text2 = part | split: '>' | last | split: '</h2>' | first | strip_html -%}
-          <a class="blog-toc__item" href="#{{ heading_id2 }}">{{ heading_text2 }}</a>
-        {%- endif -%}
-      {%- endfor -%}
     </div>
   {%- endif -%}
 
