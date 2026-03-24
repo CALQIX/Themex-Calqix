@@ -952,6 +952,16 @@ body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__trust {
 
 
 /* ═══════════════════════════════════════════════════════════════
+   Mobile — prevent horizontal scroll on product pages
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 899px) {
+  .product-section,
+  .product-section .wt-product__wrapper {
+    overflow-x: clip;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
    OralBiome — tighter stock ↔ widget spacing
    ═══════════════════════════════════════════════════════════════ */
 body.template-product-oralbiome .wt-product__info .calqix-stock-status {
