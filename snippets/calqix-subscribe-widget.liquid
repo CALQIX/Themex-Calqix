@@ -347,7 +347,7 @@
   }
 </style>
 
-<div class="cqsw" data-selling-plan-id="{{ cq_sp_id }}">
+<div class="cqsw" data-selling-plan-id="{{ cq_sp_id }}" data-price-onetime="{{ cq_ot | money }}" data-price-subscribe="{{ cq_sub | money }}" data-price-onetime-raw="{{ cq_ot }}" data-price-subscribe-raw="{{ cq_sub }}" data-discount-pct="{{ cq_pct }}">
   {%- comment -%} ── Subscribe option ── {%- endcomment -%}
   <div class="cqsw__options">
     <div class="cqsw__option" data-plan="subscribe" role="radio" aria-checked="false" tabindex="0">
@@ -417,6 +417,31 @@
   var details = w.querySelectorAll('.cqsw__detail');
   var spInput = w.querySelector('.cqsw__sp-input');
   var defaultId = w.dataset.sellingPlanId;
+  var priceOnetime = w.dataset.priceOnetime;
+  var priceSubscribe = w.dataset.priceSubscribe;
+  var discountPct = w.dataset.discountPct;
+
+  function updateMainPrice(plan) {
+    var priceBlock = w.closest('form') ? w.closest('form').closest('.wt-product__info') || document : document;
+    var finals = priceBlock.querySelectorAll('.wt-product__price__final');
+    var compares = priceBlock.querySelectorAll('.wt-product__price__compare');
+    var pctBadges = priceBlock.querySelectorAll('.price-item--percent');
+    var saleDiv = priceBlock.querySelector('.price__sale');
+    var regDiv = priceBlock.querySelector('.price__regular');
+    if (plan === 'subscribe') {
+      finals.forEach(function(el) { el.textContent = priceSubscribe; });
+      compares.forEach(function(el) { el.textContent = priceOnetime; el.classList.remove('hidden'); });
+      pctBadges.forEach(function(el) { el.textContent = '-' + discountPct + '%'; });
+      if (saleDiv) { saleDiv.classList.add('visible-main-product'); saleDiv.classList.add('price__sale--main-product'); }
+      if (regDiv) regDiv.style.display = 'none';
+    } else {
+      finals.forEach(function(el) { el.textContent = priceOnetime; });
+      compares.forEach(function(el) { el.classList.add('hidden'); });
+      pctBadges.forEach(function(el) { el.textContent = ''; });
+      if (saleDiv) { saleDiv.classList.remove('visible-main-product'); saleDiv.classList.remove('price__sale--main-product'); }
+      if (regDiv) regDiv.style.display = '';
+    }
+  }
 
   function switchPlan(plan) {
     options.forEach(function(opt) {
@@ -435,6 +460,7 @@
       spInput.name = '';
       spInput.value = '';
     }
+    updateMainPrice(plan);
   }
 
   options.forEach(function(opt) {
