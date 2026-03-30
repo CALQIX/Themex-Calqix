@@ -101,7 +101,7 @@
       });
     });
 
-    setSelectedPurchaseMode(root, "subscription");
+    setSelectedPurchaseMode(root, "once");
   }
 
   function initSellingPlanDetection(root) {
@@ -340,7 +340,7 @@
     initAccordion(root);
     initThumbnailSwitcher(root);
     initAjaxAddToCart(root);
-    updatePriceDisplay(root, "subscription");
+    updatePriceDisplay(root, "once");
   }
 
   document.addEventListener("DOMContentLoaded", () => {

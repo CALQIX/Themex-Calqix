@@ -350,7 +350,7 @@
 <div class="cqsw" data-selling-plan-id="{{ cq_sp_id }}">
   {%- comment -%} ── Subscribe option ── {%- endcomment -%}
   <div class="cqsw__options">
-    <div class="cqsw__option is-active" data-plan="subscribe" role="radio" aria-checked="true" tabindex="0">
+    <div class="cqsw__option" data-plan="subscribe" role="radio" aria-checked="false" tabindex="0">
       <span class="cqsw__radio"><span class="cqsw__radio-dot"></span></span>
       <div class="cqsw__option-body">
         <div class="cqsw__option-row">
@@ -367,7 +367,7 @@
       </div>
     </div>
 
-    <div class="cqsw__detail is-open" data-for="subscribe">
+    <div class="cqsw__detail" data-for="subscribe">
       <ul class="cqsw__benefits">
         <li class="cqsw__benefit"><svg class="cqsw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="18.5" r="2"/></svg>{{ cq_sw_benefit_shipping }}</li>
         <li class="cqsw__benefit"><svg class="cqsw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>{{ cq_sw_benefit_skip }}</li>
@@ -387,7 +387,7 @@
     </div>
 
     {%- comment -%} ── One-time option ── {%- endcomment -%}
-    <div class="cqsw__option" data-plan="onetime" role="radio" aria-checked="false" tabindex="0">
+    <div class="cqsw__option is-active" data-plan="onetime" role="radio" aria-checked="true" tabindex="0">
       <span class="cqsw__radio"><span class="cqsw__radio-dot"></span></span>
       <div class="cqsw__option-body">
         <div class="cqsw__option-row">
@@ -397,7 +397,7 @@
       </div>
     </div>
 
-    <div class="cqsw__detail" data-for="onetime">
+    <div class="cqsw__detail is-open" data-for="onetime">
       <ul class="cqsw__benefits">
         <li class="cqsw__benefit"><svg class="cqsw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="18.5" r="2"/></svg>{{ cq_sw_ot_shipping }}</li>
         <li class="cqsw__benefit"><svg class="cqsw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>{{ cq_sw_ot_guarantee }}</li>
@@ -406,7 +406,7 @@
     </div>
   </div>
 
-  <input type="hidden" name="selling_plan" class="cqsw__sp-input" value="{{ cq_sp_id }}">
+  <input type="hidden" name="" class="cqsw__sp-input" value="">
 </div>
 
 <script>

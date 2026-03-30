@@ -414,15 +414,15 @@
 
         {%- if has_selling_plan -%}
           <div class="ob-plan-toggle" data-ob-plan-toggle>
-            <label class="ob-plan-option ob-plan-option--active" data-ob-plan="subscribe">
-              <input type="radio" name="ob_plan" value="subscribe" checked>
+            <label class="ob-plan-option" data-ob-plan="subscribe">
+              <input type="radio" name="ob_plan" value="subscribe">
               <span class="ob-plan-option__radio"></span>
               <span class="ob-plan-option__label">{{ 'calqix_oralbiome.hero.subscribe_label' | t }}</span>
               <span class="ob-plan-option__badge">-20%</span>
               <span class="ob-plan-option__price">{{ first_plan.price | money }}</span>
             </label>
-            <label class="ob-plan-option" data-ob-plan="onetime">
-              <input type="radio" name="ob_plan" value="onetime">
+            <label class="ob-plan-option ob-plan-option--active" data-ob-plan="onetime">
+              <input type="radio" name="ob_plan" value="onetime" checked>
               <span class="ob-plan-option__radio"></span>
               <span class="ob-plan-option__label">{{ 'calqix_oralbiome.hero.onetime_label' | t }}</span>
               <span class="ob-plan-option__price">{{ current_variant.price | money }}</span>
