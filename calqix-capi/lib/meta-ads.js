@@ -92,6 +92,10 @@ async function apiPost(path, body) {
 function handleApiError(error) {
   var code = error.code;
   var msg = error.message || 'Unknown Meta API error';
+  // Append detailed fields if available
+  if (error.error_user_title) msg += ' | ' + error.error_user_title;
+  if (error.error_user_msg) msg += ' | ' + error.error_user_msg;
+  if (error.error_subcode) msg += ' [subcode: ' + error.error_subcode + ']';
 
   if (code === 17 || code === 32) {
     // Rate limit
