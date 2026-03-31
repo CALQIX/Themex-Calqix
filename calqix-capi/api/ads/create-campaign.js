@@ -1,7 +1,7 @@
 var { apiGet, apiPost, authAction, AD_ACCOUNT_ID } = require('../../lib/meta-ads');
 var { sendTelegram } = require('../../lib/telegram');
 
-var META_PIXEL_ID = process.env.META_PIXEL_ID || '1400881244790983';
+var META_PIXEL_ID = process.env.META_PIXEL_ID || '934134615770602';
 
 async function handler(req, res) {
   if (req.method !== 'POST') {
