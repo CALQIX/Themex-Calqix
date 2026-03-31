@@ -2,6 +2,7 @@ const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');
 const {
   buildContents,
+  countItems,
   extractContentIds,
   extractExternalId,
   extractMetaBrowserIds,
@@ -114,6 +115,7 @@ async function handler(req, res) {
       content_ids: extractContentIds(lineItems),
       content_type: resolveContentType(lineItems),
       contents: buildContents(lineItems, getLineItemPrice),
+      num_items: countItems(lineItems),
       order_id: String(order.id)
     };
 

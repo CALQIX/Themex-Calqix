@@ -2,23 +2,31 @@
 
 Server-side Meta Conversions API integration for the CALQIX Shopify store.
 
-## Status
+## Endpoints
 
-This scaffold currently includes:
+### Shopify webhook handlers (HMAC verified)
 
-- project setup for Vercel serverless functions
-- hashing and normalization helpers for Meta user data
-- Shopify webhook HMAC verification helper
-- Meta Conversions API sender
-- placeholder webhook routes for the next step
+| Endpoint | Event | Shopify topic |
+|---|---|---|
+| `POST /api/webhook/orders-paid` | Purchase | `orders/paid` |
+| `POST /api/webhook/checkouts-create` | InitiateCheckout | `checkouts/create` |
+| `POST /api/webhook/carts-create` | AddToCart | `carts/create` |
+| `POST /api/webhook/customers-create` | Lead | `customers/create` |
 
-Webhook event handling is intentionally not implemented yet, so the code can be reviewed before step 5.
+### Custom endpoints
+
+| Endpoint | Description |
+|---|---|
+| `POST /api/view-content` | ViewContent event — called from theme JS |
+| `GET /api/diagnostics?key=YOUR_KEY` | Sends test event, returns env status |
 
 ## Project structure
 
 ```text
 calqix-capi/
 ├── api/
+│   ├── diagnostics.js
+│   ├── view-content.js
 │   └── webhook/
 │       ├── orders-paid.js
 │       ├── checkouts-create.js
@@ -27,7 +35,8 @@ calqix-capi/
 ├── lib/
 │   ├── meta-capi.js
 │   ├── hash.js
-│   └── verify-webhook.js
+│   ├── verify-webhook.js
+│   └── webhook-utils.js
 ├── .env
 ├── .gitignore
 ├── vercel.json
@@ -44,9 +53,22 @@ META_PIXEL_ID=
 META_ACCESS_TOKEN=
 SHOPIFY_WEBHOOK_SECRET=
 META_TEST_EVENT_CODE=
+META_API_VERSION=v21.0
+DIAGNOSTICS_KEY=
 ```
 
-`META_TEST_EVENT_CODE` is optional and should only be used while testing.
+- `META_TEST_EVENT_CODE` — optional, only for testing in Meta Events Manager
+- `META_API_VERSION` — optional, defaults to `v21.0`
+- `DIAGNOSTICS_KEY` — required for the diagnostics endpoint
+
+## Theme integration
+
+The browser-side bridge (`assets/calqix-meta-bridge.js`) handles:
+
+1. Syncs `_fbc` and `_fbp` cookies to Shopify cart attributes
+2. Constructs `fbc` from `fbclid` URL parameter when cookie is missing
+3. Auto-fires ViewContent server event on product pages
+4. Provides `window.calqixMeta.track()` for browser↔server dedup
 
 ## Development
 

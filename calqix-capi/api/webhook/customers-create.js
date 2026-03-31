@@ -2,6 +2,7 @@ const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');
 const {
   extractExternalId,
+  extractMetaBrowserIds,
   mergeCustomerData,
   parseAndVerifyWebhook,
   respondOk
@@ -34,6 +35,7 @@ function buildCustomerUserData(customer, fallbackIp, fallbackUserAgent) {
       country_code:
         customer && customer.default_address && customer.default_address.country_code
     },
+    extractMetaBrowserIds(customer),
     {
       external_id: extractExternalId(customer)
     }

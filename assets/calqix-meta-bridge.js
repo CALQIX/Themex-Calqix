@@ -24,8 +24,17 @@
   var ATTR_FBC = '_meta_fbc';
   var ATTR_FBP = '_meta_fbp';
 
+  function getFbcFromUrl() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var fbclid = params.get('fbclid');
+      if (fbclid) return 'fb.1.' + Date.now() + '.' + fbclid;
+    } catch (e) { /* silent */ }
+    return null;
+  }
+
   function syncCartAttributes() {
-    var fbc = getCookie('_fbc');
+    var fbc = getCookie('_fbc') || getFbcFromUrl();
     var fbp = getCookie('_fbp');
 
     if (!fbc && !fbp) return;
@@ -72,6 +81,53 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /*  ViewContent – auto-fire on product pages                           */
+  /* ------------------------------------------------------------------ */
+
+  var VIEW_CONTENT_ENDPOINT = 'https://calqix-capi.vercel.app/api/view-content';
+
+  function fireViewContent() {
+    var meta = document.querySelector('meta[property="og:type"][content="product"]');
+    if (!meta) return;
+
+    var productData = window.ShopifyAnalytics && window.ShopifyAnalytics.meta && window.ShopifyAnalytics.meta.product;
+    if (!productData) return;
+
+    var eventId = generateEventId('viewcontent');
+    var price = productData.variants && productData.variants[0] && productData.variants[0].price
+      ? (parseFloat(productData.variants[0].price) / 100)
+      : undefined;
+
+    var payload = {
+      product_id: String(productData.id || ''),
+      product_handle: productData.handle || '',
+      product_title: productData.type || productData.handle || '',
+      variant_id: productData.variants && productData.variants[0] ? String(productData.variants[0].id) : undefined,
+      price: price,
+      currency: window.Shopify && window.Shopify.currency && window.Shopify.currency.active || 'EUR',
+      event_id: eventId,
+      fbc: getCookie('_fbc') || getFbcFromUrl() || undefined,
+      fbp: getCookie('_fbp') || undefined
+    };
+
+    fetch(VIEW_CONTENT_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(function () { /* silent */ });
+
+    if (typeof fbq === 'function') {
+      fbq('track', 'ViewContent', {
+        content_ids: [payload.product_id],
+        content_type: 'product_group',
+        content_name: payload.product_title,
+        value: price,
+        currency: payload.currency
+      }, { eventID: eventId });
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
   /*  Expose public API                                                  */
   /* ------------------------------------------------------------------ */
 
@@ -79,17 +135,23 @@
     getCookie: getCookie,
     generateEventId: generateEventId,
     track: track,
-    syncCartAttributes: syncCartAttributes
+    syncCartAttributes: syncCartAttributes,
+    fireViewContent: fireViewContent
   };
 
   /* ------------------------------------------------------------------ */
   /*  Auto-sync on page load                                             */
   /* ------------------------------------------------------------------ */
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', syncCartAttributes);
-  } else {
+  function onReady() {
     syncCartAttributes();
+    fireViewContent();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', onReady);
+  } else {
+    onReady();
   }
 
   /* Re-sync when cart is updated (e.g. after add-to-cart) */
