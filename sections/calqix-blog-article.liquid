@@ -225,9 +225,14 @@
   @media (max-width: 1023px) {
     .blog-toc-mobile {
       display: block;
-      max-width: 680px;
-      margin: 0 auto 40px;
-      padding: 0 24px;
+      max-width: 100%;
+      margin: 0;
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--calqix-white, #fff);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
     .blog-toc-mobile__trigger {
       display: flex;
@@ -1067,6 +1072,20 @@
     </div>
   </header>
 
+  {%- comment -%} ─── MOBILE TOC — sticky bar on mobile ─── {%- endcomment -%}
+  {%- if section.settings.show_toc -%}
+    <div class="blog-toc-mobile">
+      <button class="blog-toc-mobile__trigger" type="button" aria-expanded="false">
+        <span>Contents ↕</span>
+      </button>
+      <div class="blog-toc-mobile__body">
+        <div class="blog-toc-mobile__body-inner">
+          <p class="blog-toc__heading">In this article</p>
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+
   {%- comment -%} ─── TOC + ARTICLE BODY ─── {%- endcomment -%}
   <div class="blog-layout">
 
@@ -1114,20 +1133,6 @@
           <p class="blog-author__name">{{ section.settings.author_name }}</p>
           <p class="blog-author__title">{{ section.settings.author_title }}</p>
           <p class="blog-author__bio">{{ section.settings.author_bio }}</p>
-        </div>
-      </div>
-    </div>
-  {%- endif -%}
-
-  {%- comment -%} ─── MOBILE TOC — inline accordion (below article, above "Continue reading") ─── {%- endcomment -%}
-  {%- if section.settings.show_toc -%}
-    <div class="blog-toc-mobile">
-      <button class="blog-toc-mobile__trigger" type="button" aria-expanded="false">
-        <span>Contents ↕</span>
-      </button>
-      <div class="blog-toc-mobile__body">
-        <div class="blog-toc-mobile__body-inner">
-          <p class="blog-toc__heading">In this article</p>
         </div>
       </div>
     </div>

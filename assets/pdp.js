@@ -12,6 +12,7 @@ class StickyBuyButton extends HTMLElement {
   initialize() {
     const addToCartModule = document.querySelector(".wt-product__add-to-cart");
     const btn = this.querySelector("button");
+    if (!addToCartModule || !btn) return;
     const addToCart = this.dataset.addToCart === "";
 
     const forObserver = document.querySelectorAll(
