@@ -10,7 +10,7 @@ async function handler(req, res) {
 
   // Get account-level billing info
   var accountResult = await apiGet(AD_ACCOUNT_ID, {
-    fields: 'name,account_status,spend_cap,amount_spent,balance,currency,funding_source_details,adtrust_dsl'
+    fields: 'name,account_status,spend_cap,amount_spent,balance,currency,funding_source_details'
   });
 
   if (!accountResult.ok) {
@@ -38,8 +38,7 @@ async function handler(req, res) {
     spend_cap: spendCap,
     balance: balance,
     threshold_pct: thresholdPct ? thresholdPct.toFixed(1) + '%' : 'N/A',
-    funding_source: account.funding_source_details || null,
-    adtrust_dsl: account.adtrust_dsl
+    funding_source: account.funding_source_details || null
   });
 }
 
