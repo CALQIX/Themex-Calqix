@@ -12,6 +12,7 @@
   document.addEventListener('DOMContentLoaded', init);
 
   function init() {
+    initLazyImages();
     initScientificNames();
     initDynamicTOC();
     initReadingProgress();
@@ -24,6 +25,23 @@
     initMobileTOC();
     initScrollAnimations();
     initContentAnimations();
+  }
+
+  /* ───────────────────────────────────────
+     LAZY LOADING — inject loading="lazy" on content images
+     ─────────────────────────────────────── */
+  function initLazyImages() {
+    var article = document.querySelector('.blog-content');
+    if (!article) return;
+    var imgs = article.querySelectorAll('img');
+    imgs.forEach(function (img, i) {
+      if (i === 0) {
+        img.setAttribute('loading', 'eager');
+      } else {
+        img.setAttribute('loading', 'lazy');
+      }
+      img.setAttribute('decoding', 'async');
+    });
   }
 
   /* ───────────────────────────────────────

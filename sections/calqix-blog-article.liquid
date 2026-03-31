@@ -179,6 +179,8 @@
       border-radius: 8px;
       padding: 20px 24px;
       max-width: 240px;
+      max-height: calc(100vh - 160px);
+      overflow-y: auto;
     }
     .blog-content {
       order: 1;
@@ -212,6 +214,8 @@
   .blog-toc__item.is-active {
     color: var(--calqix-gold);
     font-weight: 600;
+    padding-left: 10px;
+    border-left: 2px solid var(--calqix-gold);
   }
 
   /* MOBILE TOC — inline accordion below article */
@@ -967,7 +971,8 @@
     .blog-content p { font-size: 15px; }
 
     .blog-stat__number { font-size: 48px; }
-    .blog-stat { padding: 32px 16px; margin: 32px 0; }
+    .blog-stat { padding: 32px 16px; margin: 32px -16px; border-radius: 0; }
+    .blog-stat__label { font-size: 12px; letter-spacing: 1.5px; }
 
     .blog-compare { aspect-ratio: 4/3; border-radius: 8px; }
 
@@ -983,6 +988,19 @@
       max-height: 50vh;
     }
     .blog-cite__popup::after { display: none; }
+    .blog-cite .blog-cite__popup {
+      transform: translateY(100%);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+      display: block;
+      pointer-events: none;
+    }
+    .blog-cite.is-open .blog-cite__popup {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+      animation: none;
+    }
 
     .blog-layout { display: block; padding: 0 16px; }
 
@@ -994,6 +1012,8 @@
   @media (min-width: 768px) and (max-width: 1023px) {
     .blog-hero { min-height: 400px; }
     .blog-hero__title { font-size: 40px; }
+    .blog-stat { padding: 40px 24px; }
+    .blog-stat__number { font-size: 56px; }
   }
 
   /* Scientific names — prevent line breaks on compound terms */
