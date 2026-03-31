@@ -2,6 +2,34 @@ var { apiGet, apiPost, authAction, AD_ACCOUNT_ID } = require('../../lib/meta-ads
 var { sendTelegram } = require('../../lib/telegram');
 
 var META_PIXEL_ID = process.env.META_PIXEL_ID || '934134615770602';
+var CET_OFFSET = 2; // CET = UTC+1, CEST = UTC+2 (zomertijd)
+
+function getCETDate() {
+  var now = new Date();
+  var cetMs = now.getTime() + (CET_OFFSET * 60 * 60 * 1000);
+  return new Date(cetMs);
+}
+
+function getDateStr() {
+  var cet = getCETDate();
+  return cet.toISOString().split('T')[0];
+}
+
+function shouldSchedule() {
+  var cet = getCETDate();
+  var cetHour = cet.getUTCHours();
+  return cetHour >= 18;
+}
+
+function getNextMidnightUTC() {
+  // Next midnight CET in UTC = today+1 at (24 - CET_OFFSET):00 UTC
+  var now = new Date();
+  var tomorrow = new Date(now);
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  tomorrow.setUTCHours(24 - CET_OFFSET, 0, 0, 0);
+  // Return as Unix timestamp (seconds)
+  return Math.floor(tomorrow.getTime() / 1000);
+}
 
 async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -16,21 +44,26 @@ async function handler(req, res) {
   var body = req.body || {};
   var dryRun = body.dry_run !== false; // DEFAULT TRUE
 
-  var campaignName = body.campaign_name || 'CBO - OralBiome | NL/BE/DE/AT | ATC | ' + new Date().toISOString().split('T')[0];
+  var dateStr = getDateStr();
+  var campaignName = body.campaign_name || 'CBO - OralBiome | NL/BE/DE/AT | ATC | ' + dateStr;
   var dailyBudgetCents = body.daily_budget_cents || 3000; // €30
   var adsetName = body.adset_name || 'ATC | NL+BE+DE+AT | 25+ | OPEN';
   var countries = body.countries || ['NL', 'BE', 'DE', 'AT'];
   var ageMin = body.age_min || 25;
   var optimizationEvent = body.optimization_event || 'ADD_TO_CART';
-  var startPaused = body.start_paused !== false; // DEFAULT: start paused for safety
+
+  // Auto-activate: always ACTIVE, schedule if after 18:00 CET
+  var scheduled = shouldSchedule();
+  var startTime = scheduled ? getNextMidnightUTC() : null;
 
   // Ads to create: array of { name, creative_id }
+  // Naming convention: {Market}_{Angle}_{Nr}_{Theme} | {dateStr}
   var ads = body.ads || [
-    { name: 'NL_Angle_1_Microbioom', creative_id: '940326145496174' },
-    { name: 'NL_Angle_2_Slechte_Adem', creative_id: '2024248394799694' },
-    { name: 'NL_Angle_3_Routine', creative_id: '1006853958962216' },
-    { name: 'DE_Angle_1_Mikrobiom', creative_id: '1446342570212916' },
-    { name: 'DE_Angle_3_Routine', creative_id: '931146969320890' }
+    { name: 'NL_Angle_1_Microbioom | ' + dateStr, creative_id: '940326145496174' },
+    { name: 'NL_Angle_2_Slechte_Adem | ' + dateStr, creative_id: '2024248394799694' },
+    { name: 'NL_Angle_3_Routine | ' + dateStr, creative_id: '1006853958962216' },
+    { name: 'DE_Angle_1_Mikrobiom | ' + dateStr, creative_id: '1446342570212916' },
+    { name: 'DE_Angle_3_Routine | ' + dateStr, creative_id: '931146969320890' }
   ];
 
   var plan = {
@@ -39,7 +72,9 @@ async function handler(req, res) {
       objective: 'OUTCOME_SALES',
       daily_budget: dailyBudgetCents,
       daily_budget_eur: (dailyBudgetCents / 100).toFixed(2) + ' EUR',
-      status: startPaused ? 'PAUSED' : 'ACTIVE',
+      status: 'ACTIVE',
+      scheduled: scheduled,
+      start_time: startTime ? new Date(startTime * 1000).toISOString() : 'direct',
       special_ad_categories: []
     },
     adset: {
@@ -71,15 +106,20 @@ async function handler(req, res) {
   var results = { campaign: null, adset: null, ads: [] };
   var errors = [];
 
-  // 1. Create Campaign (CBO with lowest cost, no bid cap)
-  var campResult = await apiPost(AD_ACCOUNT_ID + '/campaigns', {
+  // 1. Create Campaign (CBO with lowest cost, always ACTIVE)
+  var campPayload = {
     name: campaignName,
     objective: 'OUTCOME_SALES',
-    status: startPaused ? 'PAUSED' : 'ACTIVE',
+    status: 'ACTIVE',
     special_ad_categories: [],
     daily_budget: dailyBudgetCents,
     bid_strategy: 'LOWEST_COST_WITHOUT_CAP'
-  });
+  };
+  // If after 18:00 CET, schedule start for next midnight
+  if (startTime) {
+    campPayload.start_time = startTime;
+  }
+  var campResult = await apiPost(AD_ACCOUNT_ID + '/campaigns', campPayload);
 
   if (!campResult.ok) {
     errors.push({ step: 'campaign', error: campResult.error });
@@ -138,22 +178,26 @@ async function handler(req, res) {
   }
 
   // 4. Send Telegram notification
-  var telegramMsg = '🚀 <b>Nieuwe CBO Campagne Aangemaakt</b>\n\n' +
+  var statusMsg = scheduled
+    ? 'SCHEDULED (start vannacht 00:00 CET)'
+    : 'ACTIVE (direct gestart)';
+
+  var telegramMsg = '\ud83d\ude80 <b>Nieuwe CBO Campagne Aangemaakt</b>\n\n' +
     '<b>Campagne:</b> ' + campaignName + '\n' +
-    '<b>Status:</b> ' + (startPaused ? 'PAUSED (handmatig activeren)' : 'ACTIVE') + '\n' +
+    '<b>Status:</b> ' + statusMsg + '\n' +
     '<b>Budget:</b> ' + (dailyBudgetCents / 100).toFixed(2) + ' EUR/dag\n' +
     '<b>Optimalisatie:</b> ' + optimizationEvent + '\n' +
     '<b>Landen:</b> ' + countries.join(', ') + '\n' +
     '<b>Ad Set:</b> ' + adsetName + '\n' +
-    '<b>Ads:</b> ' + results.ads.length + '/' + ads.length + ' aangemaakt\n';
+    '<b>Ads:</b>\n';
+
+  results.ads.forEach(function (a) {
+    telegramMsg += '  \u2022 ' + a.name + '\n';
+  });
 
   if (errors.length > 0) {
-    telegramMsg += '\n⚠️ <b>Fouten:</b> ' + errors.length + '\n';
+    telegramMsg += '\n\u26a0\ufe0f <b>Fouten:</b> ' + errors.length + '\n';
     errors.forEach(function (e) { telegramMsg += '- ' + e.step + ': ' + (e.name || '') + ' ' + e.error + '\n'; });
-  }
-
-  if (startPaused) {
-    telegramMsg += '\n💡 Campagne is PAUSED. Activeer in Ads Manager of via /api/ads/actions met enable_ad.';
   }
 
   var tgResult = await sendTelegram(telegramMsg);
@@ -161,12 +205,11 @@ async function handler(req, res) {
   return res.status(200).json({
     success: errors.length === 0,
     dry_run: false,
+    scheduled: scheduled,
+    start_time: startTime ? new Date(startTime * 1000).toISOString() : 'now',
     results: results,
     errors: errors.length > 0 ? errors : undefined,
-    telegram: tgResult,
-    next_steps: startPaused
-      ? ['Campagne is aangemaakt maar PAUSED. Activeer handmatig in Ads Manager of via POST /api/ads/actions met action: "enable_ad" en target_id: "' + campaignId + '"']
-      : ['Campagne is ACTIVE en draait']
+    telegram: tgResult
   });
 }
 
