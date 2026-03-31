@@ -12,7 +12,8 @@ function getCETDate() {
 
 function getDateStr() {
   var cet = getCETDate();
-  return cet.toISOString().split('T')[0];
+  var parts = cet.toISOString().split('T')[0].split('-');
+  return parts[2] + '-' + parts[1] + '-' + parts[0];
 }
 
 function shouldSchedule() {
