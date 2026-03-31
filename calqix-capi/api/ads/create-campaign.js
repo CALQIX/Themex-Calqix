@@ -71,13 +71,14 @@ async function handler(req, res) {
   var results = { campaign: null, adset: null, ads: [] };
   var errors = [];
 
-  // 1. Create Campaign
+  // 1. Create Campaign (CBO with lowest cost, no bid cap)
   var campResult = await apiPost(AD_ACCOUNT_ID + '/campaigns', {
     name: campaignName,
     objective: 'OUTCOME_SALES',
     status: startPaused ? 'PAUSED' : 'ACTIVE',
     special_ad_categories: [],
-    daily_budget: dailyBudgetCents
+    daily_budget: dailyBudgetCents,
+    bid_strategy: 'LOWEST_COST_WITHOUT_CAP'
   });
 
   if (!campResult.ok) {
