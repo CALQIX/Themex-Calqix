@@ -229,7 +229,7 @@
       margin: 0;
       padding: 12px 16px;
       position: sticky;
-      top: 0;
+      top: var(--header-height, 0px);
       z-index: 50;
       background: var(--calqix-white, #fff);
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -306,7 +306,7 @@
     opacity: 0;
     transform: translateY(16px);
     transition: opacity 0.6s ease, transform 0.6s ease;
-    scroll-margin-top: 80px;
+    scroll-margin-top: 100px;
   }
   .blog-content h2.is-visible {
     opacity: 1;
@@ -1023,6 +1023,76 @@
 
   /* Scientific names — prevent line breaks on compound terms */
   .sci-nowrap { white-space: nowrap; }
+
+  /* =============================================
+     DEFAULT TABLE STYLES
+     ============================================= */
+  .blog-content table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--calqix-font-body);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 32px 0;
+  }
+  .blog-content th {
+    background: var(--calqix-navy);
+    color: white;
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+  }
+  .blog-content td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--calqix-border);
+  }
+  .blog-content tr:nth-child(even) td {
+    background: #f9fafb;
+  }
+
+  /* =============================================
+     FOCUS & ACCESSIBILITY
+     ============================================= */
+  .blog-toc__item:focus-visible,
+  .blog-toc-mobile__trigger:focus-visible {
+    outline: 2px solid var(--calqix-gold);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* =============================================
+     REDUCED MOTION
+     ============================================= */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .blog-content h2,
+    .blog-content img,
+    .blog-content hr,
+    .blog-content [data-animate] {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+
+  /* =============================================
+     MOBILE BOTTOM SHEET BACKDROP
+     ============================================= */
+  .blog-cite-backdrop,
+  .blog-glossary-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 999;
+  }
+  .blog-cite-backdrop.is-visible,
+  .blog-glossary-backdrop.is-visible {
+    display: block;
+  }
 </style>
 
 {%- comment -%} ─── READING PROGRESS BAR ─── {%- endcomment -%}

@@ -12,6 +12,7 @@
   document.addEventListener('DOMContentLoaded', init);
 
   function init() {
+    initHeaderOffset();
     initLazyImages();
     initScientificNames();
     initDynamicTOC();
@@ -25,6 +26,19 @@
     initMobileTOC();
     initScrollAnimations();
     initContentAnimations();
+  }
+
+  /* ───────────────────────────────────────
+     HEADER OFFSET — set CSS var for sticky mobile TOC
+     ─────────────────────────────────────── */
+  function initHeaderOffset() {
+    var header = document.querySelector('.wt-header') || document.querySelector('header');
+    if (!header) return;
+    function update() {
+      document.documentElement.style.setProperty('--header-height', header.offsetHeight + 'px');
+    }
+    update();
+    window.addEventListener('resize', update, { passive: true });
   }
 
   /* ───────────────────────────────────────
@@ -456,7 +470,7 @@
           });
         }
       });
-    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    }, { rootMargin: '-100px 0px -70% 0px', threshold: 0 });
 
     headings.forEach(function (h) { observer.observe(h); });
 
