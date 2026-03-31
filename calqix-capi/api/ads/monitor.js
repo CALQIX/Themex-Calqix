@@ -5,7 +5,7 @@ var PURCHASE_TYPES = ['purchase', 'offsite_conversion.fb_pixel_purchase'];
 var ATC_TYPES = ['offsite_conversion.fb_pixel_add_to_cart'];
 var IC_TYPES = ['offsite_conversion.fb_pixel_initiate_checkout'];
 var VC_TYPES = ['offsite_conversion.fb_pixel_view_content'];
-var BILLING_THRESHOLD = parseInt(process.env.BILLING_THRESHOLD || '100', 10); // euro
+var BILLING_THRESHOLD = parseInt(process.env.BILLING_THRESHOLD || '74', 10); // euro (Meta facturatiedrempel)
 var BILLING_ALERT_PCT = 95;
 
 function authCron(req) {
