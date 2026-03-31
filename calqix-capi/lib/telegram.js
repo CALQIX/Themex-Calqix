@@ -1,0 +1,41 @@
+// Simpele Telegram bot notificatie module
+// Gebruikt node-fetch (consistent met rest van project)
+var fetch = require('node-fetch');
+
+async function sendTelegram(message) {
+  var token = process.env.TELEGRAM_BOT_TOKEN;
+  var chatId = process.env.TELEGRAM_CHAT_ID;
+
+  if (!token || !chatId) {
+    console.log('[Telegram] TELEGRAM_BOT_TOKEN of TELEGRAM_CHAT_ID niet ingesteld, skip notificatie');
+    return { sent: false, reason: 'missing_env_vars' };
+  }
+
+  var url = 'https://api.telegram.org/bot' + token + '/sendMessage';
+
+  try {
+    var res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: 'HTML'
+      })
+    });
+
+    var data = await res.json();
+
+    if (!data.ok) {
+      console.error('[Telegram] API error:', data.description);
+      return { sent: false, reason: data.description };
+    }
+
+    return { sent: true, message_id: data.result.message_id };
+  } catch (err) {
+    console.error('[Telegram] Send failed:', err.message);
+    return { sent: false, reason: err.message };
+  }
+}
+
+module.exports = { sendTelegram: sendTelegram };
