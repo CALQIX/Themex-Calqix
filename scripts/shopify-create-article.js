@@ -102,10 +102,7 @@ async function main() {
     published_at: '2026-04-01T00:00:00+02:00',
     handle: 'nano-hydroxyapatite-the-fluoride-alternative',
     template_suffix: 'calqix-research',
-    summary_html: 'Every day, your teeth lose minerals. Nano-hydroxyapatite, the same mineral that makes up 97% of enamel, offers a biomimetic alternative to fluoride — backed by 40+ years of clinical research.',
-    image: {
-      alt: 'Nano-Hydroxyapatite enamel repair microscopic visualization'
-    }
+    summary_html: 'Every day, your teeth lose minerals. Nano-hydroxyapatite, the same mineral that makes up 97% of enamel, offers a biomimetic alternative to fluoride — backed by 40+ years of clinical research.'
   };
 
   console.log('📤 Creating article...');
