@@ -90,13 +90,12 @@ async function handler(req, res) {
 
   console.log('[ADS CREATE] Campaign created:', campaignId, campaignName);
 
-  // 2. Create Ad Set
+  // 2. Create Ad Set (no daily_budget — CBO manages budget at campaign level)
   var adsetResult = await apiPost(AD_ACCOUNT_ID + '/adsets', {
     campaign_id: campaignId,
     name: adsetName,
     optimization_goal: 'OFFSITE_CONVERSIONS',
     billing_event: 'IMPRESSIONS',
-    daily_budget: dailyBudgetCents,
     promoted_object: {
       pixel_id: META_PIXEL_ID,
       custom_event_type: optimizationEvent
