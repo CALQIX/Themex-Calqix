@@ -5,6 +5,8 @@ var PURCHASE_TYPES = ['purchase', 'offsite_conversion.fb_pixel_purchase'];
 var ATC_TYPES = ['offsite_conversion.fb_pixel_add_to_cart'];
 var IC_TYPES = ['offsite_conversion.fb_pixel_initiate_checkout'];
 var VC_TYPES = ['offsite_conversion.fb_pixel_view_content'];
+var BILLING_THRESHOLD = parseInt(process.env.BILLING_THRESHOLD || '100', 10); // euro
+var BILLING_ALERT_PCT = 95;
 
 function authCron(req) {
   var secret = process.env.CRON_SECRET;
@@ -259,6 +261,22 @@ async function handler(req, res) {
     }
   }
 
+  // TRIGGER 11: BILLING THRESHOLD (95% van facturatiedrempel)
+  var billingResult = await apiGet(AD_ACCOUNT_ID, { fields: 'balance' });
+  if (billingResult.ok && billingResult.data && billingResult.data.balance) {
+    var currentBalance = parseInt(billingResult.data.balance, 10) / 100;
+    var billingPct = (currentBalance / BILLING_THRESHOLD * 100);
+    if (billingPct >= BILLING_ALERT_PCT) {
+      triggers.push({
+        severity: 'URGENT',
+        rule: 'BILLING_THRESHOLD',
+        target: 'Account billing',
+        target_id: null,
+        message: 'Facturatie alert: ' + currentBalance.toFixed(2) + '/' + BILLING_THRESHOLD + ' euro (' + billingPct.toFixed(0) + '%). Vul je creditcard aan!'
+      });
+    }
+  }
+
   // --- Notification decision ---
 
   var urgentTriggers = triggers.filter(function (t) { return t.severity === 'URGENT'; });
@@ -297,7 +315,8 @@ async function handler(req, res) {
 }
 
 function formatMessage(now, urgent, warning, info, weeklyInsights, adsets) {
-  var dateStr = now.toISOString().split('T')[0];
+  var iso = now.toISOString().split('T')[0].split('-');
+  var dateStr = iso[2] + '-' + iso[1] + '-' + iso[0];
   var lines = ['<b>CALQIX Ads Monitor - ' + dateStr + '</b>\n'];
 
   // Split warnings into ad warnings and website warnings
