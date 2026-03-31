@@ -3,6 +3,8 @@ var { apiGet, AD_ACCOUNT_ID, parseActionValue } = require('../../lib/meta-ads');
 
 var PURCHASE_TYPES = ['purchase', 'offsite_conversion.fb_pixel_purchase'];
 var ATC_TYPES = ['offsite_conversion.fb_pixel_add_to_cart'];
+var IC_TYPES = ['offsite_conversion.fb_pixel_initiate_checkout'];
+var VC_TYPES = ['offsite_conversion.fb_pixel_view_content'];
 
 function authCron(req) {
   var secret = process.env.CRON_SECRET;
@@ -186,6 +188,77 @@ async function handler(req, res) {
     }
   });
 
+  // --- Website / Funnel Optimization Triggers ---
+
+  // Aggregate funnel data from 7-day insights
+  var totalVC = 0, totalATC = 0, totalIC = 0, totalPurchases = 0, totalSpend7d = 0;
+  adsetInsights7d.forEach(function (row) {
+    var actions = row.actions || [];
+    totalVC += parseActionValue(actions, VC_TYPES);
+    totalATC += parseActionValue(actions, ATC_TYPES);
+    totalIC += parseActionValue(actions, IC_TYPES);
+    totalPurchases += parseActionValue(actions, PURCHASE_TYPES);
+    totalSpend7d += parseFloat(row.spend) || 0;
+  });
+
+  // TRIGGER 7: CHECKOUT DROP-OFF (IC → Purchase < 25%)
+  if (totalIC >= 5 && totalPurchases > 0) {
+    var icToPurchaseRate = (totalPurchases / totalIC * 100);
+    if (icToPurchaseRate < 25) {
+      triggers.push({
+        severity: 'WARNING',
+        rule: 'CHECKOUT_DROPOFF',
+        target: 'Website funnel',
+        target_id: null,
+        message: 'Checkout drop-off: slechts ' + icToPurchaseRate.toFixed(0) + '% van InitiateCheckout converteert naar Purchase (' + totalPurchases + '/' + totalIC + '). Check: verzendkosten, betaalmethoden, checkout flow.'
+      });
+    }
+  }
+
+  // TRIGGER 8: LOW ATC-TO-IC RATIO (ATC → IC < 30%)
+  if (totalATC >= 5) {
+    var atcToIcRate = totalIC > 0 ? (totalIC / totalATC * 100) : 0;
+    if (atcToIcRate < 30) {
+      triggers.push({
+        severity: 'WARNING',
+        rule: 'CART_ABANDONMENT',
+        target: 'Website funnel',
+        target_id: null,
+        message: 'Cart abandonment hoog: slechts ' + atcToIcRate.toFixed(0) + '% van AddToCart start checkout (' + totalIC + '/' + totalATC + '). Check: winkelwagen UX, trust signals, urgentie-elementen.'
+      });
+    }
+  }
+
+  // TRIGGER 9: LOW VC-TO-ATC RATIO (VC → ATC < 5%)
+  if (totalVC >= 20) {
+    var vcToAtcRate = totalATC > 0 ? (totalATC / totalVC * 100) : 0;
+    if (vcToAtcRate < 5) {
+      triggers.push({
+        severity: 'WARNING',
+        rule: 'LOW_PRODUCT_CONVERSION',
+        target: 'Website funnel',
+        target_id: null,
+        message: 'Productpagina converteert slecht: slechts ' + vcToAtcRate.toFixed(1) + '% van ViewContent naar ATC (' + totalATC + '/' + totalVC + '). Check: productpagina copy, prijs, reviews, CTA button.'
+      });
+    }
+  }
+
+  // TRIGGER 10: HIGH CPC (> €2.00 gemiddeld)
+  var totalClicks = 0;
+  adInsights.forEach(function (ad) { totalClicks += parseInt(ad.clicks) || 0; });
+  if (totalClicks > 0 && totalSpend7d > 0) {
+    var avgCpc = totalSpend7d / totalClicks;
+    if (avgCpc > 2.0) {
+      triggers.push({
+        severity: 'INFO',
+        rule: 'HIGH_CPC',
+        target: 'Ads overall',
+        target_id: null,
+        message: 'Gemiddelde CPC is ' + avgCpc.toFixed(2) + ' euro. Overweeg: nieuwe creatives, bredere targeting, of lagere-funnel landingspagina.'
+      });
+    }
+  }
+
   // --- Notification decision ---
 
   var urgentTriggers = triggers.filter(function (t) { return t.severity === 'URGENT'; });
@@ -227,15 +300,32 @@ function formatMessage(now, urgent, warning, info, weeklyInsights, adsets) {
   var dateStr = now.toISOString().split('T')[0];
   var lines = ['<b>CALQIX Ads Monitor - ' + dateStr + '</b>\n'];
 
+  // Split warnings into ad warnings and website warnings
+  var adWarnings = [];
+  var websiteWarnings = [];
+  warning.forEach(function (t) {
+    if (['CHECKOUT_DROPOFF', 'CART_ABANDONMENT', 'LOW_PRODUCT_CONVERSION'].indexOf(t.rule) !== -1) {
+      websiteWarnings.push(t);
+    } else {
+      adWarnings.push(t);
+    }
+  });
+
   if (urgent.length > 0) {
     lines.push('🔴 <b>ACTIE NODIG:</b>');
     urgent.forEach(function (t) { lines.push('- ' + t.message); });
     lines.push('');
   }
 
-  if (warning.length > 0) {
-    lines.push('⚠️ <b>LET OP:</b>');
-    warning.forEach(function (t) { lines.push('- ' + t.message); });
+  if (adWarnings.length > 0) {
+    lines.push('⚠️ <b>ADS - LET OP:</b>');
+    adWarnings.forEach(function (t) { lines.push('- ' + t.message); });
+    lines.push('');
+  }
+
+  if (websiteWarnings.length > 0) {
+    lines.push('🌐 <b>WEBSITE OPTIMALISATIE:</b>');
+    websiteWarnings.forEach(function (t) { lines.push('- ' + t.message); });
     lines.push('');
   }
 
