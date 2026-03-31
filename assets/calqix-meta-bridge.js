@@ -57,8 +57,11 @@
   /*  Event ID generation for deduplication                              */
   /* ------------------------------------------------------------------ */
 
-  function generateEventId(prefix) {
-    var ts = Date.now();
+  function generateEventId(prefix, identifier) {
+    var ts = Math.floor(Date.now() / 1000);
+    if (identifier) {
+      return (prefix || 'evt') + '_' + identifier + '_' + ts;
+    }
     var rand = Math.random().toString(36).substring(2, 10);
     return (prefix || 'evt') + '_' + ts + '_' + rand;
   }
@@ -68,12 +71,13 @@
    * event can be deduplicated against this browser event.
    *
    * Usage:
-   *   window.calqixMeta.track('Purchase', { value: 39.95, currency: 'EUR' });
+   *   window.calqixMeta.track('ViewContent', { content_ids: ['123'] }, '123');
+   *   window.calqixMeta.track('AddToCart', { content_ids: ['456'] }, '456');
    */
-  function track(eventName, customData) {
+  function track(eventName, customData, identifier) {
     if (typeof fbq !== 'function') return null;
 
-    var eventId = generateEventId(eventName.toLowerCase());
+    var eventId = generateEventId(eventName.toLowerCase(), identifier);
 
     fbq('track', eventName, customData || {}, { eventID: eventId });
 
@@ -93,7 +97,7 @@
     var productData = window.ShopifyAnalytics && window.ShopifyAnalytics.meta && window.ShopifyAnalytics.meta.product;
     if (!productData) return;
 
-    var eventId = generateEventId('viewcontent');
+    var eventId = generateEventId('viewcontent', String(productData.id || ''));
     var price = productData.variants && productData.variants[0] && productData.variants[0].price
       ? (parseFloat(productData.variants[0].price) / 100)
       : undefined;

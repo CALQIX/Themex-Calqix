@@ -1,17 +1,20 @@
 const dotenv = require('dotenv');
+const fetch = require('node-fetch');
+const { cacheSize, recentKeys } = require('../lib/dedup-guard');
 const { formatUserData } = require('../lib/hash');
-const { sendEvent, META_API_VERSION } = require('../lib/meta-capi');
+const { isCapiEnabled, sendEvent, META_API_VERSION } = require('../lib/meta-capi');
 
 dotenv.config();
 
 function checkEnvVars() {
-  const vars = [
+  var vars = [
     'META_PIXEL_ID',
     'META_ACCESS_TOKEN',
     'SHOPIFY_WEBHOOK_SECRET',
     'META_TEST_EVENT_CODE',
     'META_API_VERSION',
-    'DIAGNOSTICS_KEY'
+    'DIAGNOSTICS_KEY',
+    'CAPI_ENABLED'
   ];
 
   return vars.reduce(function (acc, name) {
@@ -19,6 +22,36 @@ function checkEnvVars() {
     acc[name] = val ? 'SET (' + val.length + ' chars)' : 'NOT SET';
     return acc;
   }, {});
+}
+
+async function checkPixelIdConflict() {
+  var serverPixelId = process.env.META_PIXEL_ID || null;
+  var browserPixelId = null;
+  var error = null;
+
+  try {
+    var response = await fetch('https://calqix.com', {
+      headers: { 'User-Agent': 'CALQIX-Diagnostics/2.0' },
+      timeout: 5000
+    });
+    var html = await response.text();
+    var match = html.match(/fbq\s*\(\s*['"]init['"]\s*,\s*['"](\d+)['"]/);
+    if (match) {
+      browserPixelId = match[1];
+    }
+  } catch (err) {
+    error = err.message;
+  }
+
+  return {
+    server_pixel_id: serverPixelId,
+    browser_pixel_id: browserPixelId || '(not found in HTML — may be injected by Shopify web-pixels-manager at runtime)',
+    pixel_id_match: browserPixelId ? browserPixelId === serverPixelId : null,
+    note: browserPixelId === null && !error
+      ? 'Shopify FB sales channel injects pixel via sandboxed web-pixels-manager, not visible in page HTML'
+      : undefined,
+    error: error || undefined
+  };
 }
 
 async function handler(req, res) {
@@ -44,7 +77,7 @@ async function handler(req, res) {
       phone: '+31612345678'
     },
     '127.0.0.1',
-    'CALQIX-Diagnostics/1.0'
+    'CALQIX-Diagnostics/2.0'
   );
 
   var testCustomData = {
@@ -81,13 +114,28 @@ async function handler(req, res) {
     return acc;
   }, {});
 
+  var capiEnabled = isCapiEnabled();
+  var pixelCheck = await checkPixelIdConflict();
+
   return res.status(200).json({
     status: metaResult && metaResult.ok ? 'OK' : 'FAILED',
+    capi_enabled: capiEnabled,
+    capi_mode: capiEnabled ? 'SENDING events to Meta' : 'LOGGING only (events NOT sent to Meta)',
     api_version: META_API_VERSION,
     event_id: eventId,
     test_event_code: process.env.META_TEST_EVENT_CODE || null,
     meta_response: metaResult,
     meta_error: metaError,
+    pixel_id_check: pixelCheck,
+    dedup_guard: {
+      cache_size: cacheSize(),
+      recent_keys: recentKeys(5)
+    },
+    deployment: {
+      node_version: process.version,
+      vercel_region: process.env.VERCEL_REGION || 'unknown',
+      meta_api_version: META_API_VERSION
+    },
     user_data_sent: userDataKeys,
     env_status: checkEnvVars(),
     timestamp: new Date().toISOString()

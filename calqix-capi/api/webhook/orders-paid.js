@@ -1,3 +1,8 @@
+// MIGRATION NOTE: This endpoint is part of the custom Vercel CAPI.
+// It will be replaced by GTM server container Meta CAPI tag after migration.
+// Kill switch: set CAPI_ENABLED=false in env vars to disable without removing.
+// Target migration date: TBD
+const { isDuplicate, markProcessed } = require('../../lib/dedup-guard');
 const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');
 const {
@@ -106,6 +111,11 @@ async function handler(req, res) {
       return respondOk(res, { received: true, processed: false });
     }
 
+    if (isDuplicate('Purchase', String(order.id))) {
+      console.log('[Webhook orders-paid] skipping duplicate', { identifier: order.id });
+      return respondOk(res, { received: true, processed: false, reason: 'duplicate' });
+    }
+
     const lineItems = Array.isArray(order.line_items) ? order.line_items : [];
     const eventId = `purchase_${order.id}`;
     const userData = buildOrderUserData(order, verification.clientIp, verification.userAgent);
@@ -120,6 +130,7 @@ async function handler(req, res) {
     };
 
     await sendEvent('Purchase', eventId, SOURCE_URL, userData, customData);
+    markProcessed('Purchase', String(order.id));
 
     return respondOk(res, {
       received: true,

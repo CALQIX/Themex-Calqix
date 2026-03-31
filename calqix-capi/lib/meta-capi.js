@@ -40,7 +40,19 @@ function buildEvent(eventName, eventId, sourceUrl, userData = {}, customData = {
   });
 }
 
+function isCapiEnabled() {
+  return process.env.CAPI_ENABLED !== 'false';
+}
+
 async function sendEvent(eventName, eventId, sourceUrl, userData = {}, customData = {}) {
+  if (!isCapiEnabled()) {
+    console.log(`[META CAPI] ${eventName} logged (CAPI_ENABLED=false)`, {
+      eventId,
+      event_time: Math.floor(Date.now() / 1000)
+    });
+    return { ok: true, skipped: true, reason: 'CAPI_ENABLED=false' };
+  }
+
   const pixelId = process.env.META_PIXEL_ID;
   const accessToken = process.env.META_ACCESS_TOKEN;
 
@@ -97,6 +109,7 @@ async function sendEvent(eventName, eventId, sourceUrl, userData = {}, customDat
 
 module.exports = {
   buildEvent,
+  isCapiEnabled,
   sendEvent,
   META_API_VERSION
 };
