@@ -328,7 +328,20 @@
       { term: 'gingival', def: 'Relating to the gums.' },
       { term: 'inflammatory', def: 'Causing or related to inflammation — the body\'s response to irritation or infection.' },
       { term: 'cariogenic', def: 'Capable of causing tooth decay (cavities).' },
-      { term: 'encapsulation', def: 'A technology that coats probiotics in a protective layer so they stay alive until they reach the target area.' }
+      { term: 'encapsulation', def: 'A technology that coats probiotics in a protective layer so they stay alive until they reach the target area.' },
+      { term: 'reuterin', def: 'A natural antimicrobial compound produced by L.\u00a0reuteri bacteria. It selectively inhibits harmful species while preserving beneficial ones.' },
+      { term: 'salivaricins', def: 'Antimicrobial peptides produced by S.\u00a0salivarius K12 that specifically target bacteria causing bad breath.' },
+      { term: 'dextranase', def: 'An enzyme that breaks down glucan, the sticky substance that holds plaque biofilm together on tooth surfaces.' },
+      { term: 'volatile sulfur compounds', def: 'Gases produced by anaerobic bacteria that are the primary cause of chronic bad breath (halitosis).' },
+      { term: 'chlorhexidine', def: 'A broad-spectrum antibacterial chemical commonly used in prescription mouthwash. Effective but disrupts the entire oral microbiome.' },
+      { term: 'gingipains', def: 'Toxic enzymes produced by P.\u00a0gingivalis bacteria. Found in the brains of Alzheimer\u2019s patients, suggesting a link between gum disease and cognitive decline.' },
+      { term: 'commensal', def: 'Organisms that live alongside others without causing harm or benefit. Their role shifts depending on overall microbial balance.' },
+      { term: 'fluorapatite', def: 'A mineral formed when fluoride reacts with tooth enamel. Harder than hydroxyapatite but structurally different from natural enamel.' },
+      { term: 'fluorapatiet', def: 'A mineral formed when fluoride reacts with tooth enamel. Harder than hydroxyapatite but structurally different from natural enamel.' },
+      { term: 'dentine tubuli', def: 'Microscopic channels in the dentin layer of teeth that connect to the nerve. When exposed, they cause sensitivity to hot, cold, and sweet.' },
+      { term: 'dentin tubules', def: 'Microscopic channels in the dentin layer of teeth that connect to the nerve. When exposed, they cause sensitivity to hot, cold, and sweet.' },
+      { term: 'bio-identical', def: 'Chemically identical to a substance naturally found in the body. n-HA is bio-identical to tooth enamel mineral.' },
+      { term: 'adsorption', def: 'The process where molecules adhere to a surface. n-HA particles adsorb onto the tooth surface before integrating into the enamel.' }
     ];
 
     /* sort longest-first so multi-word terms match before sub-terms */
