@@ -2866,6 +2866,24 @@
                 <script>(function(){var blockId='{{ block.id }}';var section=document.getElementById('ccs-block-'+blockId);{{ b.custom_js }}})()</script>
               {%- endif -%}
 
+            {%- when 'calqix_compliance_note' -%}
+              {%- assign ccn_text = block.settings.text -%}
+              {%- if cq_is_translated_oralbiome -%}
+                {%- assign ccn_text = 'calqix_oralbiome.compliance.buybox_note' | t -%}
+              {%- endif -%}
+              <div class="calqix-compliance-note" {{ block.shopify_attributes }} style="
+                padding: 10px 14px;
+                margin: 8px 0 4px;
+                background: {{ block.settings.background_color }};
+                border-radius: 6px;
+                font-family: 'DM Sans', sans-serif;
+                font-size: {{ block.settings.font_size }}px;
+                line-height: 1.55;
+                color: {{ block.settings.text_color }};
+              ">
+                {{ ccn_text }}
+              </div>
+
             {%- when 'calqix_trust_badges' -%}
               {%- assign b = block.settings -%}
               {%- assign ctb_shipping_text = b.shipping_text -%}
@@ -4785,6 +4803,39 @@
       ]
     },
 
+    {
+      "type": "calqix_compliance_note",
+      "name": "CALQIX Compliance Note",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Compliance text",
+          "default": "Food supplement. Recommended use: 1 lozenge daily. Do not exceed the recommended daily dose. Keep out of reach of young children. See Safety & Usage below."
+        },
+        {
+          "type": "color",
+          "id": "background_color",
+          "label": "Background color",
+          "default": "#F7F5F2"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text color",
+          "default": "#5A6A7A"
+        },
+        {
+          "type": "range",
+          "id": "font_size",
+          "label": "Font size (px)",
+          "min": 11,
+          "max": 15,
+          "step": 1,
+          "default": 12
+        }
+      ]
+    },
     {
       "type": "specification",
       "name": "t:sections.main-product.blocks.specification.name",
