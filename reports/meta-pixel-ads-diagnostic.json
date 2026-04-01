@@ -1,0 +1,91 @@
+{
+  "report": "CALQIX Meta Pixel & Ads Diagnostic",
+  "generated": "2025-07-23",
+  "pixel": {
+    "pixel_id": "934134615770602",
+    "note": "Correct pixel ID confirmed via Shopify FB Sales Channel and Meta Business Settings",
+    "inline_fbq_init": false,
+    "shopify_web_pixels_manager": true,
+    "gtm_container": "GTM-T86BFXXW",
+    "taggrs_sst_reference": true,
+    "taggrs_sst_domain_inline": false,
+    "calqix_meta_bridge_js": true,
+    "firing_method": "Shopify web-pixels-manager (primary) + GTM/TAGGRS SST (server-side) + calqix-meta-bridge.js (cookie bridge for fbc/fbp)",
+    "status": "OK",
+    "advice": [
+      "Pixel fires via Shopify's web-pixels-manager sandbox — no inline fbq() needed",
+      "GTM-T86BFXXW is installed and TAGGRS SST is referenced for server-side tracking",
+      "calqix-meta-bridge.js syncs _fbc/_fbp cookies to cart attributes for CAPI Event Match Quality",
+      "Once TAGGRS SST migration is fully complete (Stap 7-9), remove calqix-meta-bridge.js from theme.liquid"
+    ]
+  },
+  "capi": {
+    "endpoint": "https://calqix-capi.vercel.app",
+    "webhooks": ["orders-paid", "checkouts-create", "carts-create", "customers-create"],
+    "events_mapped": {
+      "orders-paid": "Purchase",
+      "checkouts-create": "InitiateCheckout",
+      "carts-create": "AddToCart",
+      "customers-create": "Lead"
+    },
+    "env_vars_present": ["META_PIXEL_ID", "META_ACCESS_TOKEN", "SHOPIFY_WEBHOOK_SECRET", "CRON_SECRET", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "META_AD_ACCOUNT_ID", "DIAGNOSTICS_KEY", "ADS_ACTION_KEY", "ADS_MAX_DAILY_BUDGET", "META_API_VERSION"],
+    "status": "OK"
+  },
+  "campaigns": {
+    "ad_account_id": "act_2108393566376667",
+    "total_campaigns": 23,
+    "active_campaigns": 1,
+    "paused_campaigns": 22,
+    "warnings": 0,
+    "active_campaign": {
+      "name": "CBO - OralBiome | NL/BE/DE/AT | ATC | 2026-04-01",
+      "status": "ACTIVE",
+      "daily_budget": "30.00 EUR",
+      "ad_sets": [
+        {
+          "name": "ATC | NL+BE+DE+AT | 25+ | OPEN",
+          "status": "ACTIVE",
+          "optimization_goal": "OFFSITE_CONVERSIONS",
+          "ads": [
+            {"name": "DE_Angle_3_Routine", "status": "ACTIVE"},
+            {"name": "NL_Angle_1_Microbioom", "status": "ACTIVE"},
+            {"name": "NL_Angle_3_Routine", "status": "ACTIVE"},
+            {"name": "DE_Angle_1_Mikrobiom", "status": "ACTIVE"},
+            {"name": "NL_Angle_2_Slechte_Adem", "status": "ACTIVE"}
+          ]
+        }
+      ]
+    },
+    "event_counts": "Rate limited during scan — retry in 5-10 min via /api/ads/event-counts?key=calqix-diag-2026",
+    "status": "OK"
+  },
+  "monitor_cron": {
+    "schedule": "0 5 * * * (07:00 CET)",
+    "endpoint": "/api/ads/monitor",
+    "triggers": [
+      "AD_KILLER: CTR < 0.8% bij 1000+ impressies",
+      "CREATIVE_FATIGUE: Frequency > 3.0",
+      "BUDGET_UNDERUTILIZED: < 50% besteed",
+      "LEARNING_LIMITED: Vast in learning phase",
+      "WINNER: CTR > 3% + ATC < €10",
+      "SPENDING_SPIKE: > 150% van dagbudget",
+      "CHECKOUT_DROPOFF: IC → Purchase < 25%",
+      "CART_ABANDONMENT: ATC → IC < 30%",
+      "LOW_PRODUCT_CONVERSION: VC → ATC < 5%",
+      "HIGH_CPC: > €2.00 gemiddeld",
+      "BILLING_THRESHOLD: 95% van facturatiedrempel"
+    ],
+    "notification": "Telegram (URGENT/WARNING direct, INFO alleen op maandag)",
+    "status": "CONFIGURED"
+  },
+  "advice": [
+    "1 actieve campagne draait met €30/dag CBO op ATC optimalisatie — correct per strategie",
+    "5 ads actief (3 NL, 2 DE) — goede verdeling voor NL/BE/DE/AT targeting",
+    "22 oude campagnes zijn gepauzeerd — overweeg archiveren voor overzicht",
+    "Event counts konden niet opgehaald worden door rate limiting — check handmatig via /api/ads/event-counts",
+    "Bij €30/dag en ~€12.72 cost per ATC verwacht je ~16-17 ATC events/week (onder 50 drempel)",
+    "Voor 50 ATC events/week is ~€90/dag budget nodig",
+    "TAGGRS SST migratie is gestart maar nog niet afgerond — voltooi Stap 3-9 voor volledig server-side tracking",
+    "Na TAGGRS migratie: verwijder calqix-meta-bridge.js uit theme.liquid"
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "report": "CALQIX Vercel Cron Job Verification",
+  "generated": "2026-04-01T15:02:41Z",
+  "cron_config": {
+    "file": "calqix-capi/vercel.json",
+    "schedule": "0 5 * * *",
+    "schedule_human": "Dagelijks om 07:00 CET (05:00 UTC)",
+    "endpoint": "/api/ads/monitor",
+    "status": "CONFIGURED"
+  },
+  "endpoint_test": {
+    "url": "https://calqix-capi.vercel.app/api/ads/monitor",
+    "without_auth": {
+      "status_code": 401,
+      "response": "Unauthorized — correct beveiligd"
+    },
+    "with_auth": {
+      "status_code": 200,
+      "response_time": "< 5s",
+      "triggers_fired": 1,
+      "urgent": 1,
+      "warning": 0,
+      "info": 0
+    },
+    "status": "OK"
+  },
+  "telegram_notification": {
+    "sent": true,
+    "message_id": 7,
+    "env_vars": ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"],
+    "status": "OK"
+  },
+  "active_trigger": {
+    "severity": "URGENT",
+    "rule": "BILLING_THRESHOLD",
+    "message": "Facturatie alert: 73.01/74 euro (99%). Vul je creditcard aan!",
+    "action_required": "Vul je Meta Ads betaalmethode / creditcard aan"
+  },
+  "env_vars_verified": [
+    "CRON_SECRET ✅",
+    "TELEGRAM_BOT_TOKEN ✅",
+    "TELEGRAM_CHAT_ID ✅",
+    "META_AD_ACCOUNT_ID ✅",
+    "META_ACCESS_TOKEN ✅ (production only)",
+    "META_PIXEL_ID ✅ (production only)",
+    "DIAGNOSTICS_KEY ✅",
+    "ADS_ACTION_KEY ✅",
+    "ADS_MAX_DAILY_BUDGET ✅",
+    "META_API_VERSION ✅"
+  ],
+  "monitor_triggers": [
+    "AD_KILLER: CTR < 0.8% bij 1000+ impressies → URGENT",
+    "CREATIVE_FATIGUE: Frequency > 3.0 → URGENT",
+    "BUDGET_UNDERUTILIZED: < 50% besteed → WARNING",
+    "LEARNING_LIMITED: Vast in learning phase → WARNING",
+    "WINNER: CTR > 3% + ATC < €10 → INFO",
+    "SPENDING_SPIKE: > 150% dagbudget → URGENT",
+    "CHECKOUT_DROPOFF: IC → Purchase < 25% → WARNING",
+    "CART_ABANDONMENT: ATC → IC < 30% → WARNING",
+    "LOW_PRODUCT_CONVERSION: VC → ATC < 5% → WARNING",
+    "HIGH_CPC: > €2.00 gemiddeld → INFO",
+    "BILLING_THRESHOLD: 95% van facturatiedrempel → URGENT"
+  ],
+  "notification_logic": {
+    "URGENT": "Direct Telegram bericht",
+    "WARNING": "Direct Telegram bericht",
+    "INFO": "Alleen op maandag (weekly report)"
+  },
+  "overall_status": "FULLY OPERATIONAL",
+  "advice": [
+    "ACTIE: Vul Meta Ads betaalmethode aan — balance op 99% van facturatiedrempel",
+    "Cron job draait dagelijks om 07:00 CET met 11 automatische triggers",
+    "Telegram notificaties werken correct",
+    "Alle env vars zijn geconfigureerd in Vercel production"
+  ]
+}
