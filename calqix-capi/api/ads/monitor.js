@@ -1,3 +1,18 @@
+/**
+ * CALQIX Ads Monitor — Vercel Cron Endpoint
+ *
+ * Schedule: "0 5 * * *" = every day at 05:00 UTC = 07:00 CET / 06:00 CET (winter)
+ * This matches the user's desired ~7:00 AM local notification time.
+ *
+ * Auth: Vercel Cron sends Authorization: Bearer <CRON_SECRET>
+ * Manual test: GET /api/ads/monitor?secret=<CRON_SECRET>
+ *
+ * Features:
+ * - Always sends a Telegram notification (success with report, or failure with error)
+ * - Generates a Windsurf task file (.windsurf/tasks/ads-<date>.md) via GitHub API
+ * - Idempotent: skips if already run today (checked via run marker)
+ * - Structured error handling: individual API failures don't crash the whole run
+ */
 var { sendTelegram } = require('../../lib/telegram');
 var { apiGet, AD_ACCOUNT_ID, parseActionValue } = require('../../lib/meta-ads');
 
@@ -5,22 +20,40 @@ var PURCHASE_TYPES = ['purchase', 'offsite_conversion.fb_pixel_purchase'];
 var ATC_TYPES = ['offsite_conversion.fb_pixel_add_to_cart'];
 var IC_TYPES = ['offsite_conversion.fb_pixel_initiate_checkout'];
 var VC_TYPES = ['offsite_conversion.fb_pixel_view_content'];
-var BILLING_THRESHOLD = parseInt(process.env.BILLING_THRESHOLD || '74', 10); // euro (Meta facturatiedrempel)
+var BILLING_THRESHOLD = parseInt(process.env.BILLING_THRESHOLD || '74', 10);
 var BILLING_ALERT_PCT = 95;
+
+// In-memory run marker for idempotency within the same serverless instance
+var lastRunDate = null;
 
 function authCron(req) {
   var secret = process.env.CRON_SECRET;
   if (!secret) return false;
 
-  // Check query parameter
   var querySecret = req.query && req.query.secret;
   if (querySecret === secret) return true;
 
-  // Check Authorization header (Vercel Cron sends this)
   var authHeader = req.headers && req.headers['authorization'];
   if (authHeader === 'Bearer ' + secret) return true;
 
   return false;
+}
+
+function todayKey() {
+  return new Date().toISOString().split('T')[0];
+}
+
+async function safeApiGet(path, params, label) {
+  try {
+    var result = await apiGet(path, params);
+    if (!result.ok) {
+      console.warn('[Monitor] API call failed: ' + label, { error: result.error });
+    }
+    return result;
+  } catch (err) {
+    console.error('[Monitor] API exception: ' + label, { message: err.message });
+    return { ok: false, data: null, error: err.message };
+  }
 }
 
 async function handler(req, res) {
@@ -29,59 +62,105 @@ async function handler(req, res) {
   }
 
   if (!authCron(req)) {
-    return res.status(401).json({ error: 'Unauthorized — provide ?secret= or Authorization: Bearer header' });
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // Force bypass for manual testing
+  var forceRun = req.query && req.query.force === '1';
+
+  // Idempotency guard
+  var today = todayKey();
+  if (!forceRun && lastRunDate === today) {
+    console.log('[Monitor] Already ran today, skipping (idempotent).');
+    return res.status(200).json({
+      timestamp: new Date().toISOString(),
+      skipped: true,
+      reason: 'already_ran_today'
+    });
   }
 
   var now = new Date();
+  var startTime = Date.now();
+
+  try {
+    var result = await runMonitor(now);
+    lastRunDate = today;
+
+    var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log('[Monitor] Completed in ' + elapsed + 's', {
+      triggers: result.triggers_fired,
+      notification: result.notification_sent
+    });
+
+    return res.status(200).json(result);
+  } catch (err) {
+    // Critical failure — always notify
+    console.error('[Monitor] CRITICAL FAILURE', { message: err.message, stack: err.stack });
+
+    var failMsg = '🔴 <b>CALQIX Monitor FOUT</b>\n\n'
+      + 'De dagelijkse ads monitor is gecrasht:\n'
+      + '<code>' + (err.message || 'Unknown error').substring(0, 500) + '</code>\n\n'
+      + 'Controleer Vercel logs.';
+
+    try { await sendTelegram(failMsg); } catch (e) { console.error('[Monitor] Telegram fallback failed', e.message); }
+
+    return res.status(200).json({
+      timestamp: now.toISOString(),
+      error: err.message,
+      notification_sent: true,
+      notification_type: 'failure'
+    });
+  }
+}
+
+async function runMonitor(now) {
   var triggers = [];
+  var apiErrors = [];
 
-  // --- Fetch data ---
+  // --- Fetch data (each call is isolated) ---
 
-  // 1. Ad-level insights (last 3 days)
-  var adInsightsResult = await apiGet(AD_ACCOUNT_ID + '/insights', {
+  var adInsightsResult = await safeApiGet(AD_ACCOUNT_ID + '/insights', {
     fields: 'ad_name,ad_id,adset_name,adset_id,impressions,clicks,ctr,cpc,spend,frequency,actions,cost_per_action_type',
     date_preset: 'last_3d',
     level: 'ad',
     filtering: [{ field: 'impressions', operator: 'GREATER_THAN', value: '0' }],
     limit: 200
-  });
+  }, 'ad_insights_3d');
   var adInsights = adInsightsResult.ok && Array.isArray(adInsightsResult.data) ? adInsightsResult.data : [];
+  if (!adInsightsResult.ok) apiErrors.push('ad_insights_3d: ' + adInsightsResult.error);
 
-  // 2. Ad set metadata (active only)
-  var adsetsResult = await apiGet(AD_ACCOUNT_ID + '/adsets', {
+  var adsetsResult = await safeApiGet(AD_ACCOUNT_ID + '/adsets', {
     fields: 'name,status,effective_status,optimization_goal,daily_budget',
     filtering: [{ field: 'effective_status', operator: 'IN', value: ['ACTIVE', 'LEARNING', 'LEARNING_LIMITED'] }],
     limit: 50
-  });
+  }, 'adsets_active');
   var adsets = adsetsResult.ok && Array.isArray(adsetsResult.data) ? adsetsResult.data : [];
+  if (!adsetsResult.ok) apiErrors.push('adsets_active: ' + adsetsResult.error);
 
-  // 3. Ad set insights (last 3 days)
-  var adsetInsightsResult = await apiGet(AD_ACCOUNT_ID + '/insights', {
+  var adsetInsightsResult = await safeApiGet(AD_ACCOUNT_ID + '/insights', {
     fields: 'adset_name,adset_id,spend,actions,action_values',
     date_preset: 'last_3d',
     level: 'adset',
     filtering: [{ field: 'spend', operator: 'GREATER_THAN', value: '0' }],
     limit: 100
-  });
+  }, 'adset_insights_3d');
   var adsetInsights = adsetInsightsResult.ok && Array.isArray(adsetInsightsResult.data) ? adsetInsightsResult.data : [];
 
-  // 4. Ad set insights (last 7 days for event counts)
-  var adsetInsights7dResult = await apiGet(AD_ACCOUNT_ID + '/insights', {
+  var adsetInsights7dResult = await safeApiGet(AD_ACCOUNT_ID + '/insights', {
     fields: 'adset_name,adset_id,spend,actions,action_values',
     date_preset: 'last_7d',
     level: 'adset',
     filtering: [{ field: 'spend', operator: 'GREATER_THAN', value: '0' }],
     limit: 100
-  });
+  }, 'adset_insights_7d');
   var adsetInsights7d = adsetInsights7dResult.ok && Array.isArray(adsetInsights7dResult.data) ? adsetInsights7dResult.data : [];
 
-  // 5. Today's spend per ad set (for spike detection)
-  var todayInsightsResult = await apiGet(AD_ACCOUNT_ID + '/insights', {
+  var todayInsightsResult = await safeApiGet(AD_ACCOUNT_ID + '/insights', {
     fields: 'adset_name,adset_id,spend',
     date_preset: 'today',
     level: 'adset',
     limit: 100
-  });
+  }, 'adset_insights_today');
   var todayInsights = todayInsightsResult.ok && Array.isArray(todayInsightsResult.data) ? todayInsightsResult.data : [];
 
   // --- Evaluate triggers ---
@@ -192,7 +271,6 @@ async function handler(req, res) {
 
   // --- Website / Funnel Optimization Triggers ---
 
-  // Aggregate funnel data from 7-day insights
   var totalVC = 0, totalATC = 0, totalIC = 0, totalPurchases = 0, totalSpend7d = 0;
   adsetInsights7d.forEach(function (row) {
     var actions = row.actions || [];
@@ -203,7 +281,7 @@ async function handler(req, res) {
     totalSpend7d += parseFloat(row.spend) || 0;
   });
 
-  // TRIGGER 7: CHECKOUT DROP-OFF (IC → Purchase < 25%)
+  // TRIGGER 7: CHECKOUT DROP-OFF
   if (totalIC >= 5 && totalPurchases > 0) {
     var icToPurchaseRate = (totalPurchases / totalIC * 100);
     if (icToPurchaseRate < 25) {
@@ -217,7 +295,7 @@ async function handler(req, res) {
     }
   }
 
-  // TRIGGER 8: LOW ATC-TO-IC RATIO (ATC → IC < 30%)
+  // TRIGGER 8: LOW ATC-TO-IC RATIO
   if (totalATC >= 5) {
     var atcToIcRate = totalIC > 0 ? (totalIC / totalATC * 100) : 0;
     if (atcToIcRate < 30) {
@@ -231,7 +309,7 @@ async function handler(req, res) {
     }
   }
 
-  // TRIGGER 9: LOW VC-TO-ATC RATIO (VC → ATC < 5%)
+  // TRIGGER 9: LOW VC-TO-ATC RATIO
   if (totalVC >= 20) {
     var vcToAtcRate = totalATC > 0 ? (totalATC / totalVC * 100) : 0;
     if (vcToAtcRate < 5) {
@@ -245,7 +323,7 @@ async function handler(req, res) {
     }
   }
 
-  // TRIGGER 10: HIGH CPC (> €2.00 gemiddeld)
+  // TRIGGER 10: HIGH CPC
   var totalClicks = 0;
   adInsights.forEach(function (ad) { totalClicks += parseInt(ad.clicks) || 0; });
   if (totalClicks > 0 && totalSpend7d > 0) {
@@ -261,8 +339,8 @@ async function handler(req, res) {
     }
   }
 
-  // TRIGGER 11: BILLING THRESHOLD (95% van facturatiedrempel)
-  var billingResult = await apiGet(AD_ACCOUNT_ID, { fields: 'balance' });
+  // TRIGGER 11: BILLING THRESHOLD
+  var billingResult = await safeApiGet(AD_ACCOUNT_ID, { fields: 'balance' }, 'billing');
   if (billingResult.ok && billingResult.data && billingResult.data.balance) {
     var currentBalance = parseInt(billingResult.data.balance, 10) / 100;
     var billingPct = (currentBalance / BILLING_THRESHOLD * 100);
@@ -277,49 +355,51 @@ async function handler(req, res) {
     }
   }
 
-  // --- Notification decision ---
+  // --- Build notification ---
 
   var urgentTriggers = triggers.filter(function (t) { return t.severity === 'URGENT'; });
   var warningTriggers = triggers.filter(function (t) { return t.severity === 'WARNING'; });
   var infoTriggers = triggers.filter(function (t) { return t.severity === 'INFO'; });
 
-  var isMonday = now.getDay() === 1;
-  var shouldNotify = false;
-  var telegramResult = null;
+  // Always notify — either with triggers or with all-clear status
+  var msg = formatMessage(now, urgentTriggers, warningTriggers, infoTriggers, adsetInsights7d, adsets, apiErrors, {
+    totalVC: totalVC, totalATC: totalATC, totalIC: totalIC, totalPurchases: totalPurchases, totalSpend7d: totalSpend7d
+  });
+  var telegramResult = await sendTelegram(msg);
 
-  if (urgentTriggers.length > 0) {
-    shouldNotify = true;
-  } else if (warningTriggers.length > 0) {
-    shouldNotify = true;
-  } else if (infoTriggers.length > 0 && isMonday) {
-    shouldNotify = true;
+  // --- Generate Windsurf task file if there are actionable triggers ---
+  var taskGenerated = false;
+  if (urgentTriggers.length > 0 || warningTriggers.length > 0) {
+    taskGenerated = await generateWindsurfTask(now, urgentTriggers, warningTriggers, infoTriggers);
   }
 
-  if (shouldNotify) {
-    var msg = formatMessage(now, urgentTriggers, warningTriggers, infoTriggers, adsetInsights7d, adsets);
-    telegramResult = await sendTelegram(msg);
-  } else {
-    console.log('[Monitor] Geen acties nodig, geen notificatie verstuurd.');
-  }
-
-  return res.status(200).json({
+  return {
     timestamp: now.toISOString(),
     triggers_fired: triggers.length,
     urgent: urgentTriggers.length,
     warning: warningTriggers.length,
     info: infoTriggers.length,
-    notification_sent: shouldNotify,
+    api_errors: apiErrors.length,
+    notification_sent: true,
     telegram_response: telegramResult,
+    windsurf_task: taskGenerated,
     triggers: triggers
-  });
+  };
 }
 
-function formatMessage(now, urgent, warning, info, weeklyInsights, adsets) {
+function formatMessage(now, urgent, warning, info, weeklyInsights, adsets, apiErrors, funnel) {
   var iso = now.toISOString().split('T')[0].split('-');
   var dateStr = iso[2] + '-' + iso[1] + '-' + iso[0];
-  var lines = ['<b>CALQIX Ads Monitor - ' + dateStr + '</b>\n'];
+  var lines = ['📊 <b>CALQIX Ads Monitor - ' + dateStr + '</b>\n'];
 
-  // Split warnings into ad warnings and website warnings
+  // API errors
+  if (apiErrors.length > 0) {
+    lines.push('⚙️ <b>API WARNINGS:</b>');
+    apiErrors.forEach(function (e) { lines.push('- ' + e.substring(0, 100)); });
+    lines.push('');
+  }
+
+  // Split warnings
   var adWarnings = [];
   var websiteWarnings = [];
   warning.forEach(function (t) {
@@ -348,48 +428,123 @@ function formatMessage(now, urgent, warning, info, weeklyInsights, adsets) {
     lines.push('');
   }
 
-  // Weekly report on Monday or if only info triggers
-  if (urgent.length === 0 && warning.length === 0 && info.length > 0) {
-    var totalSpend = 0;
-    var totalAtc = 0;
-    var totalPurchases = 0;
-    var bestAd = null;
-    var bestCtr = 0;
-
-    weeklyInsights.forEach(function (row) {
-      totalSpend += parseFloat(row.spend) || 0;
-      totalAtc += parseActionValue(row.actions || [], ATC_TYPES);
-      totalPurchases += parseActionValue(row.actions || [], PURCHASE_TYPES);
-    });
-
-    info.forEach(function (t) {
-      // Extract CTR from message for "best ad"
-      var match = t.message.match(/CTR (\d+\.?\d*)%/);
-      if (match) {
-        var ctr = parseFloat(match[1]);
-        if (ctr > bestCtr) {
-          bestCtr = ctr;
-          bestAd = t.target;
-        }
-      }
-    });
-
-    lines.push('✅ <b>WEEK RAPPORT:</b>');
-    lines.push('- Spend: ' + totalSpend.toFixed(2) + ' euro');
-    lines.push('- ATC events: ' + totalAtc + ' (doel: 50/week)');
-    lines.push('- Purchases: ' + totalPurchases);
-    if (bestAd) lines.push('- Beste ad: ' + bestAd + ' (CTR ' + bestCtr.toFixed(1) + '%)');
-    lines.push('- Geen urgente acties nodig');
+  if (info.length > 0) {
+    lines.push('🏆 <b>WINNERS:</b>');
+    info.forEach(function (t) { lines.push('- ' + t.message); });
     lines.push('');
+  }
 
-    if (info.length > 0) {
-      lines.push('🏆 <b>WINNERS:</b>');
-      info.forEach(function (t) { lines.push('- ' + t.message); });
-      lines.push('');
-    }
+  // Always show funnel summary
+  lines.push('📈 <b>7-DAG FUNNEL:</b>');
+  lines.push('- Spend: €' + funnel.totalSpend7d.toFixed(2));
+  lines.push('- VC→ATC→IC→Purchase: ' + funnel.totalVC + '→' + funnel.totalATC + '→' + funnel.totalIC + '→' + funnel.totalPurchases);
+  if (funnel.totalATC > 0) {
+    lines.push('- Cost/ATC: €' + (funnel.totalSpend7d / funnel.totalATC).toFixed(2));
+  }
+  lines.push('');
+
+  // All-clear
+  if (urgent.length === 0 && warning.length === 0) {
+    lines.push('✅ Geen urgente acties nodig.');
+  }
+
+  // Windsurf task hint
+  if (urgent.length > 0 || warning.length > 0) {
+    lines.push('\n🤖 <i>Windsurf taak aangemaakt in .windsurf/tasks/</i>');
   }
 
   return lines.join('\n');
+}
+
+/**
+ * Generate a Windsurf task file via GitHub API.
+ * This creates a markdown file in .windsurf/tasks/ that Windsurf can pick up.
+ */
+async function generateWindsurfTask(now, urgent, warning, info) {
+  var ghToken = process.env.GITHUB_TOKEN;
+  var ghRepo = process.env.GITHUB_REPO || 'CALQIX/Themex-Calqix';
+
+  if (!ghToken) {
+    console.log('[Monitor] GITHUB_TOKEN not set, skipping Windsurf task generation');
+    return false;
+  }
+
+  var date = now.toISOString().split('T')[0];
+  var filePath = '.windsurf/tasks/ads-' + date + '.md';
+
+  var lines = [
+    '---',
+    'description: Daily ads optimization actions for ' + date,
+    '---',
+    '',
+    '# Ads Monitor Actions — ' + date,
+    '',
+    'Auto-generated by the CALQIX Ads Monitor cron job.',
+    ''
+  ];
+
+  if (urgent.length > 0) {
+    lines.push('## Urgent Actions');
+    urgent.forEach(function (t) {
+      lines.push('- [ ] **' + t.rule + '**: ' + t.message + (t.target_id ? ' (ID: `' + t.target_id + '`)' : ''));
+    });
+    lines.push('');
+  }
+
+  if (warning.length > 0) {
+    lines.push('## Warnings');
+    warning.forEach(function (t) {
+      lines.push('- [ ] **' + t.rule + '**: ' + t.message + (t.target_id ? ' (ID: `' + t.target_id + '`)' : ''));
+    });
+    lines.push('');
+  }
+
+  if (info.length > 0) {
+    lines.push('## Info');
+    info.forEach(function (t) {
+      lines.push('- ' + t.message);
+    });
+    lines.push('');
+  }
+
+  lines.push('## How to execute');
+  lines.push('Use the `/ads-optimize` Windsurf workflow or handle manually via Meta Ads Manager.');
+
+  var content = Buffer.from(lines.join('\n')).toString('base64');
+  var fetch = require('node-fetch');
+
+  try {
+    var response = await fetch('https://api.github.com/repos/' + ghRepo + '/contents/' + filePath, {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'Bearer ' + ghToken,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json'
+      },
+      body: JSON.stringify({
+        message: 'chore: ads monitor task ' + date,
+        content: content,
+        branch: 'main'
+      })
+    });
+
+    if (response.ok || response.status === 201) {
+      console.log('[Monitor] Windsurf task created: ' + filePath);
+      return true;
+    } else {
+      var errBody = await response.text();
+      // 422 means file already exists — that's fine (idempotent)
+      if (response.status === 422) {
+        console.log('[Monitor] Windsurf task already exists for today');
+        return true;
+      }
+      console.warn('[Monitor] GitHub API error', { status: response.status, body: errBody.substring(0, 200) });
+      return false;
+    }
+  } catch (err) {
+    console.warn('[Monitor] GitHub task creation failed', { message: err.message });
+    return false;
+  }
 }
 
 module.exports = handler;

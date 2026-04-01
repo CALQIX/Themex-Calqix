@@ -38,6 +38,7 @@ async function handler(req, res) {
     const customerData = {};
     if (body.fbc) customerData.fbc = body.fbc;
     if (body.fbp) customerData.fbp = body.fbp;
+    if (body.email) customerData.email = body.email;
     if (body.external_id) customerData.external_id = body.external_id;
 
     const clientIp =
@@ -49,6 +50,15 @@ async function handler(req, res) {
       undefined;
 
     const userData = formatUserData(customerData, clientIp, clientUserAgent);
+
+    console.log('[ViewContent] browser-side event', {
+      eventId,
+      hasFbc: Boolean(userData.fbc),
+      hasFbp: Boolean(userData.fbp),
+      hasEmail: Boolean(userData.em),
+      hasIp: Boolean(userData.client_ip_address),
+      hasUa: Boolean(userData.client_user_agent)
+    });
 
     const contentId = String(productId || variantId);
     const contentType = productId ? 'product_group' : 'product';

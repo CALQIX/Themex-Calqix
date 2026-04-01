@@ -94,6 +94,18 @@ async function handler(req, res) {
       num_items: countItems(lineItems)
     };
 
+    console.log('[Webhook carts-create] sending AddToCart', {
+      eventId,
+      hasFbc: Boolean(userData.fbc),
+      hasFbp: Boolean(userData.fbp),
+      hasEmail: Boolean(userData.em),
+      hasPhone: Boolean(userData.ph),
+      hasIp: Boolean(userData.client_ip_address),
+      hasUa: Boolean(userData.client_user_agent),
+      hasExternalId: Boolean(userData.external_id),
+      contentIds: customData.content_ids.length
+    });
+
     await sendEvent('AddToCart', eventId, SOURCE_URL, userData, customData);
     markProcessed('AddToCart', String(cartKey));
 
