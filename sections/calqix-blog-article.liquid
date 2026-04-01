@@ -225,14 +225,25 @@
   @media (max-width: 1023px) {
     .blog-toc-mobile {
       display: block;
-      max-width: 100%;
-      margin: 0;
-      padding: 12px 16px;
-      position: sticky;
-      top: var(--header-height, 0px);
-      z-index: 50;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      top: auto;
+      z-index: 9990;
       background: var(--calqix-white, #fff);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+      border-top: 1px solid var(--calqix-border);
+      padding: 0;
+      margin: 0;
+      transform: translateY(calc(100% - 52px));
+      transition: transform 0.3s ease;
+      max-height: 55vh;
+      overflow: hidden;
+    }
+    .blog-toc-mobile.is-open {
+      transform: translateY(0);
     }
     .blog-toc-mobile__trigger {
       display: flex;
@@ -242,7 +253,7 @@
       background: var(--calqix-navy);
       color: var(--calqix-white);
       border: none;
-      border-radius: 8px;
+      border-radius: 16px 16px 0 0;
       padding: 14px 20px;
       font-family: var(--calqix-font-body);
       font-size: 14px;
@@ -254,17 +265,12 @@
       pointer-events: none;
     }
     .blog-toc-mobile__body {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      max-height: calc(55vh - 52px);
       background: var(--calqix-bg-light);
-      border-radius: 0 0 8px 8px;
-    }
-    .blog-toc-mobile.is-open .blog-toc-mobile__body {
-      max-height: 600px;
     }
     .blog-toc-mobile__body-inner {
-      padding: 16px 20px 20px;
+      padding: 16px 20px 28px;
     }
     .blog-toc-mobile .blog-toc__heading {
       margin-bottom: 12px;
@@ -272,12 +278,16 @@
     .blog-toc-mobile .blog-toc__item {
       display: block;
       font-size: 14px;
-      padding: 8px 0;
+      padding: 10px 0;
       color: var(--calqix-navy);
       font-weight: 500;
       line-height: 1.5;
       text-decoration: none;
       font-family: var(--calqix-font-body);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .blog-toc-mobile .blog-toc__item:last-child {
+      border-bottom: none;
     }
     .blog-toc-mobile .blog-toc__item.is-active {
       color: var(--calqix-gold);
@@ -306,7 +316,7 @@
     opacity: 0;
     transform: translateY(16px);
     transition: opacity 0.6s ease, transform 0.6s ease;
-    scroll-margin-top: 100px;
+    scroll-margin-top: 80px;
   }
   .blog-content h2.is-visible {
     opacity: 1;
@@ -1146,7 +1156,7 @@
   {%- if section.settings.show_toc -%}
     <div class="blog-toc-mobile">
       <button class="blog-toc-mobile__trigger" type="button" aria-expanded="false">
-        <span>Contents ↕</span>
+        <span>Contents ▲</span>
       </button>
       <div class="blog-toc-mobile__body">
         <div class="blog-toc-mobile__body-inner">

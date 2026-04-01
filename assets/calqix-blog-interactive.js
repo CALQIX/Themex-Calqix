@@ -470,7 +470,7 @@
           });
         }
       });
-    }, { rootMargin: '-100px 0px -70% 0px', threshold: 0 });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
 
     headings.forEach(function (h) { observer.observe(h); });
 
@@ -498,9 +498,21 @@
     var btn = document.querySelector('.blog-toc-mobile__trigger');
     if (!wrapper || !btn) return;
 
+    var label = btn.querySelector('span');
+
     btn.addEventListener('click', function () {
       var isOpen = wrapper.classList.toggle('is-open');
       btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      if (label) label.textContent = isOpen ? 'Contents \u25BC' : 'Contents \u25B2';
+    });
+
+    /* Close drawer when a TOC link inside is tapped */
+    wrapper.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        wrapper.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+        if (label) label.textContent = 'Contents \u25B2';
+      });
     });
   }
 
