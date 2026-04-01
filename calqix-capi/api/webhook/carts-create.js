@@ -94,7 +94,12 @@ async function handler(req, res) {
       num_items: countItems(lineItems)
     };
 
-    console.log('[Webhook carts-create] sending AddToCart', {
+    // DIAGNOSTIC ONLY — do NOT send to Meta.
+    // The browser bridge (calqix-meta-bridge.js) is the canonical AddToCart source.
+    // It fires fbq('track','AddToCart') + POST /api/add-to-cart with the SAME event_id.
+    // This webhook uses a DIFFERENT event_id (cart_{id}) which would cause double-counting.
+    // We log diagnostics to compare webhook vs browser match quality.
+    console.log('[Webhook carts-create] DIAGNOSTIC (not sent to Meta)', {
       eventId,
       hasFbc: Boolean(userData.fbc),
       hasFbp: Boolean(userData.fbp),
@@ -106,12 +111,12 @@ async function handler(req, res) {
       contentIds: customData.content_ids.length
     });
 
-    await sendEvent('AddToCart', eventId, SOURCE_URL, userData, customData);
-    markProcessed('AddToCart', String(cartKey));
+    await markProcessed('AddToCart', String(cartKey));
 
     return respondOk(res, {
       received: true,
-      processed: true,
+      processed: false,
+      reason: 'diagnostic_only',
       event: 'AddToCart',
       eventId
     });

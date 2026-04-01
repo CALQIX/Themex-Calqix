@@ -5,6 +5,7 @@
 const { isDuplicate, markProcessed } = require('../../lib/dedup-guard');
 const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');
+const store = require('../../lib/store');
 const {
   buildContents,
   countItems,
@@ -28,7 +29,8 @@ function getLineItemPrice(item) {
   );
 }
 
-function buildCheckoutUserData(checkout, fallbackIp, fallbackUserAgent) {
+function buildCheckoutUserData(checkout, fallbackIp, fallbackUserAgent, enrichment) {
+  var enrich = enrichment || {};
   const mergedCustomer = mergeCustomerData(
     checkout && checkout.customer,
     checkout && checkout.billing_address,
@@ -70,6 +72,14 @@ function buildCheckoutUserData(checkout, fallbackIp, fallbackUserAgent) {
     extractMetaBrowserIds(checkout),
     {
       external_id: extractExternalId(checkout)
+    },
+    // Enrichment from Custom Pixel (fbc/fbp/email stored at contact_info_submitted)
+    {
+      fbc: enrich.fbc || undefined,
+      fbp: enrich.fbp || undefined,
+      email: enrich.email || undefined,
+      phone: enrich.phone || undefined,
+      external_id: enrich.external_id || undefined
     }
   );
 
@@ -106,8 +116,12 @@ async function handler(req, res) {
     }
 
     const lineItems = Array.isArray(checkout.line_items) ? checkout.line_items : [];
-    const eventId = `checkout_${checkoutKey}`;
-    const userData = buildCheckoutUserData(checkout, verification.clientIp, verification.userAgent);
+    // Shared event_id format: ic_{checkout_token} — matches Custom Pixel
+    const eventId = `ic_${checkoutKey}`;
+
+    // Merge enrichment from Custom Pixel's contact_info_submitted if available
+    const enrichment = await store.getEnrichment(String(checkoutKey)) || {};
+    const userData = buildCheckoutUserData(checkout, verification.clientIp, verification.userAgent, enrichment);
     const customData = {
       value: toMoney(checkout.total_price),
       currency: checkout.currency || 'EUR',
@@ -117,8 +131,21 @@ async function handler(req, res) {
       num_items: countItems(lineItems)
     };
 
+    console.log('[Webhook checkouts-create] InitiateCheckout', {
+      eventId,
+      hasFbc: Boolean(userData.fbc),
+      hasFbp: Boolean(userData.fbp),
+      hasEmail: Boolean(userData.em),
+      hasPhone: Boolean(userData.ph),
+      hasIp: Boolean(userData.client_ip_address),
+      hasUa: Boolean(userData.client_user_agent),
+      hasExternalId: Boolean(userData.external_id),
+      enrichedFromStore: Object.keys(enrichment).length > 0,
+      source: 'webhook'
+    });
+
     await sendEvent('InitiateCheckout', eventId, SOURCE_URL, userData, customData);
-    markProcessed('InitiateCheckout', String(checkoutKey));
+    await markProcessed('InitiateCheckout', String(checkoutKey));
 
     return respondOk(res, {
       received: true,

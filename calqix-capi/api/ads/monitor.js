@@ -15,6 +15,7 @@
  */
 var { sendTelegram } = require('../../lib/telegram');
 var { apiGet, AD_ACCOUNT_ID, parseActionValue } = require('../../lib/meta-ads');
+var store = require('../../lib/store');
 
 var PURCHASE_TYPES = ['purchase', 'offsite_conversion.fb_pixel_purchase'];
 var ATC_TYPES = ['offsite_conversion.fb_pixel_add_to_cart'];
@@ -22,9 +23,6 @@ var IC_TYPES = ['offsite_conversion.fb_pixel_initiate_checkout'];
 var VC_TYPES = ['offsite_conversion.fb_pixel_view_content'];
 var BILLING_THRESHOLD = parseInt(process.env.BILLING_THRESHOLD || '74', 10);
 var BILLING_ALERT_PCT = 95;
-
-// In-memory run marker for idempotency within the same serverless instance
-var lastRunDate = null;
 
 function authCron(req) {
   var secret = process.env.CRON_SECRET;
@@ -65,36 +63,56 @@ async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  // Force bypass for manual testing
   var forceRun = req.query && req.query.force === '1';
-
-  // Idempotency guard
+  var now = new Date();
   var today = todayKey();
-  if (!forceRun && lastRunDate === today) {
-    console.log('[Monitor] Already ran today, skipping (idempotent).');
+  var startTime = Date.now();
+
+  console.log('[Monitor] Run started', { date: today, force: forceRun, storeType: store.getStoreType() });
+
+  // 1. Durable idempotency check
+  if (!forceRun) {
+    var previousRun = await store.getCronRun(today);
+    if (previousRun) {
+      console.log('[Monitor] Already ran today, skipping (idempotent).', { date: today });
+      return res.status(200).json({
+        timestamp: now.toISOString(),
+        skipped: true,
+        reason: 'already_ran_today',
+        previous_run: previousRun
+      });
+    }
+  }
+
+  // 2. Durable concurrency lock (5 minute TTL)
+  var lockAcquired = await store.acquireCronLock();
+  if (!lockAcquired) {
+    console.log('[Monitor] Lock not acquired, another instance is running.', { date: today });
     return res.status(200).json({
-      timestamp: new Date().toISOString(),
+      timestamp: now.toISOString(),
       skipped: true,
-      reason: 'already_ran_today'
+      reason: 'lock_held'
     });
   }
 
-  var now = new Date();
-  var startTime = Date.now();
-
   try {
     var result = await runMonitor(now);
-    lastRunDate = today;
+
+    // Record successful run
+    await store.setCronRun(today, {
+      timestamp: now.toISOString(),
+      triggers_fired: result.triggers_fired,
+      notification_sent: result.notification_sent
+    });
 
     var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-    console.log('[Monitor] Completed in ' + elapsed + 's', {
+    console.log('[Monitor] Completed successfully in ' + elapsed + 's', {
       triggers: result.triggers_fired,
       notification: result.notification_sent
     });
 
     return res.status(200).json(result);
   } catch (err) {
-    // Critical failure — always notify
     console.error('[Monitor] CRITICAL FAILURE', { message: err.message, stack: err.stack });
 
     var failMsg = '🔴 <b>CALQIX Monitor FOUT</b>\n\n'
@@ -102,14 +120,33 @@ async function handler(req, res) {
       + '<code>' + (err.message || 'Unknown error').substring(0, 500) + '</code>\n\n'
       + 'Controleer Vercel logs.';
 
-    try { await sendTelegram(failMsg); } catch (e) { console.error('[Monitor] Telegram fallback failed', e.message); }
+    // Try primary notification channel
+    var notifySent = false;
+    try {
+      await sendTelegram(failMsg);
+      notifySent = true;
+    } catch (e) {
+      console.error('[Monitor] Telegram primary notification failed', e.message);
+    }
+
+    // Fallback: log to stdout as structured JSON for Vercel log drain
+    if (!notifySent) {
+      console.error('[Monitor] FALLBACK NOTIFICATION (Telegram failed)', {
+        type: 'monitor_failure',
+        error: err.message,
+        date: today
+      });
+    }
 
     return res.status(200).json({
       timestamp: now.toISOString(),
       error: err.message,
-      notification_sent: true,
+      notification_sent: notifySent,
       notification_type: 'failure'
     });
+  } finally {
+    // Always release the lock
+    await store.releaseCronLock();
   }
 }
 
@@ -448,9 +485,13 @@ function formatMessage(now, urgent, warning, info, weeklyInsights, adsets, apiEr
     lines.push('✅ Geen urgente acties nodig.');
   }
 
-  // Windsurf task hint
+  // Operator action instructions (not auto-executed)
   if (urgent.length > 0 || warning.length > 0) {
-    lines.push('\n🤖 <i>Windsurf taak aangemaakt in .windsurf/tasks/</i>');
+    var dateStr2 = now.toISOString().split('T')[0];
+    lines.push('\n📝 <b>ACTIE VEREIST:</b>');
+    lines.push('1. Taakbestand: <code>.windsurf/tasks/ads-' + dateStr2 + '.md</code>');
+    lines.push('2. Open Windsurf en voer uit: <code>/ads-optimize</code>');
+    lines.push('3. Of handle handmatig via Meta Ads Manager.');
   }
 
   return lines.join('\n');

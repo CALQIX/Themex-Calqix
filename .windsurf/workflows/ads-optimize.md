@@ -4,31 +4,47 @@ description: Daily ads optimization — execute actions from the monitor cron jo
 
 # Daily Ads Optimization Workflow
 
-This workflow is triggered when the CALQIX Ads Monitor cron job creates a task file in `.windsurf/tasks/ads-YYYY-MM-DD.md`.
+**Invocation:** Manual only — run `/ads-optimize` in Windsurf when prompted by a Telegram notification.
+
+**This workflow is NOT automatically executed.** The daily cron job at 05:00 UTC creates a task file and sends a Telegram notification. A human operator must then decide to invoke this workflow.
+
+## Prerequisites
+
+- A task file exists at `.windsurf/tasks/ads-YYYY-MM-DD.md` (created by the cron job)
+- You received a Telegram notification with action items
 
 ## Steps
 
-1. Read today's task file from `.windsurf/tasks/` to understand which triggers fired.
+1. Read today's task file:
+   ```
+   .windsurf/tasks/ads-YYYY-MM-DD.md
+   ```
+   Identify which triggers fired and their severity.
 
 2. For each **URGENT** action:
-   - **AD_KILLER**: Pause the ad via Meta Marketing API (`POST /{ad_id}` with `status: PAUSED`). Use the endpoint at `calqix-capi/api/ads/update-status.js` if available, or execute directly.
-   - **CREATIVE_FATIGUE**: Note the fatigued ad. Create a new creative suggestion using Predis.ai via `calqix-capi/api/content/create-predis-ad.js`.
-   - **SPENDING_SPIKE**: Review the ad set spend. If budget is exceeded, pause the ad set or lower the daily budget.
-   - **BILLING_THRESHOLD**: Notify the user to top up their credit card. No automated action possible.
+   - **AD_KILLER**: Pause the ad via `POST /{ad_id}` with `status: PAUSED` using `calqix-capi/api/ads/actions.js`. Confirm the ad ID from the task file.
+   - **CREATIVE_FATIGUE**: Note the fatigued ad. Suggest a new creative via `calqix-capi/api/content/create-predis-ad.js`.
+   - **SPENDING_SPIKE**: Review spend vs budget. If overspent, pause the ad set or lower daily budget.
+   - **BILLING_THRESHOLD**: Report to user — no automated action possible.
 
 3. For each **WARNING** action:
-   - **BUDGET_UNDERUTILIZED**: Check audience size and bid strategy. Suggest broadening targeting.
-   - **LEARNING_LIMITED**: Suggest switching to a higher-funnel optimization event (e.g., AddToCart instead of Purchase).
-   - **CHECKOUT_DROPOFF / CART_ABANDONMENT / LOW_PRODUCT_CONVERSION**: These are website optimization suggestions. Log them but do not change ads.
+   - **BUDGET_UNDERUTILIZED**: Suggest broadening targeting or reviewing bid strategy.
+   - **LEARNING_LIMITED**: Suggest switching to higher-funnel optimization (e.g., AddToCart).
+   - **CHECKOUT_DROPOFF / CART_ABANDONMENT / LOW_PRODUCT_CONVERSION**: Website optimization suggestions only — do not change ads.
 
-4. After executing actions, update the task file: mark completed items with `[x]`.
+4. After executing, update the task file: mark completed items with `[x]`.
 
-5. Send a summary of what was done via Telegram using the existing `lib/telegram.js` module or by calling the monitor endpoint.
+5. Summarize what was done. Optionally notify via Telegram.
 
-## Important Notes
+## Safety Rules
 
-- Never increase daily budget beyond €200 (MAX_DAILY_BUDGET in env).
-- Never pause campaigns without explicit trigger data.
-- Always log which actions were taken.
+- Never increase daily budget beyond €200 (`MAX_DAILY_BUDGET`).
+- Never pause campaigns without explicit trigger data from the task file.
+- Always log which actions were taken and why.
+- Never fabricate ad IDs or assume IDs not in the task file.
+
+## Reference
+
 - Meta Ad Account ID: `act_2108393566376667`
 - Pixel ID: `934134615770602`
+- Cron schedule: `0 5 * * *` (05:00 UTC = 07:00 CEST / 06:00 CET)

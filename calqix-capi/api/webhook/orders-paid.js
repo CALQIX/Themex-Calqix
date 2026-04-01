@@ -5,6 +5,7 @@
 const { isDuplicate, markProcessed } = require('../../lib/dedup-guard');
 const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');
+const store = require('../../lib/store');
 const {
   buildContents,
   countItems,
@@ -29,7 +30,8 @@ function getLineItemPrice(item) {
   );
 }
 
-function buildOrderUserData(order, fallbackIp, fallbackUserAgent) {
+function buildOrderUserData(order, fallbackIp, fallbackUserAgent, enrichment) {
+  var enrich = enrichment || {};
   const mergedCustomer = mergeCustomerData(
     order && order.customer,
     order && order.customer && order.customer.default_address,
@@ -76,6 +78,14 @@ function buildOrderUserData(order, fallbackIp, fallbackUserAgent) {
     extractMetaBrowserIds(order),
     {
       external_id: extractExternalId(order)
+    },
+    // Enrichment from Custom Pixel (fbc/fbp/email stored during checkout)
+    {
+      fbc: enrich.fbc || undefined,
+      fbp: enrich.fbp || undefined,
+      email: enrich.email || undefined,
+      phone: enrich.phone || undefined,
+      external_id: enrich.external_id || undefined
     }
   );
 
@@ -111,14 +121,28 @@ async function handler(req, res) {
       return respondOk(res, { received: true, processed: false });
     }
 
-    if (isDuplicate('Purchase', String(order.id))) {
-      console.log('[Webhook orders-paid] skipping duplicate', { identifier: order.id });
+    // Use checkout_token as the correlation key for dedup with Custom Pixel.
+    // Custom Pixel sends purchase_{checkout_token}, so we must use the same.
+    // Fall back to order.id if checkout_token is unavailable.
+    const checkoutToken = order.checkout_token || order.token;
+    const dedupKey = checkoutToken || String(order.id);
+
+    if (await isDuplicate('Purchase', dedupKey)) {
+      console.log('[Webhook orders-paid] skipping duplicate', {
+        identifier: dedupKey,
+        source: checkoutToken ? 'checkout_token' : 'order_id'
+      });
       return respondOk(res, { received: true, processed: false, reason: 'duplicate' });
     }
 
+    // Shared event_id format: purchase_{checkout_token} — matches Custom Pixel
+    const eventId = checkoutToken ? `purchase_${checkoutToken}` : `purchase_${order.id}`;
+
+    // Merge enrichment from Custom Pixel's contact_info_submitted if available
+    const enrichment = checkoutToken ? (await store.getEnrichment(String(checkoutToken)) || {}) : {};
+
     const lineItems = Array.isArray(order.line_items) ? order.line_items : [];
-    const eventId = `purchase_${order.id}`;
-    const userData = buildOrderUserData(order, verification.clientIp, verification.userAgent);
+    const userData = buildOrderUserData(order, verification.clientIp, verification.userAgent, enrichment);
     const customData = {
       value: toMoney(order.total_price),
       currency: order.currency || 'EUR',
@@ -129,8 +153,22 @@ async function handler(req, res) {
       order_id: String(order.id)
     };
 
+    console.log('[Webhook orders-paid] Purchase', {
+      eventId,
+      hasFbc: Boolean(userData.fbc),
+      hasFbp: Boolean(userData.fbp),
+      hasEmail: Boolean(userData.em),
+      hasPhone: Boolean(userData.ph),
+      hasIp: Boolean(userData.client_ip_address),
+      hasUa: Boolean(userData.client_user_agent),
+      hasExternalId: Boolean(userData.external_id),
+      enrichedFromStore: Object.keys(enrichment).length > 0,
+      correlationKey: checkoutToken ? 'checkout_token' : 'order_id',
+      source: 'webhook'
+    });
+
     await sendEvent('Purchase', eventId, SOURCE_URL, userData, customData);
-    markProcessed('Purchase', String(order.id));
+    await markProcessed('Purchase', dedupKey);
 
     return respondOk(res, {
       received: true,
