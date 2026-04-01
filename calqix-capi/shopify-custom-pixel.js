@@ -1,171 +1,157 @@
-/**
- * CALQIX Shopify Custom Pixel — Meta CAPI Checkout Tracking
+/*
+ * CALQIX Meta CAPI — Shopify Custom Pixel
  *
- * INSTALLATION:
- * 1. Go to Shopify Admin → Settings → Customer events
- * 2. Click "Add custom pixel"
- * 3. Name it "CALQIX Meta CAPI"
- * 4. Paste this entire script
- * 5. Click "Save" then "Connect"
+ * INSTALL: Shopify Admin > Settings > Customer events > Add custom pixel
+ * Name: "CALQIX Meta CAPI"  —  Paste this code  —  Save  —  Connect
  *
- * This pixel subscribes to Shopify checkout events and sends them to the
- * CALQIX Vercel CAPI endpoint with fbc/fbp cookies for high match quality.
+ * Tracks: checkout_started, checkout_contact_info_submitted, checkout_completed
+ * Sends to: https://calqix-capi.vercel.app/api/checkout-event
  *
- * Events tracked:
- *   checkout_started              → InitiateCheckout (Meta CAPI)
- *   checkout_contact_info_submitted → Enrichment storage (email/phone)
- *   checkout_completed            → Purchase (Meta CAPI)
- *
- * Deduplication:
- *   Uses checkout_token as the shared correlation key.
- *   event_id for IC = ic_{checkout_token}
- *   event_id for Purchase = purchase_{checkout_token}
- *   Webhook fallbacks use the same format → Meta deduplicates correctly.
+ * Dedup: event_id = ic_{token} for IC, purchase_{token} for Purchase
+ * Webhook fallbacks use the same format so Meta deduplicates correctly.
  */
 
-const CAPI_ENDPOINT = 'https://calqix-capi.vercel.app/api/checkout-event';
+var CAPI_URL = "https://calqix-capi.vercel.app/api/checkout-event";
+var FALLBACK_URL = "https://calqix.com/checkout";
 
-// In-pixel enrichment accumulator (survives across events in same checkout session)
-const enrichmentCache = {};
+// Enrichment accumulator — survives across events in the same checkout session
+var enrichment = {};
 
-async function getFbc() {
+// Cache the last known page URL from page_viewed events
+var lastPageUrl = FALLBACK_URL;
+analytics.subscribe("page_viewed", function (event) {
   try {
-    return await browser.cookie.get('_fbc');
-  } catch (e) { return null; }
+    var loc = event.context.document.location;
+    if (loc && loc.href) {
+      lastPageUrl = loc.href;
+    }
+  } catch (e) { /* ignore */ }
+});
+
+// --- Helpers ---
+
+function getCookie(name) {
+  try { return browser.cookie.get(name); }
+  catch (e) { return Promise.resolve(null); }
 }
 
-async function getFbp() {
+function getSourceUrl(event) {
   try {
-    return await browser.cookie.get('_fbp');
-  } catch (e) { return null; }
+    var loc = event.context.document.location;
+    if (loc && loc.href) return loc.href;
+  } catch (e) { /* ignore */ }
+  return lastPageUrl || FALLBACK_URL;
 }
 
-function extractLineItems(checkout) {
+function numericId(raw) {
+  if (!raw) return null;
+  var s = String(raw);
+  var idx = s.lastIndexOf("/");
+  if (idx !== -1) {
+    var after = s.substring(idx + 1);
+    if (after.length > 0 && !isNaN(Number(after))) return after;
+  }
+  if (!isNaN(Number(s))) return s;
+  return s;
+}
+
+function buildLineItems(checkout) {
   if (!checkout || !checkout.lineItems) return [];
-  return checkout.lineItems.map(function (item) {
-    var productId = null;
-    if (item.variant && item.variant.product && item.variant.product.id) {
-      productId = String(item.variant.product.id);
-    } else if (item.id) {
-      productId = String(item.id);
+  var items = [];
+  for (var i = 0; i < checkout.lineItems.length; i++) {
+    var li = checkout.lineItems[i];
+    var pid = null;
+    if (li.variant && li.variant.product && li.variant.product.id) {
+      pid = numericId(li.variant.product.id);
     }
-    // Strip gid:// prefix if present
-    if (productId) {
-      var match = productId.match(/\/(\d+)$/);
-      if (match) productId = match[1];
-    }
+    if (!pid && li.id) pid = numericId(li.id);
     var price = null;
-    if (item.variant && item.variant.price && item.variant.price.amount) {
-      price = parseFloat(item.variant.price.amount);
+    if (li.variant && li.variant.price && li.variant.price.amount) {
+      price = parseFloat(li.variant.price.amount);
     }
-    return {
-      product_id: productId,
-      quantity: item.quantity || 1,
-      price: price
-    };
-  });
+    items.push({ product_id: pid, quantity: li.quantity || 1, price: price });
+  }
+  return items;
 }
 
-function extractTotalValue(checkout) {
+function totalValue(checkout) {
   if (checkout && checkout.totalPrice && checkout.totalPrice.amount) {
     return parseFloat(checkout.totalPrice.amount);
   }
   return undefined;
 }
 
-function extractCurrency(checkout) {
+function currency(checkout) {
   if (checkout && checkout.totalPrice && checkout.totalPrice.currencyCode) {
     return checkout.totalPrice.currencyCode;
   }
-  if (checkout && checkout.currencyCode) {
-    return checkout.currencyCode;
-  }
-  return 'EUR';
+  return checkout && checkout.currencyCode ? checkout.currencyCode : "EUR";
 }
 
-function extractCheckoutToken(checkout) {
-  if (checkout && checkout.token) return checkout.token;
-  return null;
-}
-
-function extractOrderId(checkout) {
+function orderId(checkout) {
   if (checkout && checkout.order && checkout.order.id) {
-    var id = String(checkout.order.id);
-    var match = id.match(/\/(\d+)$/);
-    return match ? match[1] : id;
+    return numericId(checkout.order.id);
   }
   return null;
 }
 
-async function sendToServer(payload) {
+function send(payload) {
   try {
-    var response = await fetch(CAPI_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    fetch(CAPI_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
       keepalive: true
     });
-    return response.ok;
-  } catch (e) {
-    return false;
-  }
+  } catch (e) { /* fire and forget */ }
 }
 
-// --- Event handlers ---
+// --- checkout_started → InitiateCheckout ---
 
-analytics.subscribe('checkout_started', async function (event) {
-  var checkout = event.data && event.data.checkout;
-  if (!checkout) return;
+analytics.subscribe("checkout_started", async function (event) {
+  var checkout = event.data.checkout;
+  if (!checkout || !checkout.token) return;
 
-  var token = extractCheckoutToken(checkout);
-  if (!token) return;
+  var token = checkout.token;
+  var fbc = await getCookie("_fbc");
+  var fbp = await getCookie("_fbp");
 
-  var fbc = await getFbc();
-  var fbp = await getFbp();
-  var lineItems = extractLineItems(checkout);
+  enrichment[token] = { fbc: fbc, fbp: fbp };
 
-  // Store fbc/fbp in enrichment cache for later events
-  if (fbc || fbp) {
-    enrichmentCache[token] = enrichmentCache[token] || {};
-    if (fbc) enrichmentCache[token].fbc = fbc;
-    if (fbp) enrichmentCache[token].fbp = fbp;
-  }
-
-  await sendToServer({
-    event_type: 'checkout_started',
+  send({
+    event_type: "checkout_started",
     checkout_token: token,
     fbc: fbc,
     fbp: fbp,
     email: checkout.email || null,
     phone: checkout.phone || null,
-    line_items: lineItems,
-    value: extractTotalValue(checkout),
-    currency: extractCurrency(checkout),
-    source_url: event.context && event.context.document && event.context.document.location
-      ? event.context.document.location.href
-      : 'https://calqix.com/checkout'
+    line_items: buildLineItems(checkout),
+    value: totalValue(checkout),
+    currency: currency(checkout),
+    source_url: getSourceUrl(event)
   });
 });
 
-analytics.subscribe('checkout_contact_info_submitted', async function (event) {
-  var checkout = event.data && event.data.checkout;
-  if (!checkout) return;
+// --- checkout_contact_info_submitted → Enrichment storage ---
 
-  var token = extractCheckoutToken(checkout);
-  if (!token) return;
+analytics.subscribe("checkout_contact_info_submitted", async function (event) {
+  var checkout = event.data.checkout;
+  if (!checkout || !checkout.token) return;
 
-  var fbc = await getFbc();
-  var fbp = await getFbp();
+  var token = checkout.token;
+  var fbc = await getCookie("_fbc");
+  var fbp = await getCookie("_fbp");
 
-  // Accumulate enrichment
-  enrichmentCache[token] = enrichmentCache[token] || {};
-  if (checkout.email) enrichmentCache[token].email = checkout.email;
-  if (checkout.phone) enrichmentCache[token].phone = checkout.phone;
-  if (fbc) enrichmentCache[token].fbc = fbc;
-  if (fbp) enrichmentCache[token].fbp = fbp;
+  var cached = enrichment[token] || {};
+  enrichment[token] = {
+    fbc: fbc || cached.fbc || null,
+    fbp: fbp || cached.fbp || null,
+    email: checkout.email || cached.email || null,
+    phone: checkout.phone || cached.phone || null
+  };
 
-  await sendToServer({
-    event_type: 'contact_info_submitted',
+  send({
+    event_type: "contact_info_submitted",
     checkout_token: token,
     email: checkout.email || null,
     phone: checkout.phone || null,
@@ -174,34 +160,30 @@ analytics.subscribe('checkout_contact_info_submitted', async function (event) {
   });
 });
 
-analytics.subscribe('checkout_completed', async function (event) {
-  var checkout = event.data && event.data.checkout;
-  if (!checkout) return;
+// --- checkout_completed → Purchase ---
 
-  var token = extractCheckoutToken(checkout);
-  if (!token) return;
+analytics.subscribe("checkout_completed", async function (event) {
+  var checkout = event.data.checkout;
+  if (!checkout || !checkout.token) return;
 
-  var fbc = await getFbc();
-  var fbp = await getFbp();
-  var cached = enrichmentCache[token] || {};
-  var lineItems = extractLineItems(checkout);
+  var token = checkout.token;
+  var fbc = await getCookie("_fbc");
+  var fbp = await getCookie("_fbp");
+  var cached = enrichment[token] || {};
 
-  await sendToServer({
-    event_type: 'checkout_completed',
+  send({
+    event_type: "checkout_completed",
     checkout_token: token,
-    order_id: extractOrderId(checkout),
+    order_id: orderId(checkout),
     fbc: fbc || cached.fbc || null,
     fbp: fbp || cached.fbp || null,
     email: checkout.email || cached.email || null,
     phone: checkout.phone || cached.phone || null,
-    line_items: lineItems,
-    value: extractTotalValue(checkout),
-    currency: extractCurrency(checkout),
-    source_url: event.context && event.context.document && event.context.document.location
-      ? event.context.document.location.href
-      : 'https://calqix.com/checkout'
+    line_items: buildLineItems(checkout),
+    value: totalValue(checkout),
+    currency: currency(checkout),
+    source_url: getSourceUrl(event)
   });
 
-  // Clean up
-  delete enrichmentCache[token];
+  delete enrichment[token];
 });

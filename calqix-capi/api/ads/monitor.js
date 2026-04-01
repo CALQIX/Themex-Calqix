@@ -1,21 +1,27 @@
 /**
- * CALQIX Ads Monitor — Vercel Cron Endpoint
+ * CALQIX Ads Monitor — Daily Job Endpoint
  *
- * Schedule: "0 5 * * *" = every day at 05:00 UTC = 07:00 CET / 06:00 CET (winter)
- * This matches the user's desired ~7:00 AM local notification time.
+ * Scheduling: Upstash QStash (primary) or Vercel Cron (legacy fallback)
+ * QStash cron: "CRON_TZ=Europe/Amsterdam 0 7 * * *" = 07:00 Amsterdam time
  *
- * Auth: Vercel Cron sends Authorization: Bearer <CRON_SECRET>
- * Manual test: GET /api/ads/monitor?secret=<CRON_SECRET>
+ * Auth priority:
+ *   1. QStash signature (Upstash-Signature header) — production
+ *   2. CRON_SECRET (Bearer or query param) — manual testing / Vercel Cron fallback
  *
- * Features:
- * - Always sends a Telegram notification (success with report, or failure with error)
- * - Generates a Windsurf task file (.windsurf/tasks/ads-<date>.md) via GitHub API
- * - Idempotent: skips if already run today (checked via run marker)
- * - Structured error handling: individual API failures don't crash the whole run
+ * Lifecycle:
+ *   1. Verify request (QStash sig or CRON_SECRET)
+ *   2. Acquire distributed lock
+ *   3. Check idempotency
+ *   4. Execute ad monitoring logic
+ *   5. Persist run metadata + artifact
+ *   6. Send notification
+ *   7. Release lock
+ *   8. Return structured response
  */
 var { sendTelegram } = require('../../lib/telegram');
 var { apiGet, AD_ACCOUNT_ID, parseActionValue } = require('../../lib/meta-ads');
 var store = require('../../lib/store');
+var crypto = require('crypto');
 
 var PURCHASE_TYPES = ['purchase', 'offsite_conversion.fb_pixel_purchase'];
 var ATC_TYPES = ['offsite_conversion.fb_pixel_add_to_cart'];
@@ -24,21 +30,49 @@ var VC_TYPES = ['offsite_conversion.fb_pixel_view_content'];
 var BILLING_THRESHOLD = parseInt(process.env.BILLING_THRESHOLD || '74', 10);
 var BILLING_ALERT_PCT = 95;
 
-function authCron(req) {
+/**
+ * Verify QStash signature using the Receiver class.
+ * Returns true if signature is valid.
+ */
+async function verifyQStashSignature(req, body) {
+  var currentKey = process.env.QSTASH_CURRENT_SIGNING_KEY;
+  var nextKey = process.env.QSTASH_NEXT_SIGNING_KEY;
+  if (!currentKey || !nextKey) return false;
+
+  var signature = req.headers && req.headers['upstash-signature'];
+  if (!signature) return false;
+
+  try {
+    var { Receiver } = require('@upstash/qstash');
+    var receiver = new Receiver({ currentSigningKey: currentKey, nextSigningKey: nextKey });
+    var isValid = await receiver.verify({
+      signature: signature,
+      body: body || '',
+      url: (process.env.QSTASH_VERIFY_URL || 'https://calqix-capi.vercel.app') + '/api/ads/monitor'
+    });
+    return isValid;
+  } catch (err) {
+    console.warn('[Monitor] QStash signature verification failed:', err.message);
+    return false;
+  }
+}
+
+function authCronSecret(req) {
   var secret = process.env.CRON_SECRET;
   if (!secret) return false;
-
   var querySecret = req.query && req.query.secret;
   if (querySecret === secret) return true;
-
   var authHeader = req.headers && req.headers['authorization'];
   if (authHeader === 'Bearer ' + secret) return true;
-
   return false;
 }
 
 function todayKey() {
   return new Date().toISOString().split('T')[0];
+}
+
+function generateRunId(today) {
+  return 'run_' + today + '_' + crypto.randomBytes(4).toString('hex');
 }
 
 async function safeApiGet(path, params, label) {
@@ -55,28 +89,51 @@ async function safeApiGet(path, params, label) {
 }
 
 async function handler(req, res) {
-  if (req.method !== 'GET') {
+  // Accept both GET (Vercel Cron / manual) and POST (QStash)
+  if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!authCron(req)) {
+  // Read raw body for QStash signature verification
+  var rawBody = '';
+  if (req.method === 'POST' && req.body) {
+    rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+  }
+
+  // Auth: try QStash first, then CRON_SECRET
+  var authSource = 'none';
+  var qstashValid = await verifyQStashSignature(req, rawBody);
+  if (qstashValid) {
+    authSource = 'qstash';
+  } else if (authCronSecret(req)) {
+    authSource = 'cron_secret';
+  } else {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   var forceRun = req.query && req.query.force === '1';
   var now = new Date();
   var today = todayKey();
+  var runId = generateRunId(today);
   var startTime = Date.now();
 
-  console.log('[Monitor] Run started', { date: today, force: forceRun, storeType: store.getStoreType() });
+  console.log('[Monitor] Run started', {
+    runId: runId,
+    date: today,
+    force: forceRun,
+    authSource: authSource,
+    storeType: store.getStoreType(),
+    redisActive: store.isRedisActive()
+  });
 
   // 1. Durable idempotency check
   if (!forceRun) {
     var previousRun = await store.getCronRun(today);
     if (previousRun) {
-      console.log('[Monitor] Already ran today, skipping (idempotent).', { date: today });
+      console.log('[Monitor] Already ran today, skipping.', { date: today, runId: runId });
       return res.status(200).json({
         timestamp: now.toISOString(),
+        run_id: runId,
         skipped: true,
         reason: 'already_ran_today',
         previous_run: previousRun
@@ -84,68 +141,107 @@ async function handler(req, res) {
     }
   }
 
-  // 2. Durable concurrency lock (5 minute TTL)
+  // 2. Distributed lock (5 minute TTL)
   var lockAcquired = await store.acquireCronLock();
   if (!lockAcquired) {
-    console.log('[Monitor] Lock not acquired, another instance is running.', { date: today });
+    console.log('[Monitor] Lock held by another instance.', { date: today, runId: runId });
     return res.status(200).json({
       timestamp: now.toISOString(),
+      run_id: runId,
       skipped: true,
       reason: 'lock_held'
     });
   }
 
   try {
+    // 3. Execute monitoring logic
     var result = await runMonitor(now);
 
-    // Record successful run
-    await store.setCronRun(today, {
+    // 4. Persist run metadata
+    var runMeta = {
+      run_id: runId,
       timestamp: now.toISOString(),
+      auth_source: authSource,
       triggers_fired: result.triggers_fired,
-      notification_sent: result.notification_sent
+      urgent: result.urgent,
+      warning: result.warning,
+      info: result.info,
+      api_errors: result.api_errors,
+      notification_sent: result.notification_sent,
+      windsurf_task: result.windsurf_task,
+      elapsed_ms: Date.now() - startTime
+    };
+    await store.setCronRun(today, runMeta);
+
+    // 5. Persist artifact if triggers fired
+    if (result.triggers_fired > 0) {
+      await store.setArtifact(runId, {
+        date: today,
+        triggers: result.triggers,
+        summary: result.urgent + ' urgent, ' + result.warning + ' warning, ' + result.info + ' info'
+      });
+    }
+
+    // 6. Persist notification status
+    await store.setNotifyStatus(runId, {
+      telegram_sent: result.notification_sent,
+      task_created: result.windsurf_task,
+      timestamp: now.toISOString()
     });
 
     var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-    console.log('[Monitor] Completed successfully in ' + elapsed + 's', {
+    console.log('[Monitor] Completed in ' + elapsed + 's', {
+      runId: runId,
       triggers: result.triggers_fired,
       notification: result.notification_sent
     });
 
+    result.run_id = runId;
+    result.auth_source = authSource;
     return res.status(200).json(result);
-  } catch (err) {
-    console.error('[Monitor] CRITICAL FAILURE', { message: err.message, stack: err.stack });
 
-    var failMsg = '🔴 <b>CALQIX Monitor FOUT</b>\n\n'
+  } catch (err) {
+    console.error('[Monitor] CRITICAL FAILURE', { runId: runId, message: err.message, stack: err.stack });
+
+    var failMsg = '\ud83d\udd34 <b>CALQIX Monitor FOUT</b>\n\n'
+      + 'Run ID: <code>' + runId + '</code>\n'
       + 'De dagelijkse ads monitor is gecrasht:\n'
       + '<code>' + (err.message || 'Unknown error').substring(0, 500) + '</code>\n\n'
       + 'Controleer Vercel logs.';
 
-    // Try primary notification channel
     var notifySent = false;
     try {
       await sendTelegram(failMsg);
       notifySent = true;
     } catch (e) {
-      console.error('[Monitor] Telegram primary notification failed', e.message);
+      console.error('[Monitor] Telegram notification failed', e.message);
     }
 
-    // Fallback: log to stdout as structured JSON for Vercel log drain
     if (!notifySent) {
-      console.error('[Monitor] FALLBACK NOTIFICATION (Telegram failed)', {
+      console.error('[Monitor] FALLBACK_NOTIFICATION', {
         type: 'monitor_failure',
+        run_id: runId,
         error: err.message,
         date: today
       });
     }
 
+    // Persist failure metadata
+    await store.setCronRun(today, {
+      run_id: runId,
+      timestamp: now.toISOString(),
+      error: err.message,
+      notification_sent: notifySent
+    });
+
     return res.status(200).json({
       timestamp: now.toISOString(),
+      run_id: runId,
       error: err.message,
       notification_sent: notifySent,
       notification_type: 'failure'
     });
   } finally {
-    // Always release the lock
     await store.releaseCronLock();
   }
 }

@@ -1,30 +1,39 @@
 /**
  * Durable key-value store for CALQIX CAPI.
  *
- * Primary: Upstash Redis (via @upstash/redis REST client)
- * Fallback: In-memory Map (logged warning on startup)
+ * PRODUCTION: Upstash Redis (via @upstash/redis REST client)
+ * LOCAL DEV:  In-memory Map fallback (only when NODE_ENV !== 'production')
  *
- * Requires env vars for Redis:
- *   UPSTASH_REDIS_REST_URL
- *   UPSTASH_REDIS_REST_TOKEN
+ * Required env vars:
+ *   UPSTASH_REDIS_REST_URL   — Upstash Redis REST endpoint
+ *   UPSTASH_REDIS_REST_TOKEN — Upstash Redis REST token
  *
  * Key namespaces and TTLs:
  *   dedup:{eventName}:{identifier}  → "1"          TTL 48h   (webhook retry dedup)
  *   enrich:{checkout_token}         → JSON string   TTL 24h   (checkout enrichment)
  *   cron:run:{YYYY-MM-DD}           → JSON string   TTL 48h   (idempotency)
  *   cron:lock                       → "1"           TTL 300s  (concurrency lock)
+ *   notify:{runId}                  → JSON string   TTL 48h   (notification status)
+ *   artifact:{runId}                → JSON string   TTL 7d    (run artifact metadata)
  */
 var redis = null;
 var memoryFallback = null;
 var storeType = 'none';
+var initAttempted = false;
 
 function initRedis() {
   if (redis) return true;
+  if (initAttempted) return false;
+  initAttempted = true;
 
   var url = process.env.UPSTASH_REDIS_REST_URL;
   var token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   if (!url || !token) {
+    var isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+    if (isProduction) {
+      console.error('[Store] CRITICAL: UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required in production. Durable state is DISABLED.');
+    }
     return false;
   }
 
@@ -32,10 +41,10 @@ function initRedis() {
     var Redis = require('@upstash/redis').Redis;
     redis = new Redis({ url: url, token: token });
     storeType = 'redis';
-    console.log('[Store] Using Upstash Redis');
+    console.log('[Store] Upstash Redis connected');
     return true;
   } catch (err) {
-    console.warn('[Store] Failed to init Redis, falling back to memory:', err.message);
+    console.error('[Store] Failed to init Redis:', err.message);
     return false;
   }
 }
@@ -44,7 +53,7 @@ function getMemoryFallback() {
   if (!memoryFallback) {
     memoryFallback = new Map();
     storeType = 'memory';
-    console.warn('[Store] Using in-memory fallback — state will not survive cold starts. Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN for durable storage.');
+    console.warn('[Store] Using in-memory fallback (local dev only).');
   }
   return memoryFallback;
 }
@@ -232,12 +241,48 @@ async function releaseCronLock() {
   return del('cron:lock');
 }
 
+var TTL_NOTIFY = 48 * 3600;     // 48 hours
+var TTL_ARTIFACT = 7 * 24 * 3600; // 7 days
+
+async function setNotifyStatus(runId, data) {
+  if (!runId || !data) return;
+  var key = 'notify:' + runId;
+  await set(key, JSON.stringify(data), TTL_NOTIFY);
+}
+
+async function getNotifyStatus(runId) {
+  if (!runId) return null;
+  var key = 'notify:' + runId;
+  var val = await get(key);
+  if (!val) return null;
+  try { return JSON.parse(val); } catch (e) { return val; }
+}
+
+async function setArtifact(runId, data) {
+  if (!runId || !data) return;
+  var key = 'artifact:' + runId;
+  await set(key, JSON.stringify(data), TTL_ARTIFACT);
+}
+
+async function getArtifact(runId) {
+  if (!runId) return null;
+  var key = 'artifact:' + runId;
+  var val = await get(key);
+  if (!val) return null;
+  try { return JSON.parse(val); } catch (e) { return val; }
+}
+
+function isRedisActive() {
+  return storeType === 'redis';
+}
+
 module.exports = {
   set: set,
   get: get,
   del: del,
   setnx: setnx,
   getStoreType: getStoreType,
+  isRedisActive: isRedisActive,
   isDuplicate: isDuplicate,
   markProcessed: markProcessed,
   getEnrichment: getEnrichment,
@@ -245,5 +290,9 @@ module.exports = {
   getCronRun: getCronRun,
   setCronRun: setCronRun,
   acquireCronLock: acquireCronLock,
-  releaseCronLock: releaseCronLock
+  releaseCronLock: releaseCronLock,
+  setNotifyStatus: setNotifyStatus,
+  getNotifyStatus: getNotifyStatus,
+  setArtifact: setArtifact,
+  getArtifact: getArtifact
 };

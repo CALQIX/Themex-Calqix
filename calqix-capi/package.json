@@ -6,9 +6,17 @@
   "type": "commonjs",
   "scripts": {
     "dev": "vercel dev",
-    "check": "node --check lib/hash.js && node --check lib/verify-webhook.js && node --check lib/meta-capi.js"
+    "check": "node --check lib/hash.js && node --check lib/verify-webhook.js && node --check lib/meta-capi.js",
+    "bootstrap": "node scripts/bootstrap.js verify-all",
+    "verify:redis": "node scripts/bootstrap.js verify-redis",
+    "verify:qstash": "node scripts/bootstrap.js verify-qstash",
+    "schedule:create": "node scripts/bootstrap.js create-schedule",
+    "schedule:list": "node scripts/bootstrap.js list-schedules",
+    "schedule:delete": "node scripts/bootstrap.js delete-schedule",
+    "smoke-test": "node scripts/bootstrap.js smoke-test"
   },
   "dependencies": {
+    "@upstash/qstash": "^2.7.17",
     "@upstash/redis": "^1.34.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
