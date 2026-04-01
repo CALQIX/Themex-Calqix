@@ -111,7 +111,10 @@ async function get(key) {
   if (initRedis()) {
     try {
       var val = await redis.get(key);
-      return val !== null && val !== undefined ? String(val) : null;
+      if (val === null || val === undefined) return null;
+      // Upstash REST client auto-deserializes JSON — re-serialize objects
+      if (typeof val === 'object') return JSON.stringify(val);
+      return String(val);
     } catch (err) {
       console.error('[Store] Redis GET failed:', key, err.message);
       return null;
