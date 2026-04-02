@@ -8,6 +8,38 @@
  */
 var store = require('./store');
 
+// In-memory tracking for diagnostics visibility (complements durable Redis store)
+var recentKeysList = [];
+var MAX_RECENT_KEYS = 100;
+
+function trackKey(key) {
+  recentKeysList.unshift(key);
+  if (recentKeysList.length > MAX_RECENT_KEYS) {
+    recentKeysList.length = MAX_RECENT_KEYS;
+  }
+}
+
+/**
+ * Return the number of recently tracked dedup keys (in-memory, this instance only).
+ * @returns {number}
+ */
+function cacheSize() {
+  return recentKeysList.length;
+}
+
+/**
+ * Return the N most recent dedup keys (in-memory, this instance only).
+ * Keys are truncated to avoid leaking full identifiers.
+ * @param {number} n
+ * @returns {string[]}
+ */
+function recentKeys(n) {
+  var count = n || 5;
+  return recentKeysList.slice(0, count).map(function (k) {
+    return k.length > 30 ? k.substring(0, 30) + '...' : k;
+  });
+}
+
 /**
  * Check whether this event was already processed recently.
  * @param {string} eventName  e.g. 'Purchase'
@@ -25,10 +57,13 @@ async function isDuplicate(eventName, identifier) {
  * @returns {Promise<void>}
  */
 async function markProcessed(eventName, identifier) {
+  trackKey(eventName + ':' + identifier);
   return store.markProcessed(eventName, identifier);
 }
 
 module.exports = {
   isDuplicate,
-  markProcessed
+  markProcessed,
+  cacheSize,
+  recentKeys
 };

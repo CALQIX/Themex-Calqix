@@ -109,22 +109,37 @@ Set these in Vercel Dashboard → Project Settings → Environment Variables:
 |------------|-----|---------|
 | `dedup:{event}:{id}` | 48h | Prevents duplicate Meta event sends |
 | `enrich:{checkout_token}` | 24h | Stores email/phone/fbc/fbp from checkout contact info |
-| `cron:run:{YYYY-MM-DD}` | 48h | Idempotency — prevents duplicate daily runs |
-| `cron:lock` | 5min | Distributed lock — prevents concurrent runs |
+| `meta:event:{event_id}` | 7d | Event lifecycle state (JSON) |
+| `meta:pending:{event_id}` | 7d | Flag: event not yet confirmed |
+| `meta:failed:{event_id}` | 7d | Flag: event failed at least once |
+| `recovery:queue` | — | Redis list of event_ids to retry |
+| `recovery:cursor:{topic}` | 30d | Shopify API polling cursor |
+| `lock:recovery` | 2min | Distributed lock for recovery job |
+| `lock:optimizer:{slot}` | 5min | Distributed lock for optimizer (morning/evening) |
+| `optimizer:run:{date}:{slot}` | 48h | Idempotency — prevents duplicate optimizer runs per slot |
 | `notify:{runId}` | 48h | Notification delivery status |
 | `artifact:{runId}` | 7d | Run artifact metadata |
 
-## Daily Operations
+## Operations
 
-The system runs automatically:
-1. QStash triggers `POST /api/ads/monitor` at 07:00 Amsterdam time
-2. Monitor acquires Redis lock, checks idempotency
-3. Fetches Meta Ads API data, evaluates triggers
+The system runs automatically on three schedules:
+
+### Twice-daily optimizer (07:00 + 19:00 Amsterdam)
+1. QStash triggers `POST /api/ads/monitor`
+2. Monitor determines slot (morning/evening), acquires slot lock, checks slot idempotency
+3. Fetches Meta Ads API data, evaluates 11 trigger rules
 4. Sends Telegram notification (always)
 5. Creates GitHub task file if actions needed
 6. Persists run metadata to Redis
 
-**You receive a Telegram message every morning:**
+### Recovery job (every minute)
+1. QStash triggers `POST /api/recovery/run`
+2. Acquires recovery lock (TTL 120s)
+3. Pops up to 10 items from `recovery:queue`
+4. Retries failed Meta CAPI sends (max 5 attempts per event)
+5. Updates event lifecycle state in Redis
+
+**You receive Telegram messages twice daily:**
 - If triggers fired: message includes action items + task file location
 - If all clear: message shows funnel summary
 

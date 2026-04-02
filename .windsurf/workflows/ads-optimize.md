@@ -2,15 +2,15 @@
 description: Daily ads optimization — execute actions from the monitor cron job
 ---
 
-# Daily Ads Optimization Workflow
+# Ads Optimization Workflow
 
 **Invocation:** Manual only — run `/ads-optimize` in Windsurf when prompted by a Telegram notification.
 
-**This workflow is NOT automatically executed.** The daily cron job at 05:00 UTC creates a task file and sends a Telegram notification. A human operator must then decide to invoke this workflow.
+**This workflow is NOT automatically executed.** The three-daily optimizer (07:00, 12:00, 19:00 Amsterdam) creates a task file and sends a Telegram notification. A human operator must then decide to invoke this workflow.
 
 ## Prerequisites
 
-- A task file exists at `.windsurf/tasks/ads-YYYY-MM-DD.md` (created by the cron job)
+- A task file exists at `.windsurf/tasks/ads-YYYY-MM-DD.md` (created by the optimizer)
 - You received a Telegram notification with action items
 
 ## Steps
@@ -42,9 +42,12 @@ description: Daily ads optimization — execute actions from the monitor cron jo
 - Never pause campaigns without explicit trigger data from the task file.
 - Always log which actions were taken and why.
 - Never fabricate ad IDs or assume IDs not in the task file.
+- Never send fake or redundant events to Meta CAPI.
 
 ## Reference
 
 - Meta Ad Account ID: `act_2108393566376667`
 - Pixel ID: `934134615770602`
-- Cron schedule: `0 5 * * *` (05:00 UTC = 07:00 CEST / 06:00 CET)
+- Optimizer schedule: QStash `0 7 * * *` + `0 12 * * *` + `0 19 * * *` (Amsterdam time)
+- Recovery schedule: QStash `* * * * *` (every minute, retries failed events only)
+- Key files: `lib/event-state.js`, `api/recovery/run.js`, `api/ads/monitor.js`

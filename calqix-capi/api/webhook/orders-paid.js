@@ -6,6 +6,7 @@ const { isDuplicate, markProcessed } = require('../../lib/dedup-guard');
 const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');
 const store = require('../../lib/store');
+const eventState = require('../../lib/event-state');
 const {
   buildContents,
   countItems,
@@ -167,7 +168,9 @@ async function handler(req, res) {
       source: 'webhook'
     });
 
-    await sendEvent('Purchase', eventId, SOURCE_URL, userData, customData);
+    await eventState.recordReceived(eventId, 'Purchase', 'webhook', dedupKey);
+    var metaResult = await sendEvent('Purchase', eventId, SOURCE_URL, userData, customData);
+    await eventState.recordSent(eventId, metaResult);
     await markProcessed('Purchase', dedupKey);
 
     return respondOk(res, {

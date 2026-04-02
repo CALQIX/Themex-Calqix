@@ -11,45 +11,27 @@
  */
 var { sendTelegram } = require('../../lib/telegram');
 var store = require('../../lib/store');
+var { authenticate, getRawBody } = require('../../lib/qstash-verify');
 
-async function verifyQStashSignature(req, body) {
-  var currentKey = process.env.QSTASH_CURRENT_SIGNING_KEY;
-  var nextKey = process.env.QSTASH_NEXT_SIGNING_KEY;
-  if (!currentKey || !nextKey) return false;
-
-  var signature = req.headers && req.headers['upstash-signature'];
-  if (!signature) return false;
-
-  try {
-    var { Receiver } = require('@upstash/qstash');
-    var receiver = new Receiver({ currentSigningKey: currentKey, nextSigningKey: nextKey });
-    var isValid = await receiver.verify({
-      signature: signature,
-      body: body || '',
-      url: (process.env.QSTASH_VERIFY_URL || 'https://calqix-capi.vercel.app') + '/api/ads/monitor-callback'
-    });
-    return isValid;
-  } catch (err) {
-    console.warn('[MonitorCallback] QStash sig verify failed:', err.message);
-    return false;
-  }
-}
+var ENDPOINT_PATH = '/api/ads/monitor-callback';
 
 async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  var rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {});
-  var isValid = await verifyQStashSignature(req, rawBody);
-  if (!isValid) {
+  var rawBody = '';
+  try { rawBody = await getRawBody(req); } catch (e) { rawBody = ''; }
+
+  var auth = await authenticate(req, rawBody, ENDPOINT_PATH);
+  if (!auth.ok) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   var callbackType = (req.query && req.query.type) || 'unknown';
   var body = {};
   try {
-    body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+    body = rawBody ? JSON.parse(rawBody) : {};
   } catch (e) { /* ignore parse errors */ }
 
   console.log('[MonitorCallback] Received', { type: callbackType, body: JSON.stringify(body).substring(0, 500) });
@@ -87,3 +69,4 @@ async function handler(req, res) {
 }
 
 module.exports = handler;
+module.exports.config = { api: { bodyParser: false } };

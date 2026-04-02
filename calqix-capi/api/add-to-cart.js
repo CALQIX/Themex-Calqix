@@ -4,6 +4,9 @@
 // Target migration date: TBD
 const { formatUserData } = require('../lib/hash');
 const { sendEvent } = require('../lib/meta-capi');
+const { isDuplicate, markProcessed } = require('../lib/dedup-guard');
+const eventState = require('../lib/event-state');
+const store = require('../lib/store');
 
 const DEFAULT_SOURCE_URL = 'https://calqix.com/cart';
 
@@ -36,10 +39,16 @@ async function handler(req, res) {
     const eventId = body.event_id || ('atc_' + contentIds[0] + '_' + Date.now());
     const sourceUrl = body.source_url || DEFAULT_SOURCE_URL;
 
+    // Dedup check using event_id
+    if (await isDuplicate('AddToCart', eventId)) {
+      return res.status(200).json({ received: true, processed: false, reason: 'duplicate', eventId: eventId });
+    }
+
     const customerData = {};
     if (body.fbc) customerData.fbc = body.fbc;
     if (body.fbp) customerData.fbp = body.fbp;
     if (body.email) customerData.email = body.email;
+    if (body.phone) customerData.phone = body.phone;
     if (body.external_id) customerData.external_id = body.external_id;
 
     const clientIp =
@@ -63,31 +72,49 @@ async function handler(req, res) {
 
     const hasUserSignals = Boolean(userData.fbc || userData.fbp || userData.em || userData.ph);
 
+    var matchKeys = {
+      fbc: Boolean(userData.fbc),
+      fbp: Boolean(userData.fbp),
+      em: Boolean(userData.em),
+      ph: Boolean(userData.ph),
+      ip: Boolean(userData.client_ip_address),
+      ua: Boolean(userData.client_user_agent),
+      external_id: Boolean(userData.external_id)
+    };
+
     console.log('[AddToCart] browser-side event', {
       eventId: eventId,
       contentIds: contentIds.length,
-      hasFbc: Boolean(userData.fbc),
-      hasFbp: Boolean(userData.fbp),
-      hasEmail: Boolean(userData.em),
-      hasIp: Boolean(userData.client_ip_address),
-      hasUa: Boolean(userData.client_user_agent),
-      hasExternalId: Boolean(userData.external_id)
+      hasFbc: matchKeys.fbc,
+      hasFbp: matchKeys.fbp,
+      hasEmail: matchKeys.em,
+      hasPhone: matchKeys.ph,
+      hasIp: matchKeys.ip,
+      hasUa: matchKeys.ua,
+      hasExternalId: matchKeys.external_id
     });
 
+    await eventState.recordReceived(eventId, 'AddToCart', 'browser_bridge', eventId);
     const result = await sendEvent('AddToCart', eventId, sourceUrl, userData, customData);
+    await eventState.recordSent(eventId, result);
+    await markProcessed('AddToCart', eventId);
+
+    // Store parameter diagnostics (rolling, TTL 24h)
+    try {
+      await store.set('diag:atc:' + eventId, JSON.stringify({
+        ts: new Date().toISOString(),
+        match_keys: matchKeys,
+        source: 'browser_bridge',
+        ok: Boolean(result && result.ok)
+      }), 86400);
+    } catch (e) { /* diagnostics are non-critical */ }
 
     return res.status(200).json({
       received: true,
       processed: Boolean(result && result.ok),
       event: 'AddToCart',
       eventId: eventId,
-      match_keys: {
-        fbc: Boolean(userData.fbc),
-        fbp: Boolean(userData.fbp),
-        em: Boolean(userData.em),
-        ip: Boolean(userData.client_ip_address),
-        ua: Boolean(userData.client_user_agent)
-      }
+      match_keys: matchKeys
     });
   } catch (error) {
     console.error('[AddToCart] internal error', { message: error.message });

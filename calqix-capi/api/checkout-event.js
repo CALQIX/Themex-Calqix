@@ -17,6 +17,7 @@ const { formatUserData } = require('../lib/hash');
 const { sendEvent } = require('../lib/meta-capi');
 const { isDuplicate, markProcessed } = require('../lib/dedup-guard');
 const store = require('../lib/store');
+const eventState = require('../lib/event-state');
 
 async function handler(req, res) {
   // CORS — Custom Pixel sandbox may run on various origins
@@ -139,7 +140,9 @@ async function handleCheckoutStarted(res, body, checkoutToken, clientIp, clientU
   });
 
   var sourceUrl = body.source_url || 'https://calqix.com/checkout';
+  await eventState.recordReceived(eventId, 'InitiateCheckout', 'custom_pixel', checkoutToken);
   var result = await sendEvent('InitiateCheckout', eventId, sourceUrl, userData, customData);
+  await eventState.recordSent(eventId, result);
   await markProcessed('InitiateCheckout', checkoutToken);
 
   // Also store any user data as enrichment for Purchase
@@ -219,7 +222,9 @@ async function handleCheckoutCompleted(res, body, checkoutToken, clientIp, clien
   });
 
   var sourceUrl = body.source_url || 'https://calqix.com/checkout';
+  await eventState.recordReceived(eventId, 'Purchase', 'custom_pixel', checkoutToken);
   var result = await sendEvent('Purchase', eventId, sourceUrl, userData, customData);
+  await eventState.recordSent(eventId, result);
   await markProcessed('Purchase', checkoutToken);
 
   return res.status(200).json({

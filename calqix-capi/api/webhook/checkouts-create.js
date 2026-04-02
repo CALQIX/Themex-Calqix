@@ -6,6 +6,7 @@ const { isDuplicate, markProcessed } = require('../../lib/dedup-guard');
 const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');
 const store = require('../../lib/store');
+const eventState = require('../../lib/event-state');
 const {
   buildContents,
   countItems,
@@ -110,7 +111,7 @@ async function handler(req, res) {
       return respondOk(res, { received: true, processed: false });
     }
 
-    if (isDuplicate('InitiateCheckout', String(checkoutKey))) {
+    if (await isDuplicate('InitiateCheckout', String(checkoutKey))) {
       console.log('[Webhook checkouts-create] skipping duplicate', { identifier: checkoutKey });
       return respondOk(res, { received: true, processed: false, reason: 'duplicate' });
     }
@@ -144,7 +145,9 @@ async function handler(req, res) {
       source: 'webhook'
     });
 
-    await sendEvent('InitiateCheckout', eventId, SOURCE_URL, userData, customData);
+    await eventState.recordReceived(eventId, 'InitiateCheckout', 'webhook', String(checkoutKey));
+    var metaResult = await sendEvent('InitiateCheckout', eventId, SOURCE_URL, userData, customData);
+    await eventState.recordSent(eventId, metaResult);
     await markProcessed('InitiateCheckout', String(checkoutKey));
 
     return respondOk(res, {

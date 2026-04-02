@@ -19,52 +19,44 @@
  *   8. Return structured response
  */
 var { sendTelegram } = require('../../lib/telegram');
-var { apiGet, AD_ACCOUNT_ID, parseActionValue } = require('../../lib/meta-ads');
+var { apiGet, apiPost, AD_ACCOUNT_ID, parseActionValue } = require('../../lib/meta-ads');
+var insights = require('../../lib/meta-insights-source');
 var store = require('../../lib/store');
+var { authenticate, getRawBody } = require('../../lib/qstash-verify');
+var eventState = require('../../lib/event-state');
 var crypto = require('crypto');
 
-var PURCHASE_TYPES = ['purchase', 'offsite_conversion.fb_pixel_purchase'];
-var ATC_TYPES = ['offsite_conversion.fb_pixel_add_to_cart'];
-var IC_TYPES = ['offsite_conversion.fb_pixel_initiate_checkout'];
-var VC_TYPES = ['offsite_conversion.fb_pixel_view_content'];
-var BILLING_THRESHOLD = parseInt(process.env.BILLING_THRESHOLD || '74', 10);
-var BILLING_ALERT_PCT = 95;
+var PURCHASE_TYPES = insights.PURCHASE_TYPES;
+var ATC_TYPES = insights.ATC_TYPES;
+var IC_TYPES = insights.IC_TYPES;
+var VC_TYPES = insights.VC_TYPES;
+
+// Auto-action config (all disabled by default — safe)
+var AUTO_PAUSE = process.env.META_OPTIMIZER_AUTO_PAUSE === 'true';
+var AUTO_BUDGET_ADJUST = process.env.META_OPTIMIZER_AUTO_BUDGET_ADJUST === 'true';
+var BILLING_ALERT_PCT = 90;
+
+var ENDPOINT_PATH = '/api/ads/monitor';
 
 /**
- * Verify QStash signature using the Receiver class.
- * Returns true if signature is valid.
+ * Determine the optimizer slot based on current Amsterdam time.
+ * Morning slot: 00:00-09:59 → 'morning'
+ * Afternoon slot: 10:00-15:59 → 'afternoon'
+ * Evening slot: 16:00-23:59 → 'evening'
  */
-async function verifyQStashSignature(req, body) {
-  var currentKey = process.env.QSTASH_CURRENT_SIGNING_KEY;
-  var nextKey = process.env.QSTASH_NEXT_SIGNING_KEY;
-  if (!currentKey || !nextKey) return false;
-
-  var signature = req.headers && req.headers['upstash-signature'];
-  if (!signature) return false;
-
+function getSlot(now) {
+  // Convert to Amsterdam time (CET=UTC+1, CEST=UTC+2)
+  var amsterdamHour;
   try {
-    var { Receiver } = require('@upstash/qstash');
-    var receiver = new Receiver({ currentSigningKey: currentKey, nextSigningKey: nextKey });
-    var isValid = await receiver.verify({
-      signature: signature,
-      body: body || '',
-      url: (process.env.QSTASH_VERIFY_URL || 'https://calqix-capi.vercel.app') + '/api/ads/monitor'
-    });
-    return isValid;
-  } catch (err) {
-    console.warn('[Monitor] QStash signature verification failed:', err.message);
-    return false;
+    var fmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'Europe/Amsterdam' });
+    amsterdamHour = parseInt(fmt.format(now), 10);
+  } catch (e) {
+    // Fallback: assume UTC+2 (CEST)
+    amsterdamHour = (now.getUTCHours() + 2) % 24;
   }
-}
-
-function authCronSecret(req) {
-  var secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  var querySecret = req.query && req.query.secret;
-  if (querySecret === secret) return true;
-  var authHeader = req.headers && req.headers['authorization'];
-  if (authHeader === 'Bearer ' + secret) return true;
-  return false;
+  if (amsterdamHour < 10) return 'morning';
+  if (amsterdamHour < 16) return 'afternoon';
+  return 'evening';
 }
 
 function todayKey() {
@@ -75,41 +67,24 @@ function generateRunId(today) {
   return 'run_' + today + '_' + crypto.randomBytes(4).toString('hex');
 }
 
-async function safeApiGet(path, params, label) {
-  try {
-    var result = await apiGet(path, params);
-    if (!result.ok) {
-      console.warn('[Monitor] API call failed: ' + label, { error: result.error });
-    }
-    return result;
-  } catch (err) {
-    console.error('[Monitor] API exception: ' + label, { message: err.message });
-    return { ok: false, data: null, error: err.message };
-  }
-}
-
 async function handler(req, res) {
   // Accept both GET (Vercel Cron / manual) and POST (QStash)
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Read raw body for QStash signature verification
+  // Read raw body for QStash signature verification (body parser disabled)
   var rawBody = '';
-  if (req.method === 'POST' && req.body) {
-    rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+  if (req.method === 'POST') {
+    try { rawBody = await getRawBody(req); } catch (e) { rawBody = ''; }
   }
 
   // Auth: try QStash first, then CRON_SECRET
-  var authSource = 'none';
-  var qstashValid = await verifyQStashSignature(req, rawBody);
-  if (qstashValid) {
-    authSource = 'qstash';
-  } else if (authCronSecret(req)) {
-    authSource = 'cron_secret';
-  } else {
+  var auth = await authenticate(req, rawBody, ENDPOINT_PATH);
+  if (!auth.ok) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+  var authSource = auth.source;
 
   var forceRun = req.query && req.query.force === '1';
   var now = new Date();
@@ -126,28 +101,33 @@ async function handler(req, res) {
     redisActive: store.isRedisActive()
   });
 
-  // 1. Durable idempotency check
+  // Determine slot (morning or evening)
+  var slot = getSlot(now);
+
+  // 1. Durable idempotency check (per-slot)
   if (!forceRun) {
-    var previousRun = await store.getCronRun(today);
+    var previousRun = await store.getOptimizerRun(today, slot);
     if (previousRun) {
-      console.log('[Monitor] Already ran today, skipping.', { date: today, runId: runId });
+      console.log('[Monitor] Already ran this slot, skipping.', { date: today, slot: slot, runId: runId });
       return res.status(200).json({
         timestamp: now.toISOString(),
         run_id: runId,
+        slot: slot,
         skipped: true,
-        reason: 'already_ran_today',
+        reason: 'already_ran_slot',
         previous_run: previousRun
       });
     }
   }
 
-  // 2. Distributed lock (5 minute TTL)
-  var lockAcquired = await store.acquireCronLock();
+  // 2. Distributed lock (5 minute TTL, per-slot)
+  var lockAcquired = await store.acquireOptimizerLock(slot);
   if (!lockAcquired) {
-    console.log('[Monitor] Lock held by another instance.', { date: today, runId: runId });
+    console.log('[Monitor] Lock held by another instance.', { date: today, slot: slot, runId: runId });
     return res.status(200).json({
       timestamp: now.toISOString(),
       run_id: runId,
+      slot: slot,
       skipped: true,
       reason: 'lock_held'
     });
@@ -157,9 +137,10 @@ async function handler(req, res) {
     // 3. Execute monitoring logic
     var result = await runMonitor(now);
 
-    // 4. Persist run metadata
+    // 4. Persist run metadata (per-slot)
     var runMeta = {
       run_id: runId,
+      slot: slot,
       timestamp: now.toISOString(),
       auth_source: authSource,
       triggers_fired: result.triggers_fired,
@@ -171,7 +152,7 @@ async function handler(req, res) {
       windsurf_task: result.windsurf_task,
       elapsed_ms: Date.now() - startTime
     };
-    await store.setCronRun(today, runMeta);
+    await store.setOptimizerRun(today, slot, runMeta);
 
     // 5. Persist artifact if triggers fired
     if (result.triggers_fired > 0) {
@@ -192,12 +173,20 @@ async function handler(req, res) {
     var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
     console.log('[Monitor] Completed in ' + elapsed + 's', {
       runId: runId,
+      slot: slot,
       triggers: result.triggers_fired,
       notification: result.notification_sent
     });
 
     result.run_id = runId;
+    result.slot = slot;
     result.auth_source = authSource;
+
+    // Include recovery queue stats
+    try {
+      result.recovery_queue_length = await eventState.getRecoveryQueueLength();
+    } catch (e) { result.recovery_queue_length = -1; }
+
     return res.status(200).json(result);
 
   } catch (err) {
@@ -227,7 +216,7 @@ async function handler(req, res) {
     }
 
     // Persist failure metadata
-    await store.setCronRun(today, {
+    await store.setOptimizerRun(today, slot, {
       run_id: runId,
       timestamp: now.toISOString(),
       error: err.message,
@@ -242,59 +231,23 @@ async function handler(req, res) {
       notification_type: 'failure'
     });
   } finally {
-    await store.releaseCronLock();
+    await store.releaseOptimizerLock(slot);
   }
 }
 
 async function runMonitor(now) {
   var triggers = [];
-  var apiErrors = [];
+  var autoActions = [];
 
-  // --- Fetch data (each call is isolated) ---
-
-  var adInsightsResult = await safeApiGet(AD_ACCOUNT_ID + '/insights', {
-    fields: 'ad_name,ad_id,adset_name,adset_id,impressions,clicks,ctr,cpc,spend,frequency,actions,cost_per_action_type',
-    date_preset: 'last_3d',
-    level: 'ad',
-    filtering: [{ field: 'impressions', operator: 'GREATER_THAN', value: '0' }],
-    limit: 200
-  }, 'ad_insights_3d');
-  var adInsights = adInsightsResult.ok && Array.isArray(adInsightsResult.data) ? adInsightsResult.data : [];
-  if (!adInsightsResult.ok) apiErrors.push('ad_insights_3d: ' + adInsightsResult.error);
-
-  var adsetsResult = await safeApiGet(AD_ACCOUNT_ID + '/adsets', {
-    fields: 'name,status,effective_status,optimization_goal,daily_budget',
-    filtering: [{ field: 'effective_status', operator: 'IN', value: ['ACTIVE', 'LEARNING', 'LEARNING_LIMITED'] }],
-    limit: 50
-  }, 'adsets_active');
-  var adsets = adsetsResult.ok && Array.isArray(adsetsResult.data) ? adsetsResult.data : [];
-  if (!adsetsResult.ok) apiErrors.push('adsets_active: ' + adsetsResult.error);
-
-  var adsetInsightsResult = await safeApiGet(AD_ACCOUNT_ID + '/insights', {
-    fields: 'adset_name,adset_id,spend,actions,action_values',
-    date_preset: 'last_3d',
-    level: 'adset',
-    filtering: [{ field: 'spend', operator: 'GREATER_THAN', value: '0' }],
-    limit: 100
-  }, 'adset_insights_3d');
-  var adsetInsights = adsetInsightsResult.ok && Array.isArray(adsetInsightsResult.data) ? adsetInsightsResult.data : [];
-
-  var adsetInsights7dResult = await safeApiGet(AD_ACCOUNT_ID + '/insights', {
-    fields: 'adset_name,adset_id,spend,actions,action_values',
-    date_preset: 'last_7d',
-    level: 'adset',
-    filtering: [{ field: 'spend', operator: 'GREATER_THAN', value: '0' }],
-    limit: 100
-  }, 'adset_insights_7d');
-  var adsetInsights7d = adsetInsights7dResult.ok && Array.isArray(adsetInsights7dResult.data) ? adsetInsights7dResult.data : [];
-
-  var todayInsightsResult = await safeApiGet(AD_ACCOUNT_ID + '/insights', {
-    fields: 'adset_name,adset_id,spend',
-    date_preset: 'today',
-    level: 'adset',
-    limit: 100
-  }, 'adset_insights_today');
-  var todayInsights = todayInsightsResult.ok && Array.isArray(todayInsightsResult.data) ? todayInsightsResult.data : [];
+  // --- Fetch all data via meta-insights-source ---
+  var snap = await insights.fetchFullSnapshot(now);
+  var apiErrors = snap.errors || [];
+  var adInsights = snap.ads || [];
+  var adsets = snap.activeAdsets || [];
+  var adsetInsights = snap.adsetInsights3d || [];
+  var adsetInsights7d = snap.adsetInsights7d || [];
+  var todayAdsets = snap.todayAdsets || [];
+  var billing = snap.billing;
 
   // --- Evaluate triggers ---
 
@@ -304,10 +257,7 @@ async function runMonitor(now) {
     var ctr = parseFloat(ad.ctr) || 0;
     if (impressions >= 1000 && ctr < 0.8) {
       triggers.push({
-        severity: 'URGENT',
-        rule: 'AD_KILLER',
-        target: ad.ad_name,
-        target_id: ad.ad_id,
+        severity: 'URGENT', rule: 'AD_KILLER', target: ad.ad_name, target_id: ad.ad_id,
         message: "Ad '" + ad.ad_name + "' heeft " + impressions + " impressies maar CTR van " + ctr.toFixed(2) + "%. Pauzeer deze ad."
       });
     }
@@ -318,11 +268,8 @@ async function runMonitor(now) {
     var frequency = parseFloat(ad.frequency) || 0;
     if (frequency > 3.0) {
       triggers.push({
-        severity: 'URGENT',
-        rule: 'CREATIVE_FATIGUE',
-        target: ad.ad_name,
-        target_id: ad.ad_id,
-        message: "Ad '" + ad.ad_name + "' heeft frequency " + frequency.toFixed(1) + ". Maak nieuwe creative aan in Predis.ai."
+        severity: 'URGENT', rule: 'CREATIVE_FATIGUE', target: ad.ad_name, target_id: ad.ad_id,
+        message: "Ad '" + ad.ad_name + "' heeft frequency " + frequency.toFixed(1) + ". Maak nieuwe creative aan."
       });
     }
   });
@@ -335,14 +282,10 @@ async function runMonitor(now) {
     var insightRow = adsetInsights.find(function (i) { return i.adset_id === adset.id; });
     var actualSpend3d = insightRow ? parseFloat(insightRow.spend) || 0 : 0;
     var pct = expectedSpend3d > 0 ? (actualSpend3d / expectedSpend3d * 100) : 0;
-
     if (pct < 50 && actualSpend3d > 0) {
       triggers.push({
-        severity: 'WARNING',
-        rule: 'BUDGET_UNDERUTILIZED',
-        target: adset.name,
-        target_id: adset.id,
-        message: "Ad set '" + adset.name + "' besteedt slechts " + pct.toFixed(0) + "% van budget. Check audience grootte of bid."
+        severity: 'WARNING', rule: 'BUDGET_UNDERUTILIZED', target: adset.name, target_id: adset.id,
+        message: "Ad set '" + adset.name + "' besteedt slechts " + pct.toFixed(0) + "% van budget."
       });
     }
   });
@@ -351,16 +294,13 @@ async function runMonitor(now) {
   adsets.forEach(function (adset) {
     if (adset.effective_status === 'LEARNING_LIMITED') {
       triggers.push({
-        severity: 'WARNING',
-        rule: 'LEARNING_LIMITED',
-        target: adset.name,
-        target_id: adset.id,
-        message: "Ad set '" + adset.name + "' zit vast in Learning Limited. Overweeg hoger-funnel optimalisatie event."
+        severity: 'WARNING', rule: 'LEARNING_LIMITED', target: adset.name, target_id: adset.id,
+        message: "Ad set '" + adset.name + "' zit vast in Learning Limited."
       });
     }
   });
 
-  // TRIGGER 5: WINNER GEVONDEN
+  // TRIGGER 5: WINNER
   adInsights.forEach(function (ad) {
     var impressions = parseInt(ad.impressions) || 0;
     var ctr = parseFloat(ad.ctr) || 0;
@@ -375,11 +315,8 @@ async function runMonitor(now) {
     }
     if (impressions >= 500 && ctr > 3 && costPerAtc !== null && costPerAtc < 10) {
       triggers.push({
-        severity: 'INFO',
-        rule: 'WINNER',
-        target: ad.ad_name,
-        target_id: ad.ad_id,
-        message: "Winner: '" + ad.ad_name + "' presteert goed (CTR " + ctr.toFixed(1) + "%, ATC " + costPerAtc.toFixed(2) + " euro). Overweeg budget verhoging."
+        severity: 'INFO', rule: 'WINNER', target: ad.ad_name, target_id: ad.ad_id,
+        message: "Winner: '" + ad.ad_name + "' (CTR " + ctr.toFixed(1) + "%, Cost/ATC €" + costPerAtc.toFixed(2) + ")."
       });
     }
   });
@@ -388,116 +325,139 @@ async function runMonitor(now) {
   adsets.forEach(function (adset) {
     if (!adset.daily_budget) return;
     var dailyBudgetEur = parseInt(adset.daily_budget, 10) / 100;
-    var todayRow = todayInsights.find(function (i) { return i.adset_id === adset.id; });
-    var todaySpend = todayRow ? parseFloat(todayRow.spend) || 0 : 0;
-
-    if (todaySpend > dailyBudgetEur * 1.5 && todaySpend > 0) {
+    var todayRow = todayAdsets.find(function (i) { return i.adset_id === adset.id; });
+    var todaySpendVal = todayRow ? parseFloat(todayRow.spend) || 0 : 0;
+    if (todaySpendVal > dailyBudgetEur * 1.5 && todaySpendVal > 0) {
       triggers.push({
-        severity: 'URGENT',
-        rule: 'SPENDING_SPIKE',
-        target: adset.name,
-        target_id: adset.id,
-        message: "Spend alert: " + todaySpend.toFixed(2) + " euro uitgegeven vandaag bij budget van " + dailyBudgetEur.toFixed(2) + " euro."
+        severity: 'URGENT', rule: 'SPENDING_SPIKE', target: adset.name, target_id: adset.id,
+        message: "Spend alert: €" + todaySpendVal.toFixed(2) + " vandaag bij budget €" + dailyBudgetEur.toFixed(2) + "."
       });
     }
   });
 
-  // --- Website / Funnel Optimization Triggers ---
-
-  var totalVC = 0, totalATC = 0, totalIC = 0, totalPurchases = 0, totalSpend7d = 0;
-  adsetInsights7d.forEach(function (row) {
-    var actions = row.actions || [];
-    totalVC += parseActionValue(actions, VC_TYPES);
-    totalATC += parseActionValue(actions, ATC_TYPES);
-    totalIC += parseActionValue(actions, IC_TYPES);
-    totalPurchases += parseActionValue(actions, PURCHASE_TYPES);
-    totalSpend7d += parseFloat(row.spend) || 0;
+  // TRIGGER 7: SPEND IMBALANCE (ads within same adset)
+  var adsByAdset = {};
+  adInsights.forEach(function (ad) {
+    if (!adsByAdset[ad.adset_id]) adsByAdset[ad.adset_id] = [];
+    adsByAdset[ad.adset_id].push(ad);
+  });
+  Object.keys(adsByAdset).forEach(function (adsetId) {
+    var siblings = adsByAdset[adsetId];
+    if (siblings.length < 2) return;
+    var totalSpend = siblings.reduce(function (s, a) { return s + (parseFloat(a.spend) || 0); }, 0);
+    if (totalSpend < 5) return;
+    siblings.forEach(function (ad) {
+      var adSpend = parseFloat(ad.spend) || 0;
+      var pct = (adSpend / totalSpend) * 100;
+      var impressions = parseInt(ad.impressions) || 0;
+      if (pct < 5 && impressions < 100 && totalSpend > 10) {
+        triggers.push({
+          severity: 'WARNING', rule: 'SPEND_STARVED', target: ad.ad_name, target_id: ad.ad_id,
+          message: "Ad '" + ad.ad_name + "' krijgt slechts " + pct.toFixed(0) + "% van adset spend (" + impressions + " impressies). Niet genoeg data om creative te beoordelen."
+        });
+      }
+    });
   });
 
-  // TRIGGER 7: CHECKOUT DROP-OFF
-  if (totalIC >= 5 && totalPurchases > 0) {
-    var icToPurchaseRate = (totalPurchases / totalIC * 100);
+  // --- Funnel triggers from 7-day data ---
+  var f7 = snap.sevenDays;
+
+  // TRIGGER 8: CHECKOUT DROP-OFF
+  if (f7.ic >= 5 && f7.purchases > 0) {
+    var icToPurchaseRate = (f7.purchases / f7.ic * 100);
     if (icToPurchaseRate < 25) {
       triggers.push({
-        severity: 'WARNING',
-        rule: 'CHECKOUT_DROPOFF',
-        target: 'Website funnel',
-        target_id: null,
-        message: 'Checkout drop-off: slechts ' + icToPurchaseRate.toFixed(0) + '% van InitiateCheckout converteert naar Purchase (' + totalPurchases + '/' + totalIC + '). Check: verzendkosten, betaalmethoden, checkout flow.'
+        severity: 'WARNING', rule: 'CHECKOUT_DROPOFF', target: 'Website funnel', target_id: null,
+        message: 'Checkout drop-off: ' + icToPurchaseRate.toFixed(0) + '% IC→Purchase (' + f7.purchases + '/' + f7.ic + ').'
       });
     }
   }
 
-  // TRIGGER 8: LOW ATC-TO-IC RATIO
-  if (totalATC >= 5) {
-    var atcToIcRate = totalIC > 0 ? (totalIC / totalATC * 100) : 0;
+  // TRIGGER 9: CART ABANDONMENT
+  if (f7.atc >= 5) {
+    var atcToIcRate = f7.ic > 0 ? (f7.ic / f7.atc * 100) : 0;
     if (atcToIcRate < 30) {
       triggers.push({
-        severity: 'WARNING',
-        rule: 'CART_ABANDONMENT',
-        target: 'Website funnel',
-        target_id: null,
-        message: 'Cart abandonment hoog: slechts ' + atcToIcRate.toFixed(0) + '% van AddToCart start checkout (' + totalIC + '/' + totalATC + '). Check: winkelwagen UX, trust signals, urgentie-elementen.'
+        severity: 'WARNING', rule: 'CART_ABANDONMENT', target: 'Website funnel', target_id: null,
+        message: 'Cart abandonment: ' + atcToIcRate.toFixed(0) + '% ATC→IC (' + f7.ic + '/' + f7.atc + ').'
       });
     }
   }
 
-  // TRIGGER 9: LOW VC-TO-ATC RATIO
-  if (totalVC >= 20) {
-    var vcToAtcRate = totalATC > 0 ? (totalATC / totalVC * 100) : 0;
+  // TRIGGER 10: LOW VC→ATC
+  if (f7.vc >= 20) {
+    var vcToAtcRate = f7.atc > 0 ? (f7.atc / f7.vc * 100) : 0;
     if (vcToAtcRate < 5) {
       triggers.push({
-        severity: 'WARNING',
-        rule: 'LOW_PRODUCT_CONVERSION',
-        target: 'Website funnel',
-        target_id: null,
-        message: 'Productpagina converteert slecht: slechts ' + vcToAtcRate.toFixed(1) + '% van ViewContent naar ATC (' + totalATC + '/' + totalVC + '). Check: productpagina copy, prijs, reviews, CTA button.'
+        severity: 'WARNING', rule: 'LOW_PRODUCT_CONVERSION', target: 'Website funnel', target_id: null,
+        message: 'Productpagina: ' + vcToAtcRate.toFixed(1) + '% VC→ATC (' + f7.atc + '/' + f7.vc + ').'
       });
     }
   }
 
-  // TRIGGER 10: HIGH CPC
-  var totalClicks = 0;
-  adInsights.forEach(function (ad) { totalClicks += parseInt(ad.clicks) || 0; });
-  if (totalClicks > 0 && totalSpend7d > 0) {
-    var avgCpc = totalSpend7d / totalClicks;
-    if (avgCpc > 2.0) {
-      triggers.push({
-        severity: 'INFO',
-        rule: 'HIGH_CPC',
-        target: 'Ads overall',
-        target_id: null,
-        message: 'Gemiddelde CPC is ' + avgCpc.toFixed(2) + ' euro. Overweeg: nieuwe creatives, bredere targeting, of lagere-funnel landingspagina.'
-      });
+  // TRIGGER 11: HIGH CPC
+  if (f7.clicks > 0 && f7.cpc > 2.0) {
+    triggers.push({
+      severity: 'INFO', rule: 'HIGH_CPC', target: 'Ads overall', target_id: null,
+      message: 'Gemiddelde CPC €' + f7.cpc.toFixed(2) + '. Overweeg nieuwe creatives.'
+    });
+  }
+
+  // TRIGGER 12: BILLING
+  if (billing) {
+    var threshold = billing.billing_threshold;
+    var balance = billing.balance || 0;
+    if (threshold > 0 && balance > 0) {
+      var billingPct = (balance / threshold * 100);
+      if (billingPct >= BILLING_ALERT_PCT) {
+        triggers.push({
+          severity: 'URGENT', rule: 'BILLING_THRESHOLD', target: 'Account billing', target_id: null,
+          message: 'Facturatie: €' + balance.toFixed(2) + '/€' + threshold + ' (' + billingPct.toFixed(0) + '%).'
+        });
+      }
     }
   }
 
-  // TRIGGER 11: BILLING THRESHOLD
-  var billingResult = await safeApiGet(AD_ACCOUNT_ID, { fields: 'balance' }, 'billing');
-  if (billingResult.ok && billingResult.data && billingResult.data.balance) {
-    var currentBalance = parseInt(billingResult.data.balance, 10) / 100;
-    var billingPct = (currentBalance / BILLING_THRESHOLD * 100);
-    if (billingPct >= BILLING_ALERT_PCT) {
-      triggers.push({
-        severity: 'URGENT',
-        rule: 'BILLING_THRESHOLD',
-        target: 'Account billing',
-        target_id: null,
-        message: 'Facturatie alert: ' + currentBalance.toFixed(2) + '/' + BILLING_THRESHOLD + ' euro (' + billingPct.toFixed(0) + '%). Vul je creditcard aan!'
-      });
+  // --- Auto-actions (only when config allows) ---
+  if (AUTO_PAUSE) {
+    var adKillTriggers = triggers.filter(function (t) { return t.rule === 'AD_KILLER'; });
+    for (var ak = 0; ak < adKillTriggers.length; ak++) {
+      try {
+        var pauseResult = await apiPost(adKillTriggers[ak].target_id, { status: 'PAUSED' });
+        autoActions.push({
+          action: 'PAUSE_AD', target: adKillTriggers[ak].target, target_id: adKillTriggers[ak].target_id,
+          success: Boolean(pauseResult && pauseResult.ok)
+        });
+      } catch (e) {
+        autoActions.push({ action: 'PAUSE_AD', target: adKillTriggers[ak].target, target_id: adKillTriggers[ak].target_id, success: false, error: e.message });
+      }
     }
   }
+
+  // --- Build top ads performance table ---
+  var topAds = adInsights.slice(0, 10).map(function (ad) {
+    var adSpend = parseFloat(ad.spend) || 0;
+    var adCtr = parseFloat(ad.ctr) || 0;
+    var adCpc = parseFloat(ad.cpc) || 0;
+    var actions = ad.actions || [];
+    var adAtc = parseActionValue(actions, ATC_TYPES);
+    var adPurchases = parseActionValue(actions, PURCHASE_TYPES);
+    return {
+      name: (ad.ad_name || '').substring(0, 25),
+      spend: adSpend,
+      ctr: adCtr,
+      cpc: adCpc,
+      atc: adAtc,
+      purchases: adPurchases
+    };
+  });
 
   // --- Build notification ---
-
   var urgentTriggers = triggers.filter(function (t) { return t.severity === 'URGENT'; });
   var warningTriggers = triggers.filter(function (t) { return t.severity === 'WARNING'; });
   var infoTriggers = triggers.filter(function (t) { return t.severity === 'INFO'; });
 
-  // Always notify — either with triggers or with all-clear status
-  var msg = formatMessage(now, urgentTriggers, warningTriggers, infoTriggers, adsetInsights7d, adsets, apiErrors, {
-    totalVC: totalVC, totalATC: totalATC, totalIC: totalIC, totalPurchases: totalPurchases, totalSpend7d: totalSpend7d
-  });
+  var msg = formatMessage(now, urgentTriggers, warningTriggers, infoTriggers, apiErrors, snap, topAds, autoActions);
   var telegramResult = await sendTelegram(msg);
 
   // --- Generate Windsurf task file if there are actionable triggers ---
@@ -513,6 +473,7 @@ async function runMonitor(now) {
     warning: warningTriggers.length,
     info: infoTriggers.length,
     api_errors: apiErrors.length,
+    auto_actions: autoActions.length,
     notification_sent: true,
     telegram_response: telegramResult,
     windsurf_task: taskGenerated,
@@ -520,14 +481,14 @@ async function runMonitor(now) {
   };
 }
 
-function formatMessage(now, urgent, warning, info, weeklyInsights, adsets, apiErrors, funnel) {
+function formatMessage(now, urgent, warning, info, apiErrors, snap, topAds, autoActions) {
   var iso = now.toISOString().split('T')[0].split('-');
   var dateStr = iso[2] + '-' + iso[1] + '-' + iso[0];
-  var lines = ['📊 <b>CALQIX Ads Monitor - ' + dateStr + '</b>\n'];
+  var lines = ['\ud83d\udcca <b>CALQIX Ads Monitor - ' + dateStr + '</b>\n'];
 
   // API errors
   if (apiErrors.length > 0) {
-    lines.push('⚙️ <b>API WARNINGS:</b>');
+    lines.push('\u2699\ufe0f <b>API WARNINGS:</b>');
     apiErrors.forEach(function (e) { lines.push('- ' + e.substring(0, 100)); });
     lines.push('');
   }
@@ -544,50 +505,109 @@ function formatMessage(now, urgent, warning, info, weeklyInsights, adsets, apiEr
   });
 
   if (urgent.length > 0) {
-    lines.push('🔴 <b>ACTIE NODIG:</b>');
+    lines.push('\ud83d\udd34 <b>ACTIE NODIG:</b>');
     urgent.forEach(function (t) { lines.push('- ' + t.message); });
     lines.push('');
   }
 
   if (adWarnings.length > 0) {
-    lines.push('⚠️ <b>ADS - LET OP:</b>');
+    lines.push('\u26a0\ufe0f <b>ADS - LET OP:</b>');
     adWarnings.forEach(function (t) { lines.push('- ' + t.message); });
     lines.push('');
   }
 
   if (websiteWarnings.length > 0) {
-    lines.push('🌐 <b>WEBSITE OPTIMALISATIE:</b>');
+    lines.push('\ud83c\udf10 <b>WEBSITE OPTIMALISATIE:</b>');
     websiteWarnings.forEach(function (t) { lines.push('- ' + t.message); });
     lines.push('');
   }
 
   if (info.length > 0) {
-    lines.push('🏆 <b>WINNERS:</b>');
+    lines.push('\ud83c\udfc6 <b>WINNERS:</b>');
     info.forEach(function (t) { lines.push('- ' + t.message); });
     lines.push('');
   }
 
-  // Always show funnel summary
-  lines.push('📈 <b>7-DAG FUNNEL:</b>');
-  lines.push('- Spend: €' + funnel.totalSpend7d.toFixed(2));
-  lines.push('- VC→ATC→IC→Purchase: ' + funnel.totalVC + '→' + funnel.totalATC + '→' + funnel.totalIC + '→' + funnel.totalPurchases);
-  if (funnel.totalATC > 0) {
-    lines.push('- Cost/ATC: €' + (funnel.totalSpend7d / funnel.totalATC).toFixed(2));
+  // Auto-actions executed
+  if (autoActions && autoActions.length > 0) {
+    lines.push('\ud83e\udd16 <b>AUTO-ACTIES:</b>');
+    autoActions.forEach(function (a) {
+      var status = a.success ? '\u2705' : '\u274c';
+      lines.push('- ' + status + ' ' + a.action + ': ' + a.target);
+    });
+    lines.push('');
   }
-  lines.push('');
+
+  // TODAY real-time funnel (Meta-attributed)
+  var tf = snap.today;
+  if (tf) {
+    lines.push('\u26a1 <b>VANDAAG (Meta-attributed):</b>');
+    lines.push('- Spend: \u20ac' + tf.spend.toFixed(2));
+    lines.push('- VC\u2192ATC\u2192IC\u2192Purchase: ' + tf.vc + '\u2192' + tf.atc + '\u2192' + tf.ic + '\u2192' + tf.purchases);
+    if (tf.revenue > 0) {
+      lines.push('- Revenue: \u20ac' + tf.revenue.toFixed(2));
+      if (tf.spend > 0) lines.push('- ROAS: ' + tf.roas.toFixed(2) + 'x');
+    }
+    if (tf.atc > 0) lines.push('- Cost/ATC: \u20ac' + tf.costPerAtc.toFixed(2));
+    if (tf.purchases > 0) lines.push('- Cost/Purchase: \u20ac' + tf.costPerPurchase.toFixed(2));
+    lines.push('');
+  }
+
+  // 7-day funnel summary (Meta-attributed)
+  var f7 = snap.sevenDays;
+  if (f7) {
+    lines.push('\ud83d\udcc8 <b>7-DAG FUNNEL (Meta-attributed):</b>');
+    lines.push('- Spend: \u20ac' + f7.spend.toFixed(2));
+    lines.push('- VC\u2192ATC\u2192IC\u2192Purchase: ' + f7.vc + '\u2192' + f7.atc + '\u2192' + f7.ic + '\u2192' + f7.purchases);
+    if (f7.revenue > 0) {
+      lines.push('- Revenue: \u20ac' + f7.revenue.toFixed(2));
+      if (f7.spend > 0) lines.push('- ROAS: ' + f7.roas.toFixed(2) + 'x');
+    }
+    if (f7.atc > 0) lines.push('- Cost/ATC: \u20ac' + f7.costPerAtc.toFixed(2));
+    if (f7.purchases > 0) lines.push('- Cost/Purchase: \u20ac' + f7.costPerPurchase.toFixed(2));
+    lines.push('');
+  }
+
+  // Top ads performance (3d)
+  if (topAds && topAds.length > 0) {
+    lines.push('\ud83c\udfaf <b>TOP ADS (3d):</b>');
+    topAds.forEach(function (ad) {
+      var line = '\u2022 ' + ad.name;
+      line += ' | \u20ac' + ad.spend.toFixed(2);
+      line += ' | CTR ' + ad.ctr.toFixed(1) + '%';
+      if (ad.atc > 0) line += ' | ATC ' + ad.atc;
+      if (ad.purchases > 0) line += ' | Purch ' + ad.purchases;
+      lines.push(line);
+    });
+    lines.push('');
+  }
+
+  // Billing section
+  var billing = snap.billing;
+  if (billing) {
+    lines.push('\ud83d\udcb3 <b>ACCOUNT & BILLING:</b>');
+    if (billing.balance !== null) lines.push('- Openstaand: \u20ac' + billing.balance.toFixed(2));
+    if (billing.amount_spent !== null) lines.push('- Totaal uitgegeven: \u20ac' + billing.amount_spent.toFixed(2));
+    lines.push('- Drempel: \u20ac' + billing.billing_threshold + ' (' + billing.billing_threshold_source + ')');
+    if (billing.spend_cap !== null) lines.push('- Spend cap: \u20ac' + billing.spend_cap.toFixed(2));
+    lines.push('');
+  }
 
   // All-clear
   if (urgent.length === 0 && warning.length === 0) {
-    lines.push('✅ Geen urgente acties nodig.');
+    lines.push('\u2705 Geen urgente acties nodig.');
   }
 
-  // Operator action instructions (not auto-executed)
+  // Auto-action config status
+  lines.push('\n\ud83d\udd27 Auto: pause=' + (AUTO_PAUSE ? 'ON' : 'OFF') + ' budget=' + (AUTO_BUDGET_ADJUST ? 'ON' : 'OFF'));
+
+  // Operator action instructions
   if (urgent.length > 0 || warning.length > 0) {
     var dateStr2 = now.toISOString().split('T')[0];
-    lines.push('\n📝 <b>ACTIE VEREIST:</b>');
-    lines.push('1. Taakbestand: <code>.windsurf/tasks/ads-' + dateStr2 + '.md</code>');
-    lines.push('2. Open Windsurf en voer uit: <code>/ads-optimize</code>');
-    lines.push('3. Of handle handmatig via Meta Ads Manager.');
+    lines.push('\n\ud83d\udcdd <b>ACTIE VEREIST:</b>');
+    lines.push('1. <code>.windsurf/tasks/ads-' + dateStr2 + '.md</code>');
+    lines.push('2. <code>/ads-optimize</code> in Windsurf');
+    lines.push('3. Of handmatig via Meta Ads Manager.');
   }
 
   return lines.join('\n');
@@ -685,3 +705,4 @@ async function generateWindsurfTask(now, urgent, warning, info) {
 }
 
 module.exports = handler;
+module.exports.config = { api: { bodyParser: false } };

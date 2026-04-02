@@ -1,17 +1,30 @@
-# Daily Ads Automation — Operations Guide
+# Ads Automation — Operations Guide
 
 ## How It Works
 
-1. **QStash** sends a POST request to `/api/ads/monitor` at **07:00 Amsterdam time** daily
+### Twice-daily optimizer (07:00 + 19:00 Amsterdam)
+
+1. **QStash** sends a POST request to `/api/ads/monitor` at **07:00** and **19:00 Amsterdam time**
 2. The monitor endpoint:
    - Verifies QStash signature
-   - Acquires a Redis distributed lock (prevents concurrent runs)
-   - Checks Redis idempotency key (prevents duplicate daily runs)
+   - Determines slot (morning/evening based on Amsterdam hour)
+   - Acquires a Redis distributed lock per slot (prevents concurrent runs)
+   - Checks Redis idempotency key per slot (prevents duplicate runs)
    - Fetches Meta Ads API data (ad insights, adset status, billing)
    - Evaluates 11 trigger rules
    - Sends Telegram notification (always — success or failure)
    - Creates GitHub task file if actionable triggers fired
    - Persists run metadata to Redis
+   - Releases lock
+
+### Recovery job (every minute)
+
+1. **QStash** sends a POST request to `/api/recovery/run` every minute
+2. The recovery endpoint:
+   - Acquires a recovery lock (TTL 120s)
+   - Pops up to 10 items from the `recovery:queue` in Redis
+   - For each: checks event lifecycle state, retries if retryable
+   - Updates event state (confirmed, retry_pending, or failed_terminal)
    - Releases lock
 
 ## Trigger Rules
@@ -32,9 +45,10 @@
 
 ## What You Receive
 
-### Every morning (Telegram)
+### Twice daily (Telegram at 07:00 + 19:00 Amsterdam)
 - Funnel summary (7-day: VC → ATC → IC → Purchase)
 - Spend summary
+- Recovery queue status (pending retries)
 - Any triggered actions with severity
 - Link to task file if actions needed
 
@@ -54,20 +68,31 @@ node scripts/bootstrap.js smoke-test
 
 # Via direct URL
 curl "https://calqix-capi.vercel.app/api/ads/monitor?secret=YOUR_CRON_SECRET&force=1"
+
+# Test recovery endpoint
+node scripts/bootstrap.js smoke-test-recovery
 ```
 
 ### Check if today's run completed
-Look in Upstash Redis console for key: `cron:run:YYYY-MM-DD`
+Look in Upstash Redis console for keys:
+- `optimizer:run:YYYY-MM-DD:morning`
+- `optimizer:run:YYYY-MM-DD:evening`
 
 ### Schedule management
 ```bash
-# View current schedule
+# View current schedules
 node scripts/bootstrap.js list-schedules
 
-# Recreate/update schedule
+# Create all schedules (optimizer morning+evening + recovery)
+node scripts/bootstrap.js create-all-schedules
+
+# Create only optimizer schedules
 node scripts/bootstrap.js create-schedule
 
-# Delete schedule (disables daily runs)
+# Create only recovery schedule
+node scripts/bootstrap.js create-recovery-schedule
+
+# Delete all CALQIX schedules
 node scripts/bootstrap.js delete-schedule
 ```
 

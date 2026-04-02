@@ -103,7 +103,7 @@ async function sendEvent(eventName, eventId, sourceUrl, userData = {}, customDat
       eventId,
       message: error.message
     });
-    return null;
+    return { ok: false, status: 0, result: null, error: error.message };
   }
 }
 

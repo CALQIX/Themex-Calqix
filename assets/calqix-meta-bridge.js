@@ -91,6 +91,40 @@
     return null;
   }
 
+  function getCustomerPhone() {
+    try {
+      if (window.meta && window.meta.customer && window.meta.customer.phone) {
+        return window.meta.customer.phone;
+      }
+    } catch (e) { /* silent */ }
+    return null;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Stable anonymous external_id (first-party, cross-session)          */
+  /* ------------------------------------------------------------------ */
+
+  var ANON_ID_KEY = '_cq_anon_id';
+  var ANON_ID_COOKIE_DAYS = 365;
+
+  function getOrCreateAnonId() {
+    var existing = null;
+    try { existing = localStorage.getItem(ANON_ID_KEY); } catch (e) { /* silent */ }
+    if (!existing) existing = getCookie(ANON_ID_KEY);
+    if (existing) return existing;
+
+    var id = 'cq_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 10);
+    try { localStorage.setItem(ANON_ID_KEY, id); } catch (e) { /* silent */ }
+    setCookie(ANON_ID_KEY, id, ANON_ID_COOKIE_DAYS);
+    return id;
+  }
+
+  function getExternalId() {
+    var customerId = getCustomerId();
+    if (customerId) return customerId;
+    return getOrCreateAnonId();
+  }
+
   /* ------------------------------------------------------------------ */
   /*  Cart attribute sync                                                */
   /* ------------------------------------------------------------------ */
@@ -138,12 +172,14 @@
     var fbc = getFbc();
     var fbp = getFbp();
     var email = getCustomerEmail();
-    var customerId = getCustomerId();
+    var phone = getCustomerPhone();
+    var externalId = getExternalId();
 
     if (fbc) data.fbc = fbc;
     if (fbp) data.fbp = fbp;
     if (email) data.email = email;
-    if (customerId) data.external_id = customerId;
+    if (phone) data.phone = phone;
+    if (externalId) data.external_id = externalId;
     return data;
   }
 
@@ -249,6 +285,7 @@
       fbc: userPayload.fbc || undefined,
       fbp: userPayload.fbp || undefined,
       email: userPayload.email || undefined,
+      phone: userPayload.phone || undefined,
       external_id: userPayload.external_id || undefined,
       source_url: window.location.href
     };
@@ -327,6 +364,7 @@
     getCookie: getCookie,
     getFbc: getFbc,
     getFbp: getFbp,
+    getExternalId: getExternalId,
     generateEventId: generateEventId,
     track: track,
     fireAddToCart: fireAddToCart,
@@ -341,9 +379,16 @@
 
   function onReady() {
     persistFbclid();
+    getOrCreateAnonId();
     syncCartAttributes();
     fireViewContent();
     interceptAddToCart();
+
+    // Retry fbp sync after Meta Pixel loads (it may set _fbp after bridge init)
+    setTimeout(function () {
+      var fbp = getFbp();
+      if (fbp) syncCartAttributes();
+    }, 3000);
   }
 
   if (document.readyState === 'loading') {

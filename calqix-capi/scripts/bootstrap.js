@@ -17,6 +17,11 @@
 require('dotenv').config();
 
 var MONITOR_URL = process.env.CAPI_BASE_URL || 'https://calqix-capi.vercel.app';
+var SCHEDULE_ID_MORNING = 'calqix-optimizer-morning';
+var SCHEDULE_ID_AFTERNOON = 'calqix-optimizer-afternoon';
+var SCHEDULE_ID_EVENING = 'calqix-optimizer-evening';
+var SCHEDULE_ID_RECOVERY = 'calqix-recovery';
+// Legacy ID for backwards compat
 var SCHEDULE_ID = 'calqix-daily-monitor';
 
 async function main() {
@@ -31,13 +36,19 @@ async function main() {
     case 'verify-qstash':
       return await verifyQStash();
     case 'create-schedule':
-      return await createSchedule();
+      return await createOptimizerSchedules();
+    case 'create-recovery-schedule':
+      return await createRecoverySchedule();
+    case 'create-all-schedules':
+      return await createAllSchedules();
     case 'list-schedules':
       return await listSchedules();
     case 'delete-schedule':
-      return await deleteSchedule();
+      return await deleteAllSchedules();
     case 'smoke-test':
       return await smokeTest();
+    case 'smoke-test-recovery':
+      return await smokeTestRecovery();
     case 'verify-all':
       return await verifyAll();
     default:
@@ -127,8 +138,8 @@ async function verifyQStash() {
 
 // --- Schedule Management ---
 
-async function createSchedule() {
-  console.log('[QStash] Creating/updating schedule...');
+async function createOptimizerSchedules() {
+  console.log('[QStash] Creating/updating optimizer schedules (morning + evening)...');
   var qstashToken = process.env.QSTASH_TOKEN;
   if (!qstashToken) {
     console.error('[QStash] FAIL: QSTASH_TOKEN not set');
@@ -142,29 +153,99 @@ async function createSchedule() {
     var destination = MONITOR_URL + '/api/ads/monitor';
     var callbackUrl = MONITOR_URL + '/api/ads/monitor-callback?type=success';
     var failureCallbackUrl = MONITOR_URL + '/api/ads/monitor-callback?type=failure';
+    var authHeader = { 'Authorization': 'Bearer ' + (process.env.CRON_SECRET || '') };
 
-    var schedule = await client.schedules.create({
-      scheduleId: SCHEDULE_ID,
+    // Morning schedule: 07:00 Amsterdam
+    var morning = await client.schedules.create({
+      scheduleId: SCHEDULE_ID_MORNING,
       destination: destination,
       cron: 'CRON_TZ=Europe/Amsterdam 0 7 * * *',
       retries: 3,
+      headers: authHeader,
       callback: callbackUrl,
       failureCallback: failureCallbackUrl
     });
+    console.log('[QStash] Morning schedule created:');
+    console.log('  ID:   ', morning.scheduleId || SCHEDULE_ID_MORNING);
+    console.log('  Cron: ', 'CRON_TZ=Europe/Amsterdam 0 7 * * *');
 
-    console.log('[QStash] Schedule created/updated:');
-    console.log('  ID:          ', schedule.scheduleId || SCHEDULE_ID);
-    console.log('  Destination: ', destination);
-    console.log('  Cron:        ', 'CRON_TZ=Europe/Amsterdam 0 7 * * *');
-    console.log('  Retries:     ', 3);
-    console.log('  Callback:    ', callbackUrl);
-    console.log('  Fail CB:     ', failureCallbackUrl);
-    console.log('[QStash] PASS');
+    // Afternoon schedule: 12:00 Amsterdam
+    var afternoon = await client.schedules.create({
+      scheduleId: SCHEDULE_ID_AFTERNOON,
+      destination: destination,
+      cron: 'CRON_TZ=Europe/Amsterdam 0 12 * * *',
+      retries: 3,
+      headers: authHeader,
+      callback: callbackUrl,
+      failureCallback: failureCallbackUrl
+    });
+    console.log('[QStash] Afternoon schedule created:');
+    console.log('  ID:   ', afternoon.scheduleId || SCHEDULE_ID_AFTERNOON);
+    console.log('  Cron: ', 'CRON_TZ=Europe/Amsterdam 0 12 * * *');
+
+    // Evening schedule: 19:00 Amsterdam
+    var evening = await client.schedules.create({
+      scheduleId: SCHEDULE_ID_EVENING,
+      destination: destination,
+      cron: 'CRON_TZ=Europe/Amsterdam 0 19 * * *',
+      retries: 3,
+      headers: authHeader,
+      callback: callbackUrl,
+      failureCallback: failureCallbackUrl
+    });
+    console.log('[QStash] Evening schedule created:');
+    console.log('  ID:   ', evening.scheduleId || SCHEDULE_ID_EVENING);
+    console.log('  Cron: ', 'CRON_TZ=Europe/Amsterdam 0 19 * * *');
+
+    console.log('[QStash] Optimizer schedules PASS');
     return true;
   } catch (err) {
     console.error('[QStash] FAIL:', err.message);
     return false;
   }
+}
+
+async function createRecoverySchedule() {
+  console.log('[QStash] Creating/updating recovery schedule (every minute)...');
+  var qstashToken = process.env.QSTASH_TOKEN;
+  if (!qstashToken) {
+    console.error('[QStash] FAIL: QSTASH_TOKEN not set');
+    return false;
+  }
+
+  try {
+    var { Client } = require('@upstash/qstash');
+    var client = new Client({ token: qstashToken });
+
+    var destination = MONITOR_URL + '/api/recovery/run';
+
+    var authHeader = { 'Authorization': 'Bearer ' + (process.env.CRON_SECRET || '') };
+
+    var schedule = await client.schedules.create({
+      scheduleId: SCHEDULE_ID_RECOVERY,
+      destination: destination,
+      cron: 'CRON_TZ=Europe/Amsterdam * * * * *',
+      retries: 1,
+      headers: authHeader
+    });
+
+    console.log('[QStash] Recovery schedule created:');
+    console.log('  ID:          ', schedule.scheduleId || SCHEDULE_ID_RECOVERY);
+    console.log('  Destination: ', destination);
+    console.log('  Cron:         every minute');
+    console.log('  Retries:     ', 1);
+    console.log('[QStash] Recovery schedule PASS');
+    return true;
+  } catch (err) {
+    console.error('[QStash] FAIL:', err.message);
+    return false;
+  }
+}
+
+async function createAllSchedules() {
+  var ok1 = await createOptimizerSchedules();
+  var ok2 = await createRecoverySchedule();
+  return ok1 && ok2;
 }
 
 async function listSchedules() {
@@ -198,8 +279,8 @@ async function listSchedules() {
   }
 }
 
-async function deleteSchedule() {
-  console.log('[QStash] Deleting schedule:', SCHEDULE_ID);
+async function deleteAllSchedules() {
+  console.log('[QStash] Deleting all CALQIX schedules...');
   var qstashToken = process.env.QSTASH_TOKEN;
   if (!qstashToken) {
     console.error('[QStash] FAIL: QSTASH_TOKEN not set');
@@ -209,8 +290,16 @@ async function deleteSchedule() {
   try {
     var { Client } = require('@upstash/qstash');
     var client = new Client({ token: qstashToken });
-    await client.schedules.delete(SCHEDULE_ID);
-    console.log('[QStash] Schedule deleted');
+    var ids = [SCHEDULE_ID, SCHEDULE_ID_MORNING, SCHEDULE_ID_AFTERNOON, SCHEDULE_ID_EVENING, SCHEDULE_ID_RECOVERY];
+    for (var i = 0; i < ids.length; i++) {
+      try {
+        await client.schedules.delete(ids[i]);
+        console.log('[QStash] Deleted:', ids[i]);
+      } catch (e) {
+        console.log('[QStash] Not found or already deleted:', ids[i]);
+      }
+    }
+    console.log('[QStash] All schedules deleted');
     return true;
   } catch (err) {
     console.error('[QStash] FAIL:', err.message);
@@ -237,6 +326,37 @@ async function smokeTest() {
     var body = await response.json();
     console.log('[Smoke] Status:', response.status);
     console.log('[Smoke] Response:', JSON.stringify(body, null, 2).substring(0, 1000));
+
+    if (response.status === 200 && !body.error) {
+      console.log('[Smoke] PASS');
+      return true;
+    } else {
+      console.log('[Smoke] FAIL: unexpected response');
+      return false;
+    }
+  } catch (err) {
+    console.error('[Smoke] FAIL:', err.message);
+    return false;
+  }
+}
+
+async function smokeTestRecovery() {
+  console.log('[Smoke] Testing recovery endpoint...');
+  var secret = process.env.CRON_SECRET;
+  if (!secret) {
+    console.error('[Smoke] FAIL: CRON_SECRET not set');
+    return false;
+  }
+
+  var fetch = require('node-fetch');
+  var url = MONITOR_URL + '/api/recovery/run?secret=' + encodeURIComponent(secret);
+  console.log('[Smoke] GET', url.substring(0, 60) + '...');
+
+  try {
+    var response = await fetch(url, { method: 'GET', timeout: 15000 });
+    var body = await response.json();
+    console.log('[Smoke] Status:', response.status);
+    console.log('[Smoke] Response:', JSON.stringify(body, null, 2).substring(0, 500));
 
     if (response.status === 200 && !body.error) {
       console.log('[Smoke] PASS');
@@ -300,7 +420,8 @@ async function verifyAll() {
     '/api/webhook/checkouts-create',
     '/api/webhook/carts-create',
     '/api/ads/monitor',
-    '/api/ads/monitor-callback'
+    '/api/ads/monitor-callback',
+    '/api/recovery/run'
   ];
   var endpointOk = true;
   for (var i = 0; i < endpoints.length; i++) {

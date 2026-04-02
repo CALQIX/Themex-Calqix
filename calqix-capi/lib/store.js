@@ -279,6 +279,63 @@ function isRedisActive() {
   return storeType === 'redis';
 }
 
+/**
+ * Expose the internal Redis client for advanced operations (LPUSH, RPOP, LLEN).
+ * Returns null if Redis is not initialized.
+ * @returns {object|null}
+ */
+function _getRedis() {
+  if (initRedis()) return redis;
+  return null;
+}
+
+// --- Recovery helpers ---
+
+var TTL_RECOVERY_CURSOR = 30 * 24 * 3600;  // 30 days
+var TTL_RECOVERY_LOCK = 120;               // 2 minutes
+var TTL_OPTIMIZER_LOCK = 300;              // 5 minutes
+var TTL_OPTIMIZER_RUN = 48 * 3600;         // 48 hours
+
+async function getRecoveryCursor(topic) {
+  var key = 'recovery:cursor:' + topic;
+  var val = await get(key);
+  if (!val) return null;
+  try { return JSON.parse(val); } catch (e) { return null; }
+}
+
+async function setRecoveryCursor(topic, cursorData) {
+  var key = 'recovery:cursor:' + topic;
+  await set(key, JSON.stringify(cursorData), TTL_RECOVERY_CURSOR);
+}
+
+async function acquireRecoveryLock() {
+  return setnx('lock:recovery', '1', TTL_RECOVERY_LOCK);
+}
+
+async function releaseRecoveryLock() {
+  return del('lock:recovery');
+}
+
+async function acquireOptimizerLock(slot) {
+  return setnx('lock:optimizer:' + slot, '1', TTL_OPTIMIZER_LOCK);
+}
+
+async function releaseOptimizerLock(slot) {
+  return del('lock:optimizer:' + slot);
+}
+
+async function getOptimizerRun(dateKey, slot) {
+  var key = 'optimizer:run:' + dateKey + ':' + slot;
+  var val = await get(key);
+  if (!val) return null;
+  try { return JSON.parse(val); } catch (e) { return val; }
+}
+
+async function setOptimizerRun(dateKey, slot, result) {
+  var key = 'optimizer:run:' + dateKey + ':' + slot;
+  await set(key, JSON.stringify(result), TTL_OPTIMIZER_RUN);
+}
+
 module.exports = {
   set: set,
   get: get,
@@ -297,5 +354,14 @@ module.exports = {
   setNotifyStatus: setNotifyStatus,
   getNotifyStatus: getNotifyStatus,
   setArtifact: setArtifact,
-  getArtifact: getArtifact
+  getArtifact: getArtifact,
+  _getRedis: _getRedis,
+  getRecoveryCursor: getRecoveryCursor,
+  setRecoveryCursor: setRecoveryCursor,
+  acquireRecoveryLock: acquireRecoveryLock,
+  releaseRecoveryLock: releaseRecoveryLock,
+  acquireOptimizerLock: acquireOptimizerLock,
+  releaseOptimizerLock: releaseOptimizerLock,
+  getOptimizerRun: getOptimizerRun,
+  setOptimizerRun: setOptimizerRun
 };

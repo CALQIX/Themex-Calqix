@@ -6,14 +6,17 @@
   "type": "commonjs",
   "scripts": {
     "dev": "vercel dev",
-    "check": "node --check lib/hash.js && node --check lib/verify-webhook.js && node --check lib/meta-capi.js",
+    "check": "node --check lib/hash.js && node --check lib/verify-webhook.js && node --check lib/meta-capi.js && node --check lib/event-state.js && node --check lib/qstash-verify.js && node --check lib/store.js && node --check lib/dedup-guard.js && node --check lib/capi-diagnostics.js && node --check lib/meta-insights-source.js && node --check lib/meta-ads.js && node --check api/recovery/run.js && node --check api/checkout-event.js && node --check api/add-to-cart.js && node --check api/view-content.js && node --check api/webhook/orders-paid.js && node --check api/webhook/checkouts-create.js && node --check api/webhook/customers-create.js && node --check api/ads/monitor.js",
     "bootstrap": "node scripts/bootstrap.js verify-all",
     "verify:redis": "node scripts/bootstrap.js verify-redis",
     "verify:qstash": "node scripts/bootstrap.js verify-qstash",
     "schedule:create": "node scripts/bootstrap.js create-schedule",
+    "schedule:create:recovery": "node scripts/bootstrap.js create-recovery-schedule",
+    "schedule:create:all": "node scripts/bootstrap.js create-all-schedules",
     "schedule:list": "node scripts/bootstrap.js list-schedules",
     "schedule:delete": "node scripts/bootstrap.js delete-schedule",
-    "smoke-test": "node scripts/bootstrap.js smoke-test"
+    "smoke-test": "node scripts/bootstrap.js smoke-test",
+    "smoke-test:recovery": "node scripts/bootstrap.js smoke-test-recovery"
   },
   "dependencies": {
     "@upstash/qstash": "^2.7.17",

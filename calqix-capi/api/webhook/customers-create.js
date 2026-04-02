@@ -5,6 +5,7 @@
 const { isDuplicate, markProcessed } = require('../../lib/dedup-guard');
 const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');
+const eventState = require('../../lib/event-state');
 const {
   extractExternalId,
   extractMetaBrowserIds,
@@ -69,7 +70,7 @@ async function handler(req, res) {
       return respondOk(res, { received: true, processed: false });
     }
 
-    if (isDuplicate('Lead', String(customer.id))) {
+    if (await isDuplicate('Lead', String(customer.id))) {
       console.log('[Webhook customers-create] skipping duplicate', { identifier: customer.id });
       return respondOk(res, { received: true, processed: false, reason: 'duplicate' });
     }
@@ -80,8 +81,10 @@ async function handler(req, res) {
       content_name: 'Customer Registration'
     };
 
-    await sendEvent('Lead', eventId, SOURCE_URL, userData, customData);
-    markProcessed('Lead', String(customer.id));
+    await eventState.recordReceived(eventId, 'Lead', 'webhook', String(customer.id));
+    var metaResult = await sendEvent('Lead', eventId, SOURCE_URL, userData, customData);
+    await eventState.recordSent(eventId, metaResult);
+    await markProcessed('Lead', String(customer.id));
 
     return respondOk(res, {
       received: true,
