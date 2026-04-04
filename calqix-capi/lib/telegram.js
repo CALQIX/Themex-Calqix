@@ -2,7 +2,7 @@
 // Gebruikt node-fetch (consistent met rest van project)
 var fetch = require('node-fetch');
 
-async function sendTelegram(message) {
+async function sendTelegram(message, replyMarkup) {
   var token = process.env.TELEGRAM_BOT_TOKEN;
   var chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -12,16 +12,18 @@ async function sendTelegram(message) {
   }
 
   var url = 'https://api.telegram.org/bot' + token + '/sendMessage';
+  var body = {
+    chat_id: chatId,
+    text: message,
+    parse_mode: 'HTML'
+  };
+  if (replyMarkup) body.reply_markup = JSON.stringify(replyMarkup);
 
   try {
     var res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message,
-        parse_mode: 'HTML'
-      })
+      body: JSON.stringify(body)
     });
 
     var data = await res.json();

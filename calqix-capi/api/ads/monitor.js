@@ -24,6 +24,7 @@ var insights = require('../../lib/meta-insights-source');
 var store = require('../../lib/store');
 var { authenticate, getRawBody } = require('../../lib/qstash-verify');
 var eventState = require('../../lib/event-state');
+var dates = require('../../lib/dates');
 var crypto = require('crypto');
 
 var PURCHASE_TYPES = insights.PURCHASE_TYPES;
@@ -39,19 +40,30 @@ var BILLING_ALERT_PCT = 90;
 var ENDPOINT_PATH = '/api/ads/monitor';
 
 /**
- * Determine the optimizer slot based on current Amsterdam time.
- * Morning slot: 00:00-09:59 → 'morning'
- * Afternoon slot: 10:00-15:59 → 'afternoon'
- * Evening slot: 16:00-23:59 → 'evening'
+ * Determine the optimizer slot based on current Amsterdam hour.
+ * Returns hourly slot like 'h07', 'h09', 'h11', etc.
+ * This supports the 9x/day schedule (every 2h from 07-23).
  */
 function getSlot(now) {
-  // Convert to Amsterdam time (CET=UTC+1, CEST=UTC+2)
   var amsterdamHour;
   try {
     var fmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'Europe/Amsterdam' });
     amsterdamHour = parseInt(fmt.format(now), 10);
   } catch (e) {
-    // Fallback: assume UTC+2 (CEST)
+    amsterdamHour = (now.getUTCHours() + 2) % 24;
+  }
+  return 'h' + (amsterdamHour < 10 ? '0' : '') + amsterdamHour;
+}
+
+/**
+ * Get human-readable slot label for Telegram.
+ */
+function getSlotLabel(now) {
+  var amsterdamHour;
+  try {
+    var fmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'Europe/Amsterdam' });
+    amsterdamHour = parseInt(fmt.format(now), 10);
+  } catch (e) {
     amsterdamHour = (now.getUTCHours() + 2) % 24;
   }
   if (amsterdamHour < 10) return 'morning';
@@ -457,8 +469,27 @@ async function runMonitor(now) {
   var warningTriggers = triggers.filter(function (t) { return t.severity === 'WARNING'; });
   var infoTriggers = triggers.filter(function (t) { return t.severity === 'INFO'; });
 
-  var msg = formatMessage(now, urgentTriggers, warningTriggers, infoTriggers, apiErrors, snap, topAds, autoActions);
-  var telegramResult = await sendTelegram(msg);
+  // --- Send compact Ad Pulse message (every run) ---
+  var pulseMsg = await formatPulseMessage(now, snap);
+  var pulseResult = await sendTelegram(pulseMsg);
+
+  // --- Send full monitor report only on morning slot ---
+  var telegramResult = pulseResult;
+  var slotLabel = getSlotLabel(now);
+  if (slotLabel === 'morning' && (urgentTriggers.length > 0 || warningTriggers.length > 0 || infoTriggers.length > 0)) {
+    var msg = formatMessage(now, urgentTriggers, warningTriggers, infoTriggers, apiErrors, snap, topAds, autoActions);
+    telegramResult = await sendTelegram(msg);
+  }
+
+  // --- Cache today's data for tomorrow's comparison ---
+  var todayCache = {
+    spend: snap.today ? snap.today.spend : 0,
+    purchases: snap.today ? snap.today.purchases : 0,
+    revenue: snap.today ? snap.today.revenue : 0,
+    impressions: snap.today ? snap.today.impressions : 0,
+    clicks: snap.today ? snap.today.clicks : 0
+  };
+  await store.set('pulse:daily:' + dates.todayKey(now), JSON.stringify(todayCache), 172800);
 
   // --- Generate Windsurf task file if there are actionable triggers ---
   var taskGenerated = false;
@@ -479,6 +510,86 @@ async function runMonitor(now) {
     windsurf_task: taskGenerated,
     triggers: triggers
   };
+}
+
+/**
+ * Build compact Ad Pulse message for Telegram (5-second phone read).
+ */
+async function formatPulseMessage(now, snap) {
+  var dtStr = dates.formatDateTimeAmsterdam(now);
+  var tf = snap.today;
+
+  if (!tf || tf.spend === 0) {
+    return 'CALQIX Ad Pulse - ' + dtStr + '\nNo active spend today.';
+  }
+
+  // Daily budget from active adsets
+  var dailyBudget = 0;
+  (snap.activeAdsets || []).forEach(function (a) {
+    if (a.daily_budget) dailyBudget += parseInt(a.daily_budget, 10) / 100;
+  });
+  // Fallback to campaign-level if no adset budgets
+  if (dailyBudget === 0) dailyBudget = 40;
+
+  // Spend pacing adjusted for time of day
+  var amHour = dates.getAmsterdamHour(now);
+  var hoursElapsed = Math.max(amHour, 1);
+  var expectedPct = hoursElapsed / 24;
+  var pacing = expectedPct > 0 ? Math.round((tf.spend / dailyBudget) / expectedPct * 100) : 0;
+
+  var lines = [
+    '<b>CALQIX Ad Pulse</b> - ' + dtStr,
+    '',
+    'Spend: EUR ' + tf.spend.toFixed(2) + ' / EUR ' + dailyBudget.toFixed(0) + ' (' + pacing + '%)',
+    'Impressions: ' + formatNum(tf.impressions) + ' | Clicks: ' + formatNum(tf.clicks),
+    'CTR: ' + tf.ctr.toFixed(2) + '% | CPC: EUR ' + tf.cpc.toFixed(2),
+    'Purchases: ' + tf.purchases + ' | CPA: ' + (tf.purchases > 0 ? 'EUR ' + tf.costPerPurchase.toFixed(2) : 'n/a'),
+    'ROAS: ' + tf.roas.toFixed(2) + 'x'
+  ];
+
+  // Best and worst ad (from 3d data since today may have no ad-level yet)
+  var adRows = snap.ads || [];
+  if (adRows.length > 0) {
+    var sorted = adRows.slice().sort(function (a, b) {
+      return (parseFloat(b.ctr) || 0) - (parseFloat(a.ctr) || 0);
+    });
+    var best = sorted[0];
+    var worst = sorted[sorted.length - 1];
+    var bestPurch = parseActionValue(best.actions || [], PURCHASE_TYPES);
+    var worstPurch = parseActionValue(worst.actions || [], PURCHASE_TYPES);
+    lines.push('');
+    lines.push('Best: "' + truncateName(best.ad_name, 30) + '" CTR ' + (parseFloat(best.ctr) || 0).toFixed(2) + '%, ' + bestPurch + ' purch');
+    if (worst.ad_id !== best.ad_id) {
+      lines.push('Worst: "' + truncateName(worst.ad_name, 30) + '" CTR ' + (parseFloat(worst.ctr) || 0).toFixed(2) + '%, ' + worstPurch + ' purch');
+    }
+  }
+
+  // vs yesterday comparison
+  try {
+    var yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    var yKey = 'pulse:daily:' + dates.todayKey(yesterday);
+    var yData = await store.get(yKey);
+    if (yData) {
+      var yd = typeof yData === 'string' ? JSON.parse(yData) : yData;
+      var spendDiff = yd.spend > 0 ? Math.round((tf.spend - yd.spend) / yd.spend * 100) : 0;
+      var purchDiff = tf.purchases - (yd.purchases || 0);
+      lines.push('');
+      lines.push('vs yesterday: spend ' + (spendDiff >= 0 ? '+' : '') + spendDiff + '%, purchases ' + (purchDiff >= 0 ? '+' : '') + purchDiff);
+    }
+  } catch (e) { /* skip comparison */ }
+
+  return lines.join('\n');
+}
+
+function formatNum(n) {
+  if (!n) return '0';
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function truncateName(s, len) {
+  if (!s) return '';
+  return s.length > len ? s.substring(0, len - 3) + '...' : s;
 }
 
 function formatMessage(now, urgent, warning, info, apiErrors, snap, topAds, autoActions) {

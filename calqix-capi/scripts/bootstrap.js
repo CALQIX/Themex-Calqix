@@ -17,12 +17,23 @@
 require('dotenv').config();
 
 var MONITOR_URL = process.env.CAPI_BASE_URL || 'https://calqix-capi.vercel.app';
-var SCHEDULE_ID_MORNING = 'calqix-optimizer-morning';
-var SCHEDULE_ID_AFTERNOON = 'calqix-optimizer-afternoon';
-var SCHEDULE_ID_EVENING = 'calqix-optimizer-evening';
-var SCHEDULE_ID_RECOVERY = 'calqix-recovery';
-// Legacy ID for backwards compat
-var SCHEDULE_ID = 'calqix-daily-monitor';
+// Consolidated schedule IDs (10 total, fits QStash free tier)
+var SCHEDULE_ID_OPTIMIZER = 'calqix-optimizer';           // 1. Ad Pulse every 2h (07-23)
+var SCHEDULE_ID_RECOVERY = 'calqix-recovery';              // 2. Recovery every minute
+var SCHEDULE_ID_CONTENT_MORNING = 'calqix-content-morning'; // 3. Insights→Plan→Generate chain 05:45
+var SCHEDULE_ID_CONTENT_REVIEW = 'calqix-content-review';  // 4. Review 07:05
+var SCHEDULE_ID_CONTENT_PUBLISH_AM = 'calqix-content-publish-am'; // 5. Publish post1 08:30
+var SCHEDULE_ID_CONTENT_PUBLISH_PM = 'calqix-content-publish-pm'; // 6. Publish post2 18:30
+var SCHEDULE_ID_CONTENT_REFLECT = 'calqix-content-reflect'; // 7. Reflect 21:30
+var SCHEDULE_ID_AD_MORNING = 'calqix-ad-morning';          // 8. Sync→Engine→Report chain 09:00
+var SCHEDULE_ID_AD_MIDDAY = 'calqix-ad-midday';            // 9. Midday check 15:00
+var SCHEDULE_ID_AD_CLOSE = 'calqix-ad-daily-close';        // 10. Daily close 21:00
+// Legacy IDs for deletion cleanup
+var LEGACY_IDS = [
+  'calqix-daily-monitor', 'calqix-optimizer-morning', 'calqix-optimizer-afternoon',
+  'calqix-optimizer-evening', 'calqix-content-insights', 'calqix-content-plan',
+  'calqix-content-generate', 'calqix-ad-perf-sync', 'calqix-ad-opt-engine', 'calqix-ad-opt-report'
+];
 
 async function main() {
   var command = process.argv[2] || 'verify-all';
@@ -36,11 +47,15 @@ async function main() {
     case 'verify-qstash':
       return await verifyQStash();
     case 'create-schedule':
-      return await createOptimizerSchedules();
+      return await createOptimizerSchedule();
     case 'create-recovery-schedule':
       return await createRecoverySchedule();
     case 'create-all-schedules':
       return await createAllSchedules();
+    case 'create-content-schedules':
+      return await createContentSchedules();
+    case 'create-ad-opt-schedules':
+      return await createAdOptSchedules();
     case 'list-schedules':
       return await listSchedules();
     case 'delete-schedule':
@@ -138,8 +153,8 @@ async function verifyQStash() {
 
 // --- Schedule Management ---
 
-async function createOptimizerSchedules() {
-  console.log('[QStash] Creating/updating optimizer schedules (morning + evening)...');
+async function createOptimizerSchedule() {
+  console.log('[QStash] Creating optimizer schedule (every 2h, 07:00-23:00)...');
   var qstashToken = process.env.QSTASH_TOKEN;
   if (!qstashToken) {
     console.error('[QStash] FAIL: QSTASH_TOKEN not set');
@@ -155,49 +170,18 @@ async function createOptimizerSchedules() {
     var failureCallbackUrl = MONITOR_URL + '/api/ads/monitor-callback?type=failure';
     var authHeader = { 'Authorization': 'Bearer ' + (process.env.CRON_SECRET || '') };
 
-    // Morning schedule: 07:00 Amsterdam
-    var morning = await client.schedules.create({
-      scheduleId: SCHEDULE_ID_MORNING,
+    var result = await client.schedules.create({
+      scheduleId: SCHEDULE_ID_OPTIMIZER,
       destination: destination,
-      cron: 'CRON_TZ=Europe/Amsterdam 0 7 * * *',
+      cron: 'CRON_TZ=Europe/Amsterdam 0 7,9,11,13,15,17,19,21,23 * * *',
       retries: 3,
       headers: authHeader,
       callback: callbackUrl,
       failureCallback: failureCallbackUrl
     });
-    console.log('[QStash] Morning schedule created:');
-    console.log('  ID:   ', morning.scheduleId || SCHEDULE_ID_MORNING);
-    console.log('  Cron: ', 'CRON_TZ=Europe/Amsterdam 0 7 * * *');
+    console.log('[QStash] Optimizer schedule created (9x daily, every 2h 07-23)');
 
-    // Afternoon schedule: 12:00 Amsterdam
-    var afternoon = await client.schedules.create({
-      scheduleId: SCHEDULE_ID_AFTERNOON,
-      destination: destination,
-      cron: 'CRON_TZ=Europe/Amsterdam 0 12 * * *',
-      retries: 3,
-      headers: authHeader,
-      callback: callbackUrl,
-      failureCallback: failureCallbackUrl
-    });
-    console.log('[QStash] Afternoon schedule created:');
-    console.log('  ID:   ', afternoon.scheduleId || SCHEDULE_ID_AFTERNOON);
-    console.log('  Cron: ', 'CRON_TZ=Europe/Amsterdam 0 12 * * *');
-
-    // Evening schedule: 19:00 Amsterdam
-    var evening = await client.schedules.create({
-      scheduleId: SCHEDULE_ID_EVENING,
-      destination: destination,
-      cron: 'CRON_TZ=Europe/Amsterdam 0 19 * * *',
-      retries: 3,
-      headers: authHeader,
-      callback: callbackUrl,
-      failureCallback: failureCallbackUrl
-    });
-    console.log('[QStash] Evening schedule created:');
-    console.log('  ID:   ', evening.scheduleId || SCHEDULE_ID_EVENING);
-    console.log('  Cron: ', 'CRON_TZ=Europe/Amsterdam 0 19 * * *');
-
-    console.log('[QStash] Optimizer schedules PASS');
+    console.log('[QStash] Optimizer schedule PASS');
     return true;
   } catch (err) {
     console.error('[QStash] FAIL:', err.message);
@@ -242,10 +226,94 @@ async function createRecoverySchedule() {
   }
 }
 
+async function createContentSchedules() {
+  console.log('[QStash] Creating consolidated content schedules (5 slots)...');
+  var qstashToken = process.env.QSTASH_TOKEN;
+  if (!qstashToken) {
+    console.error('[QStash] FAIL: QSTASH_TOKEN not set');
+    return false;
+  }
+
+  try {
+    var { Client } = require('@upstash/qstash');
+    var client = new Client({ token: qstashToken });
+    var authHeader = { 'Authorization': 'Bearer ' + (process.env.CRON_SECRET || '') };
+
+    var contentSchedules = [
+      { id: SCHEDULE_ID_CONTENT_MORNING, path: '/api/cron/content-morning', cron: '45 5 * * *', label: 'Content Morning Chain 05:45 (insights→plan→generate)' },
+      { id: SCHEDULE_ID_CONTENT_REVIEW, path: '/api/cron/content-review', cron: '5 7 * * *', label: 'Content Review 07:05' },
+      { id: SCHEDULE_ID_CONTENT_PUBLISH_AM, path: '/api/cron/content-publish?slot=post1', cron: '30 8 * * *', label: 'Publish Post1 08:30' },
+      { id: SCHEDULE_ID_CONTENT_PUBLISH_PM, path: '/api/cron/content-publish?slot=post2', cron: '30 18 * * *', label: 'Publish Post2 18:30' },
+      { id: SCHEDULE_ID_CONTENT_REFLECT, path: '/api/cron/content-reflect', cron: '30 21 * * *', label: 'Content Reflect 21:30' }
+    ];
+
+    for (var i = 0; i < contentSchedules.length; i++) {
+      var s = contentSchedules[i];
+      var result = await client.schedules.create({
+        scheduleId: s.id,
+        destination: MONITOR_URL + s.path,
+        cron: 'CRON_TZ=Europe/Amsterdam ' + s.cron,
+        retries: 2,
+        headers: authHeader
+      });
+      console.log('[QStash] Created: ' + s.label + ' (' + s.id + ')');
+    }
+
+    console.log('[QStash] Content schedules PASS');
+    return true;
+  } catch (err) {
+    console.error('[QStash] FAIL:', err.message);
+    return false;
+  }
+}
+
+async function createAdOptSchedules() {
+  console.log('[QStash] Creating consolidated ad optimization schedules (3 slots)...');
+  var qstashToken = process.env.QSTASH_TOKEN;
+  if (!qstashToken) {
+    console.error('[QStash] FAIL: QSTASH_TOKEN not set');
+    return false;
+  }
+
+  try {
+    var { Client } = require('@upstash/qstash');
+    var client = new Client({ token: qstashToken });
+    var authHeader = { 'Authorization': 'Bearer ' + (process.env.CRON_SECRET || '') };
+
+    var adSchedules = [
+      { id: SCHEDULE_ID_AD_MORNING, path: '/api/cron/ad-morning', cron: '0 9 * * *', label: 'Ad Morning Chain 09:00 (sync→engine→report)' },
+      { id: SCHEDULE_ID_AD_MIDDAY, path: '/api/cron/ad-midday-check', cron: '0 15 * * *', label: 'Ad Midday 15:00' },
+      { id: SCHEDULE_ID_AD_CLOSE, path: '/api/cron/ad-daily-close', cron: '0 21 * * *', label: 'Ad Daily Close 21:00' }
+    ];
+
+    for (var i = 0; i < adSchedules.length; i++) {
+      var s = adSchedules[i];
+      var result = await client.schedules.create({
+        scheduleId: s.id,
+        destination: MONITOR_URL + s.path,
+        cron: 'CRON_TZ=Europe/Amsterdam ' + s.cron,
+        retries: 2,
+        headers: authHeader
+      });
+      console.log('[QStash] Created: ' + s.label + ' (' + s.id + ')');
+    }
+
+    console.log('[QStash] Ad optimization schedules PASS');
+    return true;
+  } catch (err) {
+    console.error('[QStash] FAIL:', err.message);
+    return false;
+  }
+}
+
 async function createAllSchedules() {
-  var ok1 = await createOptimizerSchedules();
+  console.log('[QStash] Creating all consolidated schedules (10 total)...');
+  var ok1 = await createOptimizerSchedule();
   var ok2 = await createRecoverySchedule();
-  return ok1 && ok2;
+  var ok3 = await createContentSchedules();
+  var ok4 = await createAdOptSchedules();
+  console.log('[QStash] Total: 1 optimizer + 1 recovery + 5 content + 3 ad-opt = 10 schedules');
+  return ok1 && ok2 && ok3 && ok4;
 }
 
 async function listSchedules() {
@@ -290,7 +358,12 @@ async function deleteAllSchedules() {
   try {
     var { Client } = require('@upstash/qstash');
     var client = new Client({ token: qstashToken });
-    var ids = [SCHEDULE_ID, SCHEDULE_ID_MORNING, SCHEDULE_ID_AFTERNOON, SCHEDULE_ID_EVENING, SCHEDULE_ID_RECOVERY];
+    var ids = [
+      SCHEDULE_ID_OPTIMIZER, SCHEDULE_ID_RECOVERY,
+      SCHEDULE_ID_CONTENT_MORNING, SCHEDULE_ID_CONTENT_REVIEW,
+      SCHEDULE_ID_CONTENT_PUBLISH_AM, SCHEDULE_ID_CONTENT_PUBLISH_PM, SCHEDULE_ID_CONTENT_REFLECT,
+      SCHEDULE_ID_AD_MORNING, SCHEDULE_ID_AD_MIDDAY, SCHEDULE_ID_AD_CLOSE
+    ].concat(LEGACY_IDS);
     for (var i = 0; i < ids.length; i++) {
       try {
         await client.schedules.delete(ids[i]);
@@ -421,7 +494,15 @@ async function verifyAll() {
     '/api/webhook/carts-create',
     '/api/ads/monitor',
     '/api/ads/monitor-callback',
-    '/api/recovery/run'
+    '/api/recovery/run',
+    '/api/cron/content-morning',
+    '/api/cron/content-review',
+    '/api/cron/content-publish',
+    '/api/cron/content-reflect',
+    '/api/cron/ad-morning',
+    '/api/cron/ad-midday-check',
+    '/api/cron/ad-daily-close',
+    '/api/approval/status'
   ];
   var endpointOk = true;
   for (var i = 0; i < endpoints.length; i++) {
