@@ -4,15 +4,22 @@
  * Receives callback_query from inline keyboard buttons and text commands.
  * Handles:
  *   - content_approve:{postId} / content_reject:{postId}
+ *   - pub:{postId}:{facebook|instagram|both|queue}
  *   - adv:{advisoryId}:{safe|balanced|aggressive|refresh|skip}
  *   - advf:{advisoryId}:{optionIndex}
  *   - lim:{limitKey}:{delta}
+ *   - cb:intent:{intent} / cb:build:{id} / cb:adjust:{id}:{field}
+ *   - cb:setbudget:{id}:{cents} / cb:setgeo:{id}:{countries}
+ *   - cb:regenerate:{id} / cb:cancel:{id} / cb:activate:{id} / cb:keep_paused:{id}
  *   - /limits, /set_adset_max, /set_daily_max, /set_campaign_max
+ *   - /build_campaign, /preflight
  */
 var fetch = require('node-fetch');
 var store = require('../../lib/store');
 var approvalQueue = require('../../lib/approval-queue');
 var dates = require('../../lib/dates');
+var socialPublisher = require('../../lib/social-publisher');
+var campaignBuilder = require('../../lib/campaign-builder');
 
 function getBotToken() { return process.env.TELEGRAM_BOT_TOKEN || ''; }
 function getChatId() { return process.env.TELEGRAM_CHAT_ID || ''; }
@@ -76,8 +83,12 @@ async function handleContentAction(callbackId, chatId, action, postId) {
       post_id: postId, approvedAt: new Date().toISOString(), approvedBy: 'telegram'
     }), 86400);
 
-    await answerCallback(callbackId, 'Approved! Queued for publishing.');
-    await sendMessage(chatId, 'Creative ' + postId.substring(0, 8) + '... approved. Queued for next publish slot.');
+    await answerCallback(callbackId, 'Approved!');
+
+    // Show publish platform selection
+    var platforms = socialPublisher.getEnabledPlatforms();
+    var pubKeyboard = buildPublishKeyboard(postId, platforms);
+    await sendMessage(chatId, 'Creative approved! Where do you want to publish?', pubKeyboard);
 
   } else if (action === 'content_reject') {
     await store.set('content:rejected:' + dateStr + ':' + postId, JSON.stringify({
@@ -256,6 +267,53 @@ async function handleTextCommand(chatId, text) {
     return true;
   }
 
+  if (text === '/build_campaign') {
+    var intentKeyboard = {
+      inline_keyboard: [
+        [
+          { text: 'Scale a winner', callback_data: 'cb:intent:scale_winner' },
+          { text: 'Test new country', callback_data: 'cb:intent:new_country' }
+        ],
+        [
+          { text: 'Test new angle', callback_data: 'cb:intent:new_angle' },
+          { text: 'Retargeting', callback_data: 'cb:intent:retargeting' }
+        ],
+        [
+          { text: 'Let AI decide', callback_data: 'cb:intent:ai_decide' }
+        ]
+      ]
+    };
+    await sendMessage(chatId, '<b>CALQIX Campaign Builder</b>\n\nWhat kind of campaign do you want to build?', intentKeyboard);
+    return true;
+  }
+
+  if (text === '/preflight') {
+    await sendMessage(chatId, 'Running pre-flight checks...');
+    try {
+      var permCheck = await socialPublisher.checkPermissions();
+      var platforms = socialPublisher.getEnabledPlatforms();
+      var lines = ['<b>Pre-flight Status</b>\n'];
+      lines.push('FACEBOOK_PAGE_ID: ' + (platforms.facebook ? 'configured' : 'not set'));
+      lines.push('INSTAGRAM_ACCOUNT_ID: ' + (platforms.instagram ? 'configured' : 'not set'));
+      lines.push('');
+      if (permCheck.ok) {
+        lines.push('Token permissions: OK');
+      } else if (permCheck.missing && permCheck.missing.length > 0) {
+        lines.push('Missing permissions: ' + permCheck.missing.join(', '));
+        lines.push('\nAdd at developers.facebook.com > CALQIX API app > Permissions. Then regenerate token.');
+      } else {
+        lines.push('Permission check: ' + (permCheck.error || 'unknown error'));
+      }
+      if (permCheck.granted && permCheck.granted.length > 0) {
+        lines.push('\nGranted: ' + permCheck.granted.join(', '));
+      }
+      await sendMessage(chatId, lines.join('\n'));
+    } catch (err) {
+      await sendMessage(chatId, 'Pre-flight error: ' + err.message);
+    }
+    return true;
+  }
+
   var setCommands = {
     '/set_adset_max': 'max_adset_budget',
     '/set_daily_max': 'max_daily_spend',
@@ -359,6 +417,344 @@ async function sendConfirmation(chatId, strategy, followupChoice) {
   await sendMessage(chatId, lines.join('\n'));
 }
 
+// --- Publish keyboard ---
+function buildPublishKeyboard(postId, platforms) {
+  var rows = [];
+  if (platforms.facebook && platforms.instagram) {
+    rows.push([
+      { text: '\ud83d\udcd8 Facebook', callback_data: 'pub:' + postId + ':facebook' },
+      { text: '\ud83d\udcf8 Instagram', callback_data: 'pub:' + postId + ':instagram' }
+    ]);
+    rows.push([
+      { text: '\ud83d\udcd8+\ud83d\udcf8 Both', callback_data: 'pub:' + postId + ':both' },
+      { text: '\ud83d\udccb Queue only', callback_data: 'pub:' + postId + ':queue' }
+    ]);
+  } else if (platforms.facebook) {
+    rows.push([
+      { text: '\ud83d\udcd8 Facebook', callback_data: 'pub:' + postId + ':facebook' },
+      { text: '\ud83d\udccb Queue only', callback_data: 'pub:' + postId + ':queue' }
+    ]);
+  } else if (platforms.instagram) {
+    rows.push([
+      { text: '\ud83d\udcf8 Instagram', callback_data: 'pub:' + postId + ':instagram' },
+      { text: '\ud83d\udccb Queue only', callback_data: 'pub:' + postId + ':queue' }
+    ]);
+  } else {
+    rows.push([
+      { text: '\ud83d\udccb Queue only', callback_data: 'pub:' + postId + ':queue' }
+    ]);
+  }
+  return { inline_keyboard: rows };
+}
+
+// --- Social publish handler ---
+async function handlePublish(callbackId, chatId, postId, target) {
+  if (target === 'queue') {
+    await answerCallback(callbackId, 'Queued for next publish slot.');
+    await sendMessage(chatId, 'Creative queued for next scheduled publish.');
+    return;
+  }
+
+  // Get creative data from Redis
+  var creative = await getCreativeFromRedis(postId);
+  if (!creative || !creative.image_url) {
+    await answerCallback(callbackId, 'No image URL found.');
+    await sendMessage(chatId, 'No image URL available for this creative. Publish manually via Predis.');
+    return;
+  }
+
+  // Check image expiry
+  if (socialPublisher.isImageLikelyExpired(creative.completed_at || creative.created_at)) {
+    await sendMessage(chatId, 'Warning: Image may have expired (Predis URLs last ~1 hour). Publishing anyway...');
+  }
+
+  var caption = creative.caption || creative.text || '';
+
+  await answerCallback(callbackId, 'Publishing...');
+  await sendMessage(chatId, 'Publishing to ' + target + '...');
+
+  var publishResult;
+  if (target === 'facebook') {
+    var fbRes = await socialPublisher.publishToFacebook(creative.image_url, caption);
+    publishResult = { results: fbRes.ok ? [fbRes] : [], errors: fbRes.ok ? [] : [{ platform: 'facebook', error: fbRes.error }] };
+  } else if (target === 'instagram') {
+    var igRes = await socialPublisher.publishToInstagram(creative.image_url, caption);
+    publishResult = { results: igRes.ok ? [igRes] : [], errors: igRes.ok ? [] : [{ platform: 'instagram', error: igRes.error }] };
+  } else if (target === 'both') {
+    publishResult = await socialPublisher.publishToSocial(creative.image_url, caption, 'both');
+  } else {
+    await sendMessage(chatId, 'Unknown publish target: ' + target);
+    return;
+  }
+
+  // Send confirmation
+  var platformsPublished = publishResult.results.map(function (r) { return r.platform; }).join(' + ') || 'none';
+  var errorsText = publishResult.errors.map(function (e) { return e.platform + ': ' + e.error; }).join('\n') || '';
+
+  var confirmText = 'Published to: ' + platformsPublished;
+  if (errorsText) confirmText += '\n\nErrors:\n' + errorsText;
+
+  await sendMessage(chatId, confirmText);
+
+  // Log and update status
+  await socialPublisher.logPublish(postId, target, publishResult.results, publishResult.errors);
+  await store.set('content:publish_status:' + postId, JSON.stringify({
+    published_to: publishResult.results,
+    errors: publishResult.errors,
+    published_at: dates.formatDateTimeAmsterdam(new Date())
+  }), 30 * 86400);
+}
+
+async function getCreativeFromRedis(postId) {
+  // Try predis webhook result first
+  var raw = await store.get('predis:webhook:' + postId);
+  if (raw) {
+    try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch (e) { /* */ }
+  }
+  // Try job record
+  var jobRaw = await store.get('predis:job:' + postId);
+  if (jobRaw) {
+    try { return typeof jobRaw === 'string' ? JSON.parse(jobRaw) : jobRaw; } catch (e) { /* */ }
+  }
+  return null;
+}
+
+// --- Campaign builder handler ---
+async function handleCampaignCallback(callbackId, chatId, messageId, data) {
+  var parts = data.split(':');
+  var action = parts[1];
+
+  // cb:intent:{intent}
+  if (action === 'intent') {
+    var intent = parts[2];
+    await answerCallback(callbackId, 'Analyzing performance...');
+    await sendMessage(chatId, 'Analyzing ad performance data and generating proposal...');
+
+    try {
+      var limits = require('../../lib/limits');
+      var perfData = await campaignBuilder.fetchPerformanceContext();
+
+      if (!perfData.hasWinners) {
+        await sendMessage(chatId, 'Not enough data yet. Need at least 1 ad with 100+ impressions and CTR > 1% to build from.\n\nWinner ads found: 0');
+        return;
+      }
+
+      var currentLimits = await limits.getLimits();
+      var proposal = await campaignBuilder.generateProposal(intent, perfData, currentLimits);
+
+      var proposalId = campaignBuilder.generateProposalId();
+      await campaignBuilder.storeProposal(proposalId, intent, proposal);
+
+      var msg = campaignBuilder.formatProposalMessage(proposal);
+      var keyboard = buildProposalKeyboard(proposalId);
+      await sendMessage(chatId, msg, keyboard);
+    } catch (err) {
+      console.error('[CampaignBuilder] Proposal error:', err.message);
+      await sendMessage(chatId, 'Campaign proposal failed: ' + err.message);
+    }
+    return;
+  }
+
+  // cb:build:{proposalId}
+  if (action === 'build') {
+    var buildProposalId = parts[2];
+    var entry = await campaignBuilder.getProposal(buildProposalId);
+    if (!entry || !entry.proposal) {
+      await answerCallback(callbackId, 'Proposal expired.');
+      return;
+    }
+
+    await answerCallback(callbackId, 'Building campaign...');
+    await sendMessage(chatId, 'Building campaign via Meta API (all PAUSED)...');
+
+    try {
+      var buildResult = await campaignBuilder.buildCampaign(entry.proposal);
+      await campaignBuilder.updateProposal(buildProposalId, {
+        status: buildResult.ok ? 'built' : 'build_failed',
+        campaign_id: buildResult.campaign_id || null
+      });
+
+      if (!buildResult.ok) {
+        await sendMessage(chatId, 'Campaign build failed: ' + buildResult.error);
+        return;
+      }
+
+      var dryNote = buildResult.dryRun ? '\n\n(DRY RUN: ENABLE_AD_WRITES is not true. No real changes made.)' : '';
+
+      var confirmMsg = '<b>Campaign built successfully!</b>\n\n' +
+        'Campaign: ' + buildResult.campaign_name + '\n' +
+        'ID: ' + buildResult.campaign_id + '\n' +
+        'Status: PAUSED\n' +
+        'Adsets: ' + buildResult.adsets_created + ' created\n' +
+        'Ads: ' + buildResult.ads_created + ' duplicated from winners' + dryNote;
+
+      var activateKeyboard = {
+        inline_keyboard: [[
+          { text: 'Activate now', callback_data: 'cb:activate:' + buildResult.campaign_id },
+          { text: 'Keep paused', callback_data: 'cb:keep_paused:' + buildResult.campaign_id }
+        ]]
+      };
+      await sendMessage(chatId, confirmMsg, buildResult.dryRun ? null : activateKeyboard);
+    } catch (err) {
+      console.error('[CampaignBuilder] Build error:', err.message);
+      await sendMessage(chatId, 'Campaign build error: ' + err.message);
+    }
+    return;
+  }
+
+  // cb:adjust:{proposalId}:budget
+  if (action === 'adjust' && parts[3] === 'budget') {
+    var adjBudgetId = parts[2];
+    var budgetKeyboard = {
+      inline_keyboard: [
+        [
+          { text: 'EUR 10/day', callback_data: 'cb:setbudget:' + adjBudgetId + ':1000' },
+          { text: 'EUR 20/day', callback_data: 'cb:setbudget:' + adjBudgetId + ':2000' },
+          { text: 'EUR 30/day', callback_data: 'cb:setbudget:' + adjBudgetId + ':3000' }
+        ],
+        [
+          { text: 'EUR 40/day', callback_data: 'cb:setbudget:' + adjBudgetId + ':4000' },
+          { text: 'EUR 50/day', callback_data: 'cb:setbudget:' + adjBudgetId + ':5000' }
+        ]
+      ]
+    };
+    await answerCallback(callbackId, 'Select budget');
+    await sendMessage(chatId, 'Select new daily budget:', budgetKeyboard);
+    return;
+  }
+
+  // cb:adjust:{proposalId}:countries
+  if (action === 'adjust' && parts[3] === 'countries') {
+    var adjGeoId = parts[2];
+    var geoKeyboard = {
+      inline_keyboard: [
+        [
+          { text: 'NL only', callback_data: 'cb:setgeo:' + adjGeoId + ':NL' },
+          { text: 'DE only', callback_data: 'cb:setgeo:' + adjGeoId + ':DE' }
+        ],
+        [
+          { text: 'NL+BE', callback_data: 'cb:setgeo:' + adjGeoId + ':NL,BE' },
+          { text: 'DE+AT', callback_data: 'cb:setgeo:' + adjGeoId + ':DE,AT' }
+        ],
+        [
+          { text: 'All (NL+BE+DE+AT)', callback_data: 'cb:setgeo:' + adjGeoId + ':NL,BE,DE,AT' },
+          { text: 'FR', callback_data: 'cb:setgeo:' + adjGeoId + ':FR' }
+        ]
+      ]
+    };
+    await answerCallback(callbackId, 'Select countries');
+    await sendMessage(chatId, 'Select target countries:', geoKeyboard);
+    return;
+  }
+
+  // cb:setbudget:{proposalId}:{cents}
+  if (action === 'setbudget') {
+    var setBudgetId = parts[2];
+    var budgetCents = parseInt(parts[3], 10);
+    if (isNaN(budgetCents)) {
+      await answerCallback(callbackId, 'Invalid budget');
+      return;
+    }
+
+    var updatedBudget = await campaignBuilder.adjustBudget(setBudgetId, budgetCents);
+    if (!updatedBudget) {
+      await answerCallback(callbackId, 'Proposal expired.');
+      return;
+    }
+
+    var updatedMsg = campaignBuilder.formatProposalMessage(updatedBudget.proposal);
+    var updatedKeyboard = buildProposalKeyboard(setBudgetId);
+    await answerCallback(callbackId, 'Budget updated to EUR ' + (budgetCents / 100));
+    await sendMessage(chatId, updatedMsg + '\n\n(Budget adjusted)', updatedKeyboard);
+    return;
+  }
+
+  // cb:setgeo:{proposalId}:{countries}
+  if (action === 'setgeo') {
+    var setGeoId = parts[2];
+    var countries = parts.slice(3).join(':'); // countries may contain commas but not colons
+    var updatedGeo = await campaignBuilder.adjustCountries(setGeoId, countries);
+    if (!updatedGeo) {
+      await answerCallback(callbackId, 'Proposal expired.');
+      return;
+    }
+
+    var geoMsg = campaignBuilder.formatProposalMessage(updatedGeo.proposal);
+    var geoKb = buildProposalKeyboard(setGeoId);
+    await answerCallback(callbackId, 'Countries updated to ' + countries);
+    await sendMessage(chatId, geoMsg + '\n\n(Countries adjusted)', geoKb);
+    return;
+  }
+
+  // cb:regenerate:{proposalId}
+  if (action === 'regenerate') {
+    var regenId = parts[2];
+    var regenEntry = await campaignBuilder.getProposal(regenId);
+    if (!regenEntry) {
+      await answerCallback(callbackId, 'Proposal expired.');
+      return;
+    }
+
+    await answerCallback(callbackId, 'Regenerating...');
+    await campaignBuilder.updateProposal(regenId, { status: 'cancelled' });
+
+    // Re-trigger intent with same intent type
+    await handleCampaignCallback(callbackId, chatId, messageId, 'cb:intent:' + regenEntry.intent);
+    return;
+  }
+
+  // cb:cancel:{proposalId}
+  if (action === 'cancel') {
+    var cancelId = parts[2];
+    await campaignBuilder.updateProposal(cancelId, { status: 'cancelled' });
+    await answerCallback(callbackId, 'Cancelled.');
+    await sendMessage(chatId, 'Campaign proposal cancelled.');
+    return;
+  }
+
+  // cb:activate:{campaignId}
+  if (action === 'activate') {
+    var activateCampaignId = parts[2];
+    await answerCallback(callbackId, 'Activating...');
+
+    var activateResult = await campaignBuilder.activateCampaign(activateCampaignId);
+    if (activateResult.ok) {
+      var dryMsg = activateResult.dryRun ? ' (DRY RUN)' : '';
+      await sendMessage(chatId, 'Campaign ' + activateCampaignId + ' activated!' + dryMsg + '\n\nAds are now live. Monitor performance.');
+    } else {
+      await sendMessage(chatId, 'Activation failed: ' + activateResult.error);
+    }
+    return;
+  }
+
+  // cb:keep_paused:{campaignId}
+  if (action === 'keep_paused') {
+    await answerCallback(callbackId, 'Keeping paused.');
+    await sendMessage(chatId, 'Campaign remains PAUSED. Activate later from Meta Ads Manager.');
+    return;
+  }
+
+  await answerCallback(callbackId, 'Unknown campaign action');
+}
+
+function buildProposalKeyboard(proposalId) {
+  return {
+    inline_keyboard: [
+      [
+        { text: 'Build it', callback_data: 'cb:build:' + proposalId },
+        { text: 'Adjust budget', callback_data: 'cb:adjust:' + proposalId + ':budget' }
+      ],
+      [
+        { text: 'Change countries', callback_data: 'cb:adjust:' + proposalId + ':countries' },
+        { text: 'New proposal', callback_data: 'cb:regenerate:' + proposalId }
+      ],
+      [
+        { text: 'Cancel', callback_data: 'cb:cancel:' + proposalId }
+      ]
+    ]
+  };
+}
+
 // --- Main handler ---
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -406,6 +802,19 @@ module.exports = async function handler(req, res) {
       if (data.indexOf('lim:') === 0) {
         var limParts = data.split(':');
         await handleLimitAction(callbackId, chatId, messageId, limParts);
+        return res.status(200).json({ ok: true });
+      }
+
+      // Social publish
+      if (data.indexOf('pub:') === 0) {
+        var pubParts = data.split(':');
+        await handlePublish(callbackId, chatId, pubParts[1], pubParts[2]);
+        return res.status(200).json({ ok: true });
+      }
+
+      // Campaign builder callbacks
+      if (data.indexOf('cb:') === 0) {
+        await handleCampaignCallback(callbackId, chatId, messageId, data);
         return res.status(200).json({ ok: true });
       }
 

@@ -287,6 +287,9 @@ async function sendCreativePreview(creative, reviewResult) {
     captionLines.push('Predis: ' + creative.predis_link);
   }
 
+  captionLines.push('');
+  captionLines.push('Image expires in ~1 hour. Approve quickly or re-generate.');
+
   var caption = captionLines.join('\n');
 
   var inlineKeyboard = {
