@@ -42,6 +42,9 @@ function buildPayload(brief) {
     badge_text: brief.badge || '',
     value_claims: brief.valueClaims || '',
 
+    // Language
+    language: brief.language || 'nl',
+
     // Brand overrides
     brand_name: guardrails.BRAND.name,
     brand_color: guardrails.BRAND.primaryColor,
@@ -56,7 +59,9 @@ function buildPayload(brief) {
       product: brief.product,
       funnelStage: brief.funnelStage,
       confidence: brief.confidence,
-      metaBacked: brief.metaBacked
+      metaBacked: brief.metaBacked,
+      market: brief.market || 'NL',
+      language: brief.language || 'nl'
     }
   };
 }

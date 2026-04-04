@@ -14,6 +14,18 @@ var scorer = require('./content-scorer');
 var memory = require('./content-memory');
 var dates = require('./dates');
 
+var MARKET_LANGUAGES = {
+  NL: { language: 'nl', label: 'Dutch' },
+  BE: { language: 'nl', label: 'Dutch (BE)' },
+  DE: { language: 'de', label: 'German' },
+  AT: { language: 'de', label: 'German (AT)' },
+  FR: { language: 'fr', label: 'French' },
+  UK: { language: 'en', label: 'English' },
+  US: { language: 'en', label: 'English' }
+};
+
+var DEFAULT_MARKET = { country: 'NL', language: 'nl', label: 'Dutch' };
+
 var SLOT_CONFIGS = {
   post1: {
     time: '08:30',
@@ -78,9 +90,12 @@ async function generateDailyPlan(metaSignals, dateStr) {
   var usedPillars = [];
   var usedProducts = [];
 
-  var post1 = assignSlot('post1', angleScores, pillarScores, productScores, usedAngles, usedPillars, usedProducts, metaSignals);
-  var post2 = assignSlot('post2', angleScores, pillarScores, productScores, usedAngles, usedPillars, usedProducts, metaSignals);
-  var reserve = assignSlot('reserve', angleScores, pillarScores, productScores, usedAngles, usedPillars, usedProducts, metaSignals);
+  // Determine target markets from performance data
+  var markets = pickMarkets(metaSignals);
+
+  var post1 = assignSlot('post1', angleScores, pillarScores, productScores, usedAngles, usedPillars, usedProducts, metaSignals, markets[0]);
+  var post2 = assignSlot('post2', angleScores, pillarScores, productScores, usedAngles, usedPillars, usedProducts, metaSignals, markets[1]);
+  var reserve = assignSlot('reserve', angleScores, pillarScores, productScores, usedAngles, usedPillars, usedProducts, metaSignals, markets[2] || DEFAULT_MARKET);
 
   var plan = {
     date: date,
@@ -118,7 +133,7 @@ async function generateDailyPlan(metaSignals, dateStr) {
 /**
  * Assign a content slot with best available angle/pillar/product.
  */
-function assignSlot(slotName, angleScores, pillarScores, productScores, usedAngles, usedPillars, usedProducts, metaSignals) {
+function assignSlot(slotName, angleScores, pillarScores, productScores, usedAngles, usedPillars, usedProducts, metaSignals, market) {
   var config = SLOT_CONFIGS[slotName];
 
   // Pick best pillar (prefer slot-aligned pillars)
@@ -165,6 +180,8 @@ function assignSlot(slotName, angleScores, pillarScores, productScores, usedAngl
     confidence: confidence,
     metaBacked: metaBacked,
     productMetaBacked: productMetaBacked,
+    market: market ? market.country : DEFAULT_MARKET.country,
+    language: market ? market.language : DEFAULT_MARKET.language,
     platform: 'instagram',
     status: 'planned'
   };
@@ -261,7 +278,49 @@ function enrichAngleScores(angleScores, anglePerformance) {
   }).sort(function (a, b) { return b.score - a.score; });
 }
 
+/**
+ * Determine target markets from country performance data.
+ * Returns array of 3 market objects: top 2 performers + a diverse third.
+ */
+function pickMarkets(metaSignals) {
+  if (!metaSignals || !metaSignals.countryPerformance) {
+    return [DEFAULT_MARKET, { country: 'DE', language: 'de', label: 'German' }, DEFAULT_MARKET];
+  }
+
+  var cp = metaSignals.countryPerformance;
+  var countries = Object.keys(cp);
+
+  // Sort by revenue, then by spend
+  countries.sort(function (a, b) {
+    var ra = cp[a].revenue || 0;
+    var rb = cp[b].revenue || 0;
+    if (rb !== ra) return rb - ra;
+    return (cp[b].spend || 0) - (cp[a].spend || 0);
+  });
+
+  var result = [];
+  var usedLangs = [];
+  for (var i = 0; i < countries.length && result.length < 3; i++) {
+    var c = countries[i];
+    var ml = MARKET_LANGUAGES[c];
+    if (!ml) continue;
+    // For first 2, pick top performers. For 3rd, prefer a different language.
+    if (result.length < 2 || usedLangs.indexOf(ml.language) === -1) {
+      result.push({ country: c, language: ml.language, label: ml.label });
+      if (usedLangs.indexOf(ml.language) === -1) usedLangs.push(ml.language);
+    }
+  }
+
+  // Fill remaining slots with defaults
+  while (result.length < 3) {
+    result.push(result.length === 0 ? DEFAULT_MARKET : { country: 'DE', language: 'de', label: 'German' });
+  }
+
+  return result;
+}
+
 module.exports = {
   SLOT_CONFIGS: SLOT_CONFIGS,
+  MARKET_LANGUAGES: MARKET_LANGUAGES,
   generateDailyPlan: generateDailyPlan
 };

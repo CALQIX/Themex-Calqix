@@ -494,7 +494,31 @@ async function handlePublish(callbackId, chatId, postId, target) {
   var confirmText = 'Published to: ' + platformsPublished;
   if (errorsText) confirmText += '\n\nErrors:\n' + errorsText;
 
-  await sendMessage(chatId, confirmText);
+  // If FB was published, offer to use as ad creative (page post ads)
+  var fbResult = publishResult.results.find(function (r) { return r.platform === 'facebook'; });
+  var adKeyboard = null;
+  if (fbResult && fbResult.post_id) {
+    // Store published post data for ad creation
+    var publishRef = 'social:pub_ref:' + postId;
+    await store.set(publishRef, JSON.stringify({
+      postId: postId,
+      fbPostId: fbResult.post_id,
+      igPostId: (publishResult.results.find(function (r) { return r.platform === 'instagram'; }) || {}).post_id || null,
+      caption: caption,
+      imageUrl: creative.image_url,
+      publishedAt: new Date().toISOString()
+    }), 7 * 86400);
+
+    adKeyboard = {
+      inline_keyboard: [[
+        { text: 'Use as ad creative', callback_data: 'cb:use_as_ad:' + postId },
+        { text: 'Done', callback_data: 'cb:pub_done:' + postId }
+      ]]
+    };
+    confirmText += '\n\nYou can use this published post as an ad creative in Meta Ads.';
+  }
+
+  await sendMessage(chatId, confirmText, adKeyboard);
 
   // Log and update status
   await socialPublisher.logPublish(postId, target, publishResult.results, publishResult.errors);
@@ -731,6 +755,123 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
   if (action === 'keep_paused') {
     await answerCallback(callbackId, 'Keeping paused.');
     await sendMessage(chatId, 'Campaign remains PAUSED. Activate later from Meta Ads Manager.');
+    return;
+  }
+
+  // cb:pub_done:{postId}
+  if (action === 'pub_done') {
+    await answerCallback(callbackId, 'Done.');
+    return;
+  }
+
+  // cb:use_as_ad:{postId} - fetch active campaigns and let operator pick one
+  if (action === 'use_as_ad') {
+    var useAdPostId = parts[2];
+    await answerCallback(callbackId, 'Fetching campaigns...');
+
+    try {
+      var metaApiClient = require('../../lib/meta-api-client');
+      var activeCampaigns = await metaApiClient.fetchCampaigns(['ACTIVE', 'PAUSED']);
+      var campaigns = (activeCampaigns.ok ? activeCampaigns.data : []).slice(0, 6);
+
+      if (campaigns.length === 0) {
+        await sendMessage(chatId, 'No active or paused campaigns found. Use /build_campaign to create one first.');
+        return;
+      }
+
+      // Store postId reference for the next step
+      await store.set('social:ad_pending:' + chatId, useAdPostId, 3600);
+
+      var campaignRows = [];
+      for (var ci = 0; ci < campaigns.length; ci += 2) {
+        var row = [{ text: campaigns[ci].name.substring(0, 30), callback_data: 'cb:add_to_camp:' + useAdPostId + ':' + campaigns[ci].id }];
+        if (campaigns[ci + 1]) {
+          row.push({ text: campaigns[ci + 1].name.substring(0, 30), callback_data: 'cb:add_to_camp:' + useAdPostId + ':' + campaigns[ci + 1].id });
+        }
+        campaignRows.push(row);
+      }
+      campaignRows.push([{ text: 'Cancel', callback_data: 'cb:pub_done:' + useAdPostId }]);
+
+      await sendMessage(chatId, 'Select a campaign to add this creative to:', { inline_keyboard: campaignRows });
+    } catch (err) {
+      console.error('[UseAsAd] Error:', err.message);
+      await sendMessage(chatId, 'Error fetching campaigns: ' + err.message);
+    }
+    return;
+  }
+
+  // cb:add_to_camp:{postId}:{campaignId} - create ad from published page post
+  if (action === 'add_to_camp') {
+    var addPostId = parts[2];
+    var addCampaignId = parts[3];
+    await answerCallback(callbackId, 'Creating ad...');
+
+    try {
+      var metaApi = require('../../lib/meta-api-client');
+      var pubRefRaw = await store.get('social:pub_ref:' + addPostId);
+      if (!pubRefRaw) {
+        await sendMessage(chatId, 'Published post reference expired. Publish again first.');
+        return;
+      }
+      var pubRef = typeof pubRefRaw === 'string' ? JSON.parse(pubRefRaw) : pubRefRaw;
+
+      if (!pubRef.fbPostId) {
+        await sendMessage(chatId, 'No Facebook post ID found. Only Facebook page posts can be used as ad creatives.');
+        return;
+      }
+
+      var isDryRun = process.env.ENABLE_AD_WRITES !== 'true';
+      if (isDryRun) {
+        await sendMessage(chatId, '<b>DRY RUN</b>: Would create ad from page post ' + pubRef.fbPostId + ' in campaign ' + addCampaignId + '.\n\nSet ENABLE_AD_WRITES=true to execute.');
+        return;
+      }
+
+      var adAccountId = metaApi.AD_ACCOUNT_ID();
+      var pageId = process.env.FACEBOOK_PAGE_ID;
+
+      // Construct the full page post ID format: {page_id}_{post_id}
+      var pagePostId = pubRef.fbPostId;
+      if (pagePostId.indexOf('_') === -1 && pageId) {
+        pagePostId = pageId + '_' + pagePostId;
+      }
+
+      // Step 1: Find first adset in this campaign
+      var adsetsResult = await metaApi.graphRequest('GET', addCampaignId + '/adsets', { fields: 'id,name', limit: '1' });
+      if (!adsetsResult.ok || !adsetsResult.data || !adsetsResult.data.data || adsetsResult.data.data.length === 0) {
+        await sendMessage(chatId, 'No adsets found in this campaign. Cannot add ad without an adset.');
+        return;
+      }
+      var adsetId = adsetsResult.data.data[0].id;
+
+      // Step 2: Create creative from page post
+      var creativeResult = await metaApi.graphRequest('POST', adAccountId + '/adcreatives', null, {
+        object_story_id: pagePostId
+      });
+
+      if (!creativeResult.ok) {
+        await sendMessage(chatId, 'Creative creation failed: ' + creativeResult.error);
+        return;
+      }
+
+      // Step 3: Create ad with the creative
+      var adName = 'Social Post Ad - ' + dates.formatDateAmsterdam(new Date());
+      var adResult = await metaApi.graphRequest('POST', adAccountId + '/ads', null, {
+        adset_id: adsetId,
+        name: adName,
+        creative: { creative_id: creativeResult.data.id },
+        status: 'PAUSED'
+      });
+
+      if (!adResult.ok) {
+        await sendMessage(chatId, 'Ad creation failed: ' + adResult.error);
+        return;
+      }
+
+      await sendMessage(chatId, '<b>Ad created from published post!</b>\n\nAd ID: ' + adResult.data.id + '\nAdset: ' + adsetsResult.data.data[0].name + '\nStatus: PAUSED\n\nActivate via Meta Ads Manager when ready.');
+    } catch (err) {
+      console.error('[AddToCampaign] Error:', err.message);
+      await sendMessage(chatId, 'Error creating ad: ' + err.message);
+    }
     return;
   }
 
