@@ -21,6 +21,41 @@ function getIgAccountId() { return process.env.INSTAGRAM_ACCOUNT_ID || ''; }
 function getToken() { return process.env.META_ACCESS_TOKEN || ''; }
 
 /**
+ * Get Page Access Token for Facebook Page publishing.
+ * The system user token has pages_manage_posts but FB requires a Page token.
+ * Fetches via /me/accounts and caches in Redis for 1 hour.
+ */
+async function getPageToken() {
+  var pageId = getPageId();
+  if (!pageId) return null;
+
+  // Check Redis cache
+  var cacheKey = 'social:page_token:' + pageId;
+  var cached = await store.get(cacheKey);
+  if (cached) return cached;
+
+  // Fetch from Graph API
+  try {
+    var res = await fetch(BASE + '/me/accounts?fields=id,access_token&access_token=' + getToken());
+    var data = await res.json();
+    if (data.error || !data.data) return null;
+
+    for (var i = 0; i < data.data.length; i++) {
+      if (data.data[i].id === pageId) {
+        var pageToken = data.data[i].access_token;
+        // Cache for 1 hour
+        await store.set(cacheKey, pageToken, 3600);
+        return pageToken;
+      }
+    }
+    return null;
+  } catch (err) {
+    console.error('[SocialPublisher] getPageToken error:', err.message);
+    return null;
+  }
+}
+
+/**
  * Check which social platforms are configured.
  */
 function getEnabledPlatforms() {
@@ -39,6 +74,12 @@ async function publishToFacebook(imageUrl, caption) {
   var pageId = getPageId();
   if (!pageId) return { ok: false, error: 'FACEBOOK_PAGE_ID not configured' };
 
+  // Use Page Access Token for Page publishing
+  var pageToken = await getPageToken();
+  if (!pageToken) {
+    return { ok: false, error: 'Could not obtain Page Access Token. Ensure token has pages_manage_posts permission and Page is connected.' };
+  }
+
   try {
     var res = await fetch(BASE + '/' + pageId + '/photos', {
       method: 'POST',
@@ -46,7 +87,7 @@ async function publishToFacebook(imageUrl, caption) {
       body: JSON.stringify({
         url: imageUrl,
         message: caption,
-        access_token: getToken()
+        access_token: pageToken
       })
     });
 
