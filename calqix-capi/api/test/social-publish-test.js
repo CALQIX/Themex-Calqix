@@ -11,7 +11,7 @@ var store = require('../../lib/store');
 var dates = require('../../lib/dates');
 var fetch = require('node-fetch');
 
-var TEST_IMAGE_URL = 'https://cdn.shopify.com/s/files/1/0788/4375/3553/files/calqix-flowcore-product.jpg?v=1700000000';
+var TEST_IMAGE_URL = 'https://www.calqix.com/cdn/shop/files/FlowcoreBlackFR.png?v=1773471054';
 
 function getBotToken() { return process.env.TELEGRAM_BOT_TOKEN || ''; }
 function getChatId() { return process.env.TELEGRAM_CHAT_ID || ''; }
