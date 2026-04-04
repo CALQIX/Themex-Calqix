@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
     }
 
     // Build briefs
-    var briefs = briefBuilder.buildAllBriefs(plan);
+    var briefs = await briefBuilder.buildAllBriefs(plan);
     console.log('[ContentGenerate] Briefs built for', dateStr);
 
     // Compliance check each brief

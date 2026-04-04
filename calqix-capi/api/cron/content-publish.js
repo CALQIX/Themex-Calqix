@@ -69,7 +69,7 @@ module.exports = async function handler(req, res) {
     });
 
     // Build brief
-    var brief = briefBuilder.buildBrief(plan.posts[slot], dateStr);
+    var brief = await briefBuilder.buildBrief(plan.posts[slot], dateStr);
 
     // Get Predis job for this slot
     var dailyJobs = await jobStore.getDailyJobs(dateStr);

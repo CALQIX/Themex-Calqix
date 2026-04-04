@@ -7,6 +7,7 @@
 var guardrails = require('./brand-guardrails');
 var captionWriter = require('./caption-writer');
 var dates = require('./dates');
+var shopifyProducts = require('./shopify-products');
 
 var FORMAT_MAP = {
   top_of_funnel: { format: 'single_image', aspectRatio: '1:1' },
@@ -27,19 +28,22 @@ var AD_CONCEPTS = {
  * Build a complete creative brief from a content plan slot.
  * @param {object} planSlot - { angle, pillar, product, funnelStage, purpose, confidence, time }
  * @param {string} [dateStr] - YYYY-MM-DD
- * @returns {object} Complete brief ready for Predis payload builder
+ * @returns {Promise<object>} Complete brief ready for Predis payload builder
  */
-function buildBrief(planSlot, dateStr) {
+async function buildBrief(planSlot, dateStr) {
   var productInfo = guardrails.getProduct(planSlot.product) || guardrails.BRAND.products[0];
   var copy = captionWriter.generateCopy(Object.assign({}, planSlot, { date: dateStr || '' }));
   var formatConfig = FORMAT_MAP[planSlot.funnelStage] || FORMAT_MAP.top_of_funnel;
   var adConcept = AD_CONCEPTS[planSlot.pillar] || AD_CONCEPTS.education;
 
-  // Build special instructions (max 200 chars by default)
-  var specialInstructions = buildSpecialInstructions(planSlot, productInfo);
+  // Fetch Shopify product data for enrichment
+  var shopifyData = await getShopifyEnrichment(planSlot.product);
 
-  // Product description for Predis
-  var productDescription = productInfo.name + '. ' + productInfo.tagline + '. ' + productInfo.attributes.join(', ') + '.';
+  // Build special instructions (max 200 chars by default)
+  var specialInstructions = buildSpecialInstructions(planSlot, productInfo, shopifyData);
+
+  // Product description for Predis — enriched with Shopify data
+  var productDescription = buildProductDescription(productInfo, shopifyData);
 
   return {
     // Identity
@@ -74,6 +78,14 @@ function buildBrief(planSlot, dateStr) {
     productDescription: productDescription,
     specialInstructions: specialInstructions,
 
+    // Shopify enrichment
+    shopifyProduct: shopifyData ? {
+      title: shopifyData.title,
+      handle: shopifyData.handle,
+      price: shopifyData.price,
+      hasImages: shopifyData.images && shopifyData.images.length > 0
+    } : null,
+
     // Scheduling
     publishTime: planSlot.time || null,
 
@@ -84,16 +96,71 @@ function buildBrief(planSlot, dateStr) {
 }
 
 /**
+ * Fetch Shopify product data for brief enrichment.
+ */
+async function getShopifyEnrichment(productId) {
+  try {
+    var handle = shopifyProducts.resolveHandle(productId);
+    if (!handle) return null;
+    var product = await shopifyProducts.getProductByHandle(handle);
+    return product;
+  } catch (err) {
+    console.warn('[BriefBuilder] Shopify enrichment failed:', err.message);
+    return null;
+  }
+}
+
+/**
+ * Build enriched product description using Shopify data + brand guardrails.
+ */
+function buildProductDescription(productInfo, shopifyData) {
+  var parts = [];
+
+  // Use Shopify title if available, otherwise brand guardrails name
+  if (shopifyData && shopifyData.title) {
+    parts.push(shopifyData.title);
+  } else {
+    parts.push(productInfo.name);
+  }
+
+  parts.push(productInfo.tagline);
+
+  // Add price if available
+  if (shopifyData && shopifyData.price) {
+    parts.push('From EUR ' + shopifyData.price);
+  }
+
+  // Add key attributes
+  parts.push(productInfo.attributes.join(', '));
+
+  return parts.join('. ') + '.';
+}
+
+/**
  * Build special instructions for Predis (max 200 chars).
  */
-function buildSpecialInstructions(planSlot, productInfo) {
+function buildSpecialInstructions(planSlot, productInfo, shopifyData) {
   var parts = [];
   parts.push('CALQIX brand: minimalist, clinical, dark navy #0A1628 and white');
-  parts.push(productInfo.name);
+
+  // Use Shopify title if available for more accurate product reference
+  if (shopifyData && shopifyData.title) {
+    parts.push(shopifyData.title);
+  } else {
+    parts.push(productInfo.name);
+  }
 
   if (planSlot.pillar === 'education') parts.push('educational tone');
   if (planSlot.pillar === 'conversion') parts.push('bold CTA');
   if (planSlot.pillar === 'lifestyle_premium') parts.push('premium aesthetic');
+  if (planSlot.pillar === 'pain_agitation') parts.push('problem-solution focus');
+  if (planSlot.pillar === 'objection_handling') parts.push('myth vs fact');
+  if (planSlot.pillar === 'product_mechanism') parts.push('ingredient science');
+
+  // Add price point if conversion-focused
+  if (planSlot.purpose === 'conversion' && shopifyData && shopifyData.price) {
+    parts.push('EUR ' + shopifyData.price);
+  }
 
   var result = parts.join('. ');
   if (result.length > guardrails.MAX_SPECIAL_INSTRUCTIONS_LENGTH) {
@@ -107,11 +174,14 @@ function buildSpecialInstructions(planSlot, productInfo) {
  * @param {object} plan - from content-planner
  * @returns {object} { post1: brief, post2: brief, reserve: brief }
  */
-function buildAllBriefs(plan) {
+async function buildAllBriefs(plan) {
+  var post1 = await buildBrief(plan.posts.post1, plan.date);
+  var post2 = await buildBrief(plan.posts.post2, plan.date);
+  var reserve = await buildBrief(plan.posts.reserve, plan.date);
   return {
-    post1: buildBrief(plan.posts.post1, plan.date),
-    post2: buildBrief(plan.posts.post2, plan.date),
-    reserve: buildBrief(plan.posts.reserve, plan.date)
+    post1: post1,
+    post2: post2,
+    reserve: reserve
   };
 }
 

@@ -90,7 +90,7 @@ module.exports = async function handler(req, res) {
       if (!currentPlan) {
         output.steps.generate = { ok: false, error: 'No plan found for ' + dateStr };
       } else {
-        var briefs = briefBuilder.buildAllBriefs(currentPlan);
+        var briefs = await briefBuilder.buildAllBriefs(currentPlan);
         var genResults = { post1: null, post2: null, reserve: null };
         var slots = ['post1', 'post2', 'reserve'];
 

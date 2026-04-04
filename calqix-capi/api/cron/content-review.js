@@ -166,7 +166,7 @@ module.exports = async function handler(req, res) {
     }
 
     // Build briefs for review
-    var briefs = briefBuilder.buildAllBriefs(plan);
+    var briefs = await briefBuilder.buildAllBriefs(plan);
     var slots = ['post1', 'post2', 'reserve'];
     var reviews = [];
 

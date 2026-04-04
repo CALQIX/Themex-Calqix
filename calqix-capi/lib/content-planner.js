@@ -59,6 +59,16 @@ async function generateDailyPlan(metaSignals, dateStr) {
   var pillarScores = await scorer.scorePillars();
   var productScores = await scorer.scoreProducts();
 
+  // Enrich product scores with conversion data from Meta signals
+  if (metaSignals && metaSignals.productPerformance) {
+    productScores = enrichProductScores(productScores, metaSignals.productPerformance);
+  }
+
+  // Enrich angle scores with revenue/ROAS data
+  if (metaSignals && metaSignals.anglePerformance) {
+    angleScores = enrichAngleScores(angleScores, metaSignals.anglePerformance);
+  }
+
   // Get recent hooks/topics to avoid
   var recentHooks = await memory.getPostedHooks(20);
   var recentTopics = await memory.getPostedTopics(20);
@@ -86,6 +96,12 @@ async function generateDailyPlan(metaSignals, dateStr) {
       topAngles: angleScores.slice(0, 5),
       topPillars: pillarScores.slice(0, 3),
       topProducts: productScores.slice(0, 3)
+    },
+    dataEnrichment: {
+      productPerformance: (metaSignals && metaSignals.productPerformance) || {},
+      anglePerformance: (metaSignals && metaSignals.anglePerformance) || {},
+      topConvertingAds: (metaSignals && metaSignals.topConvertingAds) ? metaSignals.topConvertingAds.slice(0, 3) : [],
+      countryPerformance: (metaSignals && metaSignals.countryPerformance) || {}
     }
   };
 
@@ -131,6 +147,13 @@ function assignSlot(slotName, angleScores, pillarScores, productScores, usedAngl
     pillarScore: (pillarScores.find(function (p) { return p.pillar === pillar; }) || {}).score
   }, angleScores);
 
+  // Check if product is also meta-backed (has conversion data)
+  var productMetaBacked = false;
+  if (metaSignals && metaSignals.productPerformance && metaSignals.productPerformance[product]) {
+    var pp = metaSignals.productPerformance[product];
+    if (pp.roas > 1.5 || pp.purchases > 2) productMetaBacked = true;
+  }
+
   return {
     slot: slotName,
     time: config.time,
@@ -141,6 +164,7 @@ function assignSlot(slotName, angleScores, pillarScores, productScores, usedAngl
     product: product,
     confidence: confidence,
     metaBacked: metaBacked,
+    productMetaBacked: productMetaBacked,
     platform: 'instagram',
     status: 'planned'
   };
@@ -171,6 +195,70 @@ function pickBestProduct(productScores, used) {
     if (used.indexOf(productScores[i].product) === -1) return productScores[i].product;
   }
   return productScores[0].product;
+}
+
+/**
+ * Enrich product scores with Meta conversion data.
+ * Products with higher ROAS get a boost, low performers get penalized.
+ */
+function enrichProductScores(productScores, productPerformance) {
+  return productScores.map(function (ps) {
+    var perf = productPerformance[ps.product];
+    if (!perf) return ps;
+
+    var bonus = 0;
+    // ROAS bonus: >2x = +15, >1.5x = +10, >1x = +5
+    if (perf.roas > 2.0) bonus += 15;
+    else if (perf.roas > 1.5) bonus += 10;
+    else if (perf.roas > 1.0) bonus += 5;
+
+    // Purchase volume bonus: more purchases = more confidence
+    if (perf.purchases > 5) bonus += 10;
+    else if (perf.purchases > 2) bonus += 5;
+
+    // Low performance penalty
+    if (perf.spend > 20 && perf.purchases === 0) bonus -= 10;
+
+    return {
+      product: ps.product,
+      score: Math.round((ps.score + bonus) * 10) / 10,
+      uses: ps.uses,
+      metaBonus: bonus,
+      roas: perf.roas,
+      purchases: perf.purchases
+    };
+  }).sort(function (a, b) { return b.score - a.score; });
+}
+
+/**
+ * Enrich angle scores with Meta revenue/ROAS data.
+ * High-revenue angles get a boost proportional to their ROAS.
+ */
+function enrichAngleScores(angleScores, anglePerformance) {
+  return angleScores.map(function (as) {
+    var perf = anglePerformance[as.angle];
+    if (!perf) return as;
+
+    var revenueBonus = 0;
+    // Revenue-based bonus
+    if (perf.roas > 3.0) revenueBonus += 12;
+    else if (perf.roas > 2.0) revenueBonus += 8;
+    else if (perf.roas > 1.0) revenueBonus += 4;
+
+    // Volume bonus
+    if (perf.purchases > 3) revenueBonus += 5;
+
+    // Penalty for expensive no-converters
+    if (perf.spend > 30 && perf.purchases === 0) revenueBonus -= 8;
+
+    var newFactors = Object.assign({}, as.factors, { metaRevenue: revenueBonus });
+
+    return {
+      angle: as.angle,
+      score: Math.round((as.score + revenueBonus) * 10) / 10,
+      factors: newFactors
+    };
+  }).sort(function (a, b) { return b.score - a.score; });
 }
 
 module.exports = {
