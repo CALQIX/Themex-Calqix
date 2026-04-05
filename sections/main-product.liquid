@@ -2053,6 +2053,42 @@
                     <p class="product-form__error-message"></p>
                   </div>
                 </product-form>
+                {%- comment -%}CRO: Trust stack below ATC button{%- endcomment -%}
+                <div class="calqix-trust-stack">
+                  <div class="calqix-trust-stack__item">
+                    <svg class="calqix-trust-stack__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+                    <span>
+                      {%- case cq_lang -%}
+                        {%- when 'nl' -%}<strong>Gratis verzending</strong> vanaf €30
+                        {%- when 'de' -%}<strong>Kostenloser Versand</strong> ab €30
+                        {%- when 'fr' -%}<strong>Livraison gratuite</strong> des €30
+                        {%- else -%}<strong>Free shipping</strong> from €30
+                      {%- endcase -%}
+                    </span>
+                  </div>
+                  <div class="calqix-trust-stack__item">
+                    <svg class="calqix-trust-stack__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>
+                      {%- case cq_lang -%}
+                        {%- when 'nl' -%}<strong>30 dagen</strong> niet-goed-geld-terug
+                        {%- when 'de' -%}<strong>30 Tage</strong> Geld-zuruck-Garantie
+                        {%- when 'fr' -%}<strong>30 jours</strong> satisfait ou rembourse
+                        {%- else -%}<strong>30-day</strong> money-back guarantee
+                      {%- endcase -%}
+                    </span>
+                  </div>
+                  <div class="calqix-trust-stack__item">
+                    <svg class="calqix-trust-stack__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <span>
+                      {%- case cq_lang -%}
+                        {%- when 'nl' -%}<strong>Veilig betalen</strong> iDEAL, PayPal, Klarna
+                        {%- when 'de' -%}<strong>Sicher bezahlen</strong> PayPal, Klarna, Karte
+                        {%- when 'fr' -%}<strong>Paiement securise</strong> PayPal, Klarna, CB
+                        {%- else -%}<strong>Secure checkout</strong> PayPal, Klarna, card
+                      {%- endcase -%}
+                    </span>
+                  </div>
+                </div>
               </div>
 
             {%- when 'pickup-availability' -%}
@@ -3429,7 +3465,20 @@
             </span>
           </button>
         </div>
-        <div class="cq-sticky__trust">✓ {{ 'calqix_flowcore.main.trust_badge_1' | t }} · {{ 'calqix_flowcore.main.trust_badge_3' | t }}</div>
+        <div class="cq-sticky__trust">
+          {%- if cq_is_flowcore -%}
+            ✓ {{ 'calqix_flowcore.main.trust_badge_1' | t }} · {{ 'calqix_flowcore.main.trust_badge_3' | t }}
+          {%- elsif cq_is_oralbiome -%}
+            ✓ {{ 'calqix_oralbiome.main.trust_1' | t }} · {{ 'calqix_oralbiome.main.trust_3' | t }}
+          {%- else -%}
+            {%- case cq_lang -%}
+              {%- when 'nl' -%}✓ Gratis verzending vanaf €30 · 30 dagen retour
+              {%- when 'de' -%}✓ Kostenloser Versand ab €30 · 30 Tage Ruckgabe
+              {%- when 'fr' -%}✓ Livraison gratuite des €30 · Retour sous 30 jours
+              {%- else -%}✓ Free shipping from €30 · 30-day returns
+            {%- endcase -%}
+          {%- endif -%}
+        </div>
       </sticky-buy-button>
     {% endif %}
 
