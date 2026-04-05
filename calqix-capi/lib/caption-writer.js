@@ -8,14 +8,6 @@
  * Uses template-based generation with angle/pillar/product awareness.
  */
 var guardrails = require('./brand-guardrails');
-var fetch = require('node-fetch');
-
-var LANGUAGE_NAMES = {
-  nl: 'Dutch',
-  de: 'German',
-  fr: 'French',
-  en: 'English'
-};
 
 // --- Hook Templates by Angle ---
 
@@ -225,91 +217,12 @@ function hashToIndex(seed, length) {
   return Math.abs(hash) % length;
 }
 
-/**
- * Translate generated copy to a target language using Claude.
- * Returns the original copy if language is 'en' or translation fails.
- * @param {object} copy - output from generateCopy()
- * @param {string} language - 'nl' | 'de' | 'fr' | 'en'
- * @returns {Promise<object>} translated copy with same structure
- */
-async function translateCopy(copy, language) {
-  if (!language || language === 'en') return copy;
-
-  var apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    console.warn('[CaptionWriter] No ANTHROPIC_API_KEY, skipping translation');
-    return copy;
-  }
-
-  var langName = LANGUAGE_NAMES[language] || 'Dutch';
-
-  var prompt = 'Translate the following social media ad copy for CALQIX (premium oral care brand) to ' + langName + '.\n\n' +
-    'RULES:\n' +
-    '- Keep the brand name CALQIX unchanged\n' +
-    '- Keep product names unchanged (FlowCore, OralBiome)\n' +
-    '- Keep technical terms like nano-hydroxyapatite, n-HAp\n' +
-    '- Keep EUR prices unchanged\n' +
-    '- Adapt tone to feel native, not translated\n' +
-    '- Keep same length and structure\n' +
-    '- No em dashes\n\n' +
-    'TRANSLATE EACH FIELD:\n' +
-    'hook: ' + copy.hook + '\n' +
-    'header: ' + copy.header + '\n' +
-    'caption: ' + copy.caption + '\n' +
-    'cta: ' + copy.cta + '\n' +
-    'body: ' + copy.body + '\n' +
-    'badge: ' + copy.badge + '\n' +
-    'valueClaims: ' + copy.valueClaims + '\n\n' +
-    'Respond ONLY in JSON (no markdown):\n' +
-    '{"hook":"","header":"","caption":"","cta":"","body":"","badge":"","valueClaims":""}';
-
-  try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    var data = await res.json();
-    if (!data.content || !data.content[0]) return copy;
-
-    var jsonMatch = data.content[0].text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return copy;
-
-    var translated = JSON.parse(jsonMatch[0]);
-    console.log('[CaptionWriter] Translated to ' + langName);
-
-    return {
-      hook: translated.hook || copy.hook,
-      header: translated.header || copy.header,
-      caption: translated.caption || copy.caption,
-      cta: translated.cta || copy.cta,
-      body: translated.body || copy.body,
-      badge: translated.badge || copy.badge,
-      valueClaims: translated.valueClaims || copy.valueClaims
-    };
-  } catch (err) {
-    console.warn('[CaptionWriter] Translation failed:', err.message);
-    return copy;
-  }
-}
-
 module.exports = {
   generateCopy: generateCopy,
-  translateCopy: translateCopy,
   HOOKS: HOOKS,
   CTAS: CTAS,
   CAPTION_TEMPLATES: CAPTION_TEMPLATES,
   BODY_TEMPLATES: BODY_TEMPLATES,
   BADGES: BADGES,
-  VALUE_CLAIMS: VALUE_CLAIMS,
-  LANGUAGE_NAMES: LANGUAGE_NAMES
+  VALUE_CLAIMS: VALUE_CLAIMS
 };

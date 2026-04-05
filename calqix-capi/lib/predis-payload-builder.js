@@ -42,8 +42,9 @@ function buildPayload(brief) {
     badge_text: brief.badge || '',
     value_claims: brief.valueClaims || '',
 
-    // Language
-    language: brief.language || 'nl',
+    // Language: brief text is English master, Predis translates to target market
+    input_language: 'english',
+    output_language: brief.output_language || 'dutch',
 
     // Brand overrides
     brand_name: guardrails.BRAND.name,
@@ -61,7 +62,8 @@ function buildPayload(brief) {
       confidence: brief.confidence,
       metaBacked: brief.metaBacked,
       market: brief.market || 'NL',
-      language: brief.language || 'nl'
+      output_language: brief.output_language || 'dutch',
+      locale: brief.locale || 'nl'
     }
   };
 }

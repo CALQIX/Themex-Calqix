@@ -130,7 +130,9 @@ async function generateProposal(intent, perfData, currentLimits) {
     'CRITICAL RULES:\n' +
     '- Daily budget MUST NOT exceed EUR ' + currentLimits.max_campaign_budget + '\n' +
     '- Only reference winner ad IDs from the data above\n' +
-    '- If no winner ads exist, respond with empty adsets and explain why\n\n' +
+    '- If no winner ads exist, respond with empty adsets and explain why\n' +
+    '- Write "rationale", "data_basis", "risks", "success_metric", and "kill_criteria" in Dutch.\n' +
+    '  The operator speaks Dutch. Keep campaign/adset names, IDs, and metric labels in English.\n\n' +
     'Respond ONLY in JSON (no markdown, no backticks):\n' +
     '{\n' +
     '  "campaign_name": "Descriptive name following naming convention",\n' +
@@ -471,8 +473,8 @@ async function logBuild(entry) {
  */
 function formatProposalMessage(proposal) {
   var lines = [];
-  lines.push('<b>CALQIX Campaign Proposal</b>\n');
-  lines.push('<b>' + (proposal.campaign_name || 'Unnamed Campaign') + '</b>\n');
+  lines.push('<b>CALQIX Campagne Voorstel</b>\n');
+  lines.push('<b>' + (proposal.campaign_name || 'Naamloze campagne') + '</b>\n');
   lines.push(proposal.rationale || '');
   lines.push('');
 
@@ -480,10 +482,10 @@ function formatProposalMessage(proposal) {
     ? (proposal.campaign.daily_budget_cents / 100)
     : 0;
 
-  lines.push('<b>Structure:</b>');
-  lines.push('Budget: EUR ' + budgetEur + '/day');
-  lines.push('Objective: ' + ((proposal.campaign && proposal.campaign.objective) || 'OUTCOME_SALES'));
-  lines.push('Bid: ' + ((proposal.campaign && proposal.campaign.bid_strategy) || 'LOWEST_COST_WITHOUT_CAP'));
+  lines.push('<b>Structuur:</b>');
+  lines.push('Budget: EUR ' + budgetEur + '/dag');
+  lines.push('Doel: ' + ((proposal.campaign && proposal.campaign.objective) || 'OUTCOME_SALES'));
+  lines.push('Biedstrategie: ' + ((proposal.campaign && proposal.campaign.bid_strategy) || 'LOWEST_COST_WITHOUT_CAP'));
   lines.push('');
 
   var adsets = proposal.adsets || [];
@@ -496,19 +498,19 @@ function formatProposalMessage(proposal) {
         : '?';
       var adCount = (as.ads || []).length;
       lines.push((i + 1) + '. ' + as.name);
-      lines.push('   Countries: ' + countries);
-      lines.push('   Optimization: ' + (as.promoted_object_event || as.optimization_goal || '?'));
-      lines.push('   Ads: ' + adCount + ' (from winners)');
+      lines.push('   Landen: ' + countries);
+      lines.push('   Optimalisatie: ' + (as.promoted_object_event || as.optimization_goal || '?'));
+      lines.push('   Ads: ' + adCount + ' (van winnaars)');
     }
   } else {
-    lines.push('No adsets proposed.');
+    lines.push('Geen adsets voorgesteld.');
   }
 
   lines.push('');
-  if (proposal.data_basis) lines.push('<b>Based on:</b> ' + proposal.data_basis);
-  if (proposal.risks && proposal.risks.length > 0) lines.push('<b>Risks:</b> ' + proposal.risks.join(', '));
-  if (proposal.kill_criteria) lines.push('<b>Kill if:</b> ' + proposal.kill_criteria);
-  if (proposal.success_metric) lines.push('<b>Measure:</b> ' + proposal.success_metric);
+  if (proposal.data_basis) lines.push('<b>Gebaseerd op:</b> ' + proposal.data_basis);
+  if (proposal.risks && proposal.risks.length > 0) lines.push('<b>Risico\'s:</b> ' + proposal.risks.join(', '));
+  if (proposal.kill_criteria) lines.push('<b>Stoppen als:</b> ' + proposal.kill_criteria);
+  if (proposal.success_metric) lines.push('<b>Meten:</b> ' + proposal.success_metric);
 
   return lines.join('\n');
 }

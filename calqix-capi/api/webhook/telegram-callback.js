@@ -83,20 +83,20 @@ async function handleContentAction(callbackId, chatId, action, postId) {
       post_id: postId, approvedAt: new Date().toISOString(), approvedBy: 'telegram'
     }), 86400);
 
-    await answerCallback(callbackId, 'Approved!');
+    await answerCallback(callbackId, 'Goedgekeurd!');
 
     // Show publish platform selection
     var platforms = socialPublisher.getEnabledPlatforms();
     var pubKeyboard = buildPublishKeyboard(postId, platforms);
-    await sendMessage(chatId, 'Creative approved! Where do you want to publish?', pubKeyboard);
+    await sendMessage(chatId, 'Creative goedgekeurd! Waar wil je publiceren?', pubKeyboard);
 
   } else if (action === 'content_reject') {
     await store.set('content:rejected:' + dateStr + ':' + postId, JSON.stringify({
       post_id: postId, rejectedAt: new Date().toISOString(), rejectedBy: 'telegram'
     }), 86400);
 
-    await answerCallback(callbackId, 'Rejected.');
-    await sendMessage(chatId, 'Creative ' + postId.substring(0, 8) + '... rejected.');
+    await answerCallback(callbackId, 'Afgekeurd.');
+    await sendMessage(chatId, 'Creative ' + postId.substring(0, 8) + '... afgekeurd.');
   }
 }
 
@@ -104,7 +104,7 @@ async function handleContentAction(callbackId, chatId, action, postId) {
 async function handleAdvisoryChoice(callbackId, chatId, advisoryId, action) {
   var raw = await store.get('advisory:' + advisoryId);
   if (!raw) {
-    await answerCallback(callbackId, 'Advisory expired.');
+    await answerCallback(callbackId, 'Advies verlopen.');
     return;
   }
   var advisory = typeof raw === 'string' ? JSON.parse(raw) : raw;
@@ -112,12 +112,12 @@ async function handleAdvisoryChoice(callbackId, chatId, advisoryId, action) {
   if (action === 'skip') {
     advisory.status = 'skipped';
     await store.set('advisory:' + advisoryId, JSON.stringify(advisory), 86400);
-    await answerCallback(callbackId, 'Advisory skipped.');
+    await answerCallback(callbackId, 'Advies overgeslagen.');
     return;
   }
 
   if (action === 'refresh') {
-    await answerCallback(callbackId, 'Use the next scheduled advisory for fresh data.');
+    await answerCallback(callbackId, 'Wacht op volgend gepland advies voor nieuwe data.');
     return;
   }
 
@@ -133,7 +133,7 @@ async function handleAdvisoryChoice(callbackId, chatId, advisoryId, action) {
   }
 
   if (!strategy) {
-    await answerCallback(callbackId, 'Strategy not found.');
+    await answerCallback(callbackId, 'Strategie niet gevonden.');
     return;
   }
 
@@ -148,8 +148,8 @@ async function handleAdvisoryChoice(callbackId, chatId, advisoryId, action) {
       return { text: opt, callback_data: 'advf:' + advisoryId + ':' + idx };
     });
     var keyboard = { inline_keyboard: [fButtons] };
-    await sendMessage(chatId, 'You chose: ' + levelEmoji(action) + ' ' + strategy.title + '\n\n' + strategy.followup_question, keyboard);
-    await answerCallback(callbackId, 'Selected: ' + action);
+    await sendMessage(chatId, 'Gekozen: ' + levelEmoji(action) + ' ' + strategy.title + '\n\n' + strategy.followup_question, keyboard);
+    await answerCallback(callbackId, 'Gekozen: ' + action);
   } else {
     // No followup needed, queue actions directly
     await queueStrategyActions(advisoryId, advisory, strategy);
@@ -157,7 +157,7 @@ async function handleAdvisoryChoice(callbackId, chatId, advisoryId, action) {
     await store.set('advisory:' + advisoryId, JSON.stringify(advisory), 86400);
 
     await sendConfirmation(chatId, strategy);
-    await answerCallback(callbackId, 'Actions queued!');
+    await answerCallback(callbackId, 'Acties in wachtrij!');
   }
 }
 
@@ -165,7 +165,7 @@ async function handleAdvisoryChoice(callbackId, chatId, advisoryId, action) {
 async function handleAdvisoryFollowup(callbackId, chatId, advisoryId, optionIndex) {
   var raw = await store.get('advisory:' + advisoryId);
   if (!raw) {
-    await answerCallback(callbackId, 'Advisory expired.');
+    await answerCallback(callbackId, 'Advies verlopen.');
     return;
   }
   var advisory = typeof raw === 'string' ? JSON.parse(raw) : raw;
@@ -181,7 +181,7 @@ async function handleAdvisoryFollowup(callbackId, chatId, advisoryId, optionInde
   }
 
   if (!strategy || !strategy.followup_options) {
-    await answerCallback(callbackId, 'Strategy not found.');
+    await answerCallback(callbackId, 'Strategie niet gevonden.');
     return;
   }
 
@@ -189,8 +189,8 @@ async function handleAdvisoryFollowup(callbackId, chatId, advisoryId, optionInde
   if (chosenOption.toLowerCase().indexOf('cancel') !== -1) {
     advisory.status = 'skipped';
     await store.set('advisory:' + advisoryId, JSON.stringify(advisory), 86400);
-    await answerCallback(callbackId, 'Cancelled.');
-    await sendMessage(chatId, 'Strategy cancelled. No actions taken.');
+    await answerCallback(callbackId, 'Geannuleerd.');
+    await sendMessage(chatId, 'Strategie geannuleerd. Geen acties uitgevoerd.');
     return;
   }
 
@@ -200,7 +200,7 @@ async function handleAdvisoryFollowup(callbackId, chatId, advisoryId, optionInde
 
   await queueStrategyActions(advisoryId, advisory, strategy);
   await sendConfirmation(chatId, strategy, chosenOption);
-  await answerCallback(callbackId, 'Confirmed! Actions queued.');
+  await answerCallback(callbackId, 'Bevestigd! Acties in wachtrij.');
 }
 
 // --- Limit adjustments ---
@@ -215,13 +215,13 @@ async function handleLimitAction(callbackId, chatId, messageId, parts) {
 
   if (parts[1] === 'custom') {
     await sendMessage(chatId,
-      'Type the limit you want to change:\n\n' +
-      '/set_adset_max [amount]\n' +
-      '/set_daily_max [amount]\n' +
-      '/set_campaign_max [amount]\n\n' +
-      'Example: /set_daily_max 150'
+      'Typ het limiet dat je wilt wijzigen:\n\n' +
+      '/set_adset_max [bedrag]\n' +
+      '/set_daily_max [bedrag]\n' +
+      '/set_campaign_max [bedrag]\n\n' +
+      'Voorbeeld: /set_daily_max 150'
     );
-    await answerCallback(callbackId, 'Type a command below');
+    await answerCallback(callbackId, 'Typ een commando hieronder');
     return;
   }
 
@@ -241,11 +241,11 @@ async function handleLimitAction(callbackId, chatId, messageId, parts) {
   var updatedLimits = await limits.getLimits();
 
   // Edit message in-place with new values
-  var text = 'CALQIX Budget Limits\n\n' +
-    'Adset max:     EUR ' + updatedLimits.max_adset_budget + '\n' +
-    'Daily max:     EUR ' + updatedLimits.max_daily_spend + '\n' +
-    'Campaign max:  EUR ' + updatedLimits.max_campaign_budget + '\n\n' +
-    'Last changed: ' + (updatedLimits.updated_at || 'now');
+  var text = 'CALQIX Budget Limieten\n\n' +
+    'Adset max:      EUR ' + updatedLimits.max_adset_budget + '\n' +
+    'Dagelijks max:  EUR ' + updatedLimits.max_daily_spend + '\n' +
+    'Campagne max:   EUR ' + updatedLimits.max_campaign_budget + '\n\n' +
+    'Laatst gewijzigd: ' + (updatedLimits.updated_at || 'nu');
   var keyboard = buildLimitsKeyboard(updatedLimits);
   await editMessageText(chatId, messageId, text, keyboard);
   await answerCallback(callbackId, limitKey + ': EUR ' + oldValue + ' > EUR ' + newValue);
@@ -257,11 +257,11 @@ async function handleTextCommand(chatId, text) {
 
   if (text === '/limits') {
     var current = await limits.getLimits();
-    var msg = 'CALQIX Budget Limits\n\n' +
-      'Adset max:     EUR ' + current.max_adset_budget + '\n' +
-      'Daily max:     EUR ' + current.max_daily_spend + '\n' +
-      'Campaign max:  EUR ' + current.max_campaign_budget + '\n\n' +
-      'Last changed: ' + (current.updated_at || 'system default');
+    var msg = 'CALQIX Budget Limieten\n\n' +
+      'Adset max:      EUR ' + current.max_adset_budget + '\n' +
+      'Dagelijks max:  EUR ' + current.max_daily_spend + '\n' +
+      'Campagne max:   EUR ' + current.max_campaign_budget + '\n\n' +
+      'Laatst gewijzigd: ' + (current.updated_at || 'standaard');
     var keyboard = buildLimitsKeyboard(current);
     await sendMessage(chatId, msg, keyboard);
     return true;
@@ -271,24 +271,24 @@ async function handleTextCommand(chatId, text) {
     var intentKeyboard = {
       inline_keyboard: [
         [
-          { text: 'Scale a winner', callback_data: 'cb:intent:scale_winner' },
-          { text: 'Test new country', callback_data: 'cb:intent:new_country' }
+          { text: 'Winnaar opschalen', callback_data: 'cb:intent:scale_winner' },
+          { text: 'Nieuw land testen', callback_data: 'cb:intent:new_country' }
         ],
         [
-          { text: 'Test new angle', callback_data: 'cb:intent:new_angle' },
+          { text: 'Nieuwe hoek testen', callback_data: 'cb:intent:new_angle' },
           { text: 'Retargeting', callback_data: 'cb:intent:retargeting' }
         ],
         [
-          { text: 'Let AI decide', callback_data: 'cb:intent:ai_decide' }
+          { text: 'AI laten beslissen', callback_data: 'cb:intent:ai_decide' }
         ]
       ]
     };
-    await sendMessage(chatId, '<b>CALQIX Campaign Builder</b>\n\nWhat kind of campaign do you want to build?', intentKeyboard);
+    await sendMessage(chatId, '<b>CALQIX Campagne Builder</b>\n\nWat voor campagne wil je bouwen?', intentKeyboard);
     return true;
   }
 
   if (text === '/preflight') {
-    await sendMessage(chatId, 'Running pre-flight checks...');
+    await sendMessage(chatId, 'Pre-flight checks uitvoeren...');
     try {
       var permCheck = await socialPublisher.checkPermissions();
       var platforms = socialPublisher.getEnabledPlatforms();
@@ -297,19 +297,19 @@ async function handleTextCommand(chatId, text) {
       lines.push('INSTAGRAM_ACCOUNT_ID: ' + (platforms.instagram ? 'configured' : 'not set'));
       lines.push('');
       if (permCheck.ok) {
-        lines.push('Token permissions: OK');
+        lines.push('Token permissies: OK');
       } else if (permCheck.missing && permCheck.missing.length > 0) {
-        lines.push('Missing permissions: ' + permCheck.missing.join(', '));
-        lines.push('\nAdd at developers.facebook.com > CALQIX API app > Permissions. Then regenerate token.');
+        lines.push('Ontbrekende permissies: ' + permCheck.missing.join(', '));
+        lines.push('\nToevoegen via developers.facebook.com > CALQIX API app > Permissions. Daarna token vernieuwen.');
       } else {
-        lines.push('Permission check: ' + (permCheck.error || 'unknown error'));
+        lines.push('Permissie check: ' + (permCheck.error || 'onbekende fout'));
       }
       if (permCheck.granted && permCheck.granted.length > 0) {
-        lines.push('\nGranted: ' + permCheck.granted.join(', '));
+        lines.push('\nVerleend: ' + permCheck.granted.join(', '));
       }
       await sendMessage(chatId, lines.join('\n'));
     } catch (err) {
-      await sendMessage(chatId, 'Pre-flight error: ' + err.message);
+      await sendMessage(chatId, 'Pre-flight fout: ' + err.message);
     }
     return true;
   }
@@ -325,11 +325,11 @@ async function handleTextCommand(chatId, text) {
     if (text.indexOf(cmdKeys[i] + ' ') === 0) {
       var amount = parseInt(text.split(' ')[1], 10);
       if (isNaN(amount) || amount < 10) {
-        await sendMessage(chatId, 'Invalid amount. Minimum EUR 10.');
+        await sendMessage(chatId, 'Ongeldig bedrag. Minimum EUR 10.');
         return true;
       }
       await limits.updateLimit(setCommands[cmdKeys[i]], amount);
-      await sendMessage(chatId, cmdKeys[i].replace('/set_', '').replace('_', ' ') + ' updated: EUR ' + amount);
+      await sendMessage(chatId, cmdKeys[i].replace('/set_', '').replace('_', ' ') + ' aangepast: EUR ' + amount);
       return true;
     }
   }
@@ -364,7 +364,7 @@ function buildLimitsKeyboard(limits) {
         { text: 'Campaign: +50', callback_data: 'lim:max_campaign_budget:+50' }
       ],
       [
-        { text: 'Custom amount...', callback_data: 'lim:custom' }
+        { text: 'Aangepast bedrag...', callback_data: 'lim:custom' }
       ]
     ]
   };
@@ -392,26 +392,26 @@ async function queueStrategyActions(advisoryId, advisory, strategy) {
 }
 
 async function sendConfirmation(chatId, strategy, followupChoice) {
-  var lines = ['Strategy queued: ' + levelEmoji(strategy.level) + ' ' + strategy.title + '\n'];
+  var lines = ['Strategie in wachtrij: ' + levelEmoji(strategy.level) + ' ' + strategy.title + '\n'];
 
   var actions = strategy.actions || [];
   if (actions.length > 0) {
-    lines.push('Actions:');
+    lines.push('Acties:');
     for (var i = 0; i < actions.length; i++) {
       lines.push((i + 1) + '. ' + (actions[i].detail || actions[i].type));
     }
   }
 
   if (followupChoice) {
-    lines.push('\nChoice: ' + followupChoice);
+    lines.push('\nKeuze: ' + followupChoice);
   }
 
   var mode = process.env.ADS_OPTIMIZATION_MODE || 'MONITOR_ONLY';
   var enableWrites = process.env.ENABLE_AD_WRITES === 'true';
   if (!enableWrites || mode === 'MONITOR_ONLY') {
-    lines.push('\nNote: System is in monitor-only mode. Actions logged but not executed.');
+    lines.push('\nLet op: Systeem staat in monitor-modus. Acties gelogd maar niet uitgevoerd.');
   } else {
-    lines.push('\nActions executing via Meta API. Check Telegram for confirmation per action.');
+    lines.push('\nActies worden uitgevoerd via Meta API. Bevestiging volgt per actie.');
   }
 
   await sendMessage(chatId, lines.join('\n'));
@@ -426,22 +426,22 @@ function buildPublishKeyboard(postId, platforms) {
       { text: '\ud83d\udcf8 Instagram', callback_data: 'pub:' + postId + ':instagram' }
     ]);
     rows.push([
-      { text: '\ud83d\udcd8+\ud83d\udcf8 Both', callback_data: 'pub:' + postId + ':both' },
-      { text: '\ud83d\udccb Queue only', callback_data: 'pub:' + postId + ':queue' }
+      { text: '\ud83d\udcd8+\ud83d\udcf8 Beide', callback_data: 'pub:' + postId + ':both' },
+      { text: '\ud83d\udccb Wachtrij', callback_data: 'pub:' + postId + ':queue' }
     ]);
   } else if (platforms.facebook) {
     rows.push([
       { text: '\ud83d\udcd8 Facebook', callback_data: 'pub:' + postId + ':facebook' },
-      { text: '\ud83d\udccb Queue only', callback_data: 'pub:' + postId + ':queue' }
+      { text: '\ud83d\udccb Wachtrij', callback_data: 'pub:' + postId + ':queue' }
     ]);
   } else if (platforms.instagram) {
     rows.push([
       { text: '\ud83d\udcf8 Instagram', callback_data: 'pub:' + postId + ':instagram' },
-      { text: '\ud83d\udccb Queue only', callback_data: 'pub:' + postId + ':queue' }
+      { text: '\ud83d\udccb Wachtrij', callback_data: 'pub:' + postId + ':queue' }
     ]);
   } else {
     rows.push([
-      { text: '\ud83d\udccb Queue only', callback_data: 'pub:' + postId + ':queue' }
+      { text: '\ud83d\udccb Wachtrij', callback_data: 'pub:' + postId + ':queue' }
     ]);
   }
   return { inline_keyboard: rows };
@@ -450,28 +450,28 @@ function buildPublishKeyboard(postId, platforms) {
 // --- Social publish handler ---
 async function handlePublish(callbackId, chatId, postId, target) {
   if (target === 'queue') {
-    await answerCallback(callbackId, 'Queued for next publish slot.');
-    await sendMessage(chatId, 'Creative queued for next scheduled publish.');
+    await answerCallback(callbackId, 'In wachtrij gezet.');
+    await sendMessage(chatId, 'Creative in wachtrij voor volgende publicatieslot.');
     return;
   }
 
   // Get creative data from Redis
   var creative = await getCreativeFromRedis(postId);
   if (!creative || !creative.image_url) {
-    await answerCallback(callbackId, 'No image URL found.');
-    await sendMessage(chatId, 'No image URL available for this creative. Publish manually via Predis.');
+    await answerCallback(callbackId, 'Geen afbeelding gevonden.');
+    await sendMessage(chatId, 'Geen afbeelding beschikbaar voor deze creative. Publiceer handmatig via Predis.');
     return;
   }
 
   // Check image expiry
   if (socialPublisher.isImageLikelyExpired(creative.completed_at || creative.created_at)) {
-    await sendMessage(chatId, 'Warning: Image may have expired (Predis URLs last ~1 hour). Publishing anyway...');
+    await sendMessage(chatId, 'Let op: Afbeelding mogelijk verlopen (Predis URLs ~1 uur geldig). Toch publiceren...');
   }
 
   var caption = creative.caption || creative.text || '';
 
-  await answerCallback(callbackId, 'Publishing...');
-  await sendMessage(chatId, 'Publishing to ' + target + '...');
+  await answerCallback(callbackId, 'Publiceren...');
+  await sendMessage(chatId, 'Publiceren naar ' + target + '...');
 
   var publishResult;
   if (target === 'facebook') {
@@ -483,7 +483,7 @@ async function handlePublish(callbackId, chatId, postId, target) {
   } else if (target === 'both') {
     publishResult = await socialPublisher.publishToSocial(creative.image_url, caption, 'both');
   } else {
-    await sendMessage(chatId, 'Unknown publish target: ' + target);
+    await sendMessage(chatId, 'Onbekend publicatiedoel: ' + target);
     return;
   }
 
@@ -491,8 +491,8 @@ async function handlePublish(callbackId, chatId, postId, target) {
   var platformsPublished = publishResult.results.map(function (r) { return r.platform; }).join(' + ') || 'none';
   var errorsText = publishResult.errors.map(function (e) { return e.platform + ': ' + e.error; }).join('\n') || '';
 
-  var confirmText = 'Published to: ' + platformsPublished;
-  if (errorsText) confirmText += '\n\nErrors:\n' + errorsText;
+  var confirmText = 'Gepubliceerd naar: ' + platformsPublished;
+  if (errorsText) confirmText += '\n\nFouten:\n' + errorsText;
 
   // If FB was published, offer to use as ad creative (page post ads)
   var fbResult = publishResult.results.find(function (r) { return r.platform === 'facebook'; });
@@ -511,11 +511,11 @@ async function handlePublish(callbackId, chatId, postId, target) {
 
     adKeyboard = {
       inline_keyboard: [[
-        { text: 'Use as ad creative', callback_data: 'cb:use_as_ad:' + postId },
-        { text: 'Done', callback_data: 'cb:pub_done:' + postId }
+        { text: 'Gebruik als advertentie', callback_data: 'cb:use_as_ad:' + postId },
+        { text: 'Klaar', callback_data: 'cb:pub_done:' + postId }
       ]]
     };
-    confirmText += '\n\nYou can use this published post as an ad creative in Meta Ads.';
+    confirmText += '\n\nJe kunt deze post gebruiken als advertentie in Meta Ads.';
   }
 
   await sendMessage(chatId, confirmText, adKeyboard);
@@ -551,15 +551,15 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
   // cb:intent:{intent}
   if (action === 'intent') {
     var intent = parts[2];
-    await answerCallback(callbackId, 'Analyzing performance...');
-    await sendMessage(chatId, 'Analyzing ad performance data and generating proposal...');
+    await answerCallback(callbackId, 'Prestaties analyseren...');
+    await sendMessage(chatId, 'Ad prestaties analyseren en voorstel genereren...');
 
     try {
       var limits = require('../../lib/limits');
       var perfData = await campaignBuilder.fetchPerformanceContext();
 
       if (!perfData.hasWinners) {
-        await sendMessage(chatId, 'Not enough data yet. Need at least 1 ad with 100+ impressions and CTR > 1% to build from.\n\nWinner ads found: 0');
+        await sendMessage(chatId, 'Nog niet genoeg data. Minimaal 1 ad nodig met 100+ impressies en CTR > 1%.\n\nWinnende ads gevonden: 0');
         return;
       }
 
@@ -574,7 +574,7 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
       await sendMessage(chatId, msg, keyboard);
     } catch (err) {
       console.error('[CampaignBuilder] Proposal error:', err.message);
-      await sendMessage(chatId, 'Campaign proposal failed: ' + err.message);
+      await sendMessage(chatId, 'Campagne voorstel mislukt: ' + err.message);
     }
     return;
   }
@@ -584,12 +584,12 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
     var buildProposalId = parts[2];
     var entry = await campaignBuilder.getProposal(buildProposalId);
     if (!entry || !entry.proposal) {
-      await answerCallback(callbackId, 'Proposal expired.');
+      await answerCallback(callbackId, 'Voorstel verlopen.');
       return;
     }
 
-    await answerCallback(callbackId, 'Building campaign...');
-    await sendMessage(chatId, 'Building campaign via Meta API (all PAUSED)...');
+    await answerCallback(callbackId, 'Campagne bouwen...');
+    await sendMessage(chatId, 'Campagne bouwen via Meta API (alles GEPAUZEERD)...');
 
     try {
       var buildResult = await campaignBuilder.buildCampaign(entry.proposal);
@@ -599,29 +599,29 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
       });
 
       if (!buildResult.ok) {
-        await sendMessage(chatId, 'Campaign build failed: ' + buildResult.error);
+        await sendMessage(chatId, 'Campagne bouwen mislukt: ' + buildResult.error);
         return;
       }
 
-      var dryNote = buildResult.dryRun ? '\n\n(DRY RUN: ENABLE_AD_WRITES is not true. No real changes made.)' : '';
+      var dryNote = buildResult.dryRun ? '\n\n(DRY RUN: ENABLE_AD_WRITES staat niet op true. Geen echte wijzigingen.)' : '';
 
-      var confirmMsg = '<b>Campaign built successfully!</b>\n\n' +
-        'Campaign: ' + buildResult.campaign_name + '\n' +
+      var confirmMsg = '<b>Campagne succesvol gebouwd!</b>\n\n' +
+        'Campagne: ' + buildResult.campaign_name + '\n' +
         'ID: ' + buildResult.campaign_id + '\n' +
-        'Status: PAUSED\n' +
-        'Adsets: ' + buildResult.adsets_created + ' created\n' +
-        'Ads: ' + buildResult.ads_created + ' duplicated from winners' + dryNote;
+        'Status: GEPAUZEERD\n' +
+        'Adsets: ' + buildResult.adsets_created + ' aangemaakt\n' +
+        'Ads: ' + buildResult.ads_created + ' gedupliceerd van winnaars' + dryNote;
 
       var activateKeyboard = {
         inline_keyboard: [[
-          { text: 'Activate now', callback_data: 'cb:activate:' + buildResult.campaign_id },
-          { text: 'Keep paused', callback_data: 'cb:keep_paused:' + buildResult.campaign_id }
+          { text: 'Nu activeren', callback_data: 'cb:activate:' + buildResult.campaign_id },
+          { text: 'Gepauzeerd houden', callback_data: 'cb:keep_paused:' + buildResult.campaign_id }
         ]]
       };
       await sendMessage(chatId, confirmMsg, buildResult.dryRun ? null : activateKeyboard);
     } catch (err) {
       console.error('[CampaignBuilder] Build error:', err.message);
-      await sendMessage(chatId, 'Campaign build error: ' + err.message);
+      await sendMessage(chatId, 'Campagne bouwfout: ' + err.message);
     }
     return;
   }
@@ -642,8 +642,8 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
         ]
       ]
     };
-    await answerCallback(callbackId, 'Select budget');
-    await sendMessage(chatId, 'Select new daily budget:', budgetKeyboard);
+    await answerCallback(callbackId, 'Budget kiezen');
+    await sendMessage(chatId, 'Kies nieuw dagbudget:', budgetKeyboard);
     return;
   }
 
@@ -666,8 +666,8 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
         ]
       ]
     };
-    await answerCallback(callbackId, 'Select countries');
-    await sendMessage(chatId, 'Select target countries:', geoKeyboard);
+    await answerCallback(callbackId, 'Landen kiezen');
+    await sendMessage(chatId, 'Kies doellanden:', geoKeyboard);
     return;
   }
 
@@ -682,14 +682,14 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
 
     var updatedBudget = await campaignBuilder.adjustBudget(setBudgetId, budgetCents);
     if (!updatedBudget) {
-      await answerCallback(callbackId, 'Proposal expired.');
+      await answerCallback(callbackId, 'Voorstel verlopen.');
       return;
     }
 
     var updatedMsg = campaignBuilder.formatProposalMessage(updatedBudget.proposal);
     var updatedKeyboard = buildProposalKeyboard(setBudgetId);
-    await answerCallback(callbackId, 'Budget updated to EUR ' + (budgetCents / 100));
-    await sendMessage(chatId, updatedMsg + '\n\n(Budget adjusted)', updatedKeyboard);
+    await answerCallback(callbackId, 'Budget aangepast naar EUR ' + (budgetCents / 100));
+    await sendMessage(chatId, updatedMsg + '\n\n(Budget aangepast)', updatedKeyboard);
     return;
   }
 
@@ -699,14 +699,14 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
     var countries = parts.slice(3).join(':'); // countries may contain commas but not colons
     var updatedGeo = await campaignBuilder.adjustCountries(setGeoId, countries);
     if (!updatedGeo) {
-      await answerCallback(callbackId, 'Proposal expired.');
+      await answerCallback(callbackId, 'Voorstel verlopen.');
       return;
     }
 
     var geoMsg = campaignBuilder.formatProposalMessage(updatedGeo.proposal);
     var geoKb = buildProposalKeyboard(setGeoId);
-    await answerCallback(callbackId, 'Countries updated to ' + countries);
-    await sendMessage(chatId, geoMsg + '\n\n(Countries adjusted)', geoKb);
+    await answerCallback(callbackId, 'Landen aangepast naar ' + countries);
+    await sendMessage(chatId, geoMsg + '\n\n(Landen aangepast)', geoKb);
     return;
   }
 
@@ -715,11 +715,11 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
     var regenId = parts[2];
     var regenEntry = await campaignBuilder.getProposal(regenId);
     if (!regenEntry) {
-      await answerCallback(callbackId, 'Proposal expired.');
+      await answerCallback(callbackId, 'Voorstel verlopen.');
       return;
     }
 
-    await answerCallback(callbackId, 'Regenerating...');
+    await answerCallback(callbackId, 'Opnieuw genereren...');
     await campaignBuilder.updateProposal(regenId, { status: 'cancelled' });
 
     // Re-trigger intent with same intent type
@@ -731,43 +731,43 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
   if (action === 'cancel') {
     var cancelId = parts[2];
     await campaignBuilder.updateProposal(cancelId, { status: 'cancelled' });
-    await answerCallback(callbackId, 'Cancelled.');
-    await sendMessage(chatId, 'Campaign proposal cancelled.');
+    await answerCallback(callbackId, 'Geannuleerd.');
+    await sendMessage(chatId, 'Campagne voorstel geannuleerd.');
     return;
   }
 
   // cb:activate:{campaignId}
   if (action === 'activate') {
     var activateCampaignId = parts[2];
-    await answerCallback(callbackId, 'Activating...');
+    await answerCallback(callbackId, 'Activeren...');
 
     var activateResult = await campaignBuilder.activateCampaign(activateCampaignId);
     if (activateResult.ok) {
       var dryMsg = activateResult.dryRun ? ' (DRY RUN)' : '';
-      await sendMessage(chatId, 'Campaign ' + activateCampaignId + ' activated!' + dryMsg + '\n\nAds are now live. Monitor performance.');
+      await sendMessage(chatId, 'Campagne ' + activateCampaignId + ' geactiveerd!' + dryMsg + '\n\nAds zijn nu live. Monitor de prestaties.');
     } else {
-      await sendMessage(chatId, 'Activation failed: ' + activateResult.error);
+      await sendMessage(chatId, 'Activering mislukt: ' + activateResult.error);
     }
     return;
   }
 
   // cb:keep_paused:{campaignId}
   if (action === 'keep_paused') {
-    await answerCallback(callbackId, 'Keeping paused.');
-    await sendMessage(chatId, 'Campaign remains PAUSED. Activate later from Meta Ads Manager.');
+    await answerCallback(callbackId, 'Blijft gepauzeerd.');
+    await sendMessage(chatId, 'Campagne blijft GEPAUZEERD. Later activeren via Meta Ads Manager.');
     return;
   }
 
   // cb:pub_done:{postId}
   if (action === 'pub_done') {
-    await answerCallback(callbackId, 'Done.');
+    await answerCallback(callbackId, 'Klaar.');
     return;
   }
 
   // cb:use_as_ad:{postId} - fetch active campaigns and let operator pick one
   if (action === 'use_as_ad') {
     var useAdPostId = parts[2];
-    await answerCallback(callbackId, 'Fetching campaigns...');
+    await answerCallback(callbackId, 'Campagnes ophalen...');
 
     try {
       var metaApiClient = require('../../lib/meta-api-client');
@@ -775,7 +775,7 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
       var campaigns = (activeCampaigns.ok ? activeCampaigns.data : []).slice(0, 6);
 
       if (campaigns.length === 0) {
-        await sendMessage(chatId, 'No active or paused campaigns found. Use /build_campaign to create one first.');
+        await sendMessage(chatId, 'Geen actieve of gepauzeerde campagnes gevonden. Gebruik /build_campaign om er een aan te maken.');
         return;
       }
 
@@ -790,12 +790,12 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
         }
         campaignRows.push(row);
       }
-      campaignRows.push([{ text: 'Cancel', callback_data: 'cb:pub_done:' + useAdPostId }]);
+      campaignRows.push([{ text: 'Annuleren', callback_data: 'cb:pub_done:' + useAdPostId }]);
 
-      await sendMessage(chatId, 'Select a campaign to add this creative to:', { inline_keyboard: campaignRows });
+      await sendMessage(chatId, 'Kies een campagne om deze creative aan toe te voegen:', { inline_keyboard: campaignRows });
     } catch (err) {
       console.error('[UseAsAd] Error:', err.message);
-      await sendMessage(chatId, 'Error fetching campaigns: ' + err.message);
+      await sendMessage(chatId, 'Fout bij ophalen campagnes: ' + err.message);
     }
     return;
   }
@@ -804,25 +804,25 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
   if (action === 'add_to_camp') {
     var addPostId = parts[2];
     var addCampaignId = parts[3];
-    await answerCallback(callbackId, 'Creating ad...');
+    await answerCallback(callbackId, 'Advertentie aanmaken...');
 
     try {
       var metaApi = require('../../lib/meta-api-client');
       var pubRefRaw = await store.get('social:pub_ref:' + addPostId);
       if (!pubRefRaw) {
-        await sendMessage(chatId, 'Published post reference expired. Publish again first.');
+        await sendMessage(chatId, 'Gepubliceerde post referentie verlopen. Publiceer opnieuw.');
         return;
       }
       var pubRef = typeof pubRefRaw === 'string' ? JSON.parse(pubRefRaw) : pubRefRaw;
 
       if (!pubRef.fbPostId) {
-        await sendMessage(chatId, 'No Facebook post ID found. Only Facebook page posts can be used as ad creatives.');
+        await sendMessage(chatId, 'Geen Facebook post ID gevonden. Alleen Facebook pagina-posts kunnen als advertentie gebruikt worden.');
         return;
       }
 
       var isDryRun = process.env.ENABLE_AD_WRITES !== 'true';
       if (isDryRun) {
-        await sendMessage(chatId, '<b>DRY RUN</b>: Would create ad from page post ' + pubRef.fbPostId + ' in campaign ' + addCampaignId + '.\n\nSet ENABLE_AD_WRITES=true to execute.');
+        await sendMessage(chatId, '<b>DRY RUN</b>: Zou advertentie maken van pagina-post ' + pubRef.fbPostId + ' in campagne ' + addCampaignId + '.\n\nZet ENABLE_AD_WRITES=true om uit te voeren.');
         return;
       }
 
@@ -838,7 +838,7 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
       // Step 1: Find first adset in this campaign
       var adsetsResult = await metaApi.graphRequest('GET', addCampaignId + '/adsets', { fields: 'id,name', limit: '1' });
       if (!adsetsResult.ok || !adsetsResult.data || !adsetsResult.data.data || adsetsResult.data.data.length === 0) {
-        await sendMessage(chatId, 'No adsets found in this campaign. Cannot add ad without an adset.');
+        await sendMessage(chatId, 'Geen adsets gevonden in deze campagne. Kan geen ad toevoegen zonder adset.');
         return;
       }
       var adsetId = adsetsResult.data.data[0].id;
@@ -849,7 +849,7 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
       });
 
       if (!creativeResult.ok) {
-        await sendMessage(chatId, 'Creative creation failed: ' + creativeResult.error);
+        await sendMessage(chatId, 'Creative aanmaken mislukt: ' + creativeResult.error);
         return;
       }
 
@@ -863,34 +863,34 @@ async function handleCampaignCallback(callbackId, chatId, messageId, data) {
       });
 
       if (!adResult.ok) {
-        await sendMessage(chatId, 'Ad creation failed: ' + adResult.error);
+        await sendMessage(chatId, 'Advertentie aanmaken mislukt: ' + adResult.error);
         return;
       }
 
-      await sendMessage(chatId, '<b>Ad created from published post!</b>\n\nAd ID: ' + adResult.data.id + '\nAdset: ' + adsetsResult.data.data[0].name + '\nStatus: PAUSED\n\nActivate via Meta Ads Manager when ready.');
+      await sendMessage(chatId, '<b>Advertentie aangemaakt van gepubliceerde post!</b>\n\nAd ID: ' + adResult.data.id + '\nAdset: ' + adsetsResult.data.data[0].name + '\nStatus: GEPAUZEERD\n\nActiveer via Meta Ads Manager wanneer je klaar bent.');
     } catch (err) {
       console.error('[AddToCampaign] Error:', err.message);
-      await sendMessage(chatId, 'Error creating ad: ' + err.message);
+      await sendMessage(chatId, 'Fout bij aanmaken advertentie: ' + err.message);
     }
     return;
   }
 
-  await answerCallback(callbackId, 'Unknown campaign action');
+  await answerCallback(callbackId, 'Onbekende campagne actie');
 }
 
 function buildProposalKeyboard(proposalId) {
   return {
     inline_keyboard: [
       [
-        { text: 'Build it', callback_data: 'cb:build:' + proposalId },
-        { text: 'Adjust budget', callback_data: 'cb:adjust:' + proposalId + ':budget' }
+        { text: 'Bouwen', callback_data: 'cb:build:' + proposalId },
+        { text: 'Budget aanpassen', callback_data: 'cb:adjust:' + proposalId + ':budget' }
       ],
       [
-        { text: 'Change countries', callback_data: 'cb:adjust:' + proposalId + ':countries' },
-        { text: 'New proposal', callback_data: 'cb:regenerate:' + proposalId }
+        { text: 'Landen wijzigen', callback_data: 'cb:adjust:' + proposalId + ':countries' },
+        { text: 'Nieuw voorstel', callback_data: 'cb:regenerate:' + proposalId }
       ],
       [
-        { text: 'Cancel', callback_data: 'cb:cancel:' + proposalId }
+        { text: 'Annuleren', callback_data: 'cb:cancel:' + proposalId }
       ]
     ]
   };
@@ -960,7 +960,7 @@ module.exports = async function handler(req, res) {
       }
 
       // Unknown callback
-      await answerCallback(callbackId, 'Unknown action');
+      await answerCallback(callbackId, 'Onbekende actie');
       return res.status(200).json({ ok: true });
     }
 

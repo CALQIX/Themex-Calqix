@@ -14,17 +14,21 @@ var scorer = require('./content-scorer');
 var memory = require('./content-memory');
 var dates = require('./dates');
 
-var MARKET_LANGUAGES = {
-  NL: { language: 'nl', label: 'Dutch' },
-  BE: { language: 'nl', label: 'Dutch (BE)' },
-  DE: { language: 'de', label: 'German' },
-  AT: { language: 'de', label: 'German (AT)' },
-  FR: { language: 'fr', label: 'French' },
-  UK: { language: 'en', label: 'English' },
-  US: { language: 'en', label: 'English' }
+var MARKET_LANGUAGE_MAP = {
+  DE: { output_language: 'german', label: 'Duits', code: 'de', locale: 'de' },
+  AT: { output_language: 'german', label: 'Duits', code: 'de', locale: 'de' },
+  NL: { output_language: 'dutch', label: 'Nederlands', code: 'nl', locale: 'nl' },
+  BE: { output_language: 'dutch', label: 'Nederlands', code: 'nl', locale: 'nl' },
+  FR: { output_language: 'french', label: 'Frans', code: 'fr', locale: 'fr' },
+  UK: { output_language: 'english', label: 'Engels', code: 'en', locale: 'en' },
+  US: { output_language: 'english', label: 'Engels', code: 'en', locale: 'en' }
 };
 
-var DEFAULT_MARKET = { country: 'NL', language: 'nl', label: 'Dutch' };
+function getMarketLanguage(country) {
+  return MARKET_LANGUAGE_MAP[country] || MARKET_LANGUAGE_MAP.NL;
+}
+
+var DEFAULT_MARKET = { country: 'NL', output_language: 'dutch', label: 'Nederlands', code: 'nl', locale: 'nl' };
 
 var SLOT_CONFIGS = {
   post1: {
@@ -181,7 +185,9 @@ function assignSlot(slotName, angleScores, pillarScores, productScores, usedAngl
     metaBacked: metaBacked,
     productMetaBacked: productMetaBacked,
     market: market ? market.country : DEFAULT_MARKET.country,
-    language: market ? market.language : DEFAULT_MARKET.language,
+    language: market ? market.code : DEFAULT_MARKET.code,
+    output_language: market ? market.output_language : DEFAULT_MARKET.output_language,
+    locale: market ? market.locale : DEFAULT_MARKET.locale,
     platform: 'instagram',
     status: 'planned'
   };
@@ -283,8 +289,9 @@ function enrichAngleScores(angleScores, anglePerformance) {
  * Returns array of 3 market objects: top 2 performers + a diverse third.
  */
 function pickMarkets(metaSignals) {
+  var deDef = { country: 'DE', output_language: 'german', label: 'Duits', code: 'de', locale: 'de' };
   if (!metaSignals || !metaSignals.countryPerformance) {
-    return [DEFAULT_MARKET, { country: 'DE', language: 'de', label: 'German' }, DEFAULT_MARKET];
+    return [DEFAULT_MARKET, deDef, DEFAULT_MARKET];
   }
 
   var cp = metaSignals.countryPerformance;
@@ -299,21 +306,19 @@ function pickMarkets(metaSignals) {
   });
 
   var result = [];
-  var usedLangs = [];
+  var usedCodes = [];
   for (var i = 0; i < countries.length && result.length < 3; i++) {
     var c = countries[i];
-    var ml = MARKET_LANGUAGES[c];
+    var ml = MARKET_LANGUAGE_MAP[c];
     if (!ml) continue;
-    // For first 2, pick top performers. For 3rd, prefer a different language.
-    if (result.length < 2 || usedLangs.indexOf(ml.language) === -1) {
-      result.push({ country: c, language: ml.language, label: ml.label });
-      if (usedLangs.indexOf(ml.language) === -1) usedLangs.push(ml.language);
+    if (result.length < 2 || usedCodes.indexOf(ml.code) === -1) {
+      result.push({ country: c, output_language: ml.output_language, label: ml.label, code: ml.code, locale: ml.locale });
+      if (usedCodes.indexOf(ml.code) === -1) usedCodes.push(ml.code);
     }
   }
 
-  // Fill remaining slots with defaults
   while (result.length < 3) {
-    result.push(result.length === 0 ? DEFAULT_MARKET : { country: 'DE', language: 'de', label: 'German' });
+    result.push(result.length === 0 ? DEFAULT_MARKET : deDef);
   }
 
   return result;
@@ -321,6 +326,7 @@ function pickMarkets(metaSignals) {
 
 module.exports = {
   SLOT_CONFIGS: SLOT_CONFIGS,
-  MARKET_LANGUAGES: MARKET_LANGUAGES,
+  MARKET_LANGUAGE_MAP: MARKET_LANGUAGE_MAP,
+  getMarketLanguage: getMarketLanguage,
   generateDailyPlan: generateDailyPlan
 };

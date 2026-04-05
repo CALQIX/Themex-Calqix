@@ -8,6 +8,7 @@ var guardrails = require('./brand-guardrails');
 var captionWriter = require('./caption-writer');
 var dates = require('./dates');
 var shopifyProducts = require('./shopify-products');
+var planner = require('./content-planner');
 
 var FORMAT_MAP = {
   top_of_funnel: { format: 'single_image', aspectRatio: '1:1' },
@@ -32,10 +33,9 @@ var AD_CONCEPTS = {
  */
 async function buildBrief(planSlot, dateStr) {
   var productInfo = guardrails.getProduct(planSlot.product) || guardrails.BRAND.products[0];
-  var copyEn = captionWriter.generateCopy(Object.assign({}, planSlot, { date: dateStr || '' }));
-  // Translate copy to target language if not English
+  var copy = captionWriter.generateCopy(Object.assign({}, planSlot, { date: dateStr || '' }));
   var language = planSlot.language || 'nl';
-  var copy = await captionWriter.translateCopy(copyEn, language);
+  var marketInfo = planner.getMarketLanguage(planSlot.market || 'NL');
   var formatConfig = FORMAT_MAP[planSlot.funnelStage] || FORMAT_MAP.top_of_funnel;
   var adConcept = AD_CONCEPTS[planSlot.pillar] || AD_CONCEPTS.education;
 
@@ -95,6 +95,8 @@ async function buildBrief(planSlot, dateStr) {
     // Market/Language
     market: planSlot.market || 'NL',
     language: language,
+    output_language: marketInfo.output_language,
+    locale: marketInfo.locale,
 
     // State
     status: 'brief_ready',
@@ -148,9 +150,8 @@ function buildProductDescription(productInfo, shopifyData) {
  */
 function buildSpecialInstructions(planSlot, productInfo, shopifyData) {
   var parts = [];
-  // Language instruction for Predis
-  var langLabel = captionWriter.LANGUAGE_NAMES[planSlot.language] || 'Dutch';
-  parts.push('Language: ' + langLabel + '. CALQIX brand: minimalist, clinical, dark navy #0A1628 and white');
+  var mktInfo = planner.getMarketLanguage(planSlot.market || 'NL');
+  parts.push('Language: ' + mktInfo.label + '. CALQIX brand: minimalist, clinical, dark navy #0A1628 and white');
 
   // Use Shopify title if available for more accurate product reference
   if (shopifyData && shopifyData.title) {

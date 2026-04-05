@@ -66,7 +66,9 @@ async function submitPredisJob(payload) {
     brand_id: brandId,
     text: payload.text || payload.product_description || '',
     media_type: payload._meta && payload._meta.mediaType ? payload._meta.mediaType : 'single_image',
-    model_version: '4'
+    model_version: '4',
+    input_language: payload.input_language || 'english',
+    output_language: payload.output_language || 'dutch'
   };
 
   // Add product images if provided (Predis uses these instead of stock photos)

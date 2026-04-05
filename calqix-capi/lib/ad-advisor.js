@@ -84,9 +84,9 @@ async function generateAdvisory(performanceData, currentState, timeSlot) {
  */
 function buildAdvisorPrompt(perfData, state, timeSlot, limits) {
   var slotDescriptions = {
-    morning: 'Plan today. What should we prioritize based on recent trends?',
-    midday: 'Halfway through the day. Should we adjust now?',
-    evening: 'Day is done. What should change for tomorrow based on today\'s data?'
+    morning: 'Plan vandaag. Wat moeten we prioriteren op basis van recente trends?',
+    midday: 'Halverwege de dag. Moeten we nu bijsturen?',
+    evening: 'Dag is voorbij. Wat moet er morgen anders op basis van de data van vandaag?'
   };
 
   // Build ad data summary
@@ -156,6 +156,10 @@ function buildAdvisorPrompt(perfData, state, timeSlot, limits) {
     '- Be honest when data is insufficient for confident recommendations',
     '- If a strategy would exceed a limit, add "limit_exceeded": true',
     '',
+    'LANGUAGE: Write the "analysis", "title", "summary", "expected_impact", and "risk" fields',
+    'in Dutch. The operator speaks Dutch. Keep ad names, IDs, and metrics in their',
+    'original form (do not translate campaign names or metric labels like CTR/CPA/ROAS).',
+    '',
     'Respond ONLY in JSON:',
     '{',
     '  "analysis": "2-3 sentence plain language summary of current performance",',
@@ -198,7 +202,7 @@ async function sendAdvisoryToTelegram(advisory, timeSlot) {
   }
 
   if (advisory.noAds) {
-    return sendTelegram('CALQIX Ad Advisor - No active campaigns found. Skipping advisory.');
+    return sendTelegram('CALQIX Ad Advies - Geen actieve campagnes gevonden. Advies overgeslagen.');
   }
 
   // Store advisory in Redis
@@ -223,14 +227,14 @@ async function sendAdvisoryToTelegram(advisory, timeSlot) {
 
   // Build Telegram message
   var lines = [
-    '<b>CALQIX Ad Advisor</b> - ' + timeStr,
+    '<b>CALQIX Ad Advies</b> - ' + timeStr,
     '',
-    advisory.analysis || 'No analysis available.',
+    advisory.analysis || 'Geen analyse beschikbaar.',
     ''
   ];
 
   var emojis = { safe: '\ud83d\udfe2', balanced: '\ud83d\udfe1', aggressive: '\ud83d\udd34' };
-  var labels = { safe: 'SAFE', balanced: 'BALANCED', aggressive: 'AGGRESSIVE' };
+  var labels = { safe: 'VEILIG', balanced: 'GEBALANCEERD', aggressive: 'AGRESSIEF' };
 
   var strategies = advisory.strategies || [];
   for (var i = 0; i < strategies.length; i++) {
@@ -240,10 +244,10 @@ async function sendAdvisoryToTelegram(advisory, timeSlot) {
 
     lines.push(emoji + ' <b>' + label + ':</b> ' + (s.title || ''));
     lines.push(s.summary || '');
-    lines.push('Impact: ' + (s.expected_impact || 'N/A'));
-    lines.push('Risk: ' + (s.risk || 'N/A'));
+    lines.push('Verwacht: ' + (s.expected_impact || 'N/A'));
+    lines.push('Risico: ' + (s.risk || 'N/A'));
     if (s.limit_exceeded) {
-      lines.push('Warning: Exceeds current budget limit');
+      lines.push('Waarschuwing: Overschrijdt huidig budgetlimiet');
     }
     lines.push('');
   }
@@ -253,13 +257,13 @@ async function sendAdvisoryToTelegram(advisory, timeSlot) {
   // Build inline keyboard
   var buttons = [
     [
-      { text: '\ud83d\udfe2 Safe', callback_data: 'adv:' + advisoryId + ':safe' },
-      { text: '\ud83d\udfe1 Balanced', callback_data: 'adv:' + advisoryId + ':balanced' },
-      { text: '\ud83d\udd34 Aggressive', callback_data: 'adv:' + advisoryId + ':aggressive' }
+      { text: '\ud83d\udfe2 Veilig', callback_data: 'adv:' + advisoryId + ':safe' },
+      { text: '\ud83d\udfe1 Gebalanceerd', callback_data: 'adv:' + advisoryId + ':balanced' },
+      { text: '\ud83d\udd34 Agressief', callback_data: 'adv:' + advisoryId + ':aggressive' }
     ],
     [
-      { text: '\ud83d\udd04 New advice', callback_data: 'adv:' + advisoryId + ':refresh' },
-      { text: '\u23ed Skip', callback_data: 'adv:' + advisoryId + ':skip' }
+      { text: '\ud83d\udd04 Nieuw advies', callback_data: 'adv:' + advisoryId + ':refresh' },
+      { text: '\u23ed Overslaan', callback_data: 'adv:' + advisoryId + ':skip' }
     ]
   ];
 
@@ -267,7 +271,7 @@ async function sendAdvisoryToTelegram(advisory, timeSlot) {
   var hasLimitExceeded = strategies.some(function (s) { return s.limit_exceeded; });
   if (hasLimitExceeded) {
     buttons.push([
-      { text: 'Raise limit first', callback_data: 'lim:custom' }
+      { text: 'Limiet verhogen', callback_data: 'lim:custom' }
     ]);
   }
 
