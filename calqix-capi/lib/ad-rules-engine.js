@@ -127,9 +127,23 @@ function evaluate(snapshot, fatigueData, budgetHistory) {
         entityId: ad.ad_id,
         entityName: ad.ad_name,
         rule: 'P4_HIGH_FREQUENCY',
-        reason: 'Frequency ' + ad.frequency.toFixed(1) + ' (>3.5)',
+        reason: 'Frequency ' + ad.frequency.toFixed(1) + ' (>3.5) — publiek ziet ad te vaak',
         metrics: { frequency: ad.frequency, impressions: ad.impressions, ctr: ad.ctr },
-        expectedEffect: 'Review for creative refresh or pause'
+        expectedEffect: 'Creative refresh of pauzeren om ad-moeheid te voorkomen'
+      });
+    }
+
+    // Rule P5: High CPA — spend > target CPA * 2 with only 1 purchase
+    if (ad.purchases === 1 && ad.spend > TARGET_CPA() * 2) {
+      proposals.push({
+        action: ACTION_TYPES.PAUSE_AD,
+        safety: SAFETY_LEVELS.APPROVAL_REQUIRED,
+        entityId: ad.ad_id,
+        entityName: ad.ad_name,
+        rule: 'P5_HIGH_CPA',
+        reason: 'CPA €' + ad.spend.toFixed(2) + ' (>' + (TARGET_CPA() * 2).toFixed(0) + ' = 2x target) met slechts 1 aankoop',
+        metrics: { spend: ad.spend, purchases: ad.purchases, cpa: ad.spend, targetCpa: TARGET_CPA() },
+        expectedEffect: 'Voorkom verdere hoge CPA spend — beter budget naar winnende ads'
       });
     }
   });
@@ -161,9 +175,9 @@ function evaluate(snapshot, fatigueData, budgetHistory) {
             entityId: adset.adset_id,
             entityName: adset.adset_name,
             rule: 'S1_STRONG_ROAS',
-            reason: 'ROAS ' + adset.roas.toFixed(2) + 'x over ' + (snapshot.lookbackDays || 3) + 'd with €' + adset.spend.toFixed(2) + ' spend',
+            reason: 'ROAS ' + adset.roas.toFixed(2) + 'x over ' + (snapshot.lookbackDays || 3) + 'd met €' + adset.spend.toFixed(2) + ' spend — sterke performer',
             metrics: { roas: adset.roas, spend: adset.spend, purchases: adset.purchases, currentBudget: dailyBudgetEur },
-            expectedEffect: 'Increase daily budget from €' + dailyBudgetEur.toFixed(2) + ' to €' + newBudget.toFixed(2),
+            expectedEffect: 'Budget verhogen van €' + dailyBudgetEur.toFixed(2) + ' naar €' + newBudget.toFixed(2),
             payload: { newBudgetCents: Math.round(newBudget * 100) }
           });
         } else {
@@ -173,9 +187,9 @@ function evaluate(snapshot, fatigueData, budgetHistory) {
             entityId: adset.adset_id,
             entityName: adset.adset_name,
             rule: 'S1_BLOCKED_BY_SPEND_CAP',
-            reason: 'ROAS ' + adset.roas.toFixed(2) + 'x qualifies for scale but total spend would exceed €' + MAX_DAILY_SPEND(),
+            reason: 'ROAS ' + adset.roas.toFixed(2) + 'x komt in aanmerking voor opschalen maar totale spend overschrijdt €' + MAX_DAILY_SPEND() + ' limiet',
             metrics: { roas: adset.roas, totalDailySpend: totalDailySpend, maxDailySpend: MAX_DAILY_SPEND() },
-            expectedEffect: 'Converted to suggestion — manual review needed'
+            expectedEffect: 'Verhoog dagelijks limiet of herverdeel budget tussen adsets'
           });
         }
       }
@@ -193,12 +207,51 @@ function evaluate(snapshot, fatigueData, budgetHistory) {
           entityId: adset.adset_id,
           entityName: adset.adset_name,
           rule: 'S2_LOW_CPA',
-          reason: 'Cost/purchase €' + adset.cost_per_purchase.toFixed(2) + ' < €' + (TARGET_CPA() * 0.7).toFixed(2) + ' (70% of target)',
+          reason: 'CPA €' + adset.cost_per_purchase.toFixed(2) + ' < €' + (TARGET_CPA() * 0.7).toFixed(2) + ' (70% van target) — efficiënte adset',
           metrics: { costPerPurchase: adset.cost_per_purchase, targetCpa: TARGET_CPA(), currentBudget: dailyBudgetEur },
-          expectedEffect: 'Increase daily budget from €' + dailyBudgetEur.toFixed(2) + ' to €' + newBudget2.toFixed(2),
+          expectedEffect: 'Budget verhogen van €' + dailyBudgetEur.toFixed(2) + ' naar €' + newBudget2.toFixed(2),
           payload: { newBudgetCents: Math.round(newBudget2 * 100) }
         });
       }
+    }
+
+    // Rule S3: Consistent performer — purchases > 3 with acceptable CPA, scale 15%
+    if (adset.purchases >= 3 && adset.cost_per_purchase > 0 && adset.cost_per_purchase <= TARGET_CPA() && adset.spend > 20) {
+      var newBudget3 = Math.min(dailyBudgetEur * 1.15, MAX_ADSET_BUDGET());
+      var canScale3 = canScaleAdset(adset.adset_id, budgetHist);
+
+      if (newBudget3 > dailyBudgetEur && canScale3) {
+        var totalDailySpend3 = estimateTotalDailySpend(adsetConfigs);
+        var increase3 = newBudget3 - dailyBudgetEur;
+
+        if (totalDailySpend3 + increase3 <= MAX_DAILY_SPEND()) {
+          proposals.push({
+            action: ACTION_TYPES.SCALE_ADSET,
+            safety: SAFETY_LEVELS.APPROVAL_REQUIRED,
+            entityId: adset.adset_id,
+            entityName: adset.adset_name,
+            rule: 'S3_CONSISTENT_PERFORMER',
+            reason: adset.purchases + ' aankopen met CPA €' + adset.cost_per_purchase.toFixed(2) + ' (binnen target) — stabiele performer',
+            metrics: { purchases: adset.purchases, costPerPurchase: adset.cost_per_purchase, roas: adset.roas, currentBudget: dailyBudgetEur },
+            expectedEffect: 'Budget verhogen van €' + dailyBudgetEur.toFixed(2) + ' naar €' + newBudget3.toFixed(2) + ' (+15%)',
+            payload: { newBudgetCents: Math.round(newBudget3 * 100) }
+          });
+        }
+      }
+    }
+
+    // Rule S4: Underperforming adset — high spend, no purchases, flag for budget reallocation
+    if (adset.spend > 25 && adset.purchases === 0 && adset.cost_per_purchase === 0) {
+      proposals.push({
+        action: ACTION_TYPES.FLAG_REVIEW,
+        safety: SAFETY_LEVELS.APPROVAL_REQUIRED,
+        entityId: adset.adset_id,
+        entityName: adset.adset_name,
+        rule: 'S4_UNDERPERFORMING_ADSET',
+        reason: '€' + adset.spend.toFixed(2) + ' uitgegeven zonder aankopen — budget beter herverdelen naar winnende adsets',
+        metrics: { spend: adset.spend, purchases: 0, ctr: adset.ctr || 0, roas: 0 },
+        expectedEffect: 'Budget herverdelen van verliezende naar winnende adsets'
+      });
     }
   });
 
@@ -261,7 +314,7 @@ function evaluate(snapshot, fatigueData, budgetHistory) {
 // --- Helpers ---
 
 function canAutoExecute(mode) {
-  return mode === 'AUTO_EXECUTE';
+  return mode === 'AUTO_EXECUTE' || mode === 'EXECUTE';
 }
 
 function canScaleAdset(adsetId, budgetHistory) {

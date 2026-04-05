@@ -92,7 +92,8 @@ function formatPostPreview(lines, brief) {
  */
 async function sendAdOptimizationReport(results, snapshot, mode) {
   var lines = ['\ud83d\udcc8 <b>CALQIX Ad Rapport - ' + dates.formatDateTimeAmsterdam(new Date()) + '</b>\n'];
-  lines.push('\u2699\ufe0f Modus: <b>' + mode + '</b>\n');
+  var modeLabels = { 'EXECUTE': 'LIVE', 'AUTO_EXECUTE': 'LIVE', 'SUGGEST': 'SUGGESTIE', 'MONITOR_ONLY': 'MONITOR' };
+  lines.push('\u2699\ufe0f Modus: <b>' + (modeLabels[mode] || mode) + '</b>\n');
 
   // Executed actions
   if (results.executed && results.executed.length > 0) {

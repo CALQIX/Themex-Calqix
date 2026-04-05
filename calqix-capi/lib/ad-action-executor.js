@@ -77,8 +77,8 @@ async function executeProposal(proposal, forceDryRun) {
     return { executed: false, result: null, queued: true, queueId: queueItem2.id, reason: 'SUGGEST mode — queued' };
   }
 
-  // AUTO_EXECUTE mode with AUTO_SAFE → execute
-  if (mode === 'AUTO_EXECUTE' && proposal.safety === rulesEngine.SAFETY_LEVELS.AUTO_SAFE) {
+  // AUTO_EXECUTE / EXECUTE mode with AUTO_SAFE → execute
+  if ((mode === 'AUTO_EXECUTE' || mode === 'EXECUTE') && proposal.safety === rulesEngine.SAFETY_LEVELS.AUTO_SAFE) {
     var result = await doExecute(proposal, forceDryRun);
     if (result.ok) {
       await store.set(idempKey, '1', 86400);
