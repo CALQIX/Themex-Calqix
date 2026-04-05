@@ -10,6 +10,7 @@
 var fetch = require('node-fetch');
 var store = require('./store');
 var { sendTelegram } = require('./telegram');
+var envValidator = require('./env-validator');
 
 var CACHE_KEY = 'shopify:products';
 var CACHE_TTL = 6 * 3600; // 6 hours
@@ -28,7 +29,8 @@ function getStoreDomain() {
 }
 
 function getAdminToken() {
-  return process.env.SHOPIFY_ADMIN_ACCESS_TOKEN || '';
+  var resolved = envValidator.resolveShopifyToken();
+  return resolved.token || '';
 }
 
 /**

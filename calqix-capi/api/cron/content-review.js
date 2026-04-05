@@ -16,6 +16,9 @@ var { sendTelegram } = require('../../lib/telegram');
 var approvalQueue = require('../../lib/approval-queue');
 var store = require('../../lib/store');
 var dates = require('../../lib/dates');
+var briefStore = require('../../lib/brief-store');
+var envValidator = require('../../lib/env-validator');
+var { sendBriefReview } = require('../../lib/telegram-content-review');
 
 var CLAUDE_REVIEW_PROMPT = [
   'You are a brand compliance reviewer for CALQIX, a premium oral care brand.',
@@ -179,50 +182,122 @@ module.exports = async function handler(req, res) {
       var text = slotCaptions[slotName] || brief.caption || brief.hook || brief.body || '';
       var review = await reviewWithClaude(brief.product, brief.angle, text);
 
+      // Split text into headline and primary_text
+      var headline = '';
+      var primaryText = text;
+      if (text.indexOf('\n') > -1) {
+        var textParts = text.split('\n');
+        headline = textParts[0].trim();
+        primaryText = textParts.slice(1).join('\n').trim();
+      } else if (text.length > 40) {
+        // If single block, first sentence or first 40 chars as headline
+        var dotIdx = text.indexOf('. ');
+        if (dotIdx > 0 && dotIdx <= 60) {
+          headline = text.substring(0, dotIdx + 1).trim();
+          primaryText = text.substring(dotIdx + 2).trim();
+        } else {
+          headline = text.substring(0, 40).trim();
+          primaryText = text;
+        }
+      } else {
+        headline = text;
+        primaryText = '';
+      }
+
+      // Build Claude review status
+      var claudeStatus = review ? 'success' : 'failed';
+      var claudeSummary = '';
+      var entryScore = 0;
+      var entryVerdict = 'PENDING';
+      var entryScores = {};
+      var entryIssues = [];
+      var entryFixes = [];
+      var entryDecision = 'needs_approval';
+
+      if (review) {
+        entryScore = review.total_score || 0;
+        entryVerdict = review.verdict || 'UNKNOWN';
+        entryScores = review.scores || {};
+        entryIssues = review.issues || [];
+        entryFixes = review.fixes || [];
+        entryDecision = autoDecision(entryScore);
+        claudeSummary = entryVerdict === 'PASS' ? 'Goedgekeurd voor menselijke review'
+          : entryVerdict === 'FAIL' ? 'Hoog risico - afgewezen door Claude'
+          : 'Aanpassing nodig - handmatige review vereist';
+      } else {
+        entryIssues = ['Claude API niet beschikbaar'];
+        claudeSummary = 'Claude review mislukt - handmatige review vereist';
+        console.error('[ContentReview] Claude review failed for slot ' + slotName + ', marking as needs_approval');
+      }
+
+      // Create approval queue item if needed
+      var aqId = null;
+      if (entryDecision === 'auto_approved') {
+        await store.set('content:approved:' + dateStr + ':' + slotName, JSON.stringify({
+          brief: brief, review: { score: entryScore, verdict: entryVerdict }, approvedAt: new Date().toISOString()
+        }), 86400);
+      } else if (entryDecision === 'needs_approval') {
+        var aqItem = await approvalQueue.createItem({
+          type: 'content_publish',
+          entityName: slotName + ' - ' + brief.product + '/' + brief.angle,
+          entityId: dateStr + ':' + slotName,
+          reason: 'Score ' + entryScore + '/25 needs manual approval',
+          metrics: { score: entryScore, verdict: entryVerdict },
+          expectedEffect: 'Approve creative for ' + slotName,
+          payload: { brief: brief }
+        });
+        aqId = aqItem ? aqItem.id : null;
+      }
+
+      // Persist brief with real brf_ ID in Redis
+      var storedBrief = await briefStore.createBrief({
+        dateStr: dateStr,
+        slot: slotName,
+        product: brief.product || '',
+        angle: brief.angle || '',
+        headline: headline,
+        primary_text: primaryText,
+        hook: brief.hook || '',
+        cta: brief.cta || '',
+        market: brief.market || 'NL',
+        score: entryScore,
+        verdict: entryVerdict,
+        scores: entryScores,
+        issues: entryIssues,
+        fixes: entryFixes,
+        decision: entryDecision,
+        claude_status: claudeStatus,
+        claude_review_summary: claudeSummary,
+        approval_queue_id: aqId,
+        raw_brief: brief
+      });
+
+      console.log('[ContentReview] Brief created:', storedBrief.brief_id, 'slot:', slotName, 'score:', entryScore, 'decision:', entryDecision);
+
+      // Record in content memory
+      if (entryDecision === 'auto_approved') {
+        await memory.recordApproval(storedBrief.brief_id, 'Auto-approved (score ' + entryScore + '/25)');
+      } else if (entryDecision === 'auto_rejected') {
+        await memory.recordRejection(storedBrief.brief_id, 'Auto-rejected (score ' + entryScore + '/25): ' + entryIssues.join('; '));
+      }
+
       var entry = {
         slot: slotName,
         product: brief.product,
         angle: brief.angle,
         text: text,
-        briefId: brief.slot + '_' + dateStr
+        headline: headline,
+        primary_text: primaryText,
+        brief_id: storedBrief.brief_id,
+        score: entryScore,
+        verdict: entryVerdict,
+        scores: entryScores,
+        issues: entryIssues,
+        fixes: entryFixes,
+        decision: entryDecision,
+        claude_status: claudeStatus,
+        claude_review_summary: claudeSummary
       };
-
-      if (review) {
-        entry.score = review.total_score || 0;
-        entry.verdict = review.verdict || 'UNKNOWN';
-        entry.scores = review.scores || {};
-        entry.issues = review.issues || [];
-        entry.fixes = review.fixes || [];
-        entry.decision = autoDecision(entry.score);
-      } else {
-        // Claude unavailable: hold as needs_approval
-        entry.score = 0;
-        entry.verdict = 'PENDING';
-        entry.scores = {};
-        entry.issues = ['Claude API unavailable'];
-        entry.fixes = [];
-        entry.decision = 'needs_approval';
-      }
-
-      // Execute decision
-      if (entry.decision === 'auto_approved') {
-        await store.set('content:approved:' + dateStr + ':' + slotName, JSON.stringify({
-          brief: brief, review: entry, approvedAt: new Date().toISOString()
-        }), 86400);
-        await memory.recordApproval(entry.briefId, 'Auto-approved (score ' + entry.score + '/25)');
-      } else if (entry.decision === 'needs_approval') {
-        await approvalQueue.createItem({
-          type: 'content_publish',
-          entityName: slotName + ' - ' + brief.product + '/' + brief.angle,
-          entityId: dateStr + ':' + slotName,
-          reason: 'Score ' + entry.score + '/25 needs manual approval',
-          metrics: { score: entry.score, verdict: entry.verdict },
-          expectedEffect: 'Approve creative for ' + slotName,
-          payload: { brief: brief, review: entry }
-        });
-      } else {
-        await memory.recordRejection(entry.briefId, 'Auto-rejected (score ' + entry.score + '/25): ' + (entry.issues || []).join('; '));
-      }
 
       reviews.push(entry);
 
@@ -235,27 +310,21 @@ module.exports = async function handler(req, res) {
     // Store reviews in Redis
     await store.set('content:reviews:' + dateStr, JSON.stringify(reviews), 14 * 86400);
 
-    // Build and send Telegram review message
-    var tgLines = ['<b>CALQIX Content Review</b> - ' + dateStr + '\n'];
+    // Send one Telegram message per brief with inline buttons
+    console.log('[ContentReview] Sending', reviews.length, 'brief review messages to Telegram');
     for (var r = 0; r < reviews.length; r++) {
       var rv = reviews[r];
-      var statusEmoji = rv.decision === 'auto_approved' ? '\u2705' : rv.decision === 'auto_rejected' ? '\u274c' : '\u23f3';
-      var statusText = rv.decision === 'auto_approved' ? 'Auto-approved' : rv.decision === 'auto_rejected' ? 'Auto-rejected' : 'Awaiting approval';
-
-      tgLines.push((r + 1) + '. <b>' + (rv.product || '') + '</b> - ' + (rv.angle || ''));
-      tgLines.push('   Score: ' + rv.score + '/25 - ' + (rv.verdict || 'N/A'));
-      tgLines.push('   Text: "' + (rv.text || '').substring(0, 80) + (rv.text && rv.text.length > 80 ? '...' : '') + '"');
-      tgLines.push('   Issues: ' + (rv.issues && rv.issues.length > 0 ? rv.issues.join(', ') : 'None'));
-      tgLines.push('   Status: ' + statusEmoji + ' ' + statusText);
-      tgLines.push('');
+      try {
+        await sendBriefReview(rv, r + 1, reviews.length);
+        console.log('[ContentReview] Sent review message for brief', rv.brief_id);
+      } catch (tgErr) {
+        console.error('[ContentReview] Failed to send Telegram for brief', rv.brief_id, ':', tgErr.message);
+      }
+      // Small delay between Telegram messages to avoid rate limits
+      if (r < reviews.length - 1) {
+        await new Promise(function (wait) { setTimeout(wait, 500); });
+      }
     }
-
-    var pendingReviews = reviews.filter(function (rv) { return rv.decision === 'needs_approval'; });
-    if (pendingReviews.length > 0) {
-      tgLines.push('Reply /approve {brief_id} or /reject {brief_id}');
-    }
-
-    await sendTelegram(tgLines.join('\n'));
 
     // Update plan status
     plan.status = 'reviewed';
@@ -267,7 +336,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       date: dateStr,
-      reviews: reviews.map(function (rv) { return { slot: rv.slot, score: rv.score, decision: rv.decision, verdict: rv.verdict }; }),
+      reviews: reviews.map(function (rv) { return { slot: rv.slot, brief_id: rv.brief_id, score: rv.score, decision: rv.decision, verdict: rv.verdict }; }),
       pollResults: pollResults,
       auth_source: auth.source
     });

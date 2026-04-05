@@ -57,10 +57,8 @@ async function sendContentReview(plan, briefs, jobSummary) {
       jobSummary.failed + ' mislukt, ' + jobSummary.draftOnly + ' concept');
   }
 
-  // Approval controls
-  lines.push('\n\ud83d\udcdd <b>Acties:</b>');
-  lines.push('Goedkeuren: <code>' + BASE_URL + '/api/approval/approve?id={JOB_ID}</code>');
-  lines.push('Afwijzen: <code>' + BASE_URL + '/api/approval/reject?id={JOB_ID}</code>');
+  // Note: individual briefs are now sent as separate messages with inline buttons
+  lines.push('\n\ud83d\udcdd Individuele reviews worden hieronder verstuurd met knoppen.');
 
   var mode = process.env.CONTENT_AUTOMATION_MODE || 'DRAFT_ONLY';
   lines.push('\n\u2699\ufe0f Modus: <b>' + mode + '</b>');
@@ -436,8 +434,140 @@ function truncate(s, len) {
   return s.length > len ? s.substring(0, len - 3) + '...' : s;
 }
 
+/**
+ * Escape HTML special characters for safe Telegram HTML output.
+ */
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/**
+ * Send a single brief review to Telegram with structured layout and inline buttons.
+ * One message per brief — each with its own approve/reject/revise buttons.
+ *
+ * @param {object} review - review entry with brief_id, product, angle, headline, primary_text, score, verdict, issues, claude_review_summary, decision
+ * @param {number} itemNumber - 1-indexed position
+ * @param {number} totalItems - total number of briefs
+ * @returns {Promise<object>}
+ */
+async function sendBriefReview(review, itemNumber, totalItems) {
+  if (!review || !review.brief_id) {
+    console.error('[BriefReview] Cannot send review: missing brief_id');
+    return { sent: false, reason: 'missing_brief_id' };
+  }
+
+  var briefId = review.brief_id;
+  var product = escapeHtml(review.product || 'onbekend');
+  var angle = escapeHtml(review.angle || 'onbekend');
+  var slot = review.slot || '';
+  var score = review.score || 0;
+  var verdict = review.verdict || 'PENDING';
+  var decision = review.decision || 'needs_approval';
+
+  // Status emoji and text
+  var statusEmoji = decision === 'auto_approved' ? '\u2705'
+    : decision === 'auto_rejected' ? '\u274c' : '\u23f3';
+  var statusText = decision === 'auto_approved' ? 'Auto-goedgekeurd'
+    : decision === 'auto_rejected' ? 'Auto-afgewezen' : 'Wacht op goedkeuring';
+
+  // Verdict in Dutch
+  var verdictNl = verdict === 'PASS' ? 'GOEDGEKEURD'
+    : verdict === 'FAIL' ? 'AFGEKEURD'
+    : verdict === 'NEEDS_WORK' ? 'AANPASSING NODIG'
+    : verdict;
+
+  // Build structured message
+  var lines = [
+    '<b>' + itemNumber + '/' + totalItems + '. ' + product + ' - ' + angle + '</b>',
+    'Brief ID: <code>' + briefId + '</code>',
+    'Slot: ' + escapeHtml(slot) + ' | Score: ' + score + '/25 - ' + verdictNl,
+    ''
+  ];
+
+  // Headline
+  var headline = escapeHtml(review.headline || '');
+  if (headline) {
+    lines.push('<b>Headline:</b>');
+    lines.push('"' + truncate(headline, 80) + '"');
+    if (headline.length > 40) {
+      lines.push('\u26a0\ufe0f ' + headline.length + ' tekens (max 40)');
+    }
+    lines.push('');
+  }
+
+  // Primary text
+  var primaryText = escapeHtml(review.primary_text || '');
+  if (primaryText) {
+    lines.push('<b>Primaire tekst:</b>');
+    lines.push('"' + truncate(primaryText, 120) + '"');
+    if (primaryText.length > 125) {
+      lines.push('\u26a0\ufe0f ' + primaryText.length + ' tekens (max 125)');
+    }
+    lines.push('');
+  }
+
+  // Issues
+  var issues = review.issues || [];
+  if (issues.length > 0) {
+    lines.push('<b>Problemen:</b>');
+    for (var i = 0; i < Math.min(issues.length, 5); i++) {
+      lines.push('\u2022 ' + escapeHtml(issues[i]));
+    }
+    if (issues.length > 5) {
+      lines.push('... en ' + (issues.length - 5) + ' meer');
+    }
+    lines.push('');
+  }
+
+  // Claude review summary
+  var claudeSummary = review.claude_review_summary || '';
+  var claudeStatus = review.claude_status || 'pending';
+  if (claudeSummary || claudeStatus !== 'pending') {
+    lines.push('<b>Claude review:</b>');
+    if (claudeStatus === 'failed') {
+      lines.push('\u274c Review mislukt - handmatige beoordeling vereist');
+    } else if (claudeSummary) {
+      lines.push('\u2022 ' + escapeHtml(claudeSummary));
+    }
+    // Show suggested fixes if available
+    var fixes = review.fixes || [];
+    if (fixes.length > 0) {
+      for (var f = 0; f < Math.min(fixes.length, 3); f++) {
+        lines.push('  \u2192 ' + escapeHtml(fixes[f]));
+      }
+    }
+    lines.push('');
+  }
+
+  // Status line
+  lines.push('Status: ' + statusEmoji + ' ' + statusText);
+
+  var text = lines.join('\n');
+
+  // Build inline keyboard for pending items
+  var replyMarkup = null;
+  if (decision === 'needs_approval') {
+    replyMarkup = {
+      inline_keyboard: [
+        [
+          { text: '\u2705 Goedkeuren', callback_data: 'brief_approve:' + briefId },
+          { text: '\u274c Afwijzen', callback_data: 'brief_reject:' + briefId }
+        ],
+        [
+          { text: '\u270f\ufe0f Revisie', callback_data: 'brief_revise:' + briefId }
+        ]
+      ]
+    };
+  }
+
+  console.log('[BriefReview] Sending review for brief', briefId, 'decision:', decision);
+  return sendTelegram(text, replyMarkup);
+}
+
 module.exports = {
   sendContentReview: sendContentReview,
+  sendBriefReview: sendBriefReview,
   sendAdOptimizationReport: sendAdOptimizationReport,
   sendActionConfirmation: sendActionConfirmation,
   sendDailyCloseSummary: sendDailyCloseSummary,

@@ -4,6 +4,7 @@
  * Receives callback_query from inline keyboard buttons and text commands.
  * Handles:
  *   - content_approve:{postId} / content_reject:{postId}
+ *   - brief_approve:{briefId} / brief_reject:{briefId} / brief_revise:{briefId}
  *   - pub:{postId}:{facebook|instagram|both|queue}
  *   - adv:{advisoryId}:{safe|balanced|aggressive|refresh|skip}
  *   - advf:{advisoryId}:{optionIndex}
@@ -13,10 +14,12 @@
  *   - cb:regenerate:{id} / cb:cancel:{id} / cb:activate:{id} / cb:keep_paused:{id}
  *   - /limits, /set_adset_max, /set_daily_max, /set_campaign_max
  *   - /build_campaign, /preflight
+ *   - /approve {brief_id}, /reject {brief_id}
  */
 var fetch = require('node-fetch');
 var store = require('../../lib/store');
 var approvalQueue = require('../../lib/approval-queue');
+var briefStore = require('../../lib/brief-store');
 var dates = require('../../lib/dates');
 var socialPublisher = require('../../lib/social-publisher');
 var campaignBuilder = require('../../lib/campaign-builder');
@@ -98,6 +101,88 @@ async function handleContentAction(callbackId, chatId, action, postId) {
     await answerCallback(callbackId, 'Afgekeurd.');
     await sendMessage(chatId, 'Creative ' + postId.substring(0, 8) + '... afgekeurd.');
   }
+}
+
+// --- Brief approve/reject/revise (content review inline buttons) ---
+async function handleBriefAction(callbackId, chatId, messageId, action, briefId, fromUser) {
+  console.log('[TGCallback] Brief action:', action, 'briefId:', briefId, 'from:', fromUser ? fromUser.id : 'unknown');
+
+  if (!briefId || !briefId.startsWith('brf_')) {
+    console.error('[TGCallback] Invalid brief_id in callback:', briefId);
+    await answerCallback(callbackId, 'Ongeldig brief ID.');
+    return;
+  }
+
+  var telegramUserId = fromUser ? String(fromUser.id) : null;
+  var result;
+
+  if (action === 'brief_approve') {
+    result = await briefStore.approveBrief(briefId, telegramUserId);
+  } else if (action === 'brief_reject') {
+    result = await briefStore.rejectBrief(briefId, telegramUserId);
+  } else if (action === 'brief_revise') {
+    result = await briefStore.reviseBrief(briefId, telegramUserId);
+  } else {
+    await answerCallback(callbackId, 'Onbekende actie.');
+    return;
+  }
+
+  if (!result.brief) {
+    console.error('[TGCallback] Brief not found:', briefId);
+    await answerCallback(callbackId, 'Brief niet gevonden: ' + briefId);
+    return;
+  }
+
+  // Idempotency: already processed
+  if (result.alreadyProcessed) {
+    var existingStatus = result.brief.status || 'unknown';
+    await answerCallback(callbackId, 'Brief ' + briefId.substring(0, 12) + ' is al verwerkt (' + existingStatus + ').');
+    return;
+  }
+
+  // Also update approval queue item if linked
+  if (result.brief.approval_queue_id) {
+    try {
+      if (action === 'brief_approve') {
+        await approvalQueue.approveItem(result.brief.approval_queue_id, 'telegram:' + (telegramUserId || 'operator'));
+      } else if (action === 'brief_reject') {
+        await approvalQueue.rejectItem(result.brief.approval_queue_id, 'telegram:' + (telegramUserId || 'operator'), action);
+      }
+    } catch (aqErr) {
+      console.warn('[TGCallback] AQ update failed for', result.brief.approval_queue_id, ':', aqErr.message);
+    }
+  }
+
+  // Build confirmation
+  var emoji, statusNl;
+  if (action === 'brief_approve') {
+    emoji = '\u2705';
+    statusNl = 'goedgekeurd';
+  } else if (action === 'brief_reject') {
+    emoji = '\u274c';
+    statusNl = 'afgewezen';
+  } else {
+    emoji = '\u270f\ufe0f';
+    statusNl = 'revisie aangevraagd';
+  }
+
+  await answerCallback(callbackId, emoji + ' Brief ' + statusNl);
+
+  // Edit the original message to show the result (remove buttons)
+  if (messageId) {
+    var brief = result.brief;
+    var updatedText = emoji + ' <b>Brief ' + statusNl + '</b>\n\n' +
+      'Brief ID: <code>' + briefId + '</code>\n' +
+      'Product: ' + (brief.product || '') + ' | Hoek: ' + (brief.angle || '') + '\n' +
+      'Score: ' + (brief.score || 0) + '/25\n\n' +
+      'Beoordeeld door: ' + (telegramUserId ? 'Telegram user ' + telegramUserId : 'operator') + '\n' +
+      'Tijd: ' + new Date().toISOString();
+    await editMessageText(chatId, messageId, updatedText, null);
+  } else {
+    await sendMessage(chatId, emoji + ' Brief <code>' + briefId + '</code> ' + statusNl + '.');
+  }
+
+  console.log('[TGCallback] Brief', briefId, 'action completed:', action, 'status:', result.brief.status);
 }
 
 // --- Advisory choose ---
@@ -332,6 +417,48 @@ async function handleTextCommand(chatId, text) {
       await sendMessage(chatId, cmdKeys[i].replace('/set_', '').replace('_', ' ') + ' aangepast: EUR ' + amount);
       return true;
     }
+  }
+
+  // /approve <brief_id> fallback command
+  if (text.indexOf('/approve ') === 0) {
+    var approveBriefId = text.split(' ')[1];
+    if (!approveBriefId) {
+      await sendMessage(chatId, 'Gebruik: /approve &lt;brief_id&gt;');
+      return true;
+    }
+    var approveResult = await briefStore.approveBrief(approveBriefId, null);
+    if (!approveResult.brief) {
+      await sendMessage(chatId, '\u274c Brief niet gevonden: <code>' + approveBriefId + '</code>');
+    } else if (approveResult.alreadyProcessed) {
+      await sendMessage(chatId, 'Brief <code>' + approveBriefId + '</code> is al verwerkt (' + approveResult.brief.status + ').');
+    } else {
+      if (approveResult.brief.approval_queue_id) {
+        try { await approvalQueue.approveItem(approveResult.brief.approval_queue_id, 'telegram:command'); } catch (e) { /* ignore */ }
+      }
+      await sendMessage(chatId, '\u2705 Brief <code>' + approveBriefId + '</code> goedgekeurd.');
+    }
+    return true;
+  }
+
+  // /reject <brief_id> fallback command
+  if (text.indexOf('/reject ') === 0) {
+    var rejectBriefId = text.split(' ')[1];
+    if (!rejectBriefId) {
+      await sendMessage(chatId, 'Gebruik: /reject &lt;brief_id&gt;');
+      return true;
+    }
+    var rejectResult = await briefStore.rejectBrief(rejectBriefId, null);
+    if (!rejectResult.brief) {
+      await sendMessage(chatId, '\u274c Brief niet gevonden: <code>' + rejectBriefId + '</code>');
+    } else if (rejectResult.alreadyProcessed) {
+      await sendMessage(chatId, 'Brief <code>' + rejectBriefId + '</code> is al verwerkt (' + rejectResult.brief.status + ').');
+    } else {
+      if (rejectResult.brief.approval_queue_id) {
+        try { await approvalQueue.rejectItem(rejectResult.brief.approval_queue_id, 'telegram:command', 'rejected via /reject'); } catch (e) { /* ignore */ }
+      }
+      await sendMessage(chatId, '\u274c Brief <code>' + rejectBriefId + '</code> afgewezen.');
+    }
+    return true;
   }
 
   return false;
@@ -918,10 +1045,20 @@ module.exports = async function handler(req, res) {
 
       console.log('[TGCallback] callback_query:', data);
 
-      // Content approve/reject
+      // Content approve/reject (creative previews)
       if (data.indexOf('content_approve:') === 0 || data.indexOf('content_reject:') === 0) {
         var parts = data.split(':');
         await handleContentAction(callbackId, chatId, parts[0], parts[1]);
+        return res.status(200).json({ ok: true });
+      }
+
+      // Brief approve/reject/revise (content review briefs)
+      if (data.indexOf('brief_approve:') === 0 || data.indexOf('brief_reject:') === 0 || data.indexOf('brief_revise:') === 0) {
+        var briefParts = data.split(':');
+        var briefAction = briefParts[0];
+        var briefId = briefParts[1];
+        var fromUser = cq.from || null;
+        await handleBriefAction(callbackId, chatId, messageId, briefAction, briefId, fromUser);
         return res.status(200).json({ ok: true });
       }
 
