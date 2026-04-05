@@ -21,7 +21,14 @@ var MARKET_LANGUAGE_MAP = {
   BE: { output_language: 'dutch', label: 'Nederlands', code: 'nl', locale: 'nl' },
   FR: { output_language: 'french', label: 'Frans', code: 'fr', locale: 'fr' },
   UK: { output_language: 'english', label: 'Engels', code: 'en', locale: 'en' },
-  US: { output_language: 'english', label: 'Engels', code: 'en', locale: 'en' }
+  US: { output_language: 'english', label: 'Engels', code: 'en', locale: 'en' },
+  CH: { output_language: 'german', label: 'Duits', code: 'de', locale: 'de' },
+  LU: { output_language: 'french', label: 'Frans', code: 'fr', locale: 'fr' },
+  SE: { output_language: 'swedish', label: 'Zweeds', code: 'sv', locale: 'sv' },
+  NO: { output_language: 'norwegian', label: 'Noors', code: 'nb', locale: 'nb' },
+  DK: { output_language: 'danish', label: 'Deens', code: 'da', locale: 'da' },
+  FI: { output_language: 'finnish', label: 'Fins', code: 'fi', locale: 'fi' },
+  IS: { output_language: 'icelandic', label: 'IJslands', code: 'is', locale: 'is' }
 };
 
 function getMarketLanguage(country) {
