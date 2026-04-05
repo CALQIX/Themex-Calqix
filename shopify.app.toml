@@ -1,0 +1,16 @@
+# CALQIX Shopify Custom App configuration
+# Linked to: calqix.myshopify.com
+# App: Settings > Apps > Develop apps > CALQIX (Dev Ops)
+
+name = "CALQIX"
+client_id = "ef2fe1590e32fed495daa2aba4d1de28"
+application_url = "https://calqix-capi.vercel.app"
+
+[access_scopes]
+scopes = "read_products,read_orders,read_markets,write_markets,read_shipping,write_shipping,read_locales,write_locales"
+
+[auth]
+redirect_urls = ["https://calqix-capi.vercel.app/api/auth/callback"]
+
+[webhooks]
+api_version = "2024-10"
