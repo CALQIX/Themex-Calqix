@@ -54,19 +54,35 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    console.log('[ShopifyOAuth] Token exchange starten voor shop:', shop);
+    // Use SHOPIFY_STORE_DOMAIN because Shopify may pass internal store ID (e.g. uipq4d-jj.myshopify.com)
+    // instead of the public domain (calqix.myshopify.com) in the shop query param
+    var storeDomain = (process.env.SHOPIFY_STORE_DOMAIN || shop || '').trim();
+    console.log('[ShopifyOAuth] Token exchange starten. shop param:', shop, '| using domain:', storeDomain);
 
-    var tokenResponse = await fetch('https://' + shop + '/admin/oauth/access_token', {
+    var tokenResponse = await fetch('https://' + storeDomain + '/admin/oauth/access_token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        client_id: clientId,
-        client_secret: clientSecret,
+        client_id: clientId.trim(),
+        client_secret: clientSecret.trim(),
         code: code
       })
     });
 
-    var tokenData = await tokenResponse.json();
+    var tokenText = await tokenResponse.text();
+    console.log('[ShopifyOAuth] Token response status:', tokenResponse.status, 'body preview:', tokenText.substring(0, 200));
+
+    var tokenData;
+    try {
+      tokenData = JSON.parse(tokenText);
+    } catch (parseErr) {
+      console.error('[ShopifyOAuth] Response is geen JSON:', tokenText.substring(0, 500));
+      return res.status(502).json({
+        error: 'Shopify retourneerde geen JSON',
+        status: tokenResponse.status,
+        body_preview: tokenText.substring(0, 300)
+      });
+    }
 
     if (!tokenResponse.ok || tokenData.errors) {
       console.error('[ShopifyOAuth] Token exchange mislukt:', JSON.stringify(tokenData));
