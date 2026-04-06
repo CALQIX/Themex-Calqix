@@ -2760,11 +2760,14 @@
                 #ccs-block-{{ block.id }} .ccs-swatch:hover .ccs-tooltip { opacity: 1; }
                 {% if b.custom_css != blank %}{{ b.custom_css }}{% endif %}
               </style>
+              {%- assign ccs_locale_root_url = routes.root_url | remove_last: '/' -%}
               {%- assign ccs_active_name = '' -%}
               {%- assign ccs_active_handle = '' -%}
               {%- for i in (1..6) -%}
                 {%- assign ccs_pk = 'swatch_' | append: i | append: '_product' -%}
                 {%- assign ccs_nk = 'swatch_' | append: i | append: '_name' -%}
+                {%- assign ccs_bk = 'swatch_' | append: i | append: '_border' -%}
+                {%- assign ccs_bcl = 'swatch_' | append: i | append: '_border_color' -%}
                 {%- assign ccs_product = b[ccs_pk] -%}
                 {%- if ccs_product != blank -%}
                   {%- assign ccs_resolved_handle = ccs_product.handle -%}
@@ -2834,6 +2837,8 @@
                       {%- if ccs_display_name == blank and ccs_product != blank -%}
                         {%- assign ccs_display_name = ccs_product.title -%}
                       {%- endif -%}
+                      {%- assign ccs_is_active = false -%}
+                      {%- if ccs_resolved_handle == product.handle -%}{%- assign ccs_is_active = true -%}{%- endif -%}
                       <a href="{{ ccs_locale_root_url }}/products/{{ ccs_resolved_handle }}"
                          class="ccs-swatch {% if ccs_is_active %}ccs-active{% endif %} {% if b[ccs_bk] %}ccs-swatch--bordered{% endif %}"
                          style="{% if b[ccs_bk] %}border-color: {{ b[ccs_bcl] }} !important;{% endif %}"
