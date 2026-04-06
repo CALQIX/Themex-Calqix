@@ -1719,7 +1719,7 @@
                     <variant-options
                       class="no-js-hidden wt-variant-options"
                       data-section="{{ section.id }}"
-                      data-url="{{ routes.root_url }}products/{{ product.handle }}"
+                      data-url="{{ routes.root_url | append: '/' | replace: '//', '/' }}products/{{ product.handle }}"
                       data-product-handle="{{ product.handle }}"
                       {% unless enabled_preselect %}
                         data-enabled-preselect="false"
@@ -2373,8 +2373,8 @@
                         {% assign option_name = nil %}
                         {% assign option_image = nil %}
                         {% assign option_color = nil %}
-                        {% assign locale_root_url = request.path | split: '/products/' | first %}
-                        {% capture localized_variant_url %}{{ locale_root_url }}/products/{{ variant.handle }}{% endcapture %}
+                        {% assign safe_root = routes.root_url | append: '/' | replace: '//', '/' %}
+                        {% capture localized_variant_url %}{{ safe_root }}products/{{ variant.handle }}{% endcapture %}
 
                         {% assign option_value = variant.metafields[metafield_namespace][metafield_key] %}
                         {% if option_value.type == 'metaobject_reference' %}
@@ -2760,7 +2760,6 @@
                 #ccs-block-{{ block.id }} .ccs-swatch:hover .ccs-tooltip { opacity: 1; }
                 {% if b.custom_css != blank %}{{ b.custom_css }}{% endif %}
               </style>
-              {%- assign ccs_locale_root_url = routes.root_url | remove_last: '/' -%}
               {%- assign ccs_active_name = '' -%}
               {%- assign ccs_active_handle = '' -%}
               {%- for i in (1..6) -%}
@@ -2839,7 +2838,8 @@
                       {%- endif -%}
                       {%- assign ccs_is_active = false -%}
                       {%- if ccs_resolved_handle == product.handle -%}{%- assign ccs_is_active = true -%}{%- endif -%}
-                      <a href="{{ ccs_locale_root_url }}/products/{{ ccs_resolved_handle }}"
+                      {%- assign safe_root = routes.root_url | append: '/' | replace: '//', '/' -%}
+                      <a href="{{ safe_root }}products/{{ ccs_resolved_handle }}"
                          class="ccs-swatch {% if ccs_is_active %}ccs-active{% endif %} {% if b[ccs_bk] %}ccs-swatch--bordered{% endif %}"
                          style="{% if b[ccs_bk] %}border-color: {{ b[ccs_bcl] }} !important;{% endif %}"
                          aria-label="{{ ccs_display_name }}" title="{{ ccs_display_name }}">
