@@ -1719,7 +1719,7 @@
                     <variant-options
                       class="no-js-hidden wt-variant-options"
                       data-section="{{ section.id }}"
-                      data-url="{{ product.url }}"
+                      data-url="{{ routes.root_url }}products/{{ product.handle }}"
                       data-product-handle="{{ product.handle }}"
                       {% unless enabled_preselect %}
                         data-enabled-preselect="false"

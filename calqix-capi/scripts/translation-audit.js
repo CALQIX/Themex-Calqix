@@ -164,6 +164,39 @@ async function scanAllMissing(locales) {
 }
 
 // ============================================================
+// STAP 2b: Filter — skip image/URL/video settings (should never be translated)
+// ============================================================
+
+var SKIP_KEY_PATTERNS = [
+  'image', 'logo', 'favicon', 'icon', 'video', 'background_video',
+  'background_image', 'desktop_image', 'mobile_image', 'badge_image',
+  'step_image', 'photo', 'thumbnail', 'poster'
+];
+
+function shouldSkipTranslation(key, value) {
+  // Skip keys that are image/video/icon settings
+  var keyLower = key.toLowerCase();
+  for (var i = 0; i < SKIP_KEY_PATTERNS.length; i++) {
+    if (keyLower.indexOf(SKIP_KEY_PATTERNS[i]) !== -1) return true;
+  }
+
+  // Skip values that are URLs (shopify://, http://, https://)
+  if (!value) return false;
+  var valTrimmed = value.trim();
+  if (valTrimmed.indexOf('shopify://') === 0) return true;
+  if (valTrimmed.indexOf('http://') === 0) return true;
+  if (valTrimmed.indexOf('https://') === 0) return true;
+
+  // Skip values that look like asset file references
+  var assetExtensions = ['.png', '.jpg', '.jpeg', '.svg', '.webp', '.gif', '.mp4', '.webm', '.mov'];
+  for (var j = 0; j < assetExtensions.length; j++) {
+    if (valTrimmed.indexOf(assetExtensions[j]) !== -1 && valTrimmed.length < 500) return true;
+  }
+
+  return false;
+}
+
+// ============================================================
 // STAP 3: Genereer vertalingen via Claude API
 // ============================================================
 
@@ -277,7 +310,15 @@ async function processAllMissing(allMissing) {
         var shortId = item.resourceId.split('/').pop();
         var context = type.toLowerCase() + ' ' + item.key;
 
-        process.stdout.write('  ' + shortId + '.' + item.key + ' -> ');
+        process.stdout.write('  ' + shortId + '.' + item.key + ':' + item.digest.substring(0, 13) + ' -> ');
+
+        // Skip image/URL/video settings — these should NEVER be translated
+        if (shouldSkipTranslation(item.key, item.value)) {
+          console.log('SKIP (image/URL/asset — niet vertalen)');
+          stats.perLocale[locale].errors++;
+          stats.totalErrors++;
+          continue;
+        }
 
         // Generate translation
         var translated = await translateWithClaude(item.value, locale, context);
