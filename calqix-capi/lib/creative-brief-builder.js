@@ -34,7 +34,7 @@ var AD_CONCEPTS = {
 async function buildBrief(planSlot, dateStr) {
   var productInfo = guardrails.getProduct(planSlot.product) || guardrails.BRAND.products[0];
   var copy = captionWriter.generateCopy(Object.assign({}, planSlot, { date: dateStr || '' }));
-  var language = planSlot.language || 'nl';
+  var language = planSlot.language || 'en';
   var marketInfo = planner.getMarketLanguage(planSlot.market || 'NL');
   var formatConfig = FORMAT_MAP[planSlot.funnelStage] || FORMAT_MAP.top_of_funnel;
   var adConcept = AD_CONCEPTS[planSlot.pillar] || AD_CONCEPTS.education;
@@ -92,11 +92,13 @@ async function buildBrief(planSlot, dateStr) {
     // Scheduling
     publishTime: planSlot.time || null,
 
-    // Market/Language
+    // Market/Language — organic content always English, ads in target language
     market: planSlot.market || 'NL',
     language: language,
-    output_language: marketInfo.output_language,
-    locale: marketInfo.locale,
+    output_language: planSlot.output_language || 'english',
+    locale: planSlot.locale || 'en',
+    ad_output_language: planSlot.ad_output_language || marketInfo.output_language,
+    ad_locale: planSlot.ad_locale || marketInfo.locale,
 
     // State
     status: 'brief_ready',

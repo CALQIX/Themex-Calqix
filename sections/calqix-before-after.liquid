@@ -21,6 +21,22 @@
       {% assign cba_eyebrow = 'Le parcours CALQIX' %}
       {% assign cba_title = 'Avant. En action. Après.' %}
       {% assign cba_dot_label = 'Aller à la slide' %}
+    {% when 'sv' %}
+      {% assign cba_eyebrow = 'CALQIX-resan' %}
+      {% assign cba_title = 'Fore. I aktion. Efter.' %}
+      {% assign cba_dot_label = 'Ga till bild' %}
+    {% when 'nb' %}
+      {% assign cba_eyebrow = 'CALQIX-reisen' %}
+      {% assign cba_title = 'For. I aksjon. Etter.' %}
+      {% assign cba_dot_label = 'Ga til lysbilde' %}
+    {% when 'da' %}
+      {% assign cba_eyebrow = 'CALQIX-rejsen' %}
+      {% assign cba_title = 'For. I aktion. Efter.' %}
+      {% assign cba_dot_label = 'Ga til slide' %}
+    {% when 'fi' %}
+      {% assign cba_eyebrow = 'CALQIX-matka' %}
+      {% assign cba_title = 'Ennen. Toiminnassa. Jalkeen.' %}
+      {% assign cba_dot_label = 'Siirry diaan' %}
   {% endcase %}
 {% endif %}
 <section id="cba-{{ section.id }}" class="cba-section">

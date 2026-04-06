@@ -61,6 +61,14 @@
       {% assign faq_a5 = 'Oui. Le FlowCore est étanche IPX7, ce qui signifie qu’il peut être entièrement immergé jusqu’à 1 mètre pendant 30 minutes. Son utilisation sous la douche est sûre. N’immergez pas le port de charge USB-C pendant la charge.' %}
       {% assign faq_q6 = 'Que contient la boîte ?' %}
       {% assign faq_a6 = 'Le FlowCore est livré avec un appareil, quatre embouts de rechange (standard, orthodontique, parodontal, nettoyeur de langue), un câble de charge USB-C, une trousse de voyage et un guide de démarrage rapide.' %}
+    {% when 'sv' %}
+      {% assign faq_heading = 'Vanliga fragor' %}
+    {% when 'nb' %}
+      {% assign faq_heading = 'Vanlige sporsmal' %}
+    {% when 'da' %}
+      {% assign faq_heading = 'Ofte stillede sporsmal' %}
+    {% when 'fi' %}
+      {% assign faq_heading = 'Usein kysytyt kysymykset' %}
   {% endcase %}
 {% endif %}
 <section id="calqix-product-faq-{{ section.id }}" class="calqix-product-faq">

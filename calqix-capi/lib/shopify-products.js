@@ -10,7 +10,7 @@
 var fetch = require('node-fetch');
 var store = require('./store');
 var { sendTelegram } = require('./telegram');
-var envValidator = require('./env-validator');
+var shopify = require('./shopify-admin');
 
 var CACHE_KEY = 'shopify:products';
 var CACHE_TTL = 6 * 3600; // 6 hours
@@ -25,12 +25,7 @@ var PRODUCT_MAP = {
 };
 
 function getStoreDomain() {
-  return process.env.SHOPIFY_STORE_DOMAIN || '';
-}
-
-function getAdminToken() {
-  var resolved = envValidator.resolveShopifyToken();
-  return resolved.token || '';
+  return (process.env.SHOPIFY_STORE_DOMAIN || '').trim();
 }
 
 /**
@@ -48,27 +43,8 @@ async function getProducts() {
     } catch (e) { /* cache corrupt, refetch */ }
   }
 
-  var domain = getStoreDomain();
-  var token = getAdminToken();
-  if (!domain || !token) {
-    console.warn('[ShopifyProducts] SHOPIFY_STORE_DOMAIN or SHOPIFY_ADMIN_ACCESS_TOKEN not set');
-    return [];
-  }
-
-  var url = 'https://' + domain + '/admin/api/2024-10/products.json?fields=id,title,handle,images,variants&limit=50';
-
   try {
-    var res = await fetch(url, {
-      method: 'GET',
-      headers: { 'X-Shopify-Access-Token': token }
-    });
-
-    if (!res.ok) {
-      console.error('[ShopifyProducts] API error:', res.status, res.statusText);
-      return [];
-    }
-
-    var data = await res.json();
+    var data = await shopify.rest('products.json?fields=id,title,handle,images,variants&limit=50');
     var products = (data.products || []).map(function (p) {
       return {
         id: p.id,

@@ -951,62 +951,6 @@ body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__trust {
 }
 
 
-/* ═══════════════════════════════════════════════════════════════
-   CRO: Trust Stack — shipping, guarantee, payment below ATC
-   ═══════════════════════════════════════════════════════════════ */
-
-@keyframes cq-trust-fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-body[class^="template-product"] .wt-product__info .calqix-trust-stack {
-  margin: 16px 0 8px;
-  padding: 14px 16px;
-  background: var(--calqix-off-white);
-  border-radius: 8px;
-  border: 1px solid var(--calqix-gray-light);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  animation: cq-trust-fade-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
-}
-
-body[class^="template-product"] .wt-product__info .calqix-trust-stack__item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  color: var(--calqix-navy);
-  line-height: 1.3;
-}
-
-body[class^="template-product"] .wt-product__info .calqix-trust-stack__item strong {
-  color: var(--calqix-navy-deep, #0f2438);
-}
-
-body[class^="template-product"] .wt-product__info .calqix-trust-stack__icon {
-  flex-shrink: 0;
-  color: var(--calqix-gold);
-}
-
-@media (max-width: 960px) {
-  body[class^="template-product"] .wt-product__info .calqix-trust-stack {
-    margin: 12px 0 6px;
-    padding: 12px 14px;
-    gap: 8px;
-  }
-
-  body[class^="template-product"] .wt-product__info .calqix-trust-stack__item {
-    font-size: 12px;
-    gap: 8px;
-  }
-
-  body[class^="template-product"] .wt-product__info .calqix-trust-stack__icon {
-    width: 16px;
-    height: 16px;
-  }
-}
 
 /* ═══════════════════════════════════════════════════════════════
    Mobile — prevent horizontal scroll on product pages

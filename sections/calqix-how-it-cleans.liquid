@@ -747,6 +747,30 @@
       {% assign chc_tablist_label = 'Étapes de nettoyage FlowCore' %}
       {% assign chc_progress_label = 'Progression des étapes de nettoyage FlowCore' %}
       {% assign chc_progress_button_label = 'Aller à l’étape' %}
+    {% when 'sv' %}
+      {% assign chc_eyebrow_text = 'Mekanismen' %}
+      {% assign chc_heading_text = 'Hur FlowCore rengor dar borstning inte nar.' %}
+      {% assign chc_tablist_label = 'FlowCore rengoringssteg' %}
+      {% assign chc_progress_label = 'Framsteg for FlowCore-rengoringssteg' %}
+      {% assign chc_progress_button_label = 'Ga till steg' %}
+    {% when 'nb' %}
+      {% assign chc_eyebrow_text = 'Mekanismen' %}
+      {% assign chc_heading_text = 'Hvordan FlowCore rengjor der borsting ikke nar.' %}
+      {% assign chc_tablist_label = 'FlowCore rengjoringsteg' %}
+      {% assign chc_progress_label = 'Fremgang for FlowCore-rengjoring' %}
+      {% assign chc_progress_button_label = 'Ga til trinn' %}
+    {% when 'da' %}
+      {% assign chc_eyebrow_text = 'Mekanismen' %}
+      {% assign chc_heading_text = 'Hvordan FlowCore renser, hvor borstning ikke naar.' %}
+      {% assign chc_tablist_label = 'FlowCore rensningssteg' %}
+      {% assign chc_progress_label = 'Fremgang for FlowCore-rensning' %}
+      {% assign chc_progress_button_label = 'Ga til trin' %}
+    {% when 'fi' %}
+      {% assign chc_eyebrow_text = 'Mekanismi' %}
+      {% assign chc_heading_text = 'Miten FlowCore puhdistaa sinne, minne harjaus ei ylla.' %}
+      {% assign chc_tablist_label = 'FlowCore-puhdistusvaiheet' %}
+      {% assign chc_progress_label = 'FlowCore-puhdistusvaiheiden edistyminen' %}
+      {% assign chc_progress_button_label = 'Siirry vaiheeseen' %}
   {% endcase %}
 {% endif %}
 <section id="calqix-how-it-cleans-{{ section.id }}" class="calqix-how-it-cleans">
@@ -793,6 +817,50 @@
                       {% assign chc_pill_label = '03 Rincer' %}
                     {% when 4 %}
                       {% assign chc_pill_label = '04 Résultat' %}
+                  {% endcase %}
+                {% when 'sv' %}
+                  {% case forloop.index %}
+                    {% when 1 %}
+                      {% assign chc_pill_label = '01 Positionera' %}
+                    {% when 2 %}
+                      {% assign chc_pill_label = '02 Penetrera' %}
+                    {% when 3 %}
+                      {% assign chc_pill_label = '03 Skoljning' %}
+                    {% when 4 %}
+                      {% assign chc_pill_label = '04 Resultat' %}
+                  {% endcase %}
+                {% when 'nb' %}
+                  {% case forloop.index %}
+                    {% when 1 %}
+                      {% assign chc_pill_label = '01 Posisjonere' %}
+                    {% when 2 %}
+                      {% assign chc_pill_label = '02 Trenge inn' %}
+                    {% when 3 %}
+                      {% assign chc_pill_label = '03 Skylle' %}
+                    {% when 4 %}
+                      {% assign chc_pill_label = '04 Resultat' %}
+                  {% endcase %}
+                {% when 'da' %}
+                  {% case forloop.index %}
+                    {% when 1 %}
+                      {% assign chc_pill_label = '01 Positionere' %}
+                    {% when 2 %}
+                      {% assign chc_pill_label = '02 Penetrere' %}
+                    {% when 3 %}
+                      {% assign chc_pill_label = '03 Skylle' %}
+                    {% when 4 %}
+                      {% assign chc_pill_label = '04 Resultat' %}
+                  {% endcase %}
+                {% when 'fi' %}
+                  {% case forloop.index %}
+                    {% when 1 %}
+                      {% assign chc_pill_label = '01 Asemointi' %}
+                    {% when 2 %}
+                      {% assign chc_pill_label = '02 Tunkeutuminen' %}
+                    {% when 3 %}
+                      {% assign chc_pill_label = '03 Huuhtelu' %}
+                    {% when 4 %}
+                      {% assign chc_pill_label = '04 Tulos' %}
                   {% endcase %}
               {% endcase %}
             {% endif %}

@@ -1,0 +1,92 @@
+{
+  "overall_score": 87,
+  "emq_grade": "B",
+  "scores": {
+    "user_data_coverage": {
+      "score": 9,
+      "detail": "Excellent coverage of all Meta EMQ parameters (em, ph, fn, ln, ct, st, zp, country, external_id, fbc, fbp). Smart fallback chain from multiple sources (customer, billing, shipping). Anonymous ID generation for unauthenticated users. Only missing client_user_agent in view-content.js."
+    },
+    "event_id_dedup": {
+      "score": 10,
+      "detail": "Perfect deterministic event_id strategy. Shared formats between Custom Pixel and webhooks: ic_{checkout_token} for InitiateCheckout, purchase_{checkout_token} for Purchase. Proper dedup guards with Redis storage and 48h TTL."
+    },
+    "hashing": {
+      "score": 9,
+      "detail": "Correct SHA256 implementation with proper normalization. Phone numbers normalized to E.164 format with country code handling. Text fields properly sanitized (lowercase, diacritics removed). Minor: could add more robust international phone validation."
+    },
+    "custom_data": {
+      "score": 8,
+      "detail": "Good custom_data structure with content_ids, content_type, value, currency, num_items. Contents array with quantities and prices. Minor inconsistencies in content_type selection (product vs product_group) and some optional fields could be more consistently populated."
+    },
+    "action_source": {
+      "score": 10,
+      "detail": "Always correctly set to 'website' in buildEvent function across all event types."
+    },
+    "event_time": {
+      "score": 10,
+      "detail": "Correctly using Math.floor(Date.now() / 1000) for Unix timestamp in seconds, not milliseconds."
+    },
+    "recovery": {
+      "score": 9,
+      "detail": "Sophisticated retry system with QStash scheduling, proper state machine, exponential backoff logic, and max retry limits. Recovery queue prevents duplicate retries. Only minor issue: could add jitter to prevent thundering herd."
+    },
+    "pii_safety": {
+      "score": 8,
+      "detail": "Good PII protection - only logs boolean flags for data presence, not raw values. Event IDs truncated in logs. Minor: some customer identifiers could be further obfuscated in diagnostics."
+    },
+    "test_event_code": {
+      "score": 10,
+      "detail": "Properly implemented in meta-capi.js - adds test_event_code to payload when META_TEST_EVENT_CODE env var is present."
+    },
+    "error_handling": {
+      "score": 9,
+      "detail": "Webhooks correctly return 200 status even on internal errors to prevent Shopify retries. Good error logging without exposing sensitive data. Minor: some endpoints could benefit from more granular error categorization."
+    }
+  },
+  "critical_issues": [
+    {
+      "file": "api/view-content.js",
+      "line_hint": "Missing client_user_agent extraction",
+      "issue": "ViewContent endpoint doesn't extract client_user_agent from request headers, reducing match quality compared to other endpoints",
+      "fix": "Add clientUserAgent extraction similar to other endpoints: const clientUserAgent = req.headers && req.headers['user-agent'];",
+      "auto_fixable": true
+    },
+    {
+      "file": "lib/hash.js",
+      "line_hint": "normalizePhone function",
+      "issue": "Phone normalization assumes NL (31) as default country code, which may not be appropriate for all markets",
+      "fix": "Make default country code configurable via environment variable or detect from order/customer data",
+      "auto_fixable": false
+    }
+  ],
+  "warnings": [
+    {
+      "file": "api/checkout-event.js",
+      "issue": "CORS set to '*' for Custom Pixel compatibility",
+      "recommendation": "Consider restricting to specific Shopify domains once Custom Pixel origin patterns are confirmed"
+    },
+    {
+      "file": "assets/calqix-meta-bridge.js",
+      "issue": "Browser script truncated in audit - unable to verify complete implementation",
+      "recommendation": "Ensure browser bridge properly handles all edge cases for fbclid persistence and cart attribute sync"
+    },
+    {
+      "file": "lib/webhook-utils.js",
+      "issue": "Complex body reconstruction logic for webhook verification",
+      "recommendation": "Monitor for edge cases in Vercel's request handling that might break HMAC verification"
+    }
+  ],
+  "strengths": [
+    "Comprehensive user data collection from multiple fallback sources",
+    "Sophisticated event state management with proper retry logic",
+    "Deterministic event_id strategy enabling perfect deduplication",
+    "Proper Meta CAPI parameter formatting and hashing",
+    "PII-safe logging and diagnostics system",
+    "Robust webhook verification and error handling"
+  ],
+  "top_3_improvements": [
+    "Add client_user_agent to ViewContent endpoint to match other events",
+    "Make default country code configurable instead of hardcoding NL",
+    "Add more comprehensive phone number validation for international formats"
+  ]
+}

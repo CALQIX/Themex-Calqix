@@ -42,9 +42,9 @@ function buildPayload(brief) {
     badge_text: brief.badge || '',
     value_claims: brief.valueClaims || '',
 
-    // Language: brief text is English master, Predis translates to target market
+    // Language: organic content always English, ads use ad_output_language
     input_language: 'english',
-    output_language: brief.output_language || 'dutch',
+    output_language: brief.output_language || 'english',
 
     // Brand overrides
     brand_name: guardrails.BRAND.name,
@@ -62,8 +62,10 @@ function buildPayload(brief) {
       confidence: brief.confidence,
       metaBacked: brief.metaBacked,
       market: brief.market || 'NL',
-      output_language: brief.output_language || 'dutch',
-      locale: brief.locale || 'nl'
+      output_language: brief.output_language || 'english',
+      ad_output_language: brief.ad_output_language || 'dutch',
+      locale: brief.locale || 'en',
+      ad_locale: brief.ad_locale || 'nl'
     }
   };
 }
@@ -100,8 +102,24 @@ function validatePayload(payload) {
   return { valid: errors.length === 0, errors: errors };
 }
 
+/**
+ * Build an ad-specific payload using the target market's native language.
+ * Used when the ad optimizer creates new ad creatives for a specific country.
+ * @param {object} brief - from creative-brief-builder
+ * @returns {object} Predis API payload with native language output
+ */
+function buildAdPayload(brief) {
+  var payload = buildPayload(brief);
+  payload.output_language = brief.ad_output_language || 'dutch';
+  payload._meta.output_language = brief.ad_output_language || 'dutch';
+  payload._meta.locale = brief.ad_locale || 'nl';
+  payload._meta.is_ad = true;
+  return payload;
+}
+
 module.exports = {
   buildPayload: buildPayload,
+  buildAdPayload: buildAdPayload,
   buildAllPayloads: buildAllPayloads,
   validatePayload: validatePayload
 };

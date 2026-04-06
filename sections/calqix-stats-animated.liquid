@@ -36,6 +36,34 @@
       {% assign csa_label_3 = 'Plus efficace que le fil dentaire' %}
       {% assign csa_label_4 = 'Nettoyage interdentaire plus profond' %}
       {% assign csa_link_label = 'Voir l’ensemble des preuves cliniques' %}
+    {% when 'sv' %}
+      {% assign csa_label_1 = 'Plackborttagning' %}
+      {% assign csa_label_2 = 'Subgingival rackning' %}
+      {% assign csa_source_2 = 'Under tandkottsranden' %}
+      {% assign csa_label_3 = 'Battre an tandtrad' %}
+      {% assign csa_label_4 = 'Djupare interdental rengoring' %}
+      {% assign csa_link_label = 'Se hela den kliniska evidensen' %}
+    {% when 'nb' %}
+      {% assign csa_label_1 = 'Plakkfjerning' %}
+      {% assign csa_label_2 = 'Subgingival rekkevidde' %}
+      {% assign csa_source_2 = 'Under tannkjottranden' %}
+      {% assign csa_label_3 = 'Bedre enn tanntrad' %}
+      {% assign csa_label_4 = 'Dypere interdental rengjoring' %}
+      {% assign csa_link_label = 'Se all klinisk dokumentasjon' %}
+    {% when 'da' %}
+      {% assign csa_label_1 = 'Plakfjernelse' %}
+      {% assign csa_label_2 = 'Subgingival rakkevidde' %}
+      {% assign csa_source_2 = 'Under tandkodskanten' %}
+      {% assign csa_label_3 = 'Bedre end tandtrad' %}
+      {% assign csa_label_4 = 'Dybere interdental rensning' %}
+      {% assign csa_link_label = 'Se den fulde kliniske evidens' %}
+    {% when 'fi' %}
+      {% assign csa_label_1 = 'Plakin poisto' %}
+      {% assign csa_label_2 = 'Subgingivaalinen ulottuvuus' %}
+      {% assign csa_source_2 = 'Ikenreunan alle' %}
+      {% assign csa_label_3 = 'Parempi kuin hammaslanka' %}
+      {% assign csa_label_4 = 'Syvempi hammasvalienpuhdistus' %}
+      {% assign csa_link_label = 'Katso kaikki kliiniset todisteet' %}
   {% endcase %}
 {% endif %}
 <section id="calqix-stats-animated-{{ section.id }}" class="calqix-stats-animated">

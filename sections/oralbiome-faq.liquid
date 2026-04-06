@@ -78,7 +78,7 @@
 
 {%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
 {%- assign _ob_faq_translated = false -%}
-{%- if _ob_lang == 'nl' or _ob_lang == 'de' or _ob_lang == 'fr' -%}
+{%- if _ob_lang == 'nl' or _ob_lang == 'de' or _ob_lang == 'fr' or _ob_lang == 'sv' or _ob_lang == 'nb' or _ob_lang == 'da' or _ob_lang == 'fi' -%}
   {%- assign _ob_faq_translated = true -%}
 {%- endif -%}
 

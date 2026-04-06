@@ -77,7 +77,7 @@
 </style>
 
 {%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
-{%- if _ob_lang == 'nl' or _ob_lang == 'de' or _ob_lang == 'fr' -%}
+{%- if _ob_lang == 'nl' or _ob_lang == 'de' or _ob_lang == 'fr' or _ob_lang == 'sv' or _ob_lang == 'nb' or _ob_lang == 'da' or _ob_lang == 'fi' -%}
   {%- assign _su_eyebrow = 'calqix_oralbiome.safety.eyebrow' | t -%}
   {%- assign _su_heading = 'calqix_oralbiome.safety.heading' | t -%}
   {%- assign _su_intro = 'calqix_oralbiome.safety.intro' | t -%}

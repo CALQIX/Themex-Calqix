@@ -28,11 +28,27 @@ var MARKET_LANGUAGE_MAP = {
   NO: { output_language: 'norwegian', label: 'Noors', code: 'nb', locale: 'nb' },
   DK: { output_language: 'danish', label: 'Deens', code: 'da', locale: 'da' },
   FI: { output_language: 'finnish', label: 'Fins', code: 'fi', locale: 'fi' },
-  IS: { output_language: 'icelandic', label: 'IJslands', code: 'is', locale: 'is' }
+  IS: { output_language: 'english', label: 'Engels', code: 'en', locale: 'en' }
 };
 
 function getMarketLanguage(country) {
   return MARKET_LANGUAGE_MAP[country] || MARKET_LANGUAGE_MAP.NL;
+}
+
+/**
+ * Get ad-specific language for a country (native language for paid ads).
+ * Content posts always use English; ads use the target market language.
+ */
+function getAdLanguage(country) {
+  var ml = MARKET_LANGUAGE_MAP[country] || MARKET_LANGUAGE_MAP.NL;
+  return { output_language: ml.output_language, label: ml.label, code: ml.code, locale: ml.locale };
+}
+
+/**
+ * Get content language (always English for organic posts).
+ */
+function getContentLanguage() {
+  return { output_language: 'english', label: 'Engels', code: 'en', locale: 'en' };
 }
 
 var DEFAULT_MARKET = { country: 'NL', output_language: 'dutch', label: 'Nederlands', code: 'nl', locale: 'nl' };
@@ -192,9 +208,11 @@ function assignSlot(slotName, angleScores, pillarScores, productScores, usedAngl
     metaBacked: metaBacked,
     productMetaBacked: productMetaBacked,
     market: market ? market.country : DEFAULT_MARKET.country,
-    language: market ? market.code : DEFAULT_MARKET.code,
-    output_language: market ? market.output_language : DEFAULT_MARKET.output_language,
-    locale: market ? market.locale : DEFAULT_MARKET.locale,
+    language: 'en',
+    output_language: 'english',
+    locale: 'en',
+    ad_output_language: market ? market.output_language : DEFAULT_MARKET.output_language,
+    ad_locale: market ? market.locale : DEFAULT_MARKET.locale,
     platform: 'instagram',
     status: 'planned'
   };
@@ -335,5 +353,7 @@ module.exports = {
   SLOT_CONFIGS: SLOT_CONFIGS,
   MARKET_LANGUAGE_MAP: MARKET_LANGUAGE_MAP,
   getMarketLanguage: getMarketLanguage,
+  getAdLanguage: getAdLanguage,
+  getContentLanguage: getContentLanguage,
   generateDailyPlan: generateDailyPlan
 };

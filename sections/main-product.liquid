@@ -12,7 +12,7 @@
 {% assign cq_is_translated_flowcore = false %}
 {% if cq_is_flowcore %}
   {% case cq_lang %}
-    {% when 'nl', 'de', 'fr' %}
+    {% when 'nl', 'de', 'fr', 'sv', 'nb', 'da', 'fi' %}
       {% assign cq_is_translated_flowcore = true %}
   {% endcase %}
 {% endif %}
@@ -23,7 +23,7 @@
 {% assign cq_is_translated_oralbiome = false %}
 {% if cq_is_oralbiome %}
   {% case cq_lang %}
-    {% when 'nl', 'de', 'fr' %}
+    {% when 'nl', 'de', 'fr', 'sv', 'nb', 'da', 'fi' %}
       {% assign cq_is_translated_oralbiome = true %}
   {% endcase %}
 {% endif %}
@@ -473,7 +473,7 @@
         }
       </script>
 
-      <div data-gallery class="{% if section.settings.enable-image-zoom %}photoswipe{% endif %}">
+      <div data-gallery class="{% if section.settings.enable_image_zoom %}photoswipe{% endif %}">
         <div class="card__badges card__badges--product">
           {% assign custom-badge-1-input = settings['custom-badge-1-input'] | downcase %}
           {% assign custom-badge-2-input = settings['custom-badge-2-input'] | downcase %}
@@ -737,11 +737,11 @@
                           sizes="(min-width: 900px) 50vw, 100vw"
                           src="{{ media.preview_image | image_url: width: 600 }}"
                           alt="{{ media.alt | default: product.title | escape }}"
+                          loading="lazy"
                           width="1100"
                           height="{{ 1100 | divided_by: media.preview_image.aspect_ratio | ceil }}"
                           data-media-id="{{ media.id }}"
                           class="wt-product__img"
-                          loading="lazy"
                         >
                       </div>
                       <div class="hidden">
@@ -1517,7 +1517,7 @@
                 >
                   {% if block.settings.custom_option_type == 'dropdown' %}
                     <div class="wt-product__option__title {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}">
-                      <span class="label">{{ block.settings.heading }}</span>: <strong class="value"></strong>
+                      <span class="label">{{ options.first }}</span>: <strong class="value"></strong>
                     </div>
                     <button
                       aria-label="{{ options.first }}"
@@ -2053,42 +2053,6 @@
                     <p class="product-form__error-message"></p>
                   </div>
                 </product-form>
-                {%- comment -%}CRO: Trust stack below ATC button{%- endcomment -%}
-                <div class="calqix-trust-stack">
-                  <div class="calqix-trust-stack__item">
-                    <svg class="calqix-trust-stack__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-                    <span>
-                      {%- case cq_lang -%}
-                        {%- when 'nl' -%}<strong>Gratis verzending</strong> vanaf €30
-                        {%- when 'de' -%}<strong>Kostenloser Versand</strong> ab €30
-                        {%- when 'fr' -%}<strong>Livraison gratuite</strong> des €30
-                        {%- else -%}<strong>Free shipping</strong> from €30
-                      {%- endcase -%}
-                    </span>
-                  </div>
-                  <div class="calqix-trust-stack__item">
-                    <svg class="calqix-trust-stack__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    <span>
-                      {%- case cq_lang -%}
-                        {%- when 'nl' -%}<strong>30 dagen</strong> niet-goed-geld-terug
-                        {%- when 'de' -%}<strong>30 Tage</strong> Geld-zuruck-Garantie
-                        {%- when 'fr' -%}<strong>30 jours</strong> satisfait ou rembourse
-                        {%- else -%}<strong>30-day</strong> money-back guarantee
-                      {%- endcase -%}
-                    </span>
-                  </div>
-                  <div class="calqix-trust-stack__item">
-                    <svg class="calqix-trust-stack__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                    <span>
-                      {%- case cq_lang -%}
-                        {%- when 'nl' -%}<strong>Veilig betalen</strong> iDEAL, PayPal, Klarna
-                        {%- when 'de' -%}<strong>Sicher bezahlen</strong> PayPal, Klarna, Karte
-                        {%- when 'fr' -%}<strong>Paiement securise</strong> PayPal, Klarna, CB
-                        {%- else -%}<strong>Secure checkout</strong> PayPal, Klarna, card
-                      {%- endcase -%}
-                    </span>
-                  </div>
-                </div>
               </div>
 
             {%- when 'pickup-availability' -%}
@@ -2369,7 +2333,7 @@
                 {% assign option_metaobject = current_option.value %}
                 {% assign option_name = option_metaobject.label %}
               {% elsif current_option.type == 'single_line_text_field' %}
-                {% assign option_name = current_option.value %}
+                {% assign option_name = current_option %}
               {% endif %}
 
               {% if block.settings.picker_type == 'button' %}
@@ -2843,7 +2807,6 @@
                     {{ ccs_label_text }}
                   {%- endif -%}
                 </div>
-                {%- assign ccs_locale_root_url = request.path | split: '/products/' | first -%}
                 <div class="ccs-swatches">
                   {%- for i in (1..6) -%}
                     {%- assign ccs_pk  = 'swatch_' | append: i | append: '_product' -%}
@@ -2871,8 +2834,6 @@
                       {%- if ccs_display_name == blank and ccs_product != blank -%}
                         {%- assign ccs_display_name = ccs_product.title -%}
                       {%- endif -%}
-                      {%- assign ccs_is_active = false -%}
-                      {%- if ccs_resolved_handle == product.handle -%}{%- assign ccs_is_active = true -%}{%- endif -%}
                       <a href="{{ ccs_locale_root_url }}/products/{{ ccs_resolved_handle }}"
                          class="ccs-swatch {% if ccs_is_active %}ccs-active{% endif %} {% if b[ccs_bk] %}ccs-swatch--bordered{% endif %}"
                          style="{% if b[ccs_bk] %}border-color: {{ b[ccs_bcl] }} !important;{% endif %}"
@@ -3101,8 +3062,7 @@
                   <script type="module" src="{{ 'slider.js' | asset_url }}" defer="defer"></script>
 
                   <slideshow-section class="wt-slider wt-product-video-reels__wrapper">
-                      <div data-swiper
-                           class="wt-product-video-reels__container wt-slider__container wt-slider__container--video-carousel">
+                      <div data-swiper-container class="wt-product-video-reels__container wt-slider__container wt-slider__container--video-carousel">
                           <div data-swiper-container class="video-reels__container">
                               {%- comment -%}
                                 Loop through indexes 1..5 and render each video only if it exists
@@ -3475,6 +3435,10 @@
               {%- when 'nl' -%}✓ Gratis verzending vanaf €30 · 30 dagen retour
               {%- when 'de' -%}✓ Kostenloser Versand ab €30 · 30 Tage Ruckgabe
               {%- when 'fr' -%}✓ Livraison gratuite des €30 · Retour sous 30 jours
+              {%- when 'sv' -%}✓ Fri frakt fran 300 kr · 30 dagars retur
+              {%- when 'nb' -%}✓ Gratis frakt fra 300 kr · 30 dagers retur
+              {%- when 'da' -%}✓ Gratis fragt fra 250 kr · 30 dages retur
+              {%- when 'fi' -%}✓ Ilmainen toimitus yli 30 € · 30 paivan palautus
               {%- else -%}✓ Free shipping from €30 · 30-day returns
             {%- endcase -%}
           {%- endif -%}

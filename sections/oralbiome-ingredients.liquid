@@ -193,12 +193,16 @@
 {%- assign _ob_ingr_eyebrow = section.settings.eyebrow -%}
 {%- assign _ob_ingr_heading = section.settings.heading -%}
 {%- assign _ob_ingr_swipe = 'Swipe' -%}
-{%- if _ob_lang == 'nl' or _ob_lang == 'de' or _ob_lang == 'fr' -%}
+{%- if _ob_lang == 'nl' or _ob_lang == 'de' or _ob_lang == 'fr' or _ob_lang == 'sv' or _ob_lang == 'nb' or _ob_lang == 'da' or _ob_lang == 'fi' -%}
   {%- assign _ob_ingr_eyebrow = 'calqix_oralbiome.ingredients.eyebrow' | t -%}
   {%- assign _ob_ingr_heading = 'calqix_oralbiome.ingredients.heading' | t -%}
   {%- if _ob_lang == 'nl' -%}{%- assign _ob_ingr_swipe = 'Veeg' -%}
   {%- elsif _ob_lang == 'de' -%}{%- assign _ob_ingr_swipe = 'Wischen' -%}
   {%- elsif _ob_lang == 'fr' -%}{%- assign _ob_ingr_swipe = 'Glissez' -%}
+  {%- elsif _ob_lang == 'sv' -%}{%- assign _ob_ingr_swipe = 'Svep' -%}
+  {%- elsif _ob_lang == 'nb' -%}{%- assign _ob_ingr_swipe = 'Sveip' -%}
+  {%- elsif _ob_lang == 'da' -%}{%- assign _ob_ingr_swipe = 'Swipe' -%}
+  {%- elsif _ob_lang == 'fi' -%}{%- assign _ob_ingr_swipe = 'Pyyhkaise' -%}
   {%- endif -%}
 {%- endif -%}
 
