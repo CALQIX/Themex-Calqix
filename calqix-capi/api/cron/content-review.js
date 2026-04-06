@@ -18,7 +18,8 @@ var store = require('../../lib/store');
 var dates = require('../../lib/dates');
 var briefStore = require('../../lib/brief-store');
 var envValidator = require('../../lib/env-validator');
-var { sendBriefReview } = require('../../lib/telegram-content-review');
+var { sendBriefReview, sendRevisionPreview } = require('../../lib/telegram-content-review');
+var creativeReviser = require('../../lib/creative-reviser');
 
 var CLAUDE_REVIEW_PROMPT = [
   'You are a brand compliance reviewer for CALQIX, a premium oral care brand.',
@@ -224,6 +225,33 @@ module.exports = async function handler(req, res) {
         claudeSummary = entryVerdict === 'PASS' ? 'Goedgekeurd voor menselijke review'
           : entryVerdict === 'FAIL' ? 'Hoog risico - afgewezen door Claude'
           : 'Aanpassing nodig - handmatige review vereist';
+
+        // Revision loop: if score 10-19, attempt auto-revision via Claude + Predis
+        if (entryScore >= 10 && entryScore < 20) {
+          try {
+            var creative = {
+              post_id: null,
+              caption: text,
+              text: text,
+              product: brief.product,
+              angle: brief.angle,
+              slot: slotName,
+              market: brief.market || 'NL'
+            };
+            var revisionResult = await creativeReviser.reviewAndRevise(creative, review);
+            if (revisionResult.revised) {
+              console.log('[ContentReview] Revision generated for slot ' + slotName);
+              claudeSummary = 'Automatisch herzien - wacht op Predis regeneratie';
+              entryDecision = 'revision_pending';
+              // Send revision preview to Telegram
+              await sendRevisionPreview(revisionResult);
+            } else if (revisionResult.skipReason) {
+              console.log('[ContentReview] Revision skipped: ' + revisionResult.skipReason);
+            }
+          } catch (revErr) {
+            console.warn('[ContentReview] Revision failed for slot ' + slotName + ':', revErr.message);
+          }
+        }
       } else {
         entryIssues = ['Claude API niet beschikbaar'];
         claudeSummary = 'Claude review mislukt - handmatige review vereist';

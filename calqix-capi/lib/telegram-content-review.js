@@ -71,10 +71,12 @@ async function sendContentReview(plan, briefs, jobSummary) {
  */
 function formatPostPreview(lines, brief) {
   var mkt = planner.getMarketLanguage(brief.market || 'NL');
+  var adLang = brief.ad_output_language || mkt.output_language;
   lines.push('\u2022 <b>Product:</b> ' + (brief.product || 'onbekend'));
   lines.push('\u2022 <b>Hoek:</b> ' + (brief.angle || 'onbekend'));
   lines.push('\u2022 <b>Pilaar:</b> ' + (brief.pillar || 'onbekend'));
   lines.push('\u2022 <b>Markt:</b> ' + (brief.market || 'NL') + ' (' + mkt.label + ')');
+  lines.push('\u2022 <b>Content taal:</b> English | <b>Ad taal:</b> ' + adLang);
   lines.push('\u2022 <b>Vertrouwen:</b> ' + (brief.confidence || 0) + '/100' + (brief.metaBacked ? ' \u2b50 Meta-backed' : ''));
   lines.push('\u2022 <b>Hook:</b> ' + truncate(brief.hook || '', 80));
   lines.push('\u2022 <b>CTA:</b> ' + (brief.cta || ''));
@@ -267,12 +269,15 @@ async function sendCreativePreview(creative, reviewResult) {
 
   var mktInfo = planner.getMarketLanguage(creative.market || 'NL');
 
+  var adLang = creative.ad_output_language || mktInfo.output_language;
+
   var captionLines = [
     'CALQIX Creative Review - ' + dateStr,
     '',
     'Product: ' + (creative.product || 'N/A') + ' | Hoek: ' + (creative.angle || 'N/A'),
     'Slot: ' + (creative.slot || 'N/A'),
-    'Markt: ' + (creative.market || 'NL') + ' (' + mktInfo.label + ')'
+    'Markt: ' + (creative.market || 'NL') + ' (' + mktInfo.label + ')',
+    'Content: English | Ad: ' + adLang
   ];
 
   if (reviewResult) {
@@ -565,6 +570,60 @@ async function sendBriefReview(review, itemNumber, totalItems) {
   return sendTelegram(text, replyMarkup);
 }
 
+/**
+ * Send revision comparison preview to Telegram.
+ * Shows original vs revised copy side by side.
+ * @param {object} revisionResult - from creative-reviser.reviewAndRevise
+ * @returns {Promise<object>}
+ */
+async function sendRevisionPreview(revisionResult) {
+  if (!revisionResult || !revisionResult.revised) return { sent: false, reason: 'not_revised' };
+
+  var original = revisionResult.original || {};
+  var revised = revisionResult.revised_creative || {};
+  var origReview = revisionResult.original_review || {};
+  var revisedCopy = revisionResult.revised_copy || {};
+
+  var now = new Date();
+  var dateStr = String(now.getDate()).padStart(2, '0') + '-'
+    + String(now.getMonth() + 1).padStart(2, '0') + '-'
+    + now.getFullYear();
+
+  var lines = [
+    '<b>CALQIX Creative Revisie - ' + dateStr + '</b>',
+    '',
+    'Product: ' + escapeHtml(original.product || 'onbekend') + ' | Hoek: ' + escapeHtml(original.angle || 'onbekend'),
+    'Markt: ' + escapeHtml(original.market || 'NL'),
+    '',
+    '<b>ORIGINEEL (Score: ' + (origReview.total_score || 0) + '/25):</b>',
+    '"' + escapeHtml(truncate(original.caption || original.text || '', 100)) + '"',
+    'Problemen: ' + escapeHtml((origReview.issues || []).join(', ') || 'geen'),
+    '',
+    '<b>HERZIEN:</b>',
+    'Headline: "' + escapeHtml(revisedCopy.headline || '') + '"',
+    'Primary: "' + escapeHtml(truncate(revisedCopy.primary_text || '', 120)) + '"',
+    'Wijzigingen: ' + escapeHtml((revisedCopy.changes_made || []).join(', ') || 'geen'),
+    '',
+    revised.draftOnly ? 'Status: Draft-only (Predis uitgeschakeld)' : 'Status: Herziene creative ingediend bij Predis'
+  ];
+
+  var text = lines.join('\n');
+
+  var replyMarkup = null;
+  if (revised.post_id) {
+    replyMarkup = {
+      inline_keyboard: [
+        [
+          { text: '\u2705 Goedkeuren', callback_data: 'brief_approve:' + revised.post_id },
+          { text: '\u274c Afwijzen', callback_data: 'brief_reject:' + revised.post_id }
+        ]
+      ]
+    };
+  }
+
+  return sendTelegram(text, replyMarkup);
+}
+
 module.exports = {
   sendContentReview: sendContentReview,
   sendBriefReview: sendBriefReview,
@@ -573,5 +632,6 @@ module.exports = {
   sendDailyCloseSummary: sendDailyCloseSummary,
   sendCreativePreview: sendCreativePreview,
   sendTelegramPhoto: sendTelegramPhoto,
-  reviewAndPreview: reviewAndPreview
+  reviewAndPreview: reviewAndPreview,
+  sendRevisionPreview: sendRevisionPreview
 };

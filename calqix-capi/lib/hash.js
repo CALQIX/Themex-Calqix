@@ -9,7 +9,16 @@ const COUNTRY_DIAL_CODES = {
   GB: '44',
   UK: '44',
   US: '1',
-  CA: '1'
+  CA: '1',
+  AT: '43',
+  CH: '41',
+  LI: '423',
+  SE: '46',
+  NO: '47',
+  DK: '45',
+  FI: '358',
+  IS: '354',
+  LU: '352'
 };
 
 function normalizeBase(value) {

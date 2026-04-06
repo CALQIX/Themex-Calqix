@@ -27,6 +27,8 @@ var eventState = require('../../lib/event-state');
 var dates = require('../../lib/dates');
 var crypto = require('crypto');
 
+var adCopyAuditor = require('../../lib/ad-copy-auditor');
+
 var PURCHASE_TYPES = insights.PURCHASE_TYPES;
 var ATC_TYPES = insights.ATC_TYPES;
 var IC_TYPES = insights.IC_TYPES;
@@ -479,6 +481,16 @@ async function runMonitor(now) {
   if (slotLabel === 'morning' && (urgentTriggers.length > 0 || warningTriggers.length > 0 || infoTriggers.length > 0)) {
     var msg = formatMessage(now, urgentTriggers, warningTriggers, infoTriggers, apiErrors, snap, topAds, autoActions);
     telegramResult = await sendTelegram(msg);
+  }
+
+  // --- Ad copy audit (morning slot only, 1x/day) ---
+  if (slotLabel === 'morning') {
+    try {
+      var auditResult = await adCopyAuditor.runAudit();
+      console.log('[Monitor] Ad copy audit:', auditResult.skipped ? 'skipped (' + auditResult.reason + ')' : auditResult.ads_analyzed + ' ads analyzed');
+    } catch (auditErr) {
+      console.warn('[Monitor] Ad copy audit error:', auditErr.message);
+    }
   }
 
   // --- Cache today's data for tomorrow's comparison ---
