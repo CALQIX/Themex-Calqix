@@ -441,16 +441,46 @@
         "agePluralAdult": "Vuxna tänder"
       },
       "layers": {
-        "overview": { "label": "Tandöversikt", "kicker": "Tandöversikt" },
-        "enamel": { "label": "Emalj", "kicker": "Skyddande yttre sköld" },
-        "dentin": { "label": "Dentin", "kicker": "Stödjande inre struktur" },
-        "pulp": { "label": "Pulpa", "kicker": "Vitalt levande centrum" },
-        "root": { "label": "Rot", "kicker": "Tandfäste" },
-        "gum": { "label": "Tandkött", "kicker": "Mjukvävnadsförsegling" },
-        "cementum": { "label": "Cement", "kicker": "Rotöverdrag" },
-        "rootCanal": { "label": "Rotkanal", "kicker": "Intern passage" },
-        "alveolarBone": { "label": "Alveolärt ben", "kicker": "Käkstödsystem" },
-        "periodontalLigament": { "label": "Ligament", "kicker": "Stötdämpare" }
+        "overview": {
+          "label": "Tandöversikt",
+          "kicker": "Tandöversikt"
+        },
+        "enamel": {
+          "label": "Emalj",
+          "kicker": "Skyddande yttre sköld"
+        },
+        "dentin": {
+          "label": "Dentin",
+          "kicker": "Stödjande inre struktur"
+        },
+        "pulp": {
+          "label": "Pulpa",
+          "kicker": "Vitalt levande centrum"
+        },
+        "root": {
+          "label": "Rot",
+          "kicker": "Tandfäste"
+        },
+        "gum": {
+          "label": "Tandkött",
+          "kicker": "Mjukvävnadsförsegling"
+        },
+        "cementum": {
+          "label": "Cement",
+          "kicker": "Rotöverdrag"
+        },
+        "rootCanal": {
+          "label": "Rotkanal",
+          "kicker": "Intern passage"
+        },
+        "alveolarBone": {
+          "label": "Alveolärt ben",
+          "kicker": "Käkstödsystem"
+        },
+        "periodontalLigament": {
+          "label": "Ligament",
+          "kicker": "Stötdämpare"
+        }
       },
       "content": {
         "overview": {
@@ -871,7 +901,7 @@
   },
   "calqix_flowcore": {
     "main": {
-      "badge": "\u2b21 Steg 1 i CALQIX-rutinen",
+      "badge": "⬡ Steg 1 i CALQIX-rutinen",
       "subtitle_html": "<p>Sladdlös mundusch som banar vägen så att nano-HA verkligen kan verka.</p>",
       "colour_label": "Färg",
       "highlight_text": "Mest vald",
@@ -932,18 +962,18 @@
       "most_popular_badge": "Mest Populär",
       "month_label": "månad",
       "per_day_text": "€0,67 per dag",
-      "sub_benefit_1": "\ud83d\ude9a Fri frakt varje månad",
-      "sub_benefit_2": "\ud83d\udd04 Hoppa över, pausa eller avsluta",
-      "sub_benefit_3": "\ud83d\udcb0 60 dagars pengarna-tillbaka-garanti",
-      "sub_benefit_4": "\ud83d\udee1\ufe0f Inget bindningstid",
+      "sub_benefit_1": "🚚 Fri frakt varje månad",
+      "sub_benefit_2": "🔄 Hoppa över, pausa eller avsluta",
+      "sub_benefit_3": "💰 60 dagars pengarna-tillbaka-garanti",
+      "sub_benefit_4": "🛡️ Inget bindningstid",
       "frequency_label": "Leveransfrekvens",
-      "ot_benefit_1": "\ud83d\ude9a Fri frakt över €50",
-      "ot_benefit_2": "\ud83d\udcb0 60 dagars pengarna-tillbaka-garanti",
+      "ot_benefit_1": "🚚 Fri frakt över €50",
+      "ot_benefit_2": "💰 60 dagars pengarna-tillbaka-garanti",
       "onetime_note": "eller prenumerera ovan och spara €5/månad",
       "guarantee_text": "60 dagars pengarna-tillbaka-garanti — inga frågor."
     },
     "main": {
-      "badge": "\u2b21 Steg 3 i CALQIX-rutinen",
+      "badge": "⬡ Steg 3 i CALQIX-rutinen",
       "subtitle_html": "<p>Probiotiska sugtabletter som återställer det orala mikrobiomet inifrån.</p>",
       "bulletpoint_1": "Kliniskt studerade stammar för tandkötts- och tandhälsa",
       "bulletpoint_2": "Sockerfri, vegansk, ingen kylförvaring krävs",
@@ -1153,6 +1183,13 @@
       "ships_2_days": "Skickas inom 2 arbetsdagar",
       "money_back": "30 dagars pengarna-tillbaka-garanti",
       "free_shipping": "Fri frakt över 800 kr"
+    }
+  },
+  "shopify": {
+    "checkout": {
+      "payment": {
+        "card_security_notice": "🔒 Betala säkert med din föredragna betalningsmetod. Alla transaktioner är 100 % krypterade och säkra."
+      }
     }
   }
 }
