@@ -441,16 +441,46 @@
         "agePluralAdult": "Voksne tænder"
       },
       "layers": {
-        "overview": { "label": "Tandoversigt", "kicker": "Tandoversigt" },
-        "enamel": { "label": "Emalje", "kicker": "Beskyttende ydre skjold" },
-        "dentin": { "label": "Dentin", "kicker": "Støttende indre struktur" },
-        "pulp": { "label": "Pulpa", "kicker": "Vitalt levende centrum" },
-        "root": { "label": "Rod", "kicker": "Tandforankring" },
-        "gum": { "label": "Tandkød", "kicker": "Blødvævsforsegling" },
-        "cementum": { "label": "Cement", "kicker": "Rodbelægning" },
-        "rootCanal": { "label": "Rodkanal", "kicker": "Intern passage" },
-        "alveolarBone": { "label": "Alveolært ben", "kicker": "Kæbestøttesystem" },
-        "periodontalLigament": { "label": "Ligament", "kicker": "Støddemper" }
+        "overview": {
+          "label": "Tandoversigt",
+          "kicker": "Tandoversigt"
+        },
+        "enamel": {
+          "label": "Emalje",
+          "kicker": "Beskyttende ydre skjold"
+        },
+        "dentin": {
+          "label": "Dentin",
+          "kicker": "Støttende indre struktur"
+        },
+        "pulp": {
+          "label": "Pulpa",
+          "kicker": "Vitalt levende centrum"
+        },
+        "root": {
+          "label": "Rod",
+          "kicker": "Tandforankring"
+        },
+        "gum": {
+          "label": "Tandkød",
+          "kicker": "Blødvævsforsegling"
+        },
+        "cementum": {
+          "label": "Cement",
+          "kicker": "Rodbelægning"
+        },
+        "rootCanal": {
+          "label": "Rodkanal",
+          "kicker": "Intern passage"
+        },
+        "alveolarBone": {
+          "label": "Alveolært ben",
+          "kicker": "Kæbestøttesystem"
+        },
+        "periodontalLigament": {
+          "label": "Ligament",
+          "kicker": "Støddemper"
+        }
       },
       "content": {
         "overview": {
@@ -871,7 +901,7 @@
   },
   "calqix_flowcore": {
     "main": {
-      "badge": "\u2b21 Trin 1 i CALQIX-rutinen",
+      "badge": "⬡ Trin 1 i CALQIX-rutinen",
       "subtitle_html": "<p>Trådløs mundskylleapparat der rydder vejen, så nano-HA faktisk kan virke.</p>",
       "colour_label": "Farve",
       "highlight_text": "Mest valgt",
@@ -932,18 +962,18 @@
       "most_popular_badge": "Mest Populær",
       "month_label": "måned",
       "per_day_text": "€0,67 per dag",
-      "sub_benefit_1": "\ud83d\ude9a Gratis fragt hver måned",
-      "sub_benefit_2": "\ud83d\udd04 Spring over, pause eller afslut",
-      "sub_benefit_3": "\ud83d\udcb0 60 dages pengene-tilbage-garanti",
-      "sub_benefit_4": "\ud83d\udee1\ufe0f Ingen bindingsperiode",
+      "sub_benefit_1": "🚚 Gratis fragt hver måned",
+      "sub_benefit_2": "🔄 Spring over, pause eller afslut",
+      "sub_benefit_3": "💰 60 dages pengene-tilbage-garanti",
+      "sub_benefit_4": "🛡️ Ingen bindingsperiode",
       "frequency_label": "Leveringsfrekvens",
-      "ot_benefit_1": "\ud83d\ude9a Gratis fragt over €50",
-      "ot_benefit_2": "\ud83d\udcb0 60 dages pengene-tilbage-garanti",
+      "ot_benefit_1": "🚚 Gratis fragt over €50",
+      "ot_benefit_2": "💰 60 dages pengene-tilbage-garanti",
       "onetime_note": "eller abonner ovenfor og spar €5/måned",
       "guarantee_text": "60 dages pengene-tilbage-garanti — ingen spørgsmål."
     },
     "main": {
-      "badge": "\u2b21 Trin 3 i CALQIX-rutinen",
+      "badge": "⬡ Trin 3 i CALQIX-rutinen",
       "subtitle_html": "<p>Probiotiske sugetabletter der genopretter det orale mikrobiom indefra.</p>",
       "bulletpoint_1": "Klinisk undersøgte stammer til tandkøds- og tandsundhed",
       "bulletpoint_2": "Sukkerfri, vegansk, ingen køling nødvendig",
@@ -1153,6 +1183,13 @@
       "ships_2_days": "Sendes inden for 2 hverdage",
       "money_back": "30 dages pengene-tilbage-garanti",
       "free_shipping": "Gratis fragt over 600 kr"
+    }
+  },
+  "shopify": {
+    "checkout": {
+      "payment": {
+        "card_security_notice": "🔒 Betal sikkert med din foretrukne betalingsmetode. Alle transaktioner er 100 % krypterede og sikre."
+      }
     }
   }
 }
