@@ -441,16 +441,46 @@
         "agePluralAdult": "Aikuisten hampaat"
       },
       "layers": {
-        "overview": { "label": "Hammasyleiskatsaus", "kicker": "Hammasyleiskatsaus" },
-        "enamel": { "label": "Kiille", "kicker": "Suojaava ulkokerros" },
-        "dentin": { "label": "Dentiini", "kicker": "Tukeva sisärakenne" },
-        "pulp": { "label": "Pulpa", "kicker": "Elävä ydinkeskus" },
-        "root": { "label": "Juuri", "kicker": "Hammasankkuri" },
-        "gum": { "label": "Ikenet", "kicker": "Pehmytkudostiiviste" },
-        "cementum": { "label": "Sementti", "kicker": "Juurenpäällyste" },
-        "rootCanal": { "label": "Juurikanava", "kicker": "Sisäinen käytävä" },
-        "alveolarBone": { "label": "Alveolaariluu", "kicker": "Leuan tukijärjestelmä" },
-        "periodontalLigament": { "label": "Ligamentti", "kicker": "Iskunvaimennin" }
+        "overview": {
+          "label": "Hammasyleiskatsaus",
+          "kicker": "Hammasyleiskatsaus"
+        },
+        "enamel": {
+          "label": "Kiille",
+          "kicker": "Suojaava ulkokerros"
+        },
+        "dentin": {
+          "label": "Dentiini",
+          "kicker": "Tukeva sisärakenne"
+        },
+        "pulp": {
+          "label": "Pulpa",
+          "kicker": "Elävä ydinkeskus"
+        },
+        "root": {
+          "label": "Juuri",
+          "kicker": "Hammasankkuri"
+        },
+        "gum": {
+          "label": "Ikenet",
+          "kicker": "Pehmytkudostiiviste"
+        },
+        "cementum": {
+          "label": "Sementti",
+          "kicker": "Juurenpäällyste"
+        },
+        "rootCanal": {
+          "label": "Juurikanava",
+          "kicker": "Sisäinen käytävä"
+        },
+        "alveolarBone": {
+          "label": "Alveolaariluu",
+          "kicker": "Leuan tukijärjestelmä"
+        },
+        "periodontalLigament": {
+          "label": "Ligamentti",
+          "kicker": "Iskunvaimennin"
+        }
       },
       "content": {
         "overview": {
@@ -871,7 +901,7 @@
   },
   "calqix_flowcore": {
     "main": {
-      "badge": "\u2b21 Vaihe 1 CALQIX-rutiinissa",
+      "badge": "⬡ Vaihe 1 CALQIX-rutiinissa",
       "subtitle_html": "<p>Langaton suusuihku, joka raivaa tien, jotta nano-HA voi todella vaikuttaa.</p>",
       "colour_label": "Väri",
       "highlight_text": "Suosituin valinta",
@@ -932,18 +962,18 @@
       "most_popular_badge": "Suosituin",
       "month_label": "kuukausi",
       "per_day_text": "0,67 € päivässä",
-      "sub_benefit_1": "\ud83d\ude9a Ilmainen toimitus joka kuukausi",
-      "sub_benefit_2": "\ud83d\udd04 Ohita, keskeytä tai lopeta",
-      "sub_benefit_3": "\ud83d\udcb0 60 päivän rahat-takaisin-takuu",
-      "sub_benefit_4": "\ud83d\udee1\ufe0f Ei sitoutumisaikaa",
+      "sub_benefit_1": "🚚 Ilmainen toimitus joka kuukausi",
+      "sub_benefit_2": "🔄 Ohita, keskeytä tai lopeta",
+      "sub_benefit_3": "💰 60 päivän rahat-takaisin-takuu",
+      "sub_benefit_4": "🛡️ Ei sitoutumisaikaa",
       "frequency_label": "Toimitustiheys",
-      "ot_benefit_1": "\ud83d\ude9a Ilmainen toimitus yli 50 € tilauksiin",
-      "ot_benefit_2": "\ud83d\udcb0 60 päivän rahat-takaisin-takuu",
+      "ot_benefit_1": "🚚 Ilmainen toimitus yli 50 € tilauksiin",
+      "ot_benefit_2": "💰 60 päivän rahat-takaisin-takuu",
       "onetime_note": "tai tilaa yllä ja säästä 5 €/kuukausi",
       "guarantee_text": "60 päivän rahat-takaisin-takuu — ei kysymyksiä."
     },
     "main": {
-      "badge": "\u2b21 Vaihe 3 CALQIX-rutiinissa",
+      "badge": "⬡ Vaihe 3 CALQIX-rutiinissa",
       "subtitle_html": "<p>Probioottiset imeskelytabletit, jotka palauttavat suun mikrobiomin sisältäpäin.</p>",
       "bulletpoint_1": "Kliinisesti tutkitut kannat ikenien ja hampaiden terveyteen",
       "bulletpoint_2": "Sokerivapaa, vegaaninen, ei jäähdytystä tarvita",
@@ -1153,6 +1183,13 @@
       "ships_2_days": "Lähetetään 2 arkipäivän kuluessa",
       "money_back": "30 päivän rahat-takaisin-takuu",
       "free_shipping": "Ilmainen toimitus yli 50 €"
+    }
+  },
+  "shopify": {
+    "checkout": {
+      "payment": {
+        "card_security_notice": "🔒 Maksa turvallisesti valitsemallasi maksutavalla. Kaikki maksutapahtumat ovat 100-prosenttisesti salattuja ja turvallisia."
+      }
     }
   }
 }
