@@ -441,16 +441,46 @@
         "agePluralAdult": "Voksne tenner"
       },
       "layers": {
-        "overview": { "label": "Tannoversikt", "kicker": "Tannoversikt" },
-        "enamel": { "label": "Emalje", "kicker": "Beskyttende ytre skjold" },
-        "dentin": { "label": "Dentin", "kicker": "Støttende indre struktur" },
-        "pulp": { "label": "Pulpa", "kicker": "Vitalt levende sentrum" },
-        "root": { "label": "Rot", "kicker": "Tannforankring" },
-        "gum": { "label": "Tannkjøtt", "kicker": "Bløtvevstetting" },
-        "cementum": { "label": "Sement", "kicker": "Rotbelegg" },
-        "rootCanal": { "label": "Rotkanal", "kicker": "Intern passasje" },
-        "alveolarBone": { "label": "Alveolært ben", "kicker": "Kjeve-støttesystem" },
-        "periodontalLigament": { "label": "Ligament", "kicker": "Støtdemper" }
+        "overview": {
+          "label": "Tannoversikt",
+          "kicker": "Tannoversikt"
+        },
+        "enamel": {
+          "label": "Emalje",
+          "kicker": "Beskyttende ytre skjold"
+        },
+        "dentin": {
+          "label": "Dentin",
+          "kicker": "Støttende indre struktur"
+        },
+        "pulp": {
+          "label": "Pulpa",
+          "kicker": "Vitalt levende sentrum"
+        },
+        "root": {
+          "label": "Rot",
+          "kicker": "Tannforankring"
+        },
+        "gum": {
+          "label": "Tannkjøtt",
+          "kicker": "Bløtvevstetting"
+        },
+        "cementum": {
+          "label": "Sement",
+          "kicker": "Rotbelegg"
+        },
+        "rootCanal": {
+          "label": "Rotkanal",
+          "kicker": "Intern passasje"
+        },
+        "alveolarBone": {
+          "label": "Alveolært ben",
+          "kicker": "Kjeve-støttesystem"
+        },
+        "periodontalLigament": {
+          "label": "Ligament",
+          "kicker": "Støtdemper"
+        }
       },
       "content": {
         "overview": {
@@ -871,7 +901,7 @@
   },
   "calqix_flowcore": {
     "main": {
-      "badge": "\u2b21 Steg 1 i CALQIX-rutinen",
+      "badge": "⬡ Steg 1 i CALQIX-rutinen",
       "subtitle_html": "<p>Trådløs munndusjj som rydder veien slik at nano-HA faktisk kan virke.</p>",
       "colour_label": "Farge",
       "highlight_text": "Mest valgt",
@@ -932,18 +962,18 @@
       "most_popular_badge": "Mest Populær",
       "month_label": "måned",
       "per_day_text": "€0,67 per dag",
-      "sub_benefit_1": "\ud83d\ude9a Gratis frakt hver måned",
-      "sub_benefit_2": "\ud83d\udd04 Hopp over, pause eller avslutt",
-      "sub_benefit_3": "\ud83d\udcb0 60 dagers pengene-tilbake-garanti",
-      "sub_benefit_4": "\ud83d\udee1\ufe0f Ingen bindingstid",
+      "sub_benefit_1": "🚚 Gratis frakt hver måned",
+      "sub_benefit_2": "🔄 Hopp over, pause eller avslutt",
+      "sub_benefit_3": "💰 60 dagers pengene-tilbake-garanti",
+      "sub_benefit_4": "🛡️ Ingen bindingstid",
       "frequency_label": "Leveringsfrekvens",
-      "ot_benefit_1": "\ud83d\ude9a Gratis frakt over €50",
-      "ot_benefit_2": "\ud83d\udcb0 60 dagers pengene-tilbake-garanti",
+      "ot_benefit_1": "🚚 Gratis frakt over €50",
+      "ot_benefit_2": "💰 60 dagers pengene-tilbake-garanti",
       "onetime_note": "eller abonner ovenfor og spar €5/måned",
       "guarantee_text": "60 dagers pengene-tilbake-garanti — ingen spørsmål."
     },
     "main": {
-      "badge": "\u2b21 Steg 3 i CALQIX-rutinen",
+      "badge": "⬡ Steg 3 i CALQIX-rutinen",
       "subtitle_html": "<p>Probiotiske sugetabletter som gjenoppretter det orale mikrobiomet innenfra.</p>",
       "bulletpoint_1": "Klinisk studerte stammer for tannkjøtt- og tannhelse",
       "bulletpoint_2": "Sukkerfri, vegansk, ingen kjøling nødvendig",
@@ -1153,6 +1183,13 @@
       "ships_2_days": "Sendes innen 2 virkedager",
       "money_back": "30 dagers pengene-tilbake-garanti",
       "free_shipping": "Gratis frakt over 800 kr"
+    }
+  },
+  "shopify": {
+    "checkout": {
+      "payment": {
+        "card_security_notice": "🔒 Betal trygt med din foretrukne betalingsmåte. Alle transaksjoner er 100 % kryptert og sikre."
+      }
     }
   }
 }
