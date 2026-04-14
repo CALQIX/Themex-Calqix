@@ -96,6 +96,25 @@
       if (window.meta && window.meta.customer && window.meta.customer.phone) {
         return window.meta.customer.phone;
       }
+      if (window.__st && window.__st.ph) {
+        return window.__st.ph;
+      }
+    } catch (e) { /* silent */ }
+    return null;
+  }
+
+  function getCountryCode() {
+    try {
+      if (window.Shopify && window.Shopify.country) {
+        return window.Shopify.country;
+      }
+      if (window.meta && window.meta.page && window.meta.page.countryCode) {
+        return window.meta.page.countryCode;
+      }
+      if (window.ShopifyAnalytics && window.ShopifyAnalytics.meta &&
+          window.ShopifyAnalytics.meta.page && window.ShopifyAnalytics.meta.page.countryCode) {
+        return window.ShopifyAnalytics.meta.page.countryCode;
+      }
     } catch (e) { /* silent */ }
     return null;
   }
@@ -174,12 +193,14 @@
     var email = getCustomerEmail();
     var phone = getCustomerPhone();
     var externalId = getExternalId();
+    var countryCode = getCountryCode();
 
     if (fbc) data.fbc = fbc;
     if (fbp) data.fbp = fbp;
     if (email) data.email = email;
     if (phone) data.phone = phone;
     if (externalId) data.external_id = externalId;
+    if (countryCode) data.country_code = countryCode;
     return data;
   }
 
@@ -225,7 +246,9 @@
       fbc: userPayload.fbc || undefined,
       fbp: userPayload.fbp || undefined,
       email: userPayload.email || undefined,
-      external_id: userPayload.external_id || undefined
+      phone: userPayload.phone || undefined,
+      external_id: userPayload.external_id || undefined,
+      country_code: userPayload.country_code || undefined
     };
 
     fetch(CAPI_BASE + '/view-content', {
@@ -287,6 +310,7 @@
       email: userPayload.email || undefined,
       phone: userPayload.phone || undefined,
       external_id: userPayload.external_id || undefined,
+      country_code: userPayload.country_code || undefined,
       source_url: window.location.href
     };
 
@@ -365,6 +389,7 @@
     getFbc: getFbc,
     getFbp: getFbp,
     getExternalId: getExternalId,
+    getCountryCode: getCountryCode,
     generateEventId: generateEventId,
     track: track,
     fireAddToCart: fireAddToCart,

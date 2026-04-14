@@ -141,6 +141,7 @@ async function handleCheckoutStarted(res, body, checkoutToken, clientIp, clientU
 
   var sourceUrl = body.source_url || 'https://calqix.com/checkout';
   await eventState.recordReceived(eventId, 'InitiateCheckout', 'custom_pixel', checkoutToken);
+  await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
   var result = await sendEvent('InitiateCheckout', eventId, sourceUrl, userData, customData);
   await eventState.recordSent(eventId, result);
   await markProcessed('InitiateCheckout', checkoutToken);
@@ -223,6 +224,7 @@ async function handleCheckoutCompleted(res, body, checkoutToken, clientIp, clien
 
   var sourceUrl = body.source_url || 'https://calqix.com/checkout';
   await eventState.recordReceived(eventId, 'Purchase', 'custom_pixel', checkoutToken);
+  await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
   var result = await sendEvent('Purchase', eventId, sourceUrl, userData, customData);
   await eventState.recordSent(eventId, result);
   await markProcessed('Purchase', checkoutToken);

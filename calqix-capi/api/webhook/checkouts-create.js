@@ -146,6 +146,7 @@ async function handler(req, res) {
     });
 
     await eventState.recordReceived(eventId, 'InitiateCheckout', 'webhook', String(checkoutKey));
+    await eventState.storeEventPayload(eventId, userData, customData, SOURCE_URL);
     var metaResult = await sendEvent('InitiateCheckout', eventId, SOURCE_URL, userData, customData);
     await eventState.recordSent(eventId, metaResult);
     await markProcessed('InitiateCheckout', String(checkoutKey));

@@ -177,16 +177,29 @@ async function processRetry(eventId) {
     source: state.source
   });
 
-  // We need to reconstruct the event from stored state.
-  // The event-state only stores metadata, not the full payload.
-  // The recovery sends a minimal event with event_id for Meta dedup.
-  // Meta will match this with the original browser event via event_id.
+  // Reconstruct event from stored payload (hashed user_data, no PII).
+  // Falls back to minimal event if payload was not stored.
+  var storedPayload = await eventState.getEventPayload(state.event_id);
+  var recoveryUserData = storedPayload ? storedPayload.user_data : {};
+  var recoveryCustomData = storedPayload ? storedPayload.custom_data : {};
+  var recoverySourceUrl = storedPayload ? storedPayload.source_url : 'https://calqix.com/checkout';
+
+  console.log('[Recovery] Replay payload', {
+    eventId: eventId.substring(0, 20),
+    hasStoredPayload: Boolean(storedPayload),
+    hasEmail: Boolean(recoveryUserData.em),
+    hasFbc: Boolean(recoveryUserData.fbc),
+    hasFbp: Boolean(recoveryUserData.fbp),
+    hasExternalId: Boolean(recoveryUserData.external_id),
+    hasCountry: Boolean(recoveryUserData.country)
+  });
+
   var metaResult = await sendEvent(
     state.event_name,
     state.event_id,
-    'https://calqix.com/checkout',
-    {}, // Minimal user data — Meta deduplicates by event_id
-    {}  // No custom data — this is a recovery ping
+    recoverySourceUrl,
+    recoveryUserData,
+    recoveryCustomData
   );
 
   var updatedState = await eventState.recordSent(eventId, metaResult);

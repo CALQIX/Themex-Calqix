@@ -471,16 +471,40 @@ async function runMonitor(now) {
   var warningTriggers = triggers.filter(function (t) { return t.severity === 'WARNING'; });
   var infoTriggers = triggers.filter(function (t) { return t.severity === 'INFO'; });
 
+  // --- Fetch EMQ match_keys + country data (morning only to save API calls) ---
+  var emqData = null;
+  var countryData = null;
+  var slotLabel = getSlotLabel(now);
+  if (slotLabel === 'morning') {
+    try {
+      var emqCountryResults = await Promise.all([
+        insights.fetchMatchKeysStats(now),
+        insights.fetchCountryBreakdown(now)
+      ]);
+      emqData = emqCountryResults[0];
+      countryData = emqCountryResults[1];
+    } catch (e) {
+      console.warn('[Monitor] EMQ/country fetch error:', e.message);
+    }
+  }
+
   // --- Send compact Ad Pulse message (every run) ---
   var pulseMsg = await formatPulseMessage(now, snap);
   var pulseResult = await sendTelegram(pulseMsg);
 
   // --- Send full monitor report only on morning slot ---
   var telegramResult = pulseResult;
-  var slotLabel = getSlotLabel(now);
   if (slotLabel === 'morning' && (urgentTriggers.length > 0 || warningTriggers.length > 0 || infoTriggers.length > 0)) {
     var msg = formatMessage(now, urgentTriggers, warningTriggers, infoTriggers, apiErrors, snap, topAds, autoActions);
     telegramResult = await sendTelegram(msg);
+  }
+
+  // --- Send EMQ + Country report (morning only, separate message) ---
+  if (slotLabel === 'morning' && (emqData || countryData)) {
+    var emqMsg = formatEmqCountryMessage(now, emqData, countryData);
+    if (emqMsg) {
+      await sendTelegram(emqMsg);
+    }
   }
 
   // --- Ad copy audit (morning slot only, 1x/day) ---
@@ -502,6 +526,15 @@ async function runMonitor(now) {
     clicks: snap.today ? snap.today.clicks : 0
   };
   await store.set('pulse:daily:' + dates.todayKey(now), JSON.stringify(todayCache), 172800);
+
+  // --- Cache EMQ coverage for trend tracking (30 days) ---
+  if (emqData && emqData.ok) {
+    await store.set('emq:daily:' + dates.todayKey(now), JSON.stringify({
+      coverage: emqData.coverage,
+      total: emqData.total,
+      ts: now.toISOString()
+    }), 30 * 86400);
+  }
 
   // --- Generate Windsurf task file if there are actionable triggers ---
   var taskGenerated = false;
@@ -733,6 +766,88 @@ function formatMessage(now, urgent, warning, info, apiErrors, snap, topAds, auto
     lines.push('3. Of handmatig via Meta Ads Manager.');
   }
 
+  return lines.join('\n');
+}
+
+/**
+ * Format EMQ coverage + Country performance Telegram message.
+ * Sent once daily (morning slot) for continuous optimization insights.
+ */
+function formatEmqCountryMessage(now, emqData, countryData) {
+  var dtStr = now.toISOString().split('T')[0];
+  var lines = ['<b>CALQIX Data Quality Report</b> - ' + dtStr, ''];
+
+  // EMQ Coverage section
+  if (emqData && emqData.ok) {
+    lines.push('<b>Match Keys Coverage (24h):</b>');
+    lines.push('Total events: ' + formatNum(emqData.total));
+    var cov = emqData.coverage;
+    var emqKeys = [
+      { k: 'external_id', label: 'External ID' },
+      { k: 'email', label: 'Email' },
+      { k: 'ph', label: 'Phone' },
+      { k: 'fn', label: 'First name' },
+      { k: 'ln', label: 'Last name' },
+      { k: 'country', label: 'Country' },
+      { k: 'ct', label: 'City' },
+      { k: 'zip', label: 'Postal code' }
+    ];
+    emqKeys.forEach(function (item) {
+      var pct = cov[item.k] || 0;
+      var icon = pct >= 50 ? '\u2705' : pct >= 20 ? '\u26a0\ufe0f' : '\u274c';
+      lines.push(icon + ' ' + item.label + ': ' + pct + '% (' + (emqData.keys[item.k] || 0) + ')');
+    });
+
+    // Overall EMQ estimate (weighted)
+    var emqScore = Math.min(10, Math.round(
+      ((cov.email || 0) * 0.25 +
+       (cov.external_id || 0) * 0.15 +
+       (cov.ph || 0) * 0.20 +
+       (cov.fn || 0) * 0.10 +
+       (cov.ln || 0) * 0.10 +
+       (cov.country || 0) * 0.10 +
+       (cov.ct || 0) * 0.05 +
+       (cov.zip || 0) * 0.05) / 10
+    ));
+    lines.push('');
+    lines.push('Estimated EMQ: ' + emqScore + '/10');
+    lines.push('');
+  } else if (emqData) {
+    lines.push('EMQ data unavailable: ' + (emqData.error || 'unknown'));
+    lines.push('');
+  }
+
+  // Country breakdown section
+  if (countryData && countryData.ok && countryData.countries.length > 0) {
+    lines.push('<b>Country Performance (7d):</b>');
+    var topCountries = countryData.countries.slice(0, 8);
+    topCountries.forEach(function (c) {
+      var roas = c.roas > 0 ? c.roas.toFixed(1) + 'x' : '-';
+      var cpa = c.cpa > 0 ? 'EUR ' + c.cpa.toFixed(2) : '-';
+      lines.push(
+        c.country.toUpperCase() +
+        ' | EUR ' + c.spend.toFixed(2) +
+        ' | ' + c.purchases + ' purch' +
+        ' | ROAS ' + roas +
+        ' | CPA ' + cpa
+      );
+    });
+
+    // Highlight best and worst
+    var withPurchases = countryData.countries.filter(function (c) { return c.purchases > 0; });
+    if (withPurchases.length > 0) {
+      var bestRoas = withPurchases.reduce(function (a, b) { return a.roas > b.roas ? a : b; });
+      var worstRoas = withPurchases.reduce(function (a, b) { return a.roas < b.roas ? a : b; });
+      lines.push('');
+      lines.push('Best ROAS: ' + bestRoas.country.toUpperCase() + ' ' + bestRoas.roas.toFixed(1) + 'x');
+      if (worstRoas.country !== bestRoas.country) {
+        lines.push('Lowest ROAS: ' + worstRoas.country.toUpperCase() + ' ' + worstRoas.roas.toFixed(1) + 'x');
+      }
+    }
+  }
+
+  // Only return if we have content
+  if (lines.length <= 2) return null;
   return lines.join('\n');
 }
 

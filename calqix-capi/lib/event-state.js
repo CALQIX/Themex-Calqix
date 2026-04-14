@@ -36,6 +36,7 @@ var STALE_SENT_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes — treat "sent" as lo
 function eventKey(eventId) { return 'meta:event:' + eventId; }
 function pendingKey(eventId) { return 'meta:pending:' + eventId; }
 function failedKey(eventId) { return 'meta:failed:' + eventId; }
+function payloadKey(eventId) { return 'meta:payload:' + eventId; }
 var RECOVERY_QUEUE_KEY = 'recovery:queue';
 
 /**
@@ -186,6 +187,43 @@ async function popFromRecoveryQueue() {
 }
 
 /**
+ * Store hashed event payload for recovery replay.
+ * Only stores already-hashed user_data (no PII) + custom_data + source_url.
+ * @param {string} eventId
+ * @param {object} userData — already hashed by formatUserData
+ * @param {object} customData
+ * @param {string} sourceUrl
+ * @returns {Promise<void>}
+ */
+async function storeEventPayload(eventId, userData, customData, sourceUrl) {
+  try {
+    var payload = {
+      user_data: userData || {},
+      custom_data: customData || {},
+      source_url: sourceUrl || 'https://calqix.com'
+    };
+    await store.set(payloadKey(eventId), JSON.stringify(payload), TTL_EVENT);
+  } catch (err) {
+    console.warn('[EventState] Failed to store payload:', err.message);
+  }
+}
+
+/**
+ * Get stored event payload for recovery replay.
+ * @param {string} eventId
+ * @returns {Promise<object|null>} { user_data, custom_data, source_url }
+ */
+async function getEventPayload(eventId) {
+  try {
+    var raw = await store.get(payloadKey(eventId));
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (err) {
+    return null;
+  }
+}
+
+/**
  * Get the length of the recovery queue.
  * @returns {Promise<number>}
  */
@@ -212,6 +250,8 @@ module.exports = {
   recordRecovered: recordRecovered,
   getEventState: getEventState,
   isConfirmed: isConfirmed,
+  storeEventPayload: storeEventPayload,
+  getEventPayload: getEventPayload,
   pushToRecoveryQueue: pushToRecoveryQueue,
   popFromRecoveryQueue: popFromRecoveryQueue,
   getRecoveryQueueLength: getRecoveryQueueLength

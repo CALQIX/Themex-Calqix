@@ -50,6 +50,7 @@ async function handler(req, res) {
     if (body.email) customerData.email = body.email;
     if (body.phone) customerData.phone = body.phone;
     if (body.external_id) customerData.external_id = body.external_id;
+    if (body.country_code) customerData.country_code = body.country_code;
 
     const clientIp =
       (req.headers && req.headers['x-forwarded-for'] && req.headers['x-forwarded-for'].split(',')[0].trim()) ||
@@ -95,6 +96,7 @@ async function handler(req, res) {
     });
 
     await eventState.recordReceived(eventId, 'AddToCart', 'browser_bridge', eventId);
+    await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
     const result = await sendEvent('AddToCart', eventId, sourceUrl, userData, customData);
     await eventState.recordSent(eventId, result);
     await markProcessed('AddToCart', eventId);

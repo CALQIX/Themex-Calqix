@@ -252,6 +252,114 @@ async function fetchFullSnapshot(now) {
   };
 }
 
+/**
+ * Fetch match_keys coverage from Pixel stats API (24h window).
+ * Returns per-key event counts to track EMQ improvement.
+ * @param {Date} now
+ * @returns {Promise<{ok: boolean, keys: object, total: number, coverage: object}>}
+ */
+async function fetchMatchKeysStats(now) {
+  var pixelId = process.env.META_PIXEL_ID;
+  if (!pixelId) return { ok: false, keys: {}, total: 0, coverage: {}, error: 'no_pixel_id' };
+
+  var endTs = Math.floor(now.getTime() / 1000);
+  var startTs = endTs - 86400; // 24h window
+
+  var result = await safeGet(pixelId + '/stats', {
+    aggregation: 'match_keys',
+    start: startTs,
+    end: endTs
+  }, 'match_keys');
+
+  if (!result.ok) {
+    return { ok: false, keys: {}, total: 0, coverage: {}, error: result.error };
+  }
+
+  var combined = {};
+  var rows = Array.isArray(result.data) ? result.data : [];
+  rows.forEach(function (hourBlock) {
+    var entries = Array.isArray(hourBlock.data) ? hourBlock.data : [];
+    entries.forEach(function (item) {
+      if (!combined[item.value]) combined[item.value] = 0;
+      combined[item.value] += item.count || 0;
+    });
+  });
+
+  // Fetch total events for coverage calculation
+  var eventResult = await safeGet(pixelId + '/stats', {
+    aggregation: 'event',
+    start: startTs,
+    end: endTs
+  }, 'event_totals');
+
+  var total = 0;
+  if (eventResult.ok && Array.isArray(eventResult.data)) {
+    eventResult.data.forEach(function (hourBlock) {
+      var entries = Array.isArray(hourBlock.data) ? hourBlock.data : [];
+      entries.forEach(function (item) { total += item.count || 0; });
+    });
+  }
+
+  var coverage = {};
+  var importantKeys = ['email', 'external_id', 'fn', 'ln', 'ct', 'zip', 'country', 'ph'];
+  importantKeys.forEach(function (key) {
+    coverage[key] = total > 0 ? Math.round((combined[key] || 0) / total * 100) : 0;
+  });
+
+  return { ok: true, keys: combined, total: total, coverage: coverage };
+}
+
+/**
+ * Fetch country-level performance breakdown (7d).
+ * Uses campaign-level insights with country breakdown for targeting optimization.
+ * @param {Date} now
+ * @returns {Promise<{ok: boolean, countries: Array, errors: string[]}>}
+ */
+async function fetchCountryBreakdown(now) {
+  var errors = [];
+  var d7 = new Date(now); d7.setDate(d7.getDate() - 6);
+  var since7d = toDateStr(d7);
+  var todayStr = toDateStr(now);
+
+  var result = await safeGet(AD_ACCOUNT_ID + '/insights', {
+    fields: 'country,spend,impressions,clicks,actions,action_values',
+    time_range: { since: since7d, until: todayStr },
+    breakdowns: 'country',
+    filtering: [{ field: 'spend', operator: 'GREATER_THAN', value: '0' }],
+    limit: 50
+  }, 'country_breakdown');
+
+  if (!result.ok) {
+    errors.push('country_breakdown: ' + result.error);
+    return { ok: false, countries: [], errors: errors };
+  }
+
+  var rows = Array.isArray(result.data) ? result.data : [];
+  var countries = rows.map(function (row) {
+    var spend = parseFloat(row.spend) || 0;
+    var purchases = parseActionValue(row.actions || [], PURCHASE_TYPES);
+    var revenue = parseActionValue(row.action_values || [], PURCHASE_TYPES);
+    var atc = parseActionValue(row.actions || [], ATC_TYPES);
+    var impressions = parseInt(row.impressions) || 0;
+    var clicks = parseInt(row.clicks) || 0;
+
+    return {
+      country: row.country || 'unknown',
+      spend: spend,
+      impressions: impressions,
+      clicks: clicks,
+      atc: atc,
+      purchases: purchases,
+      revenue: revenue,
+      roas: spend > 0 ? revenue / spend : 0,
+      cpa: purchases > 0 ? spend / purchases : 0,
+      ctr: impressions > 0 ? (clicks / impressions * 100) : 0
+    };
+  }).sort(function (a, b) { return b.revenue - a.revenue; });
+
+  return { ok: true, countries: countries, errors: errors };
+}
+
 module.exports = {
   fetchFullSnapshot: fetchFullSnapshot,
   fetchAccountInsights: fetchAccountInsights,
@@ -259,6 +367,8 @@ module.exports = {
   fetchAdsetInsights: fetchAdsetInsights,
   fetchActiveAdsets: fetchActiveAdsets,
   fetchAccountBilling: fetchAccountBilling,
+  fetchMatchKeysStats: fetchMatchKeysStats,
+  fetchCountryBreakdown: fetchCountryBreakdown,
   parseFunnelFromRows: parseFunnelFromRows,
   parseActionValue: parseActionValue,
   PURCHASE_TYPES: PURCHASE_TYPES,

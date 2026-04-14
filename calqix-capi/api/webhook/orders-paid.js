@@ -169,6 +169,7 @@ async function handler(req, res) {
     });
 
     await eventState.recordReceived(eventId, 'Purchase', 'webhook', dedupKey);
+    await eventState.storeEventPayload(eventId, userData, customData, SOURCE_URL);
     var metaResult = await sendEvent('Purchase', eventId, SOURCE_URL, userData, customData);
     await eventState.recordSent(eventId, metaResult);
     await markProcessed('Purchase', dedupKey);

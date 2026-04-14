@@ -39,7 +39,9 @@ async function handler(req, res) {
     if (body.fbc) customerData.fbc = body.fbc;
     if (body.fbp) customerData.fbp = body.fbp;
     if (body.email) customerData.email = body.email;
+    if (body.phone) customerData.phone = body.phone;
     if (body.external_id) customerData.external_id = body.external_id;
+    if (body.country_code) customerData.country_code = body.country_code;
 
     const clientIp =
       (req.headers && req.headers['x-forwarded-for'] && req.headers['x-forwarded-for'].split(',')[0].trim()) ||
@@ -56,8 +58,10 @@ async function handler(req, res) {
       hasFbc: Boolean(userData.fbc),
       hasFbp: Boolean(userData.fbp),
       hasEmail: Boolean(userData.em),
+      hasPhone: Boolean(userData.ph),
       hasIp: Boolean(userData.client_ip_address),
-      hasUa: Boolean(userData.client_user_agent)
+      hasUa: Boolean(userData.client_user_agent),
+      hasCountry: Boolean(userData.country)
     });
 
     const contentId = String(productId || variantId);
