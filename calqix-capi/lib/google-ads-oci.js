@@ -33,7 +33,7 @@ var CUSTOMER_ID = function () { return (process.env.GOOGLE_ADS_CUSTOMER_ID || ''
 var CONVERSION_ACTION_RAW = function () { return process.env.GOOGLE_ADS_CONVERSION_ACTION_ID || ''; };
 var DEVELOPER_TOKEN = function () { return process.env.GOOGLE_ADS_DEVELOPER_TOKEN || ''; };
 var MANAGER_ID = function () { return (process.env.GOOGLE_ADS_MANAGER_ID || '').replace(/-/g, ''); };
-var ENABLED = function () { return process.env.GOOGLE_ADS_ENABLED === 'true'; };
+var ENABLED = function () { return (process.env.GOOGLE_ADS_ENABLED || '').trim() === 'true'; };
 var DEDUP_TTL = 48 * 3600;
 var BATCH_KEY_PREFIX = 'gads:batch:';
 

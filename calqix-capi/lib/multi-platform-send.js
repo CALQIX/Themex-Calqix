@@ -12,7 +12,7 @@ var ga4 = require('./ga4-mp');
 var googleAds = require('./google-ads-oci');
 var store = require('./store');
 
-var GOOGLE_ENABLED = function () { return process.env.GOOGLE_ENABLED === 'true'; };
+var GOOGLE_ENABLED = function () { return (process.env.GOOGLE_ENABLED || '').trim() === 'true'; };
 
 /**
  * Send a purchase event to all enabled platforms.

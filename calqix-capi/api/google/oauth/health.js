@@ -36,7 +36,7 @@ module.exports = async function (req, res) {
       manager_id: process.env.GOOGLE_ADS_MANAGER_ID ? maskValue(process.env.GOOGLE_ADS_MANAGER_ID) : null,
       has_developer_token: Boolean(process.env.GOOGLE_ADS_DEVELOPER_TOKEN),
       conversion_action: process.env.GOOGLE_ADS_CONVERSION_ACTION_ID || null,
-      enabled: process.env.GOOGLE_ADS_ENABLED === 'true',
+      enabled: (process.env.GOOGLE_ADS_ENABLED || '').trim() === 'true',
       has_oauth_token: oauthHealth.has_refresh_token
     };
 
