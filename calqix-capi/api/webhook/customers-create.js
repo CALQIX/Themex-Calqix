@@ -6,6 +6,7 @@ const { isDuplicate, markProcessed } = require('../../lib/dedup-guard');
 const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');
 const eventState = require('../../lib/event-state');
+const multiPlatform = require('../../lib/multi-platform-send');
 const {
   extractExternalId,
   extractMetaBrowserIds,
@@ -85,6 +86,15 @@ async function handler(req, res) {
     var metaResult = await sendEvent('Lead', eventId, SOURCE_URL, userData, customData);
     await eventState.recordSent(eventId, metaResult);
     await markProcessed('Lead', String(customer.id));
+
+    // Multi-platform: GA4 (non-blocking)
+    try {
+      await multiPlatform.sendLead({
+        eventId: eventId,
+        customData: customData,
+        userId: String(customer.id)
+      });
+    } catch (e) { /* non-fatal */ }
 
     return respondOk(res, {
       received: true,

@@ -42,6 +42,8 @@ var SCHEDULE_ID_IDENTITY_CLEANUP = 'calqix-identity-cleanup';   // 19. Daily 03:
 var SCHEDULE_ID_AI_TACTICAL = 'calqix-ai-tactical';             // 20. Every 30 min, 06-23
 var SCHEDULE_ID_AI_STRATEGIC = 'calqix-ai-strategic';           // 21. Daily 06:00
 var SCHEDULE_ID_AI_ARCHITECTURAL = 'calqix-ai-architectural';   // 22. Weekly Sun 06:00
+// Google Ads batch upload
+var SCHEDULE_ID_GADS_UPLOAD = 'calqix-gads-upload';              // 23. Every 15 min
 // Legacy IDs for deletion cleanup
 var LEGACY_IDS = [
   'calqix-daily-monitor', 'calqix-optimizer-morning', 'calqix-optimizer-afternoon',
@@ -321,15 +323,16 @@ async function createAdOptSchedules() {
 }
 
 async function createAllSchedules() {
-  console.log('[QStash] Creating all consolidated schedules (22 total)...');
+  console.log('[QStash] Creating all consolidated schedules (23 total)...');
   var ok1 = await createOptimizerSchedule();
   var ok2 = await createRecoverySchedule();
   var ok3 = await createContentSchedules();
   var ok4 = await createAdOptSchedules();
   var ok5 = await createObservabilitySchedules();
   var ok6 = await createAISchedules();
-  console.log('[QStash] Total: 1 optimizer + 1 recovery + 5 content + 3 ad-opt + 9 observability + 3 AI = 22 schedules');
-  return ok1 && ok2 && ok3 && ok4 && ok5 && ok6;
+  var ok7 = await createGadsUploadSchedule();
+  console.log('[QStash] Total: 1 optimizer + 1 recovery + 5 content + 3 ad-opt + 9 observability + 3 AI + 1 gads-upload = 23 schedules');
+  return ok1 && ok2 && ok3 && ok4 && ok5 && ok6 && ok7;
 }
 
 async function createObservabilitySchedules() {
@@ -416,6 +419,35 @@ async function createAISchedules() {
   }
 }
 
+async function createGadsUploadSchedule() {
+  console.log('[QStash] Creating Google Ads upload schedule...');
+  var qstashToken = process.env.QSTASH_TOKEN;
+  var cronSecret = process.env.CRON_SECRET;
+  if (!qstashToken) {
+    console.error('[QStash] FAIL: QSTASH_TOKEN not set');
+    return false;
+  }
+
+  try {
+    var { Client } = require('@upstash/qstash');
+    var client = new Client({ token: qstashToken });
+
+    await client.schedules.create({
+      scheduleId: SCHEDULE_ID_GADS_UPLOAD,
+      destination: MONITOR_URL + '/api/cron/gads-upload',
+      cron: 'CRON_TZ=Europe/Amsterdam */15 * * * *',
+      retries: 1,
+      headers: cronSecret ? { 'Authorization': 'Bearer ' + cronSecret } : {}
+    });
+    console.log('[QStash] Created: calqix-gads-upload (*/15 * * * *)');
+    console.log('[QStash] Google Ads upload schedule PASS');
+    return true;
+  } catch (err) {
+    console.error('[QStash] Google Ads schedule FAIL:', err.message);
+    return false;
+  }
+}
+
 async function listSchedules() {
   console.log('[QStash] Listing schedules...');
   var qstashToken = process.env.QSTASH_TOKEN;
@@ -466,7 +498,8 @@ async function deleteAllSchedules() {
       SCHEDULE_ID_IDENTITY_BACKFILL, SCHEDULE_ID_BRIDGE_HEALTH, SCHEDULE_ID_DEDUP_AUDIT,
       SCHEDULE_ID_ANOMALY_WATCH, SCHEDULE_ID_EMQ_DEEP, SCHEDULE_ID_PIXEL_DIAG,
       SCHEDULE_ID_WEBHOOK_AUDIT, SCHEDULE_ID_RECONCILIATION, SCHEDULE_ID_IDENTITY_CLEANUP,
-      SCHEDULE_ID_AI_TACTICAL, SCHEDULE_ID_AI_STRATEGIC, SCHEDULE_ID_AI_ARCHITECTURAL
+      SCHEDULE_ID_AI_TACTICAL, SCHEDULE_ID_AI_STRATEGIC, SCHEDULE_ID_AI_ARCHITECTURAL,
+      SCHEDULE_ID_GADS_UPLOAD
     ].concat(LEGACY_IDS);
     for (var i = 0; i < ids.length; i++) {
       try {

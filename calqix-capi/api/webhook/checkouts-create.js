@@ -7,6 +7,7 @@ const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');
 const store = require('../../lib/store');
 const eventState = require('../../lib/event-state');
+const multiPlatform = require('../../lib/multi-platform-send');
 const {
   buildContents,
   countItems,
@@ -150,6 +151,15 @@ async function handler(req, res) {
     var metaResult = await sendEvent('InitiateCheckout', eventId, SOURCE_URL, userData, customData);
     await eventState.recordSent(eventId, metaResult);
     await markProcessed('InitiateCheckout', String(checkoutKey));
+
+    // Multi-platform: GA4 (non-blocking)
+    try {
+      await multiPlatform.sendCheckout({
+        eventId: eventId,
+        customData: customData,
+        userId: extractExternalId(checkout)
+      });
+    } catch (e) { /* non-fatal */ }
 
     return respondOk(res, {
       received: true,

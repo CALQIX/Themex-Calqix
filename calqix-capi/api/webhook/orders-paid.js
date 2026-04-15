@@ -7,6 +7,7 @@ const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');
 const store = require('../../lib/store');
 const eventState = require('../../lib/event-state');
+const multiPlatform = require('../../lib/multi-platform-send');
 const {
   buildContents,
   countItems,
@@ -174,11 +175,51 @@ async function handler(req, res) {
     await eventState.recordSent(eventId, metaResult);
     await markProcessed('Purchase', dedupKey);
 
+    // Multi-platform: GA4 + Google Ads (non-blocking)
+    var googleResults = { ga4: null, googleAds: null };
+    try {
+      var googleIds = await multiPlatform.extractGoogleIds(checkoutToken);
+      var rawCustomer = mergeCustomerData(
+        order && order.customer,
+        order && order.customer && order.customer.default_address,
+        order && order.billing_address,
+        order && order.shipping_address
+      );
+      googleResults = await multiPlatform.sendPurchase({
+        eventId: eventId,
+        orderId: String(order.id),
+        value: toMoney(order.total_price),
+        currency: order.currency || 'EUR',
+        conversionDateTime: order.created_at || new Date().toISOString(),
+        userData: {
+          email: rawCustomer.email || (order && order.email),
+          phone: rawCustomer.phone,
+          firstName: rawCustomer.first_name,
+          lastName: rawCustomer.last_name,
+          city: rawCustomer.city,
+          zip: rawCustomer.zip,
+          country: rawCustomer.country_code
+        },
+        customData: customData,
+        clientId: googleIds.clientId,
+        userId: extractExternalId(order),
+        gclid: googleIds.gclid,
+        gbraid: googleIds.gbraid,
+        wbraid: googleIds.wbraid
+      });
+    } catch (e) {
+      console.error('[Webhook orders-paid] Multi-platform error (non-fatal):', e.message);
+    }
+
     return respondOk(res, {
       received: true,
       processed: true,
       event: 'Purchase',
-      eventId
+      eventId,
+      google: {
+        ga4: googleResults.ga4 ? googleResults.ga4.ok : null,
+        gads: googleResults.googleAds ? googleResults.googleAds.ok : null
+      }
     });
   } catch (error) {
     console.error('[Webhook orders-paid] internal error', {
