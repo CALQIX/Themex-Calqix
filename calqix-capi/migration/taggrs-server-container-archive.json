@@ -1,0 +1,25 @@
+{
+  "archived_at": "2026-04-15T16:31:00+02:00",
+  "reason": "TAGGRS server-side GTM container was installed but never activated in production. All tracking runs via calqix-capi Vercel serverless functions. Container archived for reference before decommissioning.",
+  "container_id": "GTM-K4LPNF8L",
+  "public_id": "GTM-PFPBDML6",
+  "account_id": "6235400961",
+  "taggrs_product_id": "0jkxabi7cq",
+  "hostname": "sst.calqix.com",
+  "dns_record": "A record → 85.10.147.212",
+  "status": "never_activated",
+  "original_export_location": "/Taggrs/GTM-PFPBDML6_server.json",
+  "web_container_export": "/Taggrs/GTM-TQGPKZ6S_web.json",
+  "tags_in_server_container": [
+    "Pinterest - all events (tag 28)",
+    "Various TAGGRS implementation tags"
+  ],
+  "sst_calqix_references": {
+    "theme_liquid": false,
+    "web_container_json": true,
+    "server_container_json": false,
+    "live_code": false
+  },
+  "replacement_architecture": "calqix-capi on Vercel (Node.js serverless)",
+  "note": "GTM-T86BFXXW web container in theme.liquid is UNRELATED to TAGGRS — it points to standard googletagmanager.com and is retained."
+}

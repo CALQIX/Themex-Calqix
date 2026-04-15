@@ -38,6 +38,47 @@ async function executeProposal(proposal, forceDryRun) {
     return { executed: false, result: null, queued: false, queueId: null, reason: 'MONITOR_ONLY mode' };
   }
 
+  // TELEGRAM_APPROVAL: all proposals go to approval queue with Telegram notification
+  if (mode === 'TELEGRAM_APPROVAL') {
+    var queueItemTA = await approvalQueue.createItem({
+      type: proposal.action,
+      entityName: proposal.entityName,
+      entityId: proposal.entityId,
+      reason: proposal.reason,
+      metrics: proposal.metrics,
+      expectedEffect: proposal.expectedEffect,
+      sourceRule: proposal.rule,
+      payload: proposal.payload || null
+    });
+    await logger.logQueued(proposal, queueItemTA.id);
+    // Telegram notification with inline approve/reject buttons
+    try {
+      var telegram = require('./telegram');
+      var msg = '\uD83D\uDCCB Ad Optimalisatie Voorstel\n\n' +
+        'Actie: ' + proposal.action + '\n' +
+        'Target: ' + proposal.entityName + '\n' +
+        'Reden: ' + proposal.reason + '\n' +
+        'Regel: ' + proposal.rule + '\n\n' +
+        'Queue ID: ' + queueItemTA.id;
+      var baseUrl = process.env.CAPI_BASE_URL || 'https://calqix-capi.vercel.app';
+      await telegram.sendTelegram(msg, {
+        inline_keyboard: [
+          [
+            { text: '\u2705 Goedkeuren', callback_data: 'approve:' + queueItemTA.id },
+            { text: '\u274C Afwijzen', callback_data: 'reject:' + queueItemTA.id }
+          ],
+          [
+            { text: '\u23F8\uFE0F Snooze 7d', callback_data: 'snooze:' + queueItemTA.id },
+            { text: '\u25B6\uFE0F Direct uitvoeren', callback_data: 'execute:' + queueItemTA.id }
+          ]
+        ]
+      });
+    } catch (e) {
+      console.warn('[AdExecutor] Telegram notificatie mislukt:', e.message);
+    }
+    return { executed: false, result: null, queued: true, queueId: queueItemTA.id, reason: 'TELEGRAM_APPROVAL — wacht op goedkeuring' };
+  }
+
   // Check idempotency
   var idempKey = 'ad_action_idem:' + proposal.entityId + ':' + proposal.rule + ':' + dates.todayKey();
   var alreadyDone = await store.get(idempKey);

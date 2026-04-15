@@ -23,7 +23,8 @@ var STATES = {
   EXECUTING: 'executing',
   EXECUTED: 'executed',
   FAILED: 'failed',
-  REJECTED: 'rejected'
+  REJECTED: 'rejected',
+  SNOOZED: 'snoozed'
 };
 
 function generateId() {
@@ -45,9 +46,9 @@ async function setJSON(key, val, ttl) {
 /**
  * Create a new approval queue item.
  * @param {object} opts
- * @param {string} opts.type - 'content_publish' | 'ad_pause' | 'ad_scale' | 'ad_budget' | 'content_regenerate'
+ * @param {string} opts.type - 'content_publish' | 'ad_pause' | 'ad_scale' | 'ad_budget' | 'content_regenerate' | 'ai_recommendation'
  * @param {string} opts.entityName - human-readable target name
- * @param {string} [opts.entityId] - Meta entity ID or content job ID
+ * @param {string} [opts.entityId] - Meta entity ID or content job ID or rec_id
  * @param {string} opts.reason - why this action is proposed
  * @param {object} [opts.metrics] - metric snapshot at time of proposal
  * @param {string} [opts.expectedEffect] - what the action would do
@@ -248,12 +249,53 @@ async function getQueueSummary(dateStr) {
   };
 }
 
+/**
+ * Snooze an item for N days.
+ */
+async function snoozeItem(id, days, snoozedBy) {
+  var item = await getItem(id);
+  if (!item) return null;
+  if (item.state !== STATES.PENDING) {
+    console.warn('[ApprovalQueue] Cannot snooze item in state:', item.state);
+    return item;
+  }
+  item.state = STATES.SNOOZED;
+  item.snoozedBy = snoozedBy || 'operator';
+  item.snoozedUntil = new Date(Date.now() + (days || 7) * 86400000).toISOString();
+  item.updatedAt = new Date().toISOString();
+  await setJSON('aq:item:' + id, item, TTL_ITEM);
+  console.log('[ApprovalQueue] Snoozed', { id: id, type: item.type, days: days });
+  return item;
+}
+
+/**
+ * Unsnooze expired items (call from a cron).
+ */
+async function unsnoozeExpired(dateStr) {
+  var ids = (await getJSON('aq:pending:' + (dateStr || today()))) || [];
+  var unsnoozed = 0;
+  for (var i = 0; i < ids.length; i++) {
+    var item = await getItem(ids[i]);
+    if (item && item.state === STATES.SNOOZED && item.snoozedUntil) {
+      if (new Date(item.snoozedUntil) <= new Date()) {
+        item.state = STATES.PENDING;
+        item.updatedAt = new Date().toISOString();
+        await setJSON('aq:item:' + ids[i], item, TTL_ITEM);
+        unsnoozed++;
+      }
+    }
+  }
+  return unsnoozed;
+}
+
 module.exports = {
   STATES: STATES,
   createItem: createItem,
   getItem: getItem,
   approveItem: approveItem,
   rejectItem: rejectItem,
+  snoozeItem: snoozeItem,
+  unsnoozeExpired: unsnoozeExpired,
   markExecuting: markExecuting,
   markExecuted: markExecuted,
   markFailed: markFailed,

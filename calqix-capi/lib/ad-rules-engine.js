@@ -8,7 +8,7 @@
  *   TARGET_CPA             — target cost per acquisition (default: 15)
  *   MAX_ADSET_BUDGET       — max adset daily budget EUR (default: 50)
  *   MAX_DAILY_SPEND        — max total daily account spend EUR (default: 100)
- *   ADS_OPTIMIZATION_MODE  — MONITOR_ONLY | SUGGEST | AUTO_EXECUTE
+ *   ADS_OPTIMIZATION_MODE  — MONITOR_ONLY | SUGGEST | TELEGRAM_APPROVAL | EXECUTE | AUTO_EXECUTE
  */
 
 var TARGET_CPA = function () { return parseFloat(process.env.TARGET_CPA || '15'); };
@@ -314,7 +314,7 @@ function evaluate(snapshot, fatigueData, budgetHistory) {
 // --- Helpers ---
 
 function canAutoExecute(mode) {
-  return mode === 'AUTO_EXECUTE' || mode === 'EXECUTE';
+  return mode === 'AUTO_EXECUTE' || mode === 'EXECUTE' || mode === 'TELEGRAM_APPROVAL';
 }
 
 function canScaleAdset(adsetId, budgetHistory) {

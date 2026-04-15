@@ -4,10 +4,11 @@
  * Modes:
  *   DRAFT_ONLY          — generate only, no publishing
  *   APPROVAL_REQUIRED   — publish only after approval flag
+ *   LIVE                — publish after passing brand/compliance checks, log everything
  *   AUTO_PUBLISH        — only for high-confidence content when enabled
  *
  * Env vars:
- *   CONTENT_AUTOMATION_MODE                   — DRAFT_ONLY | APPROVAL_REQUIRED | AUTO_PUBLISH
+ *   CONTENT_AUTOMATION_MODE                   — DRAFT_ONLY | APPROVAL_REQUIRED | LIVE | AUTO_PUBLISH
  *   CONTENT_AUTO_PUBLISH_CONFIDENCE_THRESHOLD — min confidence for auto-publish (default: 75)
  *   ENABLE_CONTENT_PUBLISH                    — 'true' to allow actual publishing
  */
@@ -61,6 +62,37 @@ async function publish(brief, assets) {
       payload: { brief: brief, assets: assets }
     });
     return { published: false, queued: true, reason: 'Queued for approval', queueId: queueItem.id };
+  }
+
+  if (mode === 'LIVE') {
+    // LIVE mode: publish after brand/compliance check (already done above)
+    // Always requires ENABLE_CONTENT_PUBLISH to be true
+    if (!PUBLISH_ENABLED()) {
+      return { published: false, queued: false, reason: 'LIVE mode maar ENABLE_CONTENT_PUBLISH niet ingesteld', queueId: null };
+    }
+
+    var publishResult = await doPublish(brief, assets);
+    if (publishResult.ok) {
+      await store.set(dedupKey, '1', 86400);
+      await recordPublishMemory(brief);
+      // Log publish to Redis for tracking
+      await logPublish(brief, publishResult, 'live');
+      // Telegram notification
+      try {
+        var telegram = require('./telegram');
+        await telegram.sendTelegram(
+          '\uD83D\uDCE4 Content Live Gepubliceerd\n\n' +
+          'Slot: ' + brief.slot + '\n' +
+          'Hoek: ' + brief.angle + '/' + brief.pillar + '\n' +
+          'Platform: ' + (brief.platform || 'instagram') + '\n' +
+          'Confidence: ' + (brief.confidence || 'n/a') + '\n' +
+          'Tijdstip: ' + new Date().toISOString().slice(0, 16).replace('T', ' ')
+        );
+      } catch (e) { /* non-critical */ }
+    } else {
+      await logPublish(brief, publishResult, 'live_failed');
+    }
+    return { published: publishResult.ok, queued: false, reason: publishResult.ok ? 'LIVE gepubliceerd' : publishResult.error, queueId: null };
   }
 
   if (mode === 'AUTO_PUBLISH') {
@@ -160,9 +192,72 @@ async function doPublish(brief, assets) {
   return { ok: true, platform: brief.platform, publishedAt: new Date().toISOString() };
 }
 
+/**
+ * Record publish in content memory.
+ */
+async function recordPublishMemory(brief) {
+  try {
+    await memory.recordPublish(brief.date + ':' + brief.slot, {
+      angle: brief.angle, pillar: brief.pillar, product: brief.product, confidence: brief.confidence
+    });
+    await memory.recordPostedTopic(brief.angle + '/' + brief.pillar, {
+      pillar: brief.pillar, angle: brief.angle, product: brief.product
+    });
+    await memory.recordPostedHook(brief.hook, { angle: brief.angle });
+    await memory.recordPostedCTA(brief.cta, { pillar: brief.pillar });
+    await memory.recordAngleUsage(brief.angle);
+    await memory.recordProductUsage(brief.product);
+  } catch (e) {
+    console.warn('[Publisher] Memory recording mislukt:', e.message);
+  }
+}
+
+/**
+ * Log a publish action to Redis for audit trail.
+ */
+async function logPublish(brief, result, mode) {
+  try {
+    var logKey = 'publish:log:' + (brief.date || new Date().toISOString().slice(0, 10));
+    var existing = await store.get(logKey);
+    var log = existing ? JSON.parse(existing) : [];
+    log.push({
+      slot: brief.slot,
+      angle: brief.angle,
+      pillar: brief.pillar,
+      platform: brief.platform,
+      mode: mode,
+      ok: result.ok,
+      error: result.error || null,
+      timestamp: new Date().toISOString()
+    });
+    await store.set(logKey, JSON.stringify(log), 30 * 86400);
+  } catch (e) { /* non-critical */ }
+}
+
+/**
+ * Rollback a published post (mark as retracted in Redis).
+ * Actual platform unpublish depends on platform API support.
+ */
+async function rollbackPublish(briefDateSlot, reason) {
+  try {
+    var logKey = 'publish:rollback:' + briefDateSlot;
+    await store.set(logKey, JSON.stringify({
+      reason: reason || 'operator_rollback',
+      timestamp: new Date().toISOString()
+    }), 30 * 86400);
+    // Clear the dedup key so it could be re-published
+    await store.del('publish_dedup:' + briefDateSlot.replace(':', ':'));
+    console.log('[Publisher] Rollback uitgevoerd voor:', briefDateSlot);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
 module.exports = {
   publish: publish,
   publishApproved: publishApproved,
+  rollbackPublish: rollbackPublish,
   MODE: MODE,
   CONFIDENCE_THRESHOLD: CONFIDENCE_THRESHOLD
 };

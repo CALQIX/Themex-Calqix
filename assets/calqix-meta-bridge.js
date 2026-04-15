@@ -53,7 +53,13 @@
   }
 
   function getFbp() {
-    return getCookie('_fbp') || null;
+    var existing = getCookie('_fbp');
+    if (existing) return existing;
+
+    // Generate fallback _fbp if Meta Pixel hasn't set it yet
+    var fallback = 'fb.1.' + Date.now() + '.' + Math.floor(1000000000 + Math.random() * 9000000000);
+    setCookie('_fbp', fallback, 90);
+    return fallback;
   }
 
   /* ------------------------------------------------------------------ */
@@ -118,6 +124,31 @@
     } catch (e) { /* silent */ }
     return null;
   }
+
+  /* ------------------------------------------------------------------ */
+  /*  Multi-platform click ID capture                                    */
+  /* ------------------------------------------------------------------ */
+
+  function captureClickIds() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var gclid = params.get('gclid');
+      var gbraid = params.get('gbraid');
+      var wbraid = params.get('wbraid');
+      var ttclid = params.get('ttclid');
+
+      if (gclid) setCookie('_cq_gclid', gclid, 90);
+      if (gbraid) setCookie('_cq_gbraid', gbraid, 90);
+      if (wbraid) setCookie('_cq_wbraid', wbraid, 90);
+      if (ttclid) setCookie('_cq_ttclid', ttclid, 90);
+    } catch (e) { /* silent */ }
+  }
+
+  function getGclid() { return getCookie('_cq_gclid') || null; }
+  function getGbraid() { return getCookie('_cq_gbraid') || null; }
+  function getWbraid() { return getCookie('_cq_wbraid') || null; }
+  function getTtclid() { return getCookie('_cq_ttclid') || null; }
+  function getTtp() { return getCookie('_ttp') || null; }
 
   /* ------------------------------------------------------------------ */
   /*  Stable anonymous external_id (first-party, cross-session)          */
@@ -194,6 +225,11 @@
     var phone = getCustomerPhone();
     var externalId = getExternalId();
     var countryCode = getCountryCode();
+    var gclid = getGclid();
+    var gbraid = getGbraid();
+    var wbraid = getWbraid();
+    var ttclid = getTtclid();
+    var ttp = getTtp();
 
     if (fbc) data.fbc = fbc;
     if (fbp) data.fbp = fbp;
@@ -201,6 +237,11 @@
     if (phone) data.phone = phone;
     if (externalId) data.external_id = externalId;
     if (countryCode) data.country_code = countryCode;
+    if (gclid) data.gclid = gclid;
+    if (gbraid) data.gbraid = gbraid;
+    if (wbraid) data.wbraid = wbraid;
+    if (ttclid) data.ttclid = ttclid;
+    if (ttp) data.ttp = ttp;
     return data;
   }
 
@@ -381,6 +422,60 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /*  Identity capture — sends enrichment data to server on checkout     */
+  /* ------------------------------------------------------------------ */
+
+  function captureIdentity(fields) {
+    var payload = buildUserPayload();
+    payload.anon_id = getOrCreateAnonId();
+
+    // Merge additional fields (from checkout form, etc.)
+    if (fields) {
+      var keys = Object.keys(fields);
+      for (var i = 0; i < keys.length; i++) {
+        if (fields[keys[i]]) payload[keys[i]] = fields[keys[i]];
+      }
+    }
+
+    // Get cart token from Shopify
+    try {
+      if (window.Shopify && window.Shopify.checkout && window.Shopify.checkout.token) {
+        payload.cart_token = window.Shopify.checkout.token;
+      }
+    } catch (e) { /* silent */ }
+
+    fetch(CAPI_BASE + '/identity/capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(function () { /* silent */ });
+  }
+
+  // Auto-capture identity when Shopify checkout fields are available
+  function autoIdentityCapture() {
+    try {
+      if (window.Shopify && window.Shopify.checkout) {
+        var co = window.Shopify.checkout;
+        var fields = {};
+        if (co.email) fields.email = co.email;
+        if (co.shipping_address) {
+          var sa = co.shipping_address;
+          if (sa.first_name) fields.first_name = sa.first_name;
+          if (sa.last_name) fields.last_name = sa.last_name;
+          if (sa.phone) fields.phone = sa.phone;
+          if (sa.city) fields.city = sa.city;
+          if (sa.zip) fields.zip = sa.zip;
+          if (sa.province_code) fields.province_code = sa.province_code;
+          if (sa.country_code) fields.country_code = sa.country_code;
+        }
+        if (Object.keys(fields).length > 0) {
+          captureIdentity(fields);
+        }
+      }
+    } catch (e) { /* silent */ }
+  }
+
+  /* ------------------------------------------------------------------ */
   /*  Expose public API                                                  */
   /* ------------------------------------------------------------------ */
 
@@ -395,7 +490,10 @@
     fireAddToCart: fireAddToCart,
     syncCartAttributes: syncCartAttributes,
     fireViewContent: fireViewContent,
-    buildUserPayload: buildUserPayload
+    buildUserPayload: buildUserPayload,
+    captureIdentity: captureIdentity,
+    getGclid: getGclid,
+    getTtclid: getTtclid
   };
 
   /* ------------------------------------------------------------------ */
@@ -404,15 +502,19 @@
 
   function onReady() {
     persistFbclid();
+    captureClickIds();
     getOrCreateAnonId();
+    getFbp(); // Ensures _fbp fallback is generated if missing
     syncCartAttributes();
     fireViewContent();
     interceptAddToCart();
+    autoIdentityCapture();
 
     // Retry fbp sync after Meta Pixel loads (it may set _fbp after bridge init)
     setTimeout(function () {
       var fbp = getFbp();
       if (fbp) syncCartAttributes();
+      autoIdentityCapture();
     }, 3000);
   }
 
