@@ -2,24 +2,14 @@
  * CALQIX CAPI Dashboard — root endpoint.
  *
  * Shows all platform connections, EMQ diagnostics, and system health.
- * Protected by CRON_SECRET or DIAGNOSTICS_KEY.
+ * Public — no auth required.
  */
 var store = require('../lib/store');
 var googleOAuth = require('../lib/google-oauth');
 var capiDiag = require('../lib/capi-diagnostics');
 
 module.exports = async function (req, res) {
-  // Auth check
-  var secret = process.env.CRON_SECRET || '';
-  var diagKey = process.env.DIAGNOSTICS_KEY || '';
   var qs = (req.query && req.query.secret) || '';
-  var authHeader = req.headers['authorization'] || '';
-
-  if (secret && qs !== secret && authHeader !== 'Bearer ' + secret) {
-    if (!diagKey || qs !== diagKey) {
-      return res.status(401).json({ error: 'Unauthorized — add ?secret=CRON_SECRET' });
-    }
-  }
 
   try {
     // --- Gather all platform statuses ---
