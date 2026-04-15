@@ -51,7 +51,7 @@ module.exports = async function (req, res) {
 
     // Return HTML dashboard
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    return res.status(200).send(renderDashboard(data));
+    return res.status(200).send(renderDashboard(data, qs));
   } catch (err) {
     console.error('[Dashboard] Error:', err.message);
     return res.status(500).json({ error: err.message });
@@ -130,7 +130,7 @@ async function getEventCounts() {
   return counts;
 }
 
-function renderDashboard(data) {
+function renderDashboard(data, querySecret) {
   var m = data.meta;
   var g = data.ga4;
   var ga = data.googleAds;
@@ -298,8 +298,8 @@ function renderDashboard(data) {
     // --- Quick Links ---
     '<div class="section-title">Quick Links</div>' +
     '<div class="grid">' +
-    '<div class="card"><a href="/api/google/oauth/health?secret=' + qs + '" style="color:var(--gold);text-decoration:none;font-weight:600">Google OAuth Health</a><div class="card-detail">Check OAuth token status</div></div>' +
-    '<div class="card"><a href="/api/google/oauth/start?secret=' + qs + '" style="color:var(--gold);text-decoration:none;font-weight:600">Google OAuth Start</a><div class="card-detail">Initiate OAuth consent flow</div></div>' +
+    '<div class="card"><a href="/api/google/oauth/health" class="ql" style="color:var(--gold);text-decoration:none;font-weight:600">Google OAuth Health</a><div class="card-detail">Check OAuth token status</div></div>' +
+    '<div class="card"><a href="/api/google/oauth/start" class="ql" style="color:var(--gold);text-decoration:none;font-weight:600">Google OAuth Start</a><div class="card-detail">Initiate OAuth consent flow</div></div>' +
     '</div>' +
 
     '</div>' +
@@ -308,6 +308,7 @@ function renderDashboard(data) {
 
     '<script>' +
     'function switchTab(t){document.querySelectorAll(".tab").forEach(function(el){el.classList.remove("active")});document.querySelectorAll(".tab-content").forEach(function(el){el.classList.remove("active")});event.target.classList.add("active");document.getElementById("tab-"+t).classList.add("active")}' +
+    '(function(){var s=new URLSearchParams(location.search).get("secret");if(s){document.querySelectorAll("a.ql").forEach(function(a){a.href+=a.href.indexOf("?")>-1?"&":"?";a.href+="secret="+encodeURIComponent(s)})}})();' +
     '</script>' +
 
     '</body></html>';
