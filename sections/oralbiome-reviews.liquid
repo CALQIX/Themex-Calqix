@@ -42,6 +42,32 @@
   .ob-reviews__show-more:hover { background: #1A3B5C; color: #fff; }
   .ob-reviews__write { display: block; margin: 16px auto 0; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 12px 32px; border: 1px solid #C9A84C; border-radius: 4px; background: transparent; color: #C9A84C; cursor: pointer; transition: background 0.2s ease, color 0.2s ease; text-decoration: none; text-align: center; }
   .ob-reviews__write:hover { background: #C9A84C; color: #1A3B5C; }
+
+  /* ── Review Modal ── */
+  .ob-review-modal { position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); opacity: 0; transition: opacity 0.25s ease; }
+  .ob-review-modal.is-open { display: flex; opacity: 1; }
+  .ob-review-modal__box { position: relative; background: #fff; border-radius: 12px; max-width: 480px; width: 92vw; max-height: 90vh; overflow-y: auto; padding: 32px 28px 28px; box-shadow: 0 16px 48px rgba(0,0,0,0.2); }
+  .ob-review-modal__close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border: none; background: none; cursor: pointer; color: #6B7280; font-size: 20px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s; }
+  .ob-review-modal__close:hover { background: #F3F4F6; }
+  .ob-review-modal__title { font-family: 'DM Serif Display', serif; font-size: 22px; color: #1A3B5C; margin: 0 0 4px; }
+  .ob-review-modal__subtitle { font-family: 'DM Sans', sans-serif; font-size: 13px; color: #6B7280; margin: 0 0 20px; }
+  .ob-review-modal__field { margin-bottom: 14px; }
+  .ob-review-modal__label { display: block; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: #1A3B5C; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .ob-review-modal__input, .ob-review-modal__textarea { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 14px; border: 1px solid #E5E7EB; border-radius: 6px; padding: 10px 12px; color: #1A3B5C; transition: border-color 0.2s; box-sizing: border-box; }
+  .ob-review-modal__input:focus, .ob-review-modal__textarea:focus { border-color: #C9A84C; outline: none; }
+  .ob-review-modal__textarea { min-height: 90px; resize: vertical; }
+  .ob-review-modal__stars { display: flex; gap: 4px; cursor: pointer; }
+  .ob-review-modal__star { width: 28px; height: 28px; color: #E5E7EB; transition: color 0.15s; }
+  .ob-review-modal__star.is-active { color: #C9A84C; }
+  .ob-review-modal__star:hover { color: #C9A84C; }
+  .ob-review-modal__submit { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; padding: 12px; border: none; border-radius: 6px; background: #1A3B5C; color: #fff; cursor: pointer; transition: background 0.2s; margin-top: 4px; }
+  .ob-review-modal__submit:hover { background: #15304D; }
+  .ob-review-modal__submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ob-review-modal__success { text-align: center; padding: 24px 0; }
+  .ob-review-modal__success-icon { width: 56px; height: 56px; margin: 0 auto 16px; color: #2E7D32; }
+  .ob-review-modal__success-heading { font-family: 'DM Serif Display', serif; font-size: 20px; color: #1A3B5C; margin: 0 0 8px; }
+  .ob-review-modal__success-text { font-family: 'DM Sans', sans-serif; font-size: 14px; color: #6B7280; margin: 0; }
+  @media (max-width: 480px) { .ob-review-modal__box { padding: 24px 20px 20px; } }
   .ob-reviews__judgeme { margin-top: 32px; }
   @media (max-width: 767px) {
     .ob-reviews__filters { justify-content: flex-start; padding: 0 16px 4px; }
@@ -99,10 +125,60 @@
     {%- else -%}
       <div class="ob-reviews__grid" data-ob-grid></div>
       <button type="button" class="ob-reviews__show-more" data-ob-show-more>{{ section.settings.show_more_label }}</button>
-      <a class="ob-reviews__write" href="{{ section.settings.write_review_url | default: '#write-review' }}">{{ _ob_rev_write }}</a>
+      <button type="button" class="ob-reviews__write" data-ob-open-review>{{ _ob_rev_write }}</button>
     {%- endif -%}
   </div>
 </section>
+
+<!-- Review Modal -->
+<div class="ob-review-modal" id="ob-review-modal-{{ section.id }}" aria-hidden="true" role="dialog">
+  <div class="ob-review-modal__box">
+    <button class="ob-review-modal__close" aria-label="Close" data-ob-close-review>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div data-ob-review-form>
+      <h3 class="ob-review-modal__title">{{ _ob_rev_write }}</h3>
+      <p class="ob-review-modal__subtitle">{{ 'calqix_oralbiome.reviews.review_modal_subtitle' | t | default: 'Share your experience with OralBiome Pro' }}</p>
+      <form method="post" action="/contact#contact_form" data-ob-review-form-el>
+        <input type="hidden" name="form_type" value="contact">
+        <input type="hidden" name="utf8" value="\u2713">
+        <input type="hidden" name="contact[subject]" value="New Review: {{ product.title | escape }}">
+        <input type="hidden" name="contact[tags]" value="review">
+        <div class="ob-review-modal__field">
+          <label class="ob-review-modal__label">{{ 'calqix_oralbiome.reviews.rating_label' | t | default: 'Rating' }}</label>
+          <div class="ob-review-modal__stars" data-ob-stars>
+            {%- for i in (1..5) -%}
+              <svg class="ob-review-modal__star{% if i <= 5 %} is-active{% endif %}" data-star="{{ i }}" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            {%- endfor -%}
+          </div>
+          <input type="hidden" name="contact[rating]" value="5" data-ob-rating-input>
+        </div>
+        <div class="ob-review-modal__field">
+          <label class="ob-review-modal__label" for="ob-review-name">{{ 'calqix_oralbiome.reviews.name_label' | t | default: 'Name' }}</label>
+          <input class="ob-review-modal__input" type="text" id="ob-review-name" name="contact[name]" required>
+        </div>
+        <div class="ob-review-modal__field">
+          <label class="ob-review-modal__label" for="ob-review-email">{{ 'calqix_oralbiome.reviews.email_label' | t | default: 'Email' }}</label>
+          <input class="ob-review-modal__input" type="email" id="ob-review-email" name="contact[email]" required>
+        </div>
+        <div class="ob-review-modal__field">
+          <label class="ob-review-modal__label" for="ob-review-title">{{ 'calqix_oralbiome.reviews.title_label' | t | default: 'Review title' }}</label>
+          <input class="ob-review-modal__input" type="text" id="ob-review-title" name="contact[review_title]" required>
+        </div>
+        <div class="ob-review-modal__field">
+          <label class="ob-review-modal__label" for="ob-review-body">{{ 'calqix_oralbiome.reviews.body_label' | t | default: 'Your review' }}</label>
+          <textarea class="ob-review-modal__textarea" id="ob-review-body" name="contact[body]" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="ob-review-modal__submit" data-ob-review-submit>{{ 'calqix_oralbiome.reviews.submit_review' | t | default: 'Submit Review' }}</button>
+      </form>
+    </div>
+    <div class="ob-review-modal__success" style="display:none" data-ob-review-success>
+      <svg class="ob-review-modal__success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+      <h3 class="ob-review-modal__success-heading">{{ 'calqix_oralbiome.reviews.thank_you_title' | t | default: 'Thank you!' }}</h3>
+      <p class="ob-review-modal__success-text">{{ 'calqix_oralbiome.reviews.thank_you_text' | t | default: 'Your review has been submitted and will be reviewed by our team.' }}</p>
+    </div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -373,6 +449,83 @@
   }
 
   renderReviews();
+
+  /* ── Review Modal ── */
+  var reviewModal = document.getElementById('ob-review-modal-{{ section.id }}');
+  var openBtn = section.querySelector('[data-ob-open-review]');
+  var closeBtn = reviewModal ? reviewModal.querySelector('[data-ob-close-review]') : null;
+  var starsWrap = reviewModal ? reviewModal.querySelector('[data-ob-stars]') : null;
+  var ratingInput = reviewModal ? reviewModal.querySelector('[data-ob-rating-input]') : null;
+  var formEl = reviewModal ? reviewModal.querySelector('[data-ob-review-form-el]') : null;
+  var formWrap = reviewModal ? reviewModal.querySelector('[data-ob-review-form]') : null;
+  var successWrap = reviewModal ? reviewModal.querySelector('[data-ob-review-success]') : null;
+
+  function openReviewModal() {
+    if (!reviewModal) return;
+    reviewModal.classList.add('is-open');
+    reviewModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeReviewModal() {
+    if (!reviewModal) return;
+    reviewModal.classList.remove('is-open');
+    reviewModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  if (openBtn) openBtn.addEventListener('click', openReviewModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeReviewModal);
+  if (reviewModal) {
+    reviewModal.addEventListener('click', function(e) {
+      if (e.target === reviewModal) closeReviewModal();
+    });
+  }
+
+  /* Star rating picker */
+  if (starsWrap && ratingInput) {
+    var stars = starsWrap.querySelectorAll('.ob-review-modal__star');
+    function setRating(val) {
+      ratingInput.value = val;
+      stars.forEach(function(s) {
+        s.classList.toggle('is-active', parseInt(s.dataset.star) <= val);
+      });
+    }
+    stars.forEach(function(s) {
+      s.addEventListener('click', function() { setRating(parseInt(s.dataset.star)); });
+      s.addEventListener('mouseenter', function() {
+        var v = parseInt(s.dataset.star);
+        stars.forEach(function(st) { st.classList.toggle('is-active', parseInt(st.dataset.star) <= v); });
+      });
+    });
+    starsWrap.addEventListener('mouseleave', function() {
+      setRating(parseInt(ratingInput.value));
+    });
+  }
+
+  /* AJAX form submit */
+  if (formEl) {
+    formEl.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var submitBtn = formEl.querySelector('[data-ob-review-submit]');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '...'; }
+      var body = formEl.querySelector('[name="contact[body]"]');
+      if (body && ratingInput) {
+        body.value = '[Rating: ' + ratingInput.value + '/5]\n[Title: ' + (formEl.querySelector('[name="contact[review_title]"]').value || '') + ']\n\n' + body.value;
+      }
+      var formData = new FormData(formEl);
+      fetch('/contact#contact_form', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'text/html' }
+      }).then(function() {
+        if (formWrap) formWrap.style.display = 'none';
+        if (successWrap) successWrap.style.display = '';
+        setTimeout(closeReviewModal, 3500);
+      }).catch(function() {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit Review'; }
+      });
+    });
+  }
 })();
 </script>
 
