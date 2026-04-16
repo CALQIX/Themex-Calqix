@@ -4,12 +4,17 @@
   Manageable via Theme Editor blocks. Positioned after text reviews.
 {%- endcomment -%}
 
-{%- assign cqvr_eyebrow = 'calqix_oralbiome.video_reviews.eyebrow' | t -%}
-{%- assign cqvr_heading = 'calqix_oralbiome.video_reviews.heading' | t -%}
+{%- assign cqvr_eyebrow = section.settings.eyebrow_text | default: '' -%}
+{%- if cqvr_eyebrow == blank -%}
+  {%- assign cqvr_eyebrow = 'calqix_oralbiome.video_reviews.eyebrow' | t -%}
+{%- endif -%}
+{%- assign cqvr_heading = section.settings.heading_text | default: '' -%}
+{%- if cqvr_heading == blank -%}
+  {%- assign cqvr_heading = 'calqix_oralbiome.video_reviews.heading' | t -%}
+{%- endif -%}
 {%- assign cqvr_play = 'calqix_oralbiome.video_reviews.play' | t -%}
 {%- assign cqvr_close = 'calqix_oralbiome.video_reviews.close' | t -%}
 
-{%- if section.blocks.size > 0 -%}
 <style>
   .cqvr {
     --cqvr-navy: #1A3B5C;
@@ -213,6 +218,16 @@
   .cqvr-modal__nav--next { right: max(8px, calc(50% - 232px)); }
   .cqvr-modal__nav svg { width: 20px; height: 20px; }
 
+  .cqvr__card--placeholder {
+    background: linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cqvr__card--placeholder .cqvr__overlay {
+    background: rgba(0,0,0,0.25);
+  }
+
   /* ── Desktop: center cards ── */
   @media (min-width: 1100px) {
     .cqvr__rail {
@@ -244,7 +259,7 @@
         {%- if block.settings.video != blank and block.settings.thumbnail != blank -%}
           <div class="cqvr__card"
                role="listitem"
-               data-video-url="{{ block.settings.video }}"
+               data-video-url="{{ block.settings.video.sources[0].url }}"
                data-video-index="{{ forloop.index0 }}"
                data-reviewer-name="{{ block.settings.reviewer_name | escape }}"
                aria-label="{{ cqvr_play }}: {{ block.settings.reviewer_name | escape }}"
@@ -266,6 +281,15 @@
                   <svg class="cqvr__star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 {%- endfor -%}
               </div>
+            </div>
+          </div>
+        {%- else -%}
+          <div class="cqvr__card cqvr__card--placeholder" {{ block.shopify_attributes }}>
+            <div class="cqvr__overlay">
+              <div class="cqvr__play-btn" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>
+              </div>
+              <span class="cqvr__name">{{ block.settings.reviewer_name }}</span>
             </div>
           </div>
         {%- endif -%}
@@ -384,7 +408,6 @@
   }
 })();
 </script>
-{%- endif -%}
 
 {% schema %}
 {
@@ -397,6 +420,20 @@
       "id": "show_eyebrow",
       "label": "Show eyebrow text",
       "default": true
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_text",
+      "label": "Eyebrow text",
+      "info": "Leave blank to use translation file",
+      "default": "SEE REAL RESULTS"
+    },
+    {
+      "type": "text",
+      "id": "heading_text",
+      "label": "Heading text",
+      "info": "Leave blank to use translation file",
+      "default": "Hear it from our customers"
     }
   ],
   "blocks": [
