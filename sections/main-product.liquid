@@ -2873,165 +2873,12 @@
                 {%- render 'calqix-bundle-picker',
                   tier_2_discount: block.settings.tier_2_discount,
                   tier_3_discount: block.settings.tier_3_discount,
+                  tier_3_free_jar: block.settings.tier_3_free_jar,
                   popular_tier: block.settings.popular_tier
                 -%}
               {%- endif -%}
 
-            {%- when 'calqix_compliance_note' -%}
-              {%- assign ccn_text = block.settings.text -%}
-              {%- if cq_is_translated_oralbiome -%}
-                {%- assign ccn_text = 'calqix_oralbiome.compliance.buybox_note' | t -%}
-              {%- endif -%}
-              <div class="calqix-compliance-note" {{ block.shopify_attributes }} style="
-                padding: 10px 14px;
-                margin: 8px 0 4px;
-                background: {{ block.settings.background_color }};
-                border-radius: 6px;
-                font-family: 'DM Sans', sans-serif;
-                font-size: {{ block.settings.font_size }}px;
-                line-height: 1.55;
-                color: {{ block.settings.text_color }};
-              ">
-                {{ ccn_text }}
-              </div>
-
-            {%- when 'calqix_trust_badges' -%}
-              {%- assign b = block.settings -%}
-              {%- assign ctb_shipping_text = b.shipping_text -%}
-              {%- if cq_is_translated_flowcore -%}
-                {%- assign ctb_shipping_text = 'calqix_flowcore.main.shipping_text' | t -%}
-              {%- elsif cq_is_translated_oralbiome -%}
-                {%- assign ctb_shipping_text = 'calqix_oralbiome.main.shipping_text' | t -%}
-              {%- endif -%}
-              <style>
-                #ctb-block-{{ block.id }} {
-                  background: {{ b.background_color }};
-                  padding: {{ b.padding_vertical }}px 0;
-                  {% if b.show_border_top %}border-top: 1px solid {{ b.border_color }};{% endif %}
-                  {% if b.show_border_bottom %}border-bottom: 1px solid {{ b.border_color }};{% endif %}
-                  margin: {{ b.margin_vertical }}px 0;
-                }
-                #ctb-block-{{ block.id }} .ctb-grid {
-                  display: grid;
-                  grid-template-columns: repeat({{ b.columns }}, 1fr);
-                  gap: 0;
-                }
-                #ctb-block-{{ block.id }} .ctb-badge {
-                  display: flex;
-                  flex-direction: {{ b.badge_direction }};
-                  align-items: center;
-                  gap: {{ b.badge_gap }}px;
-                  text-align: center;
-                  padding: {{ b.badge_padding }}px;
-                  {% if b.badge_dividers %}border-right: 1px solid {{ b.border_color }};{% endif %}
-                  text-decoration: none;
-                  transition: opacity 0.2s;
-                }
-                #ctb-block-{{ block.id }} .ctb-badge:last-child {
-                  {% if b.badge_dividers %}border-right: none;{% endif %}
-                }
-                #ctb-block-{{ block.id }} .ctb-badge:hover {
-                  opacity: {% if b.badge_hover %}0.7{% else %}1{% endif %};
-                }
-                #ctb-block-{{ block.id }} .ctb-icon {
-                  font-size: {{ b.icon_size }}px;
-                  line-height: 1;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                }
-                #ctb-block-{{ block.id }} .ctb-icon-image {
-                  display: block;
-                  width: {{ b.icon_size }}px;
-                  height: {{ b.icon_size }}px;
-                  object-fit: contain;
-                }
-                #ctb-block-{{ block.id }} .ctb-text {
-                  font-size: {{ b.text_size }}px;
-                  font-weight: {{ b.text_weight }};
-                  color: {{ b.text_color }};
-                  letter-spacing: 0.06em;
-                  text-transform: uppercase;
-                  line-height: 1.3;
-                }
-                #ctb-block-{{ block.id }} .ctb-shipping {
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  gap: 8px;
-                  padding: {{ b.shipping_padding }}px 14px;
-                  background: {{ b.shipping_background }};
-                  margin-top: 8px;
-                  font-size: {{ b.shipping_size }}px;
-                  color: {{ b.shipping_text_color }};
-                  line-height: 1.4;
-                  text-align: center;
-                }
-                #ctb-block-{{ block.id }} .ctb-shipping-icon { font-size: {{ b.shipping_icon_size }}px; flex-shrink: 0; }
-                @media (max-width: 600px) {
-                  #ctb-block-{{ block.id }} .ctb-grid {
-                    grid-template-columns: repeat({% if b.columns > 2 %}2{% else %}{{ b.columns }}{% endif %}, 1fr);
-                  }
-                }
-                {% if b.custom_css != blank %}{{ b.custom_css }}{% endif %}
-              </style>
-              {%- assign ctb_count = 0 -%}
-              {%- for i in (1..5) -%}
-                {%- assign ctb_tk = 'badge_' | append: i | append: '_text' -%}
-                {%- if b[ctb_tk] != blank -%}{%- assign ctb_count = ctb_count | plus: 1 -%}{%- endif -%}
-              {%- endfor -%}
-              <div id="ctb-block-{{ block.id }}" class="calqix-trust-badges-block" {{ block.shopify_attributes }}>
-                {%- if ctb_count > 0 -%}
-                  <div class="ctb-grid">
-                    {%- for i in (1..5) -%}
-                      {%- assign ctb_tk = 'badge_' | append: i | append: '_text' -%}
-                      {%- assign ctb_ik = 'badge_' | append: i | append: '_icon' -%}
-                      {%- assign ctb_imgk = 'badge_' | append: i | append: '_image' -%}
-                      {%- assign ctb_uk = 'badge_' | append: i | append: '_url' -%}
-                      {%- assign ctb_text = b[ctb_tk] -%}
-                      {%- if cq_is_translated_flowcore -%}
-                        {%- case i -%}
-                          {%- when 1 -%}
-                            {%- assign ctb_text = 'calqix_flowcore.main.trust_badge_1' | t -%}
-                          {%- when 2 -%}
-                            {%- assign ctb_text = 'calqix_flowcore.main.trust_badge_2' | t -%}
-                          {%- when 3 -%}
-                            {%- assign ctb_text = 'calqix_flowcore.main.trust_badge_3' | t -%}
-                          {%- when 4 -%}
-                            {%- assign ctb_text = 'calqix_flowcore.main.trust_badge_4' | t -%}
-                          {%- when 5 -%}
-                            {%- assign ctb_text = 'calqix_flowcore.main.trust_badge_5' | t -%}
-                        {%- endcase -%}
-                      {%- elsif cq_is_translated_oralbiome and i <= 4 -%}
-                        {%- assign ctb_ob_key = 'calqix_oralbiome.main.trust_' | append: i -%}
-                        {%- assign ctb_text = ctb_ob_key | t -%}
-                      {%- endif -%}
-                      {%- if b[ctb_tk] != blank -%}
-                        {%- if b[ctb_uk] != blank -%}<a href="{{ b[ctb_uk] }}" class="ctb-badge">{%- else -%}<div class="ctb-badge">{%- endif -%}
-                          {%- if b[ctb_imgk] != blank -%}
-                            <div class="ctb-icon"><img class="ctb-icon-image" src="{{ b[ctb_imgk] | image_url: width: 96 }}" alt="{{ ctb_text | escape }}" loading="lazy" width="{{ b.icon_size }}" height="{{ b.icon_size }}"></div>
-                          {%- elsif b[ctb_ik] != blank -%}
-                            <div class="ctb-icon">{{ b[ctb_ik] }}</div>
-                          {%- endif -%}
-                          <div class="ctb-text">{{ ctb_text }}</div>
-                        {%- if b[ctb_uk] != blank -%}</a>{%- else -%}</div>{%- endif -%}
-                      {%- endif -%}
-                    {%- endfor -%}
-                  </div>
-                {%- endif -%}
-                {%- if b.show_shipping -%}
-                  <div class="ctb-shipping">
-                    {%- if b.shipping_icon != blank -%}<span class="ctb-shipping-icon">{{ b.shipping_icon }}</span>{%- endif -%}
-                    <span>{{ ctb_shipping_text }}</span>
-                  </div>
-                {%- endif -%}
-              </div>
-              {%- if b.custom_js != blank -%}
-                <script>(function(){var blockId='{{ block.id }}';var section=document.getElementById('ctb-block-'+blockId);{{ b.custom_js }}})()</script>
-              {%- endif -%}
-
-
-          {%- when 'video_reels' -%}
+            {%- when 'video_reels' -%}
               {{ 'module-product-video-carousel.css' | asset_url | stylesheet_tag }}
               {{ 'section-shoppable-video.css' | asset_url | stylesheet_tag }}
               <script src="{{ 'video-controls.js' | asset_url }}" defer="defer"></script>
@@ -4491,13 +4338,19 @@
           "default": 10
         },
         {
+          "type": "checkbox",
+          "id": "tier_3_free_jar",
+          "label": "Tier 3: 3rd jar free (buy 2 get 1)",
+          "default": true
+        },
+        {
           "type": "range",
           "id": "tier_3_discount",
-          "label": "Tier 3 discount (%)",
+          "label": "Tier 3 discount % (only if 3rd-jar-free is off)",
           "min": 0,
           "max": 40,
           "step": 1,
-          "default": 15
+          "default": 33
         },
         {
           "type": "select",
