@@ -2868,6 +2868,15 @@
                 <script>(function(){var blockId='{{ block.id }}';var section=document.getElementById('ccs-block-'+blockId);{{ b.custom_js }}})()</script>
               {%- endif -%}
 
+            {%- when 'calqix_bundle' -%}
+              {%- if product.template_suffix == 'oralbiome' -%}
+                {%- render 'calqix-bundle-picker',
+                  tier_2_discount: block.settings.tier_2_discount,
+                  tier_3_discount: block.settings.tier_3_discount,
+                  popular_tier: block.settings.popular_tier
+                -%}
+              {%- endif -%}
+
             {%- when 'calqix_compliance_note' -%}
               {%- assign ccn_text = block.settings.text -%}
               {%- if cq_is_translated_oralbiome -%}
@@ -4464,6 +4473,41 @@
           "type": "textarea",
           "id": "custom_js",
           "label": "Custom JavaScript"
+        }
+      ]
+    },
+    {
+      "type": "calqix_bundle",
+      "name": "CALQIX Bundle Picker",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "range",
+          "id": "tier_2_discount",
+          "label": "Tier 2 discount (%)",
+          "min": 0,
+          "max": 30,
+          "step": 1,
+          "default": 10
+        },
+        {
+          "type": "range",
+          "id": "tier_3_discount",
+          "label": "Tier 3 discount (%)",
+          "min": 0,
+          "max": 40,
+          "step": 1,
+          "default": 15
+        },
+        {
+          "type": "select",
+          "id": "popular_tier",
+          "label": "Most Popular tier",
+          "options": [
+            { "value": "2", "label": "2 Jars" },
+            { "value": "3", "label": "3 Jars" }
+          ],
+          "default": "3"
         }
       ]
     },

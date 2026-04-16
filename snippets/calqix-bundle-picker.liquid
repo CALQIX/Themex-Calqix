@@ -1,0 +1,417 @@
+{%- comment -%}
+  CALQIX Bundle Picker — v1
+  Tiered quantity selector with visible savings.
+  Integrates with calqix-subscribe-widget for plan-aware pricing.
+  Place as a block inside main-product, before buy_buttons.
+{%- endcomment -%}
+
+{%- assign cqbp_v = product.selected_or_first_available_variant -%}
+{%- assign cqbp_base = cqbp_v.price -%}
+
+{%- comment -%} Discount percentages (passed from block settings) {%- endcomment -%}
+{%- assign cqbp_t2_pct = tier_2_discount | default: 10 -%}
+{%- assign cqbp_t3_pct = tier_3_discount | default: 15 -%}
+{%- assign cqbp_pop = popular_tier | default: 3 -%}
+
+{%- comment -%} One-time tier prices {%- endcomment -%}
+{%- assign cqbp_t2_disc = cqbp_base | times: cqbp_t2_pct | divided_by: 100 -%}
+{%- assign cqbp_t2_each = cqbp_base | minus: cqbp_t2_disc -%}
+{%- assign cqbp_t2_save = cqbp_t2_disc | times: 2 -%}
+
+{%- assign cqbp_t3_disc = cqbp_base | times: cqbp_t3_pct | divided_by: 100 -%}
+{%- assign cqbp_t3_each = cqbp_base | minus: cqbp_t3_disc -%}
+{%- assign cqbp_t3_save = cqbp_t3_disc | times: 3 -%}
+
+{%- comment -%} Subscription price (for plan-aware display) {%- endcomment -%}
+{%- assign cqbp_sub_price = cqbp_base -%}
+{%- if product.selling_plan_groups.size > 0 -%}
+  {%- assign cqbp_sp = product.selling_plan_groups[0].selling_plans[0] -%}
+  {%- assign cqbp_adj = cqbp_sp.price_adjustments[0] -%}
+  {%- if cqbp_adj.value_type == 'percentage' -%}
+    {%- assign cqbp_sd = cqbp_base | times: cqbp_adj.value | divided_by: 100 -%}
+    {%- assign cqbp_sub_price = cqbp_base | minus: cqbp_sd -%}
+  {%- elsif cqbp_adj.value_type == 'fixed_amount' -%}
+    {%- assign cqbp_sub_price = cqbp_base | minus: cqbp_adj.value -%}
+  {%- else -%}
+    {%- assign cqbp_sub_price = cqbp_adj.value -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- comment -%} i18n {%- endcomment -%}
+{%- assign cqbp_t_heading = 'calqix_oralbiome.bundle.heading' | t -%}
+{%- assign cqbp_t_jar = 'calqix_oralbiome.bundle.jar' | t -%}
+{%- assign cqbp_t_jars = 'calqix_oralbiome.bundle.jars' | t -%}
+{%- assign cqbp_t_supply_30 = 'calqix_oralbiome.bundle.supply_30' | t -%}
+{%- assign cqbp_t_supply_60 = 'calqix_oralbiome.bundle.supply_60' | t -%}
+{%- assign cqbp_t_supply_90 = 'calqix_oralbiome.bundle.supply_90' | t -%}
+{%- assign cqbp_t_each = 'calqix_oralbiome.bundle.each' | t -%}
+{%- assign cqbp_t_save = 'calqix_oralbiome.bundle.save' | t -%}
+{%- assign cqbp_t_popular = 'calqix_oralbiome.bundle.most_popular' | t -%}
+{%- assign cqbp_t_best_value = 'calqix_oralbiome.bundle.best_value' | t -%}
+{%- assign cqbp_t_free_ship = 'calqix_oralbiome.bundle.free_shipping' | t -%}
+{%- assign cqbp_t_total = 'calqix_oralbiome.bundle.total' | t -%}
+
+<style>
+  @keyframes cqbp-fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes cqbp-badgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+  }
+
+  .cqbp {
+    margin: 0 0 8px;
+    font-family: 'DM Sans', sans-serif;
+    --cqbp-navy: #1A3B5C;
+    --cqbp-gold: #C9A84C;
+    --cqbp-gold-light: rgba(201, 168, 76, 0.07);
+    --cqbp-green: #2E7D32;
+    --cqbp-green-light: rgba(46, 125, 50, 0.06);
+    --cqbp-border: #E5E7EB;
+    --cqbp-muted: #6B7280;
+    --cqbp-bg: #FFFFFF;
+    --cqbp-radius: 10px;
+    animation: cqbp-fadeIn 0.4s ease both;
+  }
+
+  .cqbp__heading {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cqbp-navy);
+    margin-bottom: 10px;
+  }
+
+  .cqbp__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .cqbp__card {
+    position: relative;
+    border: 2px solid var(--cqbp-border);
+    border-radius: var(--cqbp-radius);
+    padding: 14px 10px 12px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--cqbp-bg);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-height: 0;
+  }
+
+  .cqbp__card:hover:not(.is-active) {
+    border-color: #D1D5DB;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  .cqbp__card.is-active {
+    border-color: var(--cqbp-navy);
+    box-shadow: 0 0 0 1px var(--cqbp-navy), 0 4px 16px rgba(26, 59, 92, 0.1);
+    background: linear-gradient(180deg, rgba(26, 59, 92, 0.02) 0%, #fff 100%);
+  }
+  .cqbp__card.is-active[data-popular="true"] {
+    border-color: var(--cqbp-gold);
+    box-shadow: 0 0 0 1px var(--cqbp-gold), 0 4px 16px rgba(201, 168, 76, 0.12);
+    background: linear-gradient(180deg, var(--cqbp-gold-light) 0%, #fff 100%);
+  }
+
+  .cqbp__popular {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--cqbp-gold);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 10px;
+    border-radius: 50px;
+    white-space: nowrap;
+    line-height: 1.4;
+    animation: cqbp-badgePulse 3s ease-in-out infinite;
+  }
+
+  .cqbp__qty {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--cqbp-navy);
+    line-height: 1.1;
+  }
+
+  .cqbp__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--cqbp-navy);
+    line-height: 1.2;
+  }
+
+  .cqbp__supply {
+    font-size: 10.5px;
+    color: var(--cqbp-muted);
+    letter-spacing: 0.02em;
+  }
+
+  .cqbp__price {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 16px;
+    color: var(--cqbp-navy);
+    line-height: 1.2;
+    margin-top: 4px;
+  }
+
+  .cqbp__each {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    color: var(--cqbp-muted);
+    font-weight: 400;
+  }
+
+  .cqbp__save {
+    display: inline-flex;
+    align-items: center;
+    background: var(--cqbp-green);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.3;
+    margin-top: 4px;
+    white-space: nowrap;
+  }
+
+  .cqbp__ship {
+    font-size: 10px;
+    color: var(--cqbp-green);
+    font-weight: 500;
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .cqbp__ship svg {
+    width: 11px;
+    height: 11px;
+    flex-shrink: 0;
+  }
+
+  .cqbp__total-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(26, 59, 92, 0.03);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--cqbp-muted);
+    transition: all 0.3s ease;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 12px;
+    margin-top: 0;
+  }
+  .cqbp__total-row.is-visible {
+    opacity: 1;
+    max-height: 50px;
+    padding: 8px 12px;
+    margin-top: 8px;
+  }
+  .cqbp__total-amount {
+    font-weight: 600;
+    color: var(--cqbp-navy);
+  }
+
+  @media (max-width: 480px) {
+    .cqbp__grid { gap: 6px; }
+    .cqbp__card { padding: 12px 8px 10px; }
+    .cqbp__qty { font-size: 20px; }
+    .cqbp__price { font-size: 14px; }
+    .cqbp__popular { font-size: 7px; padding: 2px 8px; }
+  }
+</style>
+
+<div class="cqbp"
+     data-base-price="{{ cqbp_base }}"
+     data-sub-price="{{ cqbp_sub_price }}"
+     data-t2-pct="{{ cqbp_t2_pct }}"
+     data-t3-pct="{{ cqbp_t3_pct }}"
+     data-currency="{{ cart.currency.iso_code }}">
+  <div class="cqbp__heading">{{ cqbp_t_heading }}</div>
+  <div class="cqbp__grid">
+    <div class="cqbp__card is-active" data-tier="1" data-qty="1" role="radio" aria-checked="true" tabindex="0">
+      <span class="cqbp__qty">1</span>
+      <span class="cqbp__label">{{ cqbp_t_jar }}</span>
+      <span class="cqbp__supply">{{ cqbp_t_supply_30 }}</span>
+      <span class="cqbp__price" data-ot="{{ cqbp_base }}" data-sub="{{ cqbp_sub_price }}">{{ cqbp_base | money }}</span>
+    </div>
+
+    <div class="cqbp__card" data-tier="2" data-qty="2" {% if cqbp_pop == 2 %}data-popular="true"{% endif %} role="radio" aria-checked="false" tabindex="0">
+      {% if cqbp_pop == 2 %}<span class="cqbp__popular">{{ cqbp_t_popular }}</span>{% endif %}
+      <span class="cqbp__qty">2</span>
+      <span class="cqbp__label">{{ cqbp_t_jars }}</span>
+      <span class="cqbp__supply">{{ cqbp_t_supply_60 }}</span>
+      <span class="cqbp__price" data-ot="{{ cqbp_t2_each }}" data-sub="{{ cqbp_sub_price }}">{{ cqbp_t2_each | money }}</span>
+      <span class="cqbp__each">{{ cqbp_t_each }}</span>
+      <span class="cqbp__save" data-save-ot="{{ cqbp_t2_save }}">{{ cqbp_t_save }} {{ cqbp_t2_save | money }}</span>
+    </div>
+
+    <div class="cqbp__card" data-tier="3" data-qty="3" {% if cqbp_pop == 3 %}data-popular="true"{% endif %} role="radio" aria-checked="false" tabindex="0">
+      {% if cqbp_pop == 3 %}<span class="cqbp__popular">{{ cqbp_t_popular }}</span>{% endif %}
+      <span class="cqbp__qty">3</span>
+      <span class="cqbp__label">{{ cqbp_t_jars }}</span>
+      <span class="cqbp__supply">{{ cqbp_t_supply_90 }}</span>
+      <span class="cqbp__price" data-ot="{{ cqbp_t3_each }}" data-sub="{{ cqbp_sub_price }}">{{ cqbp_t3_each | money }}</span>
+      <span class="cqbp__each">{{ cqbp_t_each }}</span>
+      <span class="cqbp__save" data-save-ot="{{ cqbp_t3_save }}">{{ cqbp_t_save }} {{ cqbp_t3_save | money }}</span>
+      {% if cqbp_pop == 3 %}<span class="cqbp__ship"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="18.5" r="2"/></svg>{{ cqbp_t_free_ship }}</span>{% endif %}
+    </div>
+  </div>
+
+  <div class="cqbp__total-row">
+    <span class="cqbp__total-label">{{ cqbp_t_total }}</span>
+    <span class="cqbp__total-amount"></span>
+  </div>
+</div>
+
+<script>
+(function() {
+  var bp = document.querySelector('.cqbp');
+  if (!bp) return;
+
+  var cards = bp.querySelectorAll('.cqbp__card');
+  var totalRow = bp.querySelector('.cqbp__total-row');
+  var totalAmount = bp.querySelector('.cqbp__total-amount');
+  var basePrice = parseInt(bp.dataset.basePrice, 10);
+  var subPrice = parseInt(bp.dataset.subPrice, 10);
+  var t2Pct = parseInt(bp.dataset.t2Pct, 10);
+  var t3Pct = parseInt(bp.dataset.t3Pct, 10);
+  var activeTier = 1;
+
+  function getActivePlan() {
+    var sw = document.querySelector('.cqsw');
+    if (!sw) return 'onetime';
+    var subOpt = sw.querySelector('.cqsw__option[data-plan="subscribe"]');
+    return subOpt && subOpt.classList.contains('is-active') ? 'subscribe' : 'onetime';
+  }
+
+  function formatMoney(cents) {
+    var locale = document.documentElement.lang || 'en';
+    var amount = (cents / 100).toFixed(2);
+    var shopCurrency = bp.dataset.currency || 'EUR';
+    try {
+      return new Intl.NumberFormat(locale, { style: 'currency', currency: shopCurrency }).format(cents / 100);
+    } catch (e) {
+      return '€' + amount;
+    }
+  }
+
+  function calcTierPrice(tier, plan) {
+    var unit = plan === 'subscribe' ? subPrice : basePrice;
+    if (plan === 'onetime') {
+      if (tier === 2) return Math.round(unit * (100 - t2Pct) / 100);
+      if (tier === 3) return Math.round(unit * (100 - t3Pct) / 100);
+    }
+    return unit;
+  }
+
+  function calcSave(tier, plan) {
+    if (plan === 'subscribe' || tier === 1) return 0;
+    var unit = basePrice;
+    var discounted = calcTierPrice(tier, plan);
+    return (unit - discounted) * tier;
+  }
+
+  function updatePrices() {
+    var plan = getActivePlan();
+    cards.forEach(function(card) {
+      var tier = parseInt(card.dataset.tier, 10);
+      var priceEl = card.querySelector('.cqbp__price');
+      var saveEl = card.querySelector('.cqbp__save');
+      var eachEl = card.querySelector('.cqbp__each');
+      var unitPrice = calcTierPrice(tier, plan);
+
+      if (priceEl) priceEl.textContent = formatMoney(unitPrice);
+      if (saveEl) {
+        var saved = calcSave(tier, plan);
+        if (saved > 0) {
+          saveEl.style.display = '';
+          var saveText = bp.querySelector('.cqbp__heading').parentElement.querySelector('[data-save-label]');
+          saveEl.textContent = (saveEl.dataset.saveLabel || saveEl.textContent.split(' ')[0]) + ' ' + formatMoney(saved);
+        } else {
+          saveEl.style.display = 'none';
+        }
+      }
+      if (eachEl) eachEl.style.display = (tier > 1 && plan === 'onetime') ? '' : 'none';
+    });
+  }
+
+  function updateTotal() {
+    var plan = getActivePlan();
+    var qty = activeTier;
+    var unitPrice = calcTierPrice(activeTier, plan);
+    var total = unitPrice * qty;
+    if (totalAmount) totalAmount.textContent = formatMoney(total);
+    if (totalRow) totalRow.classList.toggle('is-visible', qty > 1);
+  }
+
+  function selectTier(tier) {
+    activeTier = tier;
+    cards.forEach(function(card) {
+      var isSel = parseInt(card.dataset.tier, 10) === tier;
+      card.classList.toggle('is-active', isSel);
+      card.setAttribute('aria-checked', isSel ? 'true' : 'false');
+    });
+
+    var form = bp.closest('form') || bp.closest('product-form');
+    if (form) {
+      var qtyInput = form.querySelector('.js-counter-quantity') || form.querySelector('input[name="quantity"]');
+      if (qtyInput) {
+        qtyInput.value = tier;
+        qtyInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+    updateTotal();
+  }
+
+  cards.forEach(function(card) {
+    card.addEventListener('click', function() {
+      selectTier(parseInt(card.dataset.tier, 10));
+    });
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectTier(parseInt(card.dataset.tier, 10));
+      }
+    });
+  });
+
+  var sw = document.querySelector('.cqsw');
+  if (sw) {
+    sw.querySelectorAll('.cqsw__option').forEach(function(opt) {
+      opt.addEventListener('click', function() {
+        setTimeout(function() { updatePrices(); updateTotal(); }, 10);
+      });
+    });
+  }
+
+  updatePrices();
+  updateTotal();
+})();
+</script>

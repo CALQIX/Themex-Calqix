@@ -1,0 +1,440 @@
+{%- comment -%}
+  CALQIX Video Review Rail — v1
+  Premium 5-video review carousel with modal playback.
+  Manageable via Theme Editor blocks. Positioned after text reviews.
+{%- endcomment -%}
+
+{%- assign cqvr_eyebrow = 'calqix_oralbiome.video_reviews.eyebrow' | t -%}
+{%- assign cqvr_heading = 'calqix_oralbiome.video_reviews.heading' | t -%}
+{%- assign cqvr_play = 'calqix_oralbiome.video_reviews.play' | t -%}
+{%- assign cqvr_close = 'calqix_oralbiome.video_reviews.close' | t -%}
+
+{%- if section.blocks.size > 0 -%}
+<style>
+  .cqvr {
+    --cqvr-navy: #1A3B5C;
+    --cqvr-gold: #C9A84C;
+    --cqvr-muted: #6B7280;
+    --cqvr-bg: #FAFAF9;
+    --cqvr-radius: 12px;
+    padding: 56px 0 64px;
+    background: var(--cqvr-bg);
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  .cqvr__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .cqvr__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cqvr-gold);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .cqvr__heading {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--cqvr-navy);
+    text-align: center;
+    margin: 0 0 32px;
+    line-height: 1.25;
+  }
+
+  .cqvr__rail {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .cqvr__rail::-webkit-scrollbar { display: none; }
+
+  .cqvr__card {
+    flex: 0 0 200px;
+    scroll-snap-align: start;
+    position: relative;
+    border-radius: var(--cqvr-radius);
+    overflow: hidden;
+    cursor: pointer;
+    background: #000;
+    aspect-ratio: 9 / 16;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .cqvr__card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(26, 59, 92, 0.15);
+  }
+
+  .cqvr__thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+  .cqvr__card:hover .cqvr__thumb { transform: scale(1.04); }
+
+  .cqvr__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 16px 12px;
+    pointer-events: none;
+  }
+
+  .cqvr__play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: transform 0.3s ease;
+  }
+  .cqvr__card:hover .cqvr__play-btn { transform: translate(-50%, -50%) scale(1.1); }
+  .cqvr__play-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: var(--cqvr-navy);
+    margin-left: 2px;
+  }
+
+  .cqvr__name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.3;
+  }
+
+  .cqvr__stars {
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+  }
+  .cqvr__star {
+    width: 12px;
+    height: 12px;
+    color: var(--cqvr-gold);
+  }
+
+  /* ── Modal ── */
+  .cqvr-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .cqvr-modal.is-open {
+    display: flex;
+    opacity: 1;
+  }
+  .cqvr-modal__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.2s;
+  }
+  .cqvr-modal__close:hover { background: rgba(255, 255, 255, 0.3); }
+  .cqvr-modal__video-wrap {
+    position: relative;
+    max-width: 400px;
+    width: 90vw;
+    max-height: 85vh;
+    aspect-ratio: 9 / 16;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+  }
+  .cqvr-modal__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ── Nav arrows ── */
+  .cqvr-modal__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.2s;
+  }
+  .cqvr-modal__nav:hover { background: rgba(255, 255, 255, 0.3); }
+  .cqvr-modal__nav--prev { left: max(8px, calc(50% - 232px)); }
+  .cqvr-modal__nav--next { right: max(8px, calc(50% - 232px)); }
+  .cqvr-modal__nav svg { width: 20px; height: 20px; }
+
+  /* ── Desktop: center cards ── */
+  @media (min-width: 1100px) {
+    .cqvr__rail {
+      justify-content: center;
+      overflow-x: visible;
+    }
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 600px) {
+    .cqvr { padding: 40px 0 48px; }
+    .cqvr__heading { font-size: 22px; margin-bottom: 24px; }
+    .cqvr__card { flex: 0 0 160px; }
+    .cqvr__inner { padding: 0 16px; }
+    .cqvr-modal__nav--prev { left: 8px; }
+    .cqvr-modal__nav--next { right: 8px; }
+  }
+</style>
+
+<section class="cqvr" id="cqvr-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="cqvr__inner">
+    {%- if section.settings.show_eyebrow -%}
+      <p class="cqvr__eyebrow">{{ cqvr_eyebrow }}</p>
+    {%- endif -%}
+    <h2 class="cqvr__heading">{{ cqvr_heading }}</h2>
+
+    <div class="cqvr__rail" role="list">
+      {%- for block in section.blocks -%}
+        {%- if block.settings.video != blank and block.settings.thumbnail != blank -%}
+          <div class="cqvr__card"
+               role="listitem"
+               data-video-url="{{ block.settings.video }}"
+               data-video-index="{{ forloop.index0 }}"
+               data-reviewer-name="{{ block.settings.reviewer_name | escape }}"
+               aria-label="{{ cqvr_play }}: {{ block.settings.reviewer_name | escape }}"
+               tabindex="0"
+               {{ block.shopify_attributes }}>
+            <img class="cqvr__thumb"
+                 src="{{ block.settings.thumbnail | image_url: width: 400 }}"
+                 alt="{{ block.settings.reviewer_name | escape }}"
+                 loading="lazy"
+                 width="200"
+                 height="356">
+            <div class="cqvr__overlay">
+              <div class="cqvr__play-btn" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>
+              </div>
+              <span class="cqvr__name">{{ block.settings.reviewer_name }}</span>
+              <div class="cqvr__stars" aria-label="5 stars">
+                {%- for i in (1..5) -%}
+                  <svg class="cqvr__star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                {%- endfor -%}
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<!-- Modal -->
+<div class="cqvr-modal" id="cqvr-modal-{{ section.id }}" aria-hidden="true" role="dialog" aria-label="{{ cqvr_play }}">
+  <button class="cqvr-modal__close" aria-label="{{ cqvr_close }}">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <button class="cqvr-modal__nav cqvr-modal__nav--prev" aria-label="Previous">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <button class="cqvr-modal__nav cqvr-modal__nav--next" aria-label="Next">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+  <div class="cqvr-modal__video-wrap">
+    <video class="cqvr-modal__video" playsinline controls></video>
+  </div>
+</div>
+
+<script>
+(function() {
+  var section = document.getElementById('cqvr-{{ section.id }}');
+  if (!section) return;
+
+  var modal = document.getElementById('cqvr-modal-{{ section.id }}');
+  var video = modal.querySelector('.cqvr-modal__video');
+  var closeBtn = modal.querySelector('.cqvr-modal__close');
+  var prevBtn = modal.querySelector('.cqvr-modal__nav--prev');
+  var nextBtn = modal.querySelector('.cqvr-modal__nav--next');
+  var cards = section.querySelectorAll('.cqvr__card');
+  var currentIndex = 0;
+  var videoUrls = [];
+  var reviewerNames = [];
+
+  cards.forEach(function(card, i) {
+    videoUrls.push(card.dataset.videoUrl);
+    reviewerNames.push(card.dataset.reviewerName);
+  });
+
+  function trackEvent(action, data) {
+    if (typeof window.calqixMeta !== 'undefined' && window.calqixMeta.track) {
+      window.calqixMeta.track('CustomEvent', Object.assign({ event_category: 'video_review', event_action: action }, data));
+    }
+    if (typeof gtag === 'function') {
+      gtag('event', action, Object.assign({ event_category: 'video_review' }, data));
+    }
+  }
+
+  function openModal(index) {
+    currentIndex = index;
+    video.src = videoUrls[index];
+    video.play().catch(function() {});
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    trackEvent('video_play', { video_index: index, reviewer: reviewerNames[index] });
+  }
+
+  function closeModal() {
+    video.pause();
+    video.src = '';
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  function navigate(dir) {
+    video.pause();
+    currentIndex = (currentIndex + dir + videoUrls.length) % videoUrls.length;
+    video.src = videoUrls[currentIndex];
+    video.play().catch(function() {});
+    trackEvent('video_navigate', { video_index: currentIndex, reviewer: reviewerNames[currentIndex], direction: dir > 0 ? 'next' : 'prev' });
+  }
+
+  cards.forEach(function(card, i) {
+    card.addEventListener('click', function() { openModal(i); });
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(i); }
+    });
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeModal();
+  });
+  prevBtn.addEventListener('click', function() { navigate(-1); });
+  nextBtn.addEventListener('click', function() { navigate(1); });
+
+  document.addEventListener('keydown', function(e) {
+    if (!modal.classList.contains('is-open')) return;
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'ArrowLeft') navigate(-1);
+    if (e.key === 'ArrowRight') navigate(1);
+  });
+
+  video.addEventListener('ended', function() {
+    trackEvent('video_complete', { video_index: currentIndex, reviewer: reviewerNames[currentIndex] });
+  });
+
+  /* Intersection observer for impression tracking */
+  if ('IntersectionObserver' in window) {
+    var observed = false;
+    new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !observed) {
+          observed = true;
+          trackEvent('video_rail_impression', { video_count: videoUrls.length });
+        }
+      });
+    }, { threshold: 0.3 }).observe(section);
+  }
+})();
+</script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Video Reviews Rail",
+  "tag": "section",
+  "class": "cqvr-section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_eyebrow",
+      "label": "Show eyebrow text",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "video_review",
+      "name": "Video Review",
+      "limit": 8,
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video"
+        },
+        {
+          "type": "image_picker",
+          "id": "thumbnail",
+          "label": "Thumbnail image"
+        },
+        {
+          "type": "text",
+          "id": "reviewer_name",
+          "label": "Reviewer name",
+          "default": "Happy Customer"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Video Reviews Rail",
+      "blocks": [
+        { "type": "video_review" },
+        { "type": "video_review" },
+        { "type": "video_review" },
+        { "type": "video_review" },
+        { "type": "video_review" }
+      ]
+    }
+  ]
+}
+{% endschema %}

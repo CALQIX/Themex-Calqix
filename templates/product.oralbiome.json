@@ -167,6 +167,14 @@
             "background_color": "#1a3b5c"
           }
         },
+        "calqix_bundle_ob01": {
+          "type": "calqix_bundle",
+          "settings": {
+            "tier_2_discount": 10,
+            "tier_3_discount": 15,
+            "popular_tier": "3"
+          }
+        },
         "calqix_compliance_note_ob01": {
           "type": "calqix_compliance_note",
           "settings": {
@@ -246,6 +254,7 @@
         "price",
         "bulletpoints_ob01",
         "calqix_colour_switcher_LDTXY9",
+        "calqix_bundle_ob01",
         "seal_subscriptions_subscription_widget_PeJpN4",
         "buy_buttons",
         "calqix_compliance_note_ob01",
@@ -688,6 +697,51 @@
         "write_review_url": ""
       }
     },
+    "oralbiome-video-reviews": {
+      "type": "oralbiome-video-reviews",
+      "blocks": {
+        "vr_1": {
+          "type": "video_review",
+          "settings": {
+            "reviewer_name": "Customer Review 1"
+          }
+        },
+        "vr_2": {
+          "type": "video_review",
+          "settings": {
+            "reviewer_name": "Customer Review 2"
+          }
+        },
+        "vr_3": {
+          "type": "video_review",
+          "settings": {
+            "reviewer_name": "Customer Review 3"
+          }
+        },
+        "vr_4": {
+          "type": "video_review",
+          "settings": {
+            "reviewer_name": "Customer Review 4"
+          }
+        },
+        "vr_5": {
+          "type": "video_review",
+          "settings": {
+            "reviewer_name": "Customer Review 5"
+          }
+        }
+      },
+      "block_order": [
+        "vr_1",
+        "vr_2",
+        "vr_3",
+        "vr_4",
+        "vr_5"
+      ],
+      "settings": {
+        "show_eyebrow": true
+      }
+    },
     "oralbiome_faq_KxQ7m3": {
       "type": "oralbiome-faq",
       "blocks": {
@@ -825,6 +879,7 @@
     "oralbiome-comparison",
     "oralbiome-comparison-mobile",
     "oralbiome-reviews",
+    "oralbiome-video-reviews",
     "oralbiome_faq_KxQ7m3",
     "oralbiome-subscription-cta"
   ]
