@@ -2,16 +2,11 @@
    Brand: navy #1A3B5C, gold #C9A84C / #E8C96A, cream #FAF7F2
    Philosophy: compact, premium, spring animations on GPU-only transforms */
 
-/* Allow picker to wrap onto its own row below the image+body flex row */
-.wt-cart__drawer .wt-cart__item:has(> .cqfp),
-.cart-page .wt-cart__item:has(> .cqfp) {
-  flex-wrap: wrap;
-}
-.wt-cart__item > .cqfp {
-  flex: 0 0 100%;
+/* Picker is rendered as the last child of .wt-cart__item__body so it
+   stacks inside the right column (below title → discount → qty row). */
+.wt-cart__item__body > .cqfp {
   width: 100%;
-  order: 10; /* ensure it sits at the bottom of the flex row */
-  padding-left: 0;
+  margin-top: 6px;
 }
 
 .cqfp {
@@ -379,4 +374,166 @@
 @media (max-width: 400px) {
   .cqfp__jar { width: 68px; padding: 18px 4px 4px; }
   .cqfp__jar-label { font-size: 8px; max-width: 60px; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Cart drawer product-row refinement (CALQIX clinical layout)
+   Right column stacks: title → options/discount → qty row → picker.
+   Keep everything compact and calm, with subtle entrance motion.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Tighter line padding + calm divider */
+.wt-cart__drawer .wt-cart__item {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  gap: 12px;
+}
+
+/* Slightly smaller thumb to save vertical space */
+.wt-cart__drawer .wt-cart__item__thumb img,
+.wt-cart__drawer .wt-cart__item__thumb svg {
+  max-width: 72px;
+  width: 72px;
+}
+
+/* Right column layout — consistent vertical rhythm */
+.wt-cart__drawer .wt-cart__item__body {
+  padding-left: 0;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+/* Title line */
+.wt-cart__drawer .wt-cart__item__name {
+  font-size: 13.5px;
+  line-height: 1.25;
+  margin-bottom: 0;
+}
+
+/* Options / discount rows — tighten type and spacing */
+.wt-cart__drawer .wt-cart__item__body .options {
+  margin: 2px 0 2px;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+.wt-cart__drawer .wt-cart__item__body .options .product-option {
+  margin: 0;
+  padding: 0;
+}
+.wt-cart__drawer .wt-cart__item-discount {
+  gap: 6px;
+  color: var(--calqix-muted);
+  font-size: 11.5px;
+  line-height: 1.35;
+  padding: 3px 0;
+}
+.wt-cart__drawer .wt-cart__item-discount svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+/* Qty + price row: qty left, price right (single tidy line) */
+.wt-cart__drawer .wt-cart__item__amount.cart-page {
+  width: 100%;
+  margin-top: 2px;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+.wt-cart__drawer .wt-cart__item__amount .item__details {
+  gap: 6px;
+}
+.wt-cart__drawer .counter {
+  height: 30px;
+  border-color: rgba(26, 59, 92, 0.15);
+  border-radius: 4px;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+.wt-cart__drawer .counter:focus-within {
+  border-color: var(--cqfp-gold, #C9A84C);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.14);
+}
+.wt-cart__drawer .counter .js-counter-button {
+  width: 28px;
+}
+.wt-cart__drawer .counter .js-counter-button svg {
+  width: 10px;
+  height: 10px;
+}
+.wt-cart__drawer .counter .js-counter-quantity {
+  width: 26px;
+  font-size: 12.5px;
+}
+.wt-cart__drawer .wt-cart__item__amount cart-remove-button {
+  display: flex;
+  align-self: center;
+}
+.wt-cart__drawer .wt-cart__item__remove .svg-icon {
+  width: 26px;
+  height: 26px;
+  transform: scale(0.7);
+}
+
+/* Price wrapper — right-aligned, compact, two-line (old / final) */
+.wt-cart__drawer .wt-cart__item__price-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  text-align: right;
+  line-height: 1.15;
+}
+.wt-cart__drawer .wt-cart__item__price-wrapper .price {
+  font-size: 15px;
+}
+.wt-cart__drawer .wt-cart__item__price-wrapper .cart-item__discounted-prices {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
+}
+.wt-cart__drawer .cart-item__old-price.price,
+.wt-cart__drawer .cart-item__discounted-prices s {
+  font-size: 11.5px;
+  opacity: 0.85;
+}
+
+/* Hide the extra drawer remove-title button on the right column title row;
+   keep only the quantity-row remove button (avoids visual double-up). */
+.wt-cart__drawer .wt-cart__item__remove--title {
+  display: none;
+}
+
+/* Flavor picker toggle — left-aligned subtle pill inside the body column */
+.wt-cart__item__body > .cqfp {
+  margin-top: 6px;
+}
+.wt-cart__item__body > .cqfp .cqfp__toggle {
+  align-self: flex-start;
+}
+
+/* Subtle staggered entrance for the right-column rows when the drawer
+   opens or a line is replaced, keeping the clinical CALQIX cadence. */
+@media (prefers-reduced-motion: no-preference) {
+  .wt-cart__drawer .wt-cart__item__body > * {
+    animation: cqRowIn 260ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+  .wt-cart__drawer .wt-cart__item__body > *:nth-child(1) { animation-delay: 20ms; }
+  .wt-cart__drawer .wt-cart__item__body > *:nth-child(2) { animation-delay: 70ms; }
+  .wt-cart__drawer .wt-cart__item__body > *:nth-child(3) { animation-delay: 120ms; }
+  .wt-cart__drawer .wt-cart__item__body > *:nth-child(4) { animation-delay: 170ms; }
+}
+@keyframes cqRowIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Narrow drawer (≤ 380px) — hold layout on a single line */
+@media (max-width: 380px) {
+  .wt-cart__drawer .wt-cart__item__thumb img,
+  .wt-cart__drawer .wt-cart__item__thumb svg {
+    max-width: 64px;
+    width: 64px;
+  }
+  .wt-cart__drawer .wt-cart__item__name { font-size: 13px; }
+  .wt-cart__drawer .wt-cart__item__price-wrapper .price { font-size: 14px; }
 }

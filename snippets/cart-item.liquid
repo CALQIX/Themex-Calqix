@@ -288,8 +288,9 @@
     {%- unless cart_page -%}
       {% render 'cart-item-error', item: item %}
     {% endunless %}
+
+    {%- if item.product.template_suffix == 'oralbiome' -%}
+      {%- render 'cart-flavor-picker', item: item -%}
+    {%- endif -%}
   </div>
-  {%- if item.product.template_suffix == 'oralbiome' -%}
-    {%- render 'cart-flavor-picker', item: item -%}
-  {%- endif -%}
 </li>

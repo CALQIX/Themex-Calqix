@@ -1017,8 +1017,6 @@
       </div>
     </gallery-section>
 
-    {% render 'product-review-badge' %}
-
     <section class="wt-product__main rte">
       <div class="wt-product__info product__info-container">
         {%- assign product_form_id = 'product-form-' | append: section.id -%}
@@ -1106,6 +1104,7 @@
                   {% endif %}
                 </div>
                 <h1 class="wt-product__name">{{ product.title }}</h1>
+                {% render 'product-review-badge' %}
               </div>
             {%- when 'price' -%}
               <div
