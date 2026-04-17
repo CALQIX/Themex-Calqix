@@ -148,6 +148,15 @@
             "custom_js": ""
           }
         },
+        "calqix_bundle_ob01": {
+          "type": "calqix_bundle",
+          "settings": {
+            "tier_2_discount": 10,
+            "tier_3_free_jar": true,
+            "tier_3_discount": 33,
+            "popular_tier": "3"
+          }
+        },
         "seal_subscriptions_subscription_widget_PeJpN4": {
           "type": "shopify://apps/seal-subscriptions/blocks/subscription-widget/13b25004-a140-4ab7-b5fe-29918f759699",
           "disabled": true,
@@ -167,21 +176,12 @@
             "background_color": "#1a3b5c"
           }
         },
-        "calqix_bundle_ob01": {
-          "type": "calqix_bundle",
-          "settings": {
-            "tier_2_discount": 10,
-            "tier_3_free_jar": true,
-            "tier_3_discount": 33,
-            "popular_tier": "3"
-          }
-        },
         "calqix_compliance_note_ob01": {
           "type": "calqix_compliance_note",
           "settings": {
             "text": "Food supplement. Recommended use: 1 lozenge daily. Do not exceed the recommended daily dose. Keep out of reach of young children. See Safety & Usage below.",
-            "background_color": "#F7F5F2",
-            "text_color": "#5A6A7A",
+            "background_color": "#f7f5f2",
+            "text_color": "#5a6a7a",
             "font_size": 12
           }
         },
@@ -704,31 +704,36 @@
         "vr_1": {
           "type": "video_review",
           "settings": {
-            "reviewer_name": "Customer Review 1"
+            "video": "shopify://files/videos/avatar-shot-20260416-b154f58a.mp4",
+            "reviewer_name": "Hailey"
           }
         },
         "vr_2": {
           "type": "video_review",
           "settings": {
-            "reviewer_name": "Customer Review 2"
+            "video": "shopify://files/videos/avatar-shot-20260416-fd98bd4d.mp4",
+            "reviewer_name": "Reputy"
           }
         },
         "vr_3": {
           "type": "video_review",
           "settings": {
-            "reviewer_name": "Customer Review 3"
+            "video": "shopify://files/videos/avatar-shot-20260416-15eea492.mp4",
+            "reviewer_name": "Jola"
           }
         },
         "vr_4": {
           "type": "video_review",
           "settings": {
-            "reviewer_name": "Customer Review 4"
+            "video": "shopify://files/videos/avatar-shot-20260416-f3e7d9d4.mp4",
+            "reviewer_name": "Izayra"
           }
         },
         "vr_5": {
           "type": "video_review",
           "settings": {
-            "reviewer_name": "Customer Review 5"
+            "video": "shopify://files/videos/avatar-shot-20260416-bc610736.mp4",
+            "reviewer_name": "Annemiek"
           }
         }
       },
@@ -740,7 +745,9 @@
         "vr_5"
       ],
       "settings": {
-        "show_eyebrow": true
+        "show_eyebrow": true,
+        "eyebrow_text": "SEE REAL RESULTS",
+        "heading_text": "Hear it from our customers"
       }
     },
     "oralbiome_faq_KxQ7m3": {
