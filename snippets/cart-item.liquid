@@ -289,4 +289,7 @@
       {% render 'cart-item-error', item: item %}
     {% endunless %}
   </div>
+  {%- if item.product.template_suffix == 'oralbiome' -%}
+    {%- render 'cart-flavor-picker', item: item -%}
+  {%- endif -%}
 </li>

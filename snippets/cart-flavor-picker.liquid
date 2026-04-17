@@ -1,0 +1,107 @@
+{%- comment -%}
+  CALQIX Cart Flavor Picker
+  Renders below the product image in the cart drawer for OralBiome Pro line items.
+  Lets the customer swap flavor(s) per jar position.
+  Uses hardcoded flavor handles as canonical source; falls back if handles missing.
+{%- endcomment -%}
+
+{%- assign cqfp_line_key = item.key -%}
+{%- assign cqfp_line_index = item.index | plus: 1 -%}
+{%- assign cqfp_current_handle = item.product.handle -%}
+{%- assign cqfp_current_variant = item.variant.id -%}
+{%- assign cqfp_qty = item.quantity -%}
+{%- if cqfp_qty > 3 -%}{%- assign cqfp_visible_slots = 3 -%}{%- else -%}{%- assign cqfp_visible_slots = cqfp_qty -%}{%- endif -%}
+
+{%- assign cqfp_selling_plan_id = '' -%}
+{%- if item.selling_plan_allocation != null -%}
+  {%- assign cqfp_selling_plan_id = item.selling_plan_allocation.selling_plan.id -%}
+{%- endif -%}
+
+{%- assign cqfp_handles_csv = 'oralbiome-pro-freshmint,oralbiome-pro-grape,oralbiome-pro-peach,oralbiome-pro-citrus-orange,oralbiome-pro-cool-mint' -%}
+{%- assign cqfp_handles = cqfp_handles_csv | split: ',' -%}
+
+{%- comment -%} Build available flavor list, skipping missing products {%- endcomment -%}
+{%- assign cqfp_count = 0 -%}
+{%- for h in cqfp_handles -%}
+  {%- assign p = all_products[h] -%}
+  {%- if p != blank and p != empty -%}
+    {%- assign cqfp_count = cqfp_count | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if cqfp_count > 1 -%}
+<div class="cqfp"
+     data-line-key="{{ cqfp_line_key | escape }}"
+     data-line-index="{{ cqfp_line_index }}"
+     data-current-handle="{{ cqfp_current_handle }}"
+     data-current-variant-id="{{ cqfp_current_variant }}"
+     data-quantity="{{ cqfp_qty }}"
+     {%- if cqfp_selling_plan_id != '' %} data-selling-plan-id="{{ cqfp_selling_plan_id }}"{% endif %}>
+  <button type="button" class="cqfp__toggle" aria-expanded="false" aria-controls="cqfp-panel-{{ cqfp_line_index }}">
+    <span class="cqfp__toggle-dot" aria-hidden="true"></span>
+    <span class="cqfp__toggle-label">{{ 'cart.flavor_picker.change' | t | default: 'Change flavor' }}</span>
+    <svg class="cqfp__toggle-chevron" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+      <path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <div class="cqfp__panel" id="cqfp-panel-{{ cqfp_line_index }}" hidden>
+    <div class="cqfp__panel-inner">
+      {%- for slot_i in (1..cqfp_visible_slots) -%}
+        <div class="cqfp__slot" data-slot="{{ slot_i }}" style="--cqfp-slot-delay: {{ slot_i | times: 60 }}ms;">
+          {%- if cqfp_visible_slots > 1 -%}
+            <div class="cqfp__slot-head">
+              <span class="cqfp__slot-chip">{{ 'cart.flavor_picker.jar' | t | default: 'Jar' }} {{ slot_i }}</span>
+            </div>
+          {%- endif -%}
+          <div class="cqfp__jars" role="radiogroup" aria-label="{{ 'cart.flavor_picker.jar' | t | default: 'Jar' }} {{ slot_i }}">
+            {%- for h in cqfp_handles -%}
+              {%- assign prod = all_products[h] -%}
+              {%- if prod != blank and prod != empty -%}
+                {%- assign flavor_label = prod.title | remove_first: 'OralBiome Pro' | remove_first: 'OralBiome' | strip -%}
+                {%- if flavor_label == '' -%}{%- assign flavor_label = prod.title -%}{%- endif -%}
+                {%- assign var_id = prod.selected_or_first_available_variant.id -%}
+                {%- assign is_current = false -%}
+                {%- if prod.handle == cqfp_current_handle -%}{%- assign is_current = true -%}{%- endif -%}
+                <button type="button"
+                        class="cqfp__jar{% if is_current %} is-selected{% endif %}"
+                        role="radio"
+                        aria-checked="{% if is_current %}true{% else %}false{% endif %}"
+                        data-handle="{{ prod.handle }}"
+                        data-variant-id="{{ var_id }}"
+                        data-flavor-label="{{ flavor_label | escape }}"
+                        title="{{ flavor_label | escape }}">
+                  <span class="cqfp__jar-label">{{ flavor_label }}</span>
+                  <span class="cqfp__jar-media">
+                    {%- if prod.featured_image -%}
+                      <img src="{{ prod.featured_image | image_url: width: 160 }}"
+                           srcset="{{ prod.featured_image | image_url: width: 160 }} 1x, {{ prod.featured_image | image_url: width: 320 }} 2x"
+                           alt="{{ flavor_label | escape }}"
+                           loading="lazy"
+                           width="80" height="80">
+                    {%- endif -%}
+                  </span>
+                  <span class="cqfp__jar-ring" aria-hidden="true"></span>
+                </button>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endfor -%}
+
+      <div class="cqfp__cta" data-state="idle">
+        <button type="button" class="cqfp__update" disabled>
+          <span class="cqfp__update-text">{{ 'cart.flavor_picker.update' | t | default: 'Update cart' }}</span>
+          <span class="cqfp__update-spinner" aria-hidden="true"></span>
+          <span class="cqfp__update-check" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7.5l2.8 2.8L11 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+        <p class="cqfp__hint">{{ 'cart.flavor_picker.hint' | t | default: 'Tap a jar to swap this line' }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{%- endif -%}
