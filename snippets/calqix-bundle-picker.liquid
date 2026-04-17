@@ -174,9 +174,7 @@
      data-sub="{{ cqbp_sub }}"
      data-t2-pct="{{ cqbp_t2_pct }}"
      data-t3-free="{{ cqbp_t3_free }}"
-     data-currency="{{ cart.currency.iso_code }}"
-     data-discount-t2="{{ discount_code_tier2 }}"
-     data-discount-t3="{{ discount_code_tier3 }}">
+     data-currency="{{ cart.currency.iso_code }}">
   <div class="cqbp__heading">{{ cqbp_t_heading }}</div>
   <div class="cqbp__grid">
     <div class="cqbp__card is-active" data-tier="1" data-qty="1" role="radio" aria-checked="true" tabindex="0">
@@ -272,24 +270,6 @@
     }
   }
 
-  var discountT2 = (bp.dataset.discountT2 || '').trim();
-  var discountT3 = (bp.dataset.discountT3 || '').trim();
-  var discountApplied = '';
-
-  function applyDiscount(code) {
-    if (!code || code === discountApplied) return;
-    fetch('/discount/' + encodeURIComponent(code), { method: 'GET', credentials: 'same-origin' })
-      .then(function() { discountApplied = code; })
-      .catch(function() {});
-  }
-
-  function clearDiscount() {
-    if (!discountApplied) return;
-    fetch('/discount', { method: 'GET', credentials: 'same-origin' })
-      .then(function() { discountApplied = ''; })
-      .catch(function() {});
-  }
-
   function injectBundleProperty(t) {
     var form = document.querySelector('product-form form') || document.querySelector('form[action*="/cart/add"]');
     if (!form) return;
@@ -324,9 +304,6 @@
       qi.dispatchEvent(new Event('input', { bubbles: true }));
     }
     injectBundleProperty(t);
-    if (t === 2 && discountT2) { applyDiscount(discountT2); }
-    else if (t === 3 && discountT3) { applyDiscount(discountT3); }
-    else { clearDiscount(); }
     syncWidget();
   }
 
