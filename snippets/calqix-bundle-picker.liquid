@@ -181,7 +181,7 @@
       <span class="cqbp__qty">1</span>
       <span class="cqbp__label">{{ cqbp_t_jar }}</span>
       <span class="cqbp__supply">{{ cqbp_t_supply_30 }}</span>
-      <span class="cqbp__price">{{ cqbp_base | money }}</span>
+      <span class="cqbp__price">{{ cqbp_base | money | replace: '.', ',' }}</span>
     </div>
 
     <div class="cqbp__card" data-tier="2" data-qty="2" {% if cqbp_pop == '2' %}data-popular="true"{% endif %} role="radio" aria-checked="false" tabindex="0">
@@ -189,7 +189,7 @@
       <span class="cqbp__qty">2</span>
       <span class="cqbp__label">{{ cqbp_t_jars }}</span>
       <span class="cqbp__supply">{{ cqbp_t_supply_60 }}</span>
-      <span class="cqbp__price">{{ cqbp_t2_each | money }}<span class="cqbp__each">{{ cqbp_t_each }}</span></span>
+      <span class="cqbp__price">{{ cqbp_t2_each | money | replace: '.', ',' }}<span class="cqbp__each">{{ cqbp_t_each }}</span></span>
       <span class="cqbp__deal">{{ cqbp_t_discount }}</span>
     </div>
 
@@ -198,7 +198,7 @@
       <span class="cqbp__qty">3</span>
       <span class="cqbp__label">{{ cqbp_t_jars }}</span>
       <span class="cqbp__supply">{{ cqbp_t_supply_90 }}</span>
-      <span class="cqbp__price">{{ cqbp_t3_each | money }}<span class="cqbp__each">{{ cqbp_t_each }}</span></span>
+      <span class="cqbp__price">{{ cqbp_t3_each | money | replace: '.', ',' }}<span class="cqbp__each">{{ cqbp_t_each }}</span></span>
       <span class="cqbp__deal cqbp__deal--free">{{ cqbp_t_free }}</span>
     </div>
   </div>
@@ -218,9 +218,10 @@
 
   function fmt(cents) {
     try {
-      return new Intl.NumberFormat(document.documentElement.lang || 'nl', {
+      var s = new Intl.NumberFormat(document.documentElement.lang || 'nl', {
         style: 'currency', currency: bp.dataset.currency || 'EUR'
       }).format(cents / 100);
+      return s.replace('.', ',');
     } catch (e) { return '\u20AC' + (cents / 100).toFixed(2).replace('.', ','); }
   }
 
@@ -276,10 +277,14 @@
       c.classList.toggle('is-active', sel);
       c.setAttribute('aria-checked', sel ? 'true' : 'false');
     });
-    var form = bp.closest('form') || bp.closest('product-form');
-    if (form) {
-      var qi = form.querySelector('.js-counter-quantity') || form.querySelector('input[name="quantity"]');
-      if (qi) { qi.value = t; qi.dispatchEvent(new Event('change', { bubbles: true })); }
+    var qi = document.querySelector('product-form .js-counter-quantity')
+          || document.querySelector('product-form input[name="quantity"]')
+          || document.querySelector('.js-counter-quantity')
+          || document.querySelector('input[name="quantity"]');
+    if (qi) {
+      qi.value = t;
+      qi.dispatchEvent(new Event('change', { bubbles: true }));
+      qi.dispatchEvent(new Event('input', { bubbles: true }));
     }
     syncWidget();
   }
