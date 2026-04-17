@@ -2874,7 +2874,9 @@
                   tier_2_discount: block.settings.tier_2_discount,
                   tier_3_discount: block.settings.tier_3_discount,
                   tier_3_free_jar: block.settings.tier_3_free_jar,
-                  popular_tier: block.settings.popular_tier
+                  popular_tier: block.settings.popular_tier,
+                  discount_code_tier2: block.settings.discount_code_tier2,
+                  discount_code_tier3: block.settings.discount_code_tier3
                 -%}
               {%- endif -%}
 
@@ -4361,6 +4363,18 @@
             { "value": "3", "label": "3 Jars" }
           ],
           "default": "3"
+        },
+        {
+          "type": "text",
+          "id": "discount_code_tier2",
+          "label": "Discount code for Tier 2 (auto-applied)",
+          "info": "Create a matching discount in Shopify Admin \u2192 Discounts"
+        },
+        {
+          "type": "text",
+          "id": "discount_code_tier3",
+          "label": "Discount code for Tier 3 (auto-applied)",
+          "info": "Create a matching discount in Shopify Admin \u2192 Discounts"
         }
       ]
     },

@@ -5,7 +5,7 @@
  * Does NOT execute writes unless explicitly approved pending actions are due.
  */
 var { authenticate, getRawBody } = require('../../lib/qstash-verify');
-var insightsFetcher = require('../../lib/meta-insights-fetcher');
+var insightsSource = require('../../lib/meta-insights-source');
 var approvalQueue = require('../../lib/approval-queue');
 var actionExecutor = require('../../lib/ad-action-executor');
 var telegramReview = require('../../lib/telegram-content-review');
@@ -37,22 +37,21 @@ module.exports = async function handler(req, res) {
     }
     await store.set(lockKey, '1', 300);
 
-    var dateStr = new Date().toISOString().split('T')[0];
+    var now = new Date();
+    var dateStr = now.toISOString().split('T')[0];
 
-    // Fetch today-only performance
-    var todayAds = await insightsFetcher.fetchTodayPerformance('ad');
-    var todayAdsets = await insightsFetcher.fetchTodayPerformance('adset');
+    // Use the same fetchFullSnapshot as the monitor for consistent data
+    var snap = await insightsSource.fetchFullSnapshot(now);
+    var apiErrors = snap.errors || [];
+    var tf = snap.today || { spend: 0, purchases: 0, revenue: 0, impressions: 0, clicks: 0, roas: 0 };
+    var d3 = snap.threeDays || { spend: 0, purchases: 0, revenue: 0, impressions: 0, clicks: 0, roas: 0 };
+    var activeAdsets = snap.activeAdsets || [];
+    var activeAds = snap.ads || [];
 
-    var todaySpend = 0;
-    var todayPurchases = 0;
-    var todayRevenue = 0;
-    (todayAdsets.rows || []).forEach(function (r) {
-      todaySpend += r.spend;
-      todayPurchases += r.purchases;
-      todayRevenue += r.revenue;
-    });
-
-    var roas = todaySpend > 0 ? todayRevenue / todaySpend : 0;
+    var todaySpend = tf.spend || 0;
+    var todayPurchases = tf.purchases || 0;
+    var todayRevenue = tf.revenue || 0;
+    var roas = tf.roas || 0;
 
     // Check for approved pending actions
     var approvedItems = await approvalQueue.getApprovedItems(dateStr);
@@ -70,19 +69,43 @@ module.exports = async function handler(req, res) {
 
     // Send midday summary
     var lines = [
-      '\u2600\ufe0f <b>CALQIX Midday Check — ' + dateStr + '</b>\n',
+      '\u2600\ufe0f <b>CALQIX Midday Check \u2014 ' + dateStr + '</b>\n',
       '\ud83d\udcb0 <b>Today so far:</b>',
       '\u2022 Spend: \u20ac' + todaySpend.toFixed(2),
       '\u2022 Purchases: ' + todayPurchases,
       '\u2022 Revenue: \u20ac' + todayRevenue.toFixed(2),
       '\u2022 ROAS: ' + roas.toFixed(2) + 'x',
-      '\u2022 Active ads: ' + (todayAds.rows || []).length
+      '\u2022 Active ads: ' + activeAds.length,
+      '\u2022 Active ad sets: ' + activeAdsets.length
     ];
+
+    // Warning if today data is empty but campaigns should be active
+    if (todaySpend === 0 && activeAdsets.length > 0) {
+      lines.push('\n\u26a0\ufe0f <i>Meta API returned \u20ac0 spend with ' + activeAdsets.length + ' active ad sets. Data may be delayed (Meta reporting lag can be 1-3h).</i>');
+    }
+
+    // Show 3-day rolling context when today is empty or for trend context
+    if (todaySpend === 0 || todayPurchases === 0) {
+      var d3Roas = d3.roas || 0;
+      lines.push('\n\ud83d\udcc8 <b>Rolling 3-day context:</b>');
+      lines.push('\u2022 Spend: \u20ac' + (d3.spend || 0).toFixed(2));
+      lines.push('\u2022 Purchases: ' + (d3.purchases || 0));
+      lines.push('\u2022 Revenue: \u20ac' + (d3.revenue || 0).toFixed(2));
+      lines.push('\u2022 ROAS: ' + d3Roas.toFixed(2) + 'x');
+    }
+
+    // API error indicators
+    if (apiErrors.length > 0) {
+      lines.push('\n\ud83d\udee0 <b>API issues (' + apiErrors.length + '):</b>');
+      apiErrors.slice(0, 3).forEach(function (e) {
+        lines.push('\u2022 ' + e.substring(0, 80));
+      });
+    }
 
     if (executedApprovals.length > 0) {
       lines.push('\n\u2705 <b>Approved actions executed:</b>');
       executedApprovals.forEach(function (e) {
-        lines.push('\u2022 ' + e.type + ': ' + e.entity + ' — ' + (e.ok ? 'Success' : 'Failed'));
+        lines.push('\u2022 ' + e.type + ': ' + e.entity + ' \u2014 ' + (e.ok ? 'Success' : 'Failed'));
       });
     }
 
@@ -111,6 +134,11 @@ module.exports = async function handler(req, res) {
       todaySpend: todaySpend,
       todayPurchases: todayPurchases,
       todayRoas: roas,
+      activeAds: activeAds.length,
+      activeAdsets: activeAdsets.length,
+      apiErrors: apiErrors.length,
+      todayDataEmpty: todaySpend === 0,
+      threeDaySpend: d3.spend || 0,
       executedApprovals: executedApprovals.length,
       pendingApprovals: queueSummary.pending,
       advisory: advisoryResult.ok,
