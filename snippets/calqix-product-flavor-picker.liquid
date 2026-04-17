@@ -1,0 +1,91 @@
+{%- comment -%}
+  CALQIX Product Flavor Picker
+  Renders on OralBiome product pages under the calqix-bundle-picker.
+  Visible only when tier 2 (2 jars) or tier 3 (3 jars) is selected.
+  Lets the customer pick a flavor per jar BEFORE add-to-cart.
+  JS (`calqix-product-flavor-picker.js`) intercepts the product form submit
+  when tier >= 2 and posts an items[] payload to /cart/add.js.
+{%- endcomment -%}
+
+{%- if product.template_suffix == 'oralbiome' -%}
+
+{%- assign cqpfp_current_handle = product.handle -%}
+{%- assign cqpfp_current_variant = product.selected_or_first_available_variant.id -%}
+
+{%- assign cqpfp_handles_csv = 'oralbiome-pro-freshmint,oralbiome-pro-grape,oralbiome-pro-peach,oralbiome-pro-citrus-orange,oralbiome-pro-cool-mint' -%}
+{%- assign cqpfp_handles = cqpfp_handles_csv | split: ',' -%}
+
+{%- comment -%} Count available flavors (skip missing products) {%- endcomment -%}
+{%- assign cqpfp_count = 0 -%}
+{%- for h in cqpfp_handles -%}
+  {%- assign p = all_products[h] -%}
+  {%- if p != blank and p != empty -%}
+    {%- assign cqpfp_count = cqpfp_count | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if cqpfp_count > 1 -%}
+  {{ 'calqix-product-flavor-picker.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'calqix-product-flavor-picker.js' | asset_url }}" defer></script>
+
+  <div class="cqpfp"
+       data-current-handle="{{ cqpfp_current_handle }}"
+       data-current-variant-id="{{ cqpfp_current_variant }}"
+       data-active="false"
+       data-tier="1"
+       hidden>
+    <div class="cqpfp__inner">
+      <div class="cqpfp__header">
+        <span class="cqpfp__dot" aria-hidden="true"></span>
+        <div class="cqpfp__titles">
+          <p class="cqpfp__title">{{ 'cart.flavor_picker.choose' | t | default: 'Choose your flavors' }}</p>
+          <p class="cqpfp__hint">{{ 'cart.flavor_picker.choose_hint' | t | default: 'Pick a flavor for each jar. Defaults to the selected flavor.' }}</p>
+        </div>
+      </div>
+
+      <div class="cqpfp__slots">
+        {%- for slot_i in (1..3) -%}
+          <div class="cqpfp__slot" data-slot="{{ slot_i }}" {% if slot_i > 1 %}hidden{% endif %}>
+            <div class="cqpfp__slot-head">
+              <span class="cqpfp__slot-chip">{{ 'cart.flavor_picker.jar' | t | default: 'Jar' }} {{ slot_i }}</span>
+            </div>
+            <div class="cqpfp__jars" role="radiogroup" aria-label="{{ 'cart.flavor_picker.jar' | t | default: 'Jar' }} {{ slot_i }}">
+              {%- for h in cqpfp_handles -%}
+                {%- assign prod = all_products[h] -%}
+                {%- if prod != blank and prod != empty -%}
+                  {%- assign flavor_label = prod.title | remove_first: 'OralBiome Pro' | remove_first: 'OralBiome' | strip -%}
+                  {%- if flavor_label == '' -%}{%- assign flavor_label = prod.title -%}{%- endif -%}
+                  {%- assign var_id = prod.selected_or_first_available_variant.id -%}
+                  {%- assign is_current = false -%}
+                  {%- if prod.handle == cqpfp_current_handle -%}{%- assign is_current = true -%}{%- endif -%}
+                  <button type="button"
+                          class="cqpfp__jar{% if is_current %} is-selected{% endif %}"
+                          role="radio"
+                          aria-checked="{% if is_current %}true{% else %}false{% endif %}"
+                          data-handle="{{ prod.handle }}"
+                          data-variant-id="{{ var_id }}"
+                          data-flavor-label="{{ flavor_label | escape }}"
+                          title="{{ flavor_label | escape }}">
+                    <span class="cqpfp__jar-label">{{ flavor_label }}</span>
+                    <span class="cqpfp__jar-media">
+                      {%- if prod.featured_image -%}
+                        <img src="{{ prod.featured_image | image_url: width: 160 }}"
+                             srcset="{{ prod.featured_image | image_url: width: 160 }} 1x, {{ prod.featured_image | image_url: width: 320 }} 2x"
+                             alt="{{ flavor_label | escape }}"
+                             loading="lazy"
+                             width="80" height="80">
+                      {%- endif -%}
+                    </span>
+                    <span class="cqpfp__jar-ring" aria-hidden="true"></span>
+                  </button>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+{%- endif -%}
