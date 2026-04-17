@@ -59,8 +59,42 @@
     color: rgba(255,255,255,0.7);
     letter-spacing: 0.02em;
   }
+  /* ── Desktop / wider screens ───────────────────────────────
+     Subtle inline bar: no dark background, small readable text,
+     gold stars, same click behaviour as mobile. */
   @media (min-width: 768px) {
-    .prb { display: none; }
+    .prb {
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      margin: 4px 0 12px;
+      background: transparent;
+      border-radius: 0;
+      min-height: 0;
+      border-top: 1px solid rgba(26, 59, 92, 0.08);
+      border-bottom: 1px solid rgba(26, 59, 92, 0.08);
+    }
+    .prb::after { display: none; }
+    .prb:hover .prb__count { color: #1A3B5C; }
+    .prb__stars svg { width: 11px; height: 11px; }
+    .prb__rating {
+      font-size: 12.5px;
+      color: #1A3B5C;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: 0.01em;
+    }
+    .prb__sep {
+      color: rgba(26, 59, 92, 0.35);
+      font-size: 10px;
+    }
+    .prb__count {
+      font-size: 11px;
+      color: rgba(26, 59, 92, 0.6);
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      transition: color 0.18s ease;
+    }
   }
 
   @keyframes prb-highlight {

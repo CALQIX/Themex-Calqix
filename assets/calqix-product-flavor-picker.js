@@ -137,27 +137,43 @@
     return items;
   }
 
-  function refreshCart() {
-    try {
-      document.dispatchEvent(new CustomEvent("cart-drawer:refresh", { bubbles: true, composed: true }));
-    } catch (e) {}
+  function getCartDrawer() {
+    var drawer = document.querySelector("cart-drawer");
+    if (!drawer) return null;
+    if (typeof drawer.getSectionsToRender !== "function") return null;
+    if (typeof drawer.renderContents !== "function") return null;
+    return drawer;
+  }
+
+  function publishCartUpdate(response) {
     if (typeof window.publish === "function" && window.PUB_SUB_EVENTS) {
       try {
-        window.publish(window.PUB_SUB_EVENTS.cartUpdate, { source: "product-flavor-picker" });
+        window.publish(window.PUB_SUB_EVENTS.cartUpdate, {
+          source: "product-flavor-picker",
+          cartData: response,
+        });
       } catch (e) {}
     }
   }
 
-  function openCartDrawer() {
-    var drawer = document.querySelector("cart-drawer");
-    if (!drawer) return;
-    // Try known API first
-    if (typeof drawer.open === "function") {
-      try { drawer.open(); return; } catch (e) {}
+  function renderDrawer(drawer, response) {
+    // Match product-form.js behaviour: open the drawer only if it wasn't
+    // already open. renderContents(_, true) triggers toggleDrawerClasses().
+    var isClosedCart = !document.body.classList.contains("page-overlay-cart-on");
+    try {
+      drawer.renderContents(response, isClosedCart);
+    } catch (e) {
+      console.error("[cqpfp] renderContents failed", e);
     }
-    // Fallback: toggle body class used by theme
+  }
+
+  function fallbackRefresh() {
+    try {
+      document.dispatchEvent(
+        new CustomEvent("cart-drawer:refresh", { bubbles: true, composed: true }),
+      );
+    } catch (e) {}
     document.body.classList.add("page-overlay-cart-on");
-    try { drawer.classList.remove("is-empty"); } catch (e) {}
   }
 
   function setButtonLoading(form, isLoading) {
@@ -206,24 +222,51 @@
 
       setButtonLoading(form, true);
 
+      var drawer = getCartDrawer();
+      var payload = { items: items };
+      if (drawer) {
+        payload.sections = drawer
+          .getSectionsToRender()
+          .map(function (s) { return s.id; });
+        payload.sections_url = window.location.pathname;
+      }
+
       fetch("/cart/add.js", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ items: items })
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify(payload),
       })
         .then(function (r) {
-          if (!r.ok) return r.json().then(function (j) { throw new Error(j && j.description || "add failed"); });
-          return r.json();
+          return r.json().then(function (j) {
+            if (!r.ok) {
+              var msg = (j && (j.description || j.message)) || "add failed";
+              throw new Error(msg);
+            }
+            return j;
+          });
         })
-        .then(function () {
-          refreshCart();
-          openCartDrawer();
+        .then(function (response) {
+          if (drawer && response && response.sections) {
+            renderDrawer(drawer, response);
+          } else {
+            fallbackRefresh();
+          }
+          publishCartUpdate(response);
         })
         .catch(function (err) {
           console.error("[cqpfp] add failed", err);
-          // Fallback: submit the form natively so the user still gets feedback
-          try { form.removeEventListener("submit", arguments.callee); } catch (e) {}
-          try { form.submit(); } catch (e) {}
+          if (typeof window.publish === "function" && window.PUB_SUB_EVENTS) {
+            try {
+              window.publish(window.PUB_SUB_EVENTS.cartError, {
+                source: "product-flavor-picker",
+                message: err && err.message,
+              });
+            } catch (e) {}
+          }
         })
         .finally(function () {
           setTimeout(function () { setButtonLoading(form, false); }, 200);
