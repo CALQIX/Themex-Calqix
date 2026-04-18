@@ -77,7 +77,7 @@ async function handler(req, res) {
       return respondOk(res, { received: true, processed: false });
     }
 
-    if (isDuplicate('AddToCart', String(cartKey))) {
+    if (await isDuplicate('AddToCart', String(cartKey))) {
       console.log('[Webhook carts-create] skipping duplicate', { identifier: cartKey });
       return respondOk(res, { received: true, processed: false, reason: 'duplicate' });
     }
