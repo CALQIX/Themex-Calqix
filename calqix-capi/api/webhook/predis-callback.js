@@ -19,6 +19,17 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Optional HMAC verification (set PREDIS_WEBHOOK_SECRET in env to enable)
+  var secret = process.env.PREDIS_WEBHOOK_SECRET;
+  if (secret) {
+    var providedSecret = (req.query && req.query.secret) ||
+      (req.headers && req.headers['x-webhook-secret']);
+    if (providedSecret !== secret) {
+      console.warn('[PredisCallback] Invalid webhook secret');
+      return res.status(401).json({ error: 'Invalid webhook secret' });
+    }
+  }
+
   try {
     var body = req.body;
     if (!body || !body.post_id) {
