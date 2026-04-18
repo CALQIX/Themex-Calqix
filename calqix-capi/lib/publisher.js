@@ -173,13 +173,20 @@ async function publishApproved(queueItemId) {
 
 /**
  * Actual publishing logic — placeholder for Meta/Instagram API integration.
- * Currently logs the publish action. Actual API integration will use
- * Meta Pages/Instagram Content Publish API.
+ *
+ * NOT IMPLEMENTED. Previously returned `{ ok: true }` without calling any API,
+ * which caused `publishApproved()` and LIVE mode to mark content as "executed"
+ * even though nothing was posted. Now fails closed with an explicit error so
+ * the approval queue records `failed` instead of a false success.
+ *
+ * To implement:
+ *   - Instagram Content Publish API (graph.facebook.com/{ig_user_id}/media)
+ *   - Meta Pages API (graph.facebook.com/{page_id}/feed)
+ *   - Honor brief.platform to route to the correct surface
+ *   - Return `{ ok: true, platform, publishedAt, remoteId }` on success
  */
 async function doPublish(brief, assets) {
-  // TODO: Implement actual Meta Pages API / Instagram Content Publish API
-  // For now, this is a structured placeholder that logs the action
-  console.log('[Publisher] Publishing content', {
+  console.warn('[Publisher] doPublish is NOT IMPLEMENTED — publishing blocked', {
     slot: brief.slot,
     date: brief.date,
     platform: brief.platform,
@@ -188,8 +195,11 @@ async function doPublish(brief, assets) {
     hasAssets: Boolean(assets && assets.length > 0)
   });
 
-  // Placeholder — in production this would call Meta's API
-  return { ok: true, platform: brief.platform, publishedAt: new Date().toISOString() };
+  return {
+    ok: false,
+    error: 'doPublish not implemented: Meta Pages / Instagram Content Publish API integration pending. Manual publishing required until implemented.',
+    platform: brief.platform
+  };
 }
 
 /**
