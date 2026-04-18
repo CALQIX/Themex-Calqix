@@ -26,6 +26,34 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-T86BFXXW');</script>
     <!-- End Google Tag Manager -->
+
+    {%- comment -%}
+      CALQIX Meta Pixel Advanced Matching bootstrap.
+      Pushes logged-in customer identity into dataLayer BEFORE any Meta Pixel tag fires,
+      so GTM can forward external_id + hashed PII via the Meta Pixel tag's Advanced Matching.
+      Closes the browser external_id = 0% dedup gap (target: 100% for logged-in sessions).
+      Meta Pixel auto-hashes these fields on the browser side.
+    {%- endcomment -%}
+    {%- if customer -%}
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'calqix_user_data',
+          user_data: {
+            external_id: {{ customer.id | json }}{%- if customer.email -%},
+            em: {{ customer.email | downcase | json }}{%- endif -%}{%- if customer.phone -%},
+            ph: {{ customer.phone | replace: '+', '' | replace: ' ', '' | replace: '-', '' | json }}{%- endif -%}{%- if customer.first_name -%},
+            fn: {{ customer.first_name | downcase | json }}{%- endif -%}{%- if customer.last_name -%},
+            ln: {{ customer.last_name | downcase | json }}{%- endif -%}{%- if customer.default_address -%}{%- if customer.default_address.city -%},
+            ct: {{ customer.default_address.city | downcase | remove: ' ' | json }}{%- endif -%}{%- if customer.default_address.province_code -%},
+            st: {{ customer.default_address.province_code | downcase | json }}{%- endif -%}{%- if customer.default_address.zip -%},
+            zp: {{ customer.default_address.zip | downcase | remove: ' ' | json }}{%- endif -%}{%- if customer.default_address.country_code -%},
+            country: {{ customer.default_address.country_code | downcase | json }}{%- endif -%}{%- endif -%}
+          }
+        });
+      </script>
+    {%- endif -%}
+    <!-- End CALQIX user_data -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

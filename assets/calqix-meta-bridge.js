@@ -497,14 +497,41 @@
   };
 
   /* ------------------------------------------------------------------ */
-  /*  Auto-init on page load                                             */
+  /*  dataLayer push for Meta Pixel Advanced Matching (anonymous users)  */
   /* ------------------------------------------------------------------ */
+
+  function pushUserDataToDataLayer() {
+    try {
+      window.dataLayer = window.dataLayer || [];
+      // If the Liquid layer already pushed logged-in user_data, skip to avoid
+      // overwriting richer customer identity with anon_id-only data.
+      var alreadyPushed = window.dataLayer.some(function (entry) {
+        return entry && entry.event === 'calqix_user_data';
+      });
+      if (alreadyPushed) return;
+
+      var payload = buildUserPayload();
+      var externalId = payload.external_id;
+      if (!externalId) return;
+
+      var userData = { external_id: externalId };
+      if (payload.email) userData.em = payload.email;
+      if (payload.phone) userData.ph = payload.phone;
+      if (payload.country_code) userData.country = payload.country_code;
+
+      window.dataLayer.push({
+        event: 'calqix_user_data',
+        user_data: userData
+      });
+    } catch (e) { /* silent */ }
+  }
 
   function onReady() {
     persistFbclid();
     captureClickIds();
     getOrCreateAnonId();
     getFbp(); // Ensures _fbp fallback is generated if missing
+    pushUserDataToDataLayer();
     syncCartAttributes();
     fireViewContent();
     interceptAddToCart();
