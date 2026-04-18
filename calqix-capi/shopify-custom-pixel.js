@@ -95,6 +95,25 @@ function orderId(checkout) {
   return null;
 }
 
+function customerId(checkout) {
+  try {
+    if (checkout && checkout.order && checkout.order.customer && checkout.order.customer.id) {
+      return numericId(checkout.order.customer.id);
+    }
+    if (checkout && checkout.customer && checkout.customer.id) {
+      return numericId(checkout.customer.id);
+    }
+    if (checkout && checkout.buyerIdentity && checkout.buyerIdentity.customer && checkout.buyerIdentity.customer.id) {
+      return numericId(checkout.buyerIdentity.customer.id);
+    }
+  } catch (e) { /* silent */ }
+  return null;
+}
+
+function shippingAddress(checkout) {
+  return (checkout && (checkout.shippingAddress || checkout.shipping_address)) || null;
+}
+
 function send(payload) {
   try {
     fetch(CAPI_URL, {
@@ -118,6 +137,7 @@ analytics.subscribe("checkout_started", async function (event) {
 
   enrichment[token] = { fbc: fbc, fbp: fbp };
 
+  var addr = shippingAddress(checkout);
   send({
     event_type: "checkout_started",
     checkout_token: token,
@@ -125,6 +145,12 @@ analytics.subscribe("checkout_started", async function (event) {
     fbp: fbp,
     email: checkout.email || null,
     phone: checkout.phone || null,
+    external_id: customerId(checkout),
+    first_name: addr && (addr.firstName || addr.first_name) || null,
+    last_name: addr && (addr.lastName || addr.last_name) || null,
+    city: addr && addr.city || null,
+    zip: addr && addr.zip || null,
+    country_code: addr && (addr.countryCode || addr.country_code) || null,
     line_items: buildLineItems(checkout),
     value: totalValue(checkout),
     currency: currency(checkout),
@@ -155,6 +181,7 @@ analytics.subscribe("checkout_contact_info_submitted", async function (event) {
     checkout_token: token,
     email: checkout.email || null,
     phone: checkout.phone || null,
+    external_id: customerId(checkout),
     fbc: fbc,
     fbp: fbp
   });
@@ -171,14 +198,21 @@ analytics.subscribe("checkout_completed", async function (event) {
   var fbp = await getCookie("_fbp");
   var cached = enrichment[token] || {};
 
+  var addr = shippingAddress(checkout);
   send({
     event_type: "checkout_completed",
     checkout_token: token,
     order_id: orderId(checkout),
+    external_id: customerId(checkout),
     fbc: fbc || cached.fbc || null,
     fbp: fbp || cached.fbp || null,
     email: checkout.email || cached.email || null,
     phone: checkout.phone || cached.phone || null,
+    first_name: addr && (addr.firstName || addr.first_name) || null,
+    last_name: addr && (addr.lastName || addr.last_name) || null,
+    city: addr && addr.city || null,
+    zip: addr && addr.zip || null,
+    country_code: addr && (addr.countryCode || addr.country_code) || null,
     line_items: buildLineItems(checkout),
     value: totalValue(checkout),
     currency: currency(checkout),
