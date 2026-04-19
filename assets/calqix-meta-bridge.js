@@ -355,11 +355,7 @@
       source_url: window.location.href
     };
 
-    fetch(CAPI_BASE + '/add-to-cart', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).catch(function () { /* silent */ });
+    postAddToCart(payload);
 
     if (typeof fbq === 'function') {
       fbq('track', 'AddToCart', {
@@ -372,6 +368,33 @@
     }
 
     syncCartAttributes();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Unload-safe transport for /api/add-to-cart                         */
+  /* ------------------------------------------------------------------ */
+
+  function postAddToCart(payload) {
+    var url = CAPI_BASE + '/add-to-cart';
+    var bodyStr = JSON.stringify(payload);
+
+    // sendBeacon survives page navigation (native form submits, quick-add links).
+    // Fallback: fetch with keepalive so the request completes during unload.
+    try {
+      if (navigator && typeof navigator.sendBeacon === 'function') {
+        var blob = new Blob([bodyStr], { type: 'application/json' });
+        if (navigator.sendBeacon(url, blob)) return;
+      }
+    } catch (e) { /* fall through to fetch */ }
+
+    try {
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: bodyStr,
+        keepalive: true
+      }).catch(function () { /* silent */ });
+    } catch (e) { /* silent */ }
   }
 
   /* ------------------------------------------------------------------ */
@@ -419,6 +442,52 @@
       }
       return origXHRSend.apply(this, arguments);
     };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Native <form action="/cart/add"> submits (page-unloading)          */
+  /* ------------------------------------------------------------------ */
+
+  function buildDetailFromForm(form) {
+    try {
+      var fd = new FormData(form);
+      var rawId = fd.get('id');
+      if (!rawId) return null;
+      var qty = parseInt(fd.get('quantity') || '1', 10) || 1;
+      var priceAttr =
+        form.getAttribute('data-product-price') ||
+        (form.dataset && form.dataset.productPrice) ||
+        null;
+      var pidAttr =
+        form.getAttribute('data-product-id') ||
+        (form.dataset && form.dataset.productId) ||
+        null;
+      return {
+        id: String(rawId),
+        product_id: pidAttr ? String(pidAttr) : String(rawId),
+        quantity: qty,
+        price: priceAttr ? parseFloat(priceAttr) : 0
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function interceptCartAddForms() {
+    document.addEventListener('submit', function (evt) {
+      var form = evt.target;
+      if (!form || !(form instanceof HTMLFormElement)) return;
+      var action = (form.getAttribute('action') || '').toString();
+      if (action.indexOf('/cart/add') === -1) return;
+
+      // AJAX forms (enctype typically absent, bridge's fetch/XHR hook catches
+      // them). We only need to care about native posts that unload the page —
+      // detect by the absence of "no-redirect" markers. Safe to always fire:
+      // the server endpoint is idempotent via event_id dedup and the browser
+      // fbq call also dedups on the same eventID.
+      var detail = buildDetailFromForm(form);
+      if (detail) fireAddToCart(detail);
+    }, true);
   }
 
   /* ------------------------------------------------------------------ */
@@ -535,6 +604,7 @@
     syncCartAttributes();
     fireViewContent();
     interceptAddToCart();
+    interceptCartAddForms();
     autoIdentityCapture();
 
     // Retry fbp sync after Meta Pixel loads (it may set _fbp after bridge init)
