@@ -85,7 +85,7 @@
               <div class="main-article__header">
                 {%- if block.settings.blog_show_author -%}
                   <span itemprop="author">
-                    <span itemprop="name">{{ 'blogs.article.posted_by' | t: author: article.author }}</span>
+                    <span itemprop="name">{{ 'blogs.article.byline_full' | t }}</span>
                   </span>
                 {%- endif -%}
                 {%- if block.settings.blog_show_date -%}

@@ -54,7 +54,7 @@
 
           {%- if block.settings.show_author or show_author -%}
             <span class="caption-with-letter-spacing wt-blog__show--author card__subtitle">
-              {{- article.author -}}
+              {{- 'blogs.article.byline' | t -}}
             </span>
           {%- endif -%}
         </div>

@@ -1141,7 +1141,8 @@
       <h1 class="blog-hero__title">{{ article.title }}</h1>
 
       <p class="blog-hero__meta">
-        <span>{{ section.settings.author_name | default: article.author }}</span>
+        {%- assign default_byline = 'blogs.article.byline' | t -%}
+        <span>{{ section.settings.author_name | default: default_byline }}</span>
         {%- assign word_count = article.content | strip_html | split: ' ' | size -%}
         {%- assign read_time = word_count | divided_by: 200 | plus: 1 -%}
         <span>{{ read_time }} min read</span>
@@ -1301,19 +1302,19 @@
       "type": "text",
       "id": "author_name",
       "label": "Author name",
-      "default": "Dr. Elena Hartwell"
+      "default": ""
     },
     {
       "type": "text",
       "id": "author_title",
       "label": "Author title",
-      "default": "Dental Science Specialist"
+      "default": "CALQIX Science Team"
     },
     {
       "type": "textarea",
       "id": "author_bio",
       "label": "Author bio",
-      "default": "Dr. Hartwell specializes in preventive dentistry and oral microbiome research. She advises CALQIX on clinical evidence and product formulation."
+      "default": "The CALQIX Science Team is our in-house group of formulation chemists, dental advisors, and microbiome researchers. We translate peer-reviewed evidence into products that rebuild enamel and support the oral microbiome."
     },
     {
       "type": "image_picker",

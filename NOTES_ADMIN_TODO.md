@@ -137,3 +137,47 @@ Do not introduce any other Meta Pixel ID. The previously referenced `14008812447
 ---
 
 Task 9 admin checklist ends here. Task 10 admin items (e.g., Predis webhook URL check) will append below when those commits land.
+
+---
+
+# Task 1 admin actions — Elena persona removal
+
+Code changes (byline locale keys, schema defaults, template defaults) are live in commit `[task-1]`. The following admin actions finish the removal so visitors never see "Elena Hartwell" again.
+
+## Blog and author rename
+
+- [ ] Settings > Users: find the user "Elena Hartwell". Rename to "CALQIX Science Team". Update email to `info@calqix.com` if applicable. After the rename, Shopify auto-updates `article.author` on the 5 existing Elena articles, but our code no longer reads `article.author` on article pages/cards (the new `blogs.article.byline` locale key is used). The rename is still needed for admin hygiene and metafield compatibility.
+- [ ] Content > Blog posts: open each of the 5 "Elena writes" articles, remove any in-body mentions of "Elena" or "Dr. Elena" and replace with "the CALQIX team" or delete the phrase.
+- [ ] Content > Blogs: open the blog "Elena writes" and change:
+  - Title per language:
+    - EN: "The Science Journal"
+    - NL: "Wetenschapsjournaal"
+    - DE: "Wissenschaftsjournal"
+    - FR: "Journal scientifique"
+    - FI: "Tiedejulkaisu"
+    - NB: "Vitenskapsjournalen"
+    - SV: "Vetenskapsjournalen"
+    - DA: "Videnskabsjournalen"
+  - Handle: change from `calqix-elena-writes` to `the-science-journal`.
+- [ ] Shopify auto-creates a redirect for the blog handle change. Verify in Online Store > Navigation > URL Redirects.
+- [ ] Online Store > Navigation > URL Redirects > Import CSV: upload `@c:\Users\Gebruiker\Desktop\CALQIX Repo\redirects.csv` as a safety net (it adds the same `/blogs/calqix-elena-writes` to `/blogs/the-science-journal` redirect in case Shopify's auto-redirect is missing).
+- [ ] Online Store > Navigation > Main menu: rename the "Elena writes" link.
+  - EN: "Science Journal"
+  - NL: "Wetenschap"
+  - DE: "Wissenschaft"
+  - FR: "Science"
+  - FI: "Tiede"
+  - NB: "Vitenskap"
+  - SV: "Vetenskap"
+  - DA: "Videnskab"
+- [ ] **Important follow-up commit**: after you rename the blog handle in admin, ping Windsurf to run a `[task-1-followup]` commit updating the remaining template references from `calqix-elena-writes` to `the-science-journal`:
+  - `@c:\Users\Gebruiker\Desktop\CALQIX Repo\templates\index.json:377`
+  - `@c:\Users\Gebruiker\Desktop\CALQIX Repo\templates\product.oralbiome.json:310`
+  - Helper scripts under `@c:\Users\Gebruiker\Desktop\CALQIX Repo\scripts\`
+  These still point to the old handle. Shopify URL redirects do not cover `blogs['handle']` Liquid lookups, so these files must be updated AFTER the admin handle change, not before.
+
+## Judge.me cleanup (same session)
+
+- [ ] Judge.me admin > Reviews: filter to "Verified purchase only".
+- [ ] Hide or delete any reviews dated before CALQIX store actually went live.
+- [ ] Set Judge.me widget to require "Verified purchase" badge for display.
