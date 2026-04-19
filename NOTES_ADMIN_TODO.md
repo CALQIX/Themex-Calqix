@@ -26,20 +26,22 @@ Success signal: in the 24-hour trailing view, Purchase and InitiateCheckout swit
 
 ---
 
-## 2. Shopify Custom Pixel — reinstall with updated code
+## 2. Shopify Custom Pixel — install (currently NOT INSTALLED — confirmed 2026-04-19)
 
-We just committed enhancements to `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\shopify-custom-pixel.js`:
+Admin API verification on 2026-04-19 showed `webPixel` returns `RESOURCE_NOT_FOUND`: no CALQIX Custom Pixel is registered. The server-side tracking chain depends on this pixel to fire `InitiateCheckout` and `Purchase` events from the thank-you page. **This is a material gap.**
 
-- `external_id` extracted from `checkout.order.customer.id` / `checkout.customer.id`
-- Shipping address fields added to the server payload (fn, ln, ct, zp, country)
+Pixel source ready at `@c:\Users\Gebruiker\Desktop\CALQIX Repo\scripts\shopify-custom-pixel.for-admin.js` (mirror of `calqix-capi/shopify-custom-pixel.js` after [task-9c] enhancements: `external_id` + shipping address fields in the server payload).
 
-Steps to deploy:
+Steps to install:
 
-1. Shopify admin → Settings → **Customer events** → **Add custom pixel** (or open the existing CALQIX Meta CAPI pixel).
-2. Replace the pixel code with the latest contents of `calqix-capi/shopify-custom-pixel.js`.
-3. Save, then **Connect** (or re-connect after save).
-4. Customer privacy: set to **Customer Privacy API** if available so GDPR consent is respected.
-5. Verify in Meta Events Manager → Test events by opening a fresh incognito checkout flow and confirming Purchase + InitiateCheckout arrive with `external_id` and `fbp` populated.
+1. Shopify admin → Settings → **Customer events** → **Add custom pixel**.
+2. Name: **CALQIX Meta CAPI**.
+3. Paste the full contents of `scripts/shopify-custom-pixel.for-admin.js`.
+4. Save, then **Connect**.
+5. Customer privacy: set to **Customer Privacy API** so GDPR consent is respected.
+6. Verify in Meta Events Manager → Test events by opening a fresh incognito checkout flow and confirming Purchase + InitiateCheckout arrive with `external_id` and `fbp` populated.
+
+This single action closes the primary reason baseline dedup coverage sits at 58.79% — there are currently no paired browser events for Purchase / InitiateCheckout.
 
 ---
 
@@ -144,37 +146,29 @@ Task 9 admin checklist ends here. Task 10 admin items (e.g., Predis webhook URL 
 
 Code changes (byline locale keys, schema defaults, template defaults) are live in commit `[task-1]`. The following admin actions finish the removal so visitors never see "Elena Hartwell" again.
 
-## Blog and author rename
+## Blog and author rename — DONE via Admin API on 2026-04-19 09:10 AMS (see `@c:\Users\Gebruiker\Desktop\CALQIX Repo\reports\task1-admin-rollout.md`)
 
-- [ ] Settings > Users: find the user "Elena Hartwell". Rename to "CALQIX Science Team". Update email to `info@calqix.com` if applicable. After the rename, Shopify auto-updates `article.author` on the 5 existing Elena articles, but our code no longer reads `article.author` on article pages/cards (the new `blogs.article.byline` locale key is used). The rename is still needed for admin hygiene and metafield compatibility.
-- [ ] Content > Blog posts: open each of the 5 "Elena writes" articles, remove any in-body mentions of "Elena" or "Dr. Elena" and replace with "the CALQIX team" or delete the phrase.
-- [ ] Content > Blogs: open the blog "Elena writes" and change:
-  - Title per language:
-    - EN: "The Science Journal"
-    - NL: "Wetenschapsjournaal"
-    - DE: "Wissenschaftsjournal"
-    - FR: "Journal scientifique"
-    - FI: "Tiedejulkaisu"
-    - NB: "Vitenskapsjournalen"
-    - SV: "Vetenskapsjournalen"
-    - DA: "Videnskabsjournalen"
-  - Handle: change from `calqix-elena-writes` to `the-science-journal`.
-- [ ] Shopify auto-creates a redirect for the blog handle change. Verify in Online Store > Navigation > URL Redirects.
-- [ ] Online Store > Navigation > URL Redirects > Import CSV: upload `@c:\Users\Gebruiker\Desktop\CALQIX Repo\redirects.csv` as a safety net (it adds the same `/blogs/calqix-elena-writes` to `/blogs/the-science-journal` redirect in case Shopify's auto-redirect is missing).
-- [ ] Online Store > Navigation > Main menu: rename the "Elena writes" link.
-  - EN: "Science Journal"
-  - NL: "Wetenschap"
-  - DE: "Wissenschaft"
-  - FR: "Science"
-  - FI: "Tiede"
-  - NB: "Vitenskap"
-  - SV: "Vetenskap"
-  - DA: "Videnskab"
-- [ ] **Important follow-up commit**: after you rename the blog handle in admin, ping Windsurf to run a `[task-1-followup]` commit updating the remaining template references from `calqix-elena-writes` to `the-science-journal`:
-  - `@c:\Users\Gebruiker\Desktop\CALQIX Repo\templates\index.json:377`
-  - `@c:\Users\Gebruiker\Desktop\CALQIX Repo\templates\product.oralbiome.json:310`
-  - Helper scripts under `@c:\Users\Gebruiker\Desktop\CALQIX Repo\scripts\`
-  These still point to the old handle. Shopify URL redirects do not cover `blogs['handle']` Liquid lookups, so these files must be updated AFTER the admin handle change, not before.
+- [x] URL redirect `/blogs/calqix-elena-writes` -> `/blogs/the-science-journal` created (`gid://shopify/UrlRedirect/887672045897`).
+- [x] Blog renamed: handle `calqix-elena-writes` -> `the-science-journal`, title -> "The Science Journal".
+- [x] Main menu item "Elena writes" -> "Science Journal"; all 5 subitem URLs auto-migrated because they are linked by `resourceId`.
+- [x] Article "Nano-Hydroxyapatite: The Fluoride Alternative..." author rewritten: "Dr. Elena Hartwell" -> "CALQIX Science Team".
+- [x] Template references updated in commit `9564500` (`templates/index.json`, `templates/product.oralbiome.json`).
+- [x] Article bodies scanned — no "Elena" mentions in body text. Body dump at `@c:\Users\Gebruiker\Desktop\CALQIX Repo\reports\task1-article-body-for-review.html` for double-check.
+
+Still required by the operator (API cannot automate):
+
+- [ ] Settings > Users: rename the Shopify staff user "Elena Hartwell" to "CALQIX Science Team" (Shopify has no staff-management API). Update email to `info@calqix.com` if appropriate.
+- [ ] Translate & Adapt (Shopify admin > Languages): translate the new blog title "The Science Journal" into NL/DE/FR/FI/NB/SV/DA. Suggested translations:
+  - NL: "Wetenschapsjournaal"
+  - DE: "Wissenschaftsjournal"
+  - FR: "Journal scientifique"
+  - FI: "Tiedejulkaisu"
+  - NB: "Vitenskapsjournalen"
+  - SV: "Vetenskapsjournalen"
+  - DA: "Videnskabsjournalen"
+- [ ] Translate & Adapt: translate the menu item label "Science Journal":
+  - NL: "Wetenschap" | DE: "Wissenschaft" | FR: "Science" | FI: "Tiede" | NB: "Vitenskap" | SV: "Vetenskap" | DA: "Videnskab"
+- [ ] `@c:\Users\Gebruiker\Desktop\CALQIX Repo\redirects.csv` is now redundant (the redirect was created via API). Safe to delete, or leave as a historic artefact.
 
 ## Judge.me cleanup (same session)
 
