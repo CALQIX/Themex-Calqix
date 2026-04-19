@@ -224,3 +224,27 @@ Citations pushed (v2 placeholders, operator acknowledged risk and approved use a
 - [ ] Operator: verify the three citations actually substantiate the 81% gum bleeding / 34% plaque / 6mm subgingival claims. If any citation is wrong, update the value in `locales/*.json` under `clinical.ref_*` and redeploy. No code change needed — this is copy only.
 - [ ] Provide PDF or DOI links to the source studies in the CALQIX internal drive for EU Omnibus compliance recordkeeping.
 - [ ] If a stat is not substantiated by any available study, remove the number from `sections/calqix-proof-strip.liquid` schema defaults in a follow-up commit and rephrase the heading to be source-agnostic.
+
+---
+
+# Task 11 admin actions — Klaviyo setup
+
+Code scaffold live at:
+
+- `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\lib\klaviyo.js` — REST client (revision 2024-10-15).
+- `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\scripts\klaviyo-setup.js` — idempotent list + template seeder.
+- `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\docs\klaviyo-setup.md` — full operator guide + flow blueprints.
+
+Nothing calls Klaviyo yet — the webhook wiring is deliberately deferred until the key is in env and lists exist.
+
+- [ ] Klaviyo admin → Account → Settings → **API Keys** → Create Private API Key. Scopes: Profiles (Full), Lists (Full), Events (Full), Templates (Full), Metrics (Read), Flows (Read), Campaigns (Read), Accounts (Read). Copy the `pk_*` key.
+- [ ] Operator: send the `pk_*` key to Cascade via secure channel (not committed to git). Cascade will add via `vercel env add KLAVIYO_PRIVATE_API_KEY production`.
+- [ ] Set `KLAVIYO_ENABLED=true` in Vercel env (production).
+- [ ] After env is live, operator triggers `npm run klaviyo:setup` (Cascade will add to `calqix-capi/package.json` in the wiring PR) or runs `node scripts/klaviyo-setup.js all` directly — creates the 5 master lists (Master / NL / EN / DE / FR) and 6 baseline templates (Welcome NL/EN/DE/FR, Abandoned Cart EN, Post-Purchase EN).
+- [ ] In Klaviyo UI, enable **double opt-in** on all 5 master lists (per-list settings → subscription method).
+- [ ] In Klaviyo UI, build the 4 flows defined in `docs/klaviyo-setup.md` §6 (Welcome per locale, Abandoned Cart, Post-Purchase, Winback). Flow graphs cannot be API-created — this step is manual once and re-used.
+- [ ] In Shopify Admin → Online Store → Themes → Customize → section **CALQIX Email Signup** → set the Klaviyo form shortcode to the onsite embed form id that maps to the correct per-locale master list. Current code reads `section.settings.klaviyo_form_shortcode` in `@c:\Users\Gebruiker\Desktop\CALQIX Repo\sections\calqix-email-signup.liquid:502`.
+- [ ] Verify `GET https://calqix-capi.vercel.app/api/diagnostics?key={DIAGNOSTICS_KEY}` reports `klaviyo: { ok: true }` (will be added in the wiring commit once env var is live).
+- [ ] After lists + flows are live: give green light for Cascade to wire `api/webhook/orders-paid.js`, `checkouts-create.js`, `customers-create.js`, and `api/checkout-event.js` to emit Klaviyo events (planned as a separate `[task-11b]` commit per `docs/klaviyo-setup.md` §5).
+
+Rollback: set `KLAVIYO_ENABLED=false` in Vercel env. All Klaviyo calls short-circuit with `skipped: true` and no exceptions thrown. Shopify webhooks keep returning HTTP 200 unchanged.
