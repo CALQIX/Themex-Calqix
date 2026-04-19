@@ -7,24 +7,33 @@
 
       <div class="cps-stats-grid">
         <article class="cps-stat">
-          <div class="cps-stat-number">{{ section.settings.stat_1_number }}</div>
+          <div class="cps-stat-number">{{ section.settings.stat_1_number }}<sup class="cps-stat-ref"><a href="#clinical-references" aria-label="Reference 1">1</a></sup></div>
           <h3 class="cps-stat-heading">{{ section.settings.stat_1_heading }}</h3>
           <p class="cps-stat-body">{{ section.settings.stat_1_body }}</p>
           <p class="cps-stat-source">{{ section.settings.stat_1_source }}</p>
         </article>
         <article class="cps-stat">
-          <div class="cps-stat-number">{{ section.settings.stat_2_number }}</div>
+          <div class="cps-stat-number">{{ section.settings.stat_2_number }}<sup class="cps-stat-ref"><a href="#clinical-references" aria-label="Reference 2">2</a></sup></div>
           <h3 class="cps-stat-heading">{{ section.settings.stat_2_heading }}</h3>
           <p class="cps-stat-body">{{ section.settings.stat_2_body }}</p>
           <p class="cps-stat-source">{{ section.settings.stat_2_source }}</p>
         </article>
         <article class="cps-stat">
-          <div class="cps-stat-number">{{ section.settings.stat_3_number }}</div>
+          <div class="cps-stat-number">{{ section.settings.stat_3_number }}<sup class="cps-stat-ref"><a href="#clinical-references" aria-label="Reference 3">3</a></sup></div>
           <h3 class="cps-stat-heading">{{ section.settings.stat_3_heading }}</h3>
           <p class="cps-stat-body">{{ section.settings.stat_3_body }}</p>
           <p class="cps-stat-source">{{ section.settings.stat_3_source }}</p>
         </article>
       </div>
+
+      <aside class="clinical-references" id="clinical-references" aria-label="{{ 'clinical.references_title' | t }}">
+        <p class="clinical-references-title">{{ 'clinical.references_title' | t }}</p>
+        <ol class="clinical-references-list">
+          <li>{{ 'clinical.ref_1' | t }}</li>
+          <li>{{ 'clinical.ref_2' | t }}</li>
+          <li>{{ 'clinical.ref_3' | t }}</li>
+        </ol>
+      </aside>
     </div>
   </div>
 
@@ -246,6 +255,40 @@
         padding: 24px 18px;
       }
     }
+    #cps-{{ section.id }} .cps-stat-ref {
+      font-size: 0.45em;
+      line-height: 1;
+      margin-left: 2px;
+      vertical-align: super;
+    }
+    #cps-{{ section.id }} .cps-stat-ref a {
+      color: var(--cps-accent);
+      text-decoration: none;
+    }
+    #cps-{{ section.id }} .cps-stat-ref a:hover { text-decoration: underline; }
+    #cps-{{ section.id }} .clinical-references {
+      max-width: 860px;
+      margin: 32px auto 0;
+      padding: 20px 24px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.78);
+      font-size: 12px;
+      line-height: 1.55;
+      font-family: "DM Sans", sans-serif;
+    }
+    #cps-{{ section.id }} .clinical-references-title {
+      margin: 0 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 600;
+      font-size: 11px;
+      color: rgba(255,255,255,0.85);
+    }
+    #cps-{{ section.id }} .clinical-references-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+    #cps-{{ section.id }} .clinical-references-list li { margin-bottom: 4px; }
   </style>
 
   {% if section.settings.custom_css != blank %}

@@ -218,3 +218,21 @@ Copy flows from `locales/*.json` under the new `hero.*` + `product.subscribe_sav
 - [ ] Verify the homepage hero on desktop + mobile after deploy. The order below the CTA should now be: launch-offer gold badge → subscription trust line → existing trust line. Copy flips to NL/DE/FR/FI/NB/SV/DA automatically when the storefront locale changes.
 - [ ] Confirm the subscribe-save badge appears on collection pages for any FlowCore or OralBiome product with a Recharge subscription plan. It auto-detects `product.selling_plan_groups`.
 - [ ] If Recharge is not yet connected to a product, the badge simply does not render. Add it via Recharge admin > Products > assign selling plan group.
+
+---
+
+# Task 3 admin actions — Clinical claim references
+
+Code now live in `@c:\Users\Gebruiker\Desktop\CALQIX Repo\sections\calqix-proof-strip.liquid`. Each stat number (81%, 34%, 6mm) carries a superscript `1/2/3` linking to a new References block below the stats.
+
+Deviation note: v2 prompt specified `homepage.clinical.*` but `homepage` is already a reserved top-level string key (breadcrumbs label). Keys were flattened to `clinical.references_title`, `clinical.ref_1`, `clinical.ref_2`, `clinical.ref_3`. Content unchanged from v2 placeholders.
+
+Citations pushed (v2 placeholders, operator acknowledged risk and approved use as-is):
+
+1. **Amaechi BT, et al.** Remineralization effects of hydroxyapatite toothpaste. *Journal of Clinical Periodontology*, 2019.
+2. **Kensche A, et al.** Plaque reduction through hydroxyapatite particles. *International Journal of Dental Hygiene*, 2017.
+3. Based on clinical measurement standards for subgingival access. Verified in independent testing against ISO 16408.
+
+- [ ] Operator: verify the three citations actually substantiate the 81% gum bleeding / 34% plaque / 6mm subgingival claims. If any citation is wrong, update the value in `locales/*.json` under `clinical.ref_*` and redeploy. No code change needed — this is copy only.
+- [ ] Provide PDF or DOI links to the source studies in the CALQIX internal drive for EU Omnibus compliance recordkeeping.
+- [ ] If a stat is not substantiated by any available study, remove the number from `sections/calqix-proof-strip.liquid` schema defaults in a follow-up commit and rephrase the heading to be source-agnostic.
