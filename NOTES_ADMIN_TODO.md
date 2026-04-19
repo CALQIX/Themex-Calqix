@@ -194,3 +194,15 @@ Code: `@c:\Users\Gebruiker\Desktop\CALQIX Repo\snippets\microsoft-clarity.liquid
 - [ ] Shopify admin > Online Store > Themes > Customize (live theme) > Theme settings > Analytics & tracking > paste the Clarity project ID into "Clarity project ID". Save.
 - [ ] Wait 5-10 minutes, then open Clarity dashboard. Verify "Recordings" count is > 0. If 0 after 30 minutes, check browser devtools for a Clarity script load and for a `c.clarity.ms/collect` network request on a live page.
 - [ ] Optional: enable Clarity's GA4 integration for cross-linking between heatmaps and GA4 session traces.
+
+---
+
+# Task 4 admin actions — Product comparison section
+
+Code: `@c:\Users\Gebruiker\Desktop\CALQIX Repo\sections\product-comparison.liquid` with preset (6 default rows) is now available in Theme Editor. Nothing renders until it is placed on a page.
+
+- [ ] Shopify admin > Online Store > Themes > Customize > pick the FlowCore product template (product.flowcore or main product template). Click "Add section" > "Product comparison". Drag below the main product description.
+- [ ] Confirm preset blocks (6 rows) are present. Adjust competitor names if needed (default: Boka, David's, Colgate).
+- [ ] Add a footnote referencing the clinical references section: "See references below for source of claims."
+- [ ] Repeat for OralBiome, Lumicore product templates if you want the comparison on those too.
+- [ ] Translate each block's `feature_label` via the Translate & Adapt app (Shopify admin > Languages > Translate). The column headers (brand names) and yes/no icons pull from locale keys automatically.

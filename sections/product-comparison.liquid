@@ -1,0 +1,334 @@
+{%- comment -%}
+  Product comparison — CALQIX vs competitor grid.
+
+  Schema-driven, reorderable rows via blocks. Default copy lives in
+  locales/*.json under `sections.comparison.*`.
+
+  Add to a product template via Theme Editor > Customize > Add section.
+{%- endcomment -%}
+
+{%- liquid
+  assign heading = section.settings.heading
+  if heading == blank
+    assign heading = 'sections.comparison.heading' | t
+  endif
+
+  assign brand_name = section.settings.brand_name | default: 'CALQIX'
+  assign c1 = section.settings.competitor_1_name | default: 'Boka'
+  assign c2 = section.settings.competitor_2_name | default: "David's"
+  assign c3 = section.settings.competitor_3_name | default: 'Colgate'
+-%}
+
+<section
+  class="calqix-comparison color-{{ section.settings.color_scheme }}"
+  style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="page-width">
+    {%- if heading != blank -%}
+      <h2 class="calqix-comparison__heading">{{ heading | escape }}</h2>
+    {%- endif -%}
+    {%- if section.settings.subheading != blank -%}
+      <p class="calqix-comparison__subheading">{{ section.settings.subheading | escape }}</p>
+    {%- endif -%}
+
+    <div class="calqix-comparison__table-wrap" role="region" aria-label="{{ heading | escape }}">
+      <table class="calqix-comparison__table">
+        <thead>
+          <tr>
+            <th scope="col" class="calqix-comparison__feature-col">
+              <span class="visually-hidden">{{ 'sections.comparison.feature_column_label' | t }}</span>
+            </th>
+            <th scope="col" class="calqix-comparison__brand-col calqix-comparison__brand-col--primary">
+              {{ brand_name | escape }}
+            </th>
+            <th scope="col" class="calqix-comparison__brand-col">{{ c1 | escape }}</th>
+            <th scope="col" class="calqix-comparison__brand-col">{{ c2 | escape }}</th>
+            <th scope="col" class="calqix-comparison__brand-col">{{ c3 | escape }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'row' -%}
+              <tr {{ block.shopify_attributes }}>
+                <th scope="row" class="calqix-comparison__feature">{{ block.settings.feature_label | escape }}</th>
+                <td class="calqix-comparison__cell calqix-comparison__cell--primary">
+                  {%- if block.settings.calqix_check -%}
+                    <span class="calqix-comparison__yes" aria-label="{{ 'sections.comparison.yes' | t }}">✓</span>
+                  {%- else -%}
+                    <span class="calqix-comparison__no" aria-label="{{ 'sections.comparison.no' | t }}">✗</span>
+                  {%- endif -%}
+                </td>
+                <td class="calqix-comparison__cell">
+                  {%- if block.settings.competitor_1_check -%}
+                    <span class="calqix-comparison__yes" aria-label="{{ 'sections.comparison.yes' | t }}">✓</span>
+                  {%- else -%}
+                    <span class="calqix-comparison__no" aria-label="{{ 'sections.comparison.no' | t }}">✗</span>
+                  {%- endif -%}
+                </td>
+                <td class="calqix-comparison__cell">
+                  {%- if block.settings.competitor_2_check -%}
+                    <span class="calqix-comparison__yes" aria-label="{{ 'sections.comparison.yes' | t }}">✓</span>
+                  {%- else -%}
+                    <span class="calqix-comparison__no" aria-label="{{ 'sections.comparison.no' | t }}">✗</span>
+                  {%- endif -%}
+                </td>
+                <td class="calqix-comparison__cell">
+                  {%- if block.settings.competitor_3_check -%}
+                    <span class="calqix-comparison__yes" aria-label="{{ 'sections.comparison.yes' | t }}">✓</span>
+                  {%- else -%}
+                    <span class="calqix-comparison__no" aria-label="{{ 'sections.comparison.no' | t }}">✗</span>
+                  {%- endif -%}
+                </td>
+              </tr>
+            {%- endif -%}
+          {%- endfor -%}
+        </tbody>
+      </table>
+    </div>
+
+    {%- if section.settings.footnote != blank -%}
+      <p class="calqix-comparison__footnote">{{ section.settings.footnote | escape }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .calqix-comparison { background: #F4F5F7; color: #1A3B5C; }
+  .calqix-comparison__heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.75rem, 2.5vw, 2.5rem);
+    text-align: center;
+    margin: 0 0 8px;
+    color: #1A3B5C;
+  }
+  .calqix-comparison__subheading {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto 32px;
+    color: #1A3B5C;
+    opacity: 0.85;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .calqix-comparison__table-wrap { overflow-x: auto; }
+  .calqix-comparison__table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 0 rgba(26,59,92,0.06);
+  }
+  .calqix-comparison__table th,
+  .calqix-comparison__table td {
+    padding: 14px 16px;
+    text-align: center;
+    border-bottom: 1px solid rgba(26,59,92,0.08);
+    font-size: 14px;
+  }
+  .calqix-comparison__table tbody tr:last-child th,
+  .calqix-comparison__table tbody tr:last-child td { border-bottom: none; }
+  .calqix-comparison__feature-col,
+  .calqix-comparison__feature { text-align: left; font-weight: 500; }
+  .calqix-comparison__brand-col { font-weight: 600; letter-spacing: 0.02em; }
+  .calqix-comparison__brand-col--primary,
+  .calqix-comparison__cell--primary {
+    background: rgba(201,168,76,0.08);
+    color: #1A3B5C;
+  }
+  .calqix-comparison__yes { color: #C9A84C; font-weight: 700; font-size: 18px; }
+  .calqix-comparison__no { color: #B0B6BF; font-weight: 600; }
+  .calqix-comparison__footnote {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 12px;
+    color: #1A3B5C;
+    opacity: 0.7;
+  }
+  @media (max-width: 640px) {
+    .calqix-comparison__table th,
+    .calqix-comparison__table td { padding: 10px 8px; font-size: 13px; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Product comparison",
+  "tag": "section",
+  "class": "calqix-comparison-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Leave blank to use the localized default (Why CALQIX / Waarom CALQIX / ...)."
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "text",
+      "id": "brand_name",
+      "label": "Primary brand column label",
+      "default": "CALQIX"
+    },
+    {
+      "type": "text",
+      "id": "competitor_1_name",
+      "label": "Competitor 1 column label",
+      "default": "Boka"
+    },
+    {
+      "type": "text",
+      "id": "competitor_2_name",
+      "label": "Competitor 2 column label",
+      "default": "David's"
+    },
+    {
+      "type": "text",
+      "id": "competitor_3_name",
+      "label": "Competitor 3 column label",
+      "default": "Colgate"
+    },
+    {
+      "type": "text",
+      "id": "footnote",
+      "label": "Footnote",
+      "info": "Shown below the table. Use for sources or disclaimers."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "row",
+      "name": "Comparison row",
+      "settings": [
+        {
+          "type": "text",
+          "id": "feature_label",
+          "label": "Feature label",
+          "default": "Nano-hydroxyapatite formula"
+        },
+        {
+          "type": "checkbox",
+          "id": "calqix_check",
+          "label": "CALQIX has this",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "competitor_1_check",
+          "label": "Competitor 1 has this",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "competitor_2_check",
+          "label": "Competitor 2 has this",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "competitor_3_check",
+          "label": "Competitor 3 has this",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product comparison",
+      "blocks": [
+        {
+          "type": "row",
+          "settings": {
+            "feature_label": "Nano-hydroxyapatite formula",
+            "calqix_check": true,
+            "competitor_1_check": true,
+            "competitor_2_check": false,
+            "competitor_3_check": false
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "feature_label": "Fluoride-free",
+            "calqix_check": true,
+            "competitor_1_check": true,
+            "competitor_2_check": true,
+            "competitor_3_check": false
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "feature_label": "SLS-free",
+            "calqix_check": true,
+            "competitor_1_check": true,
+            "competitor_2_check": true,
+            "competitor_3_check": false
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "feature_label": "Built as a two-step protocol",
+            "calqix_check": true,
+            "competitor_1_check": false,
+            "competitor_2_check": false,
+            "competitor_3_check": false
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "feature_label": "EU cosmetic-compliant",
+            "calqix_check": true,
+            "competitor_1_check": false,
+            "competitor_2_check": false,
+            "competitor_3_check": true
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "feature_label": "30-day money-back guarantee",
+            "calqix_check": true,
+            "competitor_1_check": true,
+            "competitor_2_check": true,
+            "competitor_3_check": false
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
