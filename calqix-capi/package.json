@@ -18,7 +18,8 @@
     "schedule:list": "node scripts/bootstrap.js list-schedules",
     "schedule:delete": "node scripts/bootstrap.js delete-schedule",
     "smoke-test": "node scripts/bootstrap.js smoke-test",
-    "smoke-test:recovery": "node scripts/bootstrap.js smoke-test-recovery"
+    "smoke-test:recovery": "node scripts/bootstrap.js smoke-test-recovery",
+    "check:atc": "node scripts/check-pixel-sources.js"
   },
   "dependencies": {
     "@upstash/qstash": "^2.7.17",

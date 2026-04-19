@@ -248,3 +248,51 @@ Nothing calls Klaviyo yet — the webhook wiring is deliberately deferred until 
 - [ ] After lists + flows are live: give green light for Cascade to wire `api/webhook/orders-paid.js`, `checkouts-create.js`, `customers-create.js`, and `api/checkout-event.js` to emit Klaviyo events (planned as a separate `[task-11b]` commit per `docs/klaviyo-setup.md` §5).
 
 Rollback: set `KLAVIYO_ENABLED=false` in Vercel env. All Klaviyo calls short-circuit with `skipped: true` and no exceptions thrown. Shopify webhooks keep returning HTTP 200 unchanged.
+
+---
+
+# Task 12 admin actions — AddToCart dedup cleanup (Option A)
+
+Reference: ATC tracking audit, 2026-04-19. Root cause confirmed: **4 independent AddToCart event pipelines** (bridge, Shopify F&I Enhanced, Taggrs SST pixel, GTM web Meta tag) each fire with their own event_id format. Meta can only dedup WITHIN one stack, so event_id coverage sits at ~50%.
+
+Decision: keep our `calqix-capi` bridge as sole source. Disable all others.
+
+Verification code already in repo:
+
+- `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\scripts\check-pixel-sources.js` — reads Redis diag summaries + recent per-event match_keys. Run with `npm run check:atc` from `calqix-capi/`.
+- `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\api\add-to-cart.js:116-121` — now wires `capi-diagnostics.recordCoverage` so daily summaries populate going forward.
+
+## Operator steps (execute in order)
+
+- [ ] **A1 — Shopify F&I Data sharing → Conservative**. Shopify Admin → Sales channels → Facebook & Instagram → Settings → "Manage Facebook & Instagram data sharing preference" (image 3) → click "Change" under the current **Enhanced** box → select **Conservative** → Save. This stops Shopify from loading Meta Pixel and sending its own CAPI events. Confirmed per Shopify docs: Conservative = shop-linking only, no customer activity data.
+- [ ] **A2 — Disconnect Taggrs SST Custom Pixel**. Shopify Admin → Settings → Customer events → click ⋯ next to **TAGGRS SST Pixel** → Disconnect → confirm → optionally Remove. This stops the second browser + server pipeline that was firing AddToCart with Taggrs-internal event_ids. (The Taggrs server container `Taggrs/GTM-PFPBDML6_server.json:2015` contains a `{{**Fill in** - constant - META Pixel ID}}` placeholder, which is a secondary sign their setup was never completed.)
+- [ ] **A3 — Pause Meta Pixel AddToCart tag in GTM**. Open GTM workspace `GTM-T86BFXXW` → Tags → filter by "Meta" or "Facebook" or "Pixel" → any tag of type "Facebook Pixel" or "Meta Pixel" with an `AddToCart` / `add_to_cart` trigger → set status to **Paused** → submit + publish the container. Keep GA4/Ads/Consent tags active. Our bridge handles AddToCart; GTM should not fire a second browser event.
+- [ ] **A4 — Update the CALQIX Windsurf Integration app for Markets**. Shopify Admin → Apps → CALQIX Windsurf Integration (image 1) → top banner "Update required for new Markets" → click **Open app** → re-authorize with current scopes. Unblocks `SHOPIFY_ADMIN_ACCESS_TOKEN` for Markets/locales reads used by `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\scripts\markets-setup.js` and `@c:\Users\Gebruiker\Desktop\CALQIX Repo\scripts\register-store-translations.js`. Unrelated to ATC dedup, but shown in the same admin view.
+
+## Verification (after the 4 admin steps are done)
+
+Wait 30-60 minutes for caches and then trigger 2-3 ATCs yourself (incognito) on `calqix.com`. Then:
+
+```powershell
+cd calqix-capi
+npm run check:atc
+```
+
+Expected healthy output:
+
+- `fbp coverage ≥95%` — bridge's `_fbp` fallback generator is populating `userData.fbp`.
+- `external_id coverage ≥90%` — `_cq_anon_id` cookie is being set and read.
+- `source=browser_bridge` on every recent event row — no other pipeline feeds our server.
+
+After 24 hours, open Meta Events Manager → Manage events → AddToCart → **Deduplicatie van gebeurtenis** tab. Confirm:
+
+- Event ID coverage ≥ **95%** (was 50%).
+- Browser vs server volume ratio → **~1:1** (was 20:7).
+- Total event coverage ≥ **75%** (was 50%). Meta reports this on the Gebeurtenisdekking tab (image 2).
+- Kwaliteit van gebeurtenismatches ≥ **8/10** (was 6.5/10).
+
+## If the numbers do not improve within 48h
+
+Run `npm run check:atc --events=100` and paste the output. The `source=` field per row reveals whether non-bridge events are still reaching our CAPI (unlikely — only the bridge calls `/api/add-to-cart`), OR whether Meta is still seeing events from a pipeline we missed. If the CALQIX Meta CAPI Custom Pixel (which does NOT handle ATC) somehow starts logging ATC events, the source field will flag it.
+
+Rollback: there is nothing to roll back on our side — the cleanup is 100% admin-side. To restore Taggrs or F&I Enhanced, re-enable in Shopify Admin.

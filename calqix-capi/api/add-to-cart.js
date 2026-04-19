@@ -8,6 +8,7 @@ const { isDuplicate, markProcessed } = require('../lib/dedup-guard');
 const eventState = require('../lib/event-state');
 const store = require('../lib/store');
 const multiPlatform = require('../lib/multi-platform-send');
+const capiDiag = require('../lib/capi-diagnostics');
 
 const DEFAULT_SOURCE_URL = 'https://calqix.com/cart';
 
@@ -110,6 +111,13 @@ async function handler(req, res) {
         source: 'browser_bridge',
         ok: Boolean(result && result.ok)
       }), 86400);
+    } catch (e) { /* diagnostics are non-critical */ }
+
+    // Daily summary for coverage reporting (see scripts/check-pixel-sources.js).
+    try {
+      await capiDiag.recordCoverage('AddToCart', eventId, 'browser_bridge', userData, {
+        ok: Boolean(result && result.ok)
+      });
     } catch (e) { /* diagnostics are non-critical */ }
 
     // Multi-platform: GA4 (non-blocking)
