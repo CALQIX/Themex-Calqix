@@ -19,7 +19,8 @@
     "schedule:delete": "node scripts/bootstrap.js delete-schedule",
     "smoke-test": "node scripts/bootstrap.js smoke-test",
     "smoke-test:recovery": "node scripts/bootstrap.js smoke-test-recovery",
-    "check:atc": "node scripts/check-pixel-sources.js"
+    "check:atc": "node scripts/check-pixel-sources.js",
+    "check:shopify": "node scripts/verify-shopify-token.js"
   },
   "dependencies": {
     "@upstash/qstash": "^2.7.17",
