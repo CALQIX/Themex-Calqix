@@ -17,6 +17,120 @@ const {
 
 const SOURCE_URL = 'https://calqix.com/account/register';
 
+/**
+ * Parse registration marker from customer.note and persist as metafields.
+ *
+ * The storefront registration form (templates/customers/register.liquid) captures optional
+ * birthday + gender inputs into the customer's note field, prefixed with `CQ_PROFILE:` so
+ * we can identify and strip the marker here. Format:
+ *   CQ_PROFILE:birthday=2000-05-15;gender=male
+ * Only recognised keys are persisted to metafields; everything else is ignored.
+ *
+ * This function is fire-and-forget: any failure is logged but does not block the Lead event.
+ */
+const CQ_PROFILE_PATTERN = /CQ_PROFILE:([^\n]*)/;
+const ALLOWED_GENDERS = ['male', 'female', 'other', 'prefer_not_to_say'];
+
+async function persistProfileMetafieldsFromNote(customer) {
+  try {
+    if (!customer || !customer.id || !customer.note) return;
+
+    const match = customer.note.match(CQ_PROFILE_PATTERN);
+    if (!match) return;
+
+    const parts = String(match[1] || '')
+      .split(';')
+      .map((p) => p.trim())
+      .filter(Boolean);
+
+    const payload = {};
+    for (const part of parts) {
+      const eq = part.indexOf('=');
+      if (eq === -1) continue;
+      const key = part.slice(0, eq).trim().toLowerCase();
+      const value = part.slice(eq + 1).trim();
+      if (!key || !value) continue;
+
+      if (key === 'birthday') {
+        const iso = /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : null;
+        if (iso) payload.birthday = iso;
+      } else if (key === 'gender') {
+        const g = value.toLowerCase();
+        if (ALLOWED_GENDERS.includes(g)) payload.gender = g;
+      }
+    }
+
+    if (Object.keys(payload).length === 0) return;
+
+    const store = process.env.SHOPIFY_STORE_DOMAIN;
+    const token = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+    if (!store || !token) {
+      console.warn('[customers-create] profile metafield write skipped: missing shopify credentials');
+      return;
+    }
+
+    const metafields = [];
+    if (payload.birthday) {
+      metafields.push({
+        ownerId: `gid://shopify/Customer/${customer.id}`,
+        namespace: 'calqix',
+        key: 'birthday',
+        type: 'date',
+        value: payload.birthday
+      });
+    }
+    if (payload.gender) {
+      metafields.push({
+        ownerId: `gid://shopify/Customer/${customer.id}`,
+        namespace: 'calqix',
+        key: 'gender',
+        type: 'single_line_text_field',
+        value: payload.gender
+      });
+    }
+
+    // Also clear the marker from customer.note so it is not shown in admin going forward.
+    const cleanedNote = customer.note.replace(CQ_PROFILE_PATTERN, '').trim();
+
+    const metafieldsSet = `mutation Set($m: [MetafieldsSetInput!]!) {
+      metafieldsSet(metafields: $m) { userErrors { field message } }
+    }`;
+    const customerUpdate = `mutation Upd($id: ID!, $note: String!) {
+      customerUpdate(input: { id: $id, note: $note }) { userErrors { field message } }
+    }`;
+
+    const gqlUri = `https://${store}/admin/api/2025-01/graphql.json`;
+    const headers = {
+      'X-Shopify-Access-Token': token,
+      'Content-Type': 'application/json'
+    };
+
+    const metafieldBody = JSON.stringify({
+      query: metafieldsSet,
+      variables: { m: metafields }
+    });
+    const mfRes = await fetch(gqlUri, { method: 'POST', headers, body: metafieldBody });
+    const mfJson = await mfRes.json();
+    if (mfJson.data && mfJson.data.metafieldsSet && mfJson.data.metafieldsSet.userErrors.length === 0) {
+      console.log('[customers-create] profile metafields set', {
+        customerId: customer.id,
+        hasBirthday: !!payload.birthday,
+        hasGender: !!payload.gender
+      });
+    } else {
+      console.warn('[customers-create] metafieldsSet errors', mfJson.data && mfJson.data.metafieldsSet && mfJson.data.metafieldsSet.userErrors);
+    }
+
+    const noteBody = JSON.stringify({
+      query: customerUpdate,
+      variables: { id: `gid://shopify/Customer/${customer.id}`, note: cleanedNote }
+    });
+    await fetch(gqlUri, { method: 'POST', headers, body: noteBody });
+  } catch (err) {
+    console.warn('[customers-create] persistProfileMetafieldsFromNote failed', { message: err.message });
+  }
+}
+
 function buildCustomerUserData(customer, fallbackIp, fallbackUserAgent) {
   const mergedCustomer = mergeCustomerData(
     customer,
@@ -86,6 +200,10 @@ async function handler(req, res) {
     var metaResult = await sendEvent('Lead', eventId, SOURCE_URL, userData, customData);
     await eventState.recordSent(eventId, metaResult);
     await markProcessed('Lead', String(customer.id));
+
+    // Persist optional profile fields (birthday + gender) captured via storefront note marker.
+    // Intentionally not awaited — fire-and-forget so Lead response is not blocked on metafield writes.
+    persistProfileMetafieldsFromNote(customer);
 
     // Multi-platform: GA4 (non-blocking)
     try {

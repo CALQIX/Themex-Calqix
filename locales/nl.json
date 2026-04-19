@@ -252,6 +252,10 @@
     }
   },
   "templates": {
+    "404": {
+      "title": "Pagina niet gevonden",
+      "subtext": "404"
+    },
     "search": {
       "no_results": "Geen resultaten gevonden voor “{{ terms }}”. Controleer de spelling of gebruik een ander woord of een andere zin.",
       "results_with_count": {
@@ -290,10 +294,6 @@
         "error_heading": "Pas het volgende aan:",
         "title": "Contactformulier"
       }
-    },
-    "404": {
-      "title": "Pagina niet gevonden",
-      "subtext": "404"
     }
   },
   "sections": {
@@ -1118,7 +1118,14 @@
       "last_name": "Achternaam",
       "email": "E‑mail",
       "password": "Wachtwoord",
-      "submit": "Aanmaken"
+      "submit": "Aanmaken",
+      "optional_profile": "Optioneel (helpt ons jouw ervaring te personaliseren)",
+      "birthday": "Geboortedatum",
+      "gender": "Geslacht",
+      "gender_placeholder": "Zeg ik liever niet",
+      "gender_female": "Vrouw",
+      "gender_male": "Man",
+      "gender_other": "Anders"
     },
     "reset_password": {
       "title": "Account-wachtwoord opnieuw instellen",

@@ -271,6 +271,10 @@
     }
   },
   "templates": {
+    "404": {
+      "title": "Page not found",
+      "subtext": "404"
+    },
     "search": {
       "no_results": "No results found for “{{ terms }}”. Check the spelling or use a different word or phrase.",
       "no_products_results": "No products found for “{{ terms }}”. Check the spelling or use a different word or phrase.",
@@ -309,10 +313,6 @@
         "post_success": "Thanks for contacting us. We'll get back to you as soon as possible.",
         "error_heading": "Please adjust the following:"
       }
-    },
-    "404": {
-      "title": "Page not found",
-      "subtext": "404"
     }
   },
   "sections": {
@@ -1162,7 +1162,14 @@
       "last_name": "Last name",
       "email": "Email",
       "password": "Password",
-      "submit": "Create"
+      "submit": "Create",
+      "optional_profile": "Optional (helps us personalise your experience)",
+      "birthday": "Birthday",
+      "gender": "Gender",
+      "gender_placeholder": "Prefer not to say",
+      "gender_female": "Female",
+      "gender_male": "Male",
+      "gender_other": "Other"
     },
     "reset_password": {
       "title": "Reset account password",

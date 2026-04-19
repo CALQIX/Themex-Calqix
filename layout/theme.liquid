@@ -37,6 +37,14 @@
       Meta Pixel auto-hashes these fields on the browser side.
     {%- endcomment -%}
     {%- if customer -%}
+      {%- comment -%}
+        db (date of birth) from customer.metafields.calqix.birthday — Meta expects YYYYMMDD.
+        ge (gender) from customer.metafields.calqix.gender — Meta expects single char m/f.
+        Both metafields are populated by api/webhook/customers-create.js when the registration
+        form (templates/customers/register.liquid) captures optional values.
+      {%- endcomment -%}
+      {%- assign cq_birthday = customer.metafields.calqix.birthday -%}
+      {%- assign cq_gender = customer.metafields.calqix.gender -%}
       <script>
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
@@ -50,7 +58,9 @@
             ct: {{ customer.default_address.city | downcase | remove: ' ' | json }}{%- endif -%}{%- if customer.default_address.province_code -%},
             st: {{ customer.default_address.province_code | downcase | json }}{%- endif -%}{%- if customer.default_address.zip -%},
             zp: {{ customer.default_address.zip | downcase | remove: ' ' | json }}{%- endif -%}{%- if customer.default_address.country_code -%},
-            country: {{ customer.default_address.country_code | downcase | json }}{%- endif -%}{%- endif -%}
+            country: {{ customer.default_address.country_code | downcase | json }}{%- endif -%}{%- endif -%}{%- if cq_birthday -%},
+            db: {{ cq_birthday | date: '%Y%m%d' | json }}{%- endif -%}{%- if cq_gender -%},
+            ge: {{ cq_gender | downcase | slice: 0 | json }}{%- endif -%}
           }
         });
       </script>

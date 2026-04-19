@@ -265,6 +265,10 @@
     }
   },
   "templates": {
+    "404": {
+      "title": "Page non trouvée",
+      "subtext": "404"
+    },
     "search": {
       "no_results": "Aucun résultat trouvé pour « {{ terms }} ». Vérifiez l'orthographe ou utilisez un autre mot ou expression.",
       "no_products_results": "Aucun produit trouvé pour « {{ terms }} ». Vérifiez l'orthographe ou utilisez un autre mot ou expression.",
@@ -303,10 +307,6 @@
         "post_success": "Merci de nous avoir contactés. Nous vous répondrons dès que possible.",
         "error_heading": "Veuillez ajuster ce qui suit :"
       }
-    },
-    "404": {
-      "title": "Page non trouvée",
-      "subtext": "404"
     }
   },
   "sections": {
@@ -1156,7 +1156,14 @@
       "last_name": "Nom",
       "email": "E-mail",
       "password": "Mot de passe",
-      "submit": "Créer"
+      "submit": "Créer",
+      "optional_profile": "Facultatif (nous aide à personnaliser votre expérience)",
+      "birthday": "Date de naissance",
+      "gender": "Genre",
+      "gender_placeholder": "Préfère ne pas dire",
+      "gender_female": "Femme",
+      "gender_male": "Homme",
+      "gender_other": "Autre"
     },
     "reset_password": {
       "title": "Réinitialiser le mot de passe du compte",

@@ -252,6 +252,10 @@
     }
   },
   "templates": {
+    "404": {
+      "title": "Siden finnes ikke",
+      "subtext": "404"
+    },
     "search": {
       "no_results": "Fant ingen resultater for «{{ terms }}». Kontroller stavemåten, eller bruk et annet ord.",
       "page": "Side",
@@ -290,10 +294,6 @@
         "error_heading": "Juster følgende:",
         "title": "Kontaktskjema"
       }
-    },
-    "404": {
-      "title": "Siden finnes ikke",
-      "subtext": "404"
     }
   },
   "sections": {
@@ -826,7 +826,14 @@
       "last_name": "Etternavn",
       "email": "E-post",
       "password": "Passord",
-      "submit": "Opprett"
+      "submit": "Opprett",
+      "optional_profile": "Valgfritt (hjelper oss å tilpasse opplevelsen din)",
+      "birthday": "Fødselsdag",
+      "gender": "Kjønn",
+      "gender_placeholder": "Foretrekker å ikke si",
+      "gender_female": "Kvinne",
+      "gender_male": "Mann",
+      "gender_other": "Annet"
     },
     "reset_password": {
       "title": "Tilbakestill kontopassord",

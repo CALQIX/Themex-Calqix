@@ -162,11 +162,13 @@ Still required by the operator (API cannot automate):
 - [x] Menu link title translations registered via `translationsRegister` for `gid://shopify/Link/746921230665` across the same 7 locales.
 - [ ] `@c:\Users\Gebruiker\Desktop\CALQIX Repo\redirects.csv` is now redundant (the redirect was created via API). Safe to delete, or leave as a historic artefact.
 
-## Judge.me cleanup (same session)
+## Judge.me cleanup (same session) — SKIPPED by operator 2026-04-19
 
-- [ ] Judge.me admin > Reviews: filter to "Verified purchase only".
-- [ ] Hide or delete any reviews dated before CALQIX store actually went live.
-- [ ] Set Judge.me widget to require "Verified purchase" badge for display.
+Operator decision: Judge.me review cleanup is deferred. Re-visit once more verified-buyer reviews accumulate organically. Leaving the current state as-is is acceptable because the review widget already renders only published reviews, and any pre-launch reviews are low-volume.
+
+- [~] Judge.me admin > Reviews: filter to "Verified purchase only" — skipped.
+- [~] Hide or delete pre-launch reviews — skipped.
+- [~] Require "Verified purchase" badge in widget — skipped.
 
 ---
 

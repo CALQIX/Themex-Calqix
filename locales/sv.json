@@ -252,6 +252,10 @@
     }
   },
   "templates": {
+    "404": {
+      "title": "Sidan hittades inte",
+      "subtext": "404"
+    },
     "search": {
       "no_results": "Inga resultat hittades för \"{{ terms }}\". Kontrollera stavningen eller använd ett annat ord eller fras.",
       "results_with_count": {
@@ -290,10 +294,6 @@
         "error_heading": "Justera följande:",
         "title": "Kontaktformulär"
       }
-    },
-    "404": {
-      "title": "Sidan hittades inte",
-      "subtext": "404"
     }
   },
   "sections": {
@@ -801,7 +801,14 @@
       "last_name": "Efternamn",
       "email": "E-postadress",
       "password": "Lösenord",
-      "submit": "Skapa"
+      "submit": "Skapa",
+      "optional_profile": "Valfritt (hjälper oss att personalisera din upplevelse)",
+      "birthday": "Födelsedag",
+      "gender": "Kön",
+      "gender_placeholder": "Vill inte säga",
+      "gender_female": "Kvinna",
+      "gender_male": "Man",
+      "gender_other": "Annat"
     },
     "reset_password": {
       "title": "Återställ kontolösenord",

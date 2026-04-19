@@ -88,6 +88,60 @@
           {{ form.errors.messages.password }}.
         </span>
       {%- endif -%}
+
+      {%- comment -%}
+        Optional profile fields. Captured as a CQ_PROFILE marker in customer[note]; the
+        api/webhook/customers-create.js webhook parses the marker and persists the values
+        as calqix.birthday / calqix.gender customer metafields, then clears the marker.
+        These values power Meta Advanced Matching db + ge fields via the dataLayer push
+        in layout/theme.liquid.
+      {%- endcomment -%}
+      <fieldset class="form__field form__field--optional-profile" style="border: 0; padding: 0; margin-top: 1rem;">
+        <legend style="font-size: 0.875rem; opacity: 0.75; margin-bottom: 0.5rem;">
+          {{ 'customer.register.optional_profile' | t: default: 'Optional (helps us personalise your experience)' }}
+        </legend>
+
+        <label class="form__field" for="RegisterForm-Birthday" style="margin-top: 0.75rem;">
+          <input
+            type="date"
+            id="RegisterForm-Birthday"
+            class="form__field__input"
+            max="{{ 'now' | date: '%Y-%m-%d' }}"
+            placeholder=" "
+          >
+          <span class="form__field__label">{{ 'customer.register.birthday' | t: default: 'Birthday' }}</span>
+        </label>
+
+        <label class="form__field" for="RegisterForm-Gender" style="margin-top: 0.75rem;">
+          <select id="RegisterForm-Gender" class="form__field__input">
+            <option value="">{{ 'customer.register.gender_placeholder' | t: default: 'Prefer not to say' }}</option>
+            <option value="female">{{ 'customer.register.gender_female' | t: default: 'Female' }}</option>
+            <option value="male">{{ 'customer.register.gender_male' | t: default: 'Male' }}</option>
+            <option value="other">{{ 'customer.register.gender_other' | t: default: 'Other' }}</option>
+          </select>
+          <span class="form__field__label">{{ 'customer.register.gender' | t: default: 'Gender' }}</span>
+        </label>
+
+        <input type="hidden" name="customer[note]" id="RegisterForm-Note" value="">
+      </fieldset>
+
+      <script>
+        (function () {
+          var form = document.currentScript.closest('form');
+          if (!form) return;
+          form.addEventListener('submit', function () {
+            var bd = document.getElementById('RegisterForm-Birthday');
+            var gd = document.getElementById('RegisterForm-Gender');
+            var nt = document.getElementById('RegisterForm-Note');
+            if (!nt) return;
+            var parts = [];
+            if (bd && bd.value && /^\d{4}-\d{2}-\d{2}$/.test(bd.value)) parts.push('birthday=' + bd.value);
+            if (gd && gd.value) parts.push('gender=' + gd.value);
+            nt.value = parts.length ? 'CQ_PROFILE:' + parts.join(';') : '';
+          });
+        })();
+      </script>
+
       <button
         aria-label="{{ 'customer.register.submit' | t }}"
         class="form__send__button hero__button--primary  wt-customer__create-account"

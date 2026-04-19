@@ -252,6 +252,10 @@
     }
   },
   "templates": {
+    "404": {
+      "title": "Siden blev ikke fundet",
+      "subtext": "404"
+    },
     "search": {
       "no_results": "Der blev ikke fundet nogen resultater for \"{{ terms }}\". Kontrollér stavemåden, eller brug et andet ord eller udtryk.",
       "results_with_count": {
@@ -290,10 +294,6 @@
         "error_heading": "Juster følgende:",
         "title": "Kontaktformular"
       }
-    },
-    "404": {
-      "title": "Siden blev ikke fundet",
-      "subtext": "404"
     }
   },
   "sections": {
@@ -801,7 +801,14 @@
       "last_name": "Efternavn",
       "email": "Mailadresse",
       "password": "Adgangskode",
-      "submit": "Opret"
+      "submit": "Opret",
+      "optional_profile": "Valgfrit (hjælper os med at personalisere din oplevelse)",
+      "birthday": "Fødselsdag",
+      "gender": "Køn",
+      "gender_placeholder": "Foretrækker ikke at sige",
+      "gender_female": "Kvinde",
+      "gender_male": "Mand",
+      "gender_other": "Andet"
     },
     "reset_password": {
       "title": "Forny adgangskode til konto",
