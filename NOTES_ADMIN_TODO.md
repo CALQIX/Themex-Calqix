@@ -181,3 +181,16 @@ Code changes (byline locale keys, schema defaults, template defaults) are live i
 - [ ] Judge.me admin > Reviews: filter to "Verified purchase only".
 - [ ] Hide or delete any reviews dated before CALQIX store actually went live.
 - [ ] Set Judge.me widget to require "Verified purchase" badge for display.
+
+---
+
+# Task 7 admin actions — Microsoft Clarity setup
+
+Code: `@c:\Users\Gebruiker\Desktop\CALQIX Repo\snippets\microsoft-clarity.liquid` rendered from `@c:\Users\Gebruiker\Desktop\CALQIX Repo\layout\theme.liquid:29`. The snippet no-ops until a project ID is configured.
+
+- [ ] Create a Clarity account at https://clarity.microsoft.com using the CALQIX Google account.
+- [ ] Create a new project named "CALQIX" with site URL `https://calqix.com`.
+- [ ] Open the project > Settings > Setup > copy the project ID (format: 10-char lowercase alphanumeric, e.g. `abc1234xyz`).
+- [ ] Shopify admin > Online Store > Themes > Customize (live theme) > Theme settings > Analytics & tracking > paste the Clarity project ID into "Clarity project ID". Save.
+- [ ] Wait 5-10 minutes, then open Clarity dashboard. Verify "Recordings" count is > 0. If 0 after 30 minutes, check browser devtools for a Clarity script load and for a `c.clarity.ms/collect` network request on a live page.
+- [ ] Optional: enable Clarity's GA4 integration for cross-linking between heatmaps and GA4 session traces.

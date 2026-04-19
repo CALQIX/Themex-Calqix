@@ -2519,5 +2519,24 @@
         "label": "t:settings_schema.animations.settings.disabled_animation_on_mobile.label"
       }
     ]
+  },
+  {
+    "name": "Analytics & tracking",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Microsoft Clarity"
+      },
+      {
+        "type": "paragraph",
+        "content": "Session replay + heatmaps. Paste the Clarity project ID (for example: abc1234xyz) from https://clarity.microsoft.com > your project > Settings > Setup."
+      },
+      {
+        "type": "text",
+        "id": "microsoft_clarity_project_id",
+        "label": "Clarity project ID",
+        "info": "Leave blank to disable Clarity tracking."
+      }
+    ]
   }
 ]

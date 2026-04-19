@@ -1,0 +1,21 @@
+{%- comment -%}
+  Microsoft Clarity tracking snippet.
+
+  Renders only when `settings.microsoft_clarity_project_id` is set in
+  Theme Editor > Theme settings > Analytics & tracking.
+
+  Clarity is session-recording + heatmap analytics. It auto-detects user intent
+  cues (rage clicks, dead clicks, quick backs) which GA4 does not surface.
+
+  Docs: https://learn.microsoft.com/en-us/clarity/setup-and-installation/clarity-setup
+{%- endcomment -%}
+{%- if settings.microsoft_clarity_project_id != blank -%}
+  {%- assign clarity_id = settings.microsoft_clarity_project_id | strip -%}
+  <script>
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", {{ clarity_id | json }});
+  </script>
+{%- endif -%}
