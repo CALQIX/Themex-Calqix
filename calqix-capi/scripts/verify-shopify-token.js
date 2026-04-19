@@ -114,7 +114,9 @@ async function main() {
     await checkLocales();
     console.log('\n=================================');
     console.log('ALL CHECKS PASSED — token is healthy.');
-    console.log('Next: push the token to Vercel env (production + preview) and redeploy.');
+    console.log('Note: since lib/shopify-admin.js now auto-refreshes on 401 via OAuth');
+    console.log('      client_credentials, token rotation is fully automatic.');
+    console.log('      Run `npm run test:selfheal` to exercise all 3 recovery paths.');
   } catch (err) {
     console.error('\n=================================');
     console.error('FAIL — ' + err.message);

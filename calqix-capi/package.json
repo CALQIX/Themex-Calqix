@@ -20,7 +20,8 @@
     "smoke-test": "node scripts/bootstrap.js smoke-test",
     "smoke-test:recovery": "node scripts/bootstrap.js smoke-test-recovery",
     "check:atc": "node scripts/check-pixel-sources.js",
-    "check:shopify": "node scripts/verify-shopify-token.js"
+    "check:shopify": "node scripts/verify-shopify-token.js",
+    "test:selfheal": "node scripts/test-token-selfheal.js"
   },
   "dependencies": {
     "@upstash/qstash": "^2.7.17",
