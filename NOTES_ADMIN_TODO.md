@@ -158,16 +158,8 @@ Code changes (byline locale keys, schema defaults, template defaults) are live i
 Still required by the operator (API cannot automate):
 
 - [ ] Settings > Users: rename the Shopify staff user "Elena Hartwell" to "CALQIX Science Team" (Shopify has no staff-management API). Update email to `info@calqix.com` if appropriate.
-- [ ] Translate & Adapt (Shopify admin > Languages): translate the new blog title "The Science Journal" into NL/DE/FR/FI/NB/SV/DA. Suggested translations:
-  - NL: "Wetenschapsjournaal"
-  - DE: "Wissenschaftsjournal"
-  - FR: "Journal scientifique"
-  - FI: "Tiedejulkaisu"
-  - NB: "Vitenskapsjournalen"
-  - SV: "Vetenskapsjournalen"
-  - DA: "Videnskabsjournalen"
-- [ ] Translate & Adapt: translate the menu item label "Science Journal":
-  - NL: "Wetenschap" | DE: "Wissenschaft" | FR: "Science" | FI: "Tiede" | NB: "Vitenskap" | SV: "Vetenskap" | DA: "Videnskab"
+- [x] Blog title translations registered via `translationsRegister` mutation for all 7 non-EN published locales (NL/DE/FR/FI/NB/SV/DA).
+- [x] Menu link title translations registered via `translationsRegister` for `gid://shopify/Link/746921230665` across the same 7 locales.
 - [ ] `@c:\Users\Gebruiker\Desktop\CALQIX Repo\redirects.csv` is now redundant (the redirect was created via API). Safe to delete, or leave as a historic artefact.
 
 ## Judge.me cleanup (same session)
