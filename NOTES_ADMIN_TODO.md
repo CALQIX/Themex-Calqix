@@ -49,21 +49,21 @@ This single action closes the primary reason baseline dedup coverage sits at 58.
 
 The theme now pushes customer identity to dataLayer via `calqix_user_data` event. GTM needs variables + Meta Pixel tag config to forward them.
 
-### 3a. Create dataLayer variables
+### 3a. Create dataLayer variables — DONE 2026-04-19 10:00 AMS
 
-In `tagmanager.google.com` → workspace for `GTM-T86BFXXW` → Variables → User-Defined Variables → New → Data Layer Variable. Create each:
+Operator created all 9 DLVs in GTM workspace `GTM-T86BFXXW`:
 
-| Variable name | Data Layer Variable Name | Version |
-|---|---|---|
-| `DLV - user_data.external_id` | `user_data.external_id` | 2 |
-| `DLV - user_data.em` | `user_data.em` | 2 |
-| `DLV - user_data.ph` | `user_data.ph` | 2 |
-| `DLV - user_data.fn` | `user_data.fn` | 2 |
-| `DLV - user_data.ln` | `user_data.ln` | 2 |
-| `DLV - user_data.ct` | `user_data.ct` | 2 |
-| `DLV - user_data.st` | `user_data.st` | 2 |
-| `DLV - user_data.zp` | `user_data.zp` | 2 |
-| `DLV - user_data.country` | `user_data.country` | 2 |
+| Variable name | Data Layer Variable Name | Version | Status |
+|---|---|---|---|
+| `DLV - user_data.external_id` | `user_data.external_id` | 2 | [x] |
+| `DLV - user_data.em` | `user_data.em` | 2 | [x] |
+| `DLV - user_data.ph` | `user_data.ph` | 2 | [x] |
+| `DLV - user_data.fn` | `user_data.fn` | 2 | [x] |
+| `DLV - user_data.ln` | `user_data.ln` | 2 | [x] |
+| `DLV - user_data.ct` | `user_data.ct` | 2 | [x] |
+| `DLV - user_data.st` | `user_data.st` | 2 | [x] |
+| `DLV - user_data.zp` | `user_data.zp` | 2 | [x] |
+| `DLV - user_data.country` | `user_data.country` | 2 | [x] |
 
 ### 3b. Meta Pixel tag — enable Advanced Matching
 
