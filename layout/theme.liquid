@@ -59,6 +59,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="">
     <link rel="canonical" href="{{ canonical_url }}">
+    {%- comment -%}
+      Task 6: hreflang alternates for all published storefront locales plus x-default.
+      Shopify's `localization.available_languages` drives this list, so adding/removing a
+      language in Settings > Markets will flow through automatically.
+    {%- endcomment -%}
+    {%- if localization.available_languages and localization.available_languages.size > 0 -%}
+      {%- for lang in localization.available_languages -%}
+        <link rel="alternate" hreflang="{{ lang.iso_code }}" href="{{ canonical_url | replace: request.locale.iso_code, lang.iso_code }}">
+      {%- endfor -%}
+      <link rel="alternate" hreflang="x-default" href="{{ canonical_url }}">
+    {%- endif -%}
     <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
     <meta name="facebook-domain-verification" content="f7p7bqwsuigx7z20hp4iyrovcncwqh" />
 
