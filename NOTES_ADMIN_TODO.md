@@ -206,3 +206,15 @@ Code: `@c:\Users\Gebruiker\Desktop\CALQIX Repo\sections\product-comparison.liqui
 - [ ] Add a footnote referencing the clinical references section: "See references below for source of claims."
 - [ ] Repeat for OralBiome, Lumicore product templates if you want the comparison on those too.
 - [ ] Translate each block's `feature_label` via the Translate & Adapt app (Shopify admin > Languages > Translate). The column headers (brand names) and yes/no icons pull from locale keys automatically.
+
+---
+
+# Task 2 admin actions — Subscription messaging
+
+Code now live on the FlowCore homepage banner (`@c:\Users\Gebruiker\Desktop\CALQIX Repo\sections\flowcore-banner.liquid:486-487`) and on all product cards that expose a selling plan group (`@c:\Users\Gebruiker\Desktop\CALQIX Repo\snippets\card.liquid:455-466`).
+
+Copy flows from `locales/*.json` under the new `hero.*` + `product.subscribe_save_badge` keys (deviation note: v2 prompt specified `homepage.hero.*` but `homepage` is already a reserved top-level string for breadcrumbs; keys were promoted to `hero.*` to avoid the collision, content unchanged).
+
+- [ ] Verify the homepage hero on desktop + mobile after deploy. The order below the CTA should now be: launch-offer gold badge → subscription trust line → existing trust line. Copy flips to NL/DE/FR/FI/NB/SV/DA automatically when the storefront locale changes.
+- [ ] Confirm the subscribe-save badge appears on collection pages for any FlowCore or OralBiome product with a Recharge subscription plan. It auto-detects `product.selling_plan_groups`.
+- [ ] If Recharge is not yet connected to a product, the badge simply does not render. Add it via Recharge admin > Products > assign selling plan group.

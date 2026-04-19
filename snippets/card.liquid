@@ -452,6 +452,19 @@
         </div>
       {% endif %}
 
+      {%- liquid
+        assign badge_product = card_product | default: product
+        assign has_selling_plan = false
+        if badge_product.selling_plan_groups and badge_product.selling_plan_groups.size > 0
+          assign has_selling_plan = true
+        endif
+      -%}
+      {%- if has_selling_plan -%}
+        <span class="subscribe-save-badge card__meta-row card__meta-row--subscribe">
+          {{ 'product.subscribe_save_badge' | t }}
+        </span>
+      {%- endif -%}
+
       {% if price and collection_list != true %}
         <div class="card__price card__meta-row card__meta-row--price">
           {% if price_old and product_card_sale_price_layout == 'compare_first' %}

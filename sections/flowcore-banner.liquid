@@ -181,6 +181,24 @@
   }
   #calqix-banner-{{ section.id }} .cta svg { transition: transform 0.2s; }
   #calqix-banner-{{ section.id }} .cta:hover svg { transform: translateX(4px); }
+  #calqix-banner-{{ section.id }} .hero-launch-offer {
+    display: inline-block;
+    margin-top: 10px;
+    color: #C9A84C;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  #calqix-banner-{{ section.id }} .hero-subscription-trust {
+    margin-top: 8px;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
   #calqix-banner-{{ section.id }} .cta-trust {
     margin-top: 10px;
     font-family: 'DM Sans', sans-serif;
@@ -465,6 +483,8 @@
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </a>
+        <span class="hero-launch-offer">{{ 'hero.launch_offer' | t }}</span>
+        <p class="hero-subscription-trust">{{ 'hero.subscription_trust' | t }}</p>
         <p class="cta-trust">{{ section.settings.trust_line }}</p>
 
       </div>
