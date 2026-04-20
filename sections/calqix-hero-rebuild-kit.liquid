@@ -1,0 +1,597 @@
+{%- comment -%}
+  CALQIX Hero · Rebuild Kit (homepage section 02)
+  ---------------------------------------------------------------
+  Editable in Theme Editor: tag, heading, subheading, trust info,
+  bundle card (two products, save badge, prices, CTAs).
+  All colors/typography pulled from assets/calqix-design-tokens.css
+  (loaded globally in layout/theme.liquid). Add-to-cart uses the
+  shared luxe cart-animation.js via [data-calqix-atc].
+  ---------------------------------------------------------------
+{%- endcomment -%}
+
+<section
+  class="calqix-section calqix-hero-rebuild-kit"
+  data-section-id="{{ section.id }}"
+  data-section-type="calqix-hero-rebuild-kit"
+>
+  <div class="calqix-hero-rebuild-kit__inner">
+
+    <div class="calqix-hero-rebuild-kit__content">
+      <div class="calqix-hero-rebuild-kit__tag">
+        <span class="calqix-hero-rebuild-kit__tag-dot" aria-hidden="true"></span>
+        {{ section.settings.tag_text }}
+      </div>
+
+      <h1 class="calqix-hero-rebuild-kit__heading">
+        {{ section.settings.heading }}
+      </h1>
+
+      <p class="calqix-hero-rebuild-kit__sub">
+        {{ section.settings.subheading }}
+      </p>
+
+      <div class="calqix-hero-rebuild-kit__trust">
+        <span class="calqix-hero-rebuild-kit__rating">
+          <span class="calqix-hero-rebuild-kit__stars" aria-hidden="true">★★★★★</span>
+          <strong>{{ section.settings.rating_value }}</strong>/{{ section.settings.rating_count }}
+        </span>
+        <span class="calqix-hero-rebuild-kit__ship">{{ section.settings.ship_time }}</span>
+      </div>
+    </div>
+
+    <aside class="calqix-hero-rebuild-kit__bundle" aria-label="{{ section.settings.bundle_label }}">
+      <div class="calqix-bundle__label">{{ section.settings.bundle_label }}</div>
+
+      <header class="calqix-bundle__header">
+        <div class="calqix-bundle__title">{{ section.settings.bundle_title }}</div>
+        {% if section.settings.save_badge != blank %}
+          <div class="calqix-bundle__save">{{ section.settings.save_badge }}</div>
+        {% endif %}
+      </header>
+
+      <div class="calqix-bundle__items">
+        <div class="calqix-bundle__item">
+          <div class="calqix-bundle__img">
+            {%- if section.settings.product_flowcore and section.settings.product_flowcore.featured_image != blank -%}
+              <img
+                src="{{ section.settings.product_flowcore.featured_image | image_url: width: 120 }}"
+                srcset="{{ section.settings.product_flowcore.featured_image | image_url: width: 120 }} 1x, {{ section.settings.product_flowcore.featured_image | image_url: width: 240 }} 2x"
+                width="52" height="52" loading="lazy"
+                alt="{{ section.settings.flowcore_name | escape }}">
+            {%- else -%}
+              <span class="calqix-bundle__img-letter">F</span>
+            {%- endif -%}
+          </div>
+          <div class="calqix-bundle__name">{{ section.settings.flowcore_name }}</div>
+          <div class="calqix-bundle__sub">{{ section.settings.flowcore_sub }}</div>
+        </div>
+
+        <div class="calqix-bundle__plus" aria-hidden="true">+</div>
+
+        <div class="calqix-bundle__item">
+          <div class="calqix-bundle__img calqix-bundle__img--gold">
+            {%- if section.settings.product_oralbiome and section.settings.product_oralbiome.featured_image != blank -%}
+              <img
+                src="{{ section.settings.product_oralbiome.featured_image | image_url: width: 120 }}"
+                srcset="{{ section.settings.product_oralbiome.featured_image | image_url: width: 120 }} 1x, {{ section.settings.product_oralbiome.featured_image | image_url: width: 240 }} 2x"
+                width="52" height="52" loading="lazy"
+                alt="{{ section.settings.oralbiome_name | escape }}">
+            {%- else -%}
+              <span class="calqix-bundle__img-letter">O</span>
+            {%- endif -%}
+          </div>
+          <div class="calqix-bundle__name">{{ section.settings.oralbiome_name }}</div>
+          <div class="calqix-bundle__sub">{{ section.settings.oralbiome_sub }}</div>
+        </div>
+      </div>
+
+      <div class="calqix-bundle__price">
+        <span class="calqix-bundle__price-new">{{ section.settings.bundle_price }}</span>
+        {% if section.settings.bundle_price_strike != blank %}
+          <span class="calqix-bundle__price-old">{{ section.settings.bundle_price_strike }}</span>
+        {% endif %}
+        {% if section.settings.bundle_subscription_hint != blank %}
+          <span class="calqix-bundle__price-hint">{{ section.settings.bundle_subscription_hint }}</span>
+        {% endif %}
+      </div>
+
+      <button
+        type="button"
+        class="calqix-btn calqix-btn--primary calqix-hero-rebuild-kit__cta"
+        data-calqix-atc
+        data-hero-rebuild-kit-atc
+        {% if section.settings.product_flowcore %}data-flowcore-handle="{{ section.settings.product_flowcore.handle }}"{% endif %}
+        {% if section.settings.product_oralbiome %}data-oralbiome-handle="{{ section.settings.product_oralbiome.handle }}"{% endif %}
+      >
+        {{ section.settings.cta_primary }}
+      </button>
+
+      {% if section.settings.cta_secondary != blank %}
+        <button
+          type="button"
+          class="calqix-btn calqix-btn--secondary calqix-hero-rebuild-kit__cta-secondary"
+          data-hero-rebuild-kit-subscribe
+          {% if section.settings.subscribe_url != blank %}data-subscribe-url="{{ section.settings.subscribe_url }}"{% endif %}
+        >
+          {{ section.settings.cta_secondary }}
+        </button>
+      {% endif %}
+    </aside>
+
+  </div>
+</section>
+
+<style>
+  .calqix-hero-rebuild-kit {
+    background: var(--calqix-bg-hero);
+    padding: var(--calqix-section-y-desktop) var(--calqix-section-x-desktop);
+  }
+  .calqix-hero-rebuild-kit__inner {
+    max-width: var(--calqix-container-max);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 56px;
+    align-items: center;
+  }
+  .calqix-hero-rebuild-kit__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 16px;
+    background: rgba(201, 168, 76, 0.14);
+    border: 1px solid rgba(201, 168, 76, 0.50);
+    border-radius: var(--calqix-radius-pill);
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-caption);
+    font-weight: 700;
+    color: var(--calqix-gold-soft);
+    letter-spacing: var(--calqix-ls-wider);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .calqix-hero-rebuild-kit__tag-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--calqix-gold);
+    border-radius: var(--calqix-radius-circle);
+  }
+  .calqix-hero-rebuild-kit__heading {
+    font-family: var(--calqix-font-display);
+    font-size: clamp(32px, 5.5vw, 56px);
+    font-weight: 400;
+    line-height: 1.02;
+    color: var(--calqix-navy);
+    letter-spacing: var(--calqix-ls-tight);
+    margin: 0 0 18px;
+  }
+  .calqix-hero-rebuild-kit__heading p { margin: 0; }
+  .calqix-hero-rebuild-kit__heading em {
+    font-style: italic;
+    color: var(--calqix-gold);
+  }
+  .calqix-hero-rebuild-kit__sub {
+    font-family: var(--calqix-font-body);
+    font-size: 15px;
+    line-height: var(--calqix-lh-relaxed);
+    color: var(--calqix-navy);
+    opacity: 0.82;
+    max-width: 460px;
+    margin: 0 0 28px;
+  }
+  .calqix-hero-rebuild-kit__trust {
+    display: flex;
+    gap: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--calqix-border);
+    align-items: center;
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-body-m);
+    color: var(--calqix-navy);
+  }
+  .calqix-hero-rebuild-kit__stars {
+    color: var(--calqix-gold);
+    letter-spacing: 2px;
+    margin-right: 6px;
+  }
+  .calqix-hero-rebuild-kit__ship { opacity: 0.7; }
+
+  .calqix-hero-rebuild-kit__bundle {
+    background: var(--calqix-white);
+    border: 1.5px solid var(--calqix-border);
+    border-radius: var(--calqix-radius-xl);
+    padding: 26px;
+    box-shadow: var(--calqix-shadow-card);
+  }
+  .calqix-bundle__label {
+    display: inline-block;
+    background: var(--calqix-navy);
+    color: var(--calqix-ivory);
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-label);
+    font-weight: 700;
+    letter-spacing: var(--calqix-ls-wider);
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: var(--calqix-radius-xs);
+    margin-bottom: 16px;
+  }
+  .calqix-bundle__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+    gap: 14px;
+  }
+  .calqix-bundle__title {
+    font-family: var(--calqix-font-display);
+    font-size: 19px;
+    color: var(--calqix-navy);
+    font-weight: 500;
+    line-height: var(--calqix-lh-snug);
+  }
+  .calqix-bundle__title p { margin: 0; }
+  .calqix-bundle__save {
+    background: var(--calqix-gold);
+    color: var(--calqix-navy);
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-caption);
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: var(--calqix-radius-xs);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .calqix-bundle__items {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 18px;
+    position: relative;
+  }
+  .calqix-bundle__item {
+    flex: 1;
+    background: var(--calqix-cream);
+    border: 1px solid rgba(26, 59, 92, 0.08);
+    border-radius: var(--calqix-radius-m);
+    padding: 14px 8px;
+    text-align: center;
+  }
+  .calqix-bundle__img {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 10px;
+    background: var(--calqix-navy);
+    border-radius: var(--calqix-radius-circle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--calqix-gold);
+    font-family: var(--calqix-font-display);
+    font-size: 18px;
+    font-weight: 600;
+    overflow: hidden;
+  }
+  .calqix-bundle__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .calqix-bundle__img--gold {
+    background: var(--calqix-gold);
+    color: var(--calqix-navy);
+  }
+  .calqix-bundle__name {
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-body-s);
+    font-weight: 700;
+    color: var(--calqix-navy);
+    margin-bottom: 2px;
+  }
+  .calqix-bundle__sub {
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-label);
+    color: var(--calqix-navy);
+    opacity: 0.6;
+  }
+  .calqix-bundle__plus {
+    position: absolute;
+    left: 50%;
+    top: 38%;
+    transform: translate(-50%, -50%);
+    width: 22px;
+    height: 22px;
+    background: var(--calqix-white);
+    border: 1.5px solid var(--calqix-gold);
+    border-radius: var(--calqix-radius-circle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--calqix-navy);
+    font-weight: 700;
+    font-size: 13px;
+    z-index: 2;
+  }
+  .calqix-bundle__price {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding-top: 14px;
+    border-top: 1px solid var(--calqix-border);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .calqix-bundle__price-new {
+    font-family: var(--calqix-font-display);
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--calqix-navy);
+    line-height: 1;
+  }
+  .calqix-bundle__price-old {
+    font-size: var(--calqix-fs-body-m);
+    color: var(--calqix-navy);
+    opacity: 0.4;
+    text-decoration: line-through;
+  }
+  .calqix-bundle__price-hint {
+    font-size: var(--calqix-fs-caption);
+    color: var(--calqix-gold-soft);
+    margin-left: auto;
+    font-weight: 700;
+  }
+  .calqix-hero-rebuild-kit .calqix-btn {
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: var(--calqix-radius-s);
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-body-s);
+    font-weight: 700;
+    letter-spacing: var(--calqix-ls-wide);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background var(--calqix-dur-medium) var(--calqix-ease),
+                border-color var(--calqix-dur-medium) var(--calqix-ease),
+                color var(--calqix-dur-medium) var(--calqix-ease);
+  }
+  .calqix-hero-rebuild-kit .calqix-btn--primary {
+    background: var(--calqix-navy);
+    color: var(--calqix-white);
+    border: 2px solid var(--calqix-navy);
+    margin-bottom: 8px;
+  }
+  .calqix-hero-rebuild-kit .calqix-btn--primary:hover {
+    background: var(--calqix-navy-deep);
+    border-color: var(--calqix-navy-deep);
+  }
+  .calqix-hero-rebuild-kit .calqix-btn--secondary {
+    background: var(--calqix-white);
+    color: var(--calqix-navy);
+    border: 2px solid var(--calqix-navy);
+    padding: 12px 20px;
+    font-size: var(--calqix-fs-caption);
+  }
+  .calqix-hero-rebuild-kit .calqix-btn--secondary:hover {
+    background: var(--calqix-cream);
+  }
+  .calqix-hero-rebuild-kit .calqix-btn:focus-visible {
+    outline: 2px solid var(--calqix-gold);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 1023px) {
+    .calqix-hero-rebuild-kit {
+      padding: var(--calqix-section-y-tablet) var(--calqix-section-x-tablet);
+    }
+    .calqix-hero-rebuild-kit__inner { grid-template-columns: 1fr; gap: 32px; }
+    .calqix-hero-rebuild-kit__sub { max-width: 100%; }
+  }
+  @media (max-width: 767px) {
+    .calqix-hero-rebuild-kit {
+      padding: var(--calqix-section-y-mobile) var(--calqix-section-x-mobile);
+    }
+    .calqix-hero-rebuild-kit__bundle { padding: 18px; }
+    .calqix-hero-rebuild-kit__trust {
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<script>
+  (function(){
+    const root = document.querySelector('[data-section-id="{{ section.id }}"][data-section-type="calqix-hero-rebuild-kit"]');
+    if (!root) return;
+
+    const atcBtn = root.querySelector('[data-hero-rebuild-kit-atc]');
+    const subBtn = root.querySelector('[data-hero-rebuild-kit-subscribe]');
+
+    async function addBothToCart() {
+      const fh = atcBtn.dataset.flowcoreHandle;
+      const oh = atcBtn.dataset.oralbiomeHandle;
+      if (!fh || !oh) {
+        console.warn('[calqix-hero-rebuild-kit] product handles missing');
+        return;
+      }
+      try {
+        const [fc, ob] = await Promise.all([
+          fetch('/products/' + fh + '.js').then(r => r.json()),
+          fetch('/products/' + oh + '.js').then(r => r.json())
+        ]);
+        await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: [
+              { id: fc.variants[0].id, quantity: 1 },
+              { id: ob.variants[0].id, quantity: 1 }
+            ]
+          })
+        });
+        if (typeof PUB_SUB_EVENTS !== 'undefined' && typeof publish === 'function') {
+          publish(PUB_SUB_EVENTS.cartUpdate, { source: 'calqix-hero-rebuild-kit' });
+        } else {
+          document.dispatchEvent(new CustomEvent('cart:updated'));
+        }
+      } catch (e) {
+        console.error('[calqix-hero-rebuild-kit ATC]', e);
+      }
+    }
+
+    if (atcBtn) atcBtn.addEventListener('click', addBothToCart);
+    if (subBtn) {
+      subBtn.addEventListener('click', function(){
+        const url = subBtn.dataset.subscribeUrl || '/products/rebuild-kit?selling_plan=subscription';
+        window.location.href = url;
+      });
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "CALQIX Hero · Rebuild Kit",
+  "tag": "section",
+  "class": "calqix-section calqix-hero-rebuild-kit-section",
+  "settings": [
+    { "type": "header", "content": "Left column — copy" },
+    {
+      "type": "text",
+      "id": "tag_text",
+      "label": "Tag pill text",
+      "default": "The Rebuild Kit · Two-step protocol"
+    },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Main heading (use <em> for gold italic)",
+      "default": "<p>Deep-clean.<br>Then <em>rebuild</em>.</p>"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "The complete enamel protocol. FlowCore removes what blocks remineralisation. OralBiome Pro rebuilds the surface with nano-hydroxyapatite. Peer-reviewed science, in one routine."
+    },
+    {
+      "type": "text",
+      "id": "rating_value",
+      "label": "Rating value",
+      "default": "4.9"
+    },
+    {
+      "type": "text",
+      "id": "rating_count",
+      "label": "Rating count",
+      "default": "322"
+    },
+    {
+      "type": "text",
+      "id": "ship_time",
+      "label": "Ship time text",
+      "default": "Ships within 2 days"
+    },
+
+    { "type": "header", "content": "Bundle card — header" },
+    {
+      "type": "text",
+      "id": "bundle_label",
+      "label": "Bundle label pill",
+      "default": "The Rebuild Kit"
+    },
+    {
+      "type": "richtext",
+      "id": "bundle_title",
+      "label": "Bundle title",
+      "default": "<p>Your two-step<br>enamel protocol</p>"
+    },
+    {
+      "type": "text",
+      "id": "save_badge",
+      "label": "Save badge",
+      "default": "Save 25%"
+    },
+
+    { "type": "header", "content": "Bundle card — item 1 (FlowCore)" },
+    {
+      "type": "product",
+      "id": "product_flowcore",
+      "label": "FlowCore product"
+    },
+    {
+      "type": "text",
+      "id": "flowcore_name",
+      "label": "FlowCore display name",
+      "default": "FlowCore"
+    },
+    {
+      "type": "text",
+      "id": "flowcore_sub",
+      "label": "FlowCore caption",
+      "default": "Cordless flosser"
+    },
+
+    { "type": "header", "content": "Bundle card — item 2 (OralBiome Pro)" },
+    {
+      "type": "product",
+      "id": "product_oralbiome",
+      "label": "OralBiome Pro product"
+    },
+    {
+      "type": "text",
+      "id": "oralbiome_name",
+      "label": "OralBiome display name",
+      "default": "OralBiome Pro"
+    },
+    {
+      "type": "text",
+      "id": "oralbiome_sub",
+      "label": "OralBiome caption",
+      "default": "Nano-HA lozenge"
+    },
+
+    { "type": "header", "content": "Bundle card — pricing" },
+    {
+      "type": "text",
+      "id": "bundle_price",
+      "label": "Bundle price",
+      "default": "€74,95"
+    },
+    {
+      "type": "text",
+      "id": "bundle_price_strike",
+      "label": "Strikethrough price",
+      "default": "€99,90"
+    },
+    {
+      "type": "text",
+      "id": "bundle_subscription_hint",
+      "label": "Subscription hint",
+      "default": "or €59,95/mo"
+    },
+
+    { "type": "header", "content": "Call to action" },
+    {
+      "type": "text",
+      "id": "cta_primary",
+      "label": "Primary CTA label",
+      "default": "Add Rebuild Kit to cart →"
+    },
+    {
+      "type": "text",
+      "id": "cta_secondary",
+      "label": "Secondary CTA label",
+      "default": "Subscribe and save 20% more"
+    },
+    {
+      "type": "url",
+      "id": "subscribe_url",
+      "label": "Subscribe URL",
+      "info": "Fallback: /products/rebuild-kit?selling_plan=subscription"
+    }
+  ],
+  "presets": [
+    { "name": "CALQIX Hero · Rebuild Kit" }
+  ]
+}
+{% endschema %}

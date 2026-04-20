@@ -1,0 +1,554 @@
+{%- comment -%}
+  CALQIX Tooth Interactive (homepage section 04)
+  ---------------------------------------------------------------
+  Editable in Theme Editor: eyebrow, heading, intro, tooth-type
+  blocks (default 5). Anatomical layers (enamel/dentin/pulp/gum/
+  cementum) are defined in schema settings so merchants can edit
+  names/compositions/descriptions/repair copy per locale.
+  Pulls all colors/typography from assets/calqix-design-tokens.css.
+  ---------------------------------------------------------------
+{%- endcomment -%}
+
+<section
+  class="calqix-section calqix-tooth-interactive"
+  data-section-id="{{ section.id }}"
+  data-section-type="calqix-tooth-interactive"
+>
+  <span class="calqix-section-divider" aria-hidden="true"></span>
+
+  <header class="calqix-tooth-interactive__head">
+    <div class="calqix-tooth-interactive__eyebrow">{{ section.settings.eyebrow }}</div>
+    <h2 class="calqix-tooth-interactive__heading">{{ section.settings.heading }}</h2>
+    <p class="calqix-tooth-interactive__intro">{{ section.settings.intro }}</p>
+  </header>
+
+  <div class="calqix-tooth-interactive__picker" role="tablist" aria-label="Tooth type">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'tooth_type' -%}
+        <button
+          type="button"
+          role="tab"
+          class="calqix-tooth-interactive__pick-btn{% if forloop.first %} is-active{% endif %}"
+          data-tooth-name="{{ block.settings.name | escape }}"
+          data-tooth-code="{{ block.settings.code | escape }}"
+          data-tooth-description="{{ block.settings.description | escape }}"
+          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+          aria-controls="calqix-tooth-info-{{ section.id }}"
+          {{ block.shopify_attributes }}
+        >
+          <span class="calqix-tooth-interactive__pick-icon">{{ block.settings.code }}</span>
+          <span class="calqix-tooth-interactive__pick-name">{{ block.settings.name }}</span>
+        </button>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+
+  <div class="calqix-tooth-interactive__grid">
+
+    <div class="calqix-tooth-interactive__svg-wrap">
+      <svg
+        class="calqix-tooth-interactive__svg"
+        viewBox="0 0 300 360"
+        xmlns="http://www.w3.org/2000/svg"
+        role="img"
+        aria-label="Tooth anatomy cross-section"
+      >
+        <path
+          d="M 150 40 C 100 40, 65 75, 65 140 C 65 200, 80 255, 115 265 C 130 270, 185 270, 200 265 C 235 255, 250 200, 250 140 C 250 75, 215 40, 150 40 Z"
+          fill="#FFFFFF" stroke="#C9A84C" stroke-width="2.5"
+          data-tooth-layer="enamel"
+          class="calqix-tooth-interactive__layer is-active"
+        />
+        <path
+          d="M 150 60 C 115 60, 90 90, 90 145 C 90 195, 100 240, 130 250 C 145 253, 175 253, 190 250 C 220 240, 230 195, 230 145 C 230 90, 200 60, 150 60 Z"
+          fill="#E0CCA8"
+          data-tooth-layer="dentin"
+          class="calqix-tooth-interactive__layer"
+        />
+        <path
+          d="M 150 95 C 130 95, 115 120, 115 155 C 115 190, 125 225, 140 237 C 145 239, 155 239, 160 237 C 180 225, 190 190, 190 155 C 190 120, 175 95, 150 95 Z"
+          fill="#C97A7A"
+          data-tooth-layer="pulp"
+          class="calqix-tooth-interactive__layer"
+        />
+        <ellipse
+          cx="150" cy="290" rx="130" ry="30"
+          fill="#E4A8A8"
+          data-tooth-layer="gum"
+          class="calqix-tooth-interactive__layer"
+        />
+        <path
+          d="M 115 265 C 110 272, 108 282, 105 292 L 195 292 C 192 282, 190 272, 185 265 Z"
+          fill="#B8A07A"
+          data-tooth-layer="cementum"
+          class="calqix-tooth-interactive__layer"
+        />
+      </svg>
+    </div>
+
+    <aside class="calqix-tooth-interactive__info" id="calqix-tooth-info-{{ section.id }}">
+      <div class="calqix-tooth-interactive__info-label">
+        {{ section.settings.info_eyebrow }} ·
+        <span data-tooth-selected-name>{{ section.blocks.first.settings.name }}</span>
+      </div>
+      <h3 class="calqix-tooth-interactive__info-name" data-layer-name>{{ section.settings.enamel_name }}</h3>
+      <div class="calqix-tooth-interactive__info-comp" data-layer-comp>{{ section.settings.enamel_comp }}</div>
+      <p class="calqix-tooth-interactive__info-desc" data-layer-desc>{{ section.settings.enamel_desc }}</p>
+
+      <div class="calqix-tooth-interactive__repair">
+        <div class="calqix-tooth-interactive__repair-icon" data-layer-repair-icon>{{ section.settings.enamel_repair_icon }}</div>
+        <div class="calqix-tooth-interactive__repair-text">
+          <strong>{{ section.settings.repair_heading }}</strong>
+          <span data-layer-repair-text>{{ section.settings.enamel_repair_text }}</span>
+        </div>
+      </div>
+
+      <nav class="calqix-tooth-interactive__layer-nav" role="tablist" aria-label="Tooth anatomy layer">
+        <button type="button" class="calqix-tooth-interactive__layer-btn is-active" data-layer="enamel" aria-pressed="true">{{ section.settings.enamel_name }}</button>
+        <button type="button" class="calqix-tooth-interactive__layer-btn" data-layer="dentin" aria-pressed="false">{{ section.settings.dentin_name }}</button>
+        <button type="button" class="calqix-tooth-interactive__layer-btn" data-layer="pulp" aria-pressed="false">{{ section.settings.pulp_name }}</button>
+        <button type="button" class="calqix-tooth-interactive__layer-btn" data-layer="gum" aria-pressed="false">{{ section.settings.gum_name }}</button>
+        <button type="button" class="calqix-tooth-interactive__layer-btn" data-layer="cementum" aria-pressed="false">{{ section.settings.cementum_name }}</button>
+      </nav>
+    </aside>
+
+  </div>
+</section>
+
+<style>
+  .calqix-tooth-interactive {
+    background: var(--calqix-bg-tooth);
+    padding: 88px var(--calqix-section-x-desktop) 96px;
+    position: relative;
+  }
+  .calqix-tooth-interactive__head {
+    text-align: center;
+    max-width: var(--calqix-container-text-max);
+    margin: 16px auto 36px;
+  }
+  .calqix-tooth-interactive__eyebrow {
+    display: inline-block;
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-caption);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--calqix-gold-soft);
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .calqix-tooth-interactive__heading {
+    font-family: var(--calqix-font-display);
+    font-size: clamp(28px, 4.5vw, 44px);
+    font-weight: 400;
+    color: var(--calqix-navy);
+    margin: 0 0 16px;
+    letter-spacing: var(--calqix-ls-tight);
+    line-height: 1.08;
+  }
+  .calqix-tooth-interactive__heading p { margin: 0; }
+  .calqix-tooth-interactive__heading em {
+    font-style: italic;
+    color: var(--calqix-gold);
+  }
+  .calqix-tooth-interactive__intro {
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-body-l);
+    color: var(--calqix-navy);
+    opacity: 0.78;
+    line-height: var(--calqix-lh-relaxed);
+  }
+  .calqix-tooth-interactive__picker {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    max-width: var(--calqix-container-text-max);
+    margin: 0 auto 36px;
+    flex-wrap: wrap;
+    padding: 6px;
+    background: var(--calqix-white);
+    border-radius: var(--calqix-radius-l);
+    border: 1.5px solid var(--calqix-border);
+  }
+  .calqix-tooth-interactive__pick-btn {
+    padding: 10px 16px;
+    background: transparent;
+    border: 1.5px solid transparent;
+    border-radius: var(--calqix-radius-m);
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-body-s);
+    color: var(--calqix-navy);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 82px;
+    cursor: pointer;
+    transition: background var(--calqix-dur-medium) var(--calqix-ease),
+                color var(--calqix-dur-medium) var(--calqix-ease),
+                border-color var(--calqix-dur-medium) var(--calqix-ease);
+  }
+  .calqix-tooth-interactive__pick-btn:hover:not(.is-active) { background: var(--calqix-cream); }
+  .calqix-tooth-interactive__pick-btn.is-active {
+    background: var(--calqix-navy);
+    color: var(--calqix-ivory);
+  }
+  .calqix-tooth-interactive__pick-icon {
+    font-family: var(--calqix-font-display);
+    font-size: var(--calqix-fs-heading-s);
+    color: var(--calqix-gold);
+    line-height: 1;
+  }
+  .calqix-tooth-interactive__pick-btn.is-active .calqix-tooth-interactive__pick-icon {
+    color: var(--calqix-gold);
+  }
+  .calqix-tooth-interactive__grid {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    align-items: center;
+  }
+  .calqix-tooth-interactive__svg-wrap {
+    background: var(--calqix-white);
+    border-radius: var(--calqix-radius-xl);
+    padding: 36px;
+    border: 1.5px solid var(--calqix-border);
+    box-shadow: var(--calqix-shadow-subtle);
+  }
+  .calqix-tooth-interactive__svg {
+    width: 100%;
+    height: auto;
+    max-height: 320px;
+  }
+  .calqix-tooth-interactive__layer {
+    cursor: pointer;
+    transition: opacity var(--calqix-dur-medium) var(--calqix-ease),
+                stroke-width var(--calqix-dur-medium) var(--calqix-ease);
+  }
+  .calqix-tooth-interactive__layer:not(.is-active) { opacity: 0.4; }
+  .calqix-tooth-interactive__layer.is-active {
+    opacity: 1;
+    stroke: var(--calqix-gold);
+    stroke-width: 2.5;
+  }
+  .calqix-tooth-interactive__info {
+    background: var(--calqix-white);
+    border: 1.5px solid var(--calqix-border);
+    border-radius: var(--calqix-radius-xl);
+    padding: 28px;
+    box-shadow: var(--calqix-shadow-subtle);
+  }
+  .calqix-tooth-interactive__info-label {
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-caption);
+    letter-spacing: var(--calqix-ls-wider);
+    text-transform: uppercase;
+    color: var(--calqix-gold-soft);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .calqix-tooth-interactive__info-name {
+    font-family: var(--calqix-font-display);
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--calqix-navy);
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .calqix-tooth-interactive__info-comp {
+    font-family: var(--calqix-font-mono);
+    font-size: var(--calqix-fs-body-s);
+    color: var(--calqix-gold-soft);
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .calqix-tooth-interactive__info-desc {
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-body-m);
+    color: var(--calqix-navy);
+    line-height: var(--calqix-lh-relaxed);
+    margin: 0 0 18px;
+    opacity: 0.82;
+  }
+  .calqix-tooth-interactive__repair {
+    background: var(--calqix-cream);
+    border: 1.5px solid var(--calqix-border-gold);
+    border-radius: var(--calqix-radius-m);
+    padding: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .calqix-tooth-interactive__repair-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--calqix-gold);
+    border-radius: var(--calqix-radius-circle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--calqix-navy);
+    font-family: var(--calqix-font-body);
+    font-weight: 700;
+    font-size: var(--calqix-fs-body-s);
+    flex-shrink: 0;
+  }
+  .calqix-tooth-interactive__repair-text {
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-body-s);
+    color: var(--calqix-navy);
+    line-height: 1.55;
+  }
+  .calqix-tooth-interactive__repair-text strong {
+    display: block;
+    font-size: var(--calqix-fs-label);
+    letter-spacing: var(--calqix-ls-wider);
+    text-transform: uppercase;
+    color: var(--calqix-gold-soft);
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .calqix-tooth-interactive__layer-nav {
+    display: flex;
+    gap: 6px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .calqix-tooth-interactive__layer-btn {
+    flex: 1;
+    min-width: 68px;
+    padding: 9px 6px;
+    background: var(--calqix-cream);
+    border: 1.5px solid var(--calqix-border);
+    border-radius: 6px;
+    font-family: var(--calqix-font-body);
+    font-size: var(--calqix-fs-caption);
+    color: var(--calqix-navy);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--calqix-dur-medium) var(--calqix-ease),
+                color var(--calqix-dur-medium) var(--calqix-ease),
+                border-color var(--calqix-dur-medium) var(--calqix-ease);
+  }
+  .calqix-tooth-interactive__layer-btn:hover:not(.is-active) {
+    border-color: var(--calqix-gold);
+  }
+  .calqix-tooth-interactive__layer-btn.is-active {
+    background: var(--calqix-navy);
+    color: var(--calqix-ivory);
+    border-color: var(--calqix-navy);
+  }
+  .calqix-tooth-interactive__pick-btn:focus-visible,
+  .calqix-tooth-interactive__layer-btn:focus-visible {
+    outline: 2px solid var(--calqix-gold);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 1023px) {
+    .calqix-tooth-interactive { padding: var(--calqix-section-y-tablet) var(--calqix-section-x-tablet) 64px; }
+    .calqix-tooth-interactive__grid { grid-template-columns: 1fr; gap: 24px; }
+  }
+  @media (max-width: 767px) {
+    .calqix-tooth-interactive { padding: 40px var(--calqix-section-x-mobile) 48px; }
+    .calqix-tooth-interactive__pick-btn {
+      min-width: 62px;
+      padding: 7px 10px;
+      font-size: var(--calqix-fs-caption);
+    }
+    .calqix-tooth-interactive__svg-wrap { padding: 20px; }
+    .calqix-tooth-interactive__info { padding: 20px; }
+    .calqix-tooth-interactive__info-name { font-size: 22px; }
+  }
+</style>
+
+<script>
+  (function(){
+    const root = document.querySelector('[data-section-id="{{ section.id }}"][data-section-type="calqix-tooth-interactive"]');
+    if (!root) return;
+
+    const LAYERS = {
+      enamel: {
+        name: {{ section.settings.enamel_name | json }},
+        comp: {{ section.settings.enamel_comp | json }},
+        desc: {{ section.settings.enamel_desc | json }},
+        repairIcon: {{ section.settings.enamel_repair_icon | json }},
+        repairText: {{ section.settings.enamel_repair_text | json }}
+      },
+      dentin: {
+        name: {{ section.settings.dentin_name | json }},
+        comp: {{ section.settings.dentin_comp | json }},
+        desc: {{ section.settings.dentin_desc | json }},
+        repairIcon: {{ section.settings.dentin_repair_icon | json }},
+        repairText: {{ section.settings.dentin_repair_text | json }}
+      },
+      pulp: {
+        name: {{ section.settings.pulp_name | json }},
+        comp: {{ section.settings.pulp_comp | json }},
+        desc: {{ section.settings.pulp_desc | json }},
+        repairIcon: {{ section.settings.pulp_repair_icon | json }},
+        repairText: {{ section.settings.pulp_repair_text | json }}
+      },
+      gum: {
+        name: {{ section.settings.gum_name | json }},
+        comp: {{ section.settings.gum_comp | json }},
+        desc: {{ section.settings.gum_desc | json }},
+        repairIcon: {{ section.settings.gum_repair_icon | json }},
+        repairText: {{ section.settings.gum_repair_text | json }}
+      },
+      cementum: {
+        name: {{ section.settings.cementum_name | json }},
+        comp: {{ section.settings.cementum_comp | json }},
+        desc: {{ section.settings.cementum_desc | json }},
+        repairIcon: {{ section.settings.cementum_repair_icon | json }},
+        repairText: {{ section.settings.cementum_repair_text | json }}
+      }
+    };
+
+    const pickerBtns = root.querySelectorAll('.calqix-tooth-interactive__pick-btn');
+    const layerBtns  = root.querySelectorAll('.calqix-tooth-interactive__layer-btn');
+    const svgLayers  = root.querySelectorAll('.calqix-tooth-interactive__layer');
+    const selectedName = root.querySelector('[data-tooth-selected-name]');
+    const layerName    = root.querySelector('[data-layer-name]');
+    const layerComp    = root.querySelector('[data-layer-comp]');
+    const layerDesc    = root.querySelector('[data-layer-desc]');
+    const layerRepairI = root.querySelector('[data-layer-repair-icon]');
+    const layerRepairT = root.querySelector('[data-layer-repair-text]');
+
+    function activatePicker(btn) {
+      pickerBtns.forEach(function(b){
+        b.classList.remove('is-active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-selected', 'true');
+      if (selectedName) selectedName.textContent = btn.dataset.toothName || '';
+    }
+
+    function activateLayer(layerKey) {
+      const data = LAYERS[layerKey];
+      if (!data) return;
+      layerBtns.forEach(function(b){
+        const on = b.dataset.layer === layerKey;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      svgLayers.forEach(function(s){
+        s.classList.toggle('is-active', s.dataset.toothLayer === layerKey);
+      });
+      if (layerName)    layerName.textContent    = data.name;
+      if (layerComp)    layerComp.textContent    = data.comp;
+      if (layerDesc)    layerDesc.textContent    = data.desc;
+      if (layerRepairI) layerRepairI.textContent = data.repairIcon;
+      if (layerRepairT) layerRepairT.textContent = data.repairText;
+    }
+
+    pickerBtns.forEach(function(b){ b.addEventListener('click', function(){ activatePicker(b); }); });
+    layerBtns.forEach(function(b){ b.addEventListener('click', function(){ activateLayer(b.dataset.layer); }); });
+    svgLayers.forEach(function(s){ s.addEventListener('click', function(){ activateLayer(s.dataset.toothLayer); }); });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "CALQIX Tooth Interactive",
+  "tag": "section",
+  "class": "calqix-section calqix-tooth-interactive-section",
+  "settings": [
+    { "type": "header", "content": "Intro" },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "How your tooth works"
+    },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Heading (use <em> for gold italic)",
+      "default": "<p>Your enamel does not<br><em>heal</em> itself.</p>"
+    },
+    {
+      "type": "textarea",
+      "id": "intro",
+      "label": "Intro paragraph",
+      "default": "Pick a tooth type, then click any layer to see what it does and how CALQIX rebuilds it."
+    },
+
+    { "type": "header", "content": "Info panel labels" },
+    {
+      "type": "text",
+      "id": "info_eyebrow",
+      "label": "Info panel eyebrow prefix",
+      "default": "Selected layer"
+    },
+    {
+      "type": "text",
+      "id": "repair_heading",
+      "label": "Repair section heading",
+      "default": "How CALQIX rebuilds"
+    },
+
+    { "type": "header", "content": "Layer · Enamel" },
+    { "type": "text",     "id": "enamel_name",        "label": "Name",        "default": "Enamel" },
+    { "type": "text",     "id": "enamel_comp",        "label": "Composition", "default": "97% hydroxyapatite · hardest tissue" },
+    { "type": "textarea", "id": "enamel_desc",        "label": "Description", "default": "Your enamel is the outermost layer and the only one visible. The hardest tissue in your body, but the only one that cannot heal itself biologically." },
+    { "type": "text",     "id": "enamel_repair_icon", "label": "Repair icon", "default": "HA" },
+    { "type": "textarea", "id": "enamel_repair_text", "label": "Repair text", "default": "OralBiome Pro delivers nano-hydroxyapatite particles (20 to 80nm) that bind directly to the enamel surface." },
+
+    { "type": "header", "content": "Layer · Dentin" },
+    { "type": "text",     "id": "dentin_name",        "label": "Name",        "default": "Dentin" },
+    { "type": "text",     "id": "dentin_comp",        "label": "Composition", "default": "70% hydroxyapatite · contains microtubules" },
+    { "type": "textarea", "id": "dentin_desc",        "label": "Description", "default": "Underneath the enamel. When exposed through wear or recession, the microtubules transmit sensation directly to the nerve, causing hypersensitivity." },
+    { "type": "text",     "id": "dentin_repair_icon", "label": "Repair icon", "default": "HA" },
+    { "type": "textarea", "id": "dentin_repair_text", "label": "Repair text", "default": "Nano-hydroxyapatite occludes dentinal tubules, reducing sensitivity within 14 days of daily use." },
+
+    { "type": "header", "content": "Layer · Pulp" },
+    { "type": "text",     "id": "pulp_name",        "label": "Name",        "default": "Pulp" },
+    { "type": "text",     "id": "pulp_comp",        "label": "Composition", "default": "Nerve and blood supply · living tissue" },
+    { "type": "textarea", "id": "pulp_desc",        "label": "Description", "default": "The innermost living core. Supplies nutrients and carries pain signals. Once infection reaches the pulp, only root canal treatment is possible." },
+    { "type": "text",     "id": "pulp_repair_icon", "label": "Repair icon", "default": "✓" },
+    { "type": "textarea", "id": "pulp_repair_text", "label": "Repair text", "default": "CALQIX prevents pulp exposure by rebuilding enamel before decay progresses that far." },
+
+    { "type": "header", "content": "Layer · Gum" },
+    { "type": "text",     "id": "gum_name",        "label": "Name",        "default": "Gum" },
+    { "type": "text",     "id": "gum_comp",        "label": "Composition", "default": "Keratinized mucosal tissue" },
+    { "type": "textarea", "id": "gum_desc",        "label": "Description", "default": "The soft tissue that seals the tooth in place. Gum recession exposes the root surface and accelerates enamel loss at the gumline." },
+    { "type": "text",     "id": "gum_repair_icon", "label": "Repair icon", "default": "FC" },
+    { "type": "textarea", "id": "gum_repair_text", "label": "Repair text", "default": "FlowCore flushes the sulcus (6mm deep) daily, removing the biofilm that causes gingival inflammation." },
+
+    { "type": "header", "content": "Layer · Cementum" },
+    { "type": "text",     "id": "cementum_name",        "label": "Name",        "default": "Cementum" },
+    { "type": "text",     "id": "cementum_comp",        "label": "Composition", "default": "45% hydroxyapatite · root surface" },
+    { "type": "textarea", "id": "cementum_desc",        "label": "Description", "default": "Thin calcified layer covering the root. Exposed only when gums recede. Softer than enamel, decays faster, and is rarely visible until damage is done." },
+    { "type": "text",     "id": "cementum_repair_icon", "label": "Repair icon", "default": "HA" },
+    { "type": "textarea", "id": "cementum_repair_text", "label": "Repair text", "default": "Nano-hydroxyapatite binds to exposed cementum the same way it binds to enamel, restoring root surface mineralisation." }
+  ],
+  "blocks": [
+    {
+      "type": "tooth_type",
+      "name": "Tooth type",
+      "limit": 6,
+      "settings": [
+        { "type": "text",     "id": "name",        "label": "Tooth name",                         "default": "Incisor" },
+        { "type": "text",     "id": "code",        "label": "Single-letter code (in picker orb)", "default": "I" },
+        { "type": "textarea", "id": "description", "label": "Description",                        "default": "Your front teeth. Thinnest enamel layer, most exposed to dietary acid and staining." }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX Tooth Interactive",
+      "blocks": [
+        { "type": "tooth_type", "settings": { "name": "Incisor",  "code": "I", "description": "Your front teeth. Thinnest enamel layer, most exposed to dietary acid and staining." } },
+        { "type": "tooth_type", "settings": { "name": "Canine",   "code": "C", "description": "Your corner teeth. Longest root, strongest single-crown pressure tolerance." } },
+        { "type": "tooth_type", "settings": { "name": "Premolar", "code": "P", "description": "Transitional teeth with two cusps. First line of grinding." } },
+        { "type": "tooth_type", "settings": { "name": "Molar",    "code": "M", "description": "Your grinding teeth. Largest surface area, most vulnerable to biofilm buildup in fissures." } },
+        { "type": "tooth_type", "settings": { "name": "Wisdom",   "code": "W", "description": "Third molars. Often partially erupted, extremely difficult to clean without floss or irrigation." } }
+      ]
+    }
+  ]
+}
+{% endschema %}
