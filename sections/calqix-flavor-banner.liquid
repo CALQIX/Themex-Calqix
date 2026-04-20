@@ -680,26 +680,6 @@
     box-shadow: 0 8px 20px color-mix(in srgb, var(--fb-accent) 50%, transparent);
   }
 
-  /* Tablet pulse */
-  #cq-fb-{{ section.id }} .cq-fb__tablet {
-    position: relative;
-    z-index: 1;
-  }
-  #cq-fb-{{ section.id }} .cq-fb__tablet::before {
-    content: '';
-    position: absolute;
-    inset: -22px;
-    border-radius: 50%;
-    background: radial-gradient(circle, color-mix(in srgb, var(--fb-accent) 30%, transparent), transparent 60%);
-    animation: cqFbTabletPulse 3.2s ease-in-out infinite;
-    z-index: -1;
-    pointer-events: none;
-  }
-  @keyframes cqFbTabletPulse {
-    0%, 100% { transform: scale(0.95); opacity: 0.55; }
-    50% { transform: scale(1.14); opacity: 0.9; }
-  }
-
   /* ATC ripple/shimmer */
   #cq-fb-{{ section.id }} .cq-fb__cta {
     position: relative;
@@ -720,7 +700,10 @@
   /* Reduced motion: disable all idle + float animations */
   @media (prefers-reduced-motion: reduce) {
     #cq-fb-{{ section.id }} .cq-fb__jar,
-    #cq-fb-{{ section.id }} .cq-fb__tablet::before,
+    #cq-fb-{{ section.id }} .cq-fb__stage-aura,
+    #cq-fb-{{ section.id }} .cq-fb__stage-hero,
+    #cq-fb-{{ section.id }} .cq-fb__stage-orbit,
+    #cq-fb-{{ section.id }} .cq-fb__lozenge,
     #cq-fb-{{ section.id }} .cq-fb__title .cq-fb__char,
     #cq-fb-{{ section.id }} .cq-fb__cta::after,
     #cq-fb-{{ section.id }} .cq-fb__chip::after {
