@@ -9,103 +9,15 @@
  */
 {
   "sections": {
-    "calqix_rebuild_kit_hero_PhaseB1": {
-      "type": "calqix-rebuild-kit-hero",
-      "settings": {
-        "disable_on_homepage": false,
-        "product_a": "calqix-flowcore",
-        "product_b": "oralbiome-pro-freshmint",
-        "bundle_discount_pct": 25,
-        "subscription_discount_pct": 20,
-        "background_color": "#f7f4ec",
-        "accent_color": "#c9a84c"
-      }
-    },
-    "flowcore_banner_CUKft3": {
-      "type": "flowcore-banner",
-      "disabled": true,
-      "name": "FlowCore Banner",
-      "settings": {
-        "hide_on_homepage": false,
-        "banner_height": 560,
-        "eyebrow": "CALQIX FlowCore",
-        "title_line1": "Clear the way.",
-        "title_line2_italic": "Then rebuild.",
-        "subtitle": "Cordless water flosser",
-        "description": "1,600 pulses per minute. Precision stream with a 0.6 mm diameter. Three clinical modes that clean where brushing cannot, preparing your enamel surface for remineralisation.",
-        "pill_1": "1.600×/min",
-        "pill_2": "3 clinical modes",
-        "pill_3": "IPX waterproof",
-        "pill_4": "USB Typ-C",
-        "cta_label": "Shop FlowCore",
-        "cta_url": "shopify://collections/water-flosser",
-        "cta_price": "39,95 €",
-        "trust_line": "✓ 30-day money-back guarantee · Free shipping over €80",
-        "img_v1": "shopify://shop_images/Black_2.png",
-        "label_v1": "Midnight Black",
-        "color_v1": "#1c1c1e",
-        "img_v2": "shopify://shop_images/White_f59778f9-4737-4dd7-9d7c-9cc33cc84821.png",
-        "label_v2": "Clinical White",
-        "color_v2": "#ffffff",
-        "img_v3": "shopify://shop_images/Lime.png",
-        "label_v3": "Lime Green",
-        "color_v3": "#daf5e7",
-        "img_v4": "shopify://shop_images/Pink_b906d7fb-6287-4dd9-9138-6495dad4a2f8.png",
-        "label_v4": "Blush Pink",
-        "color_v4": "#e8aab5",
-        "img_pkg": "shopify://shop_images/Product_packaging_zonder_achtergrond.png"
-      }
-    },
-    "rich_text_with_image_d9iPb9": {
-      "type": "rich-text-with-image",
-      "blocks": {
-        "heading_xqAqaP": {
-          "type": "heading",
-          "settings": {
-            "subheading": "",
-            "font_uppercase": "none",
-            "disable_on_mobile": false
-          }
-        },
-        "text_yXHg9h": {
-          "type": "text",
-          "settings": {
-            "text": "Step 01 PICTURE1 Deep rinse.<br> Step 02 PICTURE2 Then rebuild.",
-            "font_uppercase": "none",
-            "disable_on_mobile": false,
-            "size_heading": 200,
-            "size_heading_mobile": 120,
-            "line_height": 1.5,
-            "picture1": "shopify://shop_images/Waterstraal_1.png",
-            "button_link1": "",
-            "picture2": "shopify://shop_images/Tand_rebuild_1.png",
-            "button_link2": "",
-            "button_link3": ""
-          }
-        }
-      },
-      "block_order": [
-        "heading_xqAqaP",
-        "text_yXHg9h"
-      ],
-      "disabled": true,
-      "custom_css": [],
-      "settings": {
-        "desktop_text_horizontal_position": "center",
-        "color-body-text": "rgba(0,0,0,0)",
-        "background_color": "rgba(0,0,0,0)",
-        "margin-top": 8,
-        "margin-bottom": 0
-      }
-    },
     "calqix_flavor_banner_PhaseB2": {
       "type": "calqix-flavor-banner",
       "blocks": {
         "jar_freshmint": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "generated",
-            "product": "",
+            "image_source": "override",
+            "product": "oralbiome-pro-freshmint",
+            "image_override": "shopify://shop_images/Shopify_-_Fresh_Mint_Front.png",
             "tie_to_flavor": "freshmint",
             "x_pct": 8,
             "y_pct": 18,
@@ -273,6 +185,95 @@
         "enable_headline_reveal": true
       }
     },
+    "flowcore_banner_CUKft3": {
+      "type": "flowcore-banner",
+      "disabled": true,
+      "name": "FlowCore Banner",
+      "settings": {
+        "hide_on_homepage": false,
+        "banner_height": 560,
+        "eyebrow": "CALQIX FlowCore",
+        "title_line1": "Clear the way.",
+        "title_line2_italic": "Then rebuild.",
+        "subtitle": "Cordless water flosser",
+        "description": "1,600 pulses per minute. Precision stream with a 0.6 mm diameter. Three clinical modes that clean where brushing cannot, preparing your enamel surface for remineralisation.",
+        "pill_1": "1.600×/min",
+        "pill_2": "3 clinical modes",
+        "pill_3": "IPX waterproof",
+        "pill_4": "USB Typ-C",
+        "cta_label": "Shop FlowCore",
+        "cta_url": "shopify://collections/water-flosser",
+        "cta_price": "39,95 €",
+        "trust_line": "✓ 30-day money-back guarantee · Free shipping over €80",
+        "img_v1": "shopify://shop_images/Black_2.png",
+        "label_v1": "Midnight Black",
+        "color_v1": "#1c1c1e",
+        "img_v2": "shopify://shop_images/White_f59778f9-4737-4dd7-9d7c-9cc33cc84821.png",
+        "label_v2": "Clinical White",
+        "color_v2": "#ffffff",
+        "img_v3": "shopify://shop_images/Lime.png",
+        "label_v3": "Lime Green",
+        "color_v3": "#daf5e7",
+        "img_v4": "shopify://shop_images/Pink_b906d7fb-6287-4dd9-9138-6495dad4a2f8.png",
+        "label_v4": "Blush Pink",
+        "color_v4": "#e8aab5",
+        "img_pkg": "shopify://shop_images/Product_packaging_zonder_achtergrond.png"
+      }
+    },
+    "rich_text_with_image_d9iPb9": {
+      "type": "rich-text-with-image",
+      "blocks": {
+        "heading_xqAqaP": {
+          "type": "heading",
+          "settings": {
+            "subheading": "",
+            "font_uppercase": "none",
+            "disable_on_mobile": false
+          }
+        },
+        "text_yXHg9h": {
+          "type": "text",
+          "settings": {
+            "text": "Step 01 PICTURE1 Deep rinse.<br> Step 02 PICTURE2 Then rebuild.",
+            "font_uppercase": "none",
+            "disable_on_mobile": false,
+            "size_heading": 200,
+            "size_heading_mobile": 120,
+            "line_height": 1.5,
+            "picture1": "shopify://shop_images/Waterstraal_1.png",
+            "button_link1": "",
+            "picture2": "shopify://shop_images/Tand_rebuild_1.png",
+            "button_link2": "",
+            "button_link3": ""
+          }
+        }
+      },
+      "block_order": [
+        "heading_xqAqaP",
+        "text_yXHg9h"
+      ],
+      "disabled": true,
+      "custom_css": [],
+      "settings": {
+        "desktop_text_horizontal_position": "center",
+        "color-body-text": "rgba(0,0,0,0)",
+        "background_color": "rgba(0,0,0,0)",
+        "margin-top": 8,
+        "margin-bottom": 0
+      }
+    },
+    "calqix_rebuild_kit_hero_PhaseB1": {
+      "type": "calqix-rebuild-kit-hero",
+      "settings": {
+        "disable_on_homepage": false,
+        "product_a": "calqix-flowcore",
+        "product_b": "oralbiome-pro-freshmint",
+        "bundle_discount_pct": 25,
+        "subscription_discount_pct": 20,
+        "background_color": "#f7f4ec",
+        "accent_color": "#c9a84c"
+      }
+    },
     "calqix_protocol_PhaseC1": {
       "type": "calqix-protocol",
       "blocks": {
@@ -311,14 +312,14 @@
       ],
       "settings": {
         "disable_section": false,
-        "bg_color": "#0F2840",
+        "bg_color": "#0f2840",
         "text_color": "#f7f4ec",
         "muted_color": "#b8c5d6",
         "accent_color": "#c9a84c",
         "card_bg": "#133357",
         "card_border": "#1e4773",
         "visual_bg": "#1c4577",
-        "visual_bg_2": "#0F2840",
+        "visual_bg_2": "#0f2840",
         "anim_accent": "#ffd45a",
         "anim_accent_2": "#f5a623"
       }
@@ -443,7 +444,7 @@
       "type": "calqix-proof-strip",
       "settings": {
         "eyebrow": "Clinical evidence",
-        "part_1_bg": "#0F2840",
+        "part_1_bg": "#0f2840",
         "part_2_bg": "#ffffff",
         "accent_color": "#e8c96a",
         "vertical_padding": 56,
@@ -779,7 +780,7 @@
         "pill_label": "Launch offer ends in",
         "enable_countdown": false,
         "countdown_target": "",
-        "bg_color": "#0F2840",
+        "bg_color": "#0f2840",
         "text_color": "#f7f4ec",
         "muted_color": "#b8c5d6",
         "accent_color": "#c9a84c"
