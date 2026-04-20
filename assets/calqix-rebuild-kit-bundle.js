@@ -319,12 +319,35 @@
   // `transform` (the CALQIX cart drawer sets both). Without this,
   // the modal would be clipped/positioned relative to the drawer.
   function portalPicker() {
-    var picker = document.querySelector('[data-cq-rk-picker]');
-    if (!picker) return;
-    if (picker.parentElement === document.body) return;
-    if (picker.getAttribute('data-cq-rk-portaled') === '1') return;
-    document.body.appendChild(picker);
-    picker.setAttribute('data-cq-rk-portaled', '1');
+    var all = document.querySelectorAll('[data-cq-rk-picker]');
+    if (!all.length) return;
+
+    // Prefer an already-portaled instance (it has JS-rendered cards).
+    var keep = null;
+    for (var i = 0; i < all.length; i++) {
+      if (all[i].getAttribute('data-cq-rk-portaled') === '1') {
+        keep = all[i];
+        break;
+      }
+    }
+    // Otherwise keep the first one and portal it.
+    if (!keep) {
+      keep = all[0];
+    }
+
+    // Remove any duplicates (e.g. a fresh instance re-rendered inside the
+    // cart drawer after an AJAX refresh) so querySelector always returns
+    // the canonical portaled picker with its populated card grid.
+    for (var j = 0; j < all.length; j++) {
+      if (all[j] !== keep && all[j].parentElement) {
+        all[j].parentElement.removeChild(all[j]);
+      }
+    }
+
+    if (keep.parentElement !== document.body) {
+      document.body.appendChild(keep);
+    }
+    keep.setAttribute('data-cq-rk-portaled', '1');
   }
 
   // When the merchant has not set a FlowCore collection via theme
