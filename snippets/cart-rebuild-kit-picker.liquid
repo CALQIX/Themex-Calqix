@@ -1,0 +1,126 @@
+{%- comment -%}
+  CALQIX Cart · Rebuild Kit FlowCore flavor picker modal
+  ------------------------------------------------------------
+  Server-rendered modal that shows the available FlowCore
+  flavors from the merchant-selected collection. Hidden by
+  default; opened by calqix-rebuild-kit-bundle.js when the
+  customer clicks the Rebuild Kit banner.
+
+  We render the product cards server-side so layout is SEO-
+  stable and the modal opens instantly without a fetch.
+{%- endcomment -%}
+
+{%- if settings.cq_rk_enable -%}
+  {%- liquid
+    assign flavor_collection = settings.cq_rk_flowcore_collection
+    assign products = flavor_collection.products
+    assign modal_title = settings.cq_rk_modal_title | default: 'Choose your FlowCore flavor'
+    assign modal_sub   = settings.cq_rk_modal_sub   | default: 'Your Rebuild Kit bundle saves 30% automatically at checkout.'
+    assign cta_label   = settings.cq_rk_modal_cta   | default: 'Add to Kit'
+  -%}
+
+  <div
+    id="cq-rk-picker"
+    class="cq-rk-picker"
+    data-cq-rk-picker
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cq-rk-picker-title"
+    aria-hidden="true"
+    hidden
+  >
+    <div class="cq-rk-picker__backdrop" data-cq-rk-close aria-hidden="true"></div>
+
+    <div class="cq-rk-picker__dialog" role="document">
+      <button
+        type="button"
+        class="cq-rk-picker__close"
+        data-cq-rk-close
+        aria-label="{{ 'accessibility.close' | t }}"
+      >
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <header class="cq-rk-picker__header">
+        <span class="cq-rk-picker__badge">
+          −{{ settings.cq_rk_discount_pct | default: 30 }}%
+        </span>
+        <h2 id="cq-rk-picker-title" class="cq-rk-picker__title">
+          {{ modal_title }}
+        </h2>
+        <p class="cq-rk-picker__sub">{{ modal_sub }}</p>
+      </header>
+
+      {%- if products.size > 0 -%}
+        <ul class="cq-rk-picker__grid" role="list">
+          {%- for product in products limit: 8 -%}
+            {%- liquid
+              assign first_variant = product.selected_or_first_available_variant
+              assign variant_id = first_variant.id
+              assign available = first_variant.available
+              assign price = first_variant.price | money
+            -%}
+            <li class="cq-rk-picker__card" style="--cq-rk-card-delay: {{ forloop.index0 | times: 70 }}ms">
+              <button
+                type="button"
+                class="cq-rk-picker__card-btn"
+                data-cq-rk-add
+                data-variant-id="{{ variant_id }}"
+                data-product-title="{{ product.title | escape }}"
+                data-product-image="{{ product.featured_image | image_url: width: 160 | default: '' }}"
+                {% unless available %}disabled aria-disabled="true"{% endunless %}
+              >
+                <span class="cq-rk-picker__card-media" aria-hidden="true">
+                  {%- if product.featured_image -%}
+                    {{
+                      product.featured_image
+                      | image_url: width: 320
+                      | image_tag:
+                          loading: 'lazy',
+                          width: 160,
+                          height: 160,
+                          alt: product.title
+                    }}
+                  {%- else -%}
+                    <span class="cq-rk-picker__card-placeholder"></span>
+                  {%- endif -%}
+                  <span class="cq-rk-picker__card-shine" aria-hidden="true"></span>
+                </span>
+                <span class="cq-rk-picker__card-info">
+                  <span class="cq-rk-picker__card-title">{{ product.title }}</span>
+                  {%- if product.metafields.calqix.flavor != blank -%}
+                    <span class="cq-rk-picker__card-flavor">
+                      {{ product.metafields.calqix.flavor.value }}
+                    </span>
+                  {%- endif -%}
+                  <span class="cq-rk-picker__card-price">{{ price }}</span>
+                </span>
+                <span class="cq-rk-picker__card-cta">
+                  <span class="cq-rk-picker__card-cta-text">{{ cta_label }}</span>
+                  <span class="cq-rk-picker__card-cta-arrow" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <p class="cq-rk-picker__empty">
+          No FlowCore flavors configured yet. Set a collection in Theme Editor → CALQIX · Rebuild Kit Bundle.
+        </p>
+      {%- endif -%}
+
+      <footer class="cq-rk-picker__footer">
+        <svg class="cq-rk-picker__lock" viewBox="0 0 16 16" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4.5 7V5.5a3.5 3.5 0 1 1 7 0V7M3.5 7h9v6h-9z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Discount applied automatically at checkout.</span>
+      </footer>
+    </div>
+  </div>
+{%- endif -%}

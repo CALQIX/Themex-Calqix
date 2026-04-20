@@ -1,9 +1,11 @@
 {{ 'cart-drawer.css' | asset_url | stylesheet_tag }}
 {{ 'cart-flavor-picker.css' | asset_url | stylesheet_tag }}
+{{ 'calqix-rebuild-kit-bundle.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'cart-drawer-note.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'cart-flavor-picker.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'calqix-rebuild-kit-bundle.js' | asset_url }}" defer="defer"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer="defer"></script>
 
 {% assign drawer_enable_upsell = settings.drawer_module_upsell %}
@@ -120,9 +122,6 @@
       </header>
       <div class="wt-cart__drawer__body">
         <div class="wt-cart__drawer__module-slot wt-cart__drawer__module-slot--pre-items">
-          {% comment %} CALQIX Rebuild Kit promo — renders when cart is missing one or both bundle products {% endcomment %}
-          {% render 'cart-rebuild-kit-promo' %}
-
           {% assign drawer_show_progress = settings.drawer_module_progress %}
           {% if drawer_show_progress == blank %}
             {% assign drawer_show_progress = settings.enable_free_shipping_bar %}
@@ -169,6 +168,9 @@
       </div>
 
       <div class="wt-cart__drawer__module-slot wt-cart__drawer__module-slot--post-items">
+        {% comment %} CALQIX Rebuild Kit — banner + combi badge (hidden by default, JS-controlled) {% endcomment %}
+        {% render 'cart-rebuild-kit-promo' %}
+
         {% if drawer_enable_upsell and settings.enable_cross_sells and cart != empty %}
           {% render 'cart-cross-sell' %}
         {% endif %}
@@ -177,6 +179,9 @@
           {% render 'cart-addons' %}
         {% endif %}
       </div>
+
+      {% comment %} CALQIX Rebuild Kit — FlowCore flavor picker modal (portal, hidden by default) {% endcomment %}
+      {% render 'cart-rebuild-kit-picker' %}
 
       {% if cart != empty %}
         <footer class="wt-cart__drawer__footer">

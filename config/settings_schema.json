@@ -1447,6 +1447,140 @@
     ]
   },
   {
+    "name": "CALQIX · Rebuild Kit Bundle",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Controls the dynamic 30% Rebuild Kit bundle promotion that appears in the cart drawer. Actual price discount is applied by the Shopify 'Buy X Get Y' automatic discount you create in Admin → Discounts."
+      },
+      {
+        "type": "header",
+        "content": "Activation"
+      },
+      {
+        "type": "checkbox",
+        "id": "cq_rk_enable",
+        "label": "Enable Rebuild Kit bundle module",
+        "default": true,
+        "info": "Master switch. Disable to hide the banner, picker modal, and in-drawer savings badge everywhere."
+      },
+      {
+        "type": "range",
+        "id": "cq_rk_discount_pct",
+        "min": 5,
+        "max": 50,
+        "step": 5,
+        "unit": "%",
+        "label": "Advertised discount",
+        "default": 30,
+        "info": "Used in copy only. Must match the percentage configured in your Shopify automatic discount."
+      },
+      {
+        "type": "text",
+        "id": "cq_rk_shopify_discount_name",
+        "label": "Shopify automatic discount name",
+        "default": "Rebuild Kit 30%",
+        "info": "Reference only — the exact name of the 'Buy X Get Y' discount you set up in Admin → Discounts. Helps you remember what to match."
+      },
+      {
+        "type": "header",
+        "content": "Banner visibility rules"
+      },
+      {
+        "type": "checkbox",
+        "id": "cq_rk_require_cart_not_empty",
+        "label": "Only show banner when cart already has an item",
+        "default": true,
+        "info": "Recommended. Hides the banner on an empty cart so it never nags first-time visitors."
+      },
+      {
+        "type": "checkbox",
+        "id": "cq_rk_require_post_atc",
+        "label": "Only show banner after a new item was just added",
+        "default": true,
+        "info": "Recommended. The banner only appears right after an add-to-cart event, not on passive drawer opens."
+      },
+      {
+        "type": "checkbox",
+        "id": "cq_rk_once_per_session",
+        "label": "Disappear after customer uses the banner once",
+        "default": true,
+        "info": "Recommended. The banner hides after the customer clicks it and completes the kit. Reappears automatically if they remove one of the two products from the cart later in the same session."
+      },
+      {
+        "type": "header",
+        "content": "Products"
+      },
+      {
+        "type": "collection",
+        "id": "cq_rk_flowcore_collection",
+        "label": "FlowCore flavor collection",
+        "info": "A collection containing the FlowCore flavor variants the customer can pick from. If empty, the picker falls back to fetching /collections/flowcore."
+      },
+      {
+        "type": "product",
+        "id": "cq_rk_oralbiome_product",
+        "label": "OralBiome Pro product",
+        "info": "The partner product that completes the Rebuild Kit bundle."
+      },
+      {
+        "type": "header",
+        "content": "Banner copy"
+      },
+      {
+        "type": "text",
+        "id": "cq_rk_banner_label",
+        "label": "Banner badge",
+        "default": "SAVE 30%"
+      },
+      {
+        "type": "text",
+        "id": "cq_rk_banner_title",
+        "label": "Banner title",
+        "default": "Complete the Rebuild Kit"
+      },
+      {
+        "type": "text",
+        "id": "cq_rk_banner_sub",
+        "label": "Banner subtitle",
+        "default": "Pair your OralBiome with a FlowCore flavor for 30% off."
+      },
+      {
+        "type": "header",
+        "content": "Picker modal copy"
+      },
+      {
+        "type": "text",
+        "id": "cq_rk_modal_title",
+        "label": "Modal title",
+        "default": "Choose your FlowCore flavor"
+      },
+      {
+        "type": "text",
+        "id": "cq_rk_modal_sub",
+        "label": "Modal subtitle",
+        "default": "Your Rebuild Kit bundle saves 30% automatically at checkout."
+      },
+      {
+        "type": "text",
+        "id": "cq_rk_modal_cta",
+        "label": "Card button label",
+        "default": "Add to Kit"
+      },
+      {
+        "type": "header",
+        "content": "Combi-active savings badge"
+      },
+      {
+        "type": "text",
+        "id": "cq_rk_combi_label",
+        "label": "Label when bundle is complete in cart",
+        "default": "Rebuild Kit bundle · 30% off",
+        "info": "Shown in the cart drawer as a gold-pulse badge while both products are in the cart."
+      }
+    ]
+  },
+  {
     "name": "t:settings_schema.localization_drawer.name",
     "settings": [
       {
