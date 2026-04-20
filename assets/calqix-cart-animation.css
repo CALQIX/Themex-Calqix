@@ -78,45 +78,158 @@
 }
 
 /* ---------------------------------------------------------------
-   Drawer "shiny" entrance
-   Added by JS on cartDrawerOpen, removed after 2s.
-   A soft radial inner-highlight + diagonal sheen sweeps across the
-   drawer surface for the premium first-impression, then fades cleanly.
+   Drawer luxe entrance (2 seconds)
+   Added by JS on cartDrawerOpen, removed after 2s. Five layered
+   effects compose a superior "camera-flash -> aurora -> dual sheen
+   -> edge light -> settle" sequence. No mix-blend-mode (invisible on
+   light drawer bg); we use straight alpha + high-opacity highlights.
    --------------------------------------------------------------- */
+
+/* Make room for the overlay pseudo-elements */
 cart-drawer.calqix-drawer-shiny .wt-cart__drawer,
 cart-drawer.calqix-drawer-shiny .drawer__inner {
   position: relative;
   overflow: hidden;
 }
-cart-drawer.calqix-drawer-shiny .wt-cart__drawer::after,
-cart-drawer.calqix-drawer-shiny .drawer__inner::after {
+
+/* Outer golden halo around the whole drawer silhouette */
+cart-drawer.calqix-drawer-shiny .wt-cart__drawer {
+  animation: calqixDrawerHalo 1800ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+@keyframes calqixDrawerHalo {
+  0%   { box-shadow: 0 0  0px   0 rgba(232, 201, 106, 0.0),  0  0 0 0 rgba(255,255,255,0); }
+  18%  { box-shadow: 0 0 64px   6px rgba(255, 212, 90, 0.75), -12px 0 60px -6px rgba(232,201,106,0.55); }
+  55%  { box-shadow: 0 0 48px   3px rgba(255, 212, 90, 0.45), -8px  0 44px -8px rgba(232,201,106,0.30); }
+  100% { box-shadow: 0 0  0px   0 rgba(255, 212, 90, 0.0),   0   0  0 0 rgba(232,201,106,0.0); }
+}
+
+/* Layer A: camera-flash reveal + top golden aurora spotlight
+   Sits above content; pointer-events: none so clicks pass through. */
+cart-drawer.calqix-drawer-shiny .wt-cart__drawer::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 3;
+  z-index: 4;
   background:
-    radial-gradient(120% 60% at 0% 0%,
-      rgba(255, 220, 130, 0.22) 0%,
-      rgba(255, 220, 130, 0) 55%),
-    linear-gradient(115deg,
+    /* Top aurora spotlight (gold) */
+    radial-gradient(130% 55% at 60% -10%,
+      rgba(255, 220, 130, 0.85) 0%,
+      rgba(255, 200, 90, 0.55) 18%,
+      rgba(255, 200, 90, 0.12) 42%,
+      rgba(255, 220, 130, 0) 70%),
+    /* Ambient warm top-right glow */
+    radial-gradient(80% 45% at 100% 0%,
+      rgba(255, 236, 180, 0.55) 0%,
+      rgba(255, 236, 180, 0) 60%),
+    /* Camera-flash (soft white film) */
+    linear-gradient(180deg,
+      rgba(255, 252, 240, 0.92) 0%,
+      rgba(255, 252, 240, 0.65) 40%,
+      rgba(255, 252, 240, 0.25) 75%,
+      rgba(255, 252, 240, 0) 100%);
+  opacity: 0;
+  animation: calqixDrawerFlash 2000ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+@keyframes calqixDrawerFlash {
+  0%   { opacity: 0;    transform: translateY(-4px); }
+  8%   { opacity: 1;    transform: translateY(0); }
+  22%  { opacity: 0.75; }
+  55%  { opacity: 0.45; }
+  80%  { opacity: 0.18; }
+  100% { opacity: 0;    transform: translateY(0); }
+}
+
+/* Layer B: double diagonal sheen sweep (white + gold offset) */
+cart-drawer.calqix-drawer-shiny .wt-cart__drawer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background:
+    /* Gold-tinted secondary sweep (wider, softer) */
+    linear-gradient(118deg,
+      transparent 0%,
+      transparent 30%,
+      rgba(255, 215, 120, 0.0) 42%,
+      rgba(255, 215, 120, 0.55) 50%,
+      rgba(255, 215, 120, 0.0) 58%,
+      transparent 70%,
+      transparent 100%),
+    /* Primary bright white sweep */
+    linear-gradient(112deg,
       transparent 0%,
       transparent 38%,
-      rgba(255, 255, 255, 0.55) 50%,
+      rgba(255, 255, 255, 0.0) 45%,
+      rgba(255, 255, 255, 0.88) 50%,
+      rgba(255, 255, 255, 0.0) 55%,
       transparent 62%,
       transparent 100%);
-  background-size: 100% 100%, 220% 100%;
-  background-position: 0 0, -120% 0;
+  background-size: 260% 100%, 230% 100%;
+  background-position: -160% 0, -130% 0;
   background-repeat: no-repeat;
   opacity: 0;
-  animation: calqixDrawerShiny 2000ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
-  mix-blend-mode: screen;
+  animation: calqixDrawerSheen 2000ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  filter: blur(0.5px);
 }
-@keyframes calqixDrawerShiny {
-  0%   { opacity: 0;   background-position: 0 0, -120% 0; }
+@keyframes calqixDrawerSheen {
+  0%   { opacity: 0;    background-position: -160% 0, -130% 0; }
+  12%  { opacity: 0.9; }
+  45%  { opacity: 1;    background-position:  170% 0,  140% 0; }
+  75%  { opacity: 0.8;  background-position:  250% 0,  220% 0; }
+  100% { opacity: 0;    background-position:  280% 0,  260% 0; }
+}
+
+/* Layer C: vertical gold edge-light (left side, slides down) */
+cart-drawer.calqix-drawer-shiny .drawer__inner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6;
+  background: linear-gradient(180deg,
+    rgba(255, 224, 140, 0) 0%,
+    rgba(255, 224, 140, 0.95) 50%,
+    rgba(255, 224, 140, 0) 100%);
+  box-shadow:
+    0 0 18px 2px rgba(255, 212, 90, 0.65),
+    0 0 42px 4px rgba(255, 212, 90, 0.35);
+  transform: translateY(-100%);
+  opacity: 0;
+  animation: calqixDrawerEdgeLight 2000ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+@keyframes calqixDrawerEdgeLight {
+  0%   { transform: translateY(-100%); opacity: 0; }
   15%  { opacity: 1; }
-  55%  { opacity: 0.9; background-position: 0 0,  160% 0; }
-  100% { opacity: 0;   background-position: 0 0,  220% 0; }
+  55%  { transform: translateY(40%);   opacity: 1; }
+  85%  { opacity: 0.4; }
+  100% { transform: translateY(100%);  opacity: 0; }
+}
+
+/* Layer D: soft golden inner vignette at the top of the content area */
+cart-drawer.calqix-drawer-shiny .drawer__inner::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 55%;
+  pointer-events: none;
+  z-index: 3;
+  background: radial-gradient(100% 100% at 50% 0%,
+    rgba(255, 212, 90, 0.32) 0%,
+    rgba(255, 212, 90, 0.12) 35%,
+    rgba(255, 212, 90, 0) 70%);
+  opacity: 0;
+  animation: calqixDrawerInnerGlow 2000ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+@keyframes calqixDrawerInnerGlow {
+  0%   { opacity: 0;    transform: scaleY(0.6); transform-origin: top; }
+  15%  { opacity: 1;    transform: scaleY(1); }
+  60%  { opacity: 0.75; }
+  100% { opacity: 0;    transform: scaleY(1); }
 }
 
 /* ---------------------------------------------------------------
@@ -134,10 +247,16 @@ body.calqix-atc-flying cart-drawer .drawer__inner {
 
 @media (prefers-reduced-motion: reduce) {
   #cart-icon-bubble.calqix-cart-glow,
+  #cart-icon-bubble.calqix-cart-glow::before,
+  cart-drawer.calqix-drawer-shiny .wt-cart__drawer,
+  cart-drawer.calqix-drawer-shiny .wt-cart__drawer::before,
   cart-drawer.calqix-drawer-shiny .wt-cart__drawer::after,
+  cart-drawer.calqix-drawer-shiny .drawer__inner::before,
   cart-drawer.calqix-drawer-shiny .drawer__inner::after {
     animation: none !important;
     transition: none !important;
+    box-shadow: none !important;
+    background: none !important;
   }
   body.calqix-atc-flying cart-drawer,
   body.calqix-atc-flying cart-drawer .wt-cart__drawer,
