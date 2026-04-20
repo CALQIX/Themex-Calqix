@@ -85,17 +85,33 @@
   var flavorHandlesCache = null;
   function fetchFlavorHandles(collectionHandle) {
     if (flavorHandlesCache) return Promise.resolve(flavorHandlesCache);
-    return fetch('/collections/' + encodeURIComponent(collectionHandle) + '/products.json?limit=50', {
+
+    var primary = fetch('/collections/' + encodeURIComponent(collectionHandle) + '/products.json?limit=50', {
       credentials: 'same-origin'
     })
       .then(function (r) { return r.json(); })
-      .then(function (j) {
-        flavorHandlesCache = (j.products || []).map(function (p) { return p.handle; });
-        return flavorHandlesCache;
+      .then(function (j) { return ((j && j.products) || []).map(function (p) { return p.handle; }); })
+      .catch(function () { return []; });
+
+    return primary
+      .then(function (handles) {
+        if (handles.length) return handles;
+        // Fallback: search-suggest for 'flowcore', filter accessories
+        return fetch('/search/suggest.json?q=flowcore&resources[type]=product&resources[limit]=20', {
+          credentials: 'same-origin'
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            var hits = (j && j.resources && j.resources.results && j.resources.results.products) || [];
+            return hits
+              .map(function (h) { return (h.handle || '').toLowerCase(); })
+              .filter(function (h) { return h && h.indexOf('pouch') === -1 && h.indexOf('travel') === -1; });
+          })
+          .catch(function () { return []; });
       })
-      .catch(function () {
-        flavorHandlesCache = [];
-        return flavorHandlesCache;
+      .then(function (handles) {
+        flavorHandlesCache = handles;
+        return handles;
       });
   }
 
@@ -326,12 +342,78 @@
     var config = readConfig();
     if (!config || !config.flavorCollection) return Promise.resolve();
 
-    return fetch('/collections/' + encodeURIComponent(config.flavorCollection) + '/products.json?limit=8', {
+    // Primary source: the merchant's configured collection
+    var primary = fetch('/collections/' + encodeURIComponent(config.flavorCollection) + '/products.json?limit=8', {
       credentials: 'same-origin'
     })
       .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var products = (data && data.products) || [];
+      .then(function (data) { return (data && data.products) || []; })
+      .catch(function () { return []; });
+
+    // Fallback source: search-suggest by query (default 'flowcore')
+    // This makes the picker work without any collection setup.
+    var fallbackQuery = config.fallbackQuery || 'flowcore';
+    var fallback = primary.then(function (products) {
+      if (products.length) return products;
+      return fetch(
+        '/search/suggest.json?q=' + encodeURIComponent(fallbackQuery) +
+        '&resources[type]=product&resources[limit]=10',
+        { credentials: 'same-origin' }
+      )
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var hits = (data && data.resources && data.resources.results && data.resources.results.products) || [];
+          // Reshape hits so the rest of the render code works uniformly.
+          return hits
+            .filter(function (h) {
+              var handle = (h.handle || '').toLowerCase();
+              // Exclude accessories that are clearly not flavor SKUs.
+              return handle.indexOf('pouch') === -1 && handle.indexOf('travel') === -1;
+            })
+            .slice(0, 4)
+            .map(function (h) {
+              return {
+                handle: h.handle,
+                title: h.title,
+                images: h.image ? [{ src: h.image }] : [],
+                variants: [{
+                  id: h.variants && h.variants[0] && h.variants[0].id,
+                  price: h.price,
+                  available: h.available !== false
+                }],
+                _priceHtml: h.price_min || h.price
+              };
+            });
+        })
+        .catch(function () { return []; });
+    });
+
+    // If fallback produced variant.id === undefined, enrich with /products/{handle}.js
+    var enriched = fallback.then(function (products) {
+      if (!products.length) return products;
+      var need = products.filter(function (p) {
+        return !p.variants || !p.variants[0] || !p.variants[0].id;
+      });
+      if (!need.length) return products;
+      return Promise.all(need.map(function (p) {
+        return fetch('/products/' + encodeURIComponent(p.handle) + '.js', { credentials: 'same-origin' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (full) {
+            if (!full) return;
+            p.variants = [{
+              id: full.variants[0].id,
+              price: full.variants[0].price,
+              available: full.variants[0].available
+            }];
+            if (full.featured_image) p.images = [{ src: full.featured_image }];
+            if (full.title) p.title = full.title;
+          })
+          .catch(function () {});
+      })).then(function () { return products; });
+    });
+
+    return enriched
+      .then(function (products) {
         if (!products.length) return;
 
         var emptyNote = picker.querySelector('.cq-rk-picker__empty');
