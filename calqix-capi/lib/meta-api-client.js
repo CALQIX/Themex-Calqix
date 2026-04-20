@@ -180,7 +180,9 @@ function normalizeInsightRow(row) {
     return 0;
   }
 
-  var PURCHASE = ['purchase', 'offsite_conversion.fb_pixel_purchase'];
+  // Priority order — findAction returns first match, not sum.
+  // omni_purchase (cross-surface) → pixel/CAPI specific → legacy rollup.
+  var PURCHASE = ['omni_purchase', 'offsite_conversion.fb_pixel_purchase', 'purchase'];
   var ATC = ['offsite_conversion.fb_pixel_add_to_cart'];
   var IC = ['offsite_conversion.fb_pixel_initiate_checkout'];
   var VC = ['offsite_conversion.fb_pixel_view_content'];

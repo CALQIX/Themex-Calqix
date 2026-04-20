@@ -1,7 +1,11 @@
-const { apiGet, authDiagnostics, authAction, AD_ACCOUNT_ID, parseActionValue } = require('../../lib/meta-ads');
+const { apiGet, authDiagnostics, authAction, AD_ACCOUNT_ID, parseActionValue, pickActionValue } = require('../../lib/meta-ads');
 
-var PURCHASE_TYPES = ['purchase', 'offsite_conversion.fb_pixel_purchase'];
+// Priority order — pick first match to avoid double-counting overlapping
+// Meta action rows for the same purchase conversion.
+var PURCHASE_PRIORITY = ['omni_purchase', 'offsite_conversion.fb_pixel_purchase', 'purchase'];
 var ATC_TYPES = ['offsite_conversion.fb_pixel_add_to_cart'];
+// Match Ads Manager UI default attribution.
+var ATTRIBUTION_WINDOWS = ['7d_click', '1d_view'];
 
 async function handler(req, res) {
   if (req.method === 'GET') {
@@ -42,6 +46,7 @@ async function handleEvaluate(req, res) {
   var adInsightsResult = await apiGet(AD_ACCOUNT_ID + '/insights', {
     fields: 'ad_name,ad_id,adset_name,adset_id,impressions,clicks,ctr,spend,frequency,reach,actions,cost_per_action_type,action_values',
     date_preset: 'last_7d',
+    action_attribution_windows: ATTRIBUTION_WINDOWS,
     level: 'ad',
     filtering: [{ field: 'impressions', operator: 'GREATER_THAN', value: '0' }],
     limit: 200
@@ -53,6 +58,7 @@ async function handleEvaluate(req, res) {
   var adsetInsightsResult = await apiGet(AD_ACCOUNT_ID + '/insights', {
     fields: 'adset_name,adset_id,spend,impressions,actions,action_values,cost_per_action_type',
     date_preset: 'last_7d',
+    action_attribution_windows: ATTRIBUTION_WINDOWS,
     level: 'adset',
     filtering: [{ field: 'spend', operator: 'GREATER_THAN', value: '0' }],
     limit: 100
@@ -100,7 +106,8 @@ async function handleEvaluate(req, res) {
     var spend = parseFloat(adset.spend) || 0;
     var purchaseValue = 0;
     if (adset.action_values) {
-      purchaseValue = parseActionValue(adset.action_values, PURCHASE_TYPES);
+      // Priority-pick to avoid double counting.
+      purchaseValue = pickActionValue(adset.action_values, PURCHASE_PRIORITY);
     }
     var roas = spend > 0 ? purchaseValue / spend : 0;
 
@@ -158,7 +165,7 @@ async function handleEvaluate(req, res) {
 
     var insightRow = adsetInsights.find(function (i) { return i.adset_id === adset.id; });
     var actions = insightRow ? insightRow.actions || [] : [];
-    var purchases = parseActionValue(actions, PURCHASE_TYPES);
+    var purchases = pickActionValue(actions, PURCHASE_PRIORITY);
     var atcEvents = parseActionValue(actions, ATC_TYPES);
     var goal = adset.optimization_goal || 'OFFSITE_CONVERSIONS';
 

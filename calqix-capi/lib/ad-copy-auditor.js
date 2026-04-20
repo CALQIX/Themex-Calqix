@@ -66,10 +66,15 @@ async function analyzeWithClaude(ads) {
     var creative = ad.creative || {};
     var insights = ad.insights && ad.insights.data && ad.insights.data[0] ? ad.insights.data[0] : {};
     var actions = insights.actions || [];
+    // Priority-pick (not sum) — Meta returns overlapping purchase rows.
     var purchases = 0;
-    for (var a = 0; a < actions.length; a++) {
-      if (actions[a].action_type === 'purchase' || actions[a].action_type === 'offsite_conversion.fb_pixel_purchase') {
-        purchases += parseInt(actions[a].value) || 0;
+    var PURCHASE_PRIORITY = ['omni_purchase', 'offsite_conversion.fb_pixel_purchase', 'purchase'];
+    for (var p = 0; p < PURCHASE_PRIORITY.length && purchases === 0; p++) {
+      for (var a = 0; a < actions.length; a++) {
+        if (actions[a].action_type === PURCHASE_PRIORITY[p]) {
+          purchases = parseInt(actions[a].value) || 0;
+          break;
+        }
       }
     }
 

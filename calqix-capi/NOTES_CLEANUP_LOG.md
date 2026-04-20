@@ -9,7 +9,7 @@ Branch strategy: v3 proposed `fix/meta-dedup-cleanup`. Reality: the theme and th
 - [x] **10c** `@anthropic-ai/sdk` — verified absent from `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\package.json`. No action required.
 - [x] **10d** Predis callback routes — canonical handler at `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\api\webhook\predis-callback.js`. Plural alias at `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\api\webhooks\predis-callback.js` delegates via `module.exports = require('../webhook/predis-callback')` so either URL works. Commit `45331eb`. Deviation from v3 (which preferred plural as canonical): the existing code, docs, and bootstrap references all point to the singular path, so flipping the canonical direction would have been churn with zero functional benefit.
 - [x] **10e** Schedule reconciliation — see "Schedule reconciliation decision" below.
-- [x] **10f** Meta CAPI role — documented in `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\META_CAPI_ROLE.md`. Commit `ba3ce5d`. Scenario A (calqix-capi IS the canonical server-side CAPI source). The v3 prompt's recommendation to "migrate calqix-capi CAPI calls to GTM server container or remove them" is obsolete because the GTM server container at `sst.calqix.com` (TAGGRS) was removed in a prior overhaul.
+- [x] **10f** Meta CAPI role — documented in `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\META_CAPI_ROLE.md`. Commit `ba3ce5d`. Scenario A (calqix-capi IS the canonical server-side CAPI source). The v3 prompt's recommendation to "migrate calqix-capi CAPI calls to GTM server container or remove them" is obsolete — server-side GTM was never activated and the option is fully removed from the repo.
 
 ## Schedule reconciliation decision (10e)
 
@@ -49,4 +49,4 @@ If the live schedule does not match the 9x/day code, run `npm run schedule:creat
 - `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\META_CAPI_ROLE.md` — canonical server-side CAPI statement.
 - `@c:\Users\Gebruiker\Desktop\CALQIX Repo\META_AUDIT_REPORT.md` — dedup baseline + success criteria.
 - `@c:\Users\Gebruiker\Desktop\CALQIX Repo\NOTES_ADMIN_TODO.md` — admin actions required to complete the dedup fix.
-- `@c:\Users\Gebruiker\Desktop\CALQIX Repo\PREFLIGHT_REPORT.md` — v3 prompt corrections (TAGGRS absent, schedule cadence mismatch, duplicate route pattern).
+- `@c:\Users\Gebruiker\Desktop\CALQIX Repo\PREFLIGHT_REPORT.md` — v3 prompt corrections (schedule cadence mismatch, duplicate route pattern).

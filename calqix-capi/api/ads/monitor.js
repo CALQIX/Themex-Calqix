@@ -19,7 +19,7 @@
  *   8. Return structured response
  */
 var { sendTelegram } = require('../../lib/telegram');
-var { apiGet, apiPost, AD_ACCOUNT_ID, parseActionValue } = require('../../lib/meta-ads');
+var { apiGet, apiPost, AD_ACCOUNT_ID, parseActionValue, pickActionValue } = require('../../lib/meta-ads');
 var insights = require('../../lib/meta-insights-source');
 var store = require('../../lib/store');
 var { authenticate, getRawBody } = require('../../lib/qstash-verify');
@@ -30,6 +30,7 @@ var crypto = require('crypto');
 var adCopyAuditor = require('../../lib/ad-copy-auditor');
 
 var PURCHASE_TYPES = insights.PURCHASE_TYPES;
+var PURCHASE_PRIORITY = insights.PURCHASE_PRIORITY;
 var ATC_TYPES = insights.ATC_TYPES;
 var IC_TYPES = insights.IC_TYPES;
 var VC_TYPES = insights.VC_TYPES;
@@ -455,7 +456,9 @@ async function runMonitor(now) {
     var adCpc = parseFloat(ad.cpc) || 0;
     var actions = ad.actions || [];
     var adAtc = parseActionValue(actions, ATC_TYPES);
-    var adPurchases = parseActionValue(actions, PURCHASE_TYPES);
+    // Use priority-pick: Meta returns overlapping purchase rows (purchase +
+    // offsite_conversion.fb_pixel_purchase); summing them double-counts.
+    var adPurchases = pickActionValue(actions, PURCHASE_PRIORITY);
     return {
       name: (ad.ad_name || '').substring(0, 25),
       spend: adSpend,
@@ -600,8 +603,8 @@ async function formatPulseMessage(now, snap) {
     });
     var best = sorted[0];
     var worst = sorted[sorted.length - 1];
-    var bestPurch = parseActionValue(best.actions || [], PURCHASE_TYPES);
-    var worstPurch = parseActionValue(worst.actions || [], PURCHASE_TYPES);
+    var bestPurch = pickActionValue(best.actions || [], PURCHASE_PRIORITY);
+    var worstPurch = pickActionValue(worst.actions || [], PURCHASE_PRIORITY);
     lines.push('');
     lines.push('Best: "' + truncateName(best.ad_name, 30) + '" CTR ' + (parseFloat(best.ctr) || 0).toFixed(2) + '%, ' + bestPurch + ' purch');
     if (worst.ad_id !== best.ad_id) {

@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 /*
- * Pixel source verification after Option A cleanup.
+ * Pixel source verification after AddToCart dedup cleanup.
  *
  * After the admin has:
  *   1) Set Shopify F&I Data sharing to Conservative
- *   2) Disconnected TAGGRS SST Custom Pixel
- *   3) Paused Meta Pixel AddToCart tag in GTM-T86BFXXW
+ *   2) Paused Meta Pixel AddToCart tag in GTM web container GTM-T86BFXXW
  *
  * this script confirms that `assets/calqix-meta-bridge.js` is now the SOLE
  * AddToCart source reaching Meta from our stack, by reading:

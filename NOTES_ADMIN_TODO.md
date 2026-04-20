@@ -253,7 +253,7 @@ Rollback: set `KLAVIYO_ENABLED=false` in Vercel env. All Klaviyo calls short-cir
 
 # Task 12 admin actions — AddToCart dedup cleanup (Option A)
 
-Reference: ATC tracking audit, 2026-04-19. Root cause confirmed: **4 independent AddToCart event pipelines** (bridge, Shopify F&I Enhanced, Taggrs SST pixel, GTM web Meta tag) each fire with their own event_id format. Meta can only dedup WITHIN one stack, so event_id coverage sits at ~50%.
+Reference: ATC tracking audit, 2026-04-19. Root cause confirmed: **independent AddToCart event pipelines** (bridge, Shopify F&I Enhanced, GTM web Meta tag) each fire with their own event_id format. Meta can only dedup WITHIN one stack, so event_id coverage sits at ~50%.
 
 Decision: keep our `calqix-capi` bridge as sole source. Disable all others.
 
@@ -265,7 +265,7 @@ Verification code already in repo:
 ## Operator steps (execute in order)
 
 - [ ] **A1 — Shopify F&I Data sharing → Conservative**. Shopify Admin → Sales channels → Facebook & Instagram → Settings → "Manage Facebook & Instagram data sharing preference" (image 3) → click "Change" under the current **Enhanced** box → select **Conservative** → Save. This stops Shopify from loading Meta Pixel and sending its own CAPI events. Confirmed per Shopify docs: Conservative = shop-linking only, no customer activity data.
-- [ ] **A2 — Disconnect Taggrs SST Custom Pixel**. Shopify Admin → Settings → Customer events → click ⋯ next to **TAGGRS SST Pixel** → Disconnect → confirm → optionally Remove. This stops the second browser + server pipeline that was firing AddToCart with Taggrs-internal event_ids. (The Taggrs server container `Taggrs/GTM-PFPBDML6_server.json:2015` contains a `{{**Fill in** - constant - META Pixel ID}}` placeholder, which is a secondary sign their setup was never completed.)
+- [x] **A2 — TAGGRS SST Pixel**. Not active. TAGGRS was evaluated but never activated; its archived container JSONs and migration folder have been removed from the repo. If the Shopify Admin → Settings → Customer events list still shows any TAGGRS-labelled Custom Pixel entry, disconnect it once for housekeeping.
 - [ ] **A3 — Pause Meta Pixel AddToCart tag in GTM**. Open GTM workspace `GTM-T86BFXXW` → Tags → filter by "Meta" or "Facebook" or "Pixel" → any tag of type "Facebook Pixel" or "Meta Pixel" with an `AddToCart` / `add_to_cart` trigger → set status to **Paused** → submit + publish the container. Keep GA4/Ads/Consent tags active. Our bridge handles AddToCart; GTM should not fire a second browser event.
 - [x] **A4 — Update the CALQIX Windsurf Integration app for Markets** — DONE 2026-04-19. App re-installed in Shopify with expanded scopes (incl. `write_markets`, `write_markets_home`, `write_marketing_events`, `customer_read_markets`). New Admin API access token minted via OAuth `client_credentials` grant against `https://calqix.myshopify.com/admin/oauth/access_token` using `SHOPIFY_API_KEY` + `SHOPIFY_API_SECRET`. Token rotated in Vercel env (production + development). Local `calqix-capi/.env` and `.env.local` updated. Production redeployed via commit `e09c40c`. `npm run check:shopify` = ALL CHECKS PASSED (6 markets, 8 locales, 8 required scopes granted). Preview env intentionally skipped (not used by runtime). Unblocks `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\scripts\markets-setup.js` and `@c:\Users\Gebruiker\Desktop\CALQIX Repo\scripts\register-store-translations.js`.
 
@@ -295,4 +295,4 @@ After 24 hours, open Meta Events Manager → Manage events → AddToCart → **D
 
 Run `npm run check:atc --events=100` and paste the output. The `source=` field per row reveals whether non-bridge events are still reaching our CAPI (unlikely — only the bridge calls `/api/add-to-cart`), OR whether Meta is still seeing events from a pipeline we missed. If the CALQIX Meta CAPI Custom Pixel (which does NOT handle ATC) somehow starts logging ATC events, the source field will flag it.
 
-Rollback: there is nothing to roll back on our side — the cleanup is 100% admin-side. To restore Taggrs or F&I Enhanced, re-enable in Shopify Admin.
+Rollback: there is nothing to roll back on our side — the cleanup is 100% admin-side. To restore F&I Enhanced, re-enable in Shopify Admin.
