@@ -1,0 +1,603 @@
+{%- comment -%}
+  CALQIX Rebuild Kit Hero (Phase B — task-B1)
+  ----------------------------------------------
+  Two-column hero. Left: clinical headline + trust + protocol bullets.
+  Right: bundle card with FlowCore + OralBiome Pro, bundle price,
+  subscription savings, and a single ATC button that posts both line
+  items in one /cart/add call.
+
+  Design constraints honored:
+  - Additive. Does not touch FlowCore banner, templates/index.json,
+    or any existing section schema id.
+  - Tracking-safe. Shopify's /carts/create webhook fires once per cart
+    with all line items in `line_items`; server-side CAPI emits a single
+    AddToCart with both SKUs in `contents[]` and event_id = `cart_{id}`.
+  - ATC flow reuses Wonder's cart-drawer: calls `cartDrawer.renderContents`
+    which auto-opens + animates counter + triggers flying-tooth subscriber.
+  - Recharge-aware: subscription savings read from selling_plan_groups,
+    with a section setting override for display-only override.
+  - All copy via translation filter under `homepage_sections.rebuild_kit.*`.
+{%- endcomment -%}
+
+{%- if section.settings.disable_on_homepage -%}
+  {%- if request.design_mode -%}
+    <div style="padding:20px;background:#F7F4EC;color:#1A3B5C;border:1px dashed #C9A84C;text-align:center;font-family:'DM Sans',sans-serif;">
+      Rebuild Kit hero is uitgeschakeld via de section toggle.
+    </div>
+  {%- endif -%}
+{%- else -%}
+
+{%- liquid
+  assign product_a = section.settings.product_a
+  assign product_b = section.settings.product_b
+  assign variant_a = product_a.selected_or_first_available_variant
+  assign variant_b = product_b.selected_or_first_available_variant
+
+  assign price_a = variant_a.price | default: 0
+  assign price_b = variant_b.price | default: 0
+  assign regular_total = price_a | plus: price_b
+  assign bundle_discount_pct = section.settings.bundle_discount_pct | default: 25
+  assign bundle_discount_amt = regular_total | times: bundle_discount_pct | divided_by: 100
+  assign bundle_price = regular_total | minus: bundle_discount_amt
+
+  assign sub_discount_pct = section.settings.subscription_discount_pct | default: 20
+  assign has_selling_plan_a = false
+  if product_a.selling_plan_groups.size > 0
+    assign has_selling_plan_a = true
+    assign sp_a = product_a.selling_plan_groups[0].selling_plans[0]
+    assign adj_a = sp_a.price_adjustments[0]
+    if adj_a.value_type == 'percentage'
+      assign sub_discount_pct = adj_a.value
+    endif
+  endif
+
+  assign bg_color = section.settings.background_color | default: '#F7F4EC'
+  assign accent_color = section.settings.accent_color | default: '#C9A84C'
+  assign navy = '#1A3B5C'
+-%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  #cq-rk-{{ section.id }} {
+    --navy: {{ navy }};
+    --cream: {{ bg_color }};
+    --gold: {{ accent_color }};
+    --text: #1A3B5C;
+    --muted: #5A6B7E;
+    position: relative;
+    background: var(--cream);
+    color: var(--text);
+    font-family: 'DM Sans', Arial, sans-serif;
+    overflow: hidden;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 72px 48px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+  @media (max-width: 960px) {
+    #cq-rk-{{ section.id }} .cq-rk__inner {
+      grid-template-columns: 1fr;
+      padding: 48px 24px;
+      gap: 40px;
+    }
+  }
+  #cq-rk-{{ section.id }} .cq-rk__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(26, 59, 92, 0.55);
+    margin-bottom: 22px;
+    font-weight: 500;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--gold);
+  }
+  #cq-rk-{{ section.id }} .cq-rk__title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: clamp(36px, 5.4vw, 64px);
+    line-height: 1.05;
+    color: var(--navy);
+    margin: 0 0 14px;
+    font-weight: 400;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+  #cq-rk-{{ section.id }} .cq-rk__sub {
+    font-size: 16px;
+    line-height: 1.62;
+    color: var(--muted);
+    margin: 0 0 32px;
+    max-width: 520px;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__proof {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px 28px;
+    margin-top: 28px;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__proof__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__proof__item svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    color: var(--gold);
+  }
+
+  /* Bundle card (right column) */
+  #cq-rk-{{ section.id }} .cq-rk__card {
+    background: #FFFFFF;
+    border: 1px solid rgba(26, 59, 92, 0.08);
+    border-radius: 14px;
+    padding: 32px;
+    box-shadow: 0 16px 48px rgba(26, 59, 92, 0.08);
+    position: relative;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__card__badge {
+    position: absolute;
+    top: -14px;
+    right: 28px;
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 30px;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__card__heading {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 22px;
+    color: var(--navy);
+    margin: 0 0 8px;
+    font-weight: 400;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__card__meta {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 24px;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__items {
+    border-top: 1px solid rgba(26, 59, 92, 0.1);
+    border-bottom: 1px solid rgba(26, 59, 92, 0.1);
+    padding: 18px 0;
+    margin-bottom: 20px;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__items__row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__items__thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: var(--cream);
+    object-fit: cover;
+    flex: 0 0 48px;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__items__title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  #cq-rk-{{ section.id }} .cq-rk__items__sub {
+    font-size: 12px;
+    color: var(--muted);
+    display: block;
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__items__price {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  #cq-rk-{{ section.id }} .cq-rk__price {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__price__current {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 34px;
+    color: var(--navy);
+    font-weight: 400;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__price__compare {
+    font-size: 15px;
+    color: rgba(26, 59, 92, 0.45);
+    text-decoration: line-through;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__price__save {
+    font-size: 12px;
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__cta {
+    display: block;
+    width: 100%;
+    background: var(--navy);
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    border: none;
+    border-radius: 8px;
+    padding: 16px 24px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__cta:hover:not([disabled]) {
+    background: #0F2B47;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(26, 59, 92, 0.2);
+  }
+  #cq-rk-{{ section.id }} .cq-rk__cta[aria-busy="true"] {
+    opacity: 0.75;
+    cursor: wait;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__cta-sub {
+    display: block;
+    width: 100%;
+    background: transparent;
+    color: var(--navy);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 12px;
+    margin-top: 10px;
+    border: 1px solid rgba(26, 59, 92, 0.15);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__cta-sub:hover:not([disabled]) {
+    background: rgba(201, 168, 76, 0.08);
+    border-color: var(--gold);
+  }
+  #cq-rk-{{ section.id }} .cq-rk__error {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #B93A3A;
+    display: none;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__error[data-visible="true"] {
+    display: block;
+  }
+</style>
+
+<section id="cq-rk-{{ section.id }}" class="cq-rk" aria-labelledby="cq-rk-title-{{ section.id }}">
+  <div class="cq-rk__inner">
+    <div class="cq-rk__content">
+      <div class="cq-rk__eyebrow">{{ 'homepage_sections.rebuild_kit.eyebrow' | t }}</div>
+
+      <h2 id="cq-rk-title-{{ section.id }}" class="cq-rk__title">
+        {{ 'homepage_sections.rebuild_kit.heading_line_1' | t }}<br>
+        <em>{{ 'homepage_sections.rebuild_kit.heading_line_2' | t }}</em>
+      </h2>
+
+      <p class="cq-rk__sub">
+        {{ 'homepage_sections.rebuild_kit.subheading' | t }}
+      </p>
+
+      {%- capture cq_rk_check -%}
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M3 8.5L6 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      {%- endcapture -%}
+      <div class="cq-rk__proof">
+        <div class="cq-rk__proof__item">
+          {{ cq_rk_check }}
+          <span>{{ 'homepage_sections.rebuild_kit.trust_shipping' | t }}</span>
+        </div>
+        <div class="cq-rk__proof__item">
+          {{ cq_rk_check }}
+          <span>{{ 'homepage_sections.rebuild_kit.trust_returns' | t }}</span>
+        </div>
+        <div class="cq-rk__proof__item">
+          {{ cq_rk_check }}
+          <span>{{ 'homepage_sections.rebuild_kit.trust_cancel' | t }}</span>
+        </div>
+      </div>
+    </div>
+
+    <aside class="cq-rk__card" aria-label="{{ 'homepage_sections.rebuild_kit.bundle_title' | t }}">
+      <div class="cq-rk__card__badge">
+        {{ 'homepage_sections.rebuild_kit.save_badge' | t: percent: bundle_discount_pct }}
+      </div>
+
+      <h3 class="cq-rk__card__heading">{{ 'homepage_sections.rebuild_kit.bundle_title' | t }}</h3>
+      <p class="cq-rk__card__meta">{{ 'homepage_sections.rebuild_kit.bundle_meta' | t }}</p>
+
+      <div class="cq-rk__items">
+        {%- if product_a != blank -%}
+          <div class="cq-rk__items__row">
+            {%- if product_a.featured_image -%}
+              <img class="cq-rk__items__thumb"
+                   src="{{ product_a.featured_image | image_url: width: 96 }}"
+                   alt="{{ product_a.title | escape }}"
+                   width="48" height="48" loading="lazy">
+            {%- else -%}
+              <div class="cq-rk__items__thumb" aria-hidden="true"></div>
+            {%- endif -%}
+            <div class="cq-rk__items__title">
+              {{ product_a.title }}
+              <span class="cq-rk__items__sub">{{ 'homepage_sections.rebuild_kit.step_1' | t }}</span>
+            </div>
+            <div class="cq-rk__items__price">{{ price_a | money }}</div>
+          </div>
+        {%- endif -%}
+
+        {%- if product_b != blank -%}
+          <div class="cq-rk__items__row">
+            {%- if product_b.featured_image -%}
+              <img class="cq-rk__items__thumb"
+                   src="{{ product_b.featured_image | image_url: width: 96 }}"
+                   alt="{{ product_b.title | escape }}"
+                   width="48" height="48" loading="lazy">
+            {%- else -%}
+              <div class="cq-rk__items__thumb" aria-hidden="true"></div>
+            {%- endif -%}
+            <div class="cq-rk__items__title">
+              {{ product_b.title }}
+              <span class="cq-rk__items__sub">{{ 'homepage_sections.rebuild_kit.step_2' | t }}</span>
+            </div>
+            <div class="cq-rk__items__price">{{ price_b | money }}</div>
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="cq-rk__price">
+        <span class="cq-rk__price__current">{{ bundle_price | money }}</span>
+        <span class="cq-rk__price__compare">{{ regular_total | money }}</span>
+      </div>
+      <div class="cq-rk__price__save">
+        {{ 'homepage_sections.rebuild_kit.you_save' | t: amount: bundle_discount_amt | money }}
+      </div>
+
+      <button type="button"
+              class="cq-rk__cta"
+              data-cq-rk-atc
+              data-variant-a="{{ variant_a.id }}"
+              data-variant-b="{{ variant_b.id }}"
+              data-selling-plan="{{ sp_a.id | default: '' }}"
+              aria-label="{{ 'homepage_sections.rebuild_kit.cta_primary' | t }}">
+        {{ 'homepage_sections.rebuild_kit.cta_primary' | t }}
+      </button>
+
+      {%- if has_selling_plan_a -%}
+        <button type="button"
+                class="cq-rk__cta-sub"
+                data-cq-rk-atc
+                data-variant-a="{{ variant_a.id }}"
+                data-variant-b="{{ variant_b.id }}"
+                data-selling-plan="{{ sp_a.id }}"
+                aria-label="{{ 'homepage_sections.rebuild_kit.cta_subscribe' | t: percent: sub_discount_pct }}">
+          {{ 'homepage_sections.rebuild_kit.cta_subscribe' | t: percent: sub_discount_pct }}
+        </button>
+      {%- endif -%}
+
+      <div class="cq-rk__error" data-cq-rk-error role="alert"></div>
+    </aside>
+  </div>
+</section>
+
+<script>
+(function() {
+  'use strict';
+  var root = document.getElementById('cq-rk-{{ section.id }}');
+  if (!root) return;
+
+  var buttons = root.querySelectorAll('[data-cq-rk-atc]');
+  var errEl = root.querySelector('[data-cq-rk-error]');
+
+  function showError(msg) {
+    if (!errEl) return;
+    errEl.textContent = msg;
+    errEl.setAttribute('data-visible', 'true');
+    setTimeout(function() { errEl.removeAttribute('data-visible'); }, 6000);
+  }
+
+  function buildItems(variantA, variantB, sellingPlan) {
+    var a = { id: Number(variantA), quantity: 1 };
+    var b = { id: Number(variantB), quantity: 1 };
+    if (sellingPlan) {
+      a.selling_plan = Number(sellingPlan);
+    }
+    return [a, b];
+  }
+
+  function onClick(btn) {
+    return function(e) {
+      e.preventDefault();
+      if (btn.getAttribute('aria-busy') === 'true') return;
+
+      var variantA = btn.getAttribute('data-variant-a');
+      var variantB = btn.getAttribute('data-variant-b');
+      var sellingPlan = btn.getAttribute('data-selling-plan');
+      if (!variantA || !variantB) {
+        showError('{{ "homepage_sections.rebuild_kit.error_config" | t }}');
+        return;
+      }
+
+      btn.setAttribute('aria-busy', 'true');
+
+      var cartDrawer = document.querySelector('cart-drawer');
+      var sectionsList = [];
+      if (cartDrawer && typeof cartDrawer.getSectionsToRender === 'function') {
+        sectionsList = cartDrawer.getSectionsToRender().map(function(s) { return s.id; });
+      }
+
+      var body = {
+        items: buildItems(variantA, variantB, sellingPlan),
+      };
+      if (sectionsList.length) {
+        body.sections = sectionsList.join(',');
+        body.sections_url = window.location.pathname;
+      }
+
+      fetch((window.routes && window.routes.cart_add_url) || '/cart/add.js', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/javascript',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify(body),
+      })
+        .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
+        .then(function(r) {
+          if (!r.ok) {
+            showError(r.data.description || r.data.message || '{{ "homepage_sections.rebuild_kit.error_generic" | t }}');
+            return;
+          }
+          // Publish Wonder's cart update event so flying-tooth + other subscribers react.
+          if (typeof publish === 'function' && typeof PUB_SUB_EVENTS === 'object') {
+            publish(PUB_SUB_EVENTS.cartUpdate, {
+              source: 'calqix-rebuild-kit-hero',
+              productVariantId: variantA,
+              cartData: r.data,
+            });
+          }
+          // Let Wonder's cart-drawer render and auto-open.
+          if (cartDrawer && typeof cartDrawer.renderContents === 'function' && r.data.sections) {
+            cartDrawer.renderContents(r.data, true);
+          } else {
+            // Fallback: trigger a refresh via the custom event Wonder listens to.
+            document.dispatchEvent(new CustomEvent('cart-drawer:refresh', {
+              detail: { response: r.data },
+              bubbles: true,
+              composed: true,
+            }));
+          }
+        })
+        .catch(function(err) {
+          console.error('[calqix-rebuild-kit]', err);
+          showError('{{ "homepage_sections.rebuild_kit.error_network" | t }}');
+        })
+        .finally(function() {
+          btn.removeAttribute('aria-busy');
+        });
+    };
+  }
+
+  for (var i = 0; i < buttons.length; i++) {
+    buttons[i].addEventListener('click', onClick(buttons[i]));
+  }
+})();
+</script>
+
+{%- endif -%}{%- comment -%} end disable_on_homepage branch {%- endcomment -%}
+
+{% schema %}
+{
+  "name": "Rebuild Kit Hero",
+  "tag": "section",
+  "class": "calqix-rebuild-kit-hero",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Zichtbaarheid"
+    },
+    {
+      "type": "checkbox",
+      "id": "disable_on_homepage",
+      "label": "Section uitschakelen",
+      "default": false,
+      "info": "Wanneer aangevinkt, rendert deze section niets op de live site. Configuratie blijft bewaard."
+    },
+    {
+      "type": "header",
+      "content": "Producten"
+    },
+    {
+      "type": "product",
+      "id": "product_a",
+      "label": "Stap 1 (FlowCore)",
+      "info": "Standaard FlowCore waterflosser, welke variant dan ook."
+    },
+    {
+      "type": "product",
+      "id": "product_b",
+      "label": "Stap 2 (OralBiome Pro)",
+      "info": "Standaard OralBiome Pro smaak (bijvoorbeeld Freshmint)."
+    },
+    {
+      "type": "header",
+      "content": "Kortingen"
+    },
+    {
+      "type": "range",
+      "id": "bundle_discount_pct",
+      "label": "Bundle korting %",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 25,
+      "info": "Getoond als `−X%` badge en gebruikt voor de price strike-through berekening."
+    },
+    {
+      "type": "range",
+      "id": "subscription_discount_pct",
+      "label": "Abonnement korting % (fallback)",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 20,
+      "info": "Alleen gebruikt als het product geen Recharge selling plan heeft. Anders wordt de korting uit Recharge gelezen."
+    },
+    {
+      "type": "header",
+      "content": "Styling"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Achtergrond",
+      "default": "#F7F4EC"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent (goud)",
+      "default": "#C9A84C"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Rebuild Kit Hero",
+      "category": "CALQIX"
+    }
+  ]
+}
+{% endschema %}
