@@ -298,9 +298,144 @@
 
   // -- Event wiring -----------------------------------------------------
 
+  // Portal the picker element out of the cart drawer so its
+  // position:fixed escapes any ancestor with `contain: layout` /
+  // `transform` (the CALQIX cart drawer sets both). Without this,
+  // the modal would be clipped/positioned relative to the drawer.
+  function portalPicker() {
+    var picker = document.querySelector('[data-cq-rk-picker]');
+    if (!picker) return;
+    if (picker.parentElement === document.body) return;
+    if (picker.getAttribute('data-cq-rk-portaled') === '1') return;
+    document.body.appendChild(picker);
+    picker.setAttribute('data-cq-rk-portaled', '1');
+  }
+
+  // When the merchant has not set a FlowCore collection via theme
+  // settings, the Liquid-rendered grid is empty. Fall back to a
+  // runtime fetch of /collections/flowcore/products.json so the
+  // feature still works out-of-the-box on new installs.
+  function ensurePickerHasCards() {
+    var picker = document.querySelector('[data-cq-rk-picker]');
+    if (!picker) return Promise.resolve();
+    var existingGrid = picker.querySelector('.cq-rk-picker__grid');
+    if (existingGrid && existingGrid.children && existingGrid.children.length > 0) {
+      return Promise.resolve();
+    }
+
+    var config = readConfig();
+    if (!config || !config.flavorCollection) return Promise.resolve();
+
+    return fetch('/collections/' + encodeURIComponent(config.flavorCollection) + '/products.json?limit=8', {
+      credentials: 'same-origin'
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var products = (data && data.products) || [];
+        if (!products.length) return;
+
+        var emptyNote = picker.querySelector('.cq-rk-picker__empty');
+        if (emptyNote) emptyNote.remove();
+
+        var grid = document.createElement('ul');
+        grid.className = 'cq-rk-picker__grid';
+        grid.setAttribute('role', 'list');
+
+        products.forEach(function (p, i) {
+          var variant = (p.variants && p.variants[0]) || {};
+          var available = variant.available !== false;
+          var price = typeof variant.price === 'string' ? variant.price : (variant.price / 100).toFixed(2);
+          var img = (p.images && p.images[0] && p.images[0].src) || '';
+
+          var li = document.createElement('li');
+          li.className = 'cq-rk-picker__card';
+          li.style.setProperty('--cq-rk-card-delay', (i * 70) + 'ms');
+
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'cq-rk-picker__card-btn';
+          btn.setAttribute('data-cq-rk-add', '');
+          btn.setAttribute('data-variant-id', variant.id || '');
+          btn.setAttribute('data-product-title', p.title || '');
+          btn.setAttribute('data-product-image', img);
+          if (!available) {
+            btn.disabled = true;
+            btn.setAttribute('aria-disabled', 'true');
+          }
+
+          var media = document.createElement('span');
+          media.className = 'cq-rk-picker__card-media';
+          media.setAttribute('aria-hidden', 'true');
+          if (img) {
+            var imgEl = document.createElement('img');
+            imgEl.src = img;
+            imgEl.loading = 'lazy';
+            imgEl.width = 160; imgEl.height = 160;
+            imgEl.alt = p.title || '';
+            media.appendChild(imgEl);
+          } else {
+            var ph = document.createElement('span');
+            ph.className = 'cq-rk-picker__card-placeholder';
+            media.appendChild(ph);
+          }
+          var shine = document.createElement('span');
+          shine.className = 'cq-rk-picker__card-shine';
+          media.appendChild(shine);
+
+          var info = document.createElement('span');
+          info.className = 'cq-rk-picker__card-info';
+          info.innerHTML =
+            '<span class="cq-rk-picker__card-title"></span>' +
+            '<span class="cq-rk-picker__card-price"></span>';
+          info.querySelector('.cq-rk-picker__card-title').textContent = p.title || '';
+          var priceText = '€' + (typeof price === 'string' ? price : String(price));
+          try { priceText = new Intl.NumberFormat(document.documentElement.lang || 'en-EU', { style: 'currency', currency: 'EUR' }).format(parseFloat(price)); } catch (e) {}
+          info.querySelector('.cq-rk-picker__card-price').textContent = priceText;
+
+          var cta = document.createElement('span');
+          cta.className = 'cq-rk-picker__card-cta';
+          cta.innerHTML =
+            '<span class="cq-rk-picker__card-cta-text">Add to Kit</span>' +
+            '<span class="cq-rk-picker__card-cta-arrow" aria-hidden="true">' +
+            '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+            '<path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '</svg></span>';
+
+          btn.appendChild(media);
+          btn.appendChild(info);
+          btn.appendChild(cta);
+          li.appendChild(btn);
+          grid.appendChild(li);
+        });
+
+        // Insert grid before footer
+        var footer = picker.querySelector('.cq-rk-picker__footer');
+        if (footer) {
+          footer.parentNode.insertBefore(grid, footer);
+        } else {
+          picker.querySelector('.cq-rk-picker__dialog').appendChild(grid);
+        }
+      })
+      .catch(function () {});
+  }
+
   function init() {
     var config = readConfig();
     if (!config || !config.enable) return;
+
+    portalPicker();
+    ensurePickerHasCards();
+
+    // Re-portal + ensure cards if the cart drawer re-renders and
+    // wipes/replaces our picker element.
+    var reportalTimer;
+    document.addEventListener('cart:refresh', function () {
+      clearTimeout(reportalTimer);
+      reportalTimer = setTimeout(function () {
+        portalPicker();
+        ensurePickerHasCards();
+      }, 120);
+    }, false);
 
     // Open picker on banner click
     document.addEventListener('click', function (e) {
