@@ -235,6 +235,10 @@
     }
   },
   "templates": {
+    "404": {
+      "title": "Stranica nije pronađena",
+      "subtext": "404"
+    },
     "search": {
       "no_results": "Nije pronađen nijedan rezultat za „{{ terms }}”. Provjerite pravopis ili upotrijebite drugu riječ ili izraz.",
       "title": "Rezultati pretraživanja",
@@ -273,10 +277,6 @@
         "error_heading": "Prilagodite sljedeće:",
         "title": "Kontakt obrazac"
       }
-    },
-    "404": {
-      "title": "Stranica nije pronađena",
-      "subtext": "404"
     }
   },
   "sections": {
@@ -605,5 +605,61 @@
   },
   "cross_sell": {
     "empty_msg": "Nema dostupnih proizvoda za prikaz. Ovaj blok neće biti vidljiv kupcima na web trgovini."
+  },
+  "homepage_sections": {
+    "rebuild_kit": {
+      "eyebrow": "The Rebuild Kit. Two-step protocol.",
+      "heading_line_1": "Deep-clean.",
+      "heading_line_2": "Then rebuild.",
+      "subheading": "The complete enamel protocol. FlowCore removes what blocks remineralisation. OralBiome Pro rebuilds the surface with nano-hydroxyapatite. Peer-reviewed science, in one routine.",
+      "trust_shipping": "Free shipping",
+      "trust_returns": "30-day returns",
+      "trust_cancel": "Cancel anytime",
+      "bundle_title": "Your two-step enamel protocol",
+      "bundle_meta": "Includes FlowCore + OralBiome Pro.",
+      "save_badge": "Save {{ percent }}%",
+      "step_1": "Step 1. Deep-clean.",
+      "step_2": "Step 2. Rebuild.",
+      "you_save": "You save {{ amount }}",
+      "cta_primary": "Add Rebuild Kit to cart",
+      "cta_subscribe": "Subscribe and save {{ percent }}% more",
+      "error_config": "Bundle not configured. Please pick two products in Theme Editor.",
+      "error_generic": "We could not add the Rebuild Kit. Please try again.",
+      "error_network": "Network error. Please check your connection and retry."
+    },
+    "flavor_banner": {
+      "eyebrow": "OralBiome Pro. Five clinical flavors.",
+      "heading_line_1": "One formula.",
+      "heading_line_2_prefix": "",
+      "heading_line_2_accent": "Five",
+      "heading_line_2_suffix": "experiences.",
+      "subheading": "Nano-hydroxyapatite lozenges with clinically studied probiotic strains. Every flavor delivers the same active ingredients. Pick the taste that keeps you consistent.",
+      "cta_primary": "Add to cart",
+      "cta_subscribe": "Subscribe",
+      "save_badge": "Save {{ percent }}%",
+      "error_generic": "We could not add this flavor. Please try again.",
+      "flavors": {
+        "freshmint": {
+          "name": "Fresh Mint",
+          "description": "Cool, crisp, classic. The familiar clean that works for every routine."
+        },
+        "grape": {
+          "name": "Grape",
+          "description": "Soft, round, lightly sweet. Evening-friendly without any sugar."
+        },
+        "peach": {
+          "name": "Peach",
+          "description": "Warm stone-fruit notes. Balanced, comforting, rarely found in oral care."
+        },
+        "citrus_orange": {
+          "name": "Citrus Orange",
+          "description": "Bright zest with a clean finish. Morning routine, lifted."
+        },
+        "cool_mint": {
+          "name": "Cool Mint",
+          "description": "Ice-clear menthol. Deeper cooling for the post-meal reset."
+        }
+      }
+    }
   }
 }
