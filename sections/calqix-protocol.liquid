@@ -23,6 +23,10 @@
   assign accent_color = section.settings.accent_color | default: '#C9A84C'
   assign card_bg = section.settings.card_bg | default: '#133357'
   assign card_border = section.settings.card_border | default: '#1E4773'
+  assign visual_bg = section.settings.visual_bg | default: '#1C4577'
+  assign visual_bg_2 = section.settings.visual_bg_2 | default: '#0F2B47'
+  assign anim_accent = section.settings.anim_accent | default: '#FFD45A'
+  assign anim_accent_2 = section.settings.anim_accent_2 | default: '#F5A623'
 -%}
 
 <section id="cqp-{{ section.id }}" class="cqp" aria-labelledby="cqp-title-{{ section.id }}">
@@ -34,6 +38,10 @@
       --cqp-accent: {{ accent_color }};
       --cqp-card: {{ card_bg }};
       --cqp-border: {{ card_border }};
+      --cqp-visual-bg: {{ visual_bg }};
+      --cqp-visual-bg-2: {{ visual_bg_2 }};
+      --cqp-anim: {{ anim_accent }};
+      --cqp-anim-2: {{ anim_accent_2 }};
       background: var(--cqp-bg);
       color: var(--cqp-text);
       padding: clamp(64px, 9vw, 112px) 0;
@@ -124,13 +132,35 @@
       width: 100%;
       aspect-ratio: 16/9;
       border-radius: 10px;
-      background: color-mix(in srgb, var(--cqp-bg) 65%, black);
+      background:
+        radial-gradient(ellipse at 50% 40%,
+          color-mix(in srgb, var(--cqp-visual-bg) 100%, transparent) 0%,
+          color-mix(in srgb, var(--cqp-visual-bg) 60%, var(--cqp-visual-bg-2)) 55%,
+          var(--cqp-visual-bg-2) 100%);
       margin-bottom: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       position: relative;
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, var(--cqp-anim) 22%, transparent),
+        inset 0 -20px 40px color-mix(in srgb, var(--cqp-visual-bg-2) 55%, transparent);
+    }
+    /* Ambient golden glow on the visual stage */
+    #cqp-{{ section.id }} .cqp__visual::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 100%,
+        color-mix(in srgb, var(--cqp-anim) 25%, transparent) 0%,
+        transparent 55%);
+      pointer-events: none;
+      animation: cqpAmbient 5s ease-in-out infinite;
+    }
+    @keyframes cqpAmbient {
+      0%, 100% { opacity: 0.55; }
+      50% { opacity: 1; }
     }
     #cqp-{{ section.id }} .cqp__visual svg {
       width: 100%;
@@ -262,21 +292,26 @@
                 <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <defs>
                     <radialGradient id="cqpPulseGrad-{{ section.id }}-{{ block.id }}" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stop-color="{{ accent_color }}" stop-opacity="0.6"/>
-                      <stop offset="100%" stop-color="{{ accent_color }}" stop-opacity="0"/>
+                      <stop offset="0%" stop-color="{{ anim_accent }}" stop-opacity="0.85"/>
+                      <stop offset="50%" stop-color="{{ anim_accent_2 }}" stop-opacity="0.4"/>
+                      <stop offset="100%" stop-color="{{ anim_accent }}" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="cqpDeviceGrad-{{ section.id }}-{{ block.id }}" cx="50%" cy="35%" r="60%">
+                      <stop offset="0%" stop-color="{{ anim_accent }}"/>
+                      <stop offset="100%" stop-color="{{ anim_accent_2 }}"/>
                     </radialGradient>
                   </defs>
                   <!-- Central device circle -->
-                  <circle cx="160" cy="90" r="20" fill="{{ accent_color }}" opacity="0.95"/>
-                  <circle cx="160" cy="90" r="28" fill="none" stroke="{{ accent_color }}" stroke-width="1.5" opacity="0.4"/>
+                  <circle cx="160" cy="90" r="22" fill="url(#cqpDeviceGrad-{{ section.id }}-{{ block.id }})"/>
+                  <circle cx="160" cy="90" r="30" fill="none" stroke="{{ anim_accent }}" stroke-width="1.5" opacity="0.55"/>
                   <!-- Pulse rings -->
                   <circle class="cqp-pulse-ring" cx="160" cy="90" r="30" fill="url(#cqpPulseGrad-{{ section.id }}-{{ block.id }})"/>
                   <circle class="cqp-pulse-ring" cx="160" cy="90" r="30" fill="url(#cqpPulseGrad-{{ section.id }}-{{ block.id }})"/>
                   <circle class="cqp-pulse-ring" cx="160" cy="90" r="30" fill="url(#cqpPulseGrad-{{ section.id }}-{{ block.id }})"/>
                   <!-- Water stream -->
-                  <path class="cqp-stream" d="M 180 90 Q 230 90 260 70" fill="none" stroke="{{ accent_color }}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 6" opacity="0.85"/>
-                  <path class="cqp-stream" d="M 180 90 Q 230 90 260 90" fill="none" stroke="{{ accent_color }}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 6" opacity="0.7"/>
-                  <path class="cqp-stream" d="M 180 90 Q 230 90 260 110" fill="none" stroke="{{ accent_color }}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 6" opacity="0.55"/>
+                  <path class="cqp-stream" d="M 180 90 Q 230 90 260 70" fill="none" stroke="{{ anim_accent }}" stroke-width="2.8" stroke-linecap="round" stroke-dasharray="6 6" opacity="0.95"/>
+                  <path class="cqp-stream" d="M 180 90 Q 230 90 260 90" fill="none" stroke="{{ anim_accent }}" stroke-width="2.8" stroke-linecap="round" stroke-dasharray="6 6" opacity="0.85"/>
+                  <path class="cqp-stream" d="M 180 90 Q 230 90 260 110" fill="none" stroke="{{ anim_accent_2 }}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 6" opacity="0.72"/>
                 </svg>
               {%- when 'oralbiome' -%}
                 <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -285,24 +320,36 @@
                       <stop offset="0%" stop-color="#FFFFFF"/>
                       <stop offset="100%" stop-color="#E8DFC5"/>
                     </radialGradient>
+                    <linearGradient id="cqpParticleGrad-{{ section.id }}-{{ block.id }}" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="{{ anim_accent }}"/>
+                      <stop offset="100%" stop-color="{{ anim_accent_2 }}"/>
+                    </linearGradient>
                   </defs>
-                  <!-- Falling nano particles -->
-                  {%- for p in (1..8) -%}
-                    {%- assign px = p | times: 38 | modulo: 290 | plus: 20 -%}
-                    {%- assign pdur = 3500 | plus: p | modulo: 2000 | plus: 2800 -%}
-                    {%- assign pdelay = p | times: 420 | modulo: 3000 -%}
-                    <circle class="cqp-particle" cx="{{ px }}" cy="0" r="3" fill="{{ accent_color }}"
+                  <!-- Falling nano particles (richer, with alternating colors) -->
+                  {%- for p in (1..10) -%}
+                    {%- assign px = p | times: 31 | modulo: 290 | plus: 16 -%}
+                    {%- assign pdur = 3500 | plus: p | modulo: 2000 | plus: 2600 -%}
+                    {%- assign pdelay = p | times: 380 | modulo: 3000 -%}
+                    {%- assign pr = p | modulo: 3 | plus: 2 -%}
+                    {%- assign pmod = p | modulo: 2 -%}
+                    {%- if pmod == 0 -%}
+                      {%- assign pfill = anim_accent -%}
+                    {%- else -%}
+                      {%- assign pfill = anim_accent_2 -%}
+                    {%- endif -%}
+                    <circle class="cqp-particle" cx="{{ px }}" cy="0" r="{{ pr }}"
+                            fill="{{ pfill }}"
                             style="--cqp-p-dur: {{ pdur }}ms; --cqp-p-delay: {{ pdelay }}ms;"
-                            opacity="0.85"/>
+                            opacity="0.95"/>
                   {%- endfor -%}
                   <!-- Tooth base -->
                   <path class="cqp-tooth-base" d="M 160 90 C 130 90, 115 115, 120 140 C 124 160, 140 170, 150 168 C 155 167, 160 163, 160 158 C 160 163, 165 167, 170 168 C 180 170, 196 160, 200 140 C 205 115, 190 90, 160 90 Z"
-                        fill="url(#cqpToothGrad-{{ section.id }}-{{ block.id }})" stroke="{{ accent_color }}" stroke-width="1.8"/>
+                        fill="url(#cqpToothGrad-{{ section.id }}-{{ block.id }})" stroke="{{ anim_accent }}" stroke-width="2"/>
                 </svg>
               {%- else -%}
                 <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <circle cx="160" cy="90" r="40" fill="none" stroke="{{ accent_color }}" stroke-width="2" opacity="0.6"/>
-                  <circle cx="160" cy="90" r="12" fill="{{ accent_color }}"/>
+                  <circle cx="160" cy="90" r="40" fill="none" stroke="{{ anim_accent }}" stroke-width="2.2" opacity="0.75"/>
+                  <circle cx="160" cy="90" r="12" fill="{{ anim_accent }}"/>
                 </svg>
               {%- endcase -%}
             </div>
@@ -398,6 +445,42 @@
       "id": "card_border",
       "label": "Card border",
       "default": "#1E4773"
+    },
+    {
+      "type": "header",
+      "content": "Animatie achtergrond"
+    },
+    {
+      "type": "color",
+      "id": "visual_bg",
+      "label": "Animatie bg (center)",
+      "info": "Kleur in het midden van het animatiepodium achter FlowCore / OralBiome visuals.",
+      "default": "#1C4577"
+    },
+    {
+      "type": "color",
+      "id": "visual_bg_2",
+      "label": "Animatie bg (rand)",
+      "info": "Kleur bij de rand van het animatiepodium (vloeit naar de card-kleur).",
+      "default": "#0F2B47"
+    },
+    {
+      "type": "header",
+      "content": "Animatie accent (geel)"
+    },
+    {
+      "type": "color",
+      "id": "anim_accent",
+      "label": "Animatie hoofd-geel",
+      "info": "Helder geel voor pulserende ringen, stromen en deeltjes. Onafhankelijk van de heading-accent.",
+      "default": "#FFD45A"
+    },
+    {
+      "type": "color",
+      "id": "anim_accent_2",
+      "label": "Animatie warm-geel",
+      "info": "Warm oranje-gele tweede tint voor gradient stops en afwisselende deeltjes.",
+      "default": "#F5A623"
     }
   ],
   "blocks": [

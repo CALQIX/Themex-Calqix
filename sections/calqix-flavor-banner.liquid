@@ -299,7 +299,7 @@
     font-weight: 600;
   }
 
-  /* Right column: tablet display */
+  /* Right column: rich flavor stage (hero image + orbiting lozenges + aura) */
   #cq-fb-{{ section.id }} .cq-fb__display {
     position: relative;
     min-height: 360px;
@@ -307,26 +307,112 @@
     align-items: center;
     justify-content: center;
   }
-  #cq-fb-{{ section.id }} .cq-fb__tablet {
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #FFFFFF, #E8DFC5 70%);
-    box-shadow:
-      0 24px 56px color-mix(in srgb, var(--fb-accent) 40%, rgba(0,0,0,0.3)),
-      inset 0 -12px 30px rgba(0, 0, 0, 0.08);
+  #cq-fb-{{ section.id }} .cq-fb__stage {
+    position: relative;
+    width: min(360px, 84vw);
+    aspect-ratio: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'DM Serif Display', Georgia, serif;
-    font-size: 58px;
-    color: var(--fb-bg);
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    transition: box-shadow 0.6s ease, transform 0.4s ease;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  #cq-fb-{{ section.id }} .cq-fb__tablet.cq-fb__tablet--swap {
-    transform: scale(0.94) rotate(6deg);
+  #cq-fb-{{ section.id }} .cq-fb__stage--swap {
+    transform: scale(0.92) rotate(-3deg);
+  }
+
+  /* Aura: pulsing radial glow in flavor color */
+  #cq-fb-{{ section.id }} .cq-fb__stage-aura {
+    position: absolute;
+    inset: -6%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%,
+      color-mix(in srgb, var(--fb-accent) 45%, transparent) 0%,
+      color-mix(in srgb, var(--fb-accent) 18%, transparent) 35%,
+      transparent 65%);
+    filter: blur(12px);
+    animation: cqFbStageAura 4.2s ease-in-out infinite;
+    transition: background 0.8s ease;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes cqFbStageAura {
+    0%, 100% { transform: scale(0.94); opacity: 0.7; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+
+  /* Hero image (fruit + lozenges, from OpenAI) */
+  #cq-fb-{{ section.id }} .cq-fb__stage-hero {
+    position: relative;
+    width: 72%;
+    height: 72%;
+    object-fit: contain;
+    z-index: 2;
+    filter: drop-shadow(0 28px 48px color-mix(in srgb, var(--fb-accent) 35%, rgba(0,0,0,0.35)));
+    animation: cqFbStageFloat 5.2s ease-in-out infinite;
+    transition: opacity 0.35s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  #cq-fb-{{ section.id }} .cq-fb__stage--swap .cq-fb__stage-hero {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  @keyframes cqFbStageFloat {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-10px) rotate(1deg); }
+  }
+
+  /* Orbiting lozenge pills — 6 around the hero, different sizes + offsets */
+  #cq-fb-{{ section.id }} .cq-fb__stage-orbit {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    animation: cqFbOrbitRotate 24s linear infinite;
+    z-index: 1;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__lozenge {
+    position: absolute;
+    display: block;
+    border-radius: 999px;
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--fb-accent) 85%, white) 0%,
+      var(--fb-accent) 50%,
+      color-mix(in srgb, var(--fb-accent) 65%, black) 100%);
+    box-shadow:
+      0 6px 14px color-mix(in srgb, var(--fb-accent) 45%, rgba(0,0,0,0.35)),
+      inset 0 2px 4px rgba(255,255,255,0.35),
+      inset 0 -2px 3px rgba(0,0,0,0.18);
+    opacity: 0.92;
+    transition: background 0.6s ease, box-shadow 0.6s ease;
+    animation: cqFbLozengePulse 3.6s ease-in-out infinite;
+  }
+  /* Counter-rotate lozenges to stay upright while orbit rotates */
+  #cq-fb-{{ section.id }} .cq-fb__stage-orbit .cq-fb__lozenge {
+    animation: cqFbLozengePulse 3.6s ease-in-out infinite, cqFbLozengeCounter 24s linear infinite;
+  }
+  @keyframes cqFbLozengeCounter {
+    from { transform: rotate(0) translateZ(0); }
+    to { transform: rotate(-360deg) translateZ(0); }
+  }
+  @keyframes cqFbLozengePulse {
+    0%, 100% { box-shadow: 0 6px 14px color-mix(in srgb, var(--fb-accent) 45%, rgba(0,0,0,0.35)), inset 0 2px 4px rgba(255,255,255,0.35), inset 0 -2px 3px rgba(0,0,0,0.18); }
+    50% { box-shadow: 0 10px 22px color-mix(in srgb, var(--fb-accent) 65%, rgba(0,0,0,0.4)), inset 0 2px 4px rgba(255,255,255,0.45), inset 0 -2px 3px rgba(0,0,0,0.2); }
+  }
+  @keyframes cqFbOrbitRotate {
+    from { transform: rotate(0); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Per-lozenge positions + sizes (anchored to orbit container) */
+  #cq-fb-{{ section.id }} .cq-fb__lozenge--o1 { top: 6%; left: 18%; width: 34px; height: 16px; transform: rotate(-18deg); animation-delay: 0s, 0s; }
+  #cq-fb-{{ section.id }} .cq-fb__lozenge--o2 { top: 8%; right: 14%; width: 40px; height: 19px; transform: rotate(22deg); animation-delay: 0.5s, 0s; }
+  #cq-fb-{{ section.id }} .cq-fb__lozenge--o3 { top: 44%; right: 4%; width: 30px; height: 14px; transform: rotate(-6deg); animation-delay: 1s, 0s; }
+  #cq-fb-{{ section.id }} .cq-fb__lozenge--o4 { bottom: 10%; right: 22%; width: 38px; height: 18px; transform: rotate(-28deg); animation-delay: 1.5s, 0s; }
+  #cq-fb-{{ section.id }} .cq-fb__lozenge--o5 { bottom: 8%; left: 18%; width: 32px; height: 15px; transform: rotate(14deg); animation-delay: 2s, 0s; }
+  #cq-fb-{{ section.id }} .cq-fb__lozenge--o6 { top: 42%; left: 2%; width: 36px; height: 17px; transform: rotate(-10deg); animation-delay: 2.5s, 0s; }
+
+  /* Mobile: smaller stage */
+  @media (max-width: 860px) {
+    #cq-fb-{{ section.id }} .cq-fb__stage { width: min(260px, 74vw); }
+    #cq-fb-{{ section.id }} .cq-fb__lozenge { transform: scale(0.8); }
   }
   #cq-fb-{{ section.id }} .cq-fb__meta {
     margin-top: 28px;
@@ -594,26 +680,6 @@
     box-shadow: 0 8px 20px color-mix(in srgb, var(--fb-accent) 50%, transparent);
   }
 
-  /* Tablet pulse */
-  #cq-fb-{{ section.id }} .cq-fb__tablet {
-    position: relative;
-    z-index: 1;
-  }
-  #cq-fb-{{ section.id }} .cq-fb__tablet::before {
-    content: '';
-    position: absolute;
-    inset: -22px;
-    border-radius: 50%;
-    background: radial-gradient(circle, color-mix(in srgb, var(--fb-accent) 30%, transparent), transparent 60%);
-    animation: cqFbTabletPulse 3.2s ease-in-out infinite;
-    z-index: -1;
-    pointer-events: none;
-  }
-  @keyframes cqFbTabletPulse {
-    0%, 100% { transform: scale(0.95); opacity: 0.55; }
-    50% { transform: scale(1.14); opacity: 0.9; }
-  }
-
   /* ATC ripple/shimmer */
   #cq-fb-{{ section.id }} .cq-fb__cta {
     position: relative;
@@ -634,7 +700,10 @@
   /* Reduced motion: disable all idle + float animations */
   @media (prefers-reduced-motion: reduce) {
     #cq-fb-{{ section.id }} .cq-fb__jar,
-    #cq-fb-{{ section.id }} .cq-fb__tablet::before,
+    #cq-fb-{{ section.id }} .cq-fb__stage-aura,
+    #cq-fb-{{ section.id }} .cq-fb__stage-hero,
+    #cq-fb-{{ section.id }} .cq-fb__stage-orbit,
+    #cq-fb-{{ section.id }} .cq-fb__lozenge,
     #cq-fb-{{ section.id }} .cq-fb__title .cq-fb__char,
     #cq-fb-{{ section.id }} .cq-fb__cta::after,
     #cq-fb-{{ section.id }} .cq-fb__chip::after {
@@ -743,7 +812,22 @@
     </div>
 
     <div class="cq-fb__display">
-      <div class="cq-fb__tablet" data-cq-fb-tablet aria-hidden="true">FM</div>
+      <div class="cq-fb__stage" data-cq-fb-stage aria-hidden="true">
+        <div class="cq-fb__stage-orbit">
+          <span class="cq-fb__lozenge cq-fb__lozenge--o1"></span>
+          <span class="cq-fb__lozenge cq-fb__lozenge--o2"></span>
+          <span class="cq-fb__lozenge cq-fb__lozenge--o3"></span>
+          <span class="cq-fb__lozenge cq-fb__lozenge--o4"></span>
+          <span class="cq-fb__lozenge cq-fb__lozenge--o5"></span>
+          <span class="cq-fb__lozenge cq-fb__lozenge--o6"></span>
+        </div>
+        <div class="cq-fb__stage-aura"></div>
+        <img class="cq-fb__stage-hero" data-cq-fb-hero
+             src="{{ 'calqix-hero-freshmint.png' | asset_url }}"
+             alt=""
+             width="320" height="320"
+             loading="eager" decoding="async">
+      </div>
     </div>
   </div>
 
@@ -796,7 +880,8 @@
   var current = flavors[0];
 
   var chips = root.querySelectorAll('[data-cq-fb-chip]');
-  var tablet = root.querySelector('[data-cq-fb-tablet]');
+  var stage = root.querySelector('[data-cq-fb-stage]');
+  var hero = root.querySelector('[data-cq-fb-hero]');
   var meta = root.querySelector('[data-cq-fb-meta]');
   var nameEl = root.querySelector('[data-cq-fb-name]');
   var descEl = root.querySelector('[data-cq-fb-desc]');
@@ -826,13 +911,20 @@
       chips[i].setAttribute('aria-selected', chips[i].getAttribute('data-cq-fb-chip') === key ? 'true' : 'false');
     }
 
-    // Animate tablet + meta swap
-    if (tablet) {
-      tablet.classList.add('cq-fb__tablet--swap');
+    // Animate stage + hero image swap
+    if (stage) {
+      stage.classList.add('cq-fb__stage--swap');
       setTimeout(function() {
-        tablet.textContent = f.letters;
-        tablet.classList.remove('cq-fb__tablet--swap');
-      }, 200);
+        if (hero) {
+          var slug = (f.key || '').replace('_', '-');
+          // Derive next hero URL by substituting the filename in the current src.
+          var current = hero.getAttribute('src') || '';
+          var next = current.replace(/calqix-hero-[a-z-]+\.png/, 'calqix-hero-' + slug + '.png');
+          if (next !== current) hero.setAttribute('src', next);
+          hero.setAttribute('alt', f.name || '');
+        }
+        stage.classList.remove('cq-fb__stage--swap');
+      }, 350);
     }
     if (meta) {
       meta.classList.add('cq-fb__meta--swap');

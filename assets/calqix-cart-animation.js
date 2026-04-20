@@ -113,9 +113,25 @@
   // ---------------------------------------------------------------
   // Animation
   // ---------------------------------------------------------------
+  // Total budget: 600ms (rise 280ms + drop 320ms). This lets the tooth
+  // finish landing BEFORE the cart drawer opens on average (Wonder's
+  // drawer opens after /cart/add.js returns, typically 300-600ms).
+  var FLY_RISE_MS = 280;
+  var FLY_DROP_MS = 320;
+  var FLY_TOTAL_MS = FLY_RISE_MS + FLY_DROP_MS;
+
+  // Debounce: if fly() has played within this window, ignore subsequent
+  // triggers for the same ATC so click + cartUpdate don't double-play.
+  var lastFlyAt = 0;
+  var FLY_DEBOUNCE_MS = 800;
+
   function fly(source) {
     var cartTarget = document.getElementById('cart-icon-bubble');
     if (!cartTarget || !source) return;
+
+    var now = Date.now();
+    if (now - lastFlyAt < FLY_DEBOUNCE_MS) return;
+    lastFlyAt = now;
 
     var dstRect = cartTarget.getBoundingClientRect();
     if (!dstRect || (dstRect.width === 0 && dstRect.height === 0)) return;
@@ -135,27 +151,28 @@
     // Reset & stage
     tooth.style.transition = 'none';
     tooth.style.transform = 'translate3d(' + startX + 'px, ' + startY + 'px, 0) scale(1) rotate(0deg)';
+    tooth.style.opacity = '1';
     tooth.classList.add('calqix-flying-tooth--flying');
     // Force reflow to commit starting transform before transition kicks in
     /* eslint-disable no-unused-expressions */
     tooth.offsetWidth;
     /* eslint-enable no-unused-expressions */
 
-    // Phase 1: rise to peak (0 -> 500ms), slight rotate
+    // Phase 1: rise to peak with slight rotate
     tooth.style.transition =
-      'transform 500ms cubic-bezier(0.33, 0.02, 0.5, 0.5), opacity 150ms ease';
+      'transform ' + FLY_RISE_MS + 'ms cubic-bezier(0.33, 0.02, 0.5, 0.5), opacity 140ms ease';
     tooth.style.transform =
-      'translate3d(' + ((startX + endX) / 2) + 'px, ' + peakY + 'px, 0) scale(1.08) rotate(180deg)';
+      'translate3d(' + ((startX + endX) / 2) + 'px, ' + peakY + 'px, 0) scale(1.12) rotate(180deg)';
 
-    // Phase 2: drop to cart + shrink (500ms -> 950ms)
+    // Phase 2: drop to cart + shrink
     window.setTimeout(function () {
       if (token !== flyingToken) return;
       tooth.style.transition =
-        'transform 450ms cubic-bezier(0.55, 0.2, 0.8, 0.9), opacity 180ms ease 270ms';
+        'transform ' + FLY_DROP_MS + 'ms cubic-bezier(0.55, 0.2, 0.8, 0.9), opacity 180ms ease ' + (FLY_DROP_MS - 180) + 'ms';
       tooth.style.transform =
         'translate3d(' + endX + 'px, ' + endY + 'px, 0) scale(0.2) rotate(360deg)';
       tooth.style.opacity = '0';
-    }, 500);
+    }, FLY_RISE_MS);
 
     // Cleanup
     window.setTimeout(function () {
@@ -164,7 +181,7 @@
       tooth.style.transition = 'none';
       tooth.style.transform = 'translate3d(0,0,0) scale(1) rotate(0deg)';
       tooth.style.opacity = '';
-    }, 1050);
+    }, FLY_TOTAL_MS + 100);
   }
 
   // ---------------------------------------------------------------
@@ -176,9 +193,22 @@
     document.addEventListener('pointerdown', captureSource, true);
     document.addEventListener('click', captureSource, true);
 
+    // CRITICAL: trigger animation immediately on ATC click so the tooth
+    // begins flying while the /cart/add.js request is still in flight.
+    // This runs in parallel with Wonder's form submission (rule 7 of the
+    // homepage spec) and ensures the tooth lands before the drawer opens.
+    document.addEventListener('click', function onAtcClick(e) {
+      if (!isAtcTrigger(e.target)) return;
+      // Small RAF so we animate AFTER the button's visual press state
+      // has been applied by any form handlers.
+      window.requestAnimationFrame(function () {
+        if (lastSourceRect) fly(lastSourceRect);
+      });
+    }, true);
+
+    // Fallback: cartUpdate from Wonder (e.g. server-initiated refresh).
+    // Debouncer in fly() ensures we don't double-play after the click path.
     subscribe(PUB_SUB_EVENTS.cartUpdate, function onCartUpdate() {
-      // Only run if a recent source was captured; otherwise the update came
-      // from quantity changes, cart-drawer add-ons, recovery, etc.
       var hasFreshSource =
         lastSourceRect &&
         Date.now() - lastSourceCapturedAt <= SOURCE_TTL_MS;
