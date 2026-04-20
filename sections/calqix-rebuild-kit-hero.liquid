@@ -36,9 +36,21 @@
   assign price_a = variant_a.price | default: 0
   assign price_b = variant_b.price | default: 0
   assign regular_total = price_a | plus: price_b
-  assign bundle_discount_pct = section.settings.bundle_discount_pct | default: 25
+  assign bundle_discount_pct = section.settings.bundle_discount_pct | default: 30
   assign bundle_discount_amt = regular_total | times: bundle_discount_pct | divided_by: 100
   assign bundle_price = regular_total | minus: bundle_discount_amt
+
+  comment
+    Per-line discounted prices so each row shows was/now. The set-wide
+    bundle_discount_pct is applied uniformly, matching the automatic
+    discount the merchant configures in Shopify admin. Rounded to cents.
+  endcomment
+  assign line_a_discount = price_a | times: bundle_discount_pct | divided_by: 100
+  assign line_b_discount = price_b | times: bundle_discount_pct | divided_by: 100
+  assign price_a_discounted = price_a | minus: line_a_discount
+  assign price_b_discounted = price_b | minus: line_b_discount
+
+  assign bundle_discount_amt_money = bundle_discount_amt | money
 
   assign sub_discount_pct = section.settings.subscription_discount_pct | default: 20
   assign has_selling_plan_a = false
@@ -213,8 +225,26 @@
     margin-top: 2px;
   }
   #cq-rk-{{ section.id }} .cq-rk__items__price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
     font-size: 14px;
-    color: var(--muted);
+    color: var(--text);
+    white-space: nowrap;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__items__price__was {
+    font-size: 12px;
+    color: rgba(26, 59, 92, 0.42);
+    text-decoration: line-through;
+    font-weight: 400;
+    line-height: 1;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__items__price__now {
+    font-size: 14px;
+    color: var(--navy);
+    font-weight: 600;
+    line-height: 1.1;
   }
   #cq-rk-{{ section.id }} .cq-rk__price {
     display: flex;
@@ -234,12 +264,33 @@
     text-decoration: line-through;
   }
   #cq-rk-{{ section.id }} .cq-rk__price__save {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     font-size: 12px;
     color: var(--gold);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     margin-bottom: 22px;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__price__save__pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    background: rgba(201, 168, 76, 0.14);
+    border: 1px solid rgba(201, 168, 76, 0.45);
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #8B7228;
+  }
+  #cq-rk-{{ section.id }} .cq-rk__price__save__amount {
+    font-weight: 600;
+    color: var(--gold);
+    text-transform: none;
+    letter-spacing: 0;
   }
   #cq-rk-{{ section.id }} .cq-rk__cta {
     display: block;
@@ -354,7 +405,10 @@
               {{ product_a.title }}
               <span class="cq-rk__items__sub">{{ 'homepage_sections.rebuild_kit.step_1' | t }}</span>
             </div>
-            <div class="cq-rk__items__price">{{ price_a | money }}</div>
+            <div class="cq-rk__items__price">
+              <span class="cq-rk__items__price__was">{{ price_a | money }}</span>
+              <span class="cq-rk__items__price__now">{{ price_a_discounted | money }}</span>
+            </div>
           </div>
         {%- endif -%}
 
@@ -372,7 +426,10 @@
               {{ product_b.title }}
               <span class="cq-rk__items__sub">{{ 'homepage_sections.rebuild_kit.step_2' | t }}</span>
             </div>
-            <div class="cq-rk__items__price">{{ price_b | money }}</div>
+            <div class="cq-rk__items__price">
+              <span class="cq-rk__items__price__was">{{ price_b | money }}</span>
+              <span class="cq-rk__items__price__now">{{ price_b_discounted | money }}</span>
+            </div>
           </div>
         {%- endif -%}
       </div>
@@ -382,7 +439,10 @@
         <span class="cq-rk__price__compare">{{ regular_total | money }}</span>
       </div>
       <div class="cq-rk__price__save">
-        {{ 'homepage_sections.rebuild_kit.you_save' | t: amount: bundle_discount_amt | money }}
+        <span class="cq-rk__price__save__pill">−{{ bundle_discount_pct }}%</span>
+        <span class="cq-rk__price__save__amount">
+          {{ 'homepage_sections.rebuild_kit.you_save' | t: amount: bundle_discount_amt_money }}
+        </span>
       </div>
 
       <button type="button"
@@ -563,8 +623,8 @@
       "min": 0,
       "max": 50,
       "step": 5,
-      "default": 25,
-      "info": "Getoond als `−X%` badge en gebruikt voor de price strike-through berekening."
+      "default": 30,
+      "info": "Getoond als `−X%` badge en gebruikt voor de per-regel + totaal strike-through berekening. Moet overeenkomen met de automatische korting in Shopify admin."
     },
     {
       "type": "range",

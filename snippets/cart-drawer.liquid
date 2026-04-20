@@ -120,6 +120,9 @@
       </header>
       <div class="wt-cart__drawer__body">
         <div class="wt-cart__drawer__module-slot wt-cart__drawer__module-slot--pre-items">
+          {% comment %} CALQIX Rebuild Kit promo — renders when cart is missing one or both bundle products {% endcomment %}
+          {% render 'cart-rebuild-kit-promo' %}
+
           {% assign drawer_show_progress = settings.drawer_module_progress %}
           {% if drawer_show_progress == blank %}
             {% assign drawer_show_progress = settings.enable_free_shipping_bar %}

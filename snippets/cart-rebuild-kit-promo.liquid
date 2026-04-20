@@ -1,0 +1,205 @@
+{%- comment -%}
+  CALQIX Cart · Rebuild Kit promo banner
+  ------------------------------------------------------------
+  Smart promotional strip that appears in the cart drawer
+  (pre-items slot) whenever the customer does NOT already
+  have BOTH FlowCore and OralBiome Pro in their cart.
+
+  Dynamically hides itself when the Rebuild Kit is already
+  complete, so we never nag an already-committed customer.
+
+  Copy + link are merchant-editable via theme settings:
+    settings.cart_promo_rebuild_kit_show   (checkbox)
+    settings.cart_promo_rebuild_kit_text   (text)
+    settings.cart_promo_rebuild_kit_label  (text, small caps pill)
+    settings.cart_promo_rebuild_kit_link   (url)
+
+  Pulls colors from assets/calqix-design-tokens.css
+  (navy, gold, cream tokens).
+{%- endcomment -%}
+
+{%- unless settings.cart_promo_rebuild_kit_show == false -%}
+
+  {%- liquid
+    comment
+      Detect whether the cart already contains the Rebuild Kit.
+      We match by product handle because Shopify line_item.product.handle
+      is stable across variant changes. If the merchant renames a product
+      handle the Theme Editor settings below can override.
+    endcomment
+    assign target_a_handle = settings.cart_promo_rebuild_kit_handle_a | default: 'calqix-flowcore'
+    assign target_b_handle = settings.cart_promo_rebuild_kit_handle_b | default: 'oralbiome-pro-freshmint'
+
+    assign has_a = false
+    assign has_b = false
+    for item in cart.items
+      if item.product.handle == target_a_handle
+        assign has_a = true
+      endif
+      if item.product.handle == target_b_handle
+        assign has_b = true
+      endif
+    endfor
+
+    assign show_promo = true
+    if has_a and has_b
+      assign show_promo = false
+    endif
+
+    assign promo_link   = settings.cart_promo_rebuild_kit_link   | default: '/#cq-rk-calqix_rebuild_kit_hero_PhaseB1'
+    assign promo_text   = settings.cart_promo_rebuild_kit_text   | default: 'Complete the Rebuild Kit'
+    assign promo_sub    = settings.cart_promo_rebuild_kit_sub    | default: 'Save 30% on the two-step enamel protocol'
+    assign promo_label  = settings.cart_promo_rebuild_kit_label  | default: 'Save 30%'
+  -%}
+
+  {%- if show_promo -%}
+    <a class="wt-cart__rk-promo" href="{{ promo_link }}" data-cart-rk-promo>
+      <div class="wt-cart__rk-promo__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M12 2.5c-2.5 0-4.5 1.8-4.5 4 0 .9.3 1.7.8 2.3C6.7 9.8 5.5 11.3 5.5 13.5c0 3.3 2.9 5.5 4.5 6.5.5.3 1 .5 1.5.5h1c.5 0 1-.2 1.5-.5 1.6-1 4.5-3.2 4.5-6.5 0-2.2-1.2-3.7-2.8-4.7.5-.6.8-1.4.8-2.3 0-2.2-2-4-4.5-4z"
+            stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"
+            fill="currentColor" fill-opacity="0.08"
+          />
+        </svg>
+      </div>
+
+      <div class="wt-cart__rk-promo__body">
+        <div class="wt-cart__rk-promo__headline">
+          <span class="wt-cart__rk-promo__label">{{ promo_label }}</span>
+          <span class="wt-cart__rk-promo__title">{{ promo_text }}</span>
+        </div>
+        <div class="wt-cart__rk-promo__sub">{{ promo_sub }}</div>
+      </div>
+
+      <div class="wt-cart__rk-promo__arrow" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </a>
+
+    <style>
+      .wt-cart__rk-promo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        margin: 0 16px 14px;
+        background: linear-gradient(
+          135deg,
+          var(--calqix-cream, #F7F4EC) 0%,
+          var(--calqix-ivory, #FAF7EF) 100%
+        );
+        border: 1px solid var(--calqix-border-gold, rgba(201, 168, 76, 0.40));
+        border-radius: var(--calqix-radius-m, 10px);
+        color: var(--calqix-navy, #1A3B5C);
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+        transition: background var(--calqix-dur-medium, 300ms) var(--calqix-ease, cubic-bezier(0.4, 0, 0.2, 1)),
+                    transform var(--calqix-dur-fast, 150ms) var(--calqix-ease, cubic-bezier(0.4, 0, 0.2, 1)),
+                    box-shadow var(--calqix-dur-medium, 300ms) var(--calqix-ease, cubic-bezier(0.4, 0, 0.2, 1));
+      }
+      .wt-cart__rk-promo::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          120deg,
+          transparent 0%,
+          rgba(201, 168, 76, 0.08) 50%,
+          transparent 100%
+        );
+        opacity: 0;
+        transition: opacity var(--calqix-dur-medium, 300ms) var(--calqix-ease, cubic-bezier(0.4, 0, 0.2, 1));
+        pointer-events: none;
+      }
+      .wt-cart__rk-promo:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(26, 59, 92, 0.08);
+      }
+      .wt-cart__rk-promo:hover::before {
+        opacity: 1;
+      }
+      .wt-cart__rk-promo__icon {
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--calqix-radius-circle, 50%);
+        background: var(--calqix-white, #FFFFFF);
+        border: 1px solid var(--calqix-border, rgba(26, 59, 92, 0.12));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--calqix-gold, #C9A84C);
+      }
+      .wt-cart__rk-promo__icon svg {
+        width: 20px;
+        height: 20px;
+      }
+      .wt-cart__rk-promo__body {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .wt-cart__rk-promo__headline {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 2px;
+        flex-wrap: wrap;
+      }
+      .wt-cart__rk-promo__label {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        background: var(--calqix-gold, #C9A84C);
+        color: var(--calqix-navy, #1A3B5C);
+        font-family: var(--calqix-font-body, 'DM Sans', sans-serif);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: var(--calqix-ls-wider, 0.16em);
+        text-transform: uppercase;
+        border-radius: var(--calqix-radius-xs, 3px);
+        line-height: 1.4;
+      }
+      .wt-cart__rk-promo__title {
+        font-family: var(--calqix-font-body, 'DM Sans', sans-serif);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--calqix-navy, #1A3B5C);
+        line-height: 1.3;
+      }
+      .wt-cart__rk-promo__sub {
+        font-family: var(--calqix-font-body, 'DM Sans', sans-serif);
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--calqix-navy, #1A3B5C);
+        opacity: 0.68;
+        line-height: 1.35;
+      }
+      .wt-cart__rk-promo__arrow {
+        flex: 0 0 16px;
+        color: var(--calqix-navy, #1A3B5C);
+        opacity: 0.5;
+        transition: transform var(--calqix-dur-fast, 150ms) var(--calqix-ease, cubic-bezier(0.4, 0, 0.2, 1)),
+                    opacity var(--calqix-dur-fast, 150ms) var(--calqix-ease, cubic-bezier(0.4, 0, 0.2, 1));
+      }
+      .wt-cart__rk-promo:hover .wt-cart__rk-promo__arrow {
+        transform: translateX(3px);
+        opacity: 1;
+      }
+      .wt-cart__rk-promo__arrow svg {
+        width: 16px;
+        height: 16px;
+      }
+      @media (max-width: 380px) {
+        .wt-cart__rk-promo { padding: 10px 12px; gap: 10px; }
+        .wt-cart__rk-promo__icon { flex: 0 0 32px; width: 32px; height: 32px; }
+        .wt-cart__rk-promo__title { font-size: 12px; }
+        .wt-cart__rk-promo__sub { font-size: 10px; }
+      }
+    </style>
+  {%- endif -%}
+
+{%- endunless -%}
