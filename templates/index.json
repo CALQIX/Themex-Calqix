@@ -17,21 +17,16 @@
         "product_b": "oralbiome-pro-freshmint",
         "bundle_discount_pct": 25,
         "subscription_discount_pct": 20,
-        "background_color": "#F7F4EC",
-        "accent_color": "#C9A84C"
-      }
-    },
-    "calqix_flavor_banner_PhaseB2": {
-      "type": "calqix-flavor-banner",
-      "settings": {
-        "disable_on_homepage": false,
-        "subscription_discount_pct": 20
+        "background_color": "#f7f4ec",
+        "accent_color": "#c9a84c"
       }
     },
     "flowcore_banner_CUKft3": {
       "type": "flowcore-banner",
+      "disabled": true,
       "name": "FlowCore Banner",
       "settings": {
+        "hide_on_homepage": false,
         "banner_height": 560,
         "eyebrow": "CALQIX FlowCore",
         "title_line1": "Clear the way.",
@@ -93,6 +88,7 @@
         "heading_xqAqaP",
         "text_yXHg9h"
       ],
+      "disabled": true,
       "custom_css": [],
       "settings": {
         "desktop_text_horizontal_position": "center",
@@ -100,6 +96,13 @@
         "background_color": "rgba(0,0,0,0)",
         "margin-top": 8,
         "margin-bottom": 0
+      }
+    },
+    "calqix_flavor_banner_PhaseB2": {
+      "type": "calqix-flavor-banner",
+      "settings": {
+        "disable_on_homepage": false,
+        "subscription_discount_pct": 20
       }
     },
     "featured_collection_98txhK": {
