@@ -35,12 +35,13 @@
         "jar_grape": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "generated",
-            "product": "",
+            "image_source": "override",
+            "product": "oralbiome-pro-grape",
+            "image_override": "shopify://shop_images/Shopify_-_Grapes_Front.png",
             "tie_to_flavor": "grape",
             "x_pct": 78,
             "y_pct": 22,
-            "size_px": 130,
+            "size_px": 210,
             "rotation_deg": 10,
             "z_depth": 2,
             "opacity_pct": 90,
