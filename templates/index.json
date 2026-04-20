@@ -92,9 +92,7 @@
         "jar_freshmint": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "override",
-            "product": "oralbiome-pro-freshmint",
-            "image_override": "shopify://shop_images/Shopify_-_Fresh_Mint_Front.png",
+            "image_source": "generated",
             "tie_to_flavor": "freshmint",
             "x_pct": 8,
             "y_pct": 18,
@@ -105,16 +103,13 @@
             "float_amplitude_px": 22,
             "float_duration_s": 11,
             "delay_s": 0,
-            "enable_glow": true,
-            "glow_color": ""
+            "enable_glow": true
           }
         },
         "jar_grape": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "override",
-            "product": "oralbiome-pro-grape",
-            "image_override": "shopify://shop_images/Shopify_-_Grapes_Front.png",
+            "image_source": "generated",
             "tie_to_flavor": "grape",
             "x_pct": 78,
             "y_pct": 22,
@@ -125,17 +120,14 @@
             "float_amplitude_px": 18,
             "float_duration_s": 9,
             "delay_s": 1,
-            "enable_glow": true,
-            "glow_color": ""
+            "enable_glow": true
           }
         },
         "jar_citrus": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "override",
-            "product": "oralbiome-pro-peach",
-            "image_override": "shopify://shop_images/Shopify_-_Peach_Front.png",
-            "tie_to_flavor": "peach",
+            "image_source": "generated",
+            "tie_to_flavor": "citrus_orange",
             "x_pct": 85,
             "y_pct": 65,
             "size_px": 120,
@@ -145,17 +137,14 @@
             "float_amplitude_px": 16,
             "float_duration_s": 12,
             "delay_s": 2,
-            "enable_glow": true,
-            "glow_color": ""
+            "enable_glow": true
           }
         },
         "jar_peach": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "override",
-            "product": "oralbiome-pro-citrus-orange",
-            "image_override": "shopify://shop_images/Shopify_-_Orange_Front.png",
-            "tie_to_flavor": "citrus_orange",
+            "image_source": "generated",
+            "tie_to_flavor": "peach",
             "x_pct": 18,
             "y_pct": 72,
             "size_px": 140,
@@ -165,16 +154,13 @@
             "float_amplitude_px": 24,
             "float_duration_s": 10,
             "delay_s": 3,
-            "enable_glow": true,
-            "glow_color": ""
+            "enable_glow": true
           }
         },
         "jar_coolmint": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "override",
-            "product": "oralbiome-pro-cool-mint",
-            "image_override": "shopify://shop_images/Shopify_-_Cool_Mint_Front.png",
+            "image_source": "generated",
             "tie_to_flavor": "cool_mint",
             "x_pct": 62,
             "y_pct": 78,
@@ -185,8 +171,7 @@
             "float_amplitude_px": 14,
             "float_duration_s": 13,
             "delay_s": 4,
-            "enable_glow": true,
-            "glow_color": ""
+            "enable_glow": true
           }
         },
         "preset_freshmint": {
@@ -194,7 +179,6 @@
           "settings": {
             "flavor_key": "freshmint",
             "shape": "leaf",
-            "color": "",
             "density_mult": 110,
             "scale_mult": 100
           }
@@ -204,7 +188,6 @@
           "settings": {
             "flavor_key": "grape",
             "shape": "berry",
-            "color": "",
             "density_mult": 100,
             "scale_mult": 90
           }
@@ -214,7 +197,6 @@
           "settings": {
             "flavor_key": "peach",
             "shape": "petal",
-            "color": "",
             "density_mult": 100,
             "scale_mult": 110
           }
@@ -224,7 +206,6 @@
           "settings": {
             "flavor_key": "citrus_orange",
             "shape": "wedge",
-            "color": "",
             "density_mult": 100,
             "scale_mult": 110
           }
@@ -234,23 +215,14 @@
           "settings": {
             "flavor_key": "cool_mint",
             "shape": "crystal",
-            "color": "",
             "density_mult": 100,
             "scale_mult": 100
           }
         }
       },
       "block_order": [
-        "jar_freshmint",
-        "jar_grape",
-        "jar_citrus",
-        "jar_peach",
-        "jar_coolmint",
-        "preset_freshmint",
-        "preset_grape",
-        "preset_peach",
-        "preset_citrus",
-        "preset_coolmint"
+        "jar_freshmint", "jar_grape", "jar_citrus", "jar_peach", "jar_coolmint",
+        "preset_freshmint", "preset_grape", "preset_peach", "preset_citrus", "preset_coolmint"
       ],
       "settings": {
         "disable_on_homepage": false,
@@ -276,52 +248,6 @@
         "subscription_discount_pct": 20,
         "background_color": "#f7f4ec",
         "accent_color": "#c9a84c"
-      }
-    },
-    "calqix_protocol_PhaseC1": {
-      "type": "calqix-protocol",
-      "blocks": {
-        "step_one": {
-          "type": "step",
-          "settings": {
-            "title": "Deep-clean first",
-            "subtitle": "FlowCore removes what blocks remineralisation. 1,600 pulses per minute reach 6 mm below the gumline.",
-            "visual": "flowcore",
-            "metric_1_num": "1,600",
-            "metric_1_label": "Pulses per minute",
-            "metric_2_num": "6 mm",
-            "metric_2_label": "Below gumline",
-            "metric_3_num": "3",
-            "metric_3_label": "Clinical modes"
-          }
-        },
-        "step_two": {
-          "type": "step",
-          "settings": {
-            "title": "Then rebuild",
-            "subtitle": "Nano-hydroxyapatite binds directly to the clean enamel surface. Peer-reviewed science, every night.",
-            "visual": "oralbiome",
-            "metric_1_num": "20-80",
-            "metric_1_label": "nm particle size",
-            "metric_2_num": "81%",
-            "metric_2_label": "Less gum bleeding",
-            "metric_3_num": "40+",
-            "metric_3_label": "Years of research"
-          }
-        }
-      },
-      "block_order": [
-        "step_one",
-        "step_two"
-      ],
-      "settings": {
-        "disable_section": false,
-        "bg_color": "#ffffff",
-        "text_color": "#1a3b5c",
-        "muted_color": "#202020",
-        "accent_color": "#c9a84c",
-        "card_bg": "#f8fafb",
-        "card_border": "#ffffff"
       }
     },
     "featured_collection_98txhK": {
@@ -416,7 +342,6 @@
         "benefit_Pbt4Uh",
         "benefit_jfRQhb"
       ],
-      "disabled": true,
       "settings": {
         "heading": "<b>Thought through down to the smallest detail.</b>",
         "full-width-enabled": false,
@@ -443,7 +368,6 @@
     },
     "video_reels_kb4KdA": {
       "type": "calqix-proof-strip",
-      "disabled": true,
       "settings": {
         "eyebrow": "Clinical evidence",
         "part_1_bg": "#0f2438",
@@ -566,36 +490,36 @@
       "settings": {
         "eyebrow": "Tooth Science",
         "heading": "Understand how your teeth really work.",
-        "intro": "<p>Explore every tooth type, discover what each layer does, and learn what helps keep teeth clean, strong, and healthy.</p>",
-        "heading_max_width_desktop": 900,
-        "heading_max_width_tablet": 620,
-        "heading_max_width_mobile": 340,
-        "heading_size_desktop": 68,
-        "heading_size_tablet": 58,
-        "heading_size_mobile": 42,
+        "intro": "<p>Explore every tooth type and layer in one interactive view.</p>",
+        "heading_max_width_desktop": 720,
+        "heading_max_width_tablet": 540,
+        "heading_max_width_mobile": 320,
+        "heading_size_desktop": 48,
+        "heading_size_tablet": 40,
+        "heading_size_mobile": 32,
         "intro_align_desktop": "center",
         "intro_align_tablet": "center",
         "intro_align_mobile": "center",
         "default_tooth_type": "incisors",
-        "show_age_toggle": true,
+        "show_age_toggle": false,
         "young_label": "Young teeth",
         "adult_label": "Adult teeth",
-        "show_trust_strip": true,
+        "show_trust_strip": false,
         "trust_item_1": "Clinically informed",
         "trust_item_2": "Interactive learning",
         "trust_item_3": "Mobile-friendly",
         "trust_item_4": "Built for oral-care education",
         "trust_item_5": "Science-led visual guidance",
-        "show_progress_tracker": true,
+        "show_progress_tracker": false,
         "show_cta": true,
         "cta_text": "Explore CALQIX oral care",
         "cta_link": "shopify://collections/water-flosser",
         "enable_animations": true,
         "enable_advanced_animations": true,
         "enable_background_motion": true,
-        "enable_support_videos": true,
+        "enable_support_videos": false,
         "enable_hover_previews": true,
-        "enable_completion_celebration": true,
+        "enable_completion_celebration": false,
         "color_bg": "#f9fafb",
         "color_surface": "#f2f7ff",
         "color_text": "#202020",
@@ -607,39 +531,8 @@
         "color_aqua_strong": "#33b0d3",
         "color_green": "#1fb11f",
         "color_amber": "#e8c96a",
-        "padding_top": 88,
-        "padding_bottom": 104
-      }
-    },
-    "calqix_before_after_PhaseC2": {
-      "type": "calqix-before-after",
-      "settings": {
-        "eyebrow": "The CALQIX Journey",
-        "title": "Before. In Action. After.",
-        "background_color": "#0f2438",
-        "accent_color": "#e8c96a",
-        "heading_color": "#ffffff",
-        "body_text_color": "#afc1d2",
-        "section_padding_vertical": 72,
-        "col1_show": true,
-        "col1_url": "",
-        "col1_step_number": "01",
-        "col1_badge_text": "Day 0",
-        "col1_heading": "Before",
-        "col1_body": "Plaque and bacteria accumulate between teeth and below the gumline. Enamel cannot remineralise through biofilm — the barrier must be removed first.",
-        "col2_show": true,
-        "col2_url": "",
-        "col2_step_number": "02",
-        "col2_badge_text": "60 seconds",
-        "col2_heading": "In Action",
-        "col2_body": "The FlowCore delivers 1,400 pulsations per minute, reaching 6mm below the gumline. Plaque, debris and bacteria are flushed from areas a toothbrush cannot reach.",
-        "col3_show": true,
-        "col3_url": "",
-        "col3_step_number": "03",
-        "col3_badge_text": "Day 30+",
-        "col3_heading": "After",
-        "col3_body": "Clean enamel. Healthy gum tissue. With the surface barrier removed, nano-HA from your CALQIX tablet can now bind directly to enamel and remineralise.",
-        "custom_css": ""
+        "padding_top": 56,
+        "padding_bottom": 64
       }
     },
     "blog_posts_84b9Uj": {
@@ -772,22 +665,6 @@
         "color_arrow_hover_icon": "#f8fafb"
       }
     },
-    "calqix_final_cta_PhaseC3": {
-      "type": "calqix-final-cta",
-      "settings": {
-        "disable_section": false,
-        "product_a": "calqix-flowcore",
-        "product_b": "oralbiome-pro-freshmint",
-        "show_pill": true,
-        "pill_label": "Launch offer ends in",
-        "enable_countdown": false,
-        "countdown_target": "",
-        "bg_color": "#1a3b5c",
-        "text_color": "#f7f4ec",
-        "muted_color": "#b8c5d6",
-        "accent_color": "#c9a84c"
-      }
-    },
     "rich_text_hFzb9d": {
       "type": "rich-text",
       "blocks": {
@@ -812,6 +689,72 @@
         "background_color": "rgba(0,0,0,0)",
         "margin-top": 0,
         "margin-bottom": 0
+      }
+    },
+    "calqix_protocol_PhaseC1": {
+      "type": "calqix-protocol",
+      "blocks": {
+        "step_one": {
+          "type": "step",
+          "settings": {
+            "title": "Deep-clean first",
+            "subtitle": "FlowCore removes what blocks remineralisation. 1,600 pulses per minute reach 6 mm below the gumline.",
+            "visual": "flowcore",
+            "metric_1_num": "1,600",
+            "metric_1_label": "Pulses per minute",
+            "metric_2_num": "6 mm",
+            "metric_2_label": "Below gumline",
+            "metric_3_num": "3",
+            "metric_3_label": "Clinical modes"
+          }
+        },
+        "step_two": {
+          "type": "step",
+          "settings": {
+            "title": "Then rebuild",
+            "subtitle": "Nano-hydroxyapatite binds directly to the clean enamel surface. Peer-reviewed science, every night.",
+            "visual": "oralbiome",
+            "metric_1_num": "20-80",
+            "metric_1_label": "nm particle size",
+            "metric_2_num": "81%",
+            "metric_2_label": "Less gum bleeding",
+            "metric_3_num": "40+",
+            "metric_3_label": "Years of research"
+          }
+        }
+      },
+      "block_order": [
+        "step_one",
+        "step_two"
+      ],
+      "settings": {
+        "disable_section": false,
+        "bg_color": "#0F2B47",
+        "text_color": "#F7F4EC",
+        "muted_color": "#B8C5D6",
+        "accent_color": "#C9A84C",
+        "card_bg": "#133357",
+        "card_border": "#1E4773"
+      }
+    },
+    "calqix_before_after_PhaseC2": {
+      "type": "calqix-before-after",
+      "settings": {}
+    },
+    "calqix_final_cta_PhaseC3": {
+      "type": "calqix-final-cta",
+      "settings": {
+        "disable_section": false,
+        "product_a": "calqix-flowcore",
+        "product_b": "oralbiome-pro-freshmint",
+        "show_pill": true,
+        "pill_label": "Launch offer ends in",
+        "enable_countdown": false,
+        "countdown_target": "",
+        "bg_color": "#1A3B5C",
+        "text_color": "#F7F4EC",
+        "muted_color": "#B8C5D6",
+        "accent_color": "#C9A84C"
       }
     },
     "1772822810f63dcbd0": {
@@ -845,10 +788,10 @@
     }
   },
   "order": [
+    "calqix_rebuild_kit_hero_PhaseB1",
     "flowcore_banner_CUKft3",
     "rich_text_with_image_d9iPb9",
     "calqix_flavor_banner_PhaseB2",
-    "calqix_rebuild_kit_hero_PhaseB1",
     "calqix_protocol_PhaseC1",
     "featured_collection_98txhK",
     "benefits_product_DGyBfk",
