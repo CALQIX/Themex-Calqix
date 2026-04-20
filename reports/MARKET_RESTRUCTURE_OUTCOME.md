@@ -12,7 +12,7 @@ API: Shopify Admin GraphQL 2025-01 (self-healing OAuth token)
 | 2. LU missing                            | no market       | france[FR,LU]               | DONE via API                  |
 | 3. Belgium dual-language                 | BE in primary   | no change needed            | DOCUMENTED — works via primary |
 | 4. de-CH / fr-CH locales                 | not available   | `/de-ch/` + `/fr-ch/` URLs  | DONE differently — see below  |
-| 5. Per-market currency (DKK/SEK/NOK/CHF/GBP) | all EUR     | DKK/SEK/CHF/GBP/ISK live    | DONE (via Mollie + API) except NOK |
+| 5. Per-market currency (DKK/SEK/NOK/CHF/GBP) | all EUR     | all 6 live incl. NOK        | DONE (Mollie + API + norway market split) |
 | 6. /en/ subfolder                        | /en/ 404        | /en/ 301 -> /               | DONE via redirects batch 1    |
 | 7. CH subscription payment               | same as shop    | same as shop                | ADMIN ACTION when CH Payments |
 
@@ -24,7 +24,8 @@ API: Shopify Admin GraphQL 2025-01 (self-healing OAuth token)
 | germany       | DE, LI, AT     | (none, uses primary)  | inherits from primary        |
 | france        | FR, LU         | (none, uses primary)  | inherits from primary        |
 | belgium       | BE             | (none, uses primary)  | inherits from primary        |
-| scandinavie   | DK, FI, SE, NO, IS | (none)            | inherits from primary        |
+| scandinavie   | DK, FI, SE, IS | (none)                | inherits from primary        |
+| norway        | NO             | (none)                | inherits from primary, NOK base |
 | united-kingdom| GB             | (none)                | inherits from primary        |
 | switzerland   | CH             | `ch`                  | `/de-ch/`, `/fr-ch/`         |
 
@@ -65,21 +66,34 @@ CHF/DKK/GBP/ISK/SEK as accepted currencies in Shopify Admin, the API accepted th
 per-market currency settings. Applied 2026-04-20:
 
 ```
-scandinavie     base=EUR (enabled=true)    localCurrencies=true  (DK/SE/NO/IS auto-convert)
+scandinavie     base=EUR (enabled=true)    localCurrencies=true  (DK/SE/IS auto-convert)
+norway          base=NOK (enabled=true)    localCurrencies=false (NOK as market base)
 switzerland     base=CHF (enabled=true)    localCurrencies=true  (CHF displayed, CH checkout in CHF)
 united-kingdom  base=GBP (enabled=true)    localCurrencies=true  (GBP displayed, UK checkout in GBP)
 ```
 
+Shop-level enabled presentment currencies:
+`CHF, DKK, EUR, GBP, ISK, NOK, SEK`
+
 Live verified: `https://www.calqix.com/de-ch/cart.js` returns `"currency":"CHF"`.
 
-**Remaining gap**: NOK (Norwegian Krone) is not yet in the shop's enabled presentment
-currencies list. Norwegian customers currently see EUR prices with Mollie conversion
-at checkout. To fix (5 seconds):
+### NOK strategy: dedicated norway market instead of localCurrencies
 
-1. Shopify Admin -> **Settings** -> **Payments** -> Mollie (or Payments in general) ->
-   add **NOK** to accepted currencies.
-2. Shopify Admin -> **Settings** -> **Markets** -> **Scandinavie** -> no change needed;
-   it already has `localCurrencies: true` so NOK auto-enables once the shop supports it.
+When NOK was not yet registered as an accepted currency in Mollie, a multi-country
+market like `scandinavie[DK,FI,SE,NO,IS]` with `localCurrencies=true` silently fell
+back to EUR for Norwegian visitors — the product page leading display showed EUR, not
+NOK. That is unacceptable because product page price is the first thing a shopper sees.
+
+The fix (applied via `calqix-capi/scripts/split-norway-from-scandinavie.js`):
+
+- Created a dedicated `norway` market with region NO and `baseCurrency: NOK` (single-
+  country market, not localCurrencies).
+- Removed NO from scandinavie market.
+- Setting NOK as the *base* currency of a market auto-registers it in the shop's
+  enabled presentment currencies — confirmed in live state (`NOK` now in shop-level
+  list).
+- Norwegian visitors are now IP-routed to the norway market and see NOK prices on
+  product pages directly, no conversion at checkout.
 
 ### 2. Swiss payments and subscriptions
 
