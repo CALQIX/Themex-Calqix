@@ -40,6 +40,47 @@
     endif
 
     assign pct = settings.cq_rk_discount_pct | default: 30
+
+    comment
+      Copy resolution order:
+        1. merchant-authored setting (Theme Editor > CALQIX · Rebuild Kit Bundle)
+        2. locale key (cart.rebuild_kit_picker.*)
+        3. hard-coded English safety-net
+      If the locale key is missing Shopify returns a 'translation missing' string;
+      we detect that and fall back to the hard-coded default so the UI never breaks.
+    endcomment
+
+    assign banner_label = settings.cq_rk_banner_label
+    if banner_label == blank
+      assign banner_label = 'cart.rebuild_kit_picker.banner_label' | t
+      if banner_label contains 'translation missing'
+        assign banner_label = 'SAVE 30%'
+      endif
+    endif
+
+    assign banner_title = settings.cq_rk_banner_title
+    if banner_title == blank
+      assign banner_title = 'cart.rebuild_kit_picker.banner_title' | t
+      if banner_title contains 'translation missing'
+        assign banner_title = 'Complete the Rebuild Kit'
+      endif
+    endif
+
+    assign banner_sub = settings.cq_rk_banner_sub
+    if banner_sub == blank
+      assign banner_sub = 'cart.rebuild_kit_picker.banner_sub' | t
+      if banner_sub contains 'translation missing'
+        assign banner_sub = 'Pair your OralBiome with a FlowCore color for 30% off.'
+      endif
+    endif
+
+    assign combi_label = settings.cq_rk_combi_label
+    if combi_label == blank
+      assign combi_label = 'cart.rebuild_kit_picker.combi_label' | t
+      if combi_label contains 'translation missing'
+        assign combi_label = 'Rebuild Kit bundle · 30% off'
+      endif
+    endif
   -%}
 
   <aside
@@ -53,12 +94,12 @@
       "requireCartNotEmpty": {{ settings.cq_rk_require_cart_not_empty | json }},
       "requirePostAtc": {{ settings.cq_rk_require_post_atc | json }},
       "oncePerSession": {{ settings.cq_rk_once_per_session | json }},
-      "combiLabel": {{ settings.cq_rk_combi_label | default: 'Rebuild Kit bundle · 30% off' | json }}
+      "combiLabel": {{ combi_label | json }}
     }'
     hidden
     aria-hidden="true"
     role="region"
-    aria-label="{{ settings.cq_rk_banner_title | default: 'Complete the Rebuild Kit' | escape }}"
+    aria-label="{{ banner_title | escape }}"
   >
     <button
       type="button"
@@ -82,16 +123,10 @@
 
       <span class="cq-rk-banner__body">
         <span class="cq-rk-banner__headline">
-          <span class="cq-rk-banner__label">
-            {{- settings.cq_rk_banner_label | default: 'SAVE 30%' -}}
-          </span>
-          <span class="cq-rk-banner__title">
-            {{- settings.cq_rk_banner_title | default: 'Complete the Rebuild Kit' -}}
-          </span>
+          <span class="cq-rk-banner__label">{{- banner_label -}}</span>
+          <span class="cq-rk-banner__title">{{- banner_title -}}</span>
         </span>
-        <span class="cq-rk-banner__sub">
-          {{- settings.cq_rk_banner_sub | default: 'Pair your OralBiome with a FlowCore flavor for 30% off.' -}}
-        </span>
+        <span class="cq-rk-banner__sub">{{- banner_sub -}}</span>
       </span>
 
       <span class="cq-rk-banner__arrow" aria-hidden="true">
@@ -111,9 +146,7 @@
   {%- endcomment -%}
   <div class="cq-rk-combi-badge" data-cq-rk-combi-badge hidden aria-live="polite">
     <span class="cq-rk-combi-badge__dot" aria-hidden="true"></span>
-    <span class="cq-rk-combi-badge__text">
-      {{- settings.cq_rk_combi_label | default: 'Rebuild Kit bundle · 30% off' -}}
-    </span>
+    <span class="cq-rk-combi-badge__text">{{- combi_label -}}</span>
     <span class="cq-rk-combi-badge__pct">−{{ pct }}%</span>
   </div>
 {%- endif -%}
