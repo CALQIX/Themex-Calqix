@@ -2,3 +2,8 @@
 env.local
 SHOPIFY CLI TOKEN.txt
 .env*.local
+
+# e2e (Playwright) — belongs inside e2e/.gitignore too, kept here as safety net
+e2e/node_modules/
+e2e/playwright-report/
+e2e/test-results/
