@@ -504,6 +504,22 @@
   #cq-fb-{{ section.id }} .cq-fb__jar--pulse {
     animation: cqFbJarFloat var(--jar-duration, 10s) ease-in-out infinite, cqFbJarPulse 0.8s ease-out;
   }
+  #cq-fb-{{ section.id }} .cq-fb__jar--highlight {
+    z-index: 5;
+    filter: drop-shadow(0 30px 48px color-mix(in srgb, var(--fb-accent) 55%, rgba(0,0,0,0.35))) brightness(1.12);
+    opacity: 1 !important;
+    animation: cqFbJarHover var(--jar-duration, 10s) ease-in-out infinite;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__jar--highlight::before {
+    opacity: 0.95 !important;
+    background: radial-gradient(circle at 50% 50%, var(--jar-glow, var(--fb-accent)), transparent 55%);
+    animation: cqFbJarGlowPulse 1.8s ease-in-out infinite;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__jar--highlight img,
+  #cq-fb-{{ section.id }} .cq-fb__jar--highlight svg {
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: scale(1.18);
+  }
 
   @keyframes cqFbJarFloat {
     0%, 100% {
@@ -513,10 +529,22 @@
       transform: translate3d(var(--parallax-x, 0px), calc(-1 * var(--jar-amp, 18px)), 0) rotate(calc(var(--jar-rot, 0deg) * -0.6));
     }
   }
+  @keyframes cqFbJarHover {
+    0%, 100% {
+      transform: translate3d(var(--parallax-x, 0px), 0, 0) rotate(calc(var(--jar-rot, 0deg) * 0.8)) scale(1.04);
+    }
+    50% {
+      transform: translate3d(var(--parallax-x, 0px), calc(-1 * var(--jar-amp, 18px) * 1.4), 0) rotate(calc(var(--jar-rot, 0deg) * -0.4)) scale(1.08);
+    }
+  }
   @keyframes cqFbJarPulse {
     0% { filter: drop-shadow(0 24px 36px rgba(0,0,0,0.35)) brightness(1); }
     50% { filter: drop-shadow(0 28px 48px color-mix(in srgb, var(--fb-accent) 50%, rgba(0,0,0,0.35))) brightness(1.15); }
     100% { filter: drop-shadow(0 24px 36px rgba(0,0,0,0.35)) brightness(1); }
+  }
+  @keyframes cqFbJarGlowPulse {
+    0%, 100% { filter: blur(18px); opacity: 0.75; }
+    50% { filter: blur(26px); opacity: 1; }
   }
 
   /* Content layer above jars */
@@ -636,14 +664,31 @@
         {%- if block.type == 'floating_jar' -%}
           {%- liquid
             assign jar_img = blank
-            if block.settings.image_override != blank
+            assign jar_asset_url = blank
+            assign img_src = block.settings.image_source | default: 'auto'
+
+            if img_src == 'override' and block.settings.image_override != blank
               assign jar_img = block.settings.image_override
-            elsif block.settings.product != blank and block.settings.product.featured_image != blank
+            elsif img_src == 'product' and block.settings.product != blank and block.settings.product.featured_image != blank
               assign jar_img = block.settings.product.featured_image
+            elsif img_src == 'generated' and block.settings.tie_to_flavor != blank
+              assign flavor_slug = block.settings.tie_to_flavor | replace: '_', '-'
+              assign asset_name = 'calqix-jar-' | append: flavor_slug | append: '.png'
+              assign jar_asset_url = asset_name | asset_url
+            else
+              if block.settings.image_override != blank
+                assign jar_img = block.settings.image_override
+              elsif block.settings.product != blank and block.settings.product.featured_image != blank
+                assign jar_img = block.settings.product.featured_image
+              elsif block.settings.tie_to_flavor != blank
+                assign flavor_slug = block.settings.tie_to_flavor | replace: '_', '-'
+                assign asset_name = 'calqix-jar-' | append: flavor_slug | append: '.png'
+                assign jar_asset_url = asset_name | asset_url
+              endif
             endif
-            assign jar_alt = block.settings.product.title | default: ''
+            assign jar_alt = block.settings.product.title | default: block.settings.tie_to_flavor | default: ''
           -%}
-          {%- if jar_img != blank -%}
+          {%- if jar_img != blank or jar_asset_url != blank -%}
             <div class="cq-fb__jar{% if block.settings.enable_glow %} cq-fb__jar--glow{% endif %}"
                  data-cq-fb-jar
                  data-flavor="{{ block.settings.tie_to_flavor | default: '' }}"
@@ -659,11 +704,15 @@
                         {% if block.settings.glow_color != blank %}--jar-glow: {{ block.settings.glow_color }};{% endif %}
                         z-index: {{ block.settings.z_depth | default: 0 | plus: 5 }};"
                  {{ block.shopify_attributes }}>
-              {{ jar_img | image_url: width: 480 | image_tag:
-                  loading: 'lazy',
-                  widths: '180,240,320,480,640',
-                  sizes: '(min-width: 960px) 280px, 40vw',
-                  alt: jar_alt }}
+              {%- if jar_img != blank -%}
+                {{ jar_img | image_url: width: 480 | image_tag:
+                    loading: 'lazy',
+                    widths: '180,240,320,480,640',
+                    sizes: '(min-width: 960px) 280px, 40vw',
+                    alt: jar_alt }}
+              {%- else -%}
+                <img src="{{ jar_asset_url }}" alt="{{ jar_alt }}" loading="lazy" decoding="async" width="480" height="480">
+              {%- endif -%}
             </div>
           {%- endif -%}
         {%- endif -%}
@@ -865,10 +914,24 @@
       });
   }
 
+  // Shared helper: highlight (or clear) jars tied to a specific flavor key.
+  function setJarHighlight(flavorKey, on) {
+    if (!flavorKey) return;
+    var all = root.querySelectorAll('[data-cq-fb-jar]');
+    for (var i = 0; i < all.length; i++) {
+      var tie = all[i].getAttribute('data-flavor') || '';
+      if (tie === flavorKey) {
+        if (on) all[i].classList.add('cq-fb__jar--highlight');
+        else all[i].classList.remove('cq-fb__jar--highlight');
+      }
+    }
+  }
+
   for (var j = 0; j < chips.length; j++) {
     (function(chip) {
+      var chipFlavor = chip.getAttribute('data-cq-fb-chip');
       chip.addEventListener('click', function() {
-        applyFlavor(chip.getAttribute('data-cq-fb-chip'));
+        applyFlavor(chipFlavor);
       });
       chip.addEventListener('keydown', function(e) {
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
@@ -881,6 +944,19 @@
           if (prev && prev.getAttribute('data-cq-fb-chip')) { prev.focus(); prev.click(); }
         }
       });
+
+      // Mouse hover: highlight matching jars
+      chip.addEventListener('mouseenter', function() { setJarHighlight(chipFlavor, true); });
+      chip.addEventListener('mouseleave', function() { setJarHighlight(chipFlavor, false); });
+      // Keyboard focus parity
+      chip.addEventListener('focus', function() { setJarHighlight(chipFlavor, true); });
+      chip.addEventListener('blur', function() { setJarHighlight(chipFlavor, false); });
+      // Touch (mobile): brief highlight on tap-down, clear on release + timeout
+      chip.addEventListener('touchstart', function() { setJarHighlight(chipFlavor, true); }, { passive: true });
+      chip.addEventListener('touchend', function() {
+        setTimeout(function() { setJarHighlight(chipFlavor, false); }, 1200);
+      }, { passive: true });
+      chip.addEventListener('touchcancel', function() { setJarHighlight(chipFlavor, false); }, { passive: true });
     })(chips[j]);
   }
 
@@ -1416,6 +1492,19 @@
       "limit": 12,
       "settings": [
         {
+          "type": "select",
+          "id": "image_source",
+          "label": "Afbeelding bron",
+          "info": "Auto: kies de eerste beschikbare (override > product > gegenereerd). Product: featured image van gekoppeld product. Override: custom upload. Generated: auto-gegenereerde CALQIX jar-icoon (vereist gekoppelde smaak).",
+          "options": [
+            { "value": "auto", "label": "Auto (fallback chain)" },
+            { "value": "product", "label": "Product featured image" },
+            { "value": "override", "label": "Custom upload" },
+            { "value": "generated", "label": "CALQIX jar icoon (gegenereerd)" }
+          ],
+          "default": "auto"
+        },
+        {
           "type": "product",
           "id": "product",
           "label": "Product",
@@ -1497,7 +1586,7 @@
           "label": "Opacity %",
           "min": 20,
           "max": 100,
-          "step": 5,
+          "step": 1,
           "default": 100
         },
         {
@@ -1615,6 +1704,7 @@
         {
           "type": "floating_jar",
           "settings": {
+            "image_source": "generated",
             "tie_to_flavor": "freshmint",
             "x_pct": 8,
             "y_pct": 18,
@@ -1631,6 +1721,7 @@
         {
           "type": "floating_jar",
           "settings": {
+            "image_source": "generated",
             "tie_to_flavor": "grape",
             "x_pct": 78,
             "y_pct": 22,
@@ -1647,6 +1738,7 @@
         {
           "type": "floating_jar",
           "settings": {
+            "image_source": "generated",
             "tie_to_flavor": "citrus_orange",
             "x_pct": 85,
             "y_pct": 65,
@@ -1663,6 +1755,7 @@
         {
           "type": "floating_jar",
           "settings": {
+            "image_source": "generated",
             "tie_to_flavor": "peach",
             "x_pct": 18,
             "y_pct": 72,
@@ -1679,6 +1772,7 @@
         {
           "type": "floating_jar",
           "settings": {
+            "image_source": "generated",
             "tie_to_flavor": "cool_mint",
             "x_pct": 62,
             "y_pct": 78,
