@@ -9,6 +9,25 @@
  */
 {
   "sections": {
+    "calqix_rebuild_kit_hero_PhaseB1": {
+      "type": "calqix-rebuild-kit-hero",
+      "settings": {
+        "disable_on_homepage": false,
+        "product_a": "calqix-flowcore",
+        "product_b": "oralbiome-pro-freshmint",
+        "bundle_discount_pct": 25,
+        "subscription_discount_pct": 20,
+        "background_color": "#F7F4EC",
+        "accent_color": "#C9A84C"
+      }
+    },
+    "calqix_flavor_banner_PhaseB2": {
+      "type": "calqix-flavor-banner",
+      "settings": {
+        "disable_on_homepage": false,
+        "subscription_discount_pct": 20
+      }
+    },
     "flowcore_banner_CUKft3": {
       "type": "flowcore-banner",
       "name": "FlowCore Banner",
@@ -554,8 +573,10 @@
     }
   },
   "order": [
+    "calqix_rebuild_kit_hero_PhaseB1",
     "flowcore_banner_CUKft3",
     "rich_text_with_image_d9iPb9",
+    "calqix_flavor_banner_PhaseB2",
     "featured_collection_98txhK",
     "benefits_product_DGyBfk",
     "video_reels_kb4KdA",
