@@ -9,18 +9,6 @@
  */
 {
   "sections": {
-    "calqix_rebuild_kit_hero_PhaseB1": {
-      "type": "calqix-rebuild-kit-hero",
-      "settings": {
-        "disable_on_homepage": false,
-        "product_a": "calqix-flowcore",
-        "product_b": "oralbiome-pro-freshmint",
-        "bundle_discount_pct": 25,
-        "subscription_discount_pct": 20,
-        "background_color": "#f7f4ec",
-        "accent_color": "#c9a84c"
-      }
-    },
     "flowcore_banner_CUKft3": {
       "type": "flowcore-banner",
       "disabled": true,
@@ -278,6 +266,18 @@
         "enable_headline_reveal": true
       }
     },
+    "calqix_rebuild_kit_hero_PhaseB1": {
+      "type": "calqix-rebuild-kit-hero",
+      "settings": {
+        "disable_on_homepage": false,
+        "product_a": "calqix-flowcore",
+        "product_b": "oralbiome-pro-freshmint",
+        "bundle_discount_pct": 25,
+        "subscription_discount_pct": 20,
+        "background_color": "#f7f4ec",
+        "accent_color": "#c9a84c"
+      }
+    },
     "calqix_protocol_PhaseC1": {
       "type": "calqix-protocol",
       "blocks": {
@@ -316,7 +316,7 @@
       ],
       "settings": {
         "disable_section": false,
-        "bg_color": "#0f2b47",
+        "bg_color": "#ffffff",
         "text_color": "#f7f4ec",
         "muted_color": "#b8c5d6",
         "accent_color": "#c9a84c",
@@ -843,10 +843,10 @@
     }
   },
   "order": [
-    "calqix_rebuild_kit_hero_PhaseB1",
     "flowcore_banner_CUKft3",
     "rich_text_with_image_d9iPb9",
     "calqix_flavor_banner_PhaseB2",
+    "calqix_rebuild_kit_hero_PhaseB1",
     "calqix_protocol_PhaseC1",
     "featured_collection_98txhK",
     "benefits_product_DGyBfk",
