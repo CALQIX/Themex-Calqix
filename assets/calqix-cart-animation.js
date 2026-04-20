@@ -123,7 +123,18 @@
   // Debounce: if fly() has played within this window, ignore subsequent
   // triggers for the same ATC so click + cartUpdate don't double-play.
   var lastFlyAt = 0;
-  var FLY_DEBOUNCE_MS = 800;
+  var FLY_DEBOUNCE_MS = 1500;
+
+  // Cart-icon glow duration (ms). Starts at fly landing.
+  var GLOW_MS = 1400;
+  // Drawer "shiny" sheen duration (ms). Starts at cartDrawerOpen.
+  var SHINY_MS = 2000;
+  // Grace period (ms) to hold drawer visually back while the tooth is in flight.
+  // If the drawer's `open` attribute is set before the tooth lands, CSS
+  // (body.calqix-atc-flying) delays the drawer transform transition.
+  var FLYING_BODY_CLASS = 'calqix-atc-flying';
+  var GLOW_CLASS = 'calqix-cart-glow';
+  var SHINY_CLASS = 'calqix-drawer-shiny';
 
   function fly(source) {
     var cartTarget = document.getElementById('cart-icon-bubble');
@@ -147,6 +158,12 @@
     var peakY = Math.max(Math.min(startY, endY) - 120, 40);
 
     var token = ++flyingToken;
+
+    // Signal to CSS that a fly is in progress. This lets the cart-drawer
+    // transition-delay kick in so the drawer slide-in waits until the
+    // tooth has landed, preserving the "tooth -> glow -> drawer" sequence
+    // even when /cart/add.js returns faster than the fly (300-400ms).
+    document.body.classList.add(FLYING_BODY_CLASS);
 
     // Reset & stage
     tooth.style.transition = 'none';
@@ -174,7 +191,17 @@
       tooth.style.opacity = '0';
     }, FLY_RISE_MS);
 
-    // Cleanup
+    // Landing: glow the cart icon + release the drawer transition gate.
+    window.setTimeout(function () {
+      if (token !== flyingToken) return;
+      document.body.classList.remove(FLYING_BODY_CLASS);
+      cartTarget.classList.add(GLOW_CLASS);
+      window.setTimeout(function () {
+        cartTarget.classList.remove(GLOW_CLASS);
+      }, GLOW_MS);
+    }, FLY_TOTAL_MS);
+
+    // Cleanup tooth element
     window.setTimeout(function () {
       if (token !== flyingToken) return;
       tooth.classList.remove('calqix-flying-tooth--flying');
@@ -202,12 +229,21 @@
       // Small RAF so we animate AFTER the button's visual press state
       // has been applied by any form handlers.
       window.requestAnimationFrame(function () {
-        if (lastSourceRect) fly(lastSourceRect);
+        if (!lastSourceRect) return;
+        fly(lastSourceRect);
+        // CRITICAL: clear the captured source immediately so the
+        // cartUpdate fallback below does NOT re-fire the animation when
+        // /cart/add.js returns 300-900ms later. Without this, the user
+        // sees a second tooth fly AFTER the drawer is already open.
+        lastSourceRect = null;
+        lastSourceCapturedAt = 0;
       });
     }, true);
 
-    // Fallback: cartUpdate from Wonder (e.g. server-initiated refresh).
-    // Debouncer in fly() ensures we don't double-play after the click path.
+    // Fallback: cartUpdate from Wonder (e.g. server-initiated refresh
+    // or programmatic cart add without a standard ATC button click).
+    // For normal ATC clicks this is a no-op because the click handler
+    // nulls lastSourceRect above.
     subscribe(PUB_SUB_EVENTS.cartUpdate, function onCartUpdate() {
       var hasFreshSource =
         lastSourceRect &&
@@ -218,6 +254,22 @@
       lastSourceRect = null;
       fly(source);
     });
+
+    // Premium drawer entrance: the moment Wonder opens the cart drawer,
+    // brush a subtle sheen across it and let it fade back to normal after
+    // SHINY_MS. Works regardless of whether the drawer opens mid-fly or
+    // after the fly has landed (the body.calqix-atc-flying CSS gate holds
+    // the drawer transform until the tooth arrives).
+    if (PUB_SUB_EVENTS.cartDrawerOpen) {
+      subscribe(PUB_SUB_EVENTS.cartDrawerOpen, function onDrawerOpen() {
+        var drawer = document.querySelector('cart-drawer');
+        if (!drawer) return;
+        drawer.classList.add(SHINY_CLASS);
+        window.setTimeout(function () {
+          drawer.classList.remove(SHINY_CLASS);
+        }, SHINY_MS);
+      });
+    }
   }
 
   init();

@@ -43,3 +43,105 @@
     display: none !important;
   }
 }
+
+/* ---------------------------------------------------------------
+   Cart-icon glow on tooth landing
+   Added by JS for ~1.4s the moment the tooth reaches the cart.
+   --------------------------------------------------------------- */
+#cart-icon-bubble {
+  position: relative;
+  transition: transform 200ms ease;
+}
+#cart-icon-bubble.calqix-cart-glow {
+  transform: scale(1.12);
+}
+#cart-icon-bubble.calqix-cart-glow::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%,
+      rgba(255, 212, 90, 0.85) 0%,
+      rgba(245, 166, 35, 0.45) 35%,
+      rgba(201, 168, 76, 0.0) 70%);
+  filter: blur(2px);
+  z-index: -1;
+  pointer-events: none;
+  animation: calqixCartGlowIn 1400ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+@keyframes calqixCartGlowIn {
+  0%   { opacity: 0;    transform: scale(0.6); }
+  25%  { opacity: 1;    transform: scale(1.15); }
+  60%  { opacity: 0.85; transform: scale(1.05); }
+  100% { opacity: 0;    transform: scale(0.9); }
+}
+
+/* ---------------------------------------------------------------
+   Drawer "shiny" entrance
+   Added by JS on cartDrawerOpen, removed after 2s.
+   A soft radial inner-highlight + diagonal sheen sweeps across the
+   drawer surface for the premium first-impression, then fades cleanly.
+   --------------------------------------------------------------- */
+cart-drawer.calqix-drawer-shiny .wt-cart__drawer,
+cart-drawer.calqix-drawer-shiny .drawer__inner {
+  position: relative;
+  overflow: hidden;
+}
+cart-drawer.calqix-drawer-shiny .wt-cart__drawer::after,
+cart-drawer.calqix-drawer-shiny .drawer__inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    radial-gradient(120% 60% at 0% 0%,
+      rgba(255, 220, 130, 0.22) 0%,
+      rgba(255, 220, 130, 0) 55%),
+    linear-gradient(115deg,
+      transparent 0%,
+      transparent 38%,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent 62%,
+      transparent 100%);
+  background-size: 100% 100%, 220% 100%;
+  background-position: 0 0, -120% 0;
+  background-repeat: no-repeat;
+  opacity: 0;
+  animation: calqixDrawerShiny 2000ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  mix-blend-mode: screen;
+}
+@keyframes calqixDrawerShiny {
+  0%   { opacity: 0;   background-position: 0 0, -120% 0; }
+  15%  { opacity: 1; }
+  55%  { opacity: 0.9; background-position: 0 0,  160% 0; }
+  100% { opacity: 0;   background-position: 0 0,  220% 0; }
+}
+
+/* ---------------------------------------------------------------
+   Drawer open gate during tooth flight
+   While body.calqix-atc-flying is set (first ~600ms after ATC click),
+   delay the drawer transform transition so it visibly waits for the
+   tooth to land before sliding in. Once the JS removes the class, the
+   drawer resumes its normal transition instantly.
+   --------------------------------------------------------------- */
+body.calqix-atc-flying cart-drawer,
+body.calqix-atc-flying cart-drawer .wt-cart__drawer,
+body.calqix-atc-flying cart-drawer .drawer__inner {
+  transition-delay: 600ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #cart-icon-bubble.calqix-cart-glow,
+  cart-drawer.calqix-drawer-shiny .wt-cart__drawer::after,
+  cart-drawer.calqix-drawer-shiny .drawer__inner::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  body.calqix-atc-flying cart-drawer,
+  body.calqix-atc-flying cart-drawer .wt-cart__drawer,
+  body.calqix-atc-flying cart-drawer .drawer__inner {
+    transition-delay: 0s !important;
+  }
+}
