@@ -251,9 +251,9 @@
   pointer-events: none;
   transition: opacity 220ms var(--cq-rk-ease, cubic-bezier(0.4, 0, 0.2, 1));
 }
-.cq-rk-picker.cq-rk-picker--in {
-  opacity: 1 !important;
-  pointer-events: auto !important;
+.cq-rk-picker--in {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .cq-rk-picker__backdrop {
