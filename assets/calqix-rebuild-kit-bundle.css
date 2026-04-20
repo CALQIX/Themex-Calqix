@@ -295,38 +295,59 @@
   opacity: 1;
 }
 
+/* Plain red X — no bubble, no circle. 40px tap area for a11y.
+   Hover/focus adds a soft translucent red halo behind the X (via ::before)
+   as an interactive cue, without reintroducing the chunky circle. */
 .cq-rk-picker__close {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: 12px;
+  right: 12px;
   width: 40px;
   height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #FFFFFF;
-  border: 1.5px solid #E63946;
-  border-radius: 50%;
+  background: transparent;
+  border: 0;
+  padding: 0;
   color: #E63946;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(230, 57, 70, 0.18);
   transition:
-    background 180ms var(--cq-rk-ease, cubic-bezier(0.4, 0, 0.2, 1)),
-    color 180ms var(--cq-rk-ease, cubic-bezier(0.4, 0, 0.2, 1)),
-    box-shadow 180ms var(--cq-rk-ease, cubic-bezier(0.4, 0, 0.2, 1)),
+    color 160ms var(--cq-rk-ease, cubic-bezier(0.4, 0, 0.2, 1)),
     transform 160ms cubic-bezier(0.22, 1.1, 0.4, 1);
   z-index: 2;
 }
+.cq-rk-picker__close::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 180ms var(--cq-rk-ease, cubic-bezier(0.4, 0, 0.2, 1));
+  z-index: -1;
+}
+.cq-rk-picker__close svg {
+  width: 22px;
+  height: 22px;
+  position: relative;
+  z-index: 1;
+  stroke-width: 2.4;
+}
 .cq-rk-picker__close:hover,
 .cq-rk-picker__close:focus-visible {
-  background: #E63946;
-  color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(230, 57, 70, 0.42), 0 0 0 3px rgba(230, 57, 70, 0.18);
-  transform: scale(1.06);
+  color: #C62836;
+  transform: scale(1.08);
   outline: none;
 }
-.cq-rk-picker__close:active { transform: scale(0.96); }
-.cq-rk-picker__close svg { width: 18px; height: 18px; }
+.cq-rk-picker__close:hover::before,
+.cq-rk-picker__close:focus-visible::before {
+  background: rgba(230, 57, 70, 0.12);
+}
+.cq-rk-picker__close:focus-visible {
+  box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.55);
+  border-radius: 50%;
+}
+.cq-rk-picker__close:active { transform: scale(0.94); }
 
 .cq-rk-picker__header {
   text-align: center;

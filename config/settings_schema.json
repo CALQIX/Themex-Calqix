@@ -1497,8 +1497,8 @@
         "type": "checkbox",
         "id": "cq_rk_require_post_atc",
         "label": "Only show banner after a new item was just added",
-        "default": true,
-        "info": "Recommended. The banner only appears right after an add-to-cart event, not on passive drawer opens."
+        "default": false,
+        "info": "When enabled, the banner only appears in the 12s window after an add-to-cart. Disable (default) to show it whenever the customer opens the cart drawer and the bundle is incomplete — stronger CRO for passive drawer opens."
       },
       {
         "type": "checkbox",
@@ -1514,8 +1514,8 @@
       {
         "type": "collection",
         "id": "cq_rk_flowcore_collection",
-        "label": "FlowCore flavor collection",
-        "info": "A collection containing the FlowCore flavor variants the customer can pick from. If empty, the picker falls back to fetching /collections/flowcore."
+        "label": "FlowCore color collection",
+        "info": "A collection containing the FlowCore water flosser color variants the customer can pick from. If empty, the picker falls back to fetching /collections/flowcore."
       },
       {
         "type": "product",
@@ -1543,7 +1543,7 @@
         "type": "text",
         "id": "cq_rk_banner_sub",
         "label": "Banner subtitle",
-        "default": "Pair your OralBiome with a FlowCore flavor for 30% off."
+        "default": "Pair your OralBiome with a FlowCore color for 30% off."
       },
       {
         "type": "header",
@@ -1553,7 +1553,7 @@
         "type": "text",
         "id": "cq_rk_modal_title",
         "label": "Modal title",
-        "default": "Choose your FlowCore flavor"
+        "default": "Choose your FlowCore color"
       },
       {
         "type": "text",
