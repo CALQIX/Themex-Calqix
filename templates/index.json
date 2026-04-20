@@ -15,12 +15,13 @@
         "jar_freshmint": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "generated",
-            "product": "",
+            "image_source": "override",
+            "product": "oralbiome-pro-freshmint",
+            "image_override": "shopify://shop_images/Shopify_-_Fresh_Mint_Front.png",
             "tie_to_flavor": "freshmint",
             "x_pct": 8,
             "y_pct": 18,
-            "size_px": 150,
+            "size_px": 210,
             "rotation_deg": -8,
             "z_depth": 3,
             "opacity_pct": 95,
@@ -34,7 +35,7 @@
         "jar_grape": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "generated",
+            "image_source": "override",
             "product": "",
             "tie_to_flavor": "grape",
             "x_pct": 78,
@@ -53,7 +54,7 @@
         "jar_citrus": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "generated",
+            "image_source": "override",
             "product": "",
             "tie_to_flavor": "citrus_orange",
             "x_pct": 85,
@@ -72,7 +73,7 @@
         "jar_peach": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "generated",
+            "image_source": "override",
             "product": "",
             "tie_to_flavor": "peach",
             "x_pct": 18,
@@ -91,7 +92,7 @@
         "jar_coolmint": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "generated",
+            "image_source": "override",
             "product": "",
             "tie_to_flavor": "cool_mint",
             "x_pct": 62,
