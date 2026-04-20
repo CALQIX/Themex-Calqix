@@ -446,10 +446,38 @@
         grid.className = 'cq-rk-picker__grid';
         grid.setAttribute('role', 'list');
 
+        // Read currency + locale once so every card formats consistently.
+        var lang = document.documentElement.lang || 'en';
+        var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'EUR';
+        var pct = parseInt(config.pct, 10) || 30;
+        var ctaLabel = 'Add to Kit';
+        var priceSuffix = 'with Rebuild Kit';
+
+        function formatMoney(cents) {
+          var val = (cents || 0) / 100;
+          try {
+            return new Intl.NumberFormat(lang, { style: 'currency', currency: currency }).format(val);
+          } catch (e) {
+            return currency + ' ' + val.toFixed(2);
+          }
+        }
+
         products.forEach(function (p, i) {
           var variant = (p.variants && p.variants[0]) || {};
           var available = variant.available !== false;
-          var price = typeof variant.price === 'string' ? variant.price : (variant.price / 100).toFixed(2);
+          // variant.price can be a number (cents, e.g. 3995) OR a string
+          // like "39.95" from /search/suggest.json. Normalise to cents.
+          var rrpCents;
+          if (typeof variant.price === 'number') {
+            rrpCents = variant.price;
+          } else if (typeof variant.price === 'string') {
+            // Match a number with optional separators; take it as euros.
+            var num = parseFloat(String(variant.price).replace(/[^0-9.,]/g, '').replace(',', '.'));
+            rrpCents = isNaN(num) ? 0 : Math.round(num * 100);
+          } else {
+            rrpCents = 0;
+          }
+          var bundleCents = Math.round(rrpCents * (100 - pct) / 100);
           var img = (p.images && p.images[0] && p.images[0].src) || '';
 
           var li = document.createElement('li');
@@ -463,6 +491,8 @@
           btn.setAttribute('data-variant-id', variant.id || '');
           btn.setAttribute('data-product-title', p.title || '');
           btn.setAttribute('data-product-image', img);
+          btn.setAttribute('data-rrp', formatMoney(rrpCents));
+          btn.setAttribute('data-bundle-price', formatMoney(bundleCents));
           if (!available) {
             btn.disabled = true;
             btn.setAttribute('aria-disabled', 'true');
@@ -487,24 +517,48 @@
           shine.className = 'cq-rk-picker__card-shine';
           media.appendChild(shine);
 
+          // Build the info block: title + dual-price pricing row
           var info = document.createElement('span');
           info.className = 'cq-rk-picker__card-info';
-          info.innerHTML =
-            '<span class="cq-rk-picker__card-title"></span>' +
-            '<span class="cq-rk-picker__card-price"></span>';
-          info.querySelector('.cq-rk-picker__card-title').textContent = p.title || '';
-          var priceText = '€' + (typeof price === 'string' ? price : String(price));
-          try { priceText = new Intl.NumberFormat(document.documentElement.lang || 'en-EU', { style: 'currency', currency: 'EUR' }).format(parseFloat(price)); } catch (e) {}
-          info.querySelector('.cq-rk-picker__card-price').textContent = priceText;
+
+          var titleEl = document.createElement('span');
+          titleEl.className = 'cq-rk-picker__card-title';
+          titleEl.textContent = p.title || '';
+          info.appendChild(titleEl);
+
+          var pricing = document.createElement('span');
+          pricing.className = 'cq-rk-picker__card-pricing';
+
+          if (rrpCents > 0) {
+            var rrpEl = document.createElement('span');
+            rrpEl.className = 'cq-rk-picker__card-rrp';
+            var rrpStrike = document.createElement('s');
+            rrpStrike.textContent = formatMoney(rrpCents);
+            rrpEl.appendChild(rrpStrike);
+            pricing.appendChild(rrpEl);
+          }
+
+          var priceEl = document.createElement('span');
+          priceEl.className = 'cq-rk-picker__card-price';
+          priceEl.textContent = formatMoney(bundleCents);
+          pricing.appendChild(priceEl);
+
+          var suffixEl = document.createElement('span');
+          suffixEl.className = 'cq-rk-picker__card-price-suffix';
+          suffixEl.textContent = priceSuffix;
+          pricing.appendChild(suffixEl);
+
+          info.appendChild(pricing);
 
           var cta = document.createElement('span');
           cta.className = 'cq-rk-picker__card-cta';
           cta.innerHTML =
-            '<span class="cq-rk-picker__card-cta-text">Add to Kit</span>' +
+            '<span class="cq-rk-picker__card-cta-text"></span>' +
             '<span class="cq-rk-picker__card-cta-arrow" aria-hidden="true">' +
             '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">' +
             '<path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
             '</svg></span>';
+          cta.querySelector('.cq-rk-picker__card-cta-text').textContent = ctaLabel;
 
           btn.appendChild(media);
           btn.appendChild(info);
