@@ -546,6 +546,68 @@
         "margin-bottom": 0
       }
     },
+    "calqix_protocol_PhaseC1": {
+      "type": "calqix-protocol",
+      "blocks": {
+        "step_one": {
+          "type": "step",
+          "settings": {
+            "title": "Deep-clean first",
+            "subtitle": "FlowCore removes what blocks remineralisation. 1,600 pulses per minute reach 6 mm below the gumline.",
+            "visual": "flowcore",
+            "metric_1_num": "1,600",
+            "metric_1_label": "Pulses per minute",
+            "metric_2_num": "6 mm",
+            "metric_2_label": "Below gumline",
+            "metric_3_num": "3",
+            "metric_3_label": "Clinical modes"
+          }
+        },
+        "step_two": {
+          "type": "step",
+          "settings": {
+            "title": "Then rebuild",
+            "subtitle": "Nano-hydroxyapatite binds directly to the clean enamel surface. Peer-reviewed science, every night.",
+            "visual": "oralbiome",
+            "metric_1_num": "20-80",
+            "metric_1_label": "nm particle size",
+            "metric_2_num": "81%",
+            "metric_2_label": "Less gum bleeding",
+            "metric_3_num": "40+",
+            "metric_3_label": "Years of research"
+          }
+        }
+      },
+      "block_order": ["step_one", "step_two"],
+      "settings": {
+        "disable_section": false,
+        "bg_color": "#0F2B47",
+        "text_color": "#F7F4EC",
+        "muted_color": "#B8C5D6",
+        "accent_color": "#C9A84C",
+        "card_bg": "#133357",
+        "card_border": "#1E4773"
+      }
+    },
+    "calqix_before_after_PhaseC2": {
+      "type": "calqix-before-after"
+    },
+    "calqix_final_cta_PhaseC3": {
+      "type": "calqix-final-cta",
+      "settings": {
+        "disable_section": false,
+        "product_a": "calqix-flowcore",
+        "product_b": "oralbiome-pro-freshmint",
+        "show_pill": true,
+        "pill_label": "Launch offer ends in",
+        "enable_countdown": false,
+        "countdown_target": "",
+        "bg_color": "#1A3B5C",
+        "text_color": "#F7F4EC",
+        "muted_color": "#B8C5D6",
+        "accent_color": "#C9A84C"
+      }
+    },
     "1772822810f63dcbd0": {
       "type": "apps",
       "blocks": {
@@ -577,18 +639,21 @@
     }
   },
   "order": [
+    "calqix_rebuild_kit_hero_PhaseB1",
     "flowcore_banner_CUKft3",
     "rich_text_with_image_d9iPb9",
     "calqix_flavor_banner_PhaseB2",
-    "calqix_rebuild_kit_hero_PhaseB1",
+    "calqix_protocol_PhaseC1",
     "featured_collection_98txhK",
     "benefits_product_DGyBfk",
     "video_reels_kb4KdA",
     "scrolling_text_banner_7ziGpd",
     "calqix_science_story_M8kQw2",
     "calqix_tooth_science_Bd8Aaj",
+    "calqix_before_after_PhaseC2",
     "blog_posts_84b9Uj",
     "calqix_reviews_hzPdKh",
+    "calqix_final_cta_PhaseC3",
     "rich_text_hFzb9d",
     "1772822810f63dcbd0"
   ]

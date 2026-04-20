@@ -1,0 +1,421 @@
+{%- comment -%}
+  CALQIX Final CTA (Task 8)
+  -------------------------------------------------
+  Closes the homepage with a timer pill, large headline,
+  sub-copy, and a primary ATC that adds the Rebuild Kit
+  bundle (or any configured product) to the cart with a
+  flying-tooth animation and auto-opens the side cart.
+
+  The timer pill is optional. If enabled and a target
+  datetime is set, it ticks down live. Falls back to a
+  static offer label if the timer is disabled.
+{%- endcomment -%}
+
+{%- if section.settings.disable_section -%}
+  {%- if request.design_mode -%}
+    <div style="padding:20px;background:#1a3b5c;color:#F7F4EC;border:1px dashed #C9A84C;text-align:center;font-family:'DM Sans',sans-serif;">
+      Final CTA is uitgeschakeld via de section toggle.
+    </div>
+  {%- endif -%}
+{%- else -%}
+
+{%- liquid
+  assign bg_color = section.settings.bg_color | default: '#1A3B5C'
+  assign text_color = section.settings.text_color | default: '#F7F4EC'
+  assign muted_color = section.settings.muted_color | default: '#B8C5D6'
+  assign accent_color = section.settings.accent_color | default: '#C9A84C'
+
+  assign product_a = section.settings.product_a
+  assign product_b = section.settings.product_b
+  assign product_a_variant = product_a.selected_or_first_available_variant
+  assign product_b_variant = product_b.selected_or_first_available_variant
+
+  assign has_bundle = false
+  if product_a_variant != blank and product_b_variant != blank
+    assign has_bundle = true
+  endif
+-%}
+
+<section id="cqfc-{{ section.id }}" class="cqfc" aria-labelledby="cqfc-title-{{ section.id }}">
+  <style>
+    #cqfc-{{ section.id }} {
+      --cqfc-bg: {{ bg_color }};
+      --cqfc-text: {{ text_color }};
+      --cqfc-muted: {{ muted_color }};
+      --cqfc-accent: {{ accent_color }};
+      background: var(--cqfc-bg);
+      color: var(--cqfc-text);
+      padding: clamp(72px, 10vw, 128px) 0;
+      font-family: 'DM Sans', Arial, sans-serif;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    #cqfc-{{ section.id }}::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--cqfc-accent) 20%, transparent), transparent 55%);
+      pointer-events: none;
+    }
+    #cqfc-{{ section.id }} .cqfc__inner {
+      position: relative;
+      max-width: 840px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    #cqfc-{{ section.id }} .cqfc__pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: color-mix(in srgb, var(--cqfc-accent) 16%, transparent);
+      border: 1px solid color-mix(in srgb, var(--cqfc-accent) 40%, transparent);
+      color: var(--cqfc-accent);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 32px;
+    }
+    #cqfc-{{ section.id }} .cqfc__pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cqfc-accent);
+      animation: cqfcDotPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes cqfcDotPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.6; }
+    }
+    #cqfc-{{ section.id }} .cqfc__title {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(40px, 6vw, 78px);
+      line-height: 1.02;
+      margin: 0 0 24px;
+      font-weight: 400;
+      color: var(--cqfc-text);
+    }
+    #cqfc-{{ section.id }} .cqfc__title em {
+      font-style: italic;
+      color: var(--cqfc-accent);
+    }
+    #cqfc-{{ section.id }} .cqfc__sub {
+      font-size: 18px;
+      line-height: 1.6;
+      color: var(--cqfc-muted);
+      margin: 0 auto 40px;
+      max-width: 620px;
+    }
+    #cqfc-{{ section.id }} .cqfc__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--cqfc-accent);
+      color: var(--cqfc-bg);
+      border: none;
+      border-radius: 10px;
+      padding: 20px 56px;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    #cqfc-{{ section.id }} .cqfc__cta:hover:not([disabled]) {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 36px color-mix(in srgb, var(--cqfc-accent) 50%, rgba(0,0,0,0.3));
+    }
+    #cqfc-{{ section.id }} .cqfc__cta[aria-busy="true"] { opacity: 0.7; cursor: wait; }
+    #cqfc-{{ section.id }} .cqfc__cta::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%);
+      transform: translateX(-120%);
+      transition: transform 0.8s ease;
+    }
+    #cqfc-{{ section.id }} .cqfc__cta:hover::after { transform: translateX(120%); }
+    #cqfc-{{ section.id }} .cqfc__trust {
+      margin-top: 26px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 24px;
+      font-size: 13px;
+      color: var(--cqfc-muted);
+    }
+    #cqfc-{{ section.id }} .cqfc__trust span::before {
+      content: '✓';
+      color: var(--cqfc-accent);
+      margin-right: 6px;
+      font-weight: 700;
+    }
+    #cqfc-{{ section.id }} .cqfc__error {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #FFB0B0;
+      display: none;
+    }
+    #cqfc-{{ section.id }} .cqfc__error[data-visible="true"] { display: block; }
+
+    #cqfc-{{ section.id }} .cqfc__countdown {
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #cqfc-{{ section.id }} .cqfc__pill-dot,
+      #cqfc-{{ section.id }} .cqfc__cta::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+
+  <div class="cqfc__inner">
+    {%- if section.settings.show_pill -%}
+      <div class="cqfc__pill" data-cqfc-pill>
+        <span class="cqfc__pill-dot"></span>
+        {%- if section.settings.enable_countdown and section.settings.countdown_target != blank -%}
+          <span data-cqfc-countdown-label>{{ section.settings.pill_label }}</span>
+          <span class="cqfc__countdown" data-cqfc-countdown data-target="{{ section.settings.countdown_target }}">--:--:--</span>
+        {%- else -%}
+          <span>{{ section.settings.pill_label }}</span>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <h2 id="cqfc-title-{{ section.id }}" class="cqfc__title">
+      {{ 'homepage_sections.final_cta.heading_prefix' | t }}<em>{{ 'homepage_sections.final_cta.heading_accent' | t }}</em>{{ 'homepage_sections.final_cta.heading_suffix' | t }}
+    </h2>
+
+    <p class="cqfc__sub">{{ 'homepage_sections.final_cta.subheading' | t }}</p>
+
+    <button type="button" class="cqfc__cta" data-cqfc-atc
+            {% unless has_bundle %}disabled aria-disabled="true"{% endunless %}>
+      {{ 'homepage_sections.final_cta.cta_label' | t }}
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M5 12h14m-7-7l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <div class="cqfc__trust">
+      <span>{{ 'homepage_sections.final_cta.trust_shipping' | t }}</span>
+      <span>{{ 'homepage_sections.final_cta.trust_returns' | t }}</span>
+      <span>{{ 'homepage_sections.final_cta.trust_cancel' | t }}</span>
+    </div>
+
+    <div class="cqfc__error" data-cqfc-error role="alert"></div>
+  </div>
+</section>
+
+<script>
+(function() {
+  'use strict';
+  var root = document.getElementById('cqfc-{{ section.id }}');
+  if (!root) return;
+
+  // --- Countdown -----------------------------------------------------------
+  var cdEl = root.querySelector('[data-cqfc-countdown]');
+  if (cdEl) {
+    var target = new Date(cdEl.getAttribute('data-target')).getTime();
+    if (!isNaN(target)) {
+      function pad(n) { return String(n).padStart(2, '0'); }
+      function tick() {
+        var now = Date.now();
+        var diff = Math.max(0, target - now);
+        var d = Math.floor(diff / 86400000);
+        var h = Math.floor((diff % 86400000) / 3600000);
+        var m = Math.floor((diff % 3600000) / 60000);
+        var s = Math.floor((diff % 60000) / 1000);
+        cdEl.textContent = (d > 0 ? d + 'd ' : '') + pad(h) + ':' + pad(m) + ':' + pad(s);
+        if (diff > 0) setTimeout(tick, 1000);
+      }
+      tick();
+    }
+  }
+
+  // --- ATC -----------------------------------------------------------------
+  var btn = root.querySelector('[data-cqfc-atc]');
+  var errEl = root.querySelector('[data-cqfc-error]');
+  if (!btn) return;
+
+  var items = [
+    {%- if has_bundle -%}
+      { id: {{ product_a_variant.id | json }}, quantity: 1 },
+      { id: {{ product_b_variant.id | json }}, quantity: 1 }
+    {%- endif -%}
+  ];
+
+  function showError(msg) {
+    if (!errEl) return;
+    errEl.textContent = msg;
+    errEl.setAttribute('data-visible', 'true');
+    setTimeout(function() { errEl.removeAttribute('data-visible'); }, 6000);
+  }
+
+  btn.addEventListener('click', function() {
+    if (btn.getAttribute('aria-busy') === 'true' || btn.hasAttribute('disabled')) return;
+    if (!items.length) {
+      showError('{{ "homepage_sections.final_cta.error_config" | t }}');
+      return;
+    }
+    btn.setAttribute('aria-busy', 'true');
+
+    var cartDrawer = document.querySelector('cart-drawer');
+    var sectionsList = [];
+    if (cartDrawer && typeof cartDrawer.getSectionsToRender === 'function') {
+      sectionsList = cartDrawer.getSectionsToRender().map(function(s) { return s.id; });
+    }
+    var body = { items: items };
+    if (sectionsList.length) {
+      body.sections = sectionsList.join(',');
+      body.sections_url = window.location.pathname;
+    }
+
+    fetch((window.routes && window.routes.cart_add_url) || '/cart/add.js', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/javascript',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify(body)
+    })
+      .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+      .then(function(r) {
+        if (!r.ok) {
+          showError(r.data.description || r.data.message || '{{ "homepage_sections.final_cta.error_generic" | t }}');
+          return;
+        }
+        if (typeof publish === 'function' && typeof PUB_SUB_EVENTS === 'object') {
+          publish(PUB_SUB_EVENTS.cartUpdate, {
+            source: 'calqix-final-cta',
+            cartData: r.data
+          });
+        }
+        if (cartDrawer && typeof cartDrawer.renderContents === 'function' && r.data.sections) {
+          cartDrawer.renderContents(r.data, true);
+        }
+      })
+      .catch(function(err) {
+        console.error('[calqix-final-cta]', err);
+        showError('{{ "homepage_sections.final_cta.error_generic" | t }}');
+      })
+      .finally(function() {
+        btn.removeAttribute('aria-busy');
+      });
+  });
+})();
+</script>
+
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Final CTA",
+  "tag": "section",
+  "class": "calqix-final-cta",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Zichtbaarheid"
+    },
+    {
+      "type": "checkbox",
+      "id": "disable_section",
+      "label": "Section uitschakelen",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Bundle (Rebuild Kit)"
+    },
+    {
+      "type": "product",
+      "id": "product_a",
+      "label": "Product A (FlowCore)",
+      "info": "Wordt samen met Product B in één cart/add call toegevoegd."
+    },
+    {
+      "type": "product",
+      "id": "product_b",
+      "label": "Product B (OralBiome Pro)"
+    },
+    {
+      "type": "header",
+      "content": "Timer pill (optioneel)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pill",
+      "label": "Pill tonen",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "pill_label",
+      "label": "Pill label",
+      "default": "Launch offer ends in"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_countdown",
+      "label": "Live countdown",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "countdown_target",
+      "label": "Countdown doel (ISO datetime)",
+      "info": "Bijv. 2026-05-01T23:59:59Z. Leeg = geen countdown.",
+      "default": ""
+    },
+    {
+      "type": "header",
+      "content": "Kleuren"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Achtergrond",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Tekst",
+      "default": "#F7F4EC"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Tekst (gedempt)",
+      "default": "#B8C5D6"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#C9A84C"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Final CTA",
+      "category": "CALQIX",
+      "settings": {
+        "product_a": "calqix-flowcore",
+        "product_b": "oralbiome-pro-freshmint",
+        "show_pill": true,
+        "enable_countdown": false
+      }
+    }
+  ]
+}
+{% endschema %}

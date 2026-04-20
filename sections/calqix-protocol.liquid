@@ -1,0 +1,506 @@
+{%- comment -%}
+  CALQIX Two-Step Protocol (Task 5)
+  -----------------------------------------------
+  Navy full-bleed section with two step cards.
+  Step 01: FlowCore — animated pulsing water stream SVG
+  Step 02: OralBiome — animated falling nano-particles SVG
+  Blocks are reorderable. Each step exposes title, subtitle,
+  visual choice, and 3 metric fields.
+{%- endcomment -%}
+
+{%- if section.settings.disable_section -%}
+  {%- if request.design_mode -%}
+    <div style="padding:20px;background:#0F2B47;color:#F7F4EC;border:1px dashed #C9A84C;text-align:center;font-family:'DM Sans',sans-serif;">
+      Protocol section is uitgeschakeld via de section toggle.
+    </div>
+  {%- endif -%}
+{%- else -%}
+
+{%- liquid
+  assign bg_color = section.settings.bg_color | default: '#0F2B47'
+  assign text_color = section.settings.text_color | default: '#F7F4EC'
+  assign muted_color = section.settings.muted_color | default: '#B8C5D6'
+  assign accent_color = section.settings.accent_color | default: '#C9A84C'
+  assign card_bg = section.settings.card_bg | default: '#133357'
+  assign card_border = section.settings.card_border | default: '#1E4773'
+-%}
+
+<section id="cqp-{{ section.id }}" class="cqp" aria-labelledby="cqp-title-{{ section.id }}">
+  <style>
+    #cqp-{{ section.id }} {
+      --cqp-bg: {{ bg_color }};
+      --cqp-text: {{ text_color }};
+      --cqp-muted: {{ muted_color }};
+      --cqp-accent: {{ accent_color }};
+      --cqp-card: {{ card_bg }};
+      --cqp-border: {{ card_border }};
+      background: var(--cqp-bg);
+      color: var(--cqp-text);
+      padding: clamp(64px, 9vw, 112px) 0;
+      font-family: 'DM Sans', Arial, sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+    #cqp-{{ section.id }} .cqp__inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    #cqp-{{ section.id }} .cqp__head {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto 56px;
+    }
+    #cqp-{{ section.id }} .cqp__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--cqp-muted);
+      margin-bottom: 22px;
+      font-weight: 500;
+    }
+    #cqp-{{ section.id }} .cqp__eyebrow::before,
+    #cqp-{{ section.id }} .cqp__eyebrow::after {
+      content: '';
+      width: 28px;
+      height: 1px;
+      background: var(--cqp-accent);
+    }
+    #cqp-{{ section.id }} .cqp__title {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(36px, 5vw, 64px);
+      line-height: 1.05;
+      margin: 0 0 20px;
+      color: var(--cqp-text);
+      font-weight: 400;
+    }
+    #cqp-{{ section.id }} .cqp__title em {
+      font-style: italic;
+      color: var(--cqp-accent);
+    }
+    #cqp-{{ section.id }} .cqp__intro {
+      font-size: 17px;
+      line-height: 1.62;
+      color: var(--cqp-muted);
+      margin: 0;
+    }
+    #cqp-{{ section.id }} .cqp__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    @media (max-width: 860px) {
+      #cqp-{{ section.id }} .cqp__grid { grid-template-columns: 1fr; gap: 20px; }
+    }
+    #cqp-{{ section.id }} .cqp__card {
+      position: relative;
+      background: var(--cqp-card);
+      border: 1px solid var(--cqp-border);
+      border-radius: 14px;
+      padding: 36px 32px 32px;
+      overflow: hidden;
+      transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+    #cqp-{{ section.id }} .cqp__card:hover {
+      transform: translateY(-3px);
+      border-color: color-mix(in srgb, var(--cqp-accent) 50%, var(--cqp-border));
+      box-shadow: 0 24px 48px rgba(0,0,0,0.28);
+    }
+    #cqp-{{ section.id }} .cqp__card-num {
+      position: absolute;
+      top: 28px;
+      right: 32px;
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 64px;
+      color: color-mix(in srgb, var(--cqp-accent) 35%, transparent);
+      line-height: 1;
+      user-select: none;
+      pointer-events: none;
+    }
+    #cqp-{{ section.id }} .cqp__visual {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--cqp-bg) 65%, black);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    #cqp-{{ section.id }} .cqp__visual svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    #cqp-{{ section.id }} .cqp__step-tag {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cqp-accent);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    #cqp-{{ section.id }} .cqp__step-title {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 28px;
+      line-height: 1.15;
+      margin: 0 0 8px;
+      color: var(--cqp-text);
+      font-weight: 400;
+    }
+    #cqp-{{ section.id }} .cqp__step-sub {
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--cqp-muted);
+      margin: 0 0 24px;
+    }
+    #cqp-{{ section.id }} .cqp__metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      padding-top: 20px;
+      border-top: 1px solid var(--cqp-border);
+    }
+    #cqp-{{ section.id }} .cqp__metric {
+      text-align: center;
+    }
+    #cqp-{{ section.id }} .cqp__metric-num {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 26px;
+      color: var(--cqp-accent);
+      font-weight: 400;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    #cqp-{{ section.id }} .cqp__metric-label {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--cqp-muted);
+      line-height: 1.35;
+    }
+
+    /* FlowCore pulsing stream SVG animations */
+    #cqp-{{ section.id }} .cqp-vis-flowcore .cqp-pulse-ring {
+      transform-origin: center;
+      animation: cqpPulse 2.6s ease-out infinite;
+    }
+    #cqp-{{ section.id }} .cqp-vis-flowcore .cqp-pulse-ring:nth-child(2) { animation-delay: 0.65s; }
+    #cqp-{{ section.id }} .cqp-vis-flowcore .cqp-pulse-ring:nth-child(3) { animation-delay: 1.3s; }
+    #cqp-{{ section.id }} .cqp-vis-flowcore .cqp-stream {
+      animation: cqpStreamShift 3s linear infinite;
+    }
+    @keyframes cqpPulse {
+      0% { transform: scale(0.4); opacity: 0.85; }
+      100% { transform: scale(1.9); opacity: 0; }
+    }
+    @keyframes cqpStreamShift {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -40; }
+    }
+
+    /* OralBiome falling particles animation */
+    #cqp-{{ section.id }} .cqp-vis-oralbiome .cqp-particle {
+      animation: cqpFall var(--cqp-p-dur, 4s) ease-in infinite;
+      animation-delay: var(--cqp-p-delay, 0s);
+      transform-origin: center;
+    }
+    @keyframes cqpFall {
+      0% { transform: translateY(-20%) scale(0.6); opacity: 0; }
+      20% { opacity: 0.95; }
+      100% { transform: translateY(130%) scale(1.15); opacity: 0; }
+    }
+    #cqp-{{ section.id }} .cqp-vis-oralbiome .cqp-tooth-base {
+      animation: cqpToothGlow 3s ease-in-out infinite;
+      transform-origin: center;
+    }
+    @keyframes cqpToothGlow {
+      0%, 100% { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--cqp-accent) 40%, transparent)); }
+      50% { filter: drop-shadow(0 0 18px color-mix(in srgb, var(--cqp-accent) 80%, transparent)); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #cqp-{{ section.id }} .cqp-pulse-ring,
+      #cqp-{{ section.id }} .cqp-stream,
+      #cqp-{{ section.id }} .cqp-particle,
+      #cqp-{{ section.id }} .cqp-tooth-base,
+      #cqp-{{ section.id }} .cqp__card {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+
+  <div class="cqp__inner">
+    <div class="cqp__head">
+      <div class="cqp__eyebrow">{{ 'homepage_sections.protocol.eyebrow' | t }}</div>
+      <h2 id="cqp-title-{{ section.id }}" class="cqp__title">
+        {{ 'homepage_sections.protocol.heading_prefix' | t }}<em>{{ 'homepage_sections.protocol.heading_accent' | t }}</em> {{ 'homepage_sections.protocol.heading_suffix' | t }}
+      </h2>
+      <p class="cqp__intro">{{ 'homepage_sections.protocol.intro' | t }}</p>
+    </div>
+
+    <div class="cqp__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'step' -%}
+          {%- liquid
+            assign visual_type = block.settings.visual | default: 'flowcore'
+            assign step_index = forloop.index
+            assign step_num = step_index | prepend: '0'
+          -%}
+          <article class="cqp__card" {{ block.shopify_attributes }}>
+            <div class="cqp__card-num">{{ step_num | slice: -2, 2 }}</div>
+
+            <div class="cqp__visual cqp-vis-{{ visual_type }}">
+              {%- case visual_type -%}
+              {%- when 'flowcore' -%}
+                <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <defs>
+                    <radialGradient id="cqpPulseGrad-{{ section.id }}-{{ block.id }}" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="{{ accent_color }}" stop-opacity="0.6"/>
+                      <stop offset="100%" stop-color="{{ accent_color }}" stop-opacity="0"/>
+                    </radialGradient>
+                  </defs>
+                  <!-- Central device circle -->
+                  <circle cx="160" cy="90" r="20" fill="{{ accent_color }}" opacity="0.95"/>
+                  <circle cx="160" cy="90" r="28" fill="none" stroke="{{ accent_color }}" stroke-width="1.5" opacity="0.4"/>
+                  <!-- Pulse rings -->
+                  <circle class="cqp-pulse-ring" cx="160" cy="90" r="30" fill="url(#cqpPulseGrad-{{ section.id }}-{{ block.id }})"/>
+                  <circle class="cqp-pulse-ring" cx="160" cy="90" r="30" fill="url(#cqpPulseGrad-{{ section.id }}-{{ block.id }})"/>
+                  <circle class="cqp-pulse-ring" cx="160" cy="90" r="30" fill="url(#cqpPulseGrad-{{ section.id }}-{{ block.id }})"/>
+                  <!-- Water stream -->
+                  <path class="cqp-stream" d="M 180 90 Q 230 90 260 70" fill="none" stroke="{{ accent_color }}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 6" opacity="0.85"/>
+                  <path class="cqp-stream" d="M 180 90 Q 230 90 260 90" fill="none" stroke="{{ accent_color }}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 6" opacity="0.7"/>
+                  <path class="cqp-stream" d="M 180 90 Q 230 90 260 110" fill="none" stroke="{{ accent_color }}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 6" opacity="0.55"/>
+                </svg>
+              {%- when 'oralbiome' -%}
+                <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <defs>
+                    <radialGradient id="cqpToothGrad-{{ section.id }}-{{ block.id }}" cx="50%" cy="30%" r="70%">
+                      <stop offset="0%" stop-color="#FFFFFF"/>
+                      <stop offset="100%" stop-color="#E8DFC5"/>
+                    </radialGradient>
+                  </defs>
+                  <!-- Falling nano particles -->
+                  {%- for p in (1..8) -%}
+                    {%- assign px = p | times: 38 | modulo: 290 | plus: 20 -%}
+                    {%- assign pdur = 3500 | plus: p | modulo: 2000 | plus: 2800 -%}
+                    {%- assign pdelay = p | times: 420 | modulo: 3000 -%}
+                    <circle class="cqp-particle" cx="{{ px }}" cy="0" r="3" fill="{{ accent_color }}"
+                            style="--cqp-p-dur: {{ pdur }}ms; --cqp-p-delay: {{ pdelay }}ms;"
+                            opacity="0.85"/>
+                  {%- endfor -%}
+                  <!-- Tooth base -->
+                  <path class="cqp-tooth-base" d="M 160 90 C 130 90, 115 115, 120 140 C 124 160, 140 170, 150 168 C 155 167, 160 163, 160 158 C 160 163, 165 167, 170 168 C 180 170, 196 160, 200 140 C 205 115, 190 90, 160 90 Z"
+                        fill="url(#cqpToothGrad-{{ section.id }}-{{ block.id }})" stroke="{{ accent_color }}" stroke-width="1.8"/>
+                </svg>
+              {%- else -%}
+                <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <circle cx="160" cy="90" r="40" fill="none" stroke="{{ accent_color }}" stroke-width="2" opacity="0.6"/>
+                  <circle cx="160" cy="90" r="12" fill="{{ accent_color }}"/>
+                </svg>
+              {%- endcase -%}
+            </div>
+
+            <div class="cqp__step-tag">{{ 'homepage_sections.protocol.step_tag' | t: num: step_index }}</div>
+            <h3 class="cqp__step-title">{{ block.settings.title }}</h3>
+            <p class="cqp__step-sub">{{ block.settings.subtitle }}</p>
+
+            {%- if block.settings.metric_1_num != blank or block.settings.metric_2_num != blank or block.settings.metric_3_num != blank -%}
+              <div class="cqp__metrics">
+                {%- if block.settings.metric_1_num != blank -%}
+                  <div class="cqp__metric">
+                    <div class="cqp__metric-num">{{ block.settings.metric_1_num }}</div>
+                    <div class="cqp__metric-label">{{ block.settings.metric_1_label }}</div>
+                  </div>
+                {%- endif -%}
+                {%- if block.settings.metric_2_num != blank -%}
+                  <div class="cqp__metric">
+                    <div class="cqp__metric-num">{{ block.settings.metric_2_num }}</div>
+                    <div class="cqp__metric-label">{{ block.settings.metric_2_label }}</div>
+                  </div>
+                {%- endif -%}
+                {%- if block.settings.metric_3_num != blank -%}
+                  <div class="cqp__metric">
+                    <div class="cqp__metric-num">{{ block.settings.metric_3_num }}</div>
+                    <div class="cqp__metric-label">{{ block.settings.metric_3_label }}</div>
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Protocol (2-step)",
+  "tag": "section",
+  "class": "calqix-protocol",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Zichtbaarheid"
+    },
+    {
+      "type": "checkbox",
+      "id": "disable_section",
+      "label": "Section uitschakelen",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Kleuren"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Achtergrond",
+      "default": "#0F2B47"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Tekst (headings)",
+      "default": "#F7F4EC"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Tekst (gedempt)",
+      "default": "#B8C5D6"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent (goud)",
+      "default": "#C9A84C"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card achtergrond",
+      "default": "#133357"
+    },
+    {
+      "type": "color",
+      "id": "card_border",
+      "label": "Card border",
+      "default": "#1E4773"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Stap",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Titel",
+          "default": "Deep-clean first"
+        },
+        {
+          "type": "textarea",
+          "id": "subtitle",
+          "label": "Subtitel",
+          "default": "FlowCore removes what blocks remineralisation."
+        },
+        {
+          "type": "select",
+          "id": "visual",
+          "label": "Visual (animatie)",
+          "options": [
+            { "value": "flowcore", "label": "FlowCore (pulsing stream)" },
+            { "value": "oralbiome", "label": "OralBiome (falling particles)" },
+            { "value": "circle", "label": "Simpele cirkel" }
+          ],
+          "default": "flowcore"
+        },
+        {
+          "type": "header",
+          "content": "Metrics (optioneel)"
+        },
+        {
+          "type": "text",
+          "id": "metric_1_num",
+          "label": "Metric 1 waarde"
+        },
+        {
+          "type": "text",
+          "id": "metric_1_label",
+          "label": "Metric 1 label"
+        },
+        {
+          "type": "text",
+          "id": "metric_2_num",
+          "label": "Metric 2 waarde"
+        },
+        {
+          "type": "text",
+          "id": "metric_2_label",
+          "label": "Metric 2 label"
+        },
+        {
+          "type": "text",
+          "id": "metric_3_num",
+          "label": "Metric 3 waarde"
+        },
+        {
+          "type": "text",
+          "id": "metric_3_label",
+          "label": "Metric 3 label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Protocol (2-step)",
+      "category": "CALQIX",
+      "blocks": [
+        {
+          "type": "step",
+          "settings": {
+            "title": "Deep-clean first",
+            "subtitle": "FlowCore removes what blocks remineralisation. 1,600 pulses per minute reach 6 mm below the gumline.",
+            "visual": "flowcore",
+            "metric_1_num": "1,600",
+            "metric_1_label": "Pulses per minute",
+            "metric_2_num": "6 mm",
+            "metric_2_label": "Below gumline",
+            "metric_3_num": "3",
+            "metric_3_label": "Clinical modes"
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Then rebuild",
+            "subtitle": "Nano-hydroxyapatite binds directly to the clean enamel surface. Peer-reviewed science, every night.",
+            "visual": "oralbiome",
+            "metric_1_num": "20-80",
+            "metric_1_label": "nm particle size",
+            "metric_2_num": "81%",
+            "metric_2_label": "Less gum bleeding",
+            "metric_3_num": "40+",
+            "metric_3_label": "Years of research"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
