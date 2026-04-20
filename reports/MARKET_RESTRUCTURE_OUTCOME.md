@@ -12,7 +12,7 @@ API: Shopify Admin GraphQL 2025-01 (self-healing OAuth token)
 | 2. LU missing                            | no market       | france[FR,LU]               | DONE via API                  |
 | 3. Belgium dual-language                 | BE in primary   | no change needed            | DOCUMENTED — works via primary |
 | 4. de-CH / fr-CH locales                 | not available   | `/de-ch/` + `/fr-ch/` URLs  | DONE differently — see below  |
-| 5. Per-market currency (DKK/SEK/NOK/CHF/GBP) | all EUR     | blocked by payment gateway  | ADMIN ACTION required         |
+| 5. Per-market currency (DKK/SEK/NOK/CHF/GBP) | all EUR     | DKK/SEK/CHF/GBP/ISK live    | DONE (via Mollie + API) except NOK |
 | 6. /en/ subfolder                        | /en/ 404        | /en/ 301 -> /               | DONE via redirects batch 1    |
 | 7. CH subscription payment               | same as shop    | same as shop                | ADMIN ACTION when CH Payments |
 
@@ -58,34 +58,28 @@ translation keys for the switzerland market only. No new locale required.
 
 ## What admin must still do (manual, UI-only)
 
-### 1. Enable multi-currency on Shopify Payments (blocks currency per market)
+### 1. Multi-currency configuration (Mollie + Shopify Payments) — DONE
 
-API attempt returned:
-```
-"The shop's payment gateway does not support enabling more than one currency."
-```
+After activating Mollie as the additional payment provider and adding
+CHF/DKK/GBP/ISK/SEK as accepted currencies in Shopify Admin, the API accepted the
+per-market currency settings. Applied 2026-04-20:
 
-**Click path**:
-1. Shopify Admin -> **Settings** -> **Payments** -> **Shopify Payments** -> **Manage**.
-2. Scroll to **Currencies accepted at checkout** (or similar panel).
-3. Add: DKK, SEK, NOK, CHF, GBP (DKK/SEK/NOK/GBP are supported; **CHF only if
-   Shopify Payments is active in CH** — usually not available outside SP-supported
-   countries; use Stripe as Additional Payment Method for CHF if needed).
-4. Save.
-
-After this, re-run:
 ```
-cd calqix-capi
-node scripts/apply-market-restructure.js --apply --phase=6
+scandinavie     base=EUR (enabled=true)    localCurrencies=true  (DK/SE/NO/IS auto-convert)
+switzerland     base=CHF (enabled=true)    localCurrencies=true  (CHF displayed, CH checkout in CHF)
+united-kingdom  base=GBP (enabled=true)    localCurrencies=true  (GBP displayed, UK checkout in GBP)
 ```
 
-This will flip `scandinavie` to `EUR + localCurrencies=true` (DK/SE/NO/IS auto-convert
-from EUR) and `united-kingdom` to `GBP + localCurrencies=true`.
+Live verified: `https://www.calqix.com/de-ch/cart.js` returns `"currency":"CHF"`.
 
-For switzerland market specifically: once CHF is supported, run:
-```powershell
-node -e "require('dotenv').config(); require('./lib/shopify-admin').graphql('mutation{marketUpdate(id:\"gid://shopify/Market/106899308873\",input:{currencySettings:{baseCurrency:CHF,localCurrencies:true}}){market{id currencySettings{baseCurrency{currencyCode}}} userErrors{field message}}}').then(r=>console.log(JSON.stringify(r,null,2)))"
-```
+**Remaining gap**: NOK (Norwegian Krone) is not yet in the shop's enabled presentment
+currencies list. Norwegian customers currently see EUR prices with Mollie conversion
+at checkout. To fix (5 seconds):
+
+1. Shopify Admin -> **Settings** -> **Payments** -> Mollie (or Payments in general) ->
+   add **NOK** to accepted currencies.
+2. Shopify Admin -> **Settings** -> **Markets** -> **Scandinavie** -> no change needed;
+   it already has `localCurrencies: true` so NOK auto-enables once the shop supports it.
 
 ### 2. Swiss payments and subscriptions
 
