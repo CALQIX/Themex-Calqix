@@ -244,37 +244,106 @@
       }
     } catch (e) {}
 
+    // Ask Shopify to return fresh section HTML alongside the added item so
+    // the theme's drawer renderContents() can swap in the new state without
+    // a second round-trip. Section ids match the theme's cart-drawer schema.
+    var sectionIds = 'cart-drawer,cart-icon-bubble';
+
     return fetch('/cart/add.js', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       credentials: 'same-origin',
-      body: JSON.stringify({ id: parseInt(variantId, 10), quantity: 1 })
+      body: JSON.stringify({
+        id: parseInt(variantId, 10),
+        quantity: 1,
+        sections: sectionIds,
+        sections_url: window.location.pathname
+      })
     })
-      .then(function (r) { return r.json(); })
-      .then(function (addedItem) {
-        // Mark used for this session and emit a custom event other
-        // scripts (e.g. the cart drawer refresher) can listen to.
+      .then(function (r) {
+        // Preserve ok-ness + status; Shopify returns 422 on discount/inventory
+        // conflicts with a JSON error body instead of throwing.
+        return r.json().then(function (body) { return { ok: r.ok, status: r.status, body: body }; });
+      })
+      .then(function (resp) {
+        if (!resp.ok) {
+          showAddError(sourceBtn, resp.body && (resp.body.description || resp.body.message));
+          // Swallow — don't mark session used or close picker on failure.
+          var err = new Error('ATC failed: ' + resp.status);
+          err.response = resp;
+          throw err;
+        }
+
+        var addedItem = resp.body || {};
+
         sset(SESSION_USED_KEY, '1');
         sset(LAST_ATC_KEY, String(Date.now()));
 
+        // 1) Custom event for any third-party listeners / analytics.
         document.dispatchEvent(new CustomEvent('cq:rk:bundle-added', {
           detail: { variantId: variantId, item: addedItem }
         }));
 
-        // Broadcast standard cart-update events so the theme drawer
-        // refetches and re-renders its contents.
+        // 2) THIS theme uses a pub-sub bus — `subscribe(PUB_SUB_EVENTS.cartUpdate, fn)`
+        //    is what cart-drawer.js / cart.js actually listen to. Without
+        //    publishing here the Shopify cart IS updated but the drawer UI
+        //    never re-renders, so the customer thinks "nothing was added".
+        //    This mirrors the pattern used in cart-flavor-picker.js.
+        try {
+          if (typeof window.publish === 'function' && window.PUB_SUB_EVENTS && window.PUB_SUB_EVENTS.cartUpdate) {
+            window.publish(window.PUB_SUB_EVENTS.cartUpdate, {
+              source: 'rebuild-kit-picker',
+              productVariantId: variantId,
+              cartData: addedItem
+            });
+          }
+        } catch (e) {}
+
+        // 3) DOM events as a belt-and-braces fallback.
         document.dispatchEvent(new CustomEvent('cart:refresh'));
         document.dispatchEvent(new CustomEvent('cart:updated'));
         document.dispatchEvent(new CustomEvent('cartUpdate'));
 
         return addedItem;
       })
-      .catch(function () { return null; })
+      .catch(function (err) {
+        // Only rethrow to finally — make errors observable in console for debugging.
+        try { console.warn('[CalqixRebuildKit] add failed:', err); } catch (e) {}
+        return null;
+      })
       .finally(function () {
-        closePicker();
-        // Re-evaluate state once the drawer has had a moment to refresh
-        window.setTimeout(function () { refresh(); }, 400);
+        // Only auto-close on success (sourceBtn has --added class). If the
+        // add failed, leave the modal open so the error is visible.
+        if (sourceBtn && sourceBtn.classList.contains('cq-rk-picker__card-btn--added')) {
+          window.setTimeout(closePicker, 260);
+        }
+        window.setTimeout(function () { refresh(); }, 500);
       });
+  }
+
+  function showAddError(sourceBtn, message) {
+    if (sourceBtn) {
+      // Remove the success class so the card can be retried.
+      sourceBtn.classList.remove('cq-rk-picker__card-btn--added');
+    }
+    var picker = document.querySelector('[data-cq-rk-picker]');
+    if (!picker) return;
+    var existing = picker.querySelector('.cq-rk-picker__error');
+    if (existing) existing.remove();
+    var err = document.createElement('p');
+    err.className = 'cq-rk-picker__error';
+    err.setAttribute('role', 'alert');
+    err.textContent = message
+      ? String(message)
+      : 'Could not add to cart. Please try again or pick a different color.';
+    var footer = picker.querySelector('.cq-rk-picker__footer');
+    if (footer) {
+      footer.parentNode.insertBefore(err, footer);
+    } else {
+      var dialog = picker.querySelector('.cq-rk-picker__dialog');
+      if (dialog) dialog.appendChild(err);
+    }
+    window.setTimeout(function () { if (err && err.parentNode) err.remove(); }, 5000);
   }
 
   // -- Refresh loop -----------------------------------------------------
