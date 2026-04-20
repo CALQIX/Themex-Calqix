@@ -630,7 +630,10 @@
     document.addEventListener('cartUpdate', function () { sset(LAST_ATC_KEY, String(Date.now())); refresh(); }, false);
     document.addEventListener('cart:updated', function () { refresh(); }, false);
     document.addEventListener('cart:refresh', function () { refresh(); }, false);
-    document.addEventListener('cartDrawerOpen', function () { refresh(); }, false);
+    // The theme's cart-drawer.js dispatches 'cart-drawer-open' (hyphens).
+    // Listen for both variants so the banner refreshes on passive opens too.
+    document.addEventListener('cart-drawer-open', function () { refresh(); }, false);
+    document.addEventListener('cartDrawerOpen',   function () { refresh(); }, false);
 
     // Also monkey-patch fetch to catch /cart/add.js calls the theme itself
     // does not emit a custom event for.
