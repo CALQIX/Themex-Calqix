@@ -288,10 +288,13 @@
         //    is what cart-drawer.js / cart.js actually listen to. Without
         //    publishing here the Shopify cart IS updated but the drawer UI
         //    never re-renders, so the customer thinks "nothing was added".
-        //    This mirrors the pattern used in cart-flavor-picker.js.
+        //
+        //    NOTE: `window.PUB_SUB_EVENTS` is NOT exposed — constants.js
+        //    defines it as a module-local `const`. We use the string
+        //    literal 'cart-update' (the known value) directly.
         try {
-          if (typeof window.publish === 'function' && window.PUB_SUB_EVENTS && window.PUB_SUB_EVENTS.cartUpdate) {
-            window.publish(window.PUB_SUB_EVENTS.cartUpdate, {
+          if (typeof window.publish === 'function') {
+            window.publish('cart-update', {
               source: 'rebuild-kit-picker',
               productVariantId: variantId,
               cartData: addedItem
