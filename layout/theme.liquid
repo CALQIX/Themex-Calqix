@@ -134,6 +134,10 @@
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'base.js' | asset_url }}" defer="defer"></script>
 
+    {%- comment -%} CALQIX flying-tooth cart animation (Phase A) {%- endcomment -%}
+    {{ 'calqix-cart-animation.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'calqix-cart-animation.js' | asset_url }}" defer="defer"></script>
+
     <script src="{{ 'color-swatch.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'localization-form.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
