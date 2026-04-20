@@ -6,25 +6,30 @@
   Step 02: OralBiome — animated falling nano-particles SVG
   Blocks are reorderable. Each step exposes title, subtitle,
   visual choice, and 3 metric fields.
+
+  Canonical color palette: assets/calqix-design-tokens.css
+  (Phase 4 · option B · schema-default snap, 2026-04-20):
+  bg_color + visual_bg_2 snapped #0F2B47 -> #0F2840 to match
+  --calqix-navy-deep exactly. Existing saved settings unaffected.
 {%- endcomment -%}
 
 {%- if section.settings.disable_section -%}
   {%- if request.design_mode -%}
-    <div style="padding:20px;background:#0F2B47;color:#F7F4EC;border:1px dashed #C9A84C;text-align:center;font-family:'DM Sans',sans-serif;">
+    <div style="padding:20px;background:#0F2840;color:#F7F4EC;border:1px dashed #C9A84C;text-align:center;font-family:'DM Sans',sans-serif;">
       Protocol section is uitgeschakeld via de section toggle.
     </div>
   {%- endif -%}
 {%- else -%}
 
 {%- liquid
-  assign bg_color = section.settings.bg_color | default: '#0F2B47'
+  assign bg_color = section.settings.bg_color | default: '#0F2840'
   assign text_color = section.settings.text_color | default: '#F7F4EC'
   assign muted_color = section.settings.muted_color | default: '#B8C5D6'
   assign accent_color = section.settings.accent_color | default: '#C9A84C'
   assign card_bg = section.settings.card_bg | default: '#133357'
   assign card_border = section.settings.card_border | default: '#1E4773'
   assign visual_bg = section.settings.visual_bg | default: '#1C4577'
-  assign visual_bg_2 = section.settings.visual_bg_2 | default: '#0F2B47'
+  assign visual_bg_2 = section.settings.visual_bg_2 | default: '#0F2840'
   assign anim_accent = section.settings.anim_accent | default: '#FFD45A'
   assign anim_accent_2 = section.settings.anim_accent_2 | default: '#F5A623'
 -%}
@@ -414,7 +419,7 @@
       "type": "color",
       "id": "bg_color",
       "label": "Achtergrond",
-      "default": "#0F2B47"
+      "default": "#0F2840"
     },
     {
       "type": "color",
@@ -462,7 +467,7 @@
       "id": "visual_bg_2",
       "label": "Animatie bg (rand)",
       "info": "Kleur bij de rand van het animatiepodium (vloeit naar de card-kleur).",
-      "default": "#0F2B47"
+      "default": "#0F2840"
     },
     {
       "type": "header",
