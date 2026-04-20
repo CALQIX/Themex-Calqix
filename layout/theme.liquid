@@ -66,6 +66,15 @@
       </script>
     {%- endif -%}
     <!-- End CALQIX user_data -->
+
+    {%- comment -%}
+      CALQIX product dataLayer push for product pages.
+      Feeds GTM with canonical category from product.metafields.custom.gtm_category,
+      preventing stale productType values (e.g. NL translations of old types) from
+      leaking into GA4 item_category and Meta CAPI content_category.
+    {%- endcomment -%}
+    {%- render 'gtm-product-data' -%}
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
