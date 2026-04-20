@@ -1,0 +1,156 @@
+/*
+  CALQIX design tokens v2.0
+  Generated from calqix-design-tokens.json (W3C DTCG format).
+  Single source of truth for brand colors, typography, shadows, motion.
+
+  Loaded globally from layout/theme.liquid. All section stylesheets
+  can reference var(--calqix-*) verbatim. Existing section-local
+  overrides (e.g. wt-cart__drawer --calqix-navy) win via specificity
+  and keep their current appearance; new sections and refactors pull
+  straight from :root.
+
+  Owner: Kesekesa Holding B.V. · updated 2026-04-20
+*/
+:root {
+  /* Colors — neutrals */
+  --calqix-ivory:        #FAF7EF;
+  --calqix-cream:        #F7F4EC;
+  --calqix-cream-warm:   #F2EDE0;
+  --calqix-cream-deep:   #EDE5D0;
+  --calqix-white:        #FFFFFF;
+
+  /* Colors — brand */
+  --calqix-navy:         #1A3B5C;
+  --calqix-navy-deep:    #0F2840;
+  --calqix-teal-dark:    #0F3A34;
+  --calqix-teal:         #4ABFA3;
+  --calqix-gold:         #C9A84C;
+  --calqix-gold-soft:    #8B7228;
+
+  /* Colors — flavor accents */
+  --calqix-flavor-freshmint:     #4ABFA3;
+  --calqix-flavor-grape:         #8B6BAA;
+  --calqix-flavor-peach:         #D98E6B;
+  --calqix-flavor-citrus-orange: #E09A3C;
+  --calqix-flavor-cool-mint:     #6BB4C4;
+
+  /* Colors — borders */
+  --calqix-border:        rgba(26, 59, 92, 0.12);
+  --calqix-border-strong: rgba(26, 59, 92, 0.22);
+  --calqix-border-gold:   rgba(201, 168, 76, 0.40);
+
+  /* Section gradients */
+  --calqix-bg-flavor:
+    linear-gradient(180deg,
+      var(--calqix-ivory)      0%,
+      var(--calqix-teal-dark) 14%,
+      var(--calqix-teal-dark) 82%,
+      var(--calqix-cream-warm) 100%);
+  --calqix-bg-hero:
+    linear-gradient(180deg,
+      var(--calqix-cream-warm) 0%,
+      var(--calqix-ivory)     40%,
+      var(--calqix-cream)    100%);
+  --calqix-bg-protocol:
+    linear-gradient(180deg,
+      var(--calqix-cream) 0%,
+      var(--calqix-cream) 100%);
+  --calqix-bg-tooth:
+    linear-gradient(180deg,
+      var(--calqix-cream)  0%,
+      var(--calqix-ivory) 50%,
+      var(--calqix-cream) 100%);
+  --calqix-bg-final:
+    linear-gradient(180deg,
+      var(--calqix-cream)  0%,
+      var(--calqix-ivory) 100%);
+
+  /* Typography */
+  --calqix-font-display: 'DM Serif Display', Georgia, serif;
+  --calqix-font-body:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --calqix-font-mono:    'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  /* Font sizes */
+  --calqix-fs-display-xl: 52px;
+  --calqix-fs-display-l:  48px;
+  --calqix-fs-display-m:  44px;
+  --calqix-fs-display-s:  40px;
+  --calqix-fs-heading-l:  26px;
+  --calqix-fs-heading-m:  22px;
+  --calqix-fs-heading-s:  17px;
+  --calqix-fs-body-l:     14px;
+  --calqix-fs-body-m:     13px;
+  --calqix-fs-body-s:     12px;
+  --calqix-fs-caption:    11px;
+  --calqix-fs-label:      10px;
+  --calqix-fs-micro:       9px;
+
+  /* Line heights */
+  --calqix-lh-tight:   1.05;
+  --calqix-lh-snug:    1.2;
+  --calqix-lh-normal:  1.55;
+  --calqix-lh-relaxed: 1.65;
+
+  /* Letter spacing */
+  --calqix-ls-tight:   -0.025em;
+  --calqix-ls-normal:  0;
+  --calqix-ls-wide:    0.08em;
+  --calqix-ls-wider:   0.16em;
+  --calqix-ls-widest:  0.22em;
+
+  /* Spacing */
+  --calqix-space-xxs: 4px;
+  --calqix-space-xs:  8px;
+  --calqix-space-s:  12px;
+  --calqix-space-m:  16px;
+  --calqix-space-l:  24px;
+  --calqix-space-xl: 32px;
+  --calqix-space-xxl: 48px;
+
+  /* Section padding */
+  --calqix-section-y-desktop: 72px;
+  --calqix-section-y-tablet:  52px;
+  --calqix-section-y-mobile:  36px;
+  --calqix-section-x-desktop: 32px;
+  --calqix-section-x-tablet:  24px;
+  --calqix-section-x-mobile:  18px;
+
+  /* Radius */
+  --calqix-radius-xs:     3px;
+  --calqix-radius-s:      5px;
+  --calqix-radius-m:     10px;
+  --calqix-radius-l:     14px;
+  --calqix-radius-xl:    16px;
+  --calqix-radius-pill: 100px;
+  --calqix-radius-circle: 50%;
+
+  /* Shadows */
+  --calqix-shadow-card:       0 12px 32px rgba(26, 59, 92, 0.06);
+  --calqix-shadow-card-hover: 0 16px 40px rgba(26, 59, 92, 0.08);
+  --calqix-shadow-subtle:     0 8px 24px rgba(26, 59, 92, 0.04);
+  --calqix-shadow-orb:        0 16px 64px rgba(74, 191, 163, 0.45);
+
+  /* Motion */
+  --calqix-dur-fast:   150ms;
+  --calqix-dur-medium: 300ms;
+  --calqix-dur-slow:   500ms;
+  --calqix-dur-fly:    800ms;
+  --calqix-ease:            cubic-bezier(0.4, 0, 0.2, 1);
+  --calqix-ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --calqix-ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Layout */
+  --calqix-container-max:     1200px;
+  --calqix-container-text-max: 620px;
+}
+
+/* Shared gold section divider — used by homepage protocol, tooth, final */
+.calqix-section-divider {
+  position: absolute;
+  top: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 1px;
+  background: var(--calqix-gold);
+}

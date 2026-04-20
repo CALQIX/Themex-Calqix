@@ -123,6 +123,9 @@
     {{ 'settings.css' | asset_url | stylesheet_tag }}
     {{ 'critical.css' | asset_url | stylesheet_tag }}
 
+    {%- comment -%} CALQIX design tokens v2.0 — single source of truth for brand colors/typography/motion {%- endcomment -%}
+    {{ 'calqix-design-tokens.css' | asset_url | stylesheet_tag }}
+
     <script src="{{ 'variants.js' | asset_url }}" defer="defer"></script>
 
     <link rel="preload" href="{{ 'main.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
