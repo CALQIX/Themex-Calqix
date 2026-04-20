@@ -578,7 +578,10 @@
           }
         }
       },
-      "block_order": ["step_one", "step_two"],
+      "block_order": [
+        "step_one",
+        "step_two"
+      ],
       "settings": {
         "disable_section": false,
         "bg_color": "#0F2B47",
@@ -590,7 +593,8 @@
       }
     },
     "calqix_before_after_PhaseC2": {
-      "type": "calqix-before-after"
+      "type": "calqix-before-after",
+      "settings": {}
     },
     "calqix_final_cta_PhaseC3": {
       "type": "calqix-final-cta",
