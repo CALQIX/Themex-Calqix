@@ -147,6 +147,40 @@
 ]
 {%- endcapture -%}
 
+{%- comment -%} Per-flavor particle preset overrides (operator-driven via blocks). {%- endcomment -%}
+{%- capture particle_presets_json -%}
+{
+{%- assign preset_count = 0 -%}
+{%- for block in section.blocks -%}
+  {%- if block.type == 'flavor_particle_preset' -%}
+    {%- if preset_count > 0 -%},{%- endif -%}
+    {{ block.settings.flavor_key | json }}: {
+      "shape": {{ block.settings.shape | json }},
+      "color": {{ block.settings.color | json }},
+      "density_mult": {{ block.settings.density_mult | default: 100 | divided_by: 100.0 }},
+      "scale_mult": {{ block.settings.scale_mult | default: 100 | divided_by: 100.0 }}
+    }
+    {%- assign preset_count = preset_count | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+}
+{%- endcapture -%}
+
+{%- comment -%} Particle + jar config for the JS init. {%- endcomment -%}
+{%- capture fb_config_json -%}
+{
+  "enable_particles": {{ section.settings.enable_particles | json }},
+  "particle_density": {{ section.settings.particle_density | default: 55 }},
+  "particle_speed": {{ section.settings.particle_speed | default: 60 }},
+  "particle_opacity": {{ section.settings.particle_opacity | default: 55 }},
+  "enable_jars": {{ section.settings.enable_jars | json }},
+  "enable_parallax": {{ section.settings.enable_parallax | json }},
+  "parallax_strength": {{ section.settings.parallax_strength | default: 35 }},
+  "enable_headline_reveal": {{ section.settings.enable_headline_reveal | json }},
+  "enable_cursor_glow": {{ section.settings.enable_cursor_glow | json }}
+}
+{%- endcapture -%}
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
@@ -382,9 +416,261 @@
   #cq-fb-{{ section.id }} .cq-fb__error[data-visible="true"] {
     display: block;
   }
+
+  /* ========== UPGRADE: particles + jars + cursor glow + reveals ========== */
+
+  /* Background particle canvas */
+  #cq-fb-{{ section.id }} .cq-fb__particles {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: var(--fb-particle-opacity, 0.55);
+    transition: opacity 0.8s ease;
+  }
+
+  /* Cursor-following glow */
+  #cq-fb-{{ section.id }} .cq-fb__cursor-glow {
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--fb-accent) 32%, transparent), transparent 62%);
+    pointer-events: none;
+    z-index: 1;
+    transform: translate3d(-50%, -50%, 0);
+    left: 50%;
+    top: 40%;
+    opacity: 0;
+    transition: opacity 0.5s ease, background 0.8s ease;
+    filter: blur(8px);
+    mix-blend-mode: screen;
+  }
+  #cq-fb-{{ section.id }}[data-cursor-visible="true"] .cq-fb__cursor-glow {
+    opacity: 0.65;
+  }
+
+  /* Floating jars layer */
+  #cq-fb-{{ section.id }} .cq-fb__jars {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+    overflow: visible;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__jar {
+    position: absolute;
+    left: var(--jar-x, 10%);
+    top: var(--jar-y, 20%);
+    width: var(--jar-size, 140px);
+    height: auto;
+    opacity: calc(var(--jar-opacity, 100) / 100);
+    will-change: transform, opacity;
+    animation: cqFbJarFloat var(--jar-duration, 10s) ease-in-out infinite;
+    animation-delay: var(--jar-delay, 0s);
+    filter: drop-shadow(0 24px 36px rgba(0, 0, 0, 0.35));
+    transition: opacity 0.6s ease, filter 0.6s ease;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__jar img,
+  #cq-fb-{{ section.id }} .cq-fb__jar svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__jar--glow::before {
+    content: '';
+    position: absolute;
+    inset: -14%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, var(--jar-glow, var(--fb-accent)), transparent 62%);
+    filter: blur(18px);
+    opacity: 0.55;
+    z-index: -1;
+    transition: background 0.8s ease, opacity 0.6s ease;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__jar--dimmed {
+    opacity: calc(var(--jar-opacity, 100) / 100 * 0.35);
+    filter: drop-shadow(0 24px 36px rgba(0,0,0,0.35)) saturate(0.6);
+  }
+  #cq-fb-{{ section.id }} .cq-fb__jar--dimmed::before {
+    opacity: 0.15;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__jar--pulse {
+    animation: cqFbJarFloat var(--jar-duration, 10s) ease-in-out infinite, cqFbJarPulse 0.8s ease-out;
+  }
+
+  @keyframes cqFbJarFloat {
+    0%, 100% {
+      transform: translate3d(var(--parallax-x, 0px), 0, 0) rotate(var(--jar-rot, 0deg));
+    }
+    50% {
+      transform: translate3d(var(--parallax-x, 0px), calc(-1 * var(--jar-amp, 18px)), 0) rotate(calc(var(--jar-rot, 0deg) * -0.6));
+    }
+  }
+  @keyframes cqFbJarPulse {
+    0% { filter: drop-shadow(0 24px 36px rgba(0,0,0,0.35)) brightness(1); }
+    50% { filter: drop-shadow(0 28px 48px color-mix(in srgb, var(--fb-accent) 50%, rgba(0,0,0,0.35))) brightness(1.15); }
+    100% { filter: drop-shadow(0 24px 36px rgba(0,0,0,0.35)) brightness(1); }
+  }
+
+  /* Content layer above jars */
+  #cq-fb-{{ section.id }} .cq-fb__inner {
+    position: relative;
+    z-index: 3;
+  }
+
+  /* Title reveal animation */
+  #cq-fb-{{ section.id }} .cq-fb__title .cq-fb__word {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    line-height: 1.05;
+    padding-bottom: 0.08em;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__title .cq-fb__char {
+    display: inline-block;
+    transform: translateY(105%);
+    transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: calc(var(--char-i, 0) * 28ms);
+  }
+  #cq-fb-{{ section.id }}[data-revealed="true"] .cq-fb__title .cq-fb__char {
+    transform: translateY(0);
+  }
+
+  /* Chip micro-interactions */
+  #cq-fb-{{ section.id }} .cq-fb__chip {
+    position: relative;
+    overflow: hidden;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__chip::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 30px;
+    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.28) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.6s ease;
+    pointer-events: none;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__chip:hover::after {
+    transform: translateX(120%);
+  }
+  #cq-fb-{{ section.id }} .cq-fb__chip[aria-selected="true"] {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--fb-accent) 50%, transparent);
+  }
+
+  /* Tablet pulse */
+  #cq-fb-{{ section.id }} .cq-fb__tablet {
+    position: relative;
+    z-index: 1;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__tablet::before {
+    content: '';
+    position: absolute;
+    inset: -22px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--fb-accent) 30%, transparent), transparent 60%);
+    animation: cqFbTabletPulse 3.2s ease-in-out infinite;
+    z-index: -1;
+    pointer-events: none;
+  }
+  @keyframes cqFbTabletPulse {
+    0%, 100% { transform: scale(0.95); opacity: 0.55; }
+    50% { transform: scale(1.14); opacity: 0.9; }
+  }
+
+  /* ATC ripple/shimmer */
+  #cq-fb-{{ section.id }} .cq-fb__cta {
+    position: relative;
+    overflow: hidden;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__cta::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.35) 50%, transparent 65%);
+    transform: translateX(-120%);
+    transition: transform 0.8s ease;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__cta:hover::after {
+    transform: translateX(120%);
+  }
+
+  /* Reduced motion: disable all idle + float animations */
+  @media (prefers-reduced-motion: reduce) {
+    #cq-fb-{{ section.id }} .cq-fb__jar,
+    #cq-fb-{{ section.id }} .cq-fb__tablet::before,
+    #cq-fb-{{ section.id }} .cq-fb__title .cq-fb__char,
+    #cq-fb-{{ section.id }} .cq-fb__cta::after,
+    #cq-fb-{{ section.id }} .cq-fb__chip::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    #cq-fb-{{ section.id }} .cq-fb__title .cq-fb__char {
+      transform: none !important;
+    }
+    #cq-fb-{{ section.id }} .cq-fb__particles,
+    #cq-fb-{{ section.id }} .cq-fb__cursor-glow {
+      display: none !important;
+    }
+  }
 </style>
 
-<section id="cq-fb-{{ section.id }}" class="cq-fb" aria-labelledby="cq-fb-title-{{ section.id }}">
+<section id="cq-fb-{{ section.id }}" class="cq-fb" aria-labelledby="cq-fb-title-{{ section.id }}" data-revealed="false">
+  {%- if section.settings.enable_particles -%}
+    <canvas class="cq-fb__particles" data-cq-fb-particles aria-hidden="true"></canvas>
+  {%- endif -%}
+  {%- if section.settings.enable_cursor_glow -%}
+    <div class="cq-fb__cursor-glow" data-cq-fb-cursor aria-hidden="true"></div>
+  {%- endif -%}
+  {%- if section.settings.enable_jars -%}
+    <div class="cq-fb__jars" data-cq-fb-jars aria-hidden="true">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'floating_jar' -%}
+          {%- liquid
+            assign jar_img = blank
+            if block.settings.image_override != blank
+              assign jar_img = block.settings.image_override
+            elsif block.settings.product != blank and block.settings.product.featured_image != blank
+              assign jar_img = block.settings.product.featured_image
+            endif
+            assign jar_alt = block.settings.product.title | default: ''
+          -%}
+          {%- if jar_img != blank -%}
+            <div class="cq-fb__jar{% if block.settings.enable_glow %} cq-fb__jar--glow{% endif %}"
+                 data-cq-fb-jar
+                 data-flavor="{{ block.settings.tie_to_flavor | default: '' }}"
+                 data-z="{{ block.settings.z_depth | default: 0 }}"
+                 style="--jar-x: {{ block.settings.x_pct | default: 15 }}%;
+                        --jar-y: {{ block.settings.y_pct | default: 20 }}%;
+                        --jar-size: {{ block.settings.size_px | default: 140 }}px;
+                        --jar-amp: {{ block.settings.float_amplitude_px | default: 18 }}px;
+                        --jar-duration: {{ block.settings.float_duration_s | default: 10 }}s;
+                        --jar-delay: {{ block.settings.delay_s | default: 0 }}s;
+                        --jar-rot: {{ block.settings.rotation_deg | default: 6 }}deg;
+                        --jar-opacity: {{ block.settings.opacity_pct | default: 100 }};
+                        {% if block.settings.glow_color != blank %}--jar-glow: {{ block.settings.glow_color }};{% endif %}
+                        z-index: {{ block.settings.z_depth | default: 0 | plus: 5 }};"
+                 {{ block.shopify_attributes }}>
+              {{ jar_img | image_url: width: 480 | image_tag:
+                  loading: 'lazy',
+                  widths: '180,240,320,480,640',
+                  sizes: '(min-width: 960px) 280px, 40vw',
+                  alt: jar_alt }}
+            </div>
+          {%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
   <div class="cq-fb__inner">
     <div class="cq-fb__content">
       <div class="cq-fb__eyebrow">{{ 'homepage_sections.flavor_banner.eyebrow' | t }}</div>
@@ -601,6 +887,417 @@
   if (atcBtn) atcBtn.addEventListener('click', function() { atc(false); });
   if (subBtn) subBtn.addEventListener('click', function() { atc(true); });
 
+  // ======================================================================
+  // UPGRADE: particles + jar parallax + headline reveal + cursor glow
+  // ======================================================================
+
+  var fbConfig;
+  try { fbConfig = {{ fb_config_json }}; } catch (e) { fbConfig = { enable_particles: true, particle_density: 55, particle_speed: 60, particle_opacity: 55, enable_jars: true, enable_parallax: true, parallax_strength: 35, enable_headline_reveal: true, enable_cursor_glow: true }; }
+
+  var particlePresets;
+  try { particlePresets = {{ particle_presets_json }}; } catch (e) { particlePresets = {}; }
+
+  var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Default shape per flavor key
+  var DEFAULT_SHAPE_MAP = {
+    freshmint: 'leaf',
+    grape: 'berry',
+    peach: 'petal',
+    citrus_orange: 'wedge',
+    cool_mint: 'crystal'
+  };
+
+  // Apply particle opacity as CSS var
+  root.style.setProperty('--fb-particle-opacity', (fbConfig.particle_opacity / 100).toFixed(2));
+
+  // --- Headline reveal ------------------------------------------------------
+  (function setupHeadlineReveal() {
+    if (!fbConfig.enable_headline_reveal || reducedMotion) {
+      root.setAttribute('data-revealed', 'true');
+      return;
+    }
+    var titleEl = root.querySelector('.cq-fb__title');
+    if (!titleEl) return;
+
+    function wrapChars(node, indexOffset) {
+      var idx = indexOffset || 0;
+      var children = Array.prototype.slice.call(node.childNodes);
+      children.forEach(function(child) {
+        if (child.nodeType === Node.TEXT_NODE) {
+          var text = child.nodeValue;
+          if (!text || !text.trim()) return;
+          var words = text.split(/(\s+)/);
+          var frag = document.createDocumentFragment();
+          words.forEach(function(w) {
+            if (!w) return;
+            if (/^\s+$/.test(w)) {
+              frag.appendChild(document.createTextNode(w));
+              return;
+            }
+            var wSpan = document.createElement('span');
+            wSpan.className = 'cq-fb__word';
+            for (var i = 0; i < w.length; i++) {
+              var c = document.createElement('span');
+              c.className = 'cq-fb__char';
+              c.style.setProperty('--char-i', idx++);
+              c.textContent = w[i];
+              wSpan.appendChild(c);
+            }
+            frag.appendChild(wSpan);
+          });
+          node.replaceChild(frag, child);
+        } else if (child.nodeType === Node.ELEMENT_NODE && child.tagName !== 'BR') {
+          idx = wrapChars(child, idx);
+        }
+      });
+      return idx;
+    }
+    try { wrapChars(titleEl); } catch (e) { /* noop */ }
+
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(ent) {
+          if (ent.isIntersecting) {
+            root.setAttribute('data-revealed', 'true');
+            io.disconnect();
+          }
+        });
+      }, { threshold: 0.15 });
+      io.observe(root);
+    } else {
+      root.setAttribute('data-revealed', 'true');
+    }
+  })();
+
+  // --- Jar parallax + active-flavor highlight -------------------------------
+  var jars = Array.prototype.slice.call(root.querySelectorAll('[data-cq-fb-jar]'));
+  var parallaxTargetX = 0;
+  var parallaxTargetY = 0;
+  var parallaxCurrentX = 0;
+  var parallaxCurrentY = 0;
+
+  function updateJarFlavorStates(activeKey) {
+    if (!jars.length) return;
+    var anyTied = jars.some(function(j) { return (j.getAttribute('data-flavor') || '') !== ''; });
+    jars.forEach(function(jar) {
+      var tie = jar.getAttribute('data-flavor') || '';
+      if (!anyTied) return;
+      if (tie && tie === activeKey) {
+        jar.classList.add('cq-fb__jar--pulse');
+        jar.classList.remove('cq-fb__jar--dimmed');
+        setTimeout(function() { jar.classList.remove('cq-fb__jar--pulse'); }, 900);
+      } else if (tie && tie !== activeKey) {
+        jar.classList.add('cq-fb__jar--dimmed');
+      } else {
+        jar.classList.remove('cq-fb__jar--dimmed');
+      }
+    });
+  }
+
+  if (fbConfig.enable_jars && fbConfig.enable_parallax && !reducedMotion && jars.length) {
+    var strength = (fbConfig.parallax_strength || 35) / 100;
+    var rect = null;
+    function refreshRect() { rect = root.getBoundingClientRect(); }
+    refreshRect();
+    window.addEventListener('resize', refreshRect, { passive: true });
+    window.addEventListener('scroll', refreshRect, { passive: true });
+
+    root.addEventListener('mousemove', function(e) {
+      if (!rect) refreshRect();
+      var nx = ((e.clientX - rect.left) / rect.width) - 0.5;
+      var ny = ((e.clientY - rect.top) / rect.height) - 0.5;
+      parallaxTargetX = nx * 40 * strength;
+      parallaxTargetY = ny * 24 * strength;
+    }, { passive: true });
+
+    root.addEventListener('mouseleave', function() {
+      parallaxTargetX = 0;
+      parallaxTargetY = 0;
+    });
+
+    function tick() {
+      parallaxCurrentX += (parallaxTargetX - parallaxCurrentX) * 0.08;
+      parallaxCurrentY += (parallaxTargetY - parallaxCurrentY) * 0.08;
+      jars.forEach(function(jar) {
+        var z = parseFloat(jar.getAttribute('data-z')) || 0;
+        var depth = 1 + (z * 0.12);
+        jar.style.setProperty('--parallax-x', (parallaxCurrentX * depth).toFixed(2) + 'px');
+        jar.style.setProperty('--parallax-y', (parallaxCurrentY * depth).toFixed(2) + 'px');
+      });
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // --- Cursor glow ----------------------------------------------------------
+  var cursorGlow = root.querySelector('[data-cq-fb-cursor]');
+  if (cursorGlow && fbConfig.enable_cursor_glow && !reducedMotion) {
+    var glowX = 0, glowY = 0, glowTargetX = 0, glowTargetY = 0;
+    root.addEventListener('mouseenter', function() {
+      root.setAttribute('data-cursor-visible', 'true');
+    });
+    root.addEventListener('mouseleave', function() {
+      root.removeAttribute('data-cursor-visible');
+    });
+    root.addEventListener('mousemove', function(e) {
+      var r = root.getBoundingClientRect();
+      glowTargetX = e.clientX - r.left;
+      glowTargetY = e.clientY - r.top;
+    }, { passive: true });
+    function glowTick() {
+      glowX += (glowTargetX - glowX) * 0.12;
+      glowY += (glowTargetY - glowY) * 0.12;
+      cursorGlow.style.left = glowX + 'px';
+      cursorGlow.style.top = glowY + 'px';
+      requestAnimationFrame(glowTick);
+    }
+    requestAnimationFrame(glowTick);
+  }
+
+  // --- Particle engine ------------------------------------------------------
+  var canvas = root.querySelector('[data-cq-fb-particles]');
+  var particles = [];
+  var particlesRunning = false;
+
+  function drawShape(ctx, shape, size) {
+    ctx.beginPath();
+    switch (shape) {
+      case 'leaf':
+        // Mint leaf: pointed oval
+        ctx.moveTo(0, -size);
+        ctx.bezierCurveTo(size * 0.7, -size * 0.8, size * 0.6, size * 0.6, 0, size);
+        ctx.bezierCurveTo(-size * 0.6, size * 0.6, -size * 0.7, -size * 0.8, 0, -size);
+        ctx.closePath();
+        ctx.fill();
+        // vein
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+        ctx.lineWidth = Math.max(1, size * 0.06);
+        ctx.beginPath();
+        ctx.moveTo(0, -size * 0.9);
+        ctx.lineTo(0, size * 0.9);
+        ctx.stroke();
+        ctx.restore();
+        break;
+      case 'berry':
+        // Filled circle + highlight
+        ctx.arc(0, 0, size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.save();
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.beginPath();
+        ctx.arc(-size * 0.3, -size * 0.35, size * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        break;
+      case 'petal':
+        // Teardrop / petal
+        ctx.moveTo(0, -size);
+        ctx.bezierCurveTo(size * 0.9, -size * 0.3, size * 0.5, size, 0, size);
+        ctx.bezierCurveTo(-size * 0.5, size, -size * 0.9, -size * 0.3, 0, -size);
+        ctx.closePath();
+        ctx.fill();
+        break;
+      case 'wedge':
+        // Citrus wedge: pie slice
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, size, -Math.PI * 0.35, Math.PI * 0.35);
+        ctx.closePath();
+        ctx.fill();
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = Math.max(1, size * 0.08);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(size * Math.cos(0), 0);
+        ctx.stroke();
+        ctx.restore();
+        break;
+      case 'crystal':
+        // Hexagon
+        for (var i = 0; i < 6; i++) {
+          var a = (Math.PI / 3) * i - Math.PI / 2;
+          var x = Math.cos(a) * size;
+          var y = Math.sin(a) * size;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        break;
+      case 'droplet':
+        ctx.moveTo(0, -size);
+        ctx.bezierCurveTo(size, -size * 0.2, size * 0.8, size, 0, size);
+        ctx.bezierCurveTo(-size * 0.8, size, -size, -size * 0.2, 0, -size);
+        ctx.closePath();
+        ctx.fill();
+        break;
+      case 'circle':
+      default:
+        ctx.arc(0, 0, size, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+    }
+  }
+
+  function hexToRgba(hex, alpha) {
+    if (!hex) return 'rgba(255,255,255,' + alpha + ')';
+    var h = hex.replace('#', '');
+    if (h.length === 3) h = h.split('').map(function(c) { return c + c; }).join('');
+    var r = parseInt(h.substr(0, 2), 16);
+    var g = parseInt(h.substr(2, 2), 16);
+    var b = parseInt(h.substr(4, 2), 16);
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return 'rgba(255,255,255,' + alpha + ')';
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+  }
+
+  function particleConfigFor(flavor) {
+    var preset = particlePresets && particlePresets[flavor.key];
+    return {
+      shape: (preset && preset.shape) || DEFAULT_SHAPE_MAP[flavor.key] || 'circle',
+      color: (preset && preset.color) || flavor.accent || '#ffffff',
+      densityMult: (preset && preset.density_mult) || 1,
+      scaleMult: (preset && preset.scale_mult) || 1
+    };
+  }
+
+  function setupParticles() {
+    if (!canvas || !fbConfig.enable_particles || reducedMotion) return;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = 0, h = 0;
+    var lastT = 0;
+    var cfg = particleConfigFor(current);
+
+    function resize() {
+      var r = root.getBoundingClientRect();
+      w = Math.max(320, r.width);
+      h = Math.max(280, r.height);
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function makeParticle() {
+      var baseSize = 7 + Math.random() * 16;
+      return {
+        x: Math.random() * w,
+        y: h + Math.random() * 80,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: -(0.1 + Math.random() * 0.35) * (fbConfig.particle_speed / 60),
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.015,
+        size: baseSize * cfg.scaleMult,
+        alpha: 0.35 + Math.random() * 0.55,
+        sway: Math.random() * Math.PI * 2,
+        swaySpeed: 0.5 + Math.random() * 0.8,
+        color: cfg.color,
+        shape: cfg.shape,
+        life: 0,
+        maxLife: 18 + Math.random() * 14
+      };
+    }
+
+    function spawnParticles() {
+      var target = Math.round(fbConfig.particle_density * cfg.densityMult);
+      target = Math.max(10, Math.min(target, 180));
+      while (particles.length < target) particles.push(makeParticle());
+      while (particles.length > target) particles.pop();
+    }
+
+    function rebuild() {
+      cfg = particleConfigFor(current);
+      // Gracefully fade over: mark existing for quick exit
+      particles.forEach(function(p) { p.maxLife = Math.min(p.maxLife, p.life + 2.5); });
+      // Spawn fresh particles for new color
+      var extra = Math.round(fbConfig.particle_density * cfg.densityMult);
+      for (var i = 0; i < extra; i++) particles.push(makeParticle());
+    }
+
+    window.addEventListener('resize', resize, { passive: true });
+    resize();
+    spawnParticles();
+
+    function frame(t) {
+      if (!lastT) lastT = t;
+      var dt = Math.min((t - lastT) / 1000, 0.06);
+      lastT = t;
+
+      ctx.clearRect(0, 0, w, h);
+
+      for (var i = particles.length - 1; i >= 0; i--) {
+        var p = particles[i];
+        p.life += dt;
+        p.sway += dt * p.swaySpeed;
+        p.x += p.vx + Math.sin(p.sway) * 0.3;
+        p.y += p.vy;
+        p.rot += p.rotSpeed;
+
+        var lifeProgress = p.life / p.maxLife;
+        var alphaMul = 1;
+        if (lifeProgress < 0.1) alphaMul = lifeProgress / 0.1;
+        else if (lifeProgress > 0.85) alphaMul = Math.max(0, (1 - lifeProgress) / 0.15);
+
+        if (p.y < -40 || p.life > p.maxLife || p.x < -60 || p.x > w + 60) {
+          particles.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = hexToRgba(p.color, p.alpha * alphaMul);
+        drawShape(ctx, p.shape, p.size);
+        ctx.restore();
+      }
+
+      // Top up particles to target
+      var target = Math.round(fbConfig.particle_density * cfg.densityMult);
+      target = Math.max(10, Math.min(target, 180));
+      while (particles.length < target) particles.push(makeParticle());
+
+      if (particlesRunning) requestAnimationFrame(frame);
+    }
+
+    particlesRunning = true;
+    requestAnimationFrame(frame);
+
+    // Expose rebuild to outer scope via closure
+    root._cqFbRebuildParticles = rebuild;
+
+    // Pause when out of viewport to save CPU
+    if ('IntersectionObserver' in window) {
+      var visIO = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting && !particlesRunning) {
+            particlesRunning = true;
+            lastT = 0;
+            requestAnimationFrame(frame);
+          } else if (!e.isIntersecting) {
+            particlesRunning = false;
+          }
+        });
+      }, { threshold: 0.05 });
+      visIO.observe(root);
+    }
+  }
+
+  // Hook applyFlavor to also rebuild particles + jar states
+  var baseApplyFlavor = applyFlavor;
+  applyFlavor = function(key) {
+    baseApplyFlavor(key);
+    updateJarFlavorStates(key);
+    if (typeof root._cqFbRebuildParticles === 'function') {
+      root._cqFbRebuildParticles();
+    }
+  };
+
+  setupParticles();
+
   // Initialize with first flavor
   if (flavors[0]) applyFlavor(flavors[0].key);
 })();
@@ -613,6 +1310,7 @@
   "name": "Flavor Banner",
   "tag": "section",
   "class": "calqix-flavor-banner",
+  "max_blocks": 18,
   "settings": [
     {
       "type": "header",
@@ -637,12 +1335,409 @@
       "step": 5,
       "default": 20,
       "info": "Alleen gebruikt als het product geen Recharge selling plan heeft."
+    },
+    {
+      "type": "header",
+      "content": "Interactiviteit & animaties"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_particles",
+      "label": "Fruit particles achtergrond",
+      "default": true,
+      "info": "Zachte zwevende fruit-vormen in de achtergrond in de kleur en vorm van de actieve smaak."
+    },
+    {
+      "type": "range",
+      "id": "particle_density",
+      "label": "Particle dichtheid",
+      "min": 10,
+      "max": 140,
+      "step": 5,
+      "default": 55
+    },
+    {
+      "type": "range",
+      "id": "particle_speed",
+      "label": "Particle snelheid %",
+      "min": 10,
+      "max": 200,
+      "step": 10,
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "particle_opacity",
+      "label": "Particle opacity %",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "default": 55
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_jars",
+      "label": "Floating potjes tonen",
+      "default": true,
+      "info": "Voeg potjes toe via de blocks hieronder. Elk block is een zwevend potje."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_parallax",
+      "label": "Muis-parallax op potjes",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "parallax_strength",
+      "label": "Parallax sterkte %",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 35
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_cursor_glow",
+      "label": "Cursor-follow glow",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_headline_reveal",
+      "label": "Headline letter-reveal animatie",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "floating_jar",
+      "name": "Floating potje",
+      "limit": 12,
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product",
+          "info": "Gebruikt de featured image van dit product als potje."
+        },
+        {
+          "type": "image_picker",
+          "id": "image_override",
+          "label": "Image override (optioneel)",
+          "info": "Overschrijft de product-afbeelding. Gebruik transparant PNG voor beste resultaat."
+        },
+        {
+          "type": "select",
+          "id": "tie_to_flavor",
+          "label": "Koppel aan smaak (optioneel)",
+          "info": "Als gekoppeld: oplichten bij overeenkomende smaak, dimmen bij andere smaak.",
+          "options": [
+            { "value": "", "label": "Altijd zichtbaar (niet koppelen)" },
+            { "value": "freshmint", "label": "Freshmint" },
+            { "value": "grape", "label": "Grape" },
+            { "value": "peach", "label": "Peach" },
+            { "value": "citrus_orange", "label": "Citrus Orange" },
+            { "value": "cool_mint", "label": "Cool Mint" }
+          ],
+          "default": ""
+        },
+        {
+          "type": "header",
+          "content": "Positie & grootte"
+        },
+        {
+          "type": "range",
+          "id": "x_pct",
+          "label": "X positie %",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 15
+        },
+        {
+          "type": "range",
+          "id": "y_pct",
+          "label": "Y positie %",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 20
+        },
+        {
+          "type": "range",
+          "id": "size_px",
+          "label": "Grootte (px)",
+          "min": 60,
+          "max": 360,
+          "step": 10,
+          "default": 140
+        },
+        {
+          "type": "range",
+          "id": "rotation_deg",
+          "label": "Rotatie (°)",
+          "min": -30,
+          "max": 30,
+          "step": 1,
+          "default": 6
+        },
+        {
+          "type": "range",
+          "id": "z_depth",
+          "label": "Z-depth (parallax sterkte en stapeling)",
+          "min": -10,
+          "max": 10,
+          "step": 1,
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "opacity_pct",
+          "label": "Opacity %",
+          "min": 20,
+          "max": 100,
+          "step": 5,
+          "default": 100
+        },
+        {
+          "type": "header",
+          "content": "Float animatie"
+        },
+        {
+          "type": "range",
+          "id": "float_amplitude_px",
+          "label": "Float amplitude (px)",
+          "min": 0,
+          "max": 80,
+          "step": 2,
+          "default": 18
+        },
+        {
+          "type": "range",
+          "id": "float_duration_s",
+          "label": "Float cyclus (s)",
+          "min": 4,
+          "max": 30,
+          "step": 1,
+          "default": 10
+        },
+        {
+          "type": "range",
+          "id": "delay_s",
+          "label": "Animatie delay (s)",
+          "min": 0,
+          "max": 10,
+          "step": 1,
+          "default": 0
+        },
+        {
+          "type": "header",
+          "content": "Glow"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_glow",
+          "label": "Glow ring achter potje",
+          "default": true
+        },
+        {
+          "type": "color",
+          "id": "glow_color",
+          "label": "Glow kleur (leeg = smaak accent)"
+        }
+      ]
+    },
+    {
+      "type": "flavor_particle_preset",
+      "name": "Smaak particle preset",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "select",
+          "id": "flavor_key",
+          "label": "Smaak",
+          "options": [
+            { "value": "freshmint", "label": "Freshmint" },
+            { "value": "grape", "label": "Grape" },
+            { "value": "peach", "label": "Peach" },
+            { "value": "citrus_orange", "label": "Citrus Orange" },
+            { "value": "cool_mint", "label": "Cool Mint" }
+          ],
+          "default": "freshmint"
+        },
+        {
+          "type": "select",
+          "id": "shape",
+          "label": "Particle vorm",
+          "options": [
+            { "value": "leaf", "label": "Muntblad" },
+            { "value": "berry", "label": "Bes" },
+            { "value": "petal", "label": "Bloemblad" },
+            { "value": "wedge", "label": "Citrus wedge" },
+            { "value": "crystal", "label": "Mint kristal" },
+            { "value": "droplet", "label": "Druppel" },
+            { "value": "circle", "label": "Zachte cirkel" }
+          ],
+          "default": "leaf"
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Kleur (leeg = smaak accent)"
+        },
+        {
+          "type": "range",
+          "id": "density_mult",
+          "label": "Dichtheid factor %",
+          "min": 20,
+          "max": 200,
+          "step": 10,
+          "default": 100
+        },
+        {
+          "type": "range",
+          "id": "scale_mult",
+          "label": "Grootte factor %",
+          "min": 30,
+          "max": 250,
+          "step": 10,
+          "default": 100
+        }
+      ]
     }
   ],
   "presets": [
     {
       "name": "Flavor Banner",
-      "category": "CALQIX"
+      "category": "CALQIX",
+      "blocks": [
+        {
+          "type": "floating_jar",
+          "settings": {
+            "tie_to_flavor": "freshmint",
+            "x_pct": 8,
+            "y_pct": 18,
+            "size_px": 150,
+            "rotation_deg": -8,
+            "z_depth": 3,
+            "float_amplitude_px": 22,
+            "float_duration_s": 11,
+            "delay_s": 0,
+            "opacity_pct": 95,
+            "enable_glow": true
+          }
+        },
+        {
+          "type": "floating_jar",
+          "settings": {
+            "tie_to_flavor": "grape",
+            "x_pct": 78,
+            "y_pct": 22,
+            "size_px": 130,
+            "rotation_deg": 10,
+            "z_depth": 2,
+            "float_amplitude_px": 18,
+            "float_duration_s": 9,
+            "delay_s": 1,
+            "opacity_pct": 90,
+            "enable_glow": true
+          }
+        },
+        {
+          "type": "floating_jar",
+          "settings": {
+            "tie_to_flavor": "citrus_orange",
+            "x_pct": 85,
+            "y_pct": 65,
+            "size_px": 120,
+            "rotation_deg": -5,
+            "z_depth": 4,
+            "float_amplitude_px": 16,
+            "float_duration_s": 12,
+            "delay_s": 2,
+            "opacity_pct": 90,
+            "enable_glow": true
+          }
+        },
+        {
+          "type": "floating_jar",
+          "settings": {
+            "tie_to_flavor": "peach",
+            "x_pct": 18,
+            "y_pct": 72,
+            "size_px": 140,
+            "rotation_deg": 6,
+            "z_depth": 5,
+            "float_amplitude_px": 24,
+            "float_duration_s": 10,
+            "delay_s": 3,
+            "opacity_pct": 92,
+            "enable_glow": true
+          }
+        },
+        {
+          "type": "floating_jar",
+          "settings": {
+            "tie_to_flavor": "cool_mint",
+            "x_pct": 62,
+            "y_pct": 78,
+            "size_px": 110,
+            "rotation_deg": -12,
+            "z_depth": 1,
+            "float_amplitude_px": 14,
+            "float_duration_s": 13,
+            "delay_s": 4,
+            "opacity_pct": 88,
+            "enable_glow": true
+          }
+        },
+        {
+          "type": "flavor_particle_preset",
+          "settings": {
+            "flavor_key": "freshmint",
+            "shape": "leaf",
+            "density_mult": 110,
+            "scale_mult": 100
+          }
+        },
+        {
+          "type": "flavor_particle_preset",
+          "settings": {
+            "flavor_key": "grape",
+            "shape": "berry",
+            "density_mult": 100,
+            "scale_mult": 90
+          }
+        },
+        {
+          "type": "flavor_particle_preset",
+          "settings": {
+            "flavor_key": "peach",
+            "shape": "petal",
+            "density_mult": 100,
+            "scale_mult": 110
+          }
+        },
+        {
+          "type": "flavor_particle_preset",
+          "settings": {
+            "flavor_key": "citrus_orange",
+            "shape": "wedge",
+            "density_mult": 100,
+            "scale_mult": 110
+          }
+        },
+        {
+          "type": "flavor_particle_preset",
+          "settings": {
+            "flavor_key": "cool_mint",
+            "shape": "crystal",
+            "density_mult": 100,
+            "scale_mult": 100
+          }
+        }
+      ]
     }
   ]
 }
