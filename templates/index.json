@@ -55,12 +55,13 @@
         "jar_citrus": {
           "type": "floating_jar",
           "settings": {
-            "image_source": "generated",
-            "product": "",
+            "image_source": "override",
+            "product": "oralbiome-pro-citrus-orange",
+            "image_override": "shopify://shop_images/Shopify_-_Orange_Front.png",
             "tie_to_flavor": "citrus_orange",
             "x_pct": 85,
             "y_pct": 65,
-            "size_px": 120,
+            "size_px": 180,
             "rotation_deg": -5,
             "z_depth": 4,
             "opacity_pct": 90,
