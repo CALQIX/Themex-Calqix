@@ -10,8 +10,7 @@ Decision record. This document overrides v2-era comments in source files that hi
 
 Prior tracking stack (discarded):
 
-- **TAGGRS GTM server container** at `sst.calqix.com` with container id `GTM-K4LPNF8L` and Meta CAPI tag. Removed in a previous overhaul.
-- **Shopify Facebook & Instagram channel CAPI** at Data sharing level "Maximum". Planned to be downgraded to "Standard" as part of the Task 9 dedup fix so it stops firing events with random event_ids.
+- **Shopify Facebook & Instagram channel CAPI** at Data sharing level "Maximum". Planned to be downgraded to "Standard" as part of the dedup fix so it stops firing events with random event_ids.
 
 Current stack:
 
@@ -40,11 +39,11 @@ Outside the scope of CAPI but owned by this app: ad optimization, content planni
 2. **Dedup key format must stay stable**: `ic_{token}`, `purchase_{token}`, `cart_{id}`, `lead_{customer_id}`. The browser Custom Pixel and `calqix-meta-bridge.js` both rely on these formats.
 3. **Every handler returns HTTP 200 to Shopify webhooks** even on internal error (so Shopify does not disable the subscription). Internal errors go to logs + Redis.
 4. **No raw PII in logs**. Only hashed-presence flags (e.g. `hasEmail: true`).
-5. **CAPI_ENABLED env var is not a kill switch for this app**. It was an old escape hatch during the TAGGRS migration. It is NOT used anywhere meaningful now. If disabling Meta sends is needed, scope the change to `lib/meta-capi.js` explicitly.
+5. **CAPI_ENABLED env var is not a kill switch for this app**. It was an old escape hatch and is NOT used anywhere meaningful now. If disabling Meta sends is needed, scope the change to `lib/meta-capi.js` explicitly.
 
 ## Migration comments that need cleanup
 
-The following files contain migration-era comments suggesting a future TAGGRS/GTM server container takeover. Those comments are wrong and should be updated in a future cleanup pass:
+The following files previously contained migration-era comments suggesting a future GTM server container takeover. Those comments have been updated to reflect the current single-source architecture:
 
 - `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\api\webhook\carts-create.js:1-4`
 - `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\api\webhook\checkouts-create.js:1-4` (expected pattern, verify)

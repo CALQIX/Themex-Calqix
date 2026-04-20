@@ -9,14 +9,27 @@
  *   - META_ATTRIBUTED: from Meta Ads Insights API (purchases, ROAS, etc.)
  *   - Billing/account data: from Ad Account fields
  */
-var { apiGet, AD_ACCOUNT_ID, parseActionValue } = require('./meta-ads');
+var { apiGet, AD_ACCOUNT_ID, parseActionValue, pickActionValue } = require('./meta-ads');
 
-var PURCHASE_TYPES = ['purchase', 'offsite_conversion.fb_pixel_purchase'];
+// Priority order for picking a single purchase metric per insight row.
+// DO NOT SUM — Meta returns multiple rows representing the same conversion.
+// Order: most-inclusive cross-surface rollup → pixel/CAPI-specific → legacy.
+var PURCHASE_PRIORITY = [
+  'omni_purchase',
+  'offsite_conversion.fb_pixel_purchase',
+  'purchase'
+];
+// Backwards-compat export (deprecated, do not use for summing).
+var PURCHASE_TYPES = PURCHASE_PRIORITY;
 var ATC_TYPES = ['offsite_conversion.fb_pixel_add_to_cart'];
 var IC_TYPES = ['offsite_conversion.fb_pixel_initiate_checkout'];
 var VC_TYPES = ['offsite_conversion.fb_pixel_view_content'];
 var LPV_TYPES = ['landing_page_view'];
 var LINK_CLICK_TYPES = ['link_click'];
+
+// Explicit attribution windows pinned to match Meta Ads Manager UI default.
+// Keeps Telegram numbers in sync with what you see in Ads Manager.
+var ATTRIBUTION_WINDOWS = ['7d_click', '1d_view'];
 
 /**
  * Build a date string YYYY-MM-DD from a Date object.
@@ -56,11 +69,14 @@ function parseFunnelFromRows(rows) {
     f.vc += parseActionValue(actions, VC_TYPES);
     f.atc += parseActionValue(actions, ATC_TYPES);
     f.ic += parseActionValue(actions, IC_TYPES);
-    f.purchases += parseActionValue(actions, PURCHASE_TYPES);
+    // Purchases use priority-pick (not sum) — avoids double-counting when
+    // Meta returns both `purchase` and `offsite_conversion.fb_pixel_purchase`
+    // for the same conversion.
+    f.purchases += pickActionValue(actions, PURCHASE_PRIORITY);
     f.lpv += parseActionValue(actions, LPV_TYPES);
     f.linkClicks += parseActionValue(actions, LINK_CLICK_TYPES);
     f.spend += parseFloat(row.spend) || 0;
-    f.revenue += parseActionValue(actionValues, PURCHASE_TYPES);
+    f.revenue += pickActionValue(actionValues, PURCHASE_PRIORITY);
     f.impressions += parseInt(row.impressions) || 0;
     f.clicks += parseInt(row.clicks) || 0;
   });
@@ -86,6 +102,7 @@ async function fetchAccountInsights(since, until, label) {
   var result = await safeGet(AD_ACCOUNT_ID + '/insights', {
     fields: 'spend,impressions,clicks,ctr,cpc,actions,action_values',
     time_range: { since: since, until: until },
+    action_attribution_windows: ATTRIBUTION_WINDOWS,
     limit: 1
   }, label || 'account_insights');
 
@@ -109,6 +126,7 @@ async function fetchAdInsights(since, until) {
   var result = await safeGet(AD_ACCOUNT_ID + '/insights', {
     fields: 'ad_name,ad_id,adset_name,adset_id,campaign_name,campaign_id,impressions,clicks,ctr,cpc,spend,frequency,actions,action_values,cost_per_action_type',
     time_range: { since: since, until: until },
+    action_attribution_windows: ATTRIBUTION_WINDOWS,
     level: 'ad',
     filtering: [{ field: 'impressions', operator: 'GREATER_THAN', value: '0' }],
     limit: 200
@@ -130,6 +148,7 @@ async function fetchAdsetInsights(since, until) {
   var result = await safeGet(AD_ACCOUNT_ID + '/insights', {
     fields: 'adset_name,adset_id,campaign_name,campaign_id,spend,impressions,clicks,actions,action_values',
     time_range: { since: since, until: until },
+    action_attribution_windows: ATTRIBUTION_WINDOWS,
     level: 'adset',
     filtering: [{ field: 'spend', operator: 'GREATER_THAN', value: '0' }],
     limit: 100
@@ -324,6 +343,7 @@ async function fetchCountryBreakdown(now) {
   var result = await safeGet(AD_ACCOUNT_ID + '/insights', {
     fields: 'country,spend,impressions,clicks,actions,action_values',
     time_range: { since: since7d, until: todayStr },
+    action_attribution_windows: ATTRIBUTION_WINDOWS,
     breakdowns: 'country',
     filtering: [{ field: 'spend', operator: 'GREATER_THAN', value: '0' }],
     limit: 50
@@ -337,8 +357,8 @@ async function fetchCountryBreakdown(now) {
   var rows = Array.isArray(result.data) ? result.data : [];
   var countries = rows.map(function (row) {
     var spend = parseFloat(row.spend) || 0;
-    var purchases = parseActionValue(row.actions || [], PURCHASE_TYPES);
-    var revenue = parseActionValue(row.action_values || [], PURCHASE_TYPES);
+    var purchases = pickActionValue(row.actions || [], PURCHASE_PRIORITY);
+    var revenue = pickActionValue(row.action_values || [], PURCHASE_PRIORITY);
     var atc = parseActionValue(row.actions || [], ATC_TYPES);
     var impressions = parseInt(row.impressions) || 0;
     var clicks = parseInt(row.clicks) || 0;
@@ -371,8 +391,11 @@ module.exports = {
   fetchCountryBreakdown: fetchCountryBreakdown,
   parseFunnelFromRows: parseFunnelFromRows,
   parseActionValue: parseActionValue,
+  pickActionValue: pickActionValue,
   PURCHASE_TYPES: PURCHASE_TYPES,
+  PURCHASE_PRIORITY: PURCHASE_PRIORITY,
   ATC_TYPES: ATC_TYPES,
   IC_TYPES: IC_TYPES,
-  VC_TYPES: VC_TYPES
+  VC_TYPES: VC_TYPES,
+  ATTRIBUTION_WINDOWS: ATTRIBUTION_WINDOWS
 };

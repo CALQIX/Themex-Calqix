@@ -15,6 +15,34 @@ var insights = require('./meta-insights-source');
 var memory = require('./content-memory');
 var store = require('./store');
 
+// Priority order — Meta returns multiple overlapping rows per conversion.
+// Pick the first present, never sum them (would double-count).
+var PURCHASE_PRIORITY = ['omni_purchase', 'offsite_conversion.fb_pixel_purchase', 'purchase'];
+
+function pickPurchaseCount(actions) {
+  if (!Array.isArray(actions)) return 0;
+  for (var i = 0; i < PURCHASE_PRIORITY.length; i++) {
+    for (var j = 0; j < actions.length; j++) {
+      if (actions[j].action_type === PURCHASE_PRIORITY[i]) {
+        return parseInt(actions[j].value) || 0;
+      }
+    }
+  }
+  return 0;
+}
+
+function pickPurchaseRevenue(actionValues) {
+  if (!Array.isArray(actionValues)) return 0;
+  for (var i = 0; i < PURCHASE_PRIORITY.length; i++) {
+    for (var j = 0; j < actionValues.length; j++) {
+      if (actionValues[j].action_type === PURCHASE_PRIORITY[i]) {
+        return parseFloat(actionValues[j].value) || 0;
+      }
+    }
+  }
+  return 0;
+}
+
 var ANGLE_KEYWORDS = {
   enamel: ['enamel', 'reminerali', 'n-hap', 'hydroxyapatite', 'mineral'],
   gumline: ['gum', 'gumline', 'periodontal', 'floss', 'interdental'],
@@ -147,19 +175,9 @@ async function analyzePerformance() {
     ap.totalImpressions += parseInt(ad.impressions) || 0;
     ap.adCount++;
 
-    // Parse actions
-    var actions = ad.actions || [];
-    var actionValues = ad.action_values || [];
-    actions.forEach(function (a) {
-      if (a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase') {
-        ap.totalPurchases += parseInt(a.value) || 0;
-      }
-    });
-    actionValues.forEach(function (a) {
-      if (a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase') {
-        ap.totalRevenue += parseFloat(a.value) || 0;
-      }
-    });
+    // Priority-pick (not sum) to avoid double counting.
+    ap.totalPurchases += pickPurchaseCount(ad.actions);
+    ap.totalRevenue += pickPurchaseRevenue(ad.action_values);
   });
 
   // Calculate CTR per angle and classify
@@ -187,18 +205,8 @@ async function analyzePerformance() {
     pp.spend += parseFloat(ad.spend) || 0;
     pp.clicks += parseInt(ad.clicks) || 0;
     pp.impressions += parseInt(ad.impressions) || 0;
-    var actions = ad.actions || [];
-    var actionValues = ad.action_values || [];
-    actions.forEach(function (a) {
-      if (a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase') {
-        pp.purchases += parseInt(a.value) || 0;
-      }
-    });
-    actionValues.forEach(function (a) {
-      if (a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase') {
-        pp.revenue += parseFloat(a.value) || 0;
-      }
-    });
+    pp.purchases += pickPurchaseCount(ad.actions);
+    pp.revenue += pickPurchaseRevenue(ad.action_values);
   });
 
   signals.productPerformance = {};
@@ -234,18 +242,8 @@ async function analyzePerformance() {
     if (!country) return;
     if (!countryPerf[country]) countryPerf[country] = { spend: 0, purchases: 0, revenue: 0 };
     countryPerf[country].spend += parseFloat(ad.spend) || 0;
-    var actions = ad.actions || [];
-    var actionValues = ad.action_values || [];
-    actions.forEach(function (a) {
-      if (a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase') {
-        countryPerf[country].purchases += parseInt(a.value) || 0;
-      }
-    });
-    actionValues.forEach(function (a) {
-      if (a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase') {
-        countryPerf[country].revenue += parseFloat(a.value) || 0;
-      }
-    });
+    countryPerf[country].purchases += pickPurchaseCount(ad.actions);
+    countryPerf[country].revenue += pickPurchaseRevenue(ad.action_values);
   });
 
   signals.countryPerformance = {};
@@ -261,22 +259,10 @@ async function analyzePerformance() {
 
   // --- Top converting ads (for creative learning) ---
   var convertingAds = ads.filter(function (ad) {
-    var purchases = 0;
-    (ad.actions || []).forEach(function (a) {
-      if (a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase') {
-        purchases += parseInt(a.value) || 0;
-      }
-    });
-    return purchases > 0;
+    return pickPurchaseCount(ad.actions) > 0;
   }).map(function (ad) {
-    var purchases = 0;
-    var revenue = 0;
-    (ad.actions || []).forEach(function (a) {
-      if (a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase') purchases += parseInt(a.value) || 0;
-    });
-    (ad.action_values || []).forEach(function (a) {
-      if (a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase') revenue += parseFloat(a.value) || 0;
-    });
+    var purchases = pickPurchaseCount(ad.actions);
+    var revenue = pickPurchaseRevenue(ad.action_values);
     var spend = parseFloat(ad.spend) || 0;
     return {
       name: ad.ad_name,

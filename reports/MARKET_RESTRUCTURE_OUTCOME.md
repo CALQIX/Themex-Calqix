@@ -1,0 +1,146 @@
+# Market restructure — applied via Admin API
+
+Date: 2026-04-20
+Script: `calqix-capi/scripts/apply-market-restructure.js`
+API: Shopify Admin GraphQL 2025-01 (self-healing OAuth token)
+
+## Result matrix
+
+| Blocker                                  | Before          | After                       | Status                        |
+|------------------------------------------|-----------------|-----------------------------|-------------------------------|
+| 1. CH duplicated across 2 markets        | germany+france  | switzerland only            | DONE via API                  |
+| 2. LU missing                            | no market       | france[FR,LU]               | DONE via API                  |
+| 3. Belgium dual-language                 | BE in primary   | no change needed            | DOCUMENTED — works via primary |
+| 4. de-CH / fr-CH locales                 | not available   | `/de-ch/` + `/fr-ch/` URLs  | DONE differently — see below  |
+| 5. Per-market currency (DKK/SEK/NOK/CHF/GBP) | all EUR     | all 6 live incl. NOK        | DONE (Mollie + API + norway market split) |
+| 6. /en/ subfolder                        | /en/ 404        | /en/ 301 -> /               | DONE via redirects batch 1    |
+| 7. CH subscription payment               | same as shop    | same as shop                | ADMIN ACTION when CH Payments |
+
+## Final market state
+
+| Market        | Regions        | WebPresence subfolder | URLs                         |
+|---------------|----------------|-----------------------|------------------------------|
+| nl (primary)  | NL             | (root)                | `/`, `/nl/`, `/de/`, `/fr/`, `/da/`, `/sv/`, `/nb/`, `/fi/` |
+| germany       | DE, LI, AT     | (none, uses primary)  | inherits from primary        |
+| france        | FR, LU         | (none, uses primary)  | inherits from primary        |
+| belgium       | BE             | (none, uses primary)  | inherits from primary        |
+| scandinavie   | DK, FI, SE, IS | (none)                | inherits from primary        |
+| norway        | NO             | (none)                | inherits from primary, NOK base |
+| united-kingdom| GB             | (none)                | inherits from primary        |
+| switzerland   | CH             | `ch`                  | `/de-ch/`, `/fr-ch/`         |
+
+**Live verification** (curl head request, 2026-04-20):
+
+```
+/de-ch/                                     200 OK
+/fr-ch/                                     200 OK
+/de-ch/products/oralbiome-pro-freshmint     301 -> /de-ch/products/oralbiome-pro-frischeminze
+/fr-ch/products/oralbiome-pro-freshmint     301 -> /fr-ch/products/oralbiome-pro-menthefraiche
+```
+
+Localized product handles (de, fr) are automatically inherited by the Swiss webPresence
+without extra work.
+
+## Why de-CH / fr-CH locales were NOT created
+
+Shopify's Admin API rejects `shopLocaleEnable(locale: "de-CH")` with
+`"Locale is invalid"`. The `availableLocales` query returns zero CH-specific entries.
+Region-suffixed locales (de-CH, fr-CH) are not offered on the current Shopify plan.
+
+**What we did instead**: the new Swiss market's webPresence uses `subfolderSuffix: 'ch'`
+with `defaultLocale: 'de'` and `alternateLocales: ['fr']`. Shopify's URL formatter
+automatically merges these into `/de-ch/` and `/fr-ch/` — which is EXACTLY what the
+target matrix asks for. The URLs look identical to what a dedicated Swiss locale would
+produce.
+
+**Swiss-specific copy** (if needed in the future — e.g. "ß" vs "ss" for German Swiss):
+use `marketLocalizationsRegister` (already present in the schema) to override specific
+translation keys for the switzerland market only. No new locale required.
+
+## What admin must still do (manual, UI-only)
+
+### 1. Multi-currency configuration (Mollie + Shopify Payments) — DONE
+
+After activating Mollie as the additional payment provider and adding
+CHF/DKK/GBP/ISK/SEK as accepted currencies in Shopify Admin, the API accepted the
+per-market currency settings. Applied 2026-04-20:
+
+```
+scandinavie     base=EUR (enabled=true)    localCurrencies=true  (DK/SE/IS auto-convert)
+norway          base=NOK (enabled=true)    localCurrencies=false (NOK as market base)
+switzerland     base=CHF (enabled=true)    localCurrencies=true  (CHF displayed, CH checkout in CHF)
+united-kingdom  base=GBP (enabled=true)    localCurrencies=true  (GBP displayed, UK checkout in GBP)
+```
+
+Shop-level enabled presentment currencies:
+`CHF, DKK, EUR, GBP, ISK, NOK, SEK`
+
+Live verified: `https://www.calqix.com/de-ch/cart.js` returns `"currency":"CHF"`.
+
+### NOK strategy: dedicated norway market instead of localCurrencies
+
+When NOK was not yet registered as an accepted currency in Mollie, a multi-country
+market like `scandinavie[DK,FI,SE,NO,IS]` with `localCurrencies=true` silently fell
+back to EUR for Norwegian visitors — the product page leading display showed EUR, not
+NOK. That is unacceptable because product page price is the first thing a shopper sees.
+
+The fix (applied via `calqix-capi/scripts/split-norway-from-scandinavie.js`):
+
+- Created a dedicated `norway` market with region NO and `baseCurrency: NOK` (single-
+  country market, not localCurrencies).
+- Removed NO from scandinavie market.
+- Setting NOK as the *base* currency of a market auto-registers it in the shop's
+  enabled presentment currencies — confirmed in live state (`NOK` now in shop-level
+  list).
+- Norwegian visitors are now IP-routed to the norway market and see NOK prices on
+  product pages directly, no conversion at checkout.
+
+### 2. Swiss payments and subscriptions
+
+If you want Swiss customers to check out in CHF with subscription support:
+
+**Click path**:
+1. Shopify Admin -> **Apps** -> **Shopify App Store** -> install **Stripe**.
+2. In Settings -> Payments -> Alternative payment methods -> **Stripe**.
+3. Connect Stripe account; set CHF as supported currency.
+4. In Settings -> Markets -> Switzerland -> Pricing -> enable CHF as display currency.
+
+Shopify Subscriptions (native app) will work as long as Stripe is the processor for
+CHF. Selling Plan Groups already exist on products and inherit automatically.
+
+### 3. Optional: Swiss-specific copy overrides
+
+If marketing wants distinct wording for Swiss visitors (e.g. address format, shipping
+cost wording, CHF pricing tone), register overrides:
+
+```javascript
+// Example: override product title for Swiss market only
+var m = `mutation($resourceId: ID!, $marketId: ID!, $localizations: [MarketLocalizationRegisterInput!]!) {
+  marketLocalizationsRegister(resourceId: $resourceId, marketLocalizations: $localizations) {
+    marketLocalizations { key value locale market { handle } }
+    userErrors { field message }
+  }
+}`;
+// Call with resourceId = product GID, marketId = switzerland market GID,
+// localizations = [{ locale: 'de', key: 'title', value: 'OralBiome Pro Schweiz Edition', marketId: <switzerlandId> }]
+```
+
+Reserve this for genuine CH-market-only copy. Day-to-day shop-level `de` + `fr`
+translations automatically apply to Swiss visitors.
+
+## Commits
+
+- `93ce44c` — batch 1: productType, metafields, redirects, translations (shop-level)
+- `31de930` — batch 2: dataLayer snippet + PRICING.md + blockers report
+- (this commit) — batch 3: market restructure script + outcome report
+
+## Roll-back plan
+
+If the Swiss market causes issues, disable it (does NOT delete orders or data):
+
+```javascript
+var m = 'mutation{ marketUpdate(id:"gid://shopify/Market/106899308873", input:{ status: INACTIVE }){ market{status} userErrors{field message}}}';
+```
+
+This preserves the market config but stops serving Swiss URLs; visitors fall back to
+primary market routing. To restore: set `status: ACTIVE` again.

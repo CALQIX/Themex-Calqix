@@ -172,6 +172,11 @@ function authAction(req) {
 
 /**
  * Parse an action value from Meta's actions array.
+ * SUMS all matching action types. Use this only when the supplied actionTypes
+ * are mutually exclusive (ATC, IC, VC, etc.). For overlapping metrics like
+ * Purchase — where Meta returns multiple rows for the same conversion
+ * (`purchase`, `offsite_conversion.fb_pixel_purchase`, `omni_purchase`) —
+ * use `pickActionValue` instead to avoid double-counting.
  * @param {Array} actions - Meta actions array
  * @param {string[]} actionTypes - Action type names to look for
  * @returns {number}
@@ -185,6 +190,34 @@ function parseActionValue(actions, actionTypes) {
     }
   });
   return total;
+}
+
+/**
+ * Pick a single action value from Meta's actions array using priority order.
+ * Returns the value for the FIRST action type in `priorityTypes` that exists
+ * in the actions array. Does NOT sum overlapping metrics.
+ *
+ * Use this for purchase counts / revenue where Meta returns multiple
+ * representations of the same conversion:
+ *   - `omni_purchase` (cross-surface rollup: web + app + offline, deduped)
+ *   - `offsite_conversion.fb_pixel_purchase` (pixel/CAPI only)
+ *   - `purchase` (legacy standard-event rollup)
+ *
+ * @param {Array} actions - Meta actions or action_values array
+ * @param {string[]} priorityTypes - Action types in priority order
+ * @returns {number}
+ */
+function pickActionValue(actions, priorityTypes) {
+  if (!Array.isArray(actions) || !Array.isArray(priorityTypes)) return 0;
+  for (var i = 0; i < priorityTypes.length; i++) {
+    var target = priorityTypes[i];
+    for (var j = 0; j < actions.length; j++) {
+      if (actions[j].action_type === target) {
+        return parseFloat(actions[j].value) || 0;
+      }
+    }
+  }
+  return 0;
 }
 
 /**
@@ -213,5 +246,6 @@ module.exports = {
   authDiagnostics: authDiagnostics,
   authAction: authAction,
   parseActionValue: parseActionValue,
+  pickActionValue: pickActionValue,
   parseCostPerAction: parseCostPerAction
 };

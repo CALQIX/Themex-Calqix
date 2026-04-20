@@ -1,0 +1,19 @@
+{
+  "name": "calqix-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright browser automation for CALQIX (calqix.com). Lets Cascade observe the live shop, verify tracking, test checkout flows, and screenshot issues.",
+  "scripts": {
+    "install-browsers": "playwright install chromium --with-deps",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "smoke": "playwright test tests/smoke.spec.js",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen https://calqix.com"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0"
+  }
+}

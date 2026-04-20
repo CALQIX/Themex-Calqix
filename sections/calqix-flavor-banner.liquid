@@ -1,0 +1,649 @@
+{%- comment -%}
+  CALQIX Flavor Banner (Phase B — task-B2)
+  ----------------------------------------------
+  Navy banner with 5 OralBiome Pro flavor chips. Clicking a chip
+  switches the accent color, tablet letters, orb glow, and updates
+  the ATC target variant. ATC posts a single line item via Wonder's
+  cart-drawer.renderContents so counter bumps, drawer opens, and
+  flying-tooth fires automatically.
+
+  Hardcoded flavor handles per operator decision:
+    oralbiome-pro-freshmint, -grape, -peach, -citrus-orange, -cool-mint
+
+  Visual presets (accent / background / tablet letters / orb position)
+  are baked into the Liquid assigns so the section renders instantly
+  with no JS layout work. CSS custom properties swap on chip click.
+{%- endcomment -%}
+
+{%- if section.settings.disable_on_homepage -%}
+  {%- if request.design_mode -%}
+    <div style="padding:20px;background:#0F2B47;color:#F7F4EC;border:1px dashed #C9A84C;text-align:center;font-family:'DM Sans',sans-serif;">
+      Flavor banner is uitgeschakeld via de section toggle.
+    </div>
+  {%- endif -%}
+{%- else -%}
+
+{%- liquid
+  assign fm = all_products['oralbiome-pro-freshmint']
+  assign gr = all_products['oralbiome-pro-grape']
+  assign pe = all_products['oralbiome-pro-peach']
+  assign co = all_products['oralbiome-pro-citrus-orange']
+  assign cm = all_products['oralbiome-pro-cool-mint']
+
+  assign default_product = fm
+  if default_product == blank or default_product.selected_or_first_available_variant == blank
+    if gr != blank
+      assign default_product = gr
+    elsif pe != blank
+      assign default_product = pe
+    elsif co != blank
+      assign default_product = co
+    elsif cm != blank
+      assign default_product = cm
+    endif
+  endif
+
+  assign default_variant = default_product.selected_or_first_available_variant
+  assign default_price = default_variant.price | default: 0
+
+  assign sub_discount_pct = section.settings.subscription_discount_pct | default: 20
+  assign sp_default = blank
+  if default_product.selling_plan_groups.size > 0
+    assign sp_default = default_product.selling_plan_groups[0].selling_plans[0]
+    assign adj = sp_default.price_adjustments[0]
+    if adj.value_type == 'percentage'
+      assign sub_discount_pct = adj.value
+    endif
+  endif
+-%}
+
+{%- capture flavors_json -%}
+[
+  {%- if fm != blank -%}
+  {
+    "key": "freshmint",
+    "handle": "oralbiome-pro-freshmint",
+    "variant_id": {{ fm.selected_or_first_available_variant.id | json }},
+    "selling_plan_id": {{ fm.selling_plan_groups[0].selling_plans[0].id | default: 0 | json }},
+    "price_cents": {{ fm.selected_or_first_available_variant.price | default: 0 }},
+    "price_formatted": {{ fm.selected_or_first_available_variant.price | money | json }},
+    "accent": "#4ABFA3",
+    "background": "#0F3A34",
+    "orb_x": 25,
+    "orb_y": 30,
+    "letters": "FM",
+    "name": {{ 'homepage_sections.flavor_banner.flavors.freshmint.name' | t | json }},
+    "description": {{ 'homepage_sections.flavor_banner.flavors.freshmint.description' | t | json }}
+  }{%- if gr != blank or pe != blank or co != blank or cm != blank -%},{%- endif -%}
+  {%- endif -%}
+  {%- if gr != blank -%}
+  {
+    "key": "grape",
+    "handle": "oralbiome-pro-grape",
+    "variant_id": {{ gr.selected_or_first_available_variant.id | json }},
+    "selling_plan_id": {{ gr.selling_plan_groups[0].selling_plans[0].id | default: 0 | json }},
+    "price_cents": {{ gr.selected_or_first_available_variant.price | default: 0 }},
+    "price_formatted": {{ gr.selected_or_first_available_variant.price | money | json }},
+    "accent": "#9B6BD8",
+    "background": "#281A4A",
+    "orb_x": 75,
+    "orb_y": 30,
+    "letters": "GR",
+    "name": {{ 'homepage_sections.flavor_banner.flavors.grape.name' | t | json }},
+    "description": {{ 'homepage_sections.flavor_banner.flavors.grape.description' | t | json }}
+  }{%- if pe != blank or co != blank or cm != blank -%},{%- endif -%}
+  {%- endif -%}
+  {%- if pe != blank -%}
+  {
+    "key": "peach",
+    "handle": "oralbiome-pro-peach",
+    "variant_id": {{ pe.selected_or_first_available_variant.id | json }},
+    "selling_plan_id": {{ pe.selling_plan_groups[0].selling_plans[0].id | default: 0 | json }},
+    "price_cents": {{ pe.selected_or_first_available_variant.price | default: 0 }},
+    "price_formatted": {{ pe.selected_or_first_available_variant.price | money | json }},
+    "accent": "#E8A55C",
+    "background": "#4A2E14",
+    "orb_x": 30,
+    "orb_y": 55,
+    "letters": "PE",
+    "name": {{ 'homepage_sections.flavor_banner.flavors.peach.name' | t | json }},
+    "description": {{ 'homepage_sections.flavor_banner.flavors.peach.description' | t | json }}
+  }{%- if co != blank or cm != blank -%},{%- endif -%}
+  {%- endif -%}
+  {%- if co != blank -%}
+  {
+    "key": "citrus_orange",
+    "handle": "oralbiome-pro-citrus-orange",
+    "variant_id": {{ co.selected_or_first_available_variant.id | json }},
+    "selling_plan_id": {{ co.selling_plan_groups[0].selling_plans[0].id | default: 0 | json }},
+    "price_cents": {{ co.selected_or_first_available_variant.price | default: 0 }},
+    "price_formatted": {{ co.selected_or_first_available_variant.price | money | json }},
+    "accent": "#F29B3A",
+    "background": "#3E2008",
+    "orb_x": 70,
+    "orb_y": 55,
+    "letters": "CO",
+    "name": {{ 'homepage_sections.flavor_banner.flavors.citrus_orange.name' | t | json }},
+    "description": {{ 'homepage_sections.flavor_banner.flavors.citrus_orange.description' | t | json }}
+  }{%- if cm != blank -%},{%- endif -%}
+  {%- endif -%}
+  {%- if cm != blank -%}
+  {
+    "key": "cool_mint",
+    "handle": "oralbiome-pro-cool-mint",
+    "variant_id": {{ cm.selected_or_first_available_variant.id | json }},
+    "selling_plan_id": {{ cm.selling_plan_groups[0].selling_plans[0].id | default: 0 | json }},
+    "price_cents": {{ cm.selected_or_first_available_variant.price | default: 0 }},
+    "price_formatted": {{ cm.selected_or_first_available_variant.price | money | json }},
+    "accent": "#5AC4E0",
+    "background": "#0D2E3E",
+    "orb_x": 50,
+    "orb_y": 25,
+    "letters": "CM",
+    "name": {{ 'homepage_sections.flavor_banner.flavors.cool_mint.name' | t | json }},
+    "description": {{ 'homepage_sections.flavor_banner.flavors.cool_mint.description' | t | json }}
+  }
+  {%- endif -%}
+]
+{%- endcapture -%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  #cq-fb-{{ section.id }} {
+    --fb-accent: #4ABFA3;
+    --fb-bg: #0F3A34;
+    --fb-orb-x: 25%;
+    --fb-orb-y: 30%;
+    --fb-cream: #F7F4EC;
+    --fb-gold: #C9A84C;
+    position: relative;
+    background: var(--fb-bg);
+    color: var(--fb-cream);
+    font-family: 'DM Sans', Arial, sans-serif;
+    overflow: hidden;
+    transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  #cq-fb-{{ section.id }}::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at var(--fb-orb-x) var(--fb-orb-y),
+      color-mix(in srgb, var(--fb-accent) 45%, transparent),
+      transparent 55%
+    );
+    opacity: 0.8;
+    transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 48px;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+  @media (max-width: 960px) {
+    #cq-fb-{{ section.id }} .cq-fb__inner {
+      grid-template-columns: 1fr;
+      padding: 56px 24px;
+      gap: 40px;
+    }
+  }
+  #cq-fb-{{ section.id }} .cq-fb__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(247, 244, 236, 0.6);
+    margin-bottom: 22px;
+    font-weight: 500;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--fb-accent);
+    transition: background 0.6s ease;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: clamp(38px, 5.6vw, 68px);
+    line-height: 1.03;
+    color: var(--fb-cream);
+    margin: 0 0 18px;
+    font-weight: 400;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__title em {
+    font-style: italic;
+    color: var(--fb-accent);
+    transition: color 0.6s ease;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__sub {
+    font-size: 16px;
+    line-height: 1.62;
+    color: rgba(247, 244, 236, 0.76);
+    margin: 0 0 36px;
+    max-width: 520px;
+  }
+
+  /* Chips */
+  #cq-fb-{{ section.id }} .cq-fb__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__chip {
+    background: rgba(247, 244, 236, 0.08);
+    color: var(--fb-cream);
+    border: 1px solid rgba(247, 244, 236, 0.16);
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    font-family: inherit;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__chip:hover {
+    background: rgba(247, 244, 236, 0.14);
+    border-color: rgba(247, 244, 236, 0.28);
+  }
+  #cq-fb-{{ section.id }} .cq-fb__chip[aria-selected="true"] {
+    background: var(--fb-accent);
+    color: var(--fb-bg);
+    border-color: var(--fb-accent);
+    font-weight: 600;
+  }
+
+  /* Right column: tablet display */
+  #cq-fb-{{ section.id }} .cq-fb__display {
+    position: relative;
+    min-height: 360px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__tablet {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #FFFFFF, #E8DFC5 70%);
+    box-shadow:
+      0 24px 56px color-mix(in srgb, var(--fb-accent) 40%, rgba(0,0,0,0.3)),
+      inset 0 -12px 30px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 58px;
+    color: var(--fb-bg);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    transition: box-shadow 0.6s ease, transform 0.4s ease;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__tablet.cq-fb__tablet--swap {
+    transform: scale(0.94) rotate(6deg);
+  }
+  #cq-fb-{{ section.id }} .cq-fb__meta {
+    margin-top: 28px;
+    text-align: center;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__flavor-name {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 24px;
+    color: var(--fb-cream);
+    margin-bottom: 6px;
+    transition: opacity 0.3s ease;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__flavor-desc {
+    font-size: 14px;
+    color: rgba(247, 244, 236, 0.72);
+    max-width: 320px;
+    margin: 0 auto 20px;
+    line-height: 1.55;
+    transition: opacity 0.3s ease;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__meta--swap .cq-fb__flavor-name,
+  #cq-fb-{{ section.id }} .cq-fb__meta--swap .cq-fb__flavor-desc {
+    opacity: 0;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__price {
+    font-size: 14px;
+    color: rgba(247, 244, 236, 0.56);
+    margin-bottom: 18px;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__price strong {
+    color: var(--fb-cream);
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  /* CTA buttons */
+  #cq-fb-{{ section.id }} .cq-fb__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__cta {
+    background: var(--fb-accent);
+    color: var(--fb-bg);
+    border: none;
+    border-radius: 8px;
+    padding: 14px 40px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.6s ease;
+    letter-spacing: 0.02em;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__cta:hover:not([disabled]) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+  }
+  #cq-fb-{{ section.id }} .cq-fb__cta[aria-busy="true"] {
+    opacity: 0.7;
+    cursor: wait;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__cta-sub {
+    background: transparent;
+    color: rgba(247, 244, 236, 0.82);
+    border: 1px solid rgba(247, 244, 236, 0.24);
+    padding: 10px 32px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__cta-sub:hover:not([disabled]) {
+    background: rgba(247, 244, 236, 0.08);
+    border-color: rgba(247, 244, 236, 0.4);
+  }
+  #cq-fb-{{ section.id }} .cq-fb__error {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #FFB0B0;
+    display: none;
+    text-align: center;
+  }
+  #cq-fb-{{ section.id }} .cq-fb__error[data-visible="true"] {
+    display: block;
+  }
+</style>
+
+<section id="cq-fb-{{ section.id }}" class="cq-fb" aria-labelledby="cq-fb-title-{{ section.id }}">
+  <div class="cq-fb__inner">
+    <div class="cq-fb__content">
+      <div class="cq-fb__eyebrow">{{ 'homepage_sections.flavor_banner.eyebrow' | t }}</div>
+
+      <h2 id="cq-fb-title-{{ section.id }}" class="cq-fb__title">
+        {{ 'homepage_sections.flavor_banner.heading_line_1' | t }}<br>
+        {{ 'homepage_sections.flavor_banner.heading_line_2_prefix' | t }}<em>{{ 'homepage_sections.flavor_banner.heading_line_2_accent' | t }}</em> {{ 'homepage_sections.flavor_banner.heading_line_2_suffix' | t }}
+      </h2>
+
+      <p class="cq-fb__sub">
+        {{ 'homepage_sections.flavor_banner.subheading' | t }}
+      </p>
+
+      <div class="cq-fb__chips" role="tablist" aria-label="{{ 'homepage_sections.flavor_banner.eyebrow' | t }}">
+        {%- if fm != blank -%}<button class="cq-fb__chip" role="tab" data-cq-fb-chip="freshmint" aria-selected="true">{{ 'homepage_sections.flavor_banner.flavors.freshmint.name' | t }}</button>{%- endif -%}
+        {%- if gr != blank -%}<button class="cq-fb__chip" role="tab" data-cq-fb-chip="grape" aria-selected="false">{{ 'homepage_sections.flavor_banner.flavors.grape.name' | t }}</button>{%- endif -%}
+        {%- if pe != blank -%}<button class="cq-fb__chip" role="tab" data-cq-fb-chip="peach" aria-selected="false">{{ 'homepage_sections.flavor_banner.flavors.peach.name' | t }}</button>{%- endif -%}
+        {%- if co != blank -%}<button class="cq-fb__chip" role="tab" data-cq-fb-chip="citrus_orange" aria-selected="false">{{ 'homepage_sections.flavor_banner.flavors.citrus_orange.name' | t }}</button>{%- endif -%}
+        {%- if cm != blank -%}<button class="cq-fb__chip" role="tab" data-cq-fb-chip="cool_mint" aria-selected="false">{{ 'homepage_sections.flavor_banner.flavors.cool_mint.name' | t }}</button>{%- endif -%}
+      </div>
+    </div>
+
+    <div class="cq-fb__display">
+      <div class="cq-fb__tablet" data-cq-fb-tablet aria-hidden="true">FM</div>
+    </div>
+  </div>
+
+  <div class="cq-fb__inner" style="padding-top: 0; padding-bottom: 56px; grid-template-columns: 1fr; gap: 0;">
+    <div class="cq-fb__meta" data-cq-fb-meta>
+      <div class="cq-fb__flavor-name" data-cq-fb-name>{{ 'homepage_sections.flavor_banner.flavors.freshmint.name' | t }}</div>
+      <div class="cq-fb__flavor-desc" data-cq-fb-desc>{{ 'homepage_sections.flavor_banner.flavors.freshmint.description' | t }}</div>
+      <div class="cq-fb__price">
+        <strong data-cq-fb-price>{{ default_price | money }}</strong>
+      </div>
+      <div class="cq-fb__actions">
+        <button type="button"
+                class="cq-fb__cta"
+                data-cq-fb-atc
+                aria-label="{{ 'homepage_sections.flavor_banner.cta_primary' | t }}">
+          {{ 'homepage_sections.flavor_banner.cta_primary' | t }}
+        </button>
+        {%- if sp_default != blank -%}
+          <button type="button"
+                  class="cq-fb__cta-sub"
+                  data-cq-fb-atc-subscribe
+                  aria-label="{{ 'homepage_sections.flavor_banner.cta_subscribe' | t }}">
+            {{ 'homepage_sections.flavor_banner.cta_subscribe' | t }} · −{{ sub_discount_pct }}%
+          </button>
+        {%- endif -%}
+      </div>
+      <div class="cq-fb__error" data-cq-fb-error role="alert"></div>
+    </div>
+  </div>
+</section>
+
+<script id="cq-fb-data-{{ section.id }}" type="application/json">{{ flavors_json }}</script>
+
+<script>
+(function() {
+  'use strict';
+  var root = document.getElementById('cq-fb-{{ section.id }}');
+  if (!root) return;
+
+  var dataEl = document.getElementById('cq-fb-data-{{ section.id }}');
+  if (!dataEl) return;
+
+  var flavors;
+  try { flavors = JSON.parse(dataEl.textContent); } catch (e) { return; }
+  if (!flavors || flavors.length === 0) return;
+
+  var byKey = {};
+  for (var i = 0; i < flavors.length; i++) byKey[flavors[i].key] = flavors[i];
+
+  var current = flavors[0];
+
+  var chips = root.querySelectorAll('[data-cq-fb-chip]');
+  var tablet = root.querySelector('[data-cq-fb-tablet]');
+  var meta = root.querySelector('[data-cq-fb-meta]');
+  var nameEl = root.querySelector('[data-cq-fb-name]');
+  var descEl = root.querySelector('[data-cq-fb-desc]');
+  var priceEl = root.querySelector('[data-cq-fb-price]');
+  var atcBtn = root.querySelector('[data-cq-fb-atc]');
+  var subBtn = root.querySelector('[data-cq-fb-atc-subscribe]');
+  var errEl = root.querySelector('[data-cq-fb-error]');
+
+  function showError(msg) {
+    if (!errEl) return;
+    errEl.textContent = msg;
+    errEl.setAttribute('data-visible', 'true');
+    setTimeout(function() { errEl.removeAttribute('data-visible'); }, 6000);
+  }
+
+  function applyFlavor(key) {
+    var f = byKey[key];
+    if (!f) return;
+    current = f;
+
+    root.style.setProperty('--fb-accent', f.accent);
+    root.style.setProperty('--fb-bg', f.background);
+    root.style.setProperty('--fb-orb-x', f.orb_x + '%');
+    root.style.setProperty('--fb-orb-y', f.orb_y + '%');
+
+    for (var i = 0; i < chips.length; i++) {
+      chips[i].setAttribute('aria-selected', chips[i].getAttribute('data-cq-fb-chip') === key ? 'true' : 'false');
+    }
+
+    // Animate tablet + meta swap
+    if (tablet) {
+      tablet.classList.add('cq-fb__tablet--swap');
+      setTimeout(function() {
+        tablet.textContent = f.letters;
+        tablet.classList.remove('cq-fb__tablet--swap');
+      }, 200);
+    }
+    if (meta) {
+      meta.classList.add('cq-fb__meta--swap');
+      setTimeout(function() {
+        if (nameEl) nameEl.textContent = f.name;
+        if (descEl) descEl.textContent = f.description;
+        if (priceEl) priceEl.textContent = f.price_formatted;
+        meta.classList.remove('cq-fb__meta--swap');
+      }, 200);
+    }
+  }
+
+  function atc(useSellingPlan) {
+    var btn = useSellingPlan ? subBtn : atcBtn;
+    if (!btn) return;
+    if (btn.getAttribute('aria-busy') === 'true') return;
+    if (!current || !current.variant_id) {
+      showError('{{ "homepage_sections.flavor_banner.error_generic" | t }}');
+      return;
+    }
+
+    btn.setAttribute('aria-busy', 'true');
+
+    var item = { id: Number(current.variant_id), quantity: 1 };
+    if (useSellingPlan && current.selling_plan_id) {
+      item.selling_plan = Number(current.selling_plan_id);
+    }
+
+    var cartDrawer = document.querySelector('cart-drawer');
+    var sectionsList = [];
+    if (cartDrawer && typeof cartDrawer.getSectionsToRender === 'function') {
+      sectionsList = cartDrawer.getSectionsToRender().map(function(s) { return s.id; });
+    }
+
+    var body = { items: [item] };
+    if (sectionsList.length) {
+      body.sections = sectionsList.join(',');
+      body.sections_url = window.location.pathname;
+    }
+
+    fetch((window.routes && window.routes.cart_add_url) || '/cart/add.js', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/javascript',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: JSON.stringify(body),
+    })
+      .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
+      .then(function(r) {
+        if (!r.ok) {
+          showError(r.data.description || r.data.message || '{{ "homepage_sections.flavor_banner.error_generic" | t }}');
+          return;
+        }
+        if (typeof publish === 'function' && typeof PUB_SUB_EVENTS === 'object') {
+          publish(PUB_SUB_EVENTS.cartUpdate, {
+            source: 'calqix-flavor-banner',
+            productVariantId: current.variant_id,
+            cartData: r.data,
+          });
+        }
+        if (cartDrawer && typeof cartDrawer.renderContents === 'function' && r.data.sections) {
+          cartDrawer.renderContents(r.data, true);
+        } else {
+          document.dispatchEvent(new CustomEvent('cart-drawer:refresh', {
+            detail: { response: r.data },
+            bubbles: true,
+            composed: true,
+          }));
+        }
+      })
+      .catch(function(err) {
+        console.error('[calqix-flavor-banner]', err);
+        showError('{{ "homepage_sections.flavor_banner.error_generic" | t }}');
+      })
+      .finally(function() {
+        btn.removeAttribute('aria-busy');
+      });
+  }
+
+  for (var j = 0; j < chips.length; j++) {
+    (function(chip) {
+      chip.addEventListener('click', function() {
+        applyFlavor(chip.getAttribute('data-cq-fb-chip'));
+      });
+      chip.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          var next = chip.nextElementSibling;
+          if (next && next.getAttribute('data-cq-fb-chip')) { next.focus(); next.click(); }
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          var prev = chip.previousElementSibling;
+          if (prev && prev.getAttribute('data-cq-fb-chip')) { prev.focus(); prev.click(); }
+        }
+      });
+    })(chips[j]);
+  }
+
+  if (atcBtn) atcBtn.addEventListener('click', function() { atc(false); });
+  if (subBtn) subBtn.addEventListener('click', function() { atc(true); });
+
+  // Initialize with first flavor
+  if (flavors[0]) applyFlavor(flavors[0].key);
+})();
+</script>
+
+{%- endif -%}{%- comment -%} end disable_on_homepage branch {%- endcomment -%}
+
+{% schema %}
+{
+  "name": "Flavor Banner",
+  "tag": "section",
+  "class": "calqix-flavor-banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Zichtbaarheid"
+    },
+    {
+      "type": "checkbox",
+      "id": "disable_on_homepage",
+      "label": "Section uitschakelen",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Kortingen"
+    },
+    {
+      "type": "range",
+      "id": "subscription_discount_pct",
+      "label": "Abonnement korting % (fallback)",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 20,
+      "info": "Alleen gebruikt als het product geen Recharge selling plan heeft."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Flavor Banner",
+      "category": "CALQIX"
+    }
+  ]
+}
+{% endschema %}

@@ -1,7 +1,6 @@
-// MIGRATION NOTE: This endpoint is part of the custom Vercel CAPI.
-// It will be replaced by GTM server container Meta CAPI tag after migration.
-// Kill switch: set CAPI_ENABLED=false in env vars to disable without removing.
-// Target migration date: TBD
+// This endpoint is the canonical server-side Meta CAPI source for AddToCart.
+// Kill switch: set CAPI_ENABLED=false in env vars to disable sends without
+// removing the endpoint (events still log + Redis state still updates).
 const { isDuplicate, markProcessed } = require('../../lib/dedup-guard');
 const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');

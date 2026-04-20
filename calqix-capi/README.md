@@ -41,7 +41,6 @@ Ad Optimization (3 QStash crons)
 |---|---|---|
 | **Meta Pixel ID** | `934134615770602` | "Calqix's pixel" — canonical, confirmed |
 | **Retired pixel ref** | `1400881244790983` | Incorrectly referenced in old session |
-| **TAGGRS** | Decommissioned | Never activated. See `migration/taggrs-removal-runbook.md` |
 | **GTM Web** | `GTM-T86BFXXW` | Active in `theme.liquid`, standard Google-hosted |
 | **No server-side GTM** | Policy | All server-side via calqix-capi |
 

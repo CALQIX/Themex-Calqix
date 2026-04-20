@@ -1,0 +1,43 @@
+{%- comment -%}
+  Pushes a canonical product payload into dataLayer on every product page,
+  BEFORE GTM tags fire. This gives GTM a stable source of truth for the
+  product category (driven by the custom.gtm_category metafield, not the
+  mutable product.type), plus identifiers that Meta CAPI, GA4, and
+  Google Ads tags can all read consistently.
+
+  Source: product.metafields.custom.gtm_category (seeded by
+          calqix-capi/scripts/migrate-multi-locale-fix.js).
+  Fallback: product.type when the metafield is unset.
+{%- endcomment -%}
+
+{%- if template contains 'product' and product -%}
+  {%- assign cq_gtm_category = product.metafields.custom.gtm_category | default: product.type -%}
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'calqix_product_data',
+      product: {
+        id: {{ product.id | json }},
+        handle: {{ product.handle | json }},
+        title: {{ product.title | json }},
+        category: {{ cq_gtm_category | json }},
+        product_type: {{ product.type | json }},
+        vendor: {{ product.vendor | json }},
+        sku: {{ product.selected_or_first_available_variant.sku | json }},
+        price: {{ product.selected_or_first_available_variant.price | money_without_currency | json }},
+        currency: {{ cart.currency.iso_code | json }},
+        locale: {{ request.locale.iso_code | json }},
+        market: {{ localization.country.iso_code | default: '' | json }}
+      },
+      ecommerce: {
+        items: [{
+          item_id: {{ product.selected_or_first_available_variant.sku | json }},
+          item_name: {{ product.title | json }},
+          item_brand: {{ product.vendor | json }},
+          item_category: {{ cq_gtm_category | json }},
+          price: {{ product.selected_or_first_available_variant.price | money_without_currency | json }}
+        }]
+      }
+    });
+  </script>
+{%- endif -%}

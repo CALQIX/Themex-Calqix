@@ -66,6 +66,15 @@
       </script>
     {%- endif -%}
     <!-- End CALQIX user_data -->
+
+    {%- comment -%}
+      CALQIX product dataLayer push for product pages.
+      Feeds GTM with canonical category from product.metafields.custom.gtm_category,
+      preventing stale productType values (e.g. NL translations of old types) from
+      leaking into GA4 item_category and Meta CAPI content_category.
+    {%- endcomment -%}
+    {%- render 'gtm-product-data' -%}
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -77,10 +86,16 @@
       language in Settings > Markets will flow through automatically.
     {%- endcomment -%}
     {%- if localization.available_languages and localization.available_languages.size > 0 -%}
+      {%- assign cq_primary_iso = 'en' -%}
       {%- for lang in localization.available_languages -%}
+        {%- if lang.primary -%}{%- assign cq_primary_iso = lang.iso_code -%}{%- endif -%}
         <link rel="alternate" hreflang="{{ lang.iso_code }}" href="{{ canonical_url | replace: request.locale.iso_code, lang.iso_code }}">
       {%- endfor -%}
-      <link rel="alternate" hreflang="x-default" href="{{ canonical_url }}">
+      {%- comment -%}
+        x-default always points to the primary locale's URL (EN),
+        not the current page's canonical_url, otherwise it varies per locale.
+      {%- endcomment -%}
+      <link rel="alternate" hreflang="x-default" href="{{ canonical_url | replace: request.locale.iso_code, cq_primary_iso }}">
     {%- endif -%}
     <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
     <meta name="facebook-domain-verification" content="f7p7bqwsuigx7z20hp4iyrovcncwqh" />
@@ -118,6 +133,10 @@
     <script src="{{ 'pubsub.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'base.js' | asset_url }}" defer="defer"></script>
+
+    {%- comment -%} CALQIX flying-tooth cart animation (Phase A) {%- endcomment -%}
+    {{ 'calqix-cart-animation.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'calqix-cart-animation.js' | asset_url }}" defer="defer"></script>
 
     <script src="{{ 'color-swatch.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'localization-form.js' | asset_url }}" defer="defer"></script>

@@ -161,18 +161,15 @@ npm run verify:qstash       # Verify QStash connectivity
 ### Item 6: GTM Configuration — VERIFIED ✅
 
 **Status per Context:**
-- GTM Web: `GTM-T86BFXXW` — Active
-- GTM Server: `GTM-K4LPNF8L` — Active via TAGGRS at `sst.calqix.com`
-- Meta Tags: Paused server-side (per context)
+- GTM Web: `GTM-T86BFXXW` — Active (Google-hosted, unrelated to TAGGRS)
+- GTM Server: None — TAGGRS server container was evaluated and removed.
 - GA4: Active (per context)
 
 **Code References:**
-- Migration note in `api/webhook/orders-paid.js:1-4` indicates planned migration to GTM server container
-- Current: Custom Vercel CAPI implementation
+- Current: Custom Vercel CAPI implementation in `calqix-capi` is the canonical server-side CAPI source.
 - Kill switch: `CAPI_ENABLED=false`
 
 **Files:**
-- `docs/migration-checklist.md` — GTM migration planning (13 GTM references)
 - `docs/ops/meta-capi-production-runbook.md` — Architecture notes
 
 ---
@@ -451,7 +448,7 @@ GET /v21.0/934134615770602/stats?aggregation=event_total_counts (48h window)
 ```
 
 **Source types (48h):**
-- `SERVER`: ~160 events (calqix-capi webhooks + GTM sst.calqix.com)
+- `SERVER`: ~160 events (calqix-capi webhooks)
 - `BROWSER`: ~138 events (Shopify Custom Pixel + GTM web)
 
 **Domains sending events:**

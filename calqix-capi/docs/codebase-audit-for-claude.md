@@ -5,7 +5,7 @@
 **Audit scope:** `c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi` + relevante theme-bestanden in parent repo
 **Werkwijze:** Letterlijke waarden uit broncode. Geen interpretaties, geen aanbevelingen.
 
-**Cascade-sessies geladen via memory:** system memories rond Meta CAPI webhook implementatie, QStash auth fix, Google tracking layer, EMQ optimalisaties, ad optimization live mode, multi-agent content system, TAGGRS migratie-besluit. Deze memories zijn gebruikt als startpunt; alle uitspraken in dit rapport zijn daarna geverifieerd tegen de daadwerkelijke bestanden.
+**Cascade-sessies geladen via memory:** system memories rond Meta CAPI webhook implementatie, QStash auth fix, Google tracking layer, EMQ optimalisaties, ad optimization live mode, multi-agent content system. Deze memories zijn gebruikt als startpunt; alle uitspraken in dit rapport zijn daarna geverifieerd tegen de daadwerkelijke bestanden.
 
 ---
 
@@ -35,7 +35,6 @@ calqix-capi/
 │   └── webhooks/predis-callback.js  (duplicate of /api/webhook/predis-callback.js)
 ├── docs/                 (12 .md) + docs/ops/ (4 .md)
 ├── lib/                  (55 files — see 1.3)
-├── migration/            (runbook.md, taggrs-removal-runbook.md, taggrs-server-container-archive.json)
 ├── scripts/              (25 files — bootstrap.js, audit-full.js, + translation tools)
 ├── .env                  (gitignored)
 ├── .gitignore
@@ -843,43 +842,11 @@ Non-blocking fan-out. Aangeroepen vanuit `orders-paid` (Purchase), `checkouts-cr
 
 ---
 
-## SECTIE 12: TAGGRS migratie status
+## SECTIE 12: Server-side tracking stack
 
-**Bron:** `migration/taggrs-removal-runbook.md` + `taggrs-server-container-archive.json` + `migration/runbook.md`.
+Alle server-side tracking loopt via `calqix-capi` op Vercel. Er is geen GTM server container, geen TAGGRS, geen `sst.calqix.com` subdomain.
 
-### 12.1 Identifiers
-
-- Server-side GTM container: `GTM-K4LPNF8L` (public `GTM-PFPBDML6`)
-- Web (TAGGRS): `GTM-TQGPKZ6S`
-- Hostname: `sst.calqix.com`
-- DNS: A-record → `85.10.147.212` (Namecheap)
-- TAGGRS account/product: `6235400961` / `0jkxabi7cq`
-- **Actieve GTM (niet-TAGGRS, BLIJFT):** `GTM-T86BFXXW` in `layout/theme.liquid:27,216`
-
-### 12.2 Progressie
-
-Voltooid (15-04-2026):
-- `sst.calqix.com` NIET in `theme.liquid` ✓
-- `GTM-T86BFXXW` routeert niet via `sst.calqix.com` ✓
-- Server container geëxporteerd → `/Taggrs/GTM-PFPBDML6_server.json` ✓
-- Web container geëxporteerd → `/Taggrs/GTM-TQGPKZ6S_web.json` ✓
-- Archive: `migration/taggrs-server-container-archive.json` ✓
-
-Pending:
-- DNS `sst.calqix.com` verwijderen (operator-manual)
-- SSL cert revoken
-- TAGGRS subscription cancellen (7d na DNS removal ≈ 22-04-2026)
-- GTM cleanup (optional)
-
-### 12.3 Status
-
-`taggrs-server-container-archive.json:10` → `"status": "never_activated"`.
-
-Per runbook: _"TAGGRS evaluated and rejected. All server-side tracking runs via `calqix-capi` on Vercel."_
-
-### 12.4 Code
-
-Geen TAGGRS-referenties in `api/`, `lib/`, `assets/`, `layout/`. Alleen in `migration/` documenten. Het `GTM-T86BFXXW` in `theme.liquid` is separate standard GTM, **retained**.
+**Actieve web GTM:** `GTM-T86BFXXW` in `layout/theme.liquid:27,216` — dit is een standaard door Google gehoste GTM container, los van server-side tracking. Blijft staan voor Google Ads / GA4 client-side events.
 
 ---
 
@@ -942,10 +909,8 @@ Grep op `\b(TODO|FIXME|HACK|WORKAROUND)(?::| )\b`:
 
 ### 15.2 Oude/verwijderde service-referenties
 
-- `sst.calqix.com` — niet meer in code (alleen `migration/*` + `Taggrs/*.json`)
-- `GTM-PFPBDML6`, `GTM-K4LPNF8L`, `GTM-TQGPKZ6S` — niet in code
 - `1400881244790983` (retired pixel) — niet in code, alleen doc
-- `GTM-T86BFXXW` — actief in `layout/theme.liquid:27,216` (retained, non-TAGGRS)
+- `GTM-T86BFXXW` — actief in `layout/theme.liquid:27,216` (standaard Google-hosted GTM, retained)
 
 ### 15.3 Inconsistente style
 
@@ -1025,7 +990,7 @@ System memories die als cross-check zijn geladen:
 - **EMQ optimalisatie naar 80+** — bevestigd in `api/identity/capture.js` + `lib/nl-postcode-province.js`.
 - **Ad optimization LIVE mode (EXECUTE + ENABLE_AD_WRITES=true)** — code default ≠ production; memory-override van env.
 - **Multi-agent content system LIVE + Predis** — zelfde: code default `DRAFT_ONLY` vs prod `LIVE`.
-- **TAGGRS never_activated archive 15-04-2026** — bevestigd in `migration/*`.
+- **Server-side TAGGRS never-activated** — archive + migration folder verwijderd uit repo.
 
 **Discrepantie:** memory suggereert "9x/dag ads optimizer"; `scripts/bootstrap.js` configureert `0 7,12,19` (3x/dag). `api/ads/monitor.js:getSlot()` is _geschikt_ voor 9x (hourly h07–h23 met 2h-step) maar schedule-kant doet 3x. Ofwel schedule is gereduceerd, ofwel memory-annotatie was speculatief.
 

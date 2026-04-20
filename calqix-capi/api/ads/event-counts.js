@@ -1,7 +1,11 @@
-const { apiGet, authDiagnostics, AD_ACCOUNT_ID, parseActionValue } = require('../../lib/meta-ads');
+const { apiGet, authDiagnostics, AD_ACCOUNT_ID, parseActionValue, pickActionValue } = require('../../lib/meta-ads');
 
-var OPTIMIZATION_EVENT_TYPES = {
-  OFFSITE_CONVERSIONS: ['offsite_conversion.fb_pixel_purchase', 'purchase'],
+// Action-type mapping per Meta optimization goal. For OFFSITE_CONVERSIONS
+// (purchase), Meta returns multiple overlapping rows (purchase,
+// offsite_conversion.fb_pixel_purchase, omni_purchase) for the same
+// conversion. We priority-pick (not sum) — see pickActionValue below.
+var OPTIMIZATION_EVENT_PRIORITY = {
+  OFFSITE_CONVERSIONS: ['omni_purchase', 'offsite_conversion.fb_pixel_purchase', 'purchase'],
   ADD_TO_CART: ['offsite_conversion.fb_pixel_add_to_cart'],
   INITIATE_CHECKOUT: ['offsite_conversion.fb_pixel_initiate_checkout'],
   LANDING_PAGE_VIEW: ['landing_page_view'],
@@ -36,7 +40,9 @@ async function handler(req, res) {
   for (var i = 0; i < adsets.length; i++) {
     var adset = adsets[i];
     var goal = adset.optimization_goal || 'OFFSITE_CONVERSIONS';
-    var eventTypes = OPTIMIZATION_EVENT_TYPES[goal] || OPTIMIZATION_EVENT_TYPES.OFFSITE_CONVERSIONS;
+    var eventTypes = OPTIMIZATION_EVENT_PRIORITY[goal] || OPTIMIZATION_EVENT_PRIORITY.OFFSITE_CONVERSIONS;
+    // Purchase-like goals need priority-pick to avoid double counting.
+    var usePriorityPick = goal === 'OFFSITE_CONVERSIONS';
 
     // Fetch daily insights for last 14 days
     var insightsResult = await apiGet(adset.id + '/insights', {
@@ -58,7 +64,9 @@ async function handler(req, res) {
     for (var d = 0; d < dailyData.length; d++) {
       var dayActions = dailyData[d].actions || [];
       var daySpend = parseFloat(dailyData[d].spend) || 0;
-      var eventCount = parseActionValue(dayActions, eventTypes);
+      var eventCount = usePriorityPick
+        ? pickActionValue(dayActions, eventTypes)
+        : parseActionValue(dayActions, eventTypes);
 
       if (d < 7) {
         week2Events += eventCount;

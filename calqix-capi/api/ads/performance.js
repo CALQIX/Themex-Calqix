@@ -1,8 +1,11 @@
-const { apiGet, authDiagnostics, AD_ACCOUNT_ID, parseActionValue, parseCostPerAction } = require('../../lib/meta-ads');
+const { apiGet, authDiagnostics, AD_ACCOUNT_ID, parseActionValue, pickActionValue, parseCostPerAction } = require('../../lib/meta-ads');
 
-var PURCHASE_TYPES = [
-  'purchase',
-  'offsite_conversion.fb_pixel_purchase'
+// Priority order — pick first match to avoid double-counting overlapping
+// Meta action rows for the same purchase conversion.
+var PURCHASE_PRIORITY = [
+  'omni_purchase',
+  'offsite_conversion.fb_pixel_purchase',
+  'purchase'
 ];
 var ATC_TYPES = [
   'offsite_conversion.fb_pixel_add_to_cart'
@@ -44,21 +47,23 @@ function formatRow(item) {
   var costPerAction = item.cost_per_action_type || [];
   var spend = parseFloat(item.spend) || 0;
 
-  var purchases = parseActionValue(actions, PURCHASE_TYPES);
+  var purchases = pickActionValue(actions, PURCHASE_PRIORITY);
   var addToCarts = parseActionValue(actions, ATC_TYPES);
   var initiateCheckouts = parseActionValue(actions, IC_TYPES);
   var viewContents = parseActionValue(actions, VC_TYPES);
   var leads = parseActionValue(actions, LEAD_TYPES);
 
-  var costPerPurchase = parseCostPerAction(costPerAction, PURCHASE_TYPES);
+  // Derive cost-per-purchase from spend/purchases for determinism. Meta's
+  // cost_per_action_type is scanned with priority-pick behavior too.
+  var costPerPurchase = purchases > 0 ? Number((spend / purchases).toFixed(2)) : parseCostPerAction(costPerAction, PURCHASE_PRIORITY);
   var costPerAtc = parseCostPerAction(costPerAction, ATC_TYPES);
 
-  // Calculate ROAS from purchase_roas or action_values
+  // Calculate ROAS from purchase_roas or action_values (priority-pick)
   var roas = 0;
   if (item.purchase_roas && Array.isArray(item.purchase_roas) && item.purchase_roas.length > 0) {
     roas = parseFloat(item.purchase_roas[0].value) || 0;
   } else if (item.action_values) {
-    var purchaseValue = parseActionValue(item.action_values, PURCHASE_TYPES);
+    var purchaseValue = pickActionValue(item.action_values, PURCHASE_PRIORITY);
     roas = spend > 0 ? Number((purchaseValue / spend).toFixed(2)) : 0;
   }
 
@@ -104,6 +109,8 @@ async function handler(req, res) {
   var result = await apiGet(AD_ACCOUNT_ID + '/insights', {
     fields: 'campaign_name,campaign_id,adset_name,adset_id,ad_name,ad_id,spend,impressions,clicks,ctr,cpc,cpm,actions,cost_per_action_type,action_values,purchase_roas,frequency,reach',
     date_preset: datePreset,
+    // Match Ads Manager UI default to keep reported numbers consistent.
+    action_attribution_windows: ['7d_click', '1d_view'],
     level: level,
     filtering: [{ field: 'spend', operator: 'GREATER_THAN', value: '0' }],
     limit: 100

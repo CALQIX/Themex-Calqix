@@ -3,6 +3,19 @@
   Wijziging: mobiel product zweeft rechts naast de CTA knop, geen losse ruimte onder
 {% endcomment %}
 
+{%- if section.settings.hide_on_homepage -%}
+  {%- comment -%}
+    Section is explicitly hidden via Theme Editor toggle. Render nothing, but
+    keep the section file + schema intact so Theme Editor configuration
+    (copy, images, colors) is preserved and can be restored by unchecking.
+  {%- endcomment -%}
+  {%- if request.design_mode -%}
+    <div style="padding:24px;background:#F7F4EC;color:#1A3B5C;font-family:'DM Sans',sans-serif;border:1px dashed #C9A84C;text-align:center;">
+      FlowCore Banner is verborgen via de section toggle. Zet hem weer aan om hem te tonen.
+    </div>
+  {%- endif -%}
+{%- else -%}
+
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 
 <style>
@@ -793,12 +806,25 @@
 })();
 </script>
 
+{%- endif -%}{%- comment -%} end hide_on_homepage branch {%- endcomment -%}
+
 {% schema %}
 {
   "name": "FlowCore Banner",
   "tag": "section",
   "class": "calqix-flowcore-banner",
   "settings": [
+    {
+      "type": "header",
+      "content": "Zichtbaarheid"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_on_homepage",
+      "label": "Verberg deze banner (behoud configuratie)",
+      "info": "Wanneer aangevinkt, rendert de banner niets op de live site. Je instellingen (tekst, kleuren, afbeeldingen) blijven bewaard en komen terug zodra je de toggle weer uitzet.",
+      "default": false
+    },
     {
       "type": "header",
       "content": "Banner instellingen"
