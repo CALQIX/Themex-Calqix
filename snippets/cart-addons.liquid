@@ -1,15 +1,54 @@
 {% assign any_addon = false %}
+{% assign addon_count = 0 %}
 {% for i in (1..2) %}
   {% assign show_key = 'drawer_addon_' | append: i | append: '_show' %}
   {% if settings[show_key] %}
     {% assign any_addon = true %}
+    {% assign addon_count = addon_count | plus: 1 %}
   {% endif %}
 {% endfor %}
 
 {% if any_addon %}
-  <div class="wt-cart__addons" aria-label="{{ 'calqix_cart.addons_heading' | t }}">
-    <p class="wt-cart__addons__heading">{{ 'calqix_cart.addons_heading' | t }}</p>
+  <div
+    class="wt-cart__addons wt-cart__addons--collapsible"
+    aria-label="{{ 'calqix_cart.addons_heading' | t }}"
+  >
+    {%- comment -%}
+      Desktop shows the static heading inline. Mobile replaces it with a
+      tappable trigger that toggles the collapsible content below. Both
+      live in the DOM simultaneously; responsive CSS hides whichever one
+      isn't relevant for the current viewport.
+    {%- endcomment -%}
+    <p class="wt-cart__addons__heading wt-cart__addons__heading--static">
+      {{ 'calqix_cart.addons_heading' | t }}
+    </p>
+    <button
+      type="button"
+      class="wt-cart__addons__trigger"
+      aria-expanded="false"
+      aria-controls="wt-cart-addons-content"
+    >
+      <span class="wt-cart__addons__trigger-label">
+        {{ 'calqix_cart.addons_heading' | t }}
+      </span>
+      <span class="wt-cart__addons__count" aria-hidden="true">{{ addon_count }}</span>
+      <svg
+        class="wt-cart__addons__chevron"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
 
+    <div class="wt-cart__addons__content" id="wt-cart-addons-content">
     <div class="wt-cart__addons__list">
       {% for i in (1..2) %}
         {% assign show_key = 'drawer_addon_' | append: i | append: '_show' %}
@@ -123,5 +162,21 @@
         {% endif %}
       {% endfor %}
     </div>
+    </div>
   </div>
+
+  <script>
+    (function () {
+      if (window.__cqCartAddonsCollapsibleBoundV1) return;
+      window.__cqCartAddonsCollapsibleBoundV1 = true;
+      document.addEventListener('click', function (e) {
+        var trigger = e.target && e.target.closest('.wt-cart__addons__trigger');
+        if (!trigger) return;
+        var wrap = trigger.closest('.wt-cart__addons--collapsible');
+        if (!wrap) return;
+        var isExpanded = wrap.classList.toggle('wt-cart__addons--expanded');
+        trigger.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+      }, false);
+    }());
+  </script>
 {% endif %}
