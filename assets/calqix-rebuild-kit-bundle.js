@@ -535,8 +535,11 @@
         var lang = document.documentElement.lang || 'en';
         var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'EUR';
         var pct = parseInt(config.pct, 10) || 30;
-        var ctaLabel = 'Add to Kit';
-        var priceSuffix = 'with Rebuild Kit';
+        // Translated labels come from the picker's data-attributes, which
+        // Liquid populates from the cart.rebuild_kit_picker.* locale keys
+        // (with merchant-setting override + hardcoded EN safety net).
+        var ctaLabel = (picker && picker.getAttribute('data-cq-rk-cta-label')) || 'Add to Kit';
+        var priceSuffix = (picker && picker.getAttribute('data-cq-rk-price-suffix')) || 'with Rebuild Kit';
 
         function formatMoney(cents) {
           var val = (cents || 0) / 100;
