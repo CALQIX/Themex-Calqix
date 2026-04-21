@@ -21,6 +21,17 @@ var KLAVIYO_ENABLED = function () { return klaviyo.isEnabled() && Boolean(proces
 var NEWSLETTER_LIST_ID = function () { return (process.env.KLAVIYO_NEWSLETTER_LIST_ID || '').trim(); };
 
 /**
+ * Klaviyo's official Shopify integration already emits Placed Order, Added to Cart,
+ * Checkout Started, and related metrics from the Shopify side. If the integration
+ * is installed (default assumption), our server-side CAPI must NOT duplicate those.
+ * Set KLAVIYO_SHOPIFY_APP_INSTALLED=false to force our CAPI to own the ecommerce
+ * metrics (e.g. if the Shopify integration is uninstalled).
+ */
+var KLAVIYO_SHOPIFY_APP_INSTALLED = function () {
+  return (process.env.KLAVIYO_SHOPIFY_APP_INSTALLED || 'true').trim() !== 'false';
+};
+
+/**
  * Map Meta-style customData to Klaviyo event properties.
  * Klaviyo uses conventional property names: $value, ItemNames, Items, OrderId, etc.
  */
@@ -123,8 +134,8 @@ function buildKlaviyoProfile(raw) {
 async function sendPurchase(opts) {
   var results = { ga4: null, googleAds: null, klaviyo: null };
 
-  // Klaviyo — independent of Google
-  if (KLAVIYO_ENABLED()) {
+  // Klaviyo — independent of Google. Skipped if Shopify app handles Placed Order natively.
+  if (KLAVIYO_ENABLED() && !KLAVIYO_SHOPIFY_APP_INSTALLED()) {
     try {
       results.klaviyo = await sendKlaviyoEvent(
         'Placed Order',
@@ -188,8 +199,8 @@ async function sendPurchase(opts) {
 async function sendAddToCart(opts) {
   var results = { ga4: null, klaviyo: null };
 
-  // Klaviyo
-  if (KLAVIYO_ENABLED()) {
+  // Klaviyo — skipped if Shopify app handles Added to Cart natively.
+  if (KLAVIYO_ENABLED() && !KLAVIYO_SHOPIFY_APP_INSTALLED()) {
     try {
       results.klaviyo = await sendKlaviyoEvent(
         'Added to Cart',
@@ -277,7 +288,8 @@ async function sendViewContent(opts) {
 async function sendCheckout(opts) {
   var results = { ga4: null, klaviyo: null };
 
-  if (KLAVIYO_ENABLED()) {
+  // Skipped if Shopify app handles Checkout Started natively (different metric name but same event).
+  if (KLAVIYO_ENABLED() && !KLAVIYO_SHOPIFY_APP_INSTALLED()) {
     try {
       results.klaviyo = await sendKlaviyoEvent(
         'Started Checkout',
