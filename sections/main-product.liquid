@@ -1953,6 +1953,9 @@
                 if ccb.show_vegan
                   assign ccb_badges = ccb_badges | append: 'vegan,'
                 endif
+                if ccb.show_made_in_nl
+                  assign ccb_badges = ccb_badges | append: 'made_in_nl,'
+                endif
                 assign ccb_list = ccb_badges | split: ','
               -%}
               {%- if ccb_list.size > 0 -%}
@@ -4526,6 +4529,12 @@
           "default": false
         },
         {
+          "type": "checkbox",
+          "id": "show_made_in_nl",
+          "label": "Made in Holland (Dutch flag)",
+          "default": true
+        },
+        {
           "type": "header",
           "content": "Layout"
         },
@@ -4536,7 +4545,7 @@
           "min": 40,
           "max": 88,
           "step": 2,
-          "default": 56,
+          "default": 52,
           "unit": "px"
         },
         {
@@ -4546,7 +4555,7 @@
           "min": 4,
           "max": 24,
           "step": 2,
-          "default": 12,
+          "default": 10,
           "unit": "px"
         },
         {
@@ -4611,7 +4620,13 @@
           "type": "color",
           "id": "divider_color",
           "label": "Divider color",
-          "default": "#E4E4E0"
+          "default": "#DCE6F5"
+        },
+        {
+          "type": "color",
+          "id": "section_bg",
+          "label": "Section background",
+          "default": "#F2F7FF"
         },
         {
           "type": "header",
@@ -4621,19 +4636,19 @@
           "type": "color",
           "id": "badge_fill",
           "label": "Badge fill (disc)",
-          "default": "#1A3B5C"
+          "default": "#004381"
         },
         {
           "type": "color",
           "id": "badge_accent",
           "label": "Badge accent (rings, icons, text)",
-          "default": "#C9A84C"
+          "default": "#F2F7FF"
         },
         {
           "type": "color",
           "id": "label_color",
           "label": "Heading / label color",
-          "default": "#1A3B5C"
+          "default": "#004381"
         }
       ]
     },

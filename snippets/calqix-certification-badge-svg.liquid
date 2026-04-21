@@ -9,7 +9,7 @@
        label: 'Toxicology Tested' %}
 
   Supported badge_type values:
-    toxicology, iso22000, gmp, cpnp, vegan, haccp
+    toxicology, iso22000, gmp, cpnp, vegan, haccp, made_in_nl
 {% endcomment %}
 
 {%- assign _fill = fill | default: '#1A3B5C' -%}
@@ -123,5 +123,25 @@
         <textPath href="#cx-arc-{{ _uid }}" startOffset="64%">CERTIFIED</textPath>
       </text>
       <text x="60" y="66" text-anchor="middle" fill="{{ _accent }}" font-family="'DM Serif Display', serif" font-size="16" font-weight="700">HACCP</text>
+    </svg>
+
+  {%- when 'made_in_nl' -%}
+    <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ _label | escape }}">
+      <defs><path id="cx-arc-{{ _uid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/></defs>
+      <circle cx="60" cy="60" r="58" fill="{{ _fill }}"/>
+      <circle cx="60" cy="60" r="53" fill="none" stroke="{{ _accent }}" stroke-width="0.5" opacity="0.7"/>
+      <circle cx="60" cy="60" r="33" fill="none" stroke="{{ _accent }}" stroke-width="1"/>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="14%">MADE IN</textPath>
+      </text>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="64%">HOLLAND</textPath>
+      </text>
+      <g transform="translate(45, 51)">
+        <rect x="0" y="0" width="30" height="6" fill="#AE1C28"/>
+        <rect x="0" y="6" width="30" height="6" fill="#FFFFFF"/>
+        <rect x="0" y="12" width="30" height="6" fill="#21468B"/>
+        <rect x="0" y="0" width="30" height="18" fill="none" stroke="{{ _accent }}" stroke-width="0.6"/>
+      </g>
     </svg>
 {%- endcase -%}
