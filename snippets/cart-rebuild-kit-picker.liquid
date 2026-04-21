@@ -14,6 +14,9 @@
 {%- if settings.cq_rk_enable -%}
   {%- liquid
     assign flavor_collection = settings.cq_rk_flowcore_collection
+    if flavor_collection == blank or flavor_collection.products_count == 0
+      assign flavor_collection = collections['flowcore']
+    endif
     assign products = flavor_collection.products
     assign pct = settings.cq_rk_discount_pct | default: 30
 
