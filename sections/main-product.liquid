@@ -2041,16 +2041,22 @@
                   }
                   @media (max-width: 480px) {
                     [data-block-id="{{ block.id }}"].calqix-cert-inline {
-                      margin-left: -4px;
-                      margin-right: -4px;
+                      margin-left: -6px;
+                      margin-right: -6px;
                     }
                     [data-block-id="{{ block.id }}"] .calqix-cert-inline__row {
-                      gap: calc(var(--ccb-gap) * 0.7);
-                      flex-wrap: wrap;
+                      gap: 4px;
+                      flex-wrap: nowrap;
+                      justify-content: space-between;
+                    }
+                    [data-block-id="{{ block.id }}"] .calqix-cert-inline__item {
+                      min-width: 0;
+                      flex: 0 0 auto;
                     }
                     [data-block-id="{{ block.id }}"] .calqix-cert-badge__svg {
                       width: var(--ccb-size-mobile);
                       height: var(--ccb-size-mobile);
+                      max-width: 100%;
                     }
                     [data-block-id="{{ block.id }}"] .calqix-cert-inline__label {
                       max-width: calc(var(--ccb-size-mobile) + 10px);
@@ -4563,7 +4569,7 @@
           "min": 32,
           "max": 80,
           "step": 2,
-          "default": 70,
+          "default": 68,
           "unit": "px"
         },
         {
