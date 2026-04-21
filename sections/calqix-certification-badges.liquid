@@ -1,0 +1,308 @@
+{% comment %}
+  ============================================================
+  CALQIX Certification Badges Section
+  File: sections/calqix-certification-badges.liquid
+  Purpose: Regulatory / compliance trust badges (SVG seals) for
+  product pages. Separate from the emoji-based "calqix-trust-badges"
+  block which handles shipping / Klarna / returns.
+  Locales: en, nl, de, fr, fi, nb, sv, da
+  Brand: Navy #1A3B5C, Gold #C9A84C, BG #F4F5F7
+  ============================================================
+{% endcomment %}
+
+<section
+  class="calqix-cert-section"
+  data-section-id="{{ section.id }}"
+  data-section-type="calqix-certification-badges"
+  aria-labelledby="calqix-cert-heading-{{ section.id }}"
+>
+  <div class="calqix-cert-section__inner page-width">
+    {%- if section.settings.show_heading -%}
+      <p id="calqix-cert-heading-{{ section.id }}" class="calqix-cert-section__heading">
+        {{ 'sections.calqix_certification_badges.heading' | t }}
+      </p>
+    {%- endif -%}
+
+    <div class="calqix-cert-section__grid" role="list">
+      {%- for block in section.blocks -%}
+        {%- assign bid = section.id | append: '-' | append: forloop.index -%}
+        {%- assign badge_label = '' -%}
+
+        {%- case block.settings.badge_type -%}
+          {%- when 'toxicology' -%}
+            {%- assign badge_label = 'sections.calqix_certification_badges.toxicology' | t -%}
+          {%- when 'iso22000' -%}
+            {%- assign badge_label = 'sections.calqix_certification_badges.iso22000' | t -%}
+          {%- when 'gmp' -%}
+            {%- assign badge_label = 'sections.calqix_certification_badges.gmp' | t -%}
+          {%- when 'cpnp' -%}
+            {%- assign badge_label = 'sections.calqix_certification_badges.cpnp' | t -%}
+          {%- when 'vegan' -%}
+            {%- assign badge_label = 'sections.calqix_certification_badges.vegan' | t -%}
+          {%- when 'haccp' -%}
+            {%- assign badge_label = 'sections.calqix_certification_badges.haccp' | t -%}
+        {%- endcase -%}
+
+        <div class="calqix-cert-badge" role="listitem" {{ block.shopify_attributes }}>
+
+          {%- case block.settings.badge_type -%}
+
+            {%- when 'toxicology' -%}
+              <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ badge_label | escape }}">
+                <defs>
+                  <path id="cx-arc-{{ bid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/>
+                </defs>
+                <circle cx="60" cy="60" r="58" fill="{{ section.settings.badge_fill }}"/>
+                <circle cx="60" cy="60" r="53" fill="none" stroke="{{ section.settings.badge_accent }}" stroke-width="0.5" opacity="0.7"/>
+                <circle cx="60" cy="60" r="33" fill="none" stroke="{{ section.settings.badge_accent }}" stroke-width="1"/>
+                <text fill="{{ section.settings.badge_accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+                  <textPath href="#cx-arc-{{ bid }}" startOffset="11%">TOXICOLOGY</textPath>
+                </text>
+                <text fill="{{ section.settings.badge_accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+                  <textPath href="#cx-arc-{{ bid }}" startOffset="63%">TESTED</textPath>
+                </text>
+                <g transform="translate(60, 62)" stroke="{{ section.settings.badge_accent }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                  <line x1="-7" y1="-13" x2="7" y2="-13"/>
+                  <line x1="-5" y1="-13" x2="-5" y2="-3"/>
+                  <line x1="5" y1="-13" x2="5" y2="-3"/>
+                  <path d="M -5,-3 L -12,10 Q -12,13 -9,13 L 9,13 Q 12,13 12,10 L 5,-3 Z"/>
+                  <line x1="-10" y1="5" x2="10" y2="5" opacity="0.6"/>
+                </g>
+              </svg>
+
+            {%- when 'iso22000' -%}
+              <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ badge_label | escape }}">
+                <defs>
+                  <path id="cx-arc-{{ bid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/>
+                </defs>
+                <circle cx="60" cy="60" r="58" fill="{{ section.settings.badge_fill }}"/>
+                <circle cx="60" cy="60" r="53" fill="none" stroke="{{ section.settings.badge_accent }}" stroke-width="0.5" opacity="0.7"/>
+                <circle cx="60" cy="60" r="33" fill="none" stroke="{{ section.settings.badge_accent }}" stroke-width="1"/>
+                <text fill="{{ section.settings.badge_accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+                  <textPath href="#cx-arc-{{ bid }}" startOffset="10%">FOOD SAFETY</textPath>
+                </text>
+                <text fill="{{ section.settings.badge_accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+                  <textPath href="#cx-arc-{{ bid }}" startOffset="64%">CERTIFIED</textPath>
+                </text>
+                <text x="60" y="57" text-anchor="middle" fill="{{ section.settings.badge_accent }}" font-family="'DM Serif Display', serif" font-size="13" font-weight="700" letter-spacing="0.5">ISO</text>
+                <text x="60" y="74" text-anchor="middle" fill="{{ section.settings.badge_accent }}" font-family="'DM Serif Display', serif" font-size="13" font-weight="700">22000</text>
+              </svg>
+
+            {%- when 'gmp' -%}
+              <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ badge_label | escape }}">
+                <defs>
+                  <path id="cx-arc-{{ bid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/>
+                </defs>
+                <circle cx="60" cy="60" r="58" fill="{{ section.settings.badge_fill }}"/>
+                <circle cx="60" cy="60" r="53" fill="none" stroke="{{ section.settings.badge_accent }}" stroke-width="0.5" opacity="0.7"/>
+                <circle cx="60" cy="60" r="33" fill="none" stroke="{{ section.settings.badge_accent }}" stroke-width="1"/>
+                <text fill="{{ section.settings.badge_accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+                  <textPath href="#cx-arc-{{ bid }}" startOffset="7%">MANUFACTURED</textPath>
+                </text>
+                <text fill="{{ section.settings.badge_accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+                  <textPath href="#cx-arc-{{ bid }}" startOffset="67%">UNDER</textPath>
+                </text>
+                <text x="60" y="67" text-anchor="middle" fill="{{ section.settings.badge_accent }}" font-family="'DM Serif Display', serif" font-size="19" font-weight="700" letter-spacing="1">GMP</text>
+              </svg>
+
+            {%- when 'cpnp' -%}
+              <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ badge_label | escape }}">
+                <defs>
+                  <path id="cx-arc-{{ bid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/>
+                </defs>
+                <circle cx="60" cy="60" r="58" fill="{{ section.settings.badge_fill }}"/>
+                <circle cx="60" cy="60" r="53" fill="none" stroke="{{ section.settings.badge_accent }}" stroke-width="0.5" opacity="0.7"/>
+                <circle cx="60" cy="60" r="33" fill="none" stroke="{{ section.settings.badge_accent }}" stroke-width="1"/>
+                <text fill="{{ section.settings.badge_accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+                  <textPath href="#cx-arc-{{ bid }}" startOffset="12%">EU NOTIFIED</textPath>
+                </text>
+                <text fill="{{ section.settings.badge_accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+                  <textPath href="#cx-arc-{{ bid }}" startOffset="66%">COMPLIANT</textPath>
+                </text>
+                <text x="60" y="62" text-anchor="middle" fill="{{ section.settings.badge_accent }}" font-family="'DM Serif Display', serif" font-size="17" font-weight="700" letter-spacing="1">CPNP</text>
+                <g transform="translate(60, 78)" fill="{{ section.settings.badge_accent }}">
+                  <circle cx="-10" cy="1" r="1"/>
+                  <circle cx="-5" cy="-1" r="1"/>
+                  <circle cx="0" cy="-1.5" r="1"/>
+                  <circle cx="5" cy="-1" r="1"/>
+                  <circle cx="10" cy="1" r="1"/>
+                </g>
+              </svg>
+
+            {%- when 'vegan' -%}
+              <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ badge_label | escape }}">
+                <defs>
+                  <path id="cx-arc-{{ bid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/>
+                </defs>
+                <circle cx="60" cy="60" r="58" fill="{{ section.settings.badge_fill }}"/>
+                <circle cx="60" cy="60" r="53" fill="none" stroke="{{ section.settings.badge_accent }}" stroke-width="0.5" opacity="0.7"/>
+                <circle cx="60" cy="60" r="33" fill="none" stroke="{{ section.settings.badge_accent }}" stroke-width="1"/>
+                <text fill="{{ section.settings.badge_accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+                  <textPath href="#cx-arc-{{ bid }}" startOffset="12%">100 PERCENT</textPath>
+                </text>
+                <text fill="{{ section.settings.badge_accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+                  <textPath href="#cx-arc-{{ bid }}" startOffset="68%">FORMULA</textPath>
+                </text>
+                <g transform="translate(60, 58)" fill="{{ section.settings.badge_accent }}">
+                  <path d="M 0,-12 Q 11,-6 9,6 Q 3,11 -3,9 Q -10,2 -7,-5 Q -3,-12 0,-12 Z"/>
+                </g>
+                <text x="60" y="85" text-anchor="middle" fill="{{ section.settings.badge_accent }}" font-family="'DM Serif Display', serif" font-size="11" font-weight="700" letter-spacing="1">VEGAN</text>
+              </svg>
+
+            {%- when 'haccp' -%}
+              <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ badge_label | escape }}">
+                <defs>
+                  <path id="cx-arc-{{ bid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/>
+                </defs>
+                <circle cx="60" cy="60" r="58" fill="{{ section.settings.badge_fill }}"/>
+                <circle cx="60" cy="60" r="53" fill="none" stroke="{{ section.settings.badge_accent }}" stroke-width="0.5" opacity="0.7"/>
+                <circle cx="60" cy="60" r="33" fill="none" stroke="{{ section.settings.badge_accent }}" stroke-width="1"/>
+                <text fill="{{ section.settings.badge_accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+                  <textPath href="#cx-arc-{{ bid }}" startOffset="11%">FOOD SAFETY</textPath>
+                </text>
+                <text fill="{{ section.settings.badge_accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+                  <textPath href="#cx-arc-{{ bid }}" startOffset="64%">CERTIFIED</textPath>
+                </text>
+                <text x="60" y="66" text-anchor="middle" fill="{{ section.settings.badge_accent }}" font-family="'DM Serif Display', serif" font-size="16" font-weight="700">HACCP</text>
+              </svg>
+
+          {%- endcase -%}
+
+          {%- if block.settings.show_label -%}
+            <span class="calqix-cert-badge__label">{{ badge_label }}</span>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    {%- if section.settings.show_disclaimer -%}
+      <p class="calqix-cert-section__disclaimer">
+        {{ 'sections.calqix_certification_badges.disclaimer' | t }}
+      </p>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .calqix-cert-section {
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+    background-color: {{ section.settings.bg_color }};
+  }
+  .calqix-cert-section__inner { text-align: center; }
+  .calqix-cert-section__heading {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: {{ section.settings.text_color }};
+    opacity: 0.75;
+    margin: 0 0 22px;
+  }
+  .calqix-cert-section__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+    gap: 18px;
+    max-width: 720px;
+    margin: 0 auto;
+    align-items: start;
+    justify-items: center;
+  }
+  .calqix-cert-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 130px;
+  }
+  .calqix-cert-badge__svg {
+    width: 100%;
+    height: auto;
+    max-width: 110px;
+    transition: transform 0.3s ease;
+  }
+  .calqix-cert-badge:hover .calqix-cert-badge__svg { transform: scale(1.05); }
+  .calqix-cert-badge__label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: {{ section.settings.text_color }};
+    text-align: center;
+    line-height: 1.3;
+  }
+  .calqix-cert-section__disclaimer {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    color: {{ section.settings.text_color }};
+    opacity: 0.55;
+    margin: 20px auto 0;
+    max-width: 540px;
+    line-height: 1.6;
+  }
+  @media (max-width: 640px) {
+    .calqix-cert-section__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .calqix-cert-badge__svg { max-width: 72px; }
+    .calqix-cert-badge__label { font-size: 9px; }
+    .calqix-cert-section__heading { font-size: 11px; letter-spacing: 2px; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "CALQIX Certification Badges",
+  "tag": "section",
+  "class": "section-calqix-certification-badges",
+  "settings": [
+    { "type": "header", "content": "Layout" },
+    { "type": "checkbox", "id": "show_heading", "label": "Show heading", "default": true },
+    { "type": "color", "id": "bg_color", "label": "Background color", "default": "#F4F5F7" },
+    { "type": "color", "id": "text_color", "label": "Heading / label color", "default": "#1A3B5C" },
+    { "type": "color", "id": "badge_fill", "label": "Badge fill (disc)", "default": "#1A3B5C" },
+    { "type": "color", "id": "badge_accent", "label": "Badge accent (rings, icons, text)", "default": "#C9A84C" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 80, "step": 4, "default": 32, "unit": "px" },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 80, "step": 4, "default": 32, "unit": "px" },
+    { "type": "header", "content": "Disclaimer" },
+    { "type": "checkbox", "id": "show_disclaimer", "label": "Show compliance disclaimer", "default": false }
+  ],
+  "blocks": [
+    {
+      "type": "badge",
+      "name": "Badge",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "select",
+          "id": "badge_type",
+          "label": "Badge type",
+          "options": [
+            { "value": "toxicology", "label": "Toxicology Tested" },
+            { "value": "iso22000", "label": "ISO 22000" },
+            { "value": "gmp", "label": "GMP Manufactured" },
+            { "value": "cpnp", "label": "EU CPNP Notified" },
+            { "value": "vegan", "label": "Vegan Formula" },
+            { "value": "haccp", "label": "HACCP Certified" }
+          ],
+          "default": "toxicology"
+        },
+        { "type": "checkbox", "id": "show_label", "label": "Show text label below badge", "default": false }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "CALQIX Certification Badges",
+      "blocks": [
+        { "type": "badge", "settings": { "badge_type": "toxicology" } },
+        { "type": "badge", "settings": { "badge_type": "iso22000" } },
+        { "type": "badge", "settings": { "badge_type": "gmp" } },
+        { "type": "badge", "settings": { "badge_type": "cpnp" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

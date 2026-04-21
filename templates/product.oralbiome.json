@@ -874,11 +874,49 @@
         "pill_4": "Cancel in 1 Click",
         "button_text": "Subscribe & Save 20%"
       }
+    },
+    "calqix_certification_badges_oralbiome": {
+      "type": "calqix-certification-badges",
+      "blocks": {
+        "badge_toxicology": {
+          "type": "badge",
+          "settings": { "badge_type": "toxicology", "show_label": false }
+        },
+        "badge_iso22000": {
+          "type": "badge",
+          "settings": { "badge_type": "iso22000", "show_label": false }
+        },
+        "badge_gmp": {
+          "type": "badge",
+          "settings": { "badge_type": "gmp", "show_label": false }
+        },
+        "badge_haccp": {
+          "type": "badge",
+          "settings": { "badge_type": "haccp", "show_label": false }
+        }
+      },
+      "block_order": [
+        "badge_toxicology",
+        "badge_iso22000",
+        "badge_gmp",
+        "badge_haccp"
+      ],
+      "settings": {
+        "show_heading": true,
+        "bg_color": "#f4f5f7",
+        "text_color": "#1a3b5c",
+        "badge_fill": "#1a3b5c",
+        "badge_accent": "#c9a84c",
+        "padding_top": 32,
+        "padding_bottom": 32,
+        "show_disclaimer": false
+      }
     }
   },
   "order": [
     "breadcrumbs",
     "main",
+    "calqix_certification_badges_oralbiome",
     "oralbiome-social-proof-bar",
     "oralbiome-video-explainer",
     "oralbiome-health-benefits",
