@@ -1531,19 +1531,19 @@
         "type": "text",
         "id": "cq_rk_banner_label",
         "label": "Banner badge",
-        "default": "SAVE 30%"
+        "info": "Leave blank to use the translated copy from each locale (cart.rebuild_kit_picker.banner_label). Only fill in to override."
       },
       {
         "type": "text",
         "id": "cq_rk_banner_title",
         "label": "Banner title",
-        "default": "Complete the Rebuild Kit"
+        "info": "Leave blank for translated copy (cart.rebuild_kit_picker.banner_title)."
       },
       {
         "type": "text",
         "id": "cq_rk_banner_sub",
         "label": "Banner subtitle",
-        "default": "Pair your OralBiome with a FlowCore color for 30% off."
+        "info": "Leave blank for translated copy (cart.rebuild_kit_picker.banner_sub)."
       },
       {
         "type": "header",
@@ -1553,19 +1553,19 @@
         "type": "text",
         "id": "cq_rk_modal_title",
         "label": "Modal title",
-        "default": "Choose your FlowCore color"
+        "info": "Leave blank for translated copy (cart.rebuild_kit_picker.modal_title)."
       },
       {
         "type": "text",
         "id": "cq_rk_modal_sub",
         "label": "Modal subtitle",
-        "default": "Your Rebuild Kit bundle saves 30% automatically at checkout."
+        "info": "Leave blank for translated copy (cart.rebuild_kit_picker.modal_sub)."
       },
       {
         "type": "text",
         "id": "cq_rk_modal_cta",
         "label": "Card button label",
-        "default": "Add to Kit"
+        "info": "Leave blank for translated copy (cart.rebuild_kit_picker.cta)."
       },
       {
         "type": "header",
@@ -1575,8 +1575,7 @@
         "type": "text",
         "id": "cq_rk_combi_label",
         "label": "Label when bundle is complete in cart",
-        "default": "Rebuild Kit bundle · 30% off",
-        "info": "Shown in the cart drawer as a gold-pulse badge while both products are in the cart."
+        "info": "Leave blank for translated copy (cart.rebuild_kit_picker.combi_label). Shown as a gold-pulse badge while both products are in the cart."
       }
     ]
   },
