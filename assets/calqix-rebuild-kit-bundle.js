@@ -195,7 +195,14 @@
   var lastFocusedBeforeModal = null;
 
   function openPicker() {
-    var picker = document.querySelector('[data-cq-rk-picker]');
+    // Prefer the portaled instance (moved out of the drawer into body so
+    // its position:fixed isn't clipped by ancestors). The theme's section
+    // refresh injects a fresh non-portaled picker inside the drawer on
+    // every cart-update; that one lacks JS-built cards and is positioned
+    // inside the drawer. Always reach for the portaled version first.
+    var picker =
+      document.querySelector('[data-cq-rk-picker][data-cq-rk-portaled="1"]') ||
+      document.querySelector('[data-cq-rk-picker]');
     if (!picker) return;
     lastFocusedBeforeModal = document.activeElement;
     picker.hidden = false;
@@ -706,6 +713,21 @@
     // Listen for both variants so the banner refreshes on passive opens too.
     document.addEventListener('cart-drawer-open', function () { refresh(); }, false);
     document.addEventListener('cartDrawerOpen',   function () { refresh(); }, false);
+
+    // Theme pub-sub: after every cart-update the drawer re-renders its
+    // sections, which inserts a fresh server-rendered (non-portaled) picker
+    // into the drawer. Re-portal so our full-screen picker wins openPicker().
+    try {
+      if (typeof window.subscribe === 'function') {
+        window.subscribe('cart-update', function () {
+          window.setTimeout(function () {
+            portalPicker();
+            ensurePickerHasCards();
+            refresh();
+          }, 160);
+        });
+      }
+    } catch (e) {}
 
     // Also monkey-patch fetch to catch /cart/add.js calls the theme itself
     // does not emit a custom event for.
