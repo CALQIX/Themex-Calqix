@@ -217,7 +217,13 @@
   }
 
   function closePicker() {
-    var picker = document.querySelector('[data-cq-rk-picker]');
+    // Prefer the portaled instance for the same reason as openPicker:
+    // after cart-drawer section re-render there's a fresh inline picker
+    // in the drawer. It's hidden by default, so without this we'd early-
+    // return and leave the open portaled modal stuck visible forever.
+    var picker =
+      document.querySelector('[data-cq-rk-picker][data-cq-rk-portaled="1"]') ||
+      document.querySelector('[data-cq-rk-picker]');
     if (!picker || picker.hidden) return;
     picker.classList.remove('cq-rk-picker--in');
     picker.setAttribute('aria-hidden', 'true');
