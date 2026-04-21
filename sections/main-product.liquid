@@ -1962,7 +1962,7 @@
                 <div
                   class="calqix-cert-inline"
                   data-block-id="{{ block.id }}"
-                  style="--ccb-size: {{ ccb.badge_size }}px; --ccb-gap: {{ ccb.badge_gap }}px; --ccb-color: {{ ccb.label_color }};"
+                  style="--ccb-size: {{ ccb.badge_size }}px; --ccb-size-mobile: {{ ccb.badge_size_mobile | default: 70 }}px; --ccb-gap: {{ ccb.badge_gap }}px; --ccb-color: {{ ccb.label_color }};"
                   {{ block.shopify_attributes }}
                 >
                   {%- if ccb.show_heading and ccb.heading != blank -%}
@@ -2046,6 +2046,14 @@
                     }
                     [data-block-id="{{ block.id }}"] .calqix-cert-inline__row {
                       gap: calc(var(--ccb-gap) * 0.7);
+                      flex-wrap: wrap;
+                    }
+                    [data-block-id="{{ block.id }}"] .calqix-cert-badge__svg {
+                      width: var(--ccb-size-mobile);
+                      height: var(--ccb-size-mobile);
+                    }
+                    [data-block-id="{{ block.id }}"] .calqix-cert-inline__label {
+                      max-width: calc(var(--ccb-size-mobile) + 10px);
                     }
                   }
                 </style>
@@ -4541,11 +4549,21 @@
         {
           "type": "range",
           "id": "badge_size",
-          "label": "Badge size",
+          "label": "Badge size (desktop)",
           "min": 40,
-          "max": 88,
+          "max": 96,
           "step": 2,
-          "default": 52,
+          "default": 82,
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "badge_size_mobile",
+          "label": "Badge size (mobile)",
+          "min": 32,
+          "max": 80,
+          "step": 2,
+          "default": 70,
           "unit": "px"
         },
         {
