@@ -292,11 +292,7 @@
       country_code: userPayload.country_code || undefined
     };
 
-    fetch(CAPI_BASE + '/view-content', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).catch(function () { /* silent */ });
+    postKeepAlive(CAPI_BASE + '/view-content', payload);
 
     if (typeof fbq === 'function') {
       fbq('track', 'ViewContent', {
@@ -355,7 +351,7 @@
       source_url: window.location.href
     };
 
-    postAddToCart(payload);
+    postKeepAlive(CAPI_BASE + '/add-to-cart', payload);
 
     if (typeof fbq === 'function') {
       fbq('track', 'AddToCart', {
@@ -371,11 +367,10 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /*  Unload-safe transport for /api/add-to-cart                         */
+  /*  Unload-safe transport used by all CAPI bridge POSTs                */
   /* ------------------------------------------------------------------ */
 
-  function postAddToCart(payload) {
-    var url = CAPI_BASE + '/add-to-cart';
+  function postKeepAlive(url, payload) {
     var bodyStr = JSON.stringify(payload);
 
     // sendBeacon survives page navigation (native form submits, quick-add links).

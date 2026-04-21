@@ -2,9 +2,15 @@ const { formatUserData } = require('../lib/hash');
 const { sendEvent } = require('../lib/meta-capi');
 
 const SOURCE_URL_BASE = 'https://calqix.com/products/';
+const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
 
 async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', 'https://calqix.com');
+  const origin = (req.headers && req.headers.origin) || '';
+  res.setHeader(
+    'Access-Control-Allow-Origin',
+    ALLOWED_ORIGINS.indexOf(origin) !== -1 ? origin : 'https://www.calqix.com'
+  );
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
