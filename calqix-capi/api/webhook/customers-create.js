@@ -205,11 +205,21 @@ async function handler(req, res) {
     // Intentionally not awaited — fire-and-forget so Lead response is not blocked on metafield writes.
     persistProfileMetafieldsFromNote(customer);
 
-    // Multi-platform: GA4 (non-blocking)
+    // Multi-platform: Klaviyo (subscribe to list + event) + GA4 (non-blocking)
     try {
       await multiPlatform.sendLead({
         eventId: eventId,
         customData: customData,
+        userData: {
+          email: customer.email,
+          phone: customer.phone || (customer.default_address && customer.default_address.phone),
+          first_name: customer.first_name || (customer.default_address && customer.default_address.first_name),
+          last_name: customer.last_name || (customer.default_address && customer.default_address.last_name),
+          city: customer.default_address && customer.default_address.city,
+          zip: customer.default_address && customer.default_address.zip,
+          country_code: customer.default_address && customer.default_address.country_code,
+          external_id: String(customer.id)
+        },
         userId: String(customer.id)
       });
     } catch (e) { /* non-fatal */ }

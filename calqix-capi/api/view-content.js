@@ -1,5 +1,6 @@
 const { formatUserData } = require('../lib/hash');
 const { sendEvent } = require('../lib/meta-capi');
+const multiPlatform = require('../lib/multi-platform-send');
 
 const SOURCE_URL_BASE = 'https://calqix.com/products/';
 const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
@@ -83,6 +84,22 @@ async function handler(req, res) {
     };
 
     const result = await sendEvent('ViewContent', eventId, sourceUrl, userData, customData);
+
+    // Multi-platform: Klaviyo + GA4 (non-blocking)
+    try {
+      await multiPlatform.sendViewContent({
+        eventId: eventId,
+        customData: customData,
+        sourceUrl: sourceUrl,
+        userData: {
+          email: body.email || undefined,
+          phone: body.phone || undefined,
+          external_id: body.external_id || undefined,
+          country_code: body.country_code || undefined
+        },
+        userId: body.external_id || undefined
+      });
+    } catch (e) { /* non-fatal */ }
 
     return res.status(200).json({
       received: true,

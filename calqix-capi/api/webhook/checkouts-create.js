@@ -151,11 +151,32 @@ async function handler(req, res) {
     await eventState.recordSent(eventId, metaResult);
     await markProcessed('InitiateCheckout', String(checkoutKey));
 
-    // Multi-platform: GA4 (non-blocking)
+    // Multi-platform: Klaviyo + GA4 (non-blocking)
     try {
+      var rawCheckoutCustomer = mergeCustomerData(
+        checkout && checkout.customer,
+        checkout && checkout.billing_address,
+        checkout && checkout.shipping_address,
+        {
+          email: (checkout && checkout.email) || enrichment.email,
+          phone: (checkout && checkout.phone) || enrichment.phone,
+          external_id: extractExternalId(checkout) || enrichment.external_id
+        }
+      );
       await multiPlatform.sendCheckout({
         eventId: eventId,
         customData: customData,
+        userData: {
+          email: rawCheckoutCustomer.email,
+          phone: rawCheckoutCustomer.phone,
+          first_name: rawCheckoutCustomer.first_name,
+          last_name: rawCheckoutCustomer.last_name,
+          city: rawCheckoutCustomer.city,
+          zip: rawCheckoutCustomer.zip,
+          country_code: rawCheckoutCustomer.country_code,
+          external_id: extractExternalId(checkout)
+        },
+        checkoutUrl: checkout && checkout.abandoned_checkout_url,
         userId: extractExternalId(checkout)
       });
     } catch (e) { /* non-fatal */ }

@@ -127,11 +127,17 @@ async function handler(req, res) {
       });
     } catch (e) { /* diagnostics are non-critical */ }
 
-    // Multi-platform: GA4 (non-blocking)
+    // Multi-platform: Klaviyo + GA4 (non-blocking)
     try {
       await multiPlatform.sendAddToCart({
         eventId: eventId,
         customData: customData,
+        userData: {
+          email: body.email || undefined,
+          phone: body.phone || undefined,
+          external_id: body.external_id || undefined,
+          country_code: body.country_code || undefined
+        },
         userId: body.external_id || undefined
       });
     } catch (e) { /* non-fatal */ }
