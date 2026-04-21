@@ -1931,6 +1931,122 @@
               </div>
             {%- when 'information_popup' %}
               {% render 'popup', product: product, id: block.id, shopify_attributes: block.shopify_attributes, size_icon: block.settings.size_icon, size_link: block.settings.size_link, size_page: block.settings.size_page, size_content: block.settings.size_content, metafield_name: block.settings.metafield, enable-striped-rows: block.settings.enable-striped-rows %}
+            {%- when 'calqix_cert_badges' -%}
+              {%- liquid
+                assign ccb = block.settings
+                assign ccb_badges = ''
+                if ccb.show_toxicology
+                  assign ccb_badges = ccb_badges | append: 'toxicology,'
+                endif
+                if ccb.show_iso22000
+                  assign ccb_badges = ccb_badges | append: 'iso22000,'
+                endif
+                if ccb.show_gmp
+                  assign ccb_badges = ccb_badges | append: 'gmp,'
+                endif
+                if ccb.show_haccp
+                  assign ccb_badges = ccb_badges | append: 'haccp,'
+                endif
+                if ccb.show_cpnp
+                  assign ccb_badges = ccb_badges | append: 'cpnp,'
+                endif
+                if ccb.show_vegan
+                  assign ccb_badges = ccb_badges | append: 'vegan,'
+                endif
+                assign ccb_list = ccb_badges | split: ','
+              -%}
+              {%- if ccb_list.size > 0 -%}
+                <div
+                  class="calqix-cert-inline"
+                  data-block-id="{{ block.id }}"
+                  style="--ccb-size: {{ ccb.badge_size }}px; --ccb-gap: {{ ccb.badge_gap }}px; --ccb-color: {{ ccb.label_color }};"
+                  {{ block.shopify_attributes }}
+                >
+                  {%- if ccb.show_heading and ccb.heading != blank -%}
+                    <p class="calqix-cert-inline__heading">{{ ccb.heading }}</p>
+                  {%- endif -%}
+                  <div class="calqix-cert-inline__row" role="list">
+                    {%- for btype in ccb_list -%}
+                      {%- assign btype = btype | strip -%}
+                      {%- if btype != blank -%}
+                        {%- assign ccb_label_key = 'sections.calqix_certification_badges.' | append: btype -%}
+                        {%- assign ccb_label = ccb_label_key | t -%}
+                        <div class="calqix-cert-inline__item" role="listitem" aria-label="{{ ccb_label | escape }}">
+                          {%- render 'calqix-certification-badge-svg',
+                              badge_type: btype,
+                              fill: ccb.badge_fill,
+                              accent: ccb.badge_accent,
+                              uid: block.id | append: '-' | append: btype,
+                              label: ccb_label
+                          -%}
+                          {%- if ccb.show_labels -%}
+                            <span class="calqix-cert-inline__label">{{ ccb_label }}</span>
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </div>
+                </div>
+                <style>
+                  [data-block-id="{{ block.id }}"].calqix-cert-inline {
+                    margin: {{ ccb.margin_top }}px 0 {{ ccb.margin_bottom }}px;
+                    text-align: center;
+                    {% if ccb.show_dividers %}
+                    border-top: 1px solid {{ ccb.divider_color }};
+                    border-bottom: 1px solid {{ ccb.divider_color }};
+                    padding: {{ ccb.padding_vertical }}px 0;
+                    {% endif %}
+                  }
+                  [data-block-id="{{ block.id }}"] .calqix-cert-inline__heading {
+                    font-family: 'DM Sans', sans-serif;
+                    font-size: 11px;
+                    font-weight: 500;
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
+                    color: var(--ccb-color);
+                    opacity: 0.7;
+                    margin: 0 0 10px;
+                  }
+                  [data-block-id="{{ block.id }}"] .calqix-cert-inline__row {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: var(--ccb-gap);
+                    flex-wrap: nowrap;
+                  }
+                  [data-block-id="{{ block.id }}"] .calqix-cert-inline__item {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 4px;
+                    flex: 0 1 auto;
+                  }
+                  [data-block-id="{{ block.id }}"] .calqix-cert-badge__svg {
+                    width: var(--ccb-size);
+                    height: var(--ccb-size);
+                    display: block;
+                  }
+                  [data-block-id="{{ block.id }}"] .calqix-cert-inline__label {
+                    font-family: 'DM Sans', sans-serif;
+                    font-size: 9.5px;
+                    font-weight: 500;
+                    letter-spacing: 0.3px;
+                    color: var(--ccb-color);
+                    text-align: center;
+                    line-height: 1.25;
+                    max-width: calc(var(--ccb-size) + 10px);
+                  }
+                  @media (max-width: 480px) {
+                    [data-block-id="{{ block.id }}"].calqix-cert-inline {
+                      margin-left: -4px;
+                      margin-right: -4px;
+                    }
+                    [data-block-id="{{ block.id }}"] .calqix-cert-inline__row {
+                      gap: calc(var(--ccb-gap) * 0.7);
+                    }
+                  }
+                </style>
+              {%- endif -%}
             {%- when 'buy_buttons' -%}
               {%- liquid
                 assign cq_current_variant = product.selected_or_first_available_variant
@@ -4361,6 +4477,163 @@
             { "value": "3", "label": "3 Jars" }
           ],
           "default": "3"
+        }
+      ]
+    },
+    {
+      "type": "calqix_cert_badges",
+      "name": "CALQIX Certification Badges",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Which badges to show"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_toxicology",
+          "label": "Toxicology Tested",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_iso22000",
+          "label": "ISO 22000 Food Safety",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_gmp",
+          "label": "GMP Manufactured",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_haccp",
+          "label": "HACCP Certified",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_cpnp",
+          "label": "EU CPNP Notified",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_vegan",
+          "label": "Vegan Formula",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "range",
+          "id": "badge_size",
+          "label": "Badge size",
+          "min": 40,
+          "max": 88,
+          "step": 2,
+          "default": 56,
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "badge_gap",
+          "label": "Gap between badges",
+          "min": 4,
+          "max": 24,
+          "step": 2,
+          "default": 12,
+          "unit": "px"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_labels",
+          "label": "Show text label below each badge",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_heading",
+          "label": "Show heading above badges",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading text",
+          "default": "Tested and certified"
+        },
+        {
+          "type": "header",
+          "content": "Spacing"
+        },
+        {
+          "type": "range",
+          "id": "margin_top",
+          "label": "Margin top",
+          "min": 0,
+          "max": 32,
+          "step": 2,
+          "default": 12,
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "margin_bottom",
+          "label": "Margin bottom",
+          "min": 0,
+          "max": 32,
+          "step": 2,
+          "default": 12,
+          "unit": "px"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_dividers",
+          "label": "Show divider lines above and below",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "padding_vertical",
+          "label": "Divider padding",
+          "min": 4,
+          "max": 24,
+          "step": 2,
+          "default": 10,
+          "unit": "px"
+        },
+        {
+          "type": "color",
+          "id": "divider_color",
+          "label": "Divider color",
+          "default": "#E4E4E0"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "color",
+          "id": "badge_fill",
+          "label": "Badge fill (disc)",
+          "default": "#1A3B5C"
+        },
+        {
+          "type": "color",
+          "id": "badge_accent",
+          "label": "Badge accent (rings, icons, text)",
+          "default": "#C9A84C"
+        },
+        {
+          "type": "color",
+          "id": "label_color",
+          "label": "Heading / label color",
+          "default": "#1A3B5C"
         }
       ]
     },

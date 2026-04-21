@@ -1,0 +1,127 @@
+{% comment %}
+  Renders a single CALQIX certification badge (SVG seal).
+  Usage:
+    {% render 'calqix-certification-badge-svg',
+       badge_type: 'toxicology',
+       fill: '#1A3B5C',
+       accent: '#C9A84C',
+       uid: 'unique-id',
+       label: 'Toxicology Tested' %}
+
+  Supported badge_type values:
+    toxicology, iso22000, gmp, cpnp, vegan, haccp
+{% endcomment %}
+
+{%- assign _fill = fill | default: '#1A3B5C' -%}
+{%- assign _accent = accent | default: '#C9A84C' -%}
+{%- assign _uid = uid | default: badge_type -%}
+{%- assign _label = label | default: badge_type -%}
+
+{%- case badge_type -%}
+  {%- when 'toxicology' -%}
+    <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ _label | escape }}">
+      <defs><path id="cx-arc-{{ _uid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/></defs>
+      <circle cx="60" cy="60" r="58" fill="{{ _fill }}"/>
+      <circle cx="60" cy="60" r="53" fill="none" stroke="{{ _accent }}" stroke-width="0.5" opacity="0.7"/>
+      <circle cx="60" cy="60" r="33" fill="none" stroke="{{ _accent }}" stroke-width="1"/>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="11%">TOXICOLOGY</textPath>
+      </text>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="63%">TESTED</textPath>
+      </text>
+      <g transform="translate(60, 62)" stroke="{{ _accent }}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <line x1="-7" y1="-13" x2="7" y2="-13"/>
+        <line x1="-5" y1="-13" x2="-5" y2="-3"/>
+        <line x1="5" y1="-13" x2="5" y2="-3"/>
+        <path d="M -5,-3 L -12,10 Q -12,13 -9,13 L 9,13 Q 12,13 12,10 L 5,-3 Z"/>
+        <line x1="-10" y1="5" x2="10" y2="5" opacity="0.6"/>
+      </g>
+    </svg>
+
+  {%- when 'iso22000' -%}
+    <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ _label | escape }}">
+      <defs><path id="cx-arc-{{ _uid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/></defs>
+      <circle cx="60" cy="60" r="58" fill="{{ _fill }}"/>
+      <circle cx="60" cy="60" r="53" fill="none" stroke="{{ _accent }}" stroke-width="0.5" opacity="0.7"/>
+      <circle cx="60" cy="60" r="33" fill="none" stroke="{{ _accent }}" stroke-width="1"/>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="10%">FOOD SAFETY</textPath>
+      </text>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="64%">CERTIFIED</textPath>
+      </text>
+      <text x="60" y="57" text-anchor="middle" fill="{{ _accent }}" font-family="'DM Serif Display', serif" font-size="13" font-weight="700" letter-spacing="0.5">ISO</text>
+      <text x="60" y="74" text-anchor="middle" fill="{{ _accent }}" font-family="'DM Serif Display', serif" font-size="13" font-weight="700">22000</text>
+    </svg>
+
+  {%- when 'gmp' -%}
+    <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ _label | escape }}">
+      <defs><path id="cx-arc-{{ _uid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/></defs>
+      <circle cx="60" cy="60" r="58" fill="{{ _fill }}"/>
+      <circle cx="60" cy="60" r="53" fill="none" stroke="{{ _accent }}" stroke-width="0.5" opacity="0.7"/>
+      <circle cx="60" cy="60" r="33" fill="none" stroke="{{ _accent }}" stroke-width="1"/>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="7%">MANUFACTURED</textPath>
+      </text>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="67%">UNDER</textPath>
+      </text>
+      <text x="60" y="67" text-anchor="middle" fill="{{ _accent }}" font-family="'DM Serif Display', serif" font-size="19" font-weight="700" letter-spacing="1">GMP</text>
+    </svg>
+
+  {%- when 'cpnp' -%}
+    <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ _label | escape }}">
+      <defs><path id="cx-arc-{{ _uid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/></defs>
+      <circle cx="60" cy="60" r="58" fill="{{ _fill }}"/>
+      <circle cx="60" cy="60" r="53" fill="none" stroke="{{ _accent }}" stroke-width="0.5" opacity="0.7"/>
+      <circle cx="60" cy="60" r="33" fill="none" stroke="{{ _accent }}" stroke-width="1"/>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="12%">EU NOTIFIED</textPath>
+      </text>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="66%">COMPLIANT</textPath>
+      </text>
+      <text x="60" y="62" text-anchor="middle" fill="{{ _accent }}" font-family="'DM Serif Display', serif" font-size="17" font-weight="700" letter-spacing="1">CPNP</text>
+      <g transform="translate(60, 78)" fill="{{ _accent }}">
+        <circle cx="-10" cy="1" r="1"/>
+        <circle cx="-5" cy="-1" r="1"/>
+        <circle cx="0" cy="-1.5" r="1"/>
+        <circle cx="5" cy="-1" r="1"/>
+        <circle cx="10" cy="1" r="1"/>
+      </g>
+    </svg>
+
+  {%- when 'vegan' -%}
+    <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ _label | escape }}">
+      <defs><path id="cx-arc-{{ _uid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/></defs>
+      <circle cx="60" cy="60" r="58" fill="{{ _fill }}"/>
+      <circle cx="60" cy="60" r="53" fill="none" stroke="{{ _accent }}" stroke-width="0.5" opacity="0.7"/>
+      <circle cx="60" cy="60" r="33" fill="none" stroke="{{ _accent }}" stroke-width="1"/>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="12%">100 PERCENT</textPath>
+      </text>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="68%">FORMULA</textPath>
+      </text>
+      <g transform="translate(60, 58)" fill="{{ _accent }}">
+        <path d="M 0,-12 Q 11,-6 9,6 Q 3,11 -3,9 Q -10,2 -7,-5 Q -3,-12 0,-12 Z"/>
+      </g>
+      <text x="60" y="85" text-anchor="middle" fill="{{ _accent }}" font-family="'DM Serif Display', serif" font-size="11" font-weight="700" letter-spacing="1">VEGAN</text>
+    </svg>
+
+  {%- when 'haccp' -%}
+    <svg class="calqix-cert-badge__svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ _label | escape }}">
+      <defs><path id="cx-arc-{{ _uid }}" d="M 60,60 m -44,0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0"/></defs>
+      <circle cx="60" cy="60" r="58" fill="{{ _fill }}"/>
+      <circle cx="60" cy="60" r="53" fill="none" stroke="{{ _accent }}" stroke-width="0.5" opacity="0.7"/>
+      <circle cx="60" cy="60" r="33" fill="none" stroke="{{ _accent }}" stroke-width="1"/>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="11%">FOOD SAFETY</textPath>
+      </text>
+      <text fill="{{ _accent }}" font-family="'DM Sans', sans-serif" font-size="8.5" font-weight="600" letter-spacing="2.2">
+        <textPath href="#cx-arc-{{ _uid }}" startOffset="64%">CERTIFIED</textPath>
+      </text>
+      <text x="60" y="66" text-anchor="middle" fill="{{ _accent }}" font-family="'DM Serif Display', serif" font-size="16" font-weight="700">HACCP</text>
+    </svg>
+{%- endcase -%}

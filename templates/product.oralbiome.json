@@ -176,6 +176,30 @@
             "background_color": "#1a3b5c"
           }
         },
+        "calqix_cert_badges_ob01": {
+          "type": "calqix_cert_badges",
+          "settings": {
+            "show_toxicology": true,
+            "show_iso22000": true,
+            "show_gmp": true,
+            "show_haccp": true,
+            "show_cpnp": false,
+            "show_vegan": false,
+            "badge_size": 54,
+            "badge_gap": 12,
+            "show_labels": false,
+            "show_heading": true,
+            "heading": "Tested and certified",
+            "margin_top": 12,
+            "margin_bottom": 12,
+            "show_dividers": true,
+            "padding_vertical": 12,
+            "divider_color": "#e4e4e0",
+            "badge_fill": "#1a3b5c",
+            "badge_accent": "#c9a84c",
+            "label_color": "#1a3b5c"
+          }
+        },
         "calqix_compliance_note_ob01": {
           "type": "calqix_compliance_note",
           "settings": {
@@ -257,6 +281,7 @@
         "calqix_colour_switcher_LDTXY9",
         "calqix_bundle_ob01",
         "seal_subscriptions_subscription_widget_PeJpN4",
+        "calqix_cert_badges_ob01",
         "buy_buttons",
         "calqix_compliance_note_ob01",
         "payments_badge_ob01",
@@ -874,49 +899,11 @@
         "pill_4": "Cancel in 1 Click",
         "button_text": "Subscribe & Save 20%"
       }
-    },
-    "calqix_certification_badges_oralbiome": {
-      "type": "calqix-certification-badges",
-      "blocks": {
-        "badge_toxicology": {
-          "type": "badge",
-          "settings": { "badge_type": "toxicology", "show_label": false }
-        },
-        "badge_iso22000": {
-          "type": "badge",
-          "settings": { "badge_type": "iso22000", "show_label": false }
-        },
-        "badge_gmp": {
-          "type": "badge",
-          "settings": { "badge_type": "gmp", "show_label": false }
-        },
-        "badge_haccp": {
-          "type": "badge",
-          "settings": { "badge_type": "haccp", "show_label": false }
-        }
-      },
-      "block_order": [
-        "badge_toxicology",
-        "badge_iso22000",
-        "badge_gmp",
-        "badge_haccp"
-      ],
-      "settings": {
-        "show_heading": true,
-        "bg_color": "#f4f5f7",
-        "text_color": "#1a3b5c",
-        "badge_fill": "#1a3b5c",
-        "badge_accent": "#c9a84c",
-        "padding_top": 32,
-        "padding_bottom": 32,
-        "show_disclaimer": false
-      }
     }
   },
   "order": [
     "breadcrumbs",
     "main",
-    "calqix_certification_badges_oralbiome",
     "oralbiome-social-proof-bar",
     "oralbiome-video-explainer",
     "oralbiome-health-benefits",
