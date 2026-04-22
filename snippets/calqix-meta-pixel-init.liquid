@@ -1,0 +1,81 @@
+{%- comment -%}
+  CALQIX Meta Pixel Init
+  ----------------------
+  Bootstraps fbq() with Advanced Matching and fires PageView BEFORE the
+  bridge (`assets/calqix-meta-bridge.js`) runs. The bridge then calls
+  `fbq('track', 'ViewContent', ..., { eventID })` and AddToCart with
+  deterministic event_ids that match server-side CAPI events.
+
+  Why inline in <head> (not async):
+    - Guarantees `fbq` is defined before ANY defer-loaded script that uses it.
+    - Makes PageView the first Meta-visible event per page load.
+    - Advanced Matching passed to fbq('init', ...) raises EMQ significantly
+      for logged-in customers (external_id, em, ph, fn, ln, ct, zp, country).
+
+  Anonymous users fall back to `_cq_anon_id` cookie from bridge as external_id,
+  giving non-logged-in PageViews a stable identifier for matching.
+
+  The Meta Pixel JS library (fbevents.js) auto-hashes em/ph/fn/ln/ct/st/zp
+  on the browser side with SHA-256 before transmission — do NOT pre-hash here.
+{%- endcomment -%}
+
+<!-- CALQIX Meta Pixel + Advanced Matching -->
+<script>
+(function () {
+  /* Meta Pixel base loader (official snippet) */
+  !function (f, b, e, v, n, t, s) {
+    if (f.fbq) return;
+    n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+    if (!f._fbq) f._fbq = n;
+    n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = [];
+    t = b.createElement(e); t.async = !0; t.src = v;
+    s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+  }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+
+  var am = {};
+
+  {%- if customer -%}
+    {%- comment -%} Server-rendered logged-in customer Advanced Matching. {%- endcomment -%}
+    am.external_id = {{ customer.id | json }};
+    {%- if customer.email -%}      am.em = {{ customer.email | downcase | json }};{%- endif -%}
+    {%- if customer.phone -%}      am.ph = {{ customer.phone | replace: '+', '' | replace: ' ', '' | replace: '-', '' | json }};{%- endif -%}
+    {%- if customer.first_name -%} am.fn = {{ customer.first_name | downcase | json }};{%- endif -%}
+    {%- if customer.last_name -%}  am.ln = {{ customer.last_name | downcase | json }};{%- endif -%}
+    {%- if customer.default_address -%}
+      {%- if customer.default_address.city -%}           am.ct = {{ customer.default_address.city | downcase | remove: ' ' | json }};{%- endif -%}
+      {%- if customer.default_address.province_code -%}  am.st = {{ customer.default_address.province_code | downcase | json }};{%- endif -%}
+      {%- if customer.default_address.zip -%}            am.zp = {{ customer.default_address.zip | downcase | remove: ' ' | json }};{%- endif -%}
+      {%- if customer.default_address.country_code -%}   am.country = {{ customer.default_address.country_code | downcase | json }};{%- endif -%}
+    {%- endif -%}
+    {%- assign cq_birthday = customer.metafields.calqix.birthday -%}
+    {%- assign cq_gender = customer.metafields.calqix.gender -%}
+    {%- if cq_birthday -%}  am.db = {{ cq_birthday | date: '%Y%m%d' | json }};{%- endif -%}
+    {%- if cq_gender -%}    am.ge = {{ cq_gender | downcase | slice: 0 | json }};{%- endif -%}
+  {%- endif -%}
+
+  /* Anonymous fallback: stable _cq_anon_id cookie from calqix-meta-bridge.js */
+  if (!am.external_id) {
+    try {
+      var m = document.cookie.match(/(?:^|;\s*)_cq_anon_id=([^;]*)/);
+      if (m) am.external_id = decodeURIComponent(m[1]);
+    } catch (e) { /* silent */ }
+  }
+
+  if (am.external_id) {
+    fbq('init', '934134615770602', am);
+  } else {
+    fbq('init', '934134615770602');
+  }
+
+  /* PageView — browser-only event. Includes eventID so a future server-side
+     PageView CAPI endpoint (if added) can dedupe on the same ID. */
+  var pvEventId = 'pv_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+  fbq('track', 'PageView', {}, { eventID: pvEventId });
+  window.__calqixPvEventId = pvEventId;
+})();
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none" alt=""
+       src="https://www.facebook.com/tr?id=934134615770602&ev=PageView&noscript=1" />
+</noscript>
+<!-- End CALQIX Meta Pixel -->

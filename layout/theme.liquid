@@ -68,6 +68,14 @@
     <!-- End CALQIX user_data -->
 
     {%- comment -%}
+      CALQIX Meta Pixel init with Advanced Matching.
+      Runs inline in <head> so fbq() is defined BEFORE calqix-meta-bridge.js
+      fires ViewContent / AddToCart with matching eventIDs. Closes the 0%
+      event_id dedup gap by giving the bridge a live pixel to target.
+    {%- endcomment -%}
+    {%- render 'calqix-meta-pixel-init' -%}
+
+    {%- comment -%}
       CALQIX product dataLayer push for product pages.
       Feeds GTM with canonical category from product.metafields.custom.gtm_category,
       preventing stale productType values (e.g. NL translations of old types) from
