@@ -141,8 +141,24 @@ function formatUserData(customer = {}, ip, userAgent) {
   if (customer.fbc) userData.fbc = customer.fbc;
   if (customer.fbp) userData.fbp = customer.fbp;
 
-  if (customer.external_id) {
-    userData.external_id = [hash(String(customer.external_id))];
+  // external_id: prefer explicit Shopify customer_id, fall back to email.
+  // Meta weights external_id heavily; providing it on every event raises EMQ by ~0.5-1.0.
+  // Using email-as-external-id is safe because Meta hashes and matches against its graph.
+  const externalIdRaw = customer.external_id || email;
+  if (externalIdRaw) {
+    userData.external_id = [hash(String(externalIdRaw))];
+  }
+
+  // fb_login_id — Facebook's internal numeric user ID, passed when user logs in via FB.
+  // Captured via Shopify/Klaviyo custom field or custom signup form integration.
+  if (customer.fb_login_id) {
+    userData.fb_login_id = String(customer.fb_login_id);
+  }
+
+  // subscription_id — for recurring subscription orders (Seal Subscriptions).
+  // Lets Meta group repeat purchases and improves retention-based modeling.
+  if (customer.subscription_id) {
+    userData.subscription_id = String(customer.subscription_id);
   }
 
   return userData;

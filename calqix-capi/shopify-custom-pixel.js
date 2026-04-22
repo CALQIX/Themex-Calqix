@@ -187,6 +187,38 @@ analytics.subscribe("checkout_contact_info_submitted", async function (event) {
   });
 });
 
+// --- payment_info_submitted → AddPaymentInfo ---
+
+analytics.subscribe("payment_info_submitted", async function (event) {
+  var checkout = event.data.checkout;
+  if (!checkout || !checkout.token) return;
+
+  var token = checkout.token;
+  var fbc = await getCookie("_fbc");
+  var fbp = await getCookie("_fbp");
+  var cached = enrichment[token] || {};
+
+  var addr = shippingAddress(checkout);
+  send({
+    event_type: "payment_info_submitted",
+    checkout_token: token,
+    external_id: customerId(checkout),
+    fbc: fbc || cached.fbc || null,
+    fbp: fbp || cached.fbp || null,
+    email: checkout.email || cached.email || null,
+    phone: checkout.phone || cached.phone || null,
+    first_name: addr && (addr.firstName || addr.first_name) || null,
+    last_name: addr && (addr.lastName || addr.last_name) || null,
+    city: addr && addr.city || null,
+    zip: addr && addr.zip || null,
+    country_code: addr && (addr.countryCode || addr.country_code) || null,
+    line_items: buildLineItems(checkout),
+    value: totalValue(checkout),
+    currency: currency(checkout),
+    source_url: getSourceUrl(event)
+  });
+});
+
 // --- checkout_completed → Purchase ---
 
 analytics.subscribe("checkout_completed", async function (event) {

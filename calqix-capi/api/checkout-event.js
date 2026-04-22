@@ -58,6 +58,10 @@ async function handler(req, res) {
       return handleCheckoutStarted(res, body, checkoutToken, clientIp, clientUserAgent);
     }
 
+    if (eventType === 'payment_info_submitted') {
+      return handlePaymentInfo(res, body, checkoutToken, clientIp, clientUserAgent);
+    }
+
     if (eventType === 'checkout_completed') {
       return handleCheckoutCompleted(res, body, checkoutToken, clientIp, clientUserAgent);
     }
@@ -233,6 +237,80 @@ async function handleCheckoutCompleted(res, body, checkoutToken, clientIp, clien
     received: true,
     processed: Boolean(result && result.ok),
     event: 'Purchase',
+    eventId: eventId,
+    match_keys: {
+      fbc: Boolean(userData.fbc),
+      fbp: Boolean(userData.fbp),
+      em: Boolean(userData.em),
+      ph: Boolean(userData.ph),
+      ip: Boolean(userData.client_ip_address),
+      ua: Boolean(userData.client_user_agent)
+    }
+  });
+}
+
+/**
+ * Send AddPaymentInfo to Meta CAPI when customer reaches the payment step.
+ * event_id = add_payment_info_{checkout_token} — unique per checkout attempt.
+ * Merges stored enrichment (email/phone from contact_info_submitted).
+ */
+async function handlePaymentInfo(res, body, checkoutToken, clientIp, clientUserAgent) {
+  var eventId = 'add_payment_info_' + checkoutToken;
+
+  if (await isDuplicate('AddPaymentInfo', checkoutToken)) {
+    console.log('[CheckoutEvent] AddPaymentInfo already sent', {
+      checkoutToken: checkoutToken.substring(0, 8) + '...'
+    });
+    return res.status(200).json({
+      received: true,
+      processed: false,
+      reason: 'duplicate',
+      eventId: eventId
+    });
+  }
+
+  var enrichment = (await store.getEnrichment(checkoutToken)) || {};
+  var customerData = buildCustomerData(body, enrichment);
+  var userData = formatUserData(customerData, clientIp, clientUserAgent);
+
+  var lineItems = Array.isArray(body.line_items) ? body.line_items : [];
+  var customData = {
+    value: body.value !== undefined ? Number(parseFloat(body.value).toFixed(2)) : undefined,
+    currency: body.currency || 'EUR',
+    content_ids: lineItems.map(function (item) { return extractProductId(item); }).filter(Boolean),
+    content_type: 'product_group',
+    contents: lineItems.map(function (item) {
+      return {
+        id: extractProductId(item),
+        quantity: parseInt(item.quantity, 10) || 1,
+        item_price: item.price !== undefined ? Number(parseFloat(item.price).toFixed(2)) : undefined
+      };
+    }).filter(function (c) { return c.id; }),
+    num_items: lineItems.reduce(function (sum, item) { return sum + (parseInt(item.quantity, 10) || 1); }, 0)
+  };
+
+  console.log('[CheckoutEvent] AddPaymentInfo', {
+    eventId: eventId,
+    hasFbc: Boolean(userData.fbc),
+    hasFbp: Boolean(userData.fbp),
+    hasEmail: Boolean(userData.em),
+    hasPhone: Boolean(userData.ph),
+    hasExternalId: Boolean(userData.external_id),
+    contentIds: customData.content_ids.length,
+    source: 'custom_pixel'
+  });
+
+  var sourceUrl = body.source_url || 'https://calqix.com/checkout';
+  await eventState.recordReceived(eventId, 'AddPaymentInfo', 'custom_pixel', checkoutToken);
+  await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
+  var result = await sendEvent('AddPaymentInfo', eventId, sourceUrl, userData, customData);
+  await eventState.recordSent(eventId, result);
+  await markProcessed('AddPaymentInfo', checkoutToken);
+
+  return res.status(200).json({
+    received: true,
+    processed: Boolean(result && result.ok),
+    event: 'AddPaymentInfo',
     eventId: eventId,
     match_keys: {
       fbc: Boolean(userData.fbc),
