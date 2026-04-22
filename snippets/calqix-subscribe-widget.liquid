@@ -1,6 +1,8 @@
 {%- comment -%}
-  CALQIX Subscribe & Save Widget — v3
-  Premium animated clinical design · SEAL selling plan integration
+  CALQIX Subscribe & Save Widget — v4
+  Zapply-style single checkbox layout.
+  Checkbox ON  → posts `selling_plan` with product form + updates main price to subscription price.
+  Checkbox OFF → one-time purchase, main price restored.
   Place inside a product form. Reads selling plans from Shopify product.
 {%- endcomment -%}
 
@@ -8,20 +10,6 @@
 {%- assign cq_ot = cq_v.price -%}
 {%- assign cq_has_plans = false -%}
 {%- assign cq_sp_id = '' -%}
-
-{%- assign cq_sw_subscribe_save = 'calqix_oralbiome.widget.subscribe_save' | t -%}
-{%- assign cq_sw_one_time = 'calqix_oralbiome.widget.one_time' | t -%}
-{%- assign cq_sw_save_pct = 'calqix_oralbiome.widget.save_pct' | t -%}
-{%- assign cq_sw_per_month = 'calqix_oralbiome.widget.per_month' | t -%}
-{%- assign cq_sw_per_day = 'calqix_oralbiome.widget.per_day' | t -%}
-{%- assign cq_sw_benefit_shipping = 'calqix_oralbiome.widget.benefit_shipping' | t -%}
-{%- assign cq_sw_benefit_skip = 'calqix_oralbiome.widget.benefit_skip' | t -%}
-{%- assign cq_sw_benefit_guarantee = 'calqix_oralbiome.widget.benefit_guarantee' | t -%}
-{%- assign cq_sw_benefit_no_commit = 'calqix_oralbiome.widget.benefit_no_commit' | t -%}
-{%- assign cq_sw_frequency_label = 'calqix_oralbiome.widget.frequency_label' | t -%}
-{%- assign cq_sw_ot_shipping = 'calqix_oralbiome.widget.ot_shipping' | t -%}
-{%- assign cq_sw_ot_guarantee = 'calqix_oralbiome.widget.ot_guarantee' | t -%}
-{%- assign cq_sw_ot_save_note = 'calqix_oralbiome.widget.ot_save_note' | t -%}
 
 {%- if product.selling_plan_groups.size > 0 -%}
   {%- assign cq_has_plans = true -%}
@@ -47,7 +35,10 @@
   {%- assign cq_sub = cq_ot | minus: cq_disc -%}
 {%- endif -%}
 
-{%- assign cq_perday = cq_sub | divided_by: 30 -%}
+{%- assign cq_pct_int = cq_pct | round: 0 -%}
+
+{%- assign cq_sw_title = 'calqix_oralbiome.widget.save_with_refills' | t | replace: '{pct}', cq_pct_int -%}
+{%- assign cq_sw_hint = 'calqix_oralbiome.widget.refill_hint' | t -%}
 
 <style>
   /* ── NUKE: Hide every possible SEAL Subscriptions element ── */
@@ -74,33 +65,6 @@
     padding: 0 !important;
   }
 
-  /* ── Animations ── */
-  @keyframes cqsw-fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes cqsw-scaleIn {
-    from { opacity: 0; transform: scale(0.92); }
-    to   { opacity: 1; transform: scale(1); }
-  }
-  @keyframes cqsw-shimmer {
-    0%   { background-position: -200% center; }
-    100% { background-position: 200% center; }
-  }
-  @keyframes cqsw-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.35); }
-    50%      { box-shadow: 0 0 0 6px rgba(46, 125, 50, 0); }
-  }
-  @keyframes cqsw-checkPop {
-    0%   { transform: scale(0); }
-    60%  { transform: scale(1.2); }
-    100% { transform: scale(1); }
-  }
-  @keyframes cqsw-slideIndicator {
-    from { transform: scaleX(0); }
-    to   { transform: scaleX(1); }
-  }
-
   /* ── Widget container ── */
   .cqsw {
     margin: 0 0 16px;
@@ -108,303 +72,133 @@
     --cqsw-navy: #1A3B5C;
     --cqsw-navy-deep: #0F2233;
     --cqsw-gold: #C9A84C;
-    --cqsw-gold-light: rgba(201, 168, 76, 0.08);
-    --cqsw-green: #2E7D32;
-    --cqsw-green-light: rgba(46, 125, 50, 0.08);
+    --cqsw-gold-light: rgba(201, 168, 76, 0.10);
+    --cqsw-gold-softer: rgba(201, 168, 76, 0.05);
     --cqsw-border: #E5E7EB;
     --cqsw-muted: #6B7280;
     --cqsw-text: #1A1A1A;
     --cqsw-bg: #FFFFFF;
-    --cqsw-radius: 10px;
+    --cqsw-radius: 12px;
   }
 
-  /* ── Option cards ── */
-  .cqsw__options {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .cqsw__option {
+  /* ── Checkbox row ── */
+  .cqsw__row {
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     padding: 14px 16px;
     border: 2px solid var(--cqsw-border);
     border-radius: var(--cqsw-radius);
     background: var(--cqsw-bg);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease;
     -webkit-tap-highlight-color: transparent;
-    overflow: hidden;
+    user-select: none;
   }
-  .cqsw__option::before {
-    content: '';
+  .cqsw__row:hover {
+    border-color: #D1D5DB;
+  }
+  .cqsw__row.is-active {
+    border-color: var(--cqsw-gold);
+    background: linear-gradient(180deg, var(--cqsw-gold-softer) 0%, #fff 100%);
+    box-shadow: 0 0 0 1px var(--cqsw-gold), 0 4px 14px rgba(201, 168, 76, 0.12);
+  }
+
+  /* Native checkbox hidden, visual box styled */
+  .cqsw__input {
     position: absolute;
-    inset: 0;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    width: 1px; height: 1px;
     pointer-events: none;
   }
-  .cqsw__option[data-plan="subscribe"]::before {
-    background: linear-gradient(135deg, var(--cqsw-gold-light), transparent 60%);
-  }
-  .cqsw__option[data-plan="subscribe"].is-active {
-    border-color: var(--cqsw-gold);
-    box-shadow: 0 0 0 1px var(--cqsw-gold), 0 4px 16px rgba(201, 168, 76, 0.12);
-  }
-  .cqsw__option[data-plan="onetime"].is-active {
-    border-color: var(--cqsw-navy);
-    box-shadow: 0 0 0 1px var(--cqsw-navy), 0 2px 8px rgba(26, 59, 92, 0.08);
-  }
-  .cqsw__option.is-active::before { opacity: 1; }
-  .cqsw__option:not(.is-active):hover {
-    border-color: #D1D5DB;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  }
-
-  /* Radio circle */
-  .cqsw__radio {
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    border: 2px solid var(--cqsw-border);
-    display: flex; align-items: center; justify-content: center;
+  .cqsw__box {
     flex-shrink: 0;
-    transition: border-color 0.3s ease;
-    position: relative;
-  }
-  .cqsw__option[data-plan="subscribe"].is-active .cqsw__radio { border-color: var(--cqsw-gold); }
-  .cqsw__option[data-plan="onetime"].is-active .cqsw__radio { border-color: var(--cqsw-navy); }
-  .cqsw__radio-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    transform: scale(0);
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .cqsw__option[data-plan="subscribe"].is-active .cqsw__radio-dot {
-    background: var(--cqsw-gold);
-    transform: scale(1);
-    animation: cqsw-checkPop 0.35s ease;
-  }
-  .cqsw__option[data-plan="onetime"].is-active .cqsw__radio-dot {
-    background: var(--cqsw-navy);
-    transform: scale(1);
-    animation: cqsw-checkPop 0.35s ease;
-  }
-
-  /* Option content */
-  .cqsw__option-body { flex: 1; min-width: 0; }
-  .cqsw__option-row {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 8px; flex-wrap: wrap;
-  }
-  .cqsw__option-label {
-    font-size: 14px; font-weight: 600; color: var(--cqsw-navy);
-    display: flex; align-items: center; gap: 8px;
-  }
-  .cqsw__option-price {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px; color: var(--cqsw-navy); font-weight: 400;
-    transition: color 0.3s ease;
-  }
-  .cqsw__option[data-plan="subscribe"].is-active .cqsw__option-price {
-    color: var(--cqsw-navy);
-  }
-  .cqsw__option-compare {
-    font-size: 13px; color: #9CA3AF; text-decoration: line-through;
-    margin-left: 6px;
-  }
-  .cqsw__option-sub {
-    font-size: 11.5px; color: var(--cqsw-muted);
-    margin-top: 3px;
-  }
-
-  /* SAVE badge */
-  .cqsw__badge {
-    display: inline-flex; align-items: center;
-    background: var(--cqsw-green);
-    color: #fff;
-    font-size: 9px; font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 50px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    line-height: 1;
-    white-space: nowrap;
-    animation: cqsw-pulse 2.5s ease-in-out infinite;
-    background-image: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
-    background-size: 200% 100%;
-    animation: cqsw-pulse 2.5s ease-in-out infinite, cqsw-shimmer 3s ease-in-out infinite;
-  }
-
-  /* ── Expanded detail panel ── */
-  .cqsw__detail {
-    overflow: hidden;
-    max-height: 0;
-    opacity: 0;
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.3s ease 0.05s,
-                margin 0.3s ease,
-                padding 0.3s ease;
-    margin: 0;
-    padding: 0 16px;
-    border-radius: 0 0 var(--cqsw-radius) var(--cqsw-radius);
-  }
-  .cqsw__detail.is-open {
-    max-height: 300px;
-    opacity: 1;
-    margin: -2px 0 0;
-    padding: 14px 16px 16px;
-    border: 2px solid var(--cqsw-border);
-    border-top: 1px solid #F3F4F6;
-    background: var(--cqsw-bg);
-  }
-  .cqsw__detail[data-for="subscribe"].is-open {
-    border-color: var(--cqsw-gold);
-    background: linear-gradient(180deg, rgba(201,168,76,0.03) 0%, #fff 100%);
-  }
-  .cqsw__detail[data-for="onetime"].is-open {
-    border-color: var(--cqsw-navy);
-  }
-
-  /* Per-day */
-  .cqsw__perday {
-    font-size: 12px; color: var(--cqsw-muted);
-    margin-bottom: 12px; display: flex; align-items: center; gap: 4px;
-  }
-  .cqsw__perday-amount {
-    font-weight: 600; color: var(--cqsw-navy);
-  }
-
-  /* Benefits */
-  .cqsw__benefits {
-    list-style: none; padding: 0; margin: 0;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px;
-  }
-  .cqsw__benefit {
-    font-size: 12px; color: var(--cqsw-text);
-    display: flex; align-items: flex-start; gap: 7px;
-    line-height: 1.45;
-    opacity: 0; transform: translateY(6px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-  .cqsw__detail.is-open .cqsw__benefit {
-    opacity: 1; transform: translateY(0);
-  }
-  .cqsw__detail.is-open .cqsw__benefit:nth-child(1) { transition-delay: 0.08s; }
-  .cqsw__detail.is-open .cqsw__benefit:nth-child(2) { transition-delay: 0.14s; }
-  .cqsw__detail.is-open .cqsw__benefit:nth-child(3) { transition-delay: 0.20s; }
-  .cqsw__detail.is-open .cqsw__benefit:nth-child(4) { transition-delay: 0.26s; }
-  .cqsw__icon {
-    flex-shrink: 0; width: 15px; height: 15px;
-    color: var(--cqsw-navy); margin-top: 1px;
-  }
-  .cqsw__option[data-plan="subscribe"] ~ .cqsw__detail .cqsw__icon,
-  .cqsw__detail[data-for="subscribe"] .cqsw__icon {
-    color: var(--cqsw-gold);
-  }
-
-  /* Frequency */
-  .cqsw__frequency {
-    margin-top: 12px; padding-top: 12px;
-    border-top: 1px solid #F3F4F6;
-    animation: cqsw-fadeUp 0.3s ease 0.2s both;
-  }
-  .cqsw__frequency label {
-    font-size: 11px; color: var(--cqsw-muted);
-    text-transform: uppercase; letter-spacing: 0.5px;
-    font-weight: 600; display: block; margin-bottom: 5px;
-  }
-  .cqsw__frequency select {
-    font-family: 'DM Sans', sans-serif; font-size: 13px;
-    padding: 8px 12px; border: 1.5px solid var(--cqsw-border); border-radius: 8px;
-    background: var(--cqsw-bg); color: var(--cqsw-text);
-    width: 100%; max-width: 240px; height: 38px;
-    cursor: pointer; transition: border-color 0.2s ease;
-    outline: none;
-  }
-  .cqsw__frequency select:focus { border-color: var(--cqsw-gold); }
-
-  /* OT note */
-  .cqsw__note {
-    font-size: 12px; color: var(--cqsw-muted);
-    margin-top: 10px; font-style: italic;
-    padding: 8px 12px;
-    background: var(--cqsw-gold-light);
+    width: 22px;
+    height: 22px;
+    border: 2px solid #CBD5E1;
     border-radius: 6px;
-    border-left: 3px solid var(--cqsw-gold);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color .2s ease, background-color .2s ease;
+    margin-top: 1px;
+  }
+  .cqsw__row.is-active .cqsw__box {
+    border-color: var(--cqsw-gold);
+    background: var(--cqsw-gold);
+  }
+  .cqsw__check {
+    width: 14px;
+    height: 14px;
+    color: #fff;
+    opacity: 0;
+    transform: scale(.5);
+    transition: opacity .2s ease, transform .25s cubic-bezier(.4,0,.2,1);
+  }
+  .cqsw__row.is-active .cqsw__check {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .cqsw__input:focus-visible + .cqsw__box {
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.28);
   }
 
-  /* ── Responsive ── */
+  /* Text stack */
+  .cqsw__body { flex: 1; min-width: 0; }
+  .cqsw__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cqsw-navy);
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cqsw__hint {
+    font-size: 12.5px;
+    color: var(--cqsw-muted);
+    margin-top: 3px;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .cqsw__hint::before {
+    content: "✓";
+    color: var(--cqsw-gold);
+    font-weight: 700;
+  }
+
   @media (max-width: 480px) {
-    .cqsw__option { padding: 12px 14px; gap: 10px; }
-    .cqsw__option-label { font-size: 13px; }
-    .cqsw__option-price { font-size: 18px; }
-    .cqsw__benefits { grid-template-columns: 1fr; gap: 6px; }
-    .cqsw__badge { font-size: 8px; padding: 2px 6px; }
+    .cqsw__row { padding: 12px 14px; gap: 10px; }
+    .cqsw__title { font-size: 13px; }
+    .cqsw__hint { font-size: 12px; }
+    .cqsw__box { width: 20px; height: 20px; }
   }
 </style>
 
-<div class="cqsw" data-selling-plan-id="{{ cq_sp_id }}" data-price-onetime="{{ cq_ot | money }}" data-price-subscribe="{{ cq_sub | money }}" data-price-onetime-raw="{{ cq_ot }}" data-price-subscribe-raw="{{ cq_sub }}" data-discount-pct="{{ cq_pct }}">
-  {%- comment -%} ── Subscribe option ── {%- endcomment -%}
-  <div class="cqsw__options">
-    <div class="cqsw__option" data-plan="subscribe" role="radio" aria-checked="false" tabindex="0">
-      <span class="cqsw__radio"><span class="cqsw__radio-dot"></span></span>
-      <div class="cqsw__option-body">
-        <div class="cqsw__option-row">
-          <span class="cqsw__option-label">
-            {{ cq_sw_subscribe_save }}
-            <span class="cqsw__badge">{{ cq_sw_save_pct }} {{ cq_pct }}%</span>
-          </span>
-          <span>
-            <span class="cqsw__option-price">{{ cq_sub | money }}</span>
-            <span class="cqsw__option-compare">{{ cq_ot | money }}</span>
-          </span>
-        </div>
-        <div class="cqsw__option-sub">{{ cq_perday | money }} {{ cq_sw_per_day }}</div>
-      </div>
+<div class="cqsw"
+     data-selling-plan-id="{{ cq_sp_id }}"
+     data-price-onetime="{{ cq_ot | money }}"
+     data-price-subscribe="{{ cq_sub | money }}"
+     data-price-onetime-raw="{{ cq_ot }}"
+     data-price-subscribe-raw="{{ cq_sub }}"
+     data-discount-pct="{{ cq_pct_int }}">
+  <label class="cqsw__row" data-plan="onetime">
+    <input type="checkbox" class="cqsw__input" aria-label="{{ cq_sw_title | escape }}">
+    <span class="cqsw__box" aria-hidden="true">
+      <svg class="cqsw__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </span>
+    <div class="cqsw__body">
+      <div class="cqsw__title">{{ cq_sw_title }}</div>
+      <div class="cqsw__hint">{{ cq_sw_hint }}</div>
     </div>
-
-    <div class="cqsw__detail" data-for="subscribe">
-      <ul class="cqsw__benefits">
-        <li class="cqsw__benefit"><svg class="cqsw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="18.5" r="2"/></svg>{{ cq_sw_benefit_shipping }}</li>
-        <li class="cqsw__benefit"><svg class="cqsw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>{{ cq_sw_benefit_skip }}</li>
-        <li class="cqsw__benefit"><svg class="cqsw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>{{ cq_sw_benefit_guarantee }}</li>
-        <li class="cqsw__benefit"><svg class="cqsw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M9 16l2 2 4-4"/></svg>{{ cq_sw_benefit_no_commit }}</li>
-      </ul>
-      {%- if cq_has_plans and cq_spg.selling_plans.size > 1 -%}
-        <div class="cqsw__frequency">
-          <label for="cqsw-freq">{{ cq_sw_frequency_label }}</label>
-          <select id="cqsw-freq">
-            {%- for plan in cq_spg.selling_plans -%}
-              <option value="{{ plan.id }}"{% if plan.id == cq_sp.id %} selected{% endif %}>{{ plan.name }}</option>
-            {%- endfor -%}
-          </select>
-        </div>
-      {%- endif -%}
-    </div>
-
-    {%- comment -%} ── One-time option ── {%- endcomment -%}
-    <div class="cqsw__option is-active" data-plan="onetime" role="radio" aria-checked="true" tabindex="0">
-      <span class="cqsw__radio"><span class="cqsw__radio-dot"></span></span>
-      <div class="cqsw__option-body">
-        <div class="cqsw__option-row">
-          <span class="cqsw__option-label">{{ cq_sw_one_time }}</span>
-          <span class="cqsw__option-price">{{ cq_ot | money }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="cqsw__detail is-open" data-for="onetime">
-      <ul class="cqsw__benefits">
-        <li class="cqsw__benefit"><svg class="cqsw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="18.5" r="2"/></svg>{{ cq_sw_ot_shipping }}</li>
-        <li class="cqsw__benefit"><svg class="cqsw__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>{{ cq_sw_ot_guarantee }}</li>
-      </ul>
-      <p class="cqsw__note">{{ cq_sw_ot_save_note }}</p>
-    </div>
-  </div>
+  </label>
 
   <input type="hidden" name="" class="cqsw__sp-input" value="">
 </div>
@@ -413,22 +207,22 @@
 (function(){
   var w = document.querySelector('.cqsw');
   if (!w) return;
-  var options = w.querySelectorAll('.cqsw__option');
-  var details = w.querySelectorAll('.cqsw__detail');
+  var row = w.querySelector('.cqsw__row');
+  var cb = w.querySelector('.cqsw__input');
   var spInput = w.querySelector('.cqsw__sp-input');
-  var defaultId = w.dataset.sellingPlanId;
+  var planId = w.dataset.sellingPlanId;
   var priceOnetime = w.dataset.priceOnetime;
   var priceSubscribe = w.dataset.priceSubscribe;
   var discountPct = w.dataset.discountPct;
 
-  function updateMainPrice(plan) {
+  function updateMainPrice(subscribe) {
     var priceBlock = w.closest('form') ? w.closest('form').closest('.wt-product__info') || document : document;
     var finals = priceBlock.querySelectorAll('.wt-product__price__final');
     var compares = priceBlock.querySelectorAll('.wt-product__price__compare');
     var pctBadges = priceBlock.querySelectorAll('.price-item--percent');
     var saleDiv = priceBlock.querySelector('.price__sale');
     var regDiv = priceBlock.querySelector('.price__regular');
-    if (plan === 'subscribe') {
+    if (subscribe) {
       finals.forEach(function(el) { el.textContent = priceSubscribe; });
       compares.forEach(function(el) { el.textContent = priceOnetime; el.classList.remove('hidden'); });
       pctBadges.forEach(function(el) { el.textContent = '-' + discountPct + '%'; });
@@ -443,42 +237,26 @@
     }
   }
 
-  function switchPlan(plan) {
-    options.forEach(function(opt) {
-      var isActive = opt.dataset.plan === plan;
-      opt.classList.toggle('is-active', isActive);
-      opt.setAttribute('aria-checked', isActive ? 'true' : 'false');
-    });
-    details.forEach(function(d) {
-      var show = d.dataset.for === plan;
-      d.classList.toggle('is-open', show);
-    });
-    if (plan === 'subscribe') {
+  function applyState(subscribe) {
+    row.classList.toggle('is-active', subscribe);
+    row.setAttribute('data-plan', subscribe ? 'subscribe' : 'onetime');
+    if (subscribe && planId) {
       spInput.name = 'selling_plan';
-      spInput.value = defaultId;
+      spInput.value = planId;
     } else {
       spInput.name = '';
       spInput.value = '';
     }
-    updateMainPrice(plan);
+    updateMainPrice(subscribe);
   }
 
-  options.forEach(function(opt) {
-    opt.addEventListener('click', function() { switchPlan(opt.dataset.plan); });
-    opt.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); switchPlan(opt.dataset.plan); }
-    });
+  cb.addEventListener('change', function() {
+    applyState(cb.checked);
   });
 
-  var freq = w.querySelector('#cqsw-freq');
-  if (freq) {
-    freq.addEventListener('change', function() {
-      defaultId = freq.value;
-      if (spInput.name === 'selling_plan') spInput.value = freq.value;
-    });
-  }
+  applyState(false);
 
-  /* ── Aggressief SEAL widget verbergen ── */
+  /* ── Aggressively hide leftover SEAL widgets ── */
   function nukeSeal() {
     var sealSelectors = [
       '[id*="seal"][id*="widget"]', '[id*="seal-sub"]', '[id*="seal_sub"]',
