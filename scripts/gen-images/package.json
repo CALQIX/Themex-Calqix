@@ -1,0 +1,20 @@
+{
+  "name": "calqix-gen-images",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Gemini (Nano Banana Pro / Flash 3.1) image generator for CALQIX theme assets.",
+  "scripts": {
+    "gen": "node run.js",
+    "gen:dry": "node run.js --dry-run",
+    "gen:only": "node run.js --only"
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "dotenv": "^16.4.5",
+    "sharp": "^0.33.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

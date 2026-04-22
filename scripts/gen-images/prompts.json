@@ -1,0 +1,218 @@
+{
+  "brand": {
+    "primary_navy": "#1A3B5C",
+    "accent_gold": "#C9A84C",
+    "voice": "clinical, premium, minimalist, scientific",
+    "product": "OralBiome Pro — probiotic oral health lozenges"
+  },
+  "_note": "Set enabled=false on any asset to skip it. Run `npm run gen:dry` to preview selection + cost. Filter by category with `npm run gen:only -- <category>`.",
+  "assets": [
+    {
+      "name": "ob-hero-packshot",
+      "category": "hero",
+      "enabled": true,
+      "model": "gemini-3-pro-image-preview",
+      "aspect_ratio": "16:9",
+      "image_size": "2K",
+      "prompt": "Studio product photography of a premium white glass jar labelled 'OralBiome Pro' in clean sans-serif typography, sitting centred on a seamless deep navy #1A3B5C background. Soft overhead lighting creates a gentle rim-light highlight on the jar edge. A single translucent white probiotic lozenge floats mid-air above the jar, catching a subtle warm gold #C9A84C specular highlight. Shallow depth of field, cinematic 16:9 composition with generous negative space on the left for overlay text. Premium pharmaceutical/cosmeceutical aesthetic, clinical minimalism, ultra-sharp product focus. No visible hands, props, or additional text beyond the jar label."
+    },
+    {
+      "name": "ob-packshot-angled",
+      "category": "packshot",
+      "enabled": true,
+      "model": "gemini-3-pro-image-preview",
+      "aspect_ratio": "4:5",
+      "image_size": "2K",
+      "prompt": "Three-quarter angled studio product photograph of a matte white jar labelled 'OralBiome Pro' on a neutral off-white marble surface, softly lit from the upper left. The label uses clean sans-serif type with a small warm gold #C9A84C accent line. One translucent white lozenge rests casually next to the jar on the marble. Subtle soft shadow, premium pharmaceutical branding photography, shallow depth of field, 4:5 aspect ratio. Palette: warm whites, soft navy #1A3B5C shadow tones, muted gold highlights. No hands, no additional props, no extra text."
+    },
+    {
+      "name": "ob-step-01-brush-floss",
+      "category": "steps",
+      "enabled": true,
+      "model": "gemini-3-pro-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "2K",
+      "prompt": "Minimalist flat vector-style illustration, 1:1 square, soft off-white background. A single toothbrush and a curved strand of dental floss arranged in a clean balanced composition. Precise 2px line weight in deep navy #1A3B5C, with subtle warm gold #C9A84C accent dots where the bristles meet the handle. Clinical, premium, scientific infographic aesthetic. No text, no human figures, no shadows. 10% padding around the subject. Designed as part 1 of a matching three-part 'how to use' sequence."
+    },
+    {
+      "name": "ob-step-02-dissolve-lozenge",
+      "category": "steps",
+      "enabled": true,
+      "model": "gemini-3-pro-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "2K",
+      "prompt": "Minimalist flat vector-style illustration, 1:1 square, soft off-white background. A single translucent white lozenge resting on a stylised anatomical tongue silhouette rendered in a clean geometric style. 2px line art in deep navy #1A3B5C, with a small warm gold #C9A84C highlight glow on the lozenge. Clinical, premium, scientific infographic aesthetic. No text, no faces, no shadows. 10% padding. Designed as part 2 of a matching three-part 'how to use' sequence — same style as the brush-and-floss illustration."
+    },
+    {
+      "name": "ob-step-03-colonise",
+      "category": "steps",
+      "enabled": true,
+      "model": "gemini-3-pro-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "2K",
+      "prompt": "Minimalist flat vector-style illustration, 1:1 square, soft off-white background. Friendly probiotic bacteria (small rod and sphere shapes) gently settling onto a stylised tooth-and-gum surface. Clean geometric style, 2px line art in deep navy #1A3B5C with small warm gold #C9A84C dot accents for the bacteria. Clinical, premium, scientific infographic aesthetic. No text, no faces, no shadows. 10% padding. Designed as part 3 of a matching three-part 'how to use' sequence — visual theme is beneficial colonisation, consistent with the brush-and-floss and lozenge illustrations."
+    },
+    {
+      "name": "ob-ingredient-l-reuteri",
+      "category": "ingredients",
+      "enabled": true,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Stylised scientific microscopy-style illustration of Lactobacillus reuteri bacteria — characteristic rod-shaped bacilli in a clean balanced arrangement. Deep navy #1A3B5C bacterial bodies with warm gold #C9A84C subtle highlights, floating on a soft off-white background. Minimalist premium scientific aesthetic. Part of a matching six-piece probiotic ingredient set with consistent lighting, style, and colour palette. 1:1 square, 10% padding. No text, no labels."
+    },
+    {
+      "name": "ob-ingredient-l-paracasei",
+      "category": "ingredients",
+      "enabled": true,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Stylised scientific microscopy-style illustration of Lactobacillus paracasei bacteria — elongated rod-shaped bacteria in pairs and short chains. Deep navy #1A3B5C bacterial bodies with warm gold #C9A84C subtle highlights, on a soft off-white background. Minimalist premium scientific aesthetic. Consistent with a matching six-piece probiotic ingredient set (same lighting, style, palette). 1:1 square, 10% padding. No text, no labels."
+    },
+    {
+      "name": "ob-ingredient-s-salivarius-k12",
+      "category": "ingredients",
+      "enabled": true,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Stylised scientific microscopy-style illustration of Streptococcus salivarius K12 — small spherical bacteria (cocci) arranged in characteristic long chains. Deep navy #1A3B5C bacterial bodies with warm gold #C9A84C subtle highlights, on a soft off-white background. Minimalist premium scientific aesthetic. Consistent with a matching six-piece probiotic ingredient set. 1:1 square, 10% padding. No text, no labels."
+    },
+    {
+      "name": "ob-ingredient-s-salivarius-m18",
+      "category": "ingredients",
+      "enabled": true,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Stylised scientific microscopy-style illustration of Streptococcus salivarius M18 — spherical bacteria (cocci) in chains, subtly differentiated from K12 by small surrounding enzyme molecule shapes. Deep navy #1A3B5C bodies with warm gold #C9A84C accents on a soft off-white background. Minimalist premium scientific aesthetic. Consistent with a matching six-piece probiotic ingredient set. 1:1 square, 10% padding. No text, no labels."
+    },
+    {
+      "name": "ob-ingredient-xylitol",
+      "category": "ingredients",
+      "enabled": true,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Stylised scientific illustration of xylitol sugar alcohol molecules — clean molecular geometry with small crystalline elements. Deep navy #1A3B5C molecular bonds with warm gold #C9A84C atom-node accents on a soft off-white background. Minimalist premium scientific aesthetic. Consistent with a matching six-piece ingredient set (same palette, lighting, stroke weight). 1:1 square, 10% padding. No text, no labels."
+    },
+    {
+      "name": "ob-ingredient-peppermint",
+      "category": "ingredients",
+      "enabled": true,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Stylised minimalist botanical illustration of a single peppermint leaf — clean silhouette with delicate central vein detail. Deep navy #1A3B5C outline and veins with warm gold #C9A84C vein accents, on a soft off-white background. Premium botanical infographic aesthetic. Consistent with a matching six-piece ingredient set. 1:1 square, 10% padding. No text, no labels."
+    },
+    {
+      "name": "ob-video-cover",
+      "category": "video-cover",
+      "enabled": true,
+      "model": "gemini-3-pro-image-preview",
+      "aspect_ratio": "16:9",
+      "image_size": "2K",
+      "prompt": "Cinematic 16:9 video thumbnail for an educational explainer video titled 'How OralBiome Pro Works'. Composition: a large softly illuminated white OralBiome Pro jar on the right third, an abstract flowing gradient of friendly probiotic bacteria (rendered as delicate navy #1A3B5C dots with warm gold #C9A84C highlights) swirling gently from the jar toward the left, suggesting gentle colonisation. Deep navy background with subtle vignette, shallow depth of field, premium scientific documentary aesthetic. Generous negative space on the left suitable for a subtle play-button overlay. No text, no faces, no human figures."
+    },
+    {
+      "name": "ob-icon-gums",
+      "category": "icon-benefit",
+      "enabled": false,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Minimalist flat icon on a pure white background — a healthy tooth-and-gum silhouette rendered as clean geometric line art in deep navy #1A3B5C, with a single subtle warm gold #C9A84C accent. 2px stroke weight, rounded line caps, centred in the frame with 20% padding. Consistent with a matching six-piece benefit icon set. Premium clinical infographic aesthetic. 1:1, no text, no shadows."
+    },
+    {
+      "name": "ob-icon-breath",
+      "category": "icon-benefit",
+      "enabled": false,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Minimalist flat icon on a pure white background — a gentle breath / wind motif (stylised curving lines suggesting fresh breath). Clean geometric line art in deep navy #1A3B5C with a single warm gold #C9A84C accent. 2px stroke, rounded line caps, centred with 20% padding. Matching six-piece benefit icon set style. 1:1, no text."
+    },
+    {
+      "name": "ob-icon-plaque",
+      "category": "icon-benefit",
+      "enabled": false,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Minimalist flat icon on a pure white background — a target/crosshair motif over a small dot pattern, representing plaque-targeting enzymes. Clean geometric line art in deep navy #1A3B5C with a warm gold #C9A84C centre accent. 2px stroke, rounded caps, centred with 20% padding. Matching six-piece benefit icon set. 1:1, no text."
+    },
+    {
+      "name": "ob-icon-defence",
+      "category": "icon-benefit",
+      "enabled": false,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Minimalist flat icon on a pure white background — a rounded shield silhouette with a small checkmark or microbe symbol inside. Clean geometric line art in deep navy #1A3B5C with a warm gold #C9A84C accent on the checkmark. 2px stroke, rounded caps, centred with 20% padding. Matching six-piece benefit icon set. 1:1, no text."
+    },
+    {
+      "name": "ob-icon-dental",
+      "category": "icon-benefit",
+      "enabled": false,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Minimalist flat icon on a pure white background — a single stylised tooth silhouette with a small sparkle or highlight mark. Clean geometric line art in deep navy #1A3B5C with a warm gold #C9A84C sparkle accent. 2px stroke, rounded caps, centred with 20% padding. Matching six-piece benefit icon set. 1:1, no text."
+    },
+    {
+      "name": "ob-icon-whole-body",
+      "category": "icon-benefit",
+      "enabled": false,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Minimalist flat icon on a pure white background — a circle-within-circle symbol suggesting interconnection (mouth–body link), with a small connecting curve. Clean geometric line art in deep navy #1A3B5C with a warm gold #C9A84C connection-node accent. 2px stroke, rounded caps, centred with 20% padding. Matching six-piece benefit icon set. 1:1, no text."
+    },
+    {
+      "name": "ob-proof-studies",
+      "category": "icon-proof",
+      "enabled": false,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Minimalist flat icon on a pure white background — a small document or research-paper silhouette with a subtle checkmark. Clean line art in warm gold #C9A84C with 1.5px stroke weight, rounded line caps, centred with 25% padding. Matching five-piece social-proof bar icon set, pharmaceutical-grade clean aesthetic. 1:1, no text."
+    },
+    {
+      "name": "ob-proof-cfu",
+      "category": "icon-proof",
+      "enabled": false,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Minimalist flat icon on a pure white background — a cluster of three small dots (representing colony-forming units) inside a circle outline. Clean line art in warm gold #C9A84C, 1.5px stroke, rounded caps, centred with 25% padding. Matching five-piece social-proof bar icon set. 1:1, no text."
+    },
+    {
+      "name": "ob-proof-strains",
+      "category": "icon-proof",
+      "enabled": false,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Minimalist flat icon on a pure white background — a set of four small rod-shaped bacterial silhouettes arranged in a 2x2 grid. Clean line art in warm gold #C9A84C, 1.5px stroke, rounded caps, centred with 25% padding. Matching five-piece social-proof bar icon set. 1:1, no text."
+    },
+    {
+      "name": "ob-proof-nl",
+      "category": "icon-proof",
+      "enabled": false,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Minimalist flat icon on a pure white background — a stylised simple tulip silhouette (symbol of the Netherlands) rendered as clean line art. Warm gold #C9A84C strokes, 1.5px weight, rounded caps, centred with 25% padding. Matching five-piece social-proof bar icon set, understated and elegant. 1:1, no text, no flag."
+    },
+    {
+      "name": "ob-proof-daily",
+      "category": "icon-proof",
+      "enabled": false,
+      "model": "gemini-3.1-flash-image-preview",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "prompt": "Minimalist flat icon on a pure white background — a simple calendar silhouette with a single small highlight dot on one date. Clean line art in warm gold #C9A84C, 1.5px stroke, rounded caps, centred with 25% padding. Matching five-piece social-proof bar icon set. 1:1, no text, no numbers."
+    }
+  ]
+}
