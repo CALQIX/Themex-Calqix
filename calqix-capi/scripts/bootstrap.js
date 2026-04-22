@@ -21,10 +21,9 @@ var MONITOR_URL = process.env.CAPI_BASE_URL || 'https://calqix-capi.vercel.app';
 var SCHEDULE_ID_OPTIMIZER = 'calqix-optimizer';           // 1. Ad Pulse every 2h (07-23)
 var SCHEDULE_ID_RECOVERY = 'calqix-recovery';              // 2. Recovery every minute
 var SCHEDULE_ID_CONTENT_MORNING = 'calqix-content-morning'; // 3. Insights→Plan→Generate chain 05:45
-var SCHEDULE_ID_CONTENT_REVIEW = 'calqix-content-review';  // 4. Review 07:05
-var SCHEDULE_ID_CONTENT_PUBLISH_AM = 'calqix-content-publish-am'; // 5. Publish post1 08:30
-var SCHEDULE_ID_CONTENT_PUBLISH_PM = 'calqix-content-publish-pm'; // 6. Publish post2 18:30
-var SCHEDULE_ID_CONTENT_REFLECT = 'calqix-content-reflect'; // 7. Reflect 21:30
+var SCHEDULE_ID_CONTENT_PUBLISH_AM = 'calqix-content-publish-am'; // 4. Publish post1 08:30
+var SCHEDULE_ID_CONTENT_PUBLISH_PM = 'calqix-content-publish-pm'; // 5. Publish post2 18:30
+var SCHEDULE_ID_CONTENT_REFLECT = 'calqix-content-reflect'; // 6. Reflect 21:30
 var SCHEDULE_ID_AD_MORNING = 'calqix-ad-morning';          // 8. Sync→Engine→Report chain 09:00
 var SCHEDULE_ID_AD_MIDDAY = 'calqix-ad-midday';            // 9. Midday check 15:00
 var SCHEDULE_ID_AD_CLOSE = 'calqix-ad-daily-close';        // 10. Daily close 21:00
@@ -38,17 +37,15 @@ var SCHEDULE_ID_PIXEL_DIAG = 'calqix-pixel-diag';               // 16. Hourly at
 var SCHEDULE_ID_WEBHOOK_AUDIT = 'calqix-webhook-audit';         // 17. Every 30 min at :05
 var SCHEDULE_ID_RECONCILIATION = 'calqix-reconciliation';       // 18. Daily 04:00
 var SCHEDULE_ID_IDENTITY_CLEANUP = 'calqix-identity-cleanup';   // 19. Daily 03:00
-// AI optimizer crons (3 new)
-var SCHEDULE_ID_AI_TACTICAL = 'calqix-ai-tactical';             // 20. Every 30 min, 06-23
-var SCHEDULE_ID_AI_STRATEGIC = 'calqix-ai-strategic';           // 21. Daily 06:00
-var SCHEDULE_ID_AI_ARCHITECTURAL = 'calqix-ai-architectural';   // 22. Weekly Sun 06:00
 // Google Ads batch upload
-var SCHEDULE_ID_GADS_UPLOAD = 'calqix-gads-upload';              // 23. Every 15 min
-// Legacy IDs for deletion cleanup
+var SCHEDULE_ID_GADS_UPLOAD = 'calqix-gads-upload';              // 19. Every 15 min
+// Legacy IDs for deletion cleanup (deprecated schedules + removed Telegram reporting crons)
 var LEGACY_IDS = [
   'calqix-daily-monitor', 'calqix-optimizer-morning', 'calqix-optimizer-afternoon',
   'calqix-optimizer-evening', 'calqix-content-insights', 'calqix-content-plan',
-  'calqix-content-generate', 'calqix-ad-perf-sync', 'calqix-ad-opt-engine', 'calqix-ad-opt-report'
+  'calqix-content-generate', 'calqix-ad-perf-sync', 'calqix-ad-opt-engine', 'calqix-ad-opt-report',
+  // Removed 2026-04-22 — Telegram reporting crons deprecated, operator uses Playwright MCP visuals
+  'calqix-content-review', 'calqix-ai-tactical', 'calqix-ai-strategic', 'calqix-ai-architectural'
 ];
 
 async function main() {
@@ -72,6 +69,8 @@ async function main() {
       return await createContentSchedules();
     case 'create-ad-opt-schedules':
       return await createAdOptSchedules();
+    case 'cleanup-legacy':
+      return await cleanupLegacySchedules();
     case 'list-schedules':
       return await listSchedules();
     case 'delete-schedule':
@@ -257,7 +256,6 @@ async function createContentSchedules() {
 
     var contentSchedules = [
       { id: SCHEDULE_ID_CONTENT_MORNING, path: '/api/cron/content-morning', cron: '45 5 * * *', label: 'Content Morning Chain 05:45 (insights→plan→generate)' },
-      { id: SCHEDULE_ID_CONTENT_REVIEW, path: '/api/cron/content-review', cron: '5 7 * * *', label: 'Content Review 07:05' },
       { id: SCHEDULE_ID_CONTENT_PUBLISH_AM, path: '/api/cron/content-publish?slot=post1', cron: '30 8 * * *', label: 'Publish Post1 08:30' },
       { id: SCHEDULE_ID_CONTENT_PUBLISH_PM, path: '/api/cron/content-publish?slot=post2', cron: '30 18 * * *', label: 'Publish Post2 18:30' },
       { id: SCHEDULE_ID_CONTENT_REFLECT, path: '/api/cron/content-reflect', cron: '30 21 * * *', label: 'Content Reflect 21:30' }
@@ -323,16 +321,45 @@ async function createAdOptSchedules() {
 }
 
 async function createAllSchedules() {
-  console.log('[QStash] Creating all consolidated schedules (23 total)...');
+  console.log('[QStash] Creating all consolidated schedules (19 total)...');
   var ok1 = await createOptimizerSchedule();
   var ok2 = await createRecoverySchedule();
   var ok3 = await createContentSchedules();
   var ok4 = await createAdOptSchedules();
   var ok5 = await createObservabilitySchedules();
-  var ok6 = await createAISchedules();
-  var ok7 = await createGadsUploadSchedule();
-  console.log('[QStash] Total: 1 optimizer + 1 recovery + 5 content + 3 ad-opt + 9 observability + 3 AI + 1 gads-upload = 23 schedules');
-  return ok1 && ok2 && ok3 && ok4 && ok5 && ok6 && ok7;
+  var ok6 = await createGadsUploadSchedule();
+  // Legacy / deprecated Telegram-reporting schedules are removed via cleanupLegacySchedules().
+  await cleanupLegacySchedules();
+  console.log('[QStash] Total: 1 optimizer + 1 recovery + 4 content + 3 ad-opt + 9 observability + 1 gads-upload = 19 schedules');
+  return ok1 && ok2 && ok3 && ok4 && ok5 && ok6;
+}
+
+async function cleanupLegacySchedules() {
+  console.log('[QStash] Cleaning up legacy / deprecated schedules...');
+  var qstashToken = process.env.QSTASH_TOKEN;
+  if (!qstashToken) {
+    console.error('[QStash] FAIL: QSTASH_TOKEN not set');
+    return false;
+  }
+  try {
+    var { Client } = require('@upstash/qstash');
+    var client = new Client({ token: qstashToken });
+    var removed = 0;
+    for (var i = 0; i < LEGACY_IDS.length; i++) {
+      try {
+        await client.schedules.delete(LEGACY_IDS[i]);
+        console.log('[QStash] Deleted legacy schedule:', LEGACY_IDS[i]);
+        removed++;
+      } catch (e) {
+        // Not found is fine
+      }
+    }
+    console.log('[QStash] Legacy cleanup done (' + removed + ' removed, ' + (LEGACY_IDS.length - removed) + ' not present)');
+    return true;
+  } catch (err) {
+    console.error('[QStash] Legacy cleanup FAIL:', err.message);
+    return false;
+  }
 }
 
 async function createObservabilitySchedules() {
@@ -376,45 +403,6 @@ async function createObservabilitySchedules() {
     return true;
   } catch (err) {
     console.error('[QStash] Observability schedules FAIL:', err.message);
-    return false;
-  }
-}
-
-async function createAISchedules() {
-  console.log('[QStash] Creating AI optimizer schedules (3 crons)...');
-  var qstashToken = process.env.QSTASH_TOKEN;
-  if (!qstashToken) {
-    console.error('[QStash] FAIL: QSTASH_TOKEN not set');
-    return false;
-  }
-
-  try {
-    var { Client } = require('@upstash/qstash');
-    var client = new Client({ token: qstashToken });
-    var authHeader = { 'Authorization': 'Bearer ' + (process.env.CRON_SECRET || '') };
-
-    var schedules = [
-      { id: SCHEDULE_ID_AI_TACTICAL, endpoint: '/api/cron/ai-tactical', cron: 'CRON_TZ=Europe/Amsterdam 2,32 6-23 * * *' },
-      { id: SCHEDULE_ID_AI_STRATEGIC, endpoint: '/api/cron/ai-strategic', cron: 'CRON_TZ=Europe/Amsterdam 0 6 * * *' },
-      { id: SCHEDULE_ID_AI_ARCHITECTURAL, endpoint: '/api/cron/ai-architectural', cron: 'CRON_TZ=Europe/Amsterdam 0 6 * * 0' }
-    ];
-
-    for (var i = 0; i < schedules.length; i++) {
-      var s = schedules[i];
-      await client.schedules.create({
-        scheduleId: s.id,
-        destination: MONITOR_URL + s.endpoint,
-        cron: s.cron,
-        retries: 2,
-        headers: authHeader
-      });
-      console.log('[QStash] Created:', s.id, '(' + s.cron.replace('CRON_TZ=Europe/Amsterdam ', '') + ')');
-    }
-
-    console.log('[QStash] AI schedules PASS (3 created)');
-    return true;
-  } catch (err) {
-    console.error('[QStash] AI schedules FAIL:', err.message);
     return false;
   }
 }
@@ -492,13 +480,12 @@ async function deleteAllSchedules() {
     var client = new Client({ token: qstashToken });
     var ids = [
       SCHEDULE_ID_OPTIMIZER, SCHEDULE_ID_RECOVERY,
-      SCHEDULE_ID_CONTENT_MORNING, SCHEDULE_ID_CONTENT_REVIEW,
+      SCHEDULE_ID_CONTENT_MORNING,
       SCHEDULE_ID_CONTENT_PUBLISH_AM, SCHEDULE_ID_CONTENT_PUBLISH_PM, SCHEDULE_ID_CONTENT_REFLECT,
       SCHEDULE_ID_AD_MORNING, SCHEDULE_ID_AD_MIDDAY, SCHEDULE_ID_AD_CLOSE,
       SCHEDULE_ID_IDENTITY_BACKFILL, SCHEDULE_ID_BRIDGE_HEALTH, SCHEDULE_ID_DEDUP_AUDIT,
       SCHEDULE_ID_ANOMALY_WATCH, SCHEDULE_ID_EMQ_DEEP, SCHEDULE_ID_PIXEL_DIAG,
       SCHEDULE_ID_WEBHOOK_AUDIT, SCHEDULE_ID_RECONCILIATION, SCHEDULE_ID_IDENTITY_CLEANUP,
-      SCHEDULE_ID_AI_TACTICAL, SCHEDULE_ID_AI_STRATEGIC, SCHEDULE_ID_AI_ARCHITECTURAL,
       SCHEDULE_ID_GADS_UPLOAD
     ].concat(LEGACY_IDS);
     for (var i = 0; i < ids.length; i++) {
@@ -633,7 +620,6 @@ async function verifyAll() {
     '/api/ads/monitor-callback',
     '/api/recovery/run',
     '/api/cron/content-morning',
-    '/api/cron/content-review',
     '/api/cron/content-publish',
     '/api/cron/content-reflect',
     '/api/cron/ad-morning',

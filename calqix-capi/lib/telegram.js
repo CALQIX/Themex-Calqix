@@ -3,6 +3,12 @@
 var fetch = require('node-fetch');
 
 async function sendTelegram(message, replyMarkup) {
+  // Global kill switch: operator kan alle Telegram-output uitzetten zonder crons te breken.
+  // Default: disabled. Zet TELEGRAM_ENABLED=true in Vercel env om weer te activeren.
+  if (process.env.TELEGRAM_ENABLED !== 'true') {
+    return { sent: false, reason: 'telegram_disabled' };
+  }
+
   var token = process.env.TELEGRAM_BOT_TOKEN;
   var chatId = process.env.TELEGRAM_CHAT_ID;
 
