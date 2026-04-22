@@ -164,18 +164,6 @@
             "product": "{{product}}"
           }
         },
-        "buy_buttons": {
-          "type": "buy_buttons",
-          "settings": {
-            "show_dynamic_checkout": false,
-            "show_gift_card_recipient": false,
-            "show_qty_selector": true,
-            "show_buy_now": false,
-            "buy_now_label": "Buy it Now",
-            "text_color": "#ffffff",
-            "background_color": "#1a3b5c"
-          }
-        },
         "calqix_cert_badges_ob01": {
           "type": "calqix_cert_badges",
           "settings": {
@@ -201,6 +189,18 @@
             "badge_fill": "#004381",
             "badge_accent": "#f2f7ff",
             "label_color": "#004381"
+          }
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": false,
+            "show_gift_card_recipient": false,
+            "show_qty_selector": true,
+            "show_buy_now": false,
+            "buy_now_label": "Buy it Now",
+            "text_color": "#ffffff",
+            "background_color": "#1a3b5c"
           }
         },
         "calqix_compliance_note_ob01": {
@@ -893,6 +893,7 @@
     },
     "oralbiome-subscription-cta": {
       "type": "oralbiome-subscription-cta",
+      "disabled": true,
       "settings": {
         "heading": "Your mouth deserves daily balance.",
         "subheading": "Ôé¼0.53 per day for a clinically supported oral microbiome.",
