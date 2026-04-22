@@ -367,6 +367,150 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /*  InitiateCheckout – browser event on "Check out" click              */
+  /*                                                                    */
+  /*  The server-side IC is already fired by Shopify Custom Pixel when  */
+  /*  the /checkouts/* page loads (event_id = ic_{checkout_token}).     */
+  /*  This browser-side fbq fires earlier (click time) so Meta sees a   */
+  /*  browser signal for the IC funnel step. We use the cart token in   */
+  /*  the eventID so multiple clicks on same cart dedupe client-side.   */
+  /*  Cart token != checkout token, so these two will NOT dedup via     */
+  /*  event_id; Meta falls back to FBP dedup (same browser, seconds     */
+  /*  apart) which works reliably for the IC → IC pair.                 */
+  /* ------------------------------------------------------------------ */
+
+  var _icFiredForCart = null; // guard: one browser-IC per cart token per session
+
+  function getCartToken() {
+    try {
+      var m = document.cookie.match(/(?:^|;\s*)cart=([^;]+)/);
+      if (m) return decodeURIComponent(m[1]).split('?')[0];
+    } catch (e) { /* silent */ }
+    return null;
+  }
+
+  function fireInitiateCheckout() {
+    var cartToken = getCartToken();
+    if (cartToken && _icFiredForCart === cartToken) return; // already fired this session
+    _icFiredForCart = cartToken || 'anon_' + Date.now();
+
+    var eventId = 'ic_cart_' + (cartToken ? cartToken.slice(0, 24) : Date.now().toString(36));
+    var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'EUR';
+
+    if (typeof fbq === 'function') {
+      fbq('track', 'InitiateCheckout', {
+        currency: currency
+      }, { eventID: eventId });
+    }
+  }
+
+  function interceptCheckoutClicks() {
+    document.addEventListener('click', function (evt) {
+      var target = evt.target;
+      if (!target || !target.closest) return;
+      // Match: any element with name="checkout", any <a href> to /checkout or /checkouts,
+      // or any element carrying a data-checkout-trigger attribute.
+      var trigger = target.closest(
+        '[name="checkout"], a[href="/checkout"], a[href^="/checkouts"], [data-checkout-trigger]'
+      );
+      if (!trigger) return;
+      fireInitiateCheckout();
+    }, true);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Lead – newsletter / lightweight signup browser + server event     */
+  /*                                                                    */
+  /*  Browser eventID uses a client-side hash of the email so the       */
+  /*  matching /api/lead call can reproduce it (server uses a           */
+  /*  cryptographic sha256 of the same normalized email). Here we use a */
+  /*  simpler but deterministic hash (email normalized lower-case)      */
+  /*  truncated; the server does its own sha256 for the final eventID   */
+  /*  written to Meta. The browser and server sha256 of the same        */
+  /*  normalized email yield identical hex digests, so eventIDs match.  */
+  /* ------------------------------------------------------------------ */
+
+  var _leadFiredForEmail = {};
+
+  function sha256Hex(str) {
+    // Web Crypto async; callers must handle the returned Promise.
+    return crypto.subtle
+      .digest('SHA-256', new TextEncoder().encode(str))
+      .then(function (buf) {
+        var hex = '';
+        var view = new Uint8Array(buf);
+        for (var i = 0; i < view.length; i++) {
+          hex += view[i].toString(16).padStart(2, '0');
+        }
+        return hex;
+      });
+  }
+
+  function fireLead(email, formContext) {
+    var norm = (email || '').trim().toLowerCase();
+    if (!norm || norm.indexOf('@') === -1) return;
+    if (_leadFiredForEmail[norm]) return; // session-local dedup
+    _leadFiredForEmail[norm] = true;
+
+    if (!window.crypto || !window.crypto.subtle) {
+      // Older browsers: skip hashing, use timestamp-based eventID (no server match).
+      var fallbackEid = 'lead_ns_t_' + Date.now().toString(36);
+      sendLead(fallbackEid, norm, formContext);
+      return;
+    }
+
+    sha256Hex(norm).then(function (hash) {
+      var emailHash = hash.slice(0, 16);
+      var eventId = 'lead_ns_' + emailHash;
+      sendLead(eventId, norm, formContext, emailHash);
+    }).catch(function () {
+      var fallbackEid = 'lead_ns_t_' + Date.now().toString(36);
+      sendLead(fallbackEid, norm, formContext);
+    });
+  }
+
+  function sendLead(eventId, email, formContext, emailHash) {
+    var userPayload = buildUserPayload();
+    var payload = {
+      event_id: eventId,
+      email: email,
+      form_context: formContext || 'newsletter',
+      fbc: userPayload.fbc || undefined,
+      fbp: userPayload.fbp || undefined,
+      external_id: userPayload.external_id || undefined,
+      country_code: userPayload.country_code || undefined,
+      source_url: window.location.href
+    };
+
+    postKeepAlive(CAPI_BASE + '/lead', payload);
+
+    if (typeof fbq === 'function') {
+      fbq('track', 'Lead', {
+        content_name: formContext === 'newsletter' ? 'Newsletter Signup' : 'Lead Capture',
+        content_category: formContext || 'newsletter'
+      }, { eventID: eventId });
+    }
+  }
+
+  function interceptLeadForms() {
+    document.addEventListener('submit', function (evt) {
+      var form = evt.target;
+      if (!form || !(form instanceof HTMLFormElement)) return;
+
+      // Newsletter forms: marked with class `newsletter-form` OR hidden input
+      // contact[email]=newsletter (Shopify customer-form convention we use).
+      var isNewsletter =
+        form.classList.contains('newsletter-form') ||
+        (form.querySelector('input[name="contact[email]"][value="newsletter"]') !== null);
+      if (!isNewsletter) return;
+
+      var emailInput = form.querySelector('input[type="email"], input[name="contact[email]"]:not([type="hidden"])');
+      if (!emailInput || !emailInput.value) return;
+      fireLead(emailInput.value, 'newsletter');
+    }, true);
+  }
+
+  /* ------------------------------------------------------------------ */
   /*  Unload-safe transport used by all CAPI bridge POSTs                */
   /* ------------------------------------------------------------------ */
 
@@ -554,6 +698,8 @@
     fireAddToCart: fireAddToCart,
     syncCartAttributes: syncCartAttributes,
     fireViewContent: fireViewContent,
+    fireInitiateCheckout: fireInitiateCheckout,
+    fireLead: fireLead,
     buildUserPayload: buildUserPayload,
     captureIdentity: captureIdentity,
     getGclid: getGclid,
@@ -600,6 +746,8 @@
     fireViewContent();
     interceptAddToCart();
     interceptCartAddForms();
+    interceptCheckoutClicks();
+    interceptLeadForms();
     autoIdentityCapture();
 
     // Retry fbp sync after Meta Pixel loads (it may set _fbp after bridge init)

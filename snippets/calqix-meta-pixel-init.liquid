@@ -72,6 +72,72 @@
   var pvEventId = 'pv_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
   fbq('track', 'PageView', {}, { eventID: pvEventId });
   window.__calqixPvEventId = pvEventId;
+
+  /* ------------------------------------------------------------------ */
+  /*  VANGNET — block duplicate Meta Pixel tags that slip past GTM      */
+  /*                                                                    */
+  /*  Detects third-party fbq.set('agent', X, pixelID) calls where X is */
+  /*  a known GTM-template agent (Simo Ahava, facebookarchive, etc.)    */
+  /*  and suppresses the subsequent fbq.init + fbq.track from that tag. */
+  /*                                                                    */
+  /*  Our own calls happen BEFORE this patch binds (they flush through  */
+  /*  the real callMethod as soon as fbevents.js loads). GTM tags run   */
+  /*  later via defer — they hit the patched callMethod and get blocked.*/
+  /* ------------------------------------------------------------------ */
+  var BLOCKED_AGENTS = /^(tmSimo-GTM-WebTemplate|facebookarchive|tm-google-tagmanager|facebook-pixel-archive|facebook-for-woocommerce)/i;
+  var CALQIX_PIXEL = '934134615770602';
+  var PATCH_FLAG = '__calqix_fbq_vangnet';
+  var guardPending = false;
+
+  function installFbqVangnet() {
+    if (window[PATCH_FLAG]) return;
+    var fbq = window.fbq;
+    if (!fbq || typeof fbq.callMethod !== 'function') {
+      // fbevents.js not loaded yet — poll every 25ms up to 10s
+      if ((installFbqVangnet.tries = (installFbqVangnet.tries || 0) + 1) > 400) return;
+      setTimeout(installFbqVangnet, 25);
+      return;
+    }
+    window[PATCH_FLAG] = true;
+
+    var realCallMethod = fbq.callMethod;
+    fbq.callMethod = function patchedCallMethod() {
+      var args = arguments;
+      var op = args[0];
+
+      // Foreign agent: flag and swallow
+      if (op === 'set' && args[1] === 'agent') {
+        var agent = String(args[2] || '');
+        var forPixel = args[3];
+        if (BLOCKED_AGENTS.test(agent) && (!forPixel || String(forPixel) === CALQIX_PIXEL)) {
+          guardPending = true;
+          try { console.info('[calqix-vangnet] blocked foreign agent:', agent); } catch (e) { /* silent */ }
+          return;
+        }
+      }
+
+      // After a blocked agent, swallow the tag's init + next track (one-shot)
+      if (guardPending) {
+        if (op === 'init') {
+          var initPixel = args[1];
+          if (!initPixel || String(initPixel) === CALQIX_PIXEL) {
+            try { console.info('[calqix-vangnet] blocked foreign init:', initPixel); } catch (e) { /* silent */ }
+            return;
+          }
+        }
+        if (op === 'track' || op === 'trackSingle' || op === 'trackCustom' || op === 'trackSingleCustom') {
+          try { console.info('[calqix-vangnet] blocked foreign track:', args[1] || args[2]); } catch (e) { /* silent */ }
+          guardPending = false;
+          return;
+        }
+      }
+
+      return realCallMethod.apply(this, args);
+    };
+
+    try { console.info('[calqix-vangnet] fbq patch active'); } catch (e) { /* silent */ }
+  }
+  installFbqVangnet();
 })();
 </script>
 <noscript>
