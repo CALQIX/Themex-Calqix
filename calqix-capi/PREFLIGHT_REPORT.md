@@ -61,7 +61,12 @@ All server-side CAPI event_ids are **deterministic** and keyed on Shopify identi
 
 Custom Pixel (`@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\shopify-custom-pixel.js`) subscribes to `checkout_started`, `checkout_contact_info_submitted`, `checkout_completed`. It sends to `/api/checkout-event`; the endpoint generates `ic_{token}` / `purchase_{token}` and forwards to Meta CAPI.
 
-**Critical gap**: `shopify-custom-pixel.js` does NOT call `fbq('track', ...)` with a matching `eventID`. Browser Purchase/InitiateCheckout pixel events come from somewhere else (Meta Pixel via GTM web or Shopify F&I integration) and those use random event_ids. This is the primary dedup failure for the 58.79% coverage gap.
+**Critical gap (RESOLVED 2026-04-22)**: `shopify-custom-pixel.js` now emits browser-side Meta Pixel events via direct beacon to `https://www.facebook.com/tr/` (sandbox-safe; `fbq` can't be loaded inside Shopify's Custom Pixel sandbox). Browser event_ids match server event_ids exactly:
+- `InitiateCheckout` → `ic_{checkout_token}` (browser + server)
+- `AddPaymentInfo` → `add_payment_info_{checkout_token}` (browser + server)
+- `Purchase` → `purchase_{checkout_token}` (browser + server)
+
+The beacon forwards `_fbp` / `_fbc` for attribution matching and runs with `credentials: 'include'` so facebook.com cookies are attached. See `@c:\Users\Gebruiker\Desktop\CALQIX Repo\calqix-capi\shopify-custom-pixel.js:140-205` for the `fireBrowserPixelEvent` helper. The deployed copy in Shopify Admin must be replaced after every edit — canonical lives in this repo, installable mirror at `scripts/shopify-custom-pixel.for-admin.js`.
 
 ## 4. Five Windsurf findings — status
 
