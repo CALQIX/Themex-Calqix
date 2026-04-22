@@ -309,7 +309,7 @@
 {%- comment -%} ── Locale detection ── {%- endcomment -%}
 {%- assign ob_cm_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
 {%- assign ob_cm_translated = false -%}
-{%- if ob_cm_lang == 'nl' or ob_cm_lang == 'de' or ob_cm_lang == 'fr' -%}
+{%- if ob_cm_lang == 'nl' or ob_cm_lang == 'de' or ob_cm_lang == 'fr' or ob_cm_lang == 'sv' or ob_cm_lang == 'nb' or ob_cm_lang == 'da' or ob_cm_lang == 'fi' -%}
   {%- assign ob_cm_translated = true -%}
 {%- endif -%}
 
