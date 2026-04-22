@@ -3007,7 +3007,9 @@
                   popular_tier: block.settings.popular_tier
                 -%}
                 {%- render 'calqix-subscribe-widget' -%}
-                {%- render 'calqix-product-flavor-picker' -%}
+                {%- if block.settings.show_flavor_picker -%}
+                  {%- render 'calqix-product-flavor-picker' -%}
+                {%- endif -%}
               {%- endif -%}
 
             {%- when 'video_reels' -%}
@@ -4493,6 +4495,13 @@
             { "value": "3", "label": "3 Jars" }
           ],
           "default": "3"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_flavor_picker",
+          "label": "Show flavor picker for 2-jar / 3-jar bundles",
+          "info": "When ON, customers can pick a flavor per jar in multi-jar bundles. When OFF, all jars in a multi-jar bundle default to the currently selected flavor.",
+          "default": false
         }
       ]
     },

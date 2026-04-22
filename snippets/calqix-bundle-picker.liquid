@@ -48,12 +48,12 @@
 {%- assign cqbp_sub_pct_int = cqbp_sub_pct | round: 0 -%}
 
 {%- comment -%} Per-tier subscription per-each prices (sub pct applied to each-price) {%- endcomment -%}
-{%- assign _cqbp_t1_sd = cqbp_base | times: cqbp_sub_pct | divided_by: 100 -%}
-{%- assign cqbp_t1_sub_each = cqbp_base | minus: _cqbp_t1_sd -%}
-{%- assign _cqbp_t2_sd = cqbp_t2_each | times: cqbp_sub_pct | divided_by: 100 -%}
-{%- assign cqbp_t2_sub_each = cqbp_t2_each | minus: _cqbp_t2_sd -%}
-{%- assign _cqbp_t3_sd = cqbp_t3_each | times: cqbp_sub_pct | divided_by: 100 -%}
-{%- assign cqbp_t3_sub_each = cqbp_t3_each | minus: _cqbp_t3_sd -%}
+{%- assign cqbp_t1_sd = cqbp_base | times: cqbp_sub_pct | divided_by: 100 -%}
+{%- assign cqbp_t1_sub_each = cqbp_base | minus: cqbp_t1_sd -%}
+{%- assign cqbp_t2_sd = cqbp_t2_each | times: cqbp_sub_pct | divided_by: 100 -%}
+{%- assign cqbp_t2_sub_each = cqbp_t2_each | minus: cqbp_t2_sd -%}
+{%- assign cqbp_t3_sd = cqbp_t3_each | times: cqbp_sub_pct | divided_by: 100 -%}
+{%- assign cqbp_t3_sub_each = cqbp_t3_each | minus: cqbp_t3_sd -%}
 
 {%- comment -%} i18n {%- endcomment -%}
 {%- assign cqbp_t_heading = 'calqix_oralbiome.bundle.heading' | t -%}
@@ -133,28 +133,30 @@
     line-height: 1.3;
   }
   .cqbp__supply {
-    font-size: 10px;
-    color: var(--cqbp-muted);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cqbp-navy);
     letter-spacing: 0.02em;
     line-height: 1.2;
   }
   .cqbp__label {
     display: inline-flex;
     align-items: baseline;
-    gap: 5px;
-    color: var(--cqbp-navy);
-    line-height: 1.1;
+    gap: 3px;
+    color: var(--cqbp-muted);
+    line-height: 1.2;
   }
   .cqbp__qty {
-    font-family: 'DM Serif Display', Georgia, serif;
-    font-size: 20px;
-    color: var(--cqbp-navy);
-    line-height: 1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--cqbp-muted);
+    line-height: 1.2;
   }
   .cqbp__qty-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--cqbp-navy);
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--cqbp-muted);
   }
   .cqbp__price-row {
     display: inline-flex;
