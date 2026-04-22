@@ -2108,9 +2108,7 @@
                     {% if block.settings.show_gift_card_recipient and product.gift_card? %}
                       {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
                     {% endif %}
-                    {%- if product.template_suffix == 'oralbiome' -%}
-                      {%- render 'calqix-subscribe-widget' -%}
-                    {%- endif -%}
+                    {%- comment -%} Subscribe widget is rendered in calqix_bundle block so it sits directly under the bundle picker. {%- endcomment -%}
                     <div class="wt-product__add-to-cart_form--wrapper product-form__buttons">
                       {% if block.settings.show_qty_selector %}
                         {% render 'component-counter' %}
@@ -3008,6 +3006,7 @@
                   tier_3_free_jar: block.settings.tier_3_free_jar,
                   popular_tier: block.settings.popular_tier
                 -%}
+                {%- render 'calqix-subscribe-widget' -%}
                 {%- render 'calqix-product-flavor-picker' -%}
               {%- endif -%}
 

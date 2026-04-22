@@ -1,9 +1,12 @@
 {%- comment -%}
   CALQIX Subscribe & Save Widget — v4
-  Zapply-style single checkbox layout.
-  Checkbox ON  → posts `selling_plan` with product form + updates main price to subscription price.
-  Checkbox OFF → one-time purchase, main price restored.
-  Place inside a product form. Reads selling plans from Shopify product.
+  Zapply-style single checkbox layout. Rendered directly below the bundle picker
+  (outside the product form) so it sits at the top of the buy area.
+  Checkbox ON  → JS injects a hidden `selling_plan` input into the product form
+                 and dispatches `cqsw:change` so the bundle picker swaps its
+                 per-card prices + shows the {pct}% OFF badge.
+  Checkbox OFF → one-time purchase; selling_plan input removed, prices restored.
+  Reads selling plans from Shopify product.
 {%- endcomment -%}
 
 {%- assign cq_v = product.selected_or_first_available_variant -%}
@@ -200,7 +203,6 @@
     </div>
   </label>
 
-  <input type="hidden" name="" class="cqsw__sp-input" value="">
 </div>
 
 <script>
@@ -209,45 +211,42 @@
   if (!w) return;
   var row = w.querySelector('.cqsw__row');
   var cb = w.querySelector('.cqsw__input');
-  var spInput = w.querySelector('.cqsw__sp-input');
   var planId = w.dataset.sellingPlanId;
-  var priceOnetime = w.dataset.priceOnetime;
-  var priceSubscribe = w.dataset.priceSubscribe;
   var discountPct = w.dataset.discountPct;
 
-  function updateMainPrice(subscribe) {
-    var priceBlock = w.closest('form') ? w.closest('form').closest('.wt-product__info') || document : document;
-    var finals = priceBlock.querySelectorAll('.wt-product__price__final');
-    var compares = priceBlock.querySelectorAll('.wt-product__price__compare');
-    var pctBadges = priceBlock.querySelectorAll('.price-item--percent');
-    var saleDiv = priceBlock.querySelector('.price__sale');
-    var regDiv = priceBlock.querySelector('.price__regular');
-    if (subscribe) {
-      finals.forEach(function(el) { el.textContent = priceSubscribe; });
-      compares.forEach(function(el) { el.textContent = priceOnetime; el.classList.remove('hidden'); });
-      pctBadges.forEach(function(el) { el.textContent = '-' + discountPct + '%'; });
-      if (saleDiv) { saleDiv.classList.add('visible-main-product'); saleDiv.classList.add('price__sale--main-product'); }
-      if (regDiv) regDiv.style.display = 'none';
-    } else {
-      finals.forEach(function(el) { el.textContent = priceOnetime; });
-      compares.forEach(function(el) { el.classList.add('hidden'); });
-      pctBadges.forEach(function(el) { el.textContent = ''; });
-      if (saleDiv) { saleDiv.classList.remove('visible-main-product'); saleDiv.classList.remove('price__sale--main-product'); }
-      if (regDiv) regDiv.style.display = '';
+  function getProductForm() {
+    return document.querySelector('product-form form[action*="/cart/add"]')
+        || document.querySelector('form[action*="/cart/add"]');
+  }
+
+  function injectSellingPlan(subscribe) {
+    var form = getProductForm();
+    if (!form) return;
+    var existing = form.querySelector('input[name="selling_plan"][data-cqsw="1"]');
+    if (subscribe && planId) {
+      if (!existing) {
+        existing = document.createElement('input');
+        existing.type = 'hidden';
+        existing.name = 'selling_plan';
+        existing.setAttribute('data-cqsw', '1');
+        form.appendChild(existing);
+      }
+      existing.value = planId;
+    } else if (existing) {
+      existing.parentNode.removeChild(existing);
     }
   }
 
   function applyState(subscribe) {
     row.classList.toggle('is-active', subscribe);
     row.setAttribute('data-plan', subscribe ? 'subscribe' : 'onetime');
-    if (subscribe && planId) {
-      spInput.name = 'selling_plan';
-      spInput.value = planId;
-    } else {
-      spInput.name = '';
-      spInput.value = '';
-    }
-    updateMainPrice(subscribe);
+    injectSellingPlan(subscribe);
+    // Notify bundle picker + any other listeners.
+    try {
+      document.dispatchEvent(new CustomEvent('cqsw:change', {
+        detail: { subscribe: subscribe, planId: planId, pct: discountPct }
+      }));
+    } catch (e) {}
   }
 
   cb.addEventListener('change', function() {
