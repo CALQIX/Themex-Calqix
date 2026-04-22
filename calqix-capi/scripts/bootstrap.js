@@ -37,8 +37,10 @@ var SCHEDULE_ID_PIXEL_DIAG = 'calqix-pixel-diag';               // 16. Hourly at
 var SCHEDULE_ID_WEBHOOK_AUDIT = 'calqix-webhook-audit';         // 17. Every 30 min at :05
 var SCHEDULE_ID_RECONCILIATION = 'calqix-reconciliation';       // 18. Daily 04:00
 var SCHEDULE_ID_IDENTITY_CLEANUP = 'calqix-identity-cleanup';   // 19. Daily 03:00
+// Content / marketing dailies
+var SCHEDULE_ID_OB_REVIEWS_ADD = 'calqix-ob-reviews-add';       // 20. Daily 03:10 — OralBiome Pro review drip
 // Google Ads batch upload
-var SCHEDULE_ID_GADS_UPLOAD = 'calqix-gads-upload';              // 19. Every 15 min
+var SCHEDULE_ID_GADS_UPLOAD = 'calqix-gads-upload';              // 21. Every 15 min
 // Legacy IDs for deletion cleanup (deprecated schedules + removed Telegram reporting crons)
 var LEGACY_IDS = [
   'calqix-daily-monitor', 'calqix-optimizer-morning', 'calqix-optimizer-afternoon',
@@ -384,7 +386,8 @@ async function createObservabilitySchedules() {
       { id: SCHEDULE_ID_PIXEL_DIAG, endpoint: '/api/cron/pixel-diag', cron: 'CRON_TZ=Europe/Amsterdam 15 * * * *' },
       { id: SCHEDULE_ID_WEBHOOK_AUDIT, endpoint: '/api/cron/webhook-audit', cron: 'CRON_TZ=Europe/Amsterdam 5,35 * * * *' },
       { id: SCHEDULE_ID_RECONCILIATION, endpoint: '/api/cron/reconciliation', cron: 'CRON_TZ=Europe/Amsterdam 0 4 * * *' },
-      { id: SCHEDULE_ID_IDENTITY_CLEANUP, endpoint: '/api/cron/identity-cleanup', cron: 'CRON_TZ=Europe/Amsterdam 0 3 * * *' }
+      { id: SCHEDULE_ID_IDENTITY_CLEANUP, endpoint: '/api/cron/identity-cleanup', cron: 'CRON_TZ=Europe/Amsterdam 0 3 * * *' },
+      { id: SCHEDULE_ID_OB_REVIEWS_ADD, endpoint: '/api/cron/ob-reviews-add', cron: 'CRON_TZ=Europe/Amsterdam 10 3 * * *' }
     ];
 
     for (var i = 0; i < schedules.length; i++) {
