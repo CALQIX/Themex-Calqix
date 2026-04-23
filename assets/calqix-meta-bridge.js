@@ -66,12 +66,21 @@
   /*  Customer data extraction (email from Shopify globals)              */
   /* ------------------------------------------------------------------ */
 
+  /**
+   * Pull the customer's email from any first-party signal we have.
+   *
+   * Priority:
+   *  1. Shopify globals (logged-in customer or checkout-resumed session)
+   *  2. localStorage `_cq_known_email` (newsletter or lead form submitted earlier)
+   *  3. Cookie `_cq_known_email` (cross-subdomain fallback)
+   *
+   * The localStorage/cookie path is what powers Fix #4 — EMQ boost for
+   * non-logged-in repeat visitors. As soon as a visitor submits the newsletter
+   * form (see `fireLead`), we cache the email here so every subsequent
+   * ViewContent / AddToCart event includes it as `em` to Meta CAPI.
+   */
   function getCustomerEmail() {
     try {
-      if (window.__st && window.__st.cid) {
-        var meta = window.ShopifyAnalytics && window.ShopifyAnalytics.meta;
-        if (meta && meta.page && meta.page.customerId) return null;
-      }
       if (window.meta && window.meta.customer && window.meta.customer.email) {
         return window.meta.customer.email;
       }
@@ -83,7 +92,27 @@
         return window.__st.em;
       }
     } catch (e) { /* silent */ }
+
+    // Fallback: previously-captured email from newsletter / lead form.
+    try {
+      var fromLs = localStorage.getItem(KNOWN_EMAIL_KEY);
+      if (fromLs && fromLs.indexOf('@') !== -1) return fromLs;
+    } catch (e) { /* silent */ }
+    var fromCookie = getCookie(KNOWN_EMAIL_KEY);
+    if (fromCookie && fromCookie.indexOf('@') !== -1) return fromCookie;
+
     return null;
+  }
+
+  /**
+   * Persist a normalized email to localStorage + cookie so getCustomerEmail()
+   * can return it on every future page load. Idempotent.
+   */
+  function rememberEmail(email) {
+    var norm = (email || '').trim().toLowerCase();
+    if (!norm || norm.indexOf('@') === -1) return;
+    try { localStorage.setItem(KNOWN_EMAIL_KEY, norm); } catch (e) { /* silent */ }
+    setCookie(KNOWN_EMAIL_KEY, norm, KNOWN_EMAIL_COOKIE_DAYS);
   }
 
   function getCustomerId() {
@@ -156,6 +185,11 @@
 
   var ANON_ID_KEY = '_cq_anon_id';
   var ANON_ID_COOKIE_DAYS = 365;
+
+  // Fix #4 — cached email from newsletter / lead form, used to enrich
+  // anonymous events. Same TTL as anon_id so they expire together.
+  var KNOWN_EMAIL_KEY = '_cq_known_email';
+  var KNOWN_EMAIL_COOKIE_DAYS = 365;
 
   function getOrCreateAnonId() {
     var existing = null;
@@ -505,6 +539,10 @@
   }
 
   function sendLead(eventId, email, formContext, emailHash) {
+    // Fix #4: persist this email so anonymous ViewContent/AddToCart events
+    // on subsequent pages include it as `em` (Meta EMQ boost).
+    rememberEmail(email);
+
     var userPayload = buildUserPayload();
     var payload = {
       event_id: eventId,
@@ -700,7 +738,11 @@
       if (window.Shopify && window.Shopify.checkout) {
         var co = window.Shopify.checkout;
         var fields = {};
-        if (co.email) fields.email = co.email;
+        if (co.email) {
+          fields.email = co.email;
+          // Fix #4: also cache so non-checkout pages keep using this email.
+          rememberEmail(co.email);
+        }
         if (co.shipping_address) {
           var sa = co.shipping_address;
           if (sa.first_name) fields.first_name = sa.first_name;
