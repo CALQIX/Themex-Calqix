@@ -139,7 +139,7 @@ module.exports = async function (req, res) {
 
       // --- 3. Push to Meta ---
       var result = await audiences.addUsers(audienceId, built.users, {
-        sessionId: 'cq_la_' + new Date().toISOString().replace(/[:.]/g, '-')
+        sessionId: Date.now()
       });
 
       stats.rows_sent = result.rowsSent || 0;

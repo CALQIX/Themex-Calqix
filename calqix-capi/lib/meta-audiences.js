@@ -119,7 +119,15 @@ async function _sendUsers(method, audienceId, users, options) {
     return { ok: true, skipped: true, reason: 'alle rijen ongeldig', rowsSent: 0, dropped: dropped };
   }
 
-  var sessionId = opts.sessionId || ('cq_la_' + Date.now());
+  // Meta requires session_id to be a numeric value (int). Using epoch ms
+  // gives us a monotonically-increasing id that survives QStash retries
+  // within the same minute.
+  var sessionId = opts.sessionId !== undefined ? opts.sessionId : Date.now();
+  if (typeof sessionId === 'string' && /^\d+$/.test(sessionId)) {
+    sessionId = parseInt(sessionId, 10);
+  } else if (typeof sessionId !== 'number') {
+    sessionId = Date.now();
+  }
   var payload = {
     session: {
       session_id: sessionId,
