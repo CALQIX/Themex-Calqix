@@ -657,52 +657,6 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /*  Native <form action="/cart/add"> submits (page-unloading)          */
-  /* ------------------------------------------------------------------ */
-
-  function buildDetailFromForm(form) {
-    try {
-      var fd = new FormData(form);
-      var rawId = fd.get('id');
-      if (!rawId) return null;
-      var qty = parseInt(fd.get('quantity') || '1', 10) || 1;
-      var priceAttr =
-        form.getAttribute('data-product-price') ||
-        (form.dataset && form.dataset.productPrice) ||
-        null;
-      var pidAttr =
-        form.getAttribute('data-product-id') ||
-        (form.dataset && form.dataset.productId) ||
-        null;
-      return {
-        id: String(rawId),
-        product_id: pidAttr ? String(pidAttr) : String(rawId),
-        quantity: qty,
-        price: priceAttr ? parseFloat(priceAttr) : 0
-      };
-    } catch (e) {
-      return null;
-    }
-  }
-
-  function interceptCartAddForms() {
-    document.addEventListener('submit', function (evt) {
-      var form = evt.target;
-      if (!form || !(form instanceof HTMLFormElement)) return;
-      var action = (form.getAttribute('action') || '').toString();
-      if (action.indexOf('/cart/add') === -1) return;
-
-      // AJAX forms (enctype typically absent, bridge's fetch/XHR hook catches
-      // them). We only need to care about native posts that unload the page —
-      // detect by the absence of "no-redirect" markers. Safe to always fire:
-      // the server endpoint is idempotent via event_id dedup and the browser
-      // fbq call also dedups on the same eventID.
-      var detail = buildDetailFromForm(form);
-      if (detail) fireAddToCart(detail);
-    }, true);
-  }
-
-  /* ------------------------------------------------------------------ */
   /*  Identity capture — sends enrichment data to server on checkout     */
   /* ------------------------------------------------------------------ */
 
@@ -822,7 +776,6 @@
     syncCartAttributes();
     fireViewContent();
     interceptAddToCart();
-    interceptCartAddForms();
     interceptCheckoutClicks();
     interceptLeadForms();
     autoIdentityCapture();
