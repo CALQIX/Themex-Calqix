@@ -1,6 +1,10 @@
 const { formatUserData } = require('../lib/hash');
 const { sendEvent } = require('../lib/meta-capi');
+const { isDuplicate, markProcessed } = require('../lib/dedup-guard');
+const eventState = require('../lib/event-state');
+const store = require('../lib/store');
 const multiPlatform = require('../lib/multi-platform-send');
+const capiDiag = require('../lib/capi-diagnostics');
 
 const SOURCE_URL_BASE = 'https://calqix.com/products/';
 const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
@@ -43,6 +47,11 @@ async function handler(req, res) {
     const sourceUrl = productHandle
       ? SOURCE_URL_BASE + productHandle
       : SOURCE_URL_BASE;
+
+    // Dedup check using event_id
+    if (await isDuplicate('ViewContent', eventId)) {
+      return res.status(200).json({ received: true, processed: false, reason: 'duplicate', eventId: eventId });
+    }
 
     const customerData = {};
     if (body.fbc) customerData.fbc = body.fbc;
@@ -90,7 +99,38 @@ async function handler(req, res) {
       currency: price !== undefined ? currency : undefined
     };
 
+    var matchKeys = {
+      fbc: Boolean(userData.fbc),
+      fbp: Boolean(userData.fbp),
+      em: Boolean(userData.em),
+      ph: Boolean(userData.ph),
+      ip: Boolean(userData.client_ip_address),
+      ua: Boolean(userData.client_user_agent),
+      external_id: Boolean(userData.external_id)
+    };
+
+    await eventState.recordReceived(eventId, 'ViewContent', 'browser_bridge', eventId);
+    await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
     const result = await sendEvent('ViewContent', eventId, sourceUrl, userData, customData);
+    await eventState.recordSent(eventId, result);
+    await markProcessed('ViewContent', eventId);
+
+    // Store parameter diagnostics (rolling, TTL 24h)
+    try {
+      await store.set('diag:vc:' + eventId, JSON.stringify({
+        ts: new Date().toISOString(),
+        match_keys: matchKeys,
+        source: 'browser_bridge',
+        ok: Boolean(result && result.ok)
+      }), 86400);
+    } catch (e) { /* diagnostics are non-critical */ }
+
+    // Daily summary for coverage reporting (see scripts/check-pixel-sources.js).
+    try {
+      await capiDiag.recordCoverage('ViewContent', eventId, 'browser_bridge', userData, {
+        ok: Boolean(result && result.ok)
+      });
+    } catch (e) { /* diagnostics are non-critical */ }
 
     // Multi-platform: Klaviyo + GA4 (non-blocking)
     try {
@@ -112,7 +152,8 @@ async function handler(req, res) {
       received: true,
       processed: Boolean(result && result.ok),
       event: 'ViewContent',
-      eventId
+      eventId,
+      match_keys: matchKeys
     });
   } catch (error) {
     console.error('[ViewContent] internal error', { message: error.message });
