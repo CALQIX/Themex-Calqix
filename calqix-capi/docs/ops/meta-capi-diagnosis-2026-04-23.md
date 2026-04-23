@@ -167,20 +167,64 @@ because content_type=product is a closer match to catalog items.
 Should populate once real orders flow through the new webhook + updated catalog
 matching.
 
+## Fix 3 — Browser bridge deployed (2026-04-23 17:23 CEST)
+
+`assets/calqix-meta-bridge.js` uploaded to MAIN theme `Themex-Calqix/main`
+(id 182756999497) via the new `calqix-capi/scripts/deploy-theme-asset.js`
+(REST `PUT /themes/{id}/assets.json`, auto-token from `lib/shopify-admin.js`).
+
+Live verification on `https://calqix.com/products/oralbiome-pro-cool-mint`
+via Playwright (sendBeacon hook) confirmed the new payloads:
+
+```jsonc
+// AddToCart  →  /api/add-to-cart
+{
+  "content_ids": ["54065072177481", "CALQIX-OBP-30-CM"],   // variant_id + SKU
+  "content_type": "product",
+  "contents": [{ "id": "54065072177481", "quantity": 1, "item_price": 19.95 }],
+  "fbp": "fb.1.…",
+  "email": "<remembered from newsletter>",
+  "external_id": "9729821278537",
+  "country_code": "NL"
+}
+
+// ViewContent  →  /api/view-content
+{
+  "variant_id": "54065072177481",
+  "sku": "CALQIX-OBP-30-CM",
+  "email": "<remembered from newsletter>",
+  "external_id": "9729821278537"
+}
+```
+
+## Fix 4 — EMQ boost via persistent email (live, same deploy)
+
+When a visitor submits the newsletter / lead form OR fills the checkout email
+field, `assets/calqix-meta-bridge.js::rememberEmail()` writes a normalized
+copy to `localStorage["_cq_known_email"]` plus a 365-day cookie of the same
+name.
+
+`getCustomerEmail()` falls back to that cache when neither
+`window.meta.customer.email` nor `ShopifyAnalytics.meta.page.customerEmail` is
+present, so every subsequent ViewContent / AddToCart from anonymous browsers
+includes `em` in the user_data sent to Meta CAPI.
+
+Expected effect: EMQ for non-logged-in ViewContent 6.0 → ~7.5-8.0 once Meta's
+EMQ window catches up.
+
 ## Known limits / deferred work
 
 - **Fix #2 (order-event reconciliation)** — add `_meta_purchase_event_id` as order
   note_attribute so audit scripts can match orders ↔ CAPI events directly.
   Not critical because dedup already works via `checkout_token`.
-- **Fix #4 (EMQ boost via newsletter email capture)** — when anon user submits
-  the newsletter form, store `_cq_email_hash` cookie so subsequent
-  `buildUserPayload()` calls include `email` on all events.
-  Estimated impact: EMQ 6.0 → 7.5-8.0 for non-logged-in ViewContent.
-- **Deploy theme asset** — `assets/calqix-meta-bridge.js` needs `shopify theme push`
-  (or upload via Theme Editor → Assets) for the browser-side fix to go live.
-- **Re-paste Custom Pixel** — `scripts/shopify-custom-pixel.for-admin.js` needs to
-  be pasted into Shopify Admin > Settings > Customer events > edit "CALQIX Meta
-  CAPI" Custom Pixel > Save.
+- **Custom Pixel manual paste** — `scripts/shopify-custom-pixel.for-admin.js`
+  must be pasted into Shopify Admin > Settings > Customer events > "CALQIX
+  Meta CAPI" Custom Pixel > Save. Shopify exposes app-installed Web Pixels
+  via the Admin API (`webPixel` query, `webPixelUpdate` mutation), but
+  merchant-created Custom Pixels in Customer Events are NOT programmatically
+  editable — confirmed via failed queries to `webPixel` (RESOURCE_NOT_FOUND)
+  and the absence of any `pixels.json` REST endpoint. This is the only
+  remaining manual step.
 
 ## Related files
 
