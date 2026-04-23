@@ -45,6 +45,8 @@ var SCHEDULE_ID_GADS_UPLOAD = 'calqix-gads-upload';              // 21. Every 15
 var SCHEDULE_ID_CATALOG_SYNC = 'calqix-catalog-sync';            // 22. Daily 06:00 — Meta catalog vs Shopify variants
 // Identity resubmit (consumer of identity-backfill's pending queue)
 var SCHEDULE_ID_IDENTITY_RESUBMIT = 'calqix-identity-resubmit';  // 23. Every 15 min offset +7 — re-post enriched events to Meta
+// Lookalike feeder — daily Purchase seed for Meta Custom Audience
+var SCHEDULE_ID_LOOKALIKE_FEEDER = 'calqix-lookalike-feeder';    // 24. Daily 04:30 — refresh purchaser audience
 // Legacy IDs for deletion cleanup (deprecated schedules + removed Telegram reporting crons)
 var LEGACY_IDS = [
   'calqix-daily-monitor', 'calqix-optimizer-morning', 'calqix-optimizer-afternoon',
@@ -393,7 +395,8 @@ async function createObservabilitySchedules() {
       { id: SCHEDULE_ID_IDENTITY_CLEANUP, endpoint: '/api/cron/identity-cleanup', cron: 'CRON_TZ=Europe/Amsterdam 0 3 * * *' },
       { id: SCHEDULE_ID_OB_REVIEWS_ADD, endpoint: '/api/cron/ob-reviews-add', cron: 'CRON_TZ=Europe/Amsterdam 10 3 * * *' },
       { id: SCHEDULE_ID_CATALOG_SYNC, endpoint: '/api/cron/catalog-sync-monitor', cron: 'CRON_TZ=Europe/Amsterdam 0 6 * * *' },
-      { id: SCHEDULE_ID_IDENTITY_RESUBMIT, endpoint: '/api/cron/identity-resubmit', cron: 'CRON_TZ=Europe/Amsterdam 7,22,37,52 * * * *' }
+      { id: SCHEDULE_ID_IDENTITY_RESUBMIT, endpoint: '/api/cron/identity-resubmit', cron: 'CRON_TZ=Europe/Amsterdam 7,22,37,52 * * * *' },
+      { id: SCHEDULE_ID_LOOKALIKE_FEEDER, endpoint: '/api/cron/lookalike-feeder', cron: 'CRON_TZ=Europe/Amsterdam 30 4 * * *' }
     ];
 
     for (var i = 0; i < schedules.length; i++) {
@@ -495,7 +498,9 @@ async function deleteAllSchedules() {
       SCHEDULE_ID_IDENTITY_BACKFILL, SCHEDULE_ID_BRIDGE_HEALTH, SCHEDULE_ID_DEDUP_AUDIT,
       SCHEDULE_ID_ANOMALY_WATCH, SCHEDULE_ID_EMQ_DEEP, SCHEDULE_ID_PIXEL_DIAG,
       SCHEDULE_ID_WEBHOOK_AUDIT, SCHEDULE_ID_RECONCILIATION, SCHEDULE_ID_IDENTITY_CLEANUP,
-      SCHEDULE_ID_GADS_UPLOAD
+      SCHEDULE_ID_GADS_UPLOAD,
+      SCHEDULE_ID_OB_REVIEWS_ADD, SCHEDULE_ID_CATALOG_SYNC, SCHEDULE_ID_IDENTITY_RESUBMIT,
+      SCHEDULE_ID_LOOKALIKE_FEEDER
     ].concat(LEGACY_IDS);
     for (var i = 0; i < ids.length; i++) {
       try {
