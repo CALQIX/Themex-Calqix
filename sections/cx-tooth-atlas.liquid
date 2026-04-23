@@ -1,0 +1,172 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Interactive tooth atlas (tab switcher).
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/body.jsx → TeethInteractive
+{%- endcomment -%}
+
+<section class="cx-root cx-section" data-cx-reveal>
+  <div class="cx-container">
+    <div class="cx-stack cx-section-header" data-cx-stagger>
+      {% render 'cx-eyebrow', text: section.settings.eyebrow %}
+      <h2 class="cx-h2">{{ section.settings.heading }}</h2>
+      <div class="cx-lede">{{ section.settings.lede }}</div>
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="cx-atlas" data-cx-tooth-atlas>
+        <div class="cx-atlas-pills" role="tablist">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'tooth' -%}
+              <button type="button"
+                class="cx-pill cx-atlas-pill{% if forloop.first %} cx-is-active{% endif %}"
+                data-cx-tooth-pill="{{ block.id }}"
+                role="tab"
+                aria-selected="{%- if forloop.first -%}true{%- else -%}false{%- endif -%}"
+                {{ block.shopify_attributes }}>
+                <span class="cx-atlas-pill-body">
+                  <span class="cx-atlas-pill-name">{{ block.settings.name }}</span>
+                  <span class="cx-atlas-pill-sub">{{ block.settings.sub }}</span>
+                </span>
+              </button>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        <div class="cx-atlas-display">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'tooth' -%}
+              <div class="cx-atlas-panel{% if forloop.first %} cx-is-active{% endif %}" data-cx-tooth-panel="{{ block.id }}" role="tabpanel">
+                <div class="cx-atlas-anatomy">
+                  <div class="cx-atlas-anatomy-title">{{ block.settings.name }}</div>
+                  <div class="cx-atlas-anatomy-inner">
+                    {%- if block.settings.anatomy_image != blank -%}
+                      {{ block.settings.anatomy_image | image_url: width: 900 | image_tag: loading: 'lazy', alt: block.settings.name, class: 'cx-atlas-img' }}
+                    {%- else -%}
+                      {% render 'cx-placeholder', label: block.settings.name, radius: 'var(--cx-r-md)', style: 'width:100%;height:100%;' %}
+                    {%- endif -%}
+                  </div>
+                </div>
+                <div class="cx-atlas-text">
+                  <div class="cx-eyebrow">Kort overzicht</div>
+                  <h3 class="cx-h3">{{ block.settings.sub }}.</h3>
+                  <p class="cx-atlas-desc">{{ block.settings.desc }}</p>
+                  <div class="cx-atlas-block">
+                    <div class="cx-eyebrow">Dagelijkse zorg</div>
+                    <p>{{ block.settings.care }}</p>
+                  </div>
+                  <div class="cx-atlas-block">
+                    <div class="cx-eyebrow">Weetje</div>
+                    <p>{{ block.settings.fact }}</p>
+                  </div>
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        {%- if section.settings.cta_text != blank -%}
+          <div class="cx-atlas-cta-wrap">
+            <a class="cx-btn cx-btn-primary" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .cx-atlas-pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+  .cx-atlas-pill { padding: 10px 18px; }
+  .cx-atlas-pill-body { display: flex; flex-direction: column; text-align: left; gap: 2px; }
+  .cx-atlas-pill-name { font-size: 13px; font-weight: 500; }
+  .cx-atlas-pill-sub { font-size: 10.5px; opacity: .7; font-family: var(--cx-f-mono); letter-spacing: 0.08em; }
+  .cx-atlas-display {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--cx-rule);
+    border-radius: var(--cx-r-lg);
+    background: var(--cx-page-2);
+    overflow: hidden;
+  }
+  .cx-atlas-panel { display: none; grid-column: 1 / -1; grid-template-columns: 1fr 1fr; gap: 0; }
+  .cx-atlas-panel.cx-is-active { display: grid; }
+  .cx-atlas-anatomy { padding: 48px; position: relative; min-height: 460px; }
+  .cx-atlas-anatomy-title { font-family: var(--cx-f-display); font-size: 28px; font-style: italic; color: var(--cx-ink-soft); }
+  .cx-atlas-anatomy-inner { position: absolute; inset: 80px 48px 80px 48px; }
+  .cx-atlas-img { width: 100%; height: 100%; object-fit: contain; }
+  .cx-atlas-text { padding: 48px; background: var(--cx-page); display: flex; flex-direction: column; gap: 24px; }
+  .cx-atlas-desc { margin: 0; color: var(--cx-ink-soft); font-size: 15px; }
+  .cx-atlas-block { border-top: 1px solid var(--cx-rule); padding-top: 20px; }
+  .cx-atlas-block p { margin: 6px 0 0; font-size: 14.5px; }
+  .cx-atlas-cta-wrap { text-align: center; margin-top: 32px; }
+  @media (max-width: 900px) {
+    .cx-atlas-display { grid-template-columns: 1fr; }
+    .cx-atlas-panel.cx-is-active { grid-template-columns: 1fr; }
+    .cx-atlas-anatomy { padding: 32px; min-height: 300px; }
+    .cx-atlas-anatomy-inner { inset: 60px 32px 32px 32px; }
+    .cx-atlas-text { padding: 32px; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "CX Tooth Atlas",
+  "tag": "section",
+  "class": "cx-section-tooth-atlas",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Tandatlas" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Begrijp hoe je <em>tanden écht werken.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Verken elk tandtype en zijn rol in één interactieve weergave.</p>" },
+    { "type": "text", "id": "cta_text", "label": "CTA tekst", "default": "Ontdek Calqix mondverzorging" },
+    { "type": "url",  "id": "cta_link", "label": "CTA link" }
+  ],
+  "blocks": [
+    {
+      "type": "tooth",
+      "name": "Tandtype",
+      "settings": [
+        { "type": "text", "id": "name", "label": "Naam", "default": "Snijtanden" },
+        { "type": "text", "id": "sub", "label": "Sub", "default": "Eerste beet" },
+        { "type": "textarea", "id": "desc", "label": "Beschrijving", "default": "Snijtanden zitten vooraan en worden ingezet om hapjes af te bijten — denk aan fruit, groente en harder brood. Tonen slijtage het eerst." },
+        { "type": "textarea", "id": "care", "label": "Dagelijkse zorg", "default": "Dagelijks reinigen prioriteert gumlijn en zuurbelasting." },
+        { "type": "textarea", "id": "fact", "label": "Weetje", "default": "Dunne snijrand toont slijtage het eerst — let op randtransparantie." },
+        { "type": "image_picker", "id": "anatomy_image", "label": "Anatomie afbeelding (optioneel)" }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "tooth", "settings": {
+          "name": "Snijtanden", "sub": "Eerste beet",
+          "desc": "Snijtanden zitten vooraan en worden ingezet om hapjes af te bijten — denk aan fruit, groente en harder brood. Tonen slijtage het eerst.",
+          "care": "Dagelijks reinigen prioriteert gumlijn en zuurbelasting.",
+          "fact": "Dunne snijrand toont slijtage het eerst — let op randtransparantie." } },
+      { "type": "tooth", "settings": {
+          "name": "Hoektanden", "sub": "Scheur & scheid",
+          "desc": "De sterkste, langste wortels van je gebit. Hoektanden geleiden je beet en beschermen buurtanden tegen overbelasting.",
+          "care": "Focus op de glazuur-cement-rand — hoekslijtage is vroegsignaal.",
+          "fact": "Hoektanden dragen de zwaarste kauwkracht op hun wortels." } },
+      { "type": "tooth", "settings": {
+          "name": "Premolaren", "sub": "Breek & maal",
+          "desc": "Twee knobbels en platte oppervlakken maken de eerste grove vermaling. Gevoelig voor zure dranken in de groeven.",
+          "care": "Flossen rondom is essentieel — ruimtes vangen plaque makkelijk.",
+          "fact": "Groeven houden plaque vast tot 3× langer dan gladde oppervlakken." } },
+      { "type": "tooth", "settings": {
+          "name": "Kiezen", "sub": "Eindmaling",
+          "desc": "Brede kauwvlakken verwerken het echte werk. Kiezen dragen tot 90% van je kauwkracht.",
+          "care": "Dagelijks reinigen van alle vier kauwvlakken — vooral achter.",
+          "fact": "Eerste molaren doorbreken rond je 6e — ze moeten je leven lang mee." } },
+      { "type": "tooth", "settings": {
+          "name": "Verstandskiezen", "sub": "Laat-doorbrekers",
+          "desc": "De laatste die doorbreken (17–25 jaar). Vaak geïmpacteerd of deels zichtbaar waardoor reiniging lastig is.",
+          "care": "Irrigatie bereikt waar de borstel niet komt — cruciaal rondom de flap.",
+          "fact": "Ongeveer 35% van mensen ontwikkelt nooit verstandskiezen." } }
+    ]
+  },
+  "presets": [
+    { "name": "CX Tooth Atlas" }
+  ]
+}
+{% endschema %}

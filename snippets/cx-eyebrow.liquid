@@ -1,0 +1,7 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — eyebrow label.
+  Usage: {% render 'cx-eyebrow', text: 'Onze wetenschap', on_dark: true %}
+{%- endcomment -%}
+{%- if text and text != blank -%}
+  <div class="cx-eyebrow{% if on_dark %} cx-on-dark{% endif %}">{{ text }}</div>
+{%- endif -%}

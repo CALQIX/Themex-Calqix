@@ -1,0 +1,135 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Reviews (filter pills + 3 cards + aggregate rating).
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/body.jsx → Reviews
+{%- endcomment -%}
+
+{%- assign cx_filters = section.settings.filter_options | split: ',' -%}
+
+<section class="cx-root cx-section" data-cx-reveal>
+  <div class="cx-container">
+    <div class="cx-reviews-header">
+      <div class="cx-stack cx-gap-sm">
+        {% render 'cx-eyebrow', text: section.settings.eyebrow %}
+        <h2 class="cx-h2">{{ section.settings.heading }}</h2>
+      </div>
+      <div class="cx-reviews-rating">
+        <div class="cx-gold-shimmer cx-reviews-score" data-cx-count="{{ section.settings.rating_value }}" data-cx-count-decimals="1" data-cx-count-duration="1600">0,0</div>
+        <div class="cx-reviews-stars">
+          {%- for i in (1..5) -%}{% render 'cx-icons', name: 'star', size: 16 %}{%- endfor -%}
+        </div>
+        <div class="cx-eyebrow cx-reviews-count">{{ section.settings.rating_count }} geverifieerde reviews</div>
+      </div>
+    </div>
+
+    {%- if cx_filters.size > 0 -%}
+      <div class="cx-reviews-filters" data-cx-review-filter>
+        {%- for f in cx_filters -%}
+          {%- assign label = f | strip -%}
+          <button type="button" class="cx-pill{% if forloop.first %} cx-is-active{% endif %}" data-cx-review-pill>{{ label }}</button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    <div class="cx-reviews-grid" data-cx-col3 data-cx-stagger>
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'review' -%}
+          <div class="cx-reviews-card cx-lux-lift" {{ block.shopify_attributes }}>
+            <div class="cx-reviews-stars-row">
+              {%- assign r = block.settings.rating | plus: 0 -%}
+              {%- for i in (1..r) -%}{% render 'cx-icons', name: 'star', size: 14 %}{%- endfor -%}
+            </div>
+            <h3 class="cx-reviews-title">&ldquo;{{ block.settings.title }}&rdquo;</h3>
+            <p class="cx-reviews-body">{{ block.settings.body }}</p>
+            <div class="cx-reviews-footer">
+              <div>
+                <div class="cx-reviews-name">{{ block.settings.name }}</div>
+                <div class="cx-reviews-date">{{ block.settings.date }}</div>
+              </div>
+              <div class="cx-reviews-verified">
+                ✓ GEVERIFIEERD<br>
+                <span>{{ block.settings.verified }}</span>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .cx-reviews-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 32px; gap: 24px; flex-wrap: wrap;
+  }
+  .cx-reviews-rating { text-align: right; }
+  .cx-reviews-score { font-family: var(--cx-f-display); font-size: 60px; line-height: 1; }
+  .cx-reviews-stars { display: flex; gap: 2px; justify-content: flex-end; margin-top: 4px; color: var(--cx-gold); }
+  .cx-reviews-count { margin-top: 6px; }
+  .cx-reviews-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+  .cx-reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .cx-reviews-card {
+    border: 1px solid var(--cx-rule);
+    border-radius: var(--cx-r-md);
+    padding: 28px;
+    background: var(--cx-page);
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .cx-reviews-stars-row { display: flex; gap: 2px; color: var(--cx-gold); }
+  .cx-reviews-title { font-family: var(--cx-f-display); font-size: 18px; margin: 0; color: var(--cx-forest-3); }
+  .cx-reviews-body { margin: 0; font-size: 14.5px; color: var(--cx-ink-soft); }
+  .cx-reviews-footer {
+    border-top: 1px solid var(--cx-rule);
+    padding-top: 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .cx-reviews-name { font-size: 13px; font-weight: 500; color: var(--cx-ink); }
+  .cx-reviews-date { font-family: var(--cx-f-mono); font-size: 10.5px; color: var(--cx-ink-mute); }
+  .cx-reviews-verified {
+    font-family: var(--cx-f-mono); font-size: 10px;
+    color: var(--cx-gold-ink); letter-spacing: 0.06em;
+    text-align: right; max-width: 130px;
+  }
+  .cx-reviews-verified span { color: var(--cx-ink-mute); }
+</style>
+
+{% schema %}
+{
+  "name": "CX Reviews",
+  "tag": "section",
+  "class": "cx-section-reviews",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Sociaal bewijs" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Wat klanten <em>zeggen.</em></p>" },
+    { "type": "text", "id": "rating_value", "label": "Gemiddelde score", "default": "4.9" },
+    { "type": "text", "id": "rating_count", "label": "Aantal reviews", "default": "2.184" },
+    { "type": "textarea", "id": "filter_options", "label": "Filter pills (komma-gescheiden)", "default": "Alle reviews, Meest recent, Gevoelige tanden, Witter maken, Frisse adem, Dagelijkse routine" }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        { "type": "text", "id": "name", "label": "Naam", "default": "Laurie M." },
+        { "type": "text", "id": "date", "label": "Datum", "default": "14 januari 2026" },
+        { "type": "range", "id": "rating", "label": "Sterren", "min": 1, "max": 5, "step": 1, "default": 5 },
+        { "type": "text", "id": "title", "label": "Titel", "default": "Gevonden wat ik zocht" },
+        { "type": "textarea", "id": "body", "label": "Review", "default": "Alles geprobeerd qua whitening tandpasta. In 30 dagen werd mijn tandarts de eerste die complimenten gaf op hoe natuurlijk gezond mijn gebit eruitzag." },
+        { "type": "text", "id": "verified", "label": "Verificatie", "default": "Fresh Mint · 3 maanden gebruikt" }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "review", "settings": { "name": "Laurie M.", "date": "14 januari 2026", "rating": 5, "title": "Gevonden wat ik zocht", "body": "Alles geprobeerd qua whitening tandpasta. In 30 dagen werd mijn tandarts de eerste die complimenten gaf op hoe natuurlijk gezond mijn gebit eruitzag. Dat zegt alles.", "verified": "Fresh Mint · 3 maanden gebruikt" } },
+      { "type": "review", "settings": { "name": "Dennis B.", "date": "12 januari 2026", "rating": 5, "title": "Serieus het verschil",  "body": "Ik heb erg gevoelige tanden. Na een paar weken Oralbiome Pro zonder dat het mondwater 700 soorten gaat uitmoorden voelt alles eindelijk rustig.", "verified": "Cool Mint · 6 weken gebruikt" } },
+      { "type": "review", "settings": { "name": "Leni K.",   "date": "10 januari 2026", "rating": 5, "title": "Eindelijk fluoride-vrij", "body": "Eindelijk een optie waarvan ik niet hoef te twijfelen. De ingrediënten zijn wat ze zeggen dat ze zijn, de wetenschap staat vast, en het werkt.", "verified": "Peach · geabonneerd" } }
+    ]
+  },
+  "presets": [
+    { "name": "CX Reviews" }
+  ]
+}
+{% endschema %}

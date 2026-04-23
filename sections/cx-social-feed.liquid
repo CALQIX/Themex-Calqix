@@ -1,0 +1,98 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Social feed (4 placeholder tiles).
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/body.jsx → SocialFeed
+{%- endcomment -%}
+
+<section class="cx-root cx-section cx-section-cream-2" data-cx-reveal>
+  <div class="cx-container">
+    <div class="cx-social-header">
+      <div class="cx-stack cx-gap-sm">
+        {% render 'cx-eyebrow', text: section.settings.eyebrow %}
+        <h2 class="cx-h2">{{ section.settings.heading }}</h2>
+      </div>
+      {%- if section.settings.cta_text != blank -%}
+        <a class="cx-btn-inline" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+      {%- endif -%}
+    </div>
+    <div class="cx-social-grid" data-cx-col4 data-cx-stagger>
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'post' -%}
+          <a href="{{ block.settings.link | default: '#' }}" class="cx-social-tile cx-lux-lift" {{ block.shopify_attributes }}>
+            <div class="cx-social-tile-inner">
+              {%- if block.settings.image != blank -%}
+                {{ block.settings.image | image_url: width: 800 | image_tag: loading: 'lazy', alt: block.settings.title, class: 'cx-social-img' }}
+              {%- else -%}
+                {% render 'cx-placeholder', ratio: '1/1', label: block.settings.tag, radius: 'var(--cx-r-md)' %}
+              {%- endif -%}
+              <div class="cx-social-overlay">
+                <div class="cx-social-title">{{ block.settings.title }}</div>
+              </div>
+            </div>
+          </a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .cx-social-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 28px; gap: 24px; flex-wrap: wrap;
+  }
+  .cx-social-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .cx-social-tile-inner { position: relative; aspect-ratio: 1/1; border-radius: var(--cx-r-md); overflow: hidden; }
+  .cx-social-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cx-social-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 18px;
+    background: linear-gradient(to top, rgba(0,20,40,0.55) 0%, transparent 60%);
+  }
+  .cx-social-title {
+    font-family: var(--cx-f-display);
+    font-size: 20px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+  }
+  @media (max-width: 900px) { .cx-social-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+
+{% schema %}
+{
+  "name": "CX Social Feed",
+  "tag": "section",
+  "class": "cx-section-social",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Calqix community" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Volg ons <em>ritueel.</em></p>" },
+    { "type": "text", "id": "cta_text", "label": "CTA tekst", "default": "@calqix op Instagram" },
+    { "type": "url",  "id": "cta_link", "label": "CTA link" }
+  ],
+  "blocks": [
+    {
+      "type": "post",
+      "name": "Post",
+      "settings": [
+        { "type": "text", "id": "tag", "label": "Tag", "default": "#protocol" },
+        { "type": "text", "id": "title", "label": "Titel", "default": "Twee stappen. Klinisch schoon." },
+        { "type": "image_picker", "id": "image", "label": "Afbeelding (optioneel)" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "post", "settings": { "tag": "#protocol",  "title": "Twee stappen. Klinisch schoon." } },
+      { "type": "post", "settings": { "tag": "#routine",   "title": "Tandarts-grade routine thuis" } },
+      { "type": "post", "settings": { "tag": "#science",   "title": "Herstel glazuur natuurlijk" } },
+      { "type": "post", "settings": { "tag": "#community", "title": "6 weken voor en na" } }
+    ]
+  },
+  "presets": [
+    { "name": "CX Social Feed" }
+  ]
+}
+{% endschema %}

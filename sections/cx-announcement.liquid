@@ -1,0 +1,115 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Announcement bar.
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/header.jsx → AnnouncementBar
+{%- endcomment -%}
+
+<div class="cx-root cx-announce" data-cx-reveal="fade">
+  <div class="cx-container cx-announce-inner">
+    <div class="cx-announce-items">
+      {%- for block in section.blocks -%}
+        {%- if forloop.index0 > 0 -%}<span class="cx-announce-dot" aria-hidden="true"></span>{%- endif -%}
+        <span class="cx-announce-item" {{ block.shopify_attributes }}>
+          {%- if block.settings.icon != 'none' -%}
+            {% render 'cx-icons', name: block.settings.icon, size: 13 %}
+          {%- endif -%}
+          <span>{{ block.settings.text }}</span>
+        </span>
+      {%- endfor -%}
+    </div>
+    {%- if section.settings.show_meta -%}
+      <div class="cx-announce-meta">
+        <span>{{ section.settings.locale_label }}</span>
+        <span class="cx-announce-meta-sep">/</span>
+        <span>{{ section.settings.currency_label }}</span>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+<style>
+  .cx-announce {
+    background: var(--cx-forest-3);
+    color: var(--cx-forest-ink);
+    font-family: var(--cx-f-body);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(242,247,255,0.12);
+  }
+  .cx-announce-inner {
+    display: flex; justify-content: space-between; align-items: center; gap: 24px; overflow: hidden;
+  }
+  .cx-announce-items {
+    display: flex; align-items: center; flex: 1; overflow: hidden; white-space: nowrap;
+    gap: 0;
+  }
+  .cx-announce-item {
+    display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .cx-announce-dot {
+    width: 3px; height: 3px; border-radius: 999px; background: var(--cx-gold);
+    display: inline-block; margin: 0 18px; opacity: .7;
+  }
+  .cx-announce-meta {
+    display: flex; align-items: center; gap: 14px; font-size: 12px; opacity: .85;
+    white-space: nowrap;
+  }
+  .cx-announce-meta-sep { opacity: .3; }
+  @media (max-width: 700px) {
+    .cx-announce-items { justify-content: flex-start; }
+    .cx-announce-item:nth-child(n+5),
+    .cx-announce-dot:nth-child(n+4) { display: none; }
+    .cx-announce-meta { display: none; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "CX Announcement",
+  "tag": "section",
+  "class": "cx-section-announce",
+  "settings": [
+    { "type": "header", "content": "Meta label" },
+    { "type": "checkbox", "id": "show_meta", "label": "Toon locale/currency", "default": true },
+    { "type": "text", "id": "locale_label", "label": "Locale", "default": "NL" },
+    { "type": "text", "id": "currency_label", "label": "Valuta", "default": "EUR €" }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Aankondiging",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icoon",
+          "default": "truck",
+          "options": [
+            { "value": "none", "label": "Geen" },
+            { "value": "truck", "label": "Truck" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "flask", "label": "Flask" },
+            { "value": "star", "label": "Ster" },
+            { "value": "leaf", "label": "Blad" },
+            { "value": "sparkle", "label": "Sparkle" }
+          ]
+        },
+        { "type": "text", "id": "text", "label": "Tekst", "default": "Gratis verzending vanaf €49" }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "announcement", "settings": { "icon": "truck",  "text": "Gratis verzending vanaf €49" } },
+      { "type": "announcement", "settings": { "icon": "shield", "text": "30 dagen tevredenheidsgarantie" } },
+      { "type": "announcement", "settings": { "icon": "flask",  "text": "Klinisch onderzocht · door tandartsen aanbevolen" } },
+      { "type": "announcement", "settings": { "icon": "star",   "text": "4,9 op basis van 2.184 reviews" } }
+    ]
+  },
+  "presets": [
+    { "name": "CX Announcement" }
+  ]
+}
+{% endschema %}

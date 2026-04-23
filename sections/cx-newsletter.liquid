@@ -1,0 +1,163 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Newsletter signup (2 variants: editorial + dark).
+  Uses Shopify customer form (contact[email] + tags=newsletter), same pattern
+  as calqix-email-signup.liquid, to create real marketing subscribers.
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/body.jsx → Signup
+{%- endcomment -%}
+
+{%- assign cx_variant = section.settings.variant | default: 'editorial' -%}
+{%- assign cx_is_dark = false -%}
+{%- if cx_variant == 'dark' -%}{%- assign cx_is_dark = true -%}{%- endif -%}
+
+<section class="cx-root cx-section{% if cx_is_dark %} cx-news-dark{% endif %}" data-cx-reveal>
+  <div class="cx-container">
+    {%- if cx_is_dark -%}
+      <div class="cx-news-dark-inner">
+        <div class="cx-pill cx-news-badge">{{ section.settings.badge }}</div>
+        <h2 class="cx-h2 cx-news-heading cx-on-dark">{{ section.settings.heading }}</h2>
+        <div class="cx-lede cx-on-dark cx-news-lede">{{ section.settings.lede }}</div>
+        {%- form 'customer', class: 'cx-news-form cx-news-form-dark' -%}
+          {%- if form.posted_successfully? -%}
+            <div class="cx-news-success">
+              <strong>Welkom.</strong> {{ section.settings.success_text }}
+            </div>
+          {%- else -%}
+            <input type="hidden" name="contact[tags]" value="newsletter">
+            <input type="email" name="contact[email]" required placeholder="{{ section.settings.placeholder }}" aria-label="E-mail">
+            <button type="submit" class="cx-btn cx-btn-gold">{{ section.settings.cta_text }} <span class="cx-arrow"></span></button>
+          {%- endif -%}
+        {%- endform -%}
+      </div>
+    {%- else -%}
+      <div class="cx-news-editorial">
+        <div class="cx-news-media">
+          {%- if section.settings.image != blank -%}
+            {{ section.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: section.settings.heading, class: 'cx-news-img' }}
+          {%- else -%}
+            {% render 'cx-placeholder', label: 'EDITORIAL · CLUB INVITE IMAGE', style: 'border-radius:0;min-height:380px;border:none;' %}
+          {%- endif -%}
+        </div>
+        <div class="cx-news-body">
+          {% render 'cx-eyebrow', text: section.settings.badge %}
+          <h2 class="cx-h2">{{ section.settings.heading }}</h2>
+          <div class="cx-lede">{{ section.settings.lede }}</div>
+
+          {%- form 'customer', class: 'cx-news-form' -%}
+            {%- if form.posted_successfully? -%}
+              <div class="cx-news-success-editorial">
+                <strong class="cx-news-success-title">Welkom.</strong>
+                <div>{{ section.settings.success_text }}</div>
+              </div>
+            {%- else -%}
+              <input type="hidden" name="contact[tags]" value="newsletter">
+              <input type="email" name="contact[email]" required placeholder="{{ section.settings.placeholder }}" aria-label="E-mail">
+              <button type="submit" class="cx-btn cx-btn-primary">{{ section.settings.cta_text }} <span class="cx-arrow"></span></button>
+            {%- endif -%}
+          {%- endform -%}
+
+          <div class="cx-news-fine">
+            <span>{% render 'cx-icons', name: 'lock', size: 13 %} Afmelden wanneer</span>
+            <span>{% render 'cx-icons', name: 'shield', size: 13 %} Nooit gedeeld</span>
+            <span>{% render 'cx-icons', name: 'mail', size: 13 %} Maximaal 1×/maand</span>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .cx-news-editorial {
+    border: 1px solid var(--cx-rule);
+    border-radius: var(--cx-r-lg);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    background: var(--cx-page-2);
+  }
+  .cx-news-media { min-height: 380px; }
+  .cx-news-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cx-news-body {
+    padding: 56px;
+    display: flex; flex-direction: column; gap: 20px; justify-content: center;
+  }
+  .cx-news-form {
+    display: flex; gap: 0;
+    border: 1px solid var(--cx-ink);
+    border-radius: 999px; padding: 6px; max-width: 460px;
+  }
+  .cx-news-form input[type="email"] {
+    flex: 1; border: 0; outline: 0; background: transparent;
+    padding: 10px 16px; font-size: 14px; font-family: var(--cx-f-body);
+    color: var(--cx-ink);
+  }
+  .cx-news-form button { padding: 12px 22px; }
+  .cx-news-success-editorial {
+    padding: 18px 22px;
+    border: 1px solid var(--cx-forest);
+    border-radius: var(--cx-r-md);
+    background: #dde8f7;
+    max-width: 460px;
+  }
+  .cx-news-success-title { font-family: var(--cx-f-display); font-size: 18px; }
+  .cx-news-fine {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    font-size: 12px; color: var(--cx-ink-mute);
+  }
+  .cx-news-fine span { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* Dark variant */
+  .cx-news-dark { background: var(--cx-forest-3); color: #fff; }
+  .cx-news-dark-inner { text-align: center; max-width: 640px; margin: 0 auto; }
+  .cx-news-badge {
+    display: inline-flex;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.82);
+  }
+  .cx-news-heading { margin: 20px 0 16px; }
+  .cx-news-lede { margin: 0 auto 28px; }
+  .cx-news-form-dark {
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.04);
+    margin: 0 auto;
+  }
+  .cx-news-form-dark input[type="email"] { color: #fff; }
+  .cx-news-success {
+    padding: 18px;
+    color: #fff;
+    background: rgba(255,255,255,0.06);
+    border-radius: var(--cx-r-md);
+  }
+
+  @media (max-width: 900px) {
+    .cx-news-editorial { grid-template-columns: 1fr; }
+    .cx-news-body { padding: 32px; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "CX Newsletter",
+  "tag": "section",
+  "class": "cx-section-newsletter",
+  "settings": [
+    {
+      "type": "select", "id": "variant", "label": "Stijl", "default": "editorial",
+      "options": [
+        { "value": "editorial", "label": "Editorial (licht)" },
+        { "value": "dark", "label": "Donker (navy)" }
+      ]
+    },
+    { "type": "text", "id": "badge", "label": "Badge / eyebrow", "default": "Alleen nieuwe klanten · Eenmalige kortingscode" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>10% korting op je <em>eerste bestelling.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Word lid van de Calqix Inner Circle. Vroege toegang tot nieuwe klinische studies en formule-updates, nooit meer dan één bericht per maand.</p>" },
+    { "type": "text", "id": "placeholder", "label": "Placeholder", "default": "jij@voorbeeld.nl" },
+    { "type": "text", "id": "cta_text", "label": "CTA tekst", "default": "Claim 10%" },
+    { "type": "text", "id": "success_text", "label": "Succes bericht", "default": "Je kortingscode WELKOM10 zit in je mailbox." },
+    { "type": "image_picker", "id": "image", "label": "Afbeelding (alleen editorial)" }
+  ],
+  "presets": [
+    { "name": "CX Newsletter" }
+  ]
+}
+{% endschema %}

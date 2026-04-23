@@ -1,0 +1,117 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Feature grid (accordion spec list).
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/features.jsx → FeatureGrid
+{%- endcomment -%}
+
+<section class="cx-root cx-section" data-cx-reveal>
+  <div class="cx-container">
+    <div class="cx-feature-grid" data-cx-col2>
+      <div class="cx-stack cx-gap-md" data-cx-stagger>
+        {% render 'cx-eyebrow', text: section.settings.eyebrow %}
+        <h2 class="cx-h2">{{ section.settings.heading }}</h2>
+        <div class="cx-lede">{{ section.settings.lede }}</div>
+
+        <div class="cx-feature-accordion" data-cx-accordion>
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'feature' -%}
+              <div class="cx-feature-item{% if forloop.first %} cx-is-open{% endif %}" data-cx-accordion-item {{ block.shopify_attributes }}>
+                <button type="button" class="cx-feature-toggle" data-cx-accordion-toggle aria-expanded="{%- if forloop.first -%}true{%- else -%}false{%- endif -%}">
+                  <span class="cx-feature-toggle-left">
+                    <span class="cx-feature-num">0{{ forloop.index }}</span>
+                    <span class="cx-feature-title">{{ block.settings.title }}</span>
+                  </span>
+                  <span class="cx-feature-toggle-ic cx-feature-toggle-ic-open">{% render 'cx-icons', name: 'minus', size: 18 %}</span>
+                  <span class="cx-feature-toggle-ic cx-feature-toggle-ic-closed">{% render 'cx-icons', name: 'plus', size: 18 %}</span>
+                </button>
+                <div class="cx-feature-body" data-cx-accordion-body{% unless forloop.first %} hidden{% endunless %}>
+                  <div class="cx-feature-tag">{{ block.settings.tag }}</div>
+                  <div class="cx-feature-desc">{{ block.settings.desc }}</div>
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        {%- if section.settings.cta_text != blank -%}
+          <a class="cx-btn-inline cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+        {%- endif -%}
+      </div>
+
+      <div class="cx-feature-media">
+        {%- if section.settings.image != blank -%}
+          {{ section.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: section.settings.heading, class: 'cx-feature-img' }}
+        {%- else -%}
+          {% render 'cx-placeholder', on_dark: true, ratio: '4/5', label: section.settings.image_label, radius: 'var(--cx-r-lg)' %}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cx-feature-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 72px; align-items: center; }
+  .cx-feature-accordion { border-top: 1px solid var(--cx-rule); margin-top: 12px; }
+  .cx-feature-item { border-bottom: 1px solid var(--cx-rule); }
+  .cx-feature-toggle {
+    width: 100%; display: flex; justify-content: space-between; align-items: center;
+    padding: 22px 0; color: var(--cx-forest-2); text-align: left;
+    background: transparent; border: 0; cursor: pointer;
+  }
+  .cx-feature-toggle-left { display: flex; gap: 20px; align-items: baseline; }
+  .cx-feature-num { font-family: var(--cx-f-display); font-style: italic; font-size: 14px; color: var(--cx-gold-ink); }
+  .cx-feature-title { font-family: var(--cx-f-display); font-size: 22px; }
+  .cx-feature-toggle-ic-open { display: none; }
+  .cx-feature-item.cx-is-open .cx-feature-toggle-ic-open { display: inline-flex; }
+  .cx-feature-item.cx-is-open .cx-feature-toggle-ic-closed { display: none; }
+  .cx-feature-body { padding: 0 0 22px 52px; font-size: 15px; color: var(--cx-ink-soft); max-width: 56ch; }
+  .cx-feature-tag {
+    font-family: var(--cx-f-display); font-style: italic;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--cx-gold-ink); margin-bottom: 8px;
+  }
+  .cx-feature-cta { margin-top: 12px; }
+  .cx-feature-img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--cx-r-lg); }
+</style>
+
+{% schema %}
+{
+  "name": "CX Feature Grid",
+  "tag": "section",
+  "class": "cx-section-feature-grid",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Tot in het kleinste detail" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Doordacht tot in <em>elk ingrediënt.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Elk onderdeel van het protocol is herontworpen — van de kristalgrootte van het hydroxyapatiet tot de pulsfrequentie van de irrigator.</p>" },
+    { "type": "text", "id": "cta_text", "label": "CTA tekst", "default": "Bekijk alle specs" },
+    { "type": "url",  "id": "cta_link", "label": "CTA link" },
+    { "type": "image_picker", "id": "image", "label": "Afbeelding (optioneel)" },
+    { "type": "text", "id": "image_label", "label": "Placeholder label", "default": "FORMULE · KRISTALSTRUCTUUR" }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature",
+      "settings": [
+        { "type": "text", "id": "tag", "label": "Tag", "default": "ACTIEF INGREDIËNT" },
+        { "type": "text", "id": "title", "label": "Titel", "default": "Nano-HA kristalformule" },
+        { "type": "textarea", "id": "desc", "label": "Beschrijving", "default": "Dezelfde mineraalsamenstelling als je glazuur — 20–50 nm voor optimale integratie met het oppervlak." }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "feature", "settings": { "tag": "ACTIEF INGREDIËNT", "title": "Nano-HA kristalformule",   "desc": "Dezelfde mineraalsamenstelling als je glazuur — 20–50 nm voor optimale integratie met het oppervlak." } },
+      { "type": "feature", "settings": { "tag": "FLOWCORE SPEC",     "title": "1.600 pulses per minuut",  "desc": "Precisiestraal met 0,6 mm diameter. Ontworpen om 6 mm onder de gumline te reiken waar je borstel stopt." } },
+      { "type": "feature", "settings": { "tag": "FORMULE",           "title": "Vegan & fluoride-vrij",    "desc": "Zonder fluoride, SLS of parabenen. Geformuleerd met natuurlijk gewonnen ingrediënten, veilig voor het hele gezin." } },
+      { "type": "feature", "settings": { "tag": "ONDERZOEK",         "title": "Peer-reviewed science",    "desc": "Elke formule onderbouwd door meer dan 40 jaar klinisch onderzoek. Niet trend-geleid, evidence-based." } },
+      { "type": "feature", "settings": { "tag": "GECERTIFICEERD",    "title": "CE-gecertificeerd",        "desc": "EU-conforme medische-hulpmiddelcertificering. Voldoet aan normen van tandheelkundigen in heel Europa." } },
+      { "type": "feature", "settings": { "tag": "BEWIJS",            "title": "Klinisch getest",          "desc": "Onafhankelijk getest op effectiviteit en veiligheid. Resultaten geverifieerd tegen ISO-normen." } }
+    ]
+  },
+  "presets": [
+    { "name": "CX Feature Grid" }
+  ]
+}
+{% endschema %}

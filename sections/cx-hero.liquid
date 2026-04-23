@@ -1,0 +1,298 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Hero with flavor picker + jar stage.
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/hero.jsx
+  Data: featured_product (for cart/add form). Flavors come from section blocks.
+{%- endcomment -%}
+
+{%- assign cx_hero_product = section.settings.featured_product -%}
+{%- assign cx_first_variant_id = cx_hero_product.selected_or_first_available_variant.id -%}
+{%- assign cx_first_color = '#9bf1c8' -%}
+{%- assign cx_first_name = '' -%}
+{%- assign cx_first_tag = '' -%}
+{%- assign cx_first_price = '' -%}
+{%- assign cx_first_compare = '' -%}
+
+{%- for block in section.blocks -%}
+  {%- if block.type == 'flavor' and forloop.first -%}
+    {%- assign cx_first_color = block.settings.swatch_color -%}
+    {%- assign cx_first_name = block.settings.name -%}
+    {%- assign cx_first_tag = block.settings.tag -%}
+    {%- assign cx_first_price = block.settings.price -%}
+    {%- assign cx_first_compare = block.settings.compare_at -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<section class="cx-root cx-hero" data-cx-hero-flavor style="--cx-hero-bg: {{ cx_first_color }};" data-cx-reveal>
+  <div class="cx-hero-glow" aria-hidden="true"></div>
+
+  <div class="cx-container cx-hero-grid">
+    {%- comment -%} Left: copy + picker + CTAs {%- endcomment -%}
+    <div class="cx-stack cx-hero-left cx-gap-md" data-cx-stagger>
+      {%- if section.settings.eyebrow != blank -%}
+        {% render 'cx-eyebrow', text: section.settings.eyebrow, on_dark: true %}
+      {%- endif -%}
+
+      <h1 class="cx-display cx-on-dark cx-hero-heading">{{ section.settings.heading }}</h1>
+
+      {%- if section.settings.lede != blank -%}
+        <div class="cx-hero-lede cx-on-dark">{{ section.settings.lede }}</div>
+      {%- endif -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <div class="cx-flavor-pills" role="group" aria-label="Kies een smaak">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'flavor' -%}
+              <button type="button"
+                class="cx-flavor-pill{% if forloop.first %} cx-is-active{% endif %}"
+                data-cx-variant-id="{{ block.settings.variant_id | default: cx_first_variant_id }}"
+                data-cx-swatch-color="{{ block.settings.swatch_color }}"
+                data-cx-name="{{ block.settings.name | escape }}"
+                data-cx-tag="{{ block.settings.tag | escape }}"
+                data-cx-price="{{ block.settings.price | escape }}"
+                data-cx-compare="{{ block.settings.compare_at | escape }}"
+                aria-pressed="{%- if forloop.first -%}true{%- else -%}false{%- endif -%}"
+                {{ block.shopify_attributes }}>
+                <span class="cx-flavor-dot" style="background: {{ block.settings.swatch_color }};"></span>
+                <span>{{ block.settings.name }}</span>
+              </button>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Product info card + add-to-cart form {%- endcomment -%}
+      <form class="cx-hero-form" action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="{{ cx_first_variant_id }}">
+        <input type="hidden" name="quantity" value="1">
+
+        <div class="cx-hero-card">
+          {%- if cx_hero_product.featured_image != blank -%}
+            <div class="cx-hero-card-media">
+              {{ cx_hero_product.featured_image | image_url: width: 180 | image_tag: loading: 'eager', alt: cx_hero_product.title }}
+            </div>
+          {%- else -%}
+            {% render 'cx-placeholder', on_dark: true, width: '56px', height: '72px', radius: '8px' %}
+          {%- endif -%}
+          <div class="cx-hero-card-body">
+            <div class="cx-hero-card-meta">{{ section.settings.card_meta }}</div>
+            <div class="cx-hero-card-name" data-cx-flavor-name>{{ cx_first_name }}</div>
+            <div class="cx-hero-card-tag" data-cx-flavor-tag>{{ cx_first_tag }}</div>
+          </div>
+          <div class="cx-hero-card-prices">
+            <div class="cx-hero-card-compare" data-cx-flavor-compare>{{ cx_first_compare }}</div>
+            <div class="cx-hero-card-price" data-cx-flavor-price>{{ cx_first_price }}</div>
+          </div>
+        </div>
+
+        <div class="cx-hero-ctas">
+          <button type="submit" class="cx-btn cx-btn-gold">
+            {% render 'cx-icons', name: 'bag', size: 16 %}
+            <span>In winkelmand · </span>
+            <span data-cx-cta-price data-cx-normal="{{ cx_first_price }}" data-cx-sub-ratio="0.8">{{ cx_first_price }}</span>
+          </button>
+          <button type="button" class="cx-btn cx-btn-ghost" data-cx-subscribe-toggle>
+            <span class="cx-sub-box" data-cx-subscribe-box></span>
+            <span>Abonneer · bespaar 20%</span>
+          </button>
+        </div>
+
+        <div class="cx-hero-trust">
+          {%- if section.settings.trust_1 != blank -%}
+            <span class="cx-hero-trust-item">{% render 'cx-icons', name: 'truck', size: 13 %}{{ section.settings.trust_1 }}</span>
+          {%- endif -%}
+          {%- if section.settings.trust_2 != blank -%}
+            <span class="cx-hero-trust-item">{% render 'cx-icons', name: 'shield', size: 13 %}{{ section.settings.trust_2 }}</span>
+          {%- endif -%}
+          {%- if section.settings.trust_3 != blank -%}
+            <span class="cx-hero-trust-item">{% render 'cx-icons', name: 'leaf', size: 13 %}{{ section.settings.trust_3 }}</span>
+          {%- endif -%}
+        </div>
+      </form>
+    </div>
+
+    {%- comment -%} Right: jar stage {%- endcomment -%}
+    <div class="cx-hero-stage" aria-hidden="true">
+      <div class="cx-hero-jar-main">
+        {%- if cx_hero_product.featured_image != blank -%}
+          {{ cx_hero_product.featured_image | image_url: width: 900 | image_tag: loading: 'eager', alt: '', class: 'cx-lux-float' }}
+        {%- else -%}
+          {% render 'cx-placeholder', on_dark: true, label: 'JAR · FRESH MINT', class: 'cx-lux-float', width: '320px', height: '440px', radius: '22px' %}
+        {%- endif -%}
+        <span data-cx-jar-label hidden></span>
+      </div>
+      <div class="cx-hero-jar-satellite cx-lux-float"    style="top:8%;left:-6%;width:90px;height:130px;"></div>
+      <div class="cx-hero-jar-satellite cx-lux-float-2"  style="top:18%;right:-2%;width:80px;height:110px;"></div>
+      <div class="cx-hero-jar-satellite cx-lux-float-3"  style="bottom:4%;left:2%;width:80px;height:110px;"></div>
+      <div class="cx-hero-jar-satellite cx-lux-float-2"  style="bottom:18%;right:-8%;width:92px;height:130px;"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cx-hero {
+    background: var(--cx-hero-bg, var(--cx-forest-3));
+    color: var(--cx-forest-ink);
+    position: relative; overflow: hidden;
+    transition: background 0.8s ease;
+  }
+  .cx-hero-glow {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 70% 45%, rgba(255,255,255,0.08) 0%, transparent 55%);
+    mix-blend-mode: screen;
+  }
+  .cx-hero-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 48px;
+    align-items: center;
+    padding: 88px var(--cx-gutter) 96px;
+    position: relative; z-index: 2;
+  }
+  .cx-hero-left { max-width: 560px; }
+  .cx-hero-heading {
+    font-size: clamp(44px, 6vw, 76px) !important;
+    color: #f5ecd6 !important;
+  }
+  .cx-hero-heading em { color: var(--cx-gold); }
+  .cx-hero-lede {
+    font-family: var(--cx-f-display);
+    font-weight: 500;
+    font-size: clamp(16px, 1.2vw, 18px);
+    color: #f5ecd6;
+    max-width: 46ch;
+    line-height: 1.5;
+  }
+  .cx-flavor-pills {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    font-family: var(--cx-f-display);
+  }
+  .cx-flavor-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 999px;
+    font-family: var(--cx-f-display);
+    font-size: 14px; font-style: italic;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.28);
+    color: rgba(255,255,255,0.86);
+    cursor: pointer; transition: all .15s ease;
+  }
+  .cx-flavor-pill.cx-is-active {
+    background: var(--cx-forest-3);
+    border-color: var(--cx-forest-3);
+    color: #fff;
+    font-style: normal;
+  }
+  .cx-flavor-dot {
+    width: 8px; height: 8px; border-radius: 999px; display: inline-block;
+  }
+  .cx-hero-form { display: flex; flex-direction: column; gap: 12px; }
+  .cx-hero-card {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center;
+    padding: 18px 22px;
+    background: var(--cx-forest-3);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: var(--cx-r-md);
+    font-family: var(--cx-f-display);
+  }
+  .cx-hero-card-media img { width: 56px; height: 72px; border-radius: 8px; object-fit: cover; }
+  .cx-hero-card-meta {
+    font-family: var(--cx-f-display); font-style: italic;
+    font-size: 12px; color: var(--cx-gold);
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .cx-hero-card-name {
+    font-family: var(--cx-f-display); font-size: 22px; margin-top: 2px; color: #fff;
+  }
+  .cx-hero-card-tag {
+    font-size: 13px; color: rgba(255,255,255,0.75);
+    font-family: var(--cx-f-display); font-style: italic;
+  }
+  .cx-hero-card-prices { text-align: right; font-family: var(--cx-f-display); }
+  .cx-hero-card-compare {
+    font-size: 12px; color: rgba(255,255,255,0.55);
+    text-decoration: line-through; font-style: italic;
+  }
+  .cx-hero-card-price { font-size: 26px; color: #fff; }
+  .cx-hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .cx-sub-box {
+    width: 12px; height: 12px; border-radius: 3px;
+    border: 1.2px solid currentColor;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; line-height: 1;
+  }
+  .cx-hero-trust {
+    display: flex; gap: 20px; margin-top: 4px;
+    font-size: 12px; color: rgba(242,247,255,0.78); flex-wrap: wrap;
+  }
+  .cx-hero-trust-item {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  .cx-hero-stage {
+    position: relative; min-height: 540px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cx-hero-jar-main { position: relative; width: 320px; height: 440px; }
+  .cx-hero-jar-main img { width: 100%; height: 100%; object-fit: contain; }
+  .cx-hero-jar-satellite {
+    position: absolute;
+    border-radius: 14px;
+    background-color: rgba(0,37,73,0.4);
+    background-image: repeating-linear-gradient(135deg, rgba(242,247,255,0.12) 0 1px, transparent 1px 14px);
+    border: 1px solid rgba(242,247,255,0.14);
+    opacity: 0.28;
+  }
+
+  @media (max-width: 900px) {
+    .cx-hero-grid { grid-template-columns: 1fr; padding: 48px 20px 64px; }
+    .cx-hero-stage { min-height: 360px; }
+    .cx-hero-jar-main { width: 220px; height: 300px; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "CX Hero",
+  "tag": "section",
+  "class": "cx-section-hero",
+  "settings": [
+    { "type": "product", "id": "featured_product", "label": "Gekoppeld product (Oralbiome Pro)" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Oralbiome Pro · Het opbouwmoment" },
+    { "type": "richtext", "id": "heading", "label": "Titel (richtext, gebruik <em> voor goud)", "default": "<p>Eén formule.<br><em>Vijf</em> ervaringen.</p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Nano-hydroxyapatiet zuigtabletten met fijn gekristalliseerde probiotische stammen. Elke smaak levert hetzelfde actieve glazuurmineraal. Kies wat bij jouw ritueel past.</p>" },
+    { "type": "text", "id": "card_meta", "label": "Product-card meta", "default": "60 TABS · 30 DAGEN" },
+    { "type": "header", "content": "Trust-items" },
+    { "type": "text", "id": "trust_1", "label": "Trust 1", "default": "Morgen in huis" },
+    { "type": "text", "id": "trust_2", "label": "Trust 2", "default": "30 dagen retour" },
+    { "type": "text", "id": "trust_3", "label": "Trust 3", "default": "Vegan · fluoride-vrij" }
+  ],
+  "blocks": [
+    {
+      "type": "flavor",
+      "name": "Smaak",
+      "settings": [
+        { "type": "text", "id": "name", "label": "Naam", "default": "Fresh Mint" },
+        { "type": "text", "id": "tag", "label": "Tag (tagline)", "default": "Koele munt · vers blad & sneeuw" },
+        { "type": "color", "id": "swatch_color", "label": "Swatch kleur", "default": "#9bf1c8" },
+        { "type": "text", "id": "variant_id", "label": "Variant ID (optioneel)", "info": "Shopify variant ID voor add-to-cart. Leeg = gebruikt eerste variant van gekoppeld product." },
+        { "type": "text", "id": "price", "label": "Prijs", "default": "€24,95" },
+        { "type": "text", "id": "compare_at", "label": "Was-prijs (optioneel)", "default": "€29,95" }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "flavor", "settings": { "name": "Fresh Mint",    "tag": "Koele munt · vers blad & sneeuw",       "swatch_color": "#9bf1c8", "price": "€24,95", "compare_at": "€29,95" } },
+      { "type": "flavor", "settings": { "name": "Grape",         "tag": "Perzisch tropisch · druif & paisley",    "swatch_color": "#c76fd1", "price": "€24,95", "compare_at": "€29,95" } },
+      { "type": "flavor", "settings": { "name": "Peach",         "tag": "Zacht · bloesem & perzikfluweel",        "swatch_color": "#ff9e8a", "price": "€24,95", "compare_at": "€29,95" } },
+      { "type": "flavor", "settings": { "name": "Citrus Orange", "tag": "Dorstlessend · zest & waterdruppels",    "swatch_color": "#ff9b3f", "price": "€24,95", "compare_at": "€29,95" } },
+      { "type": "flavor", "settings": { "name": "Cool Mint",     "tag": "Strenge winter · sneeuw & ijskristal",   "swatch_color": "#d6ecff", "price": "€24,95", "compare_at": "€29,95" } }
+    ]
+  },
+  "presets": [
+    { "name": "CX Hero" }
+  ]
+}
+{% endschema %}

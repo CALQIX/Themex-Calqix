@@ -1,0 +1,60 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Marquee ticker.
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/features.jsx → Ticker
+{%- endcomment -%}
+
+{%- assign cx_items = section.settings.items | split: ',' -%}
+
+<div class="cx-root cx-ticker">
+  <div class="cx-ticker-track" style="animation-duration: {{ section.settings.speed_sec }}s;">
+    {%- for pass in (1..2) -%}
+      {%- for item in cx_items -%}
+        <span class="cx-ticker-item">
+          {{ item | strip }}
+          <span class="cx-ticker-dot" aria-hidden="true"></span>
+        </span>
+      {%- endfor -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+<style>
+  .cx-ticker {
+    background: var(--cx-forest-3);
+    color: rgba(242,247,255,0.82);
+    border-top: 1px solid rgba(242,247,255,0.08);
+    border-bottom: 1px solid rgba(242,247,255,0.08);
+    padding: 18px 0;
+    overflow: hidden;
+  }
+  .cx-ticker-track {
+    display: flex;
+    gap: 40px;
+    white-space: nowrap;
+    animation: cx-ticker-scroll 40s linear infinite;
+    width: max-content;
+  }
+  .cx-ticker-item {
+    display: inline-flex; align-items: center; gap: 40px;
+    font-family: var(--cx-f-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .cx-ticker-dot { width: 4px; height: 4px; border-radius: 999px; background: var(--cx-gold); display: inline-block; }
+</style>
+
+{% schema %}
+{
+  "name": "CX Ticker",
+  "tag": "section",
+  "class": "cx-section-ticker",
+  "settings": [
+    { "type": "textarea", "id": "items", "label": "Items (komma-gescheiden)", "default": "Fluoride-vrij, Nano-hydroxyapatiet, Klinisch gevalideerd, In-vitro onderbouwd, Vegan & BPA-vrij, CE-gecertificeerd, Tandartsen-aanbevolen, Biocompatibel, Zonder SLS, Zonder parabenen" },
+    { "type": "range", "id": "speed_sec", "label": "Snelheid (sec/loop)", "min": 15, "max": 80, "step": 5, "default": 40 }
+  ],
+  "presets": [
+    { "name": "CX Ticker" }
+  ]
+}
+{% endschema %}

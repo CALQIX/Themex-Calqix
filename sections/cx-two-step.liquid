@@ -1,0 +1,130 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Two-step protocol explainer.
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/bundle.jsx → TwoStep
+{%- endcomment -%}
+
+<section class="cx-root cx-section" data-cx-reveal>
+  <div class="cx-container">
+    <div class="cx-stack cx-section-header" data-cx-stagger>
+      {% render 'cx-eyebrow', text: section.settings.eyebrow %}
+      <h2 class="cx-h2">{{ section.settings.heading }}</h2>
+      <div class="cx-lede">{{ section.settings.lede }}</div>
+    </div>
+
+    <div class="cx-two-step-grid" data-cx-col2 data-cx-stagger>
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'step' -%}
+          <article class="cx-two-step-card" {{ block.shopify_attributes }}>
+            {%- if block.settings.image != blank -%}
+              <div class="cx-two-step-media">
+                {{ block.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: block.settings.title }}
+              </div>
+            {%- else -%}
+              {% render 'cx-placeholder', ratio: '16/9', label: block.settings.label, radius: 'var(--cx-r-md)' %}
+            {%- endif -%}
+            <div>
+              <div class="cx-eyebrow">{{ block.settings.step_label }}</div>
+              <h3 class="cx-h3 cx-two-step-title">{{ block.settings.title }}</h3>
+              <p class="cx-two-step-desc">{{ block.settings.desc }}</p>
+            </div>
+            <div class="cx-two-step-stats">
+              {%- for i in (1..3) -%}
+                {%- assign v_key = 'stat_' | append: i | append: '_value' -%}
+                {%- assign l_key = 'stat_' | append: i | append: '_label' -%}
+                {%- assign stat_v = block.settings[v_key] -%}
+                {%- assign stat_l = block.settings[l_key] -%}
+                {%- if stat_v != blank -%}
+                  <div>
+                    <div class="cx-two-step-stat-v">{{ stat_v }}</div>
+                    <div class="cx-eyebrow" style="font-size:10px;">{{ stat_l }}</div>
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .cx-root .cx-section-header { align-items: center; text-align: center; gap: 20px; margin-bottom: 56px; max-width: 680px; margin-left: auto; margin-right: auto; }
+  .cx-root .cx-section-header .cx-h2 { max-width: 18ch; }
+  .cx-two-step-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .cx-two-step-card {
+    border: 1px solid var(--cx-rule);
+    border-radius: var(--cx-r-lg);
+    padding: 32px;
+    background: var(--cx-page);
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .cx-two-step-media { position: relative; overflow: hidden; border-radius: var(--cx-r-md); }
+  .cx-two-step-media img { width: 100%; height: auto; display: block; }
+  .cx-two-step-title { margin: 10px 0; }
+  .cx-two-step-desc { margin: 0; color: var(--cx-ink-soft); font-size: 15px; line-height: 1.55; }
+  .cx-two-step-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    padding-top: 20px; border-top: 1px solid var(--cx-rule);
+  }
+  .cx-two-step-stat-v {
+    font-family: var(--cx-f-display); font-size: 26px; color: var(--cx-gold-ink);
+  }
+</style>
+
+{% schema %}
+{
+  "name": "CX Two-step",
+  "tag": "section",
+  "class": "cx-section-two-step",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Het Calqix-protocol" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Twee stappen. <em>Eén uitkomst.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Flowcore maakt schoon waar je tandenborstel niet komt. Oralbiome Pro bouwt het glazuuroppervlak op. Het protocol werkt alleen als beide stappen samenwerken.</p>" }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Stap",
+      "settings": [
+        { "type": "text", "id": "step_label", "label": "Step label", "default": "STAP 01 · AVONDRITUEEL" },
+        { "type": "text", "id": "title", "label": "Titel", "default": "Eerst diep reinigen" },
+        { "type": "richtext", "id": "desc", "label": "Beschrijving", "default": "<p>Flowcore levert 1.600 micro-pulses per minuut langs de tandlijn — de precisiestraal bereikt 6mm onder de gumline waar je borstel stopt.</p>" },
+        { "type": "image_picker", "id": "image", "label": "Afbeelding (optioneel)" },
+        { "type": "text", "id": "label", "label": "Placeholder label", "default": "FLOWCORE IRRIGATOR" },
+
+        { "type": "header", "content": "Stat 1" },
+        { "type": "text", "id": "stat_1_value", "label": "Waarde", "default": "1.600" },
+        { "type": "text", "id": "stat_1_label", "label": "Label", "default": "Pulses/min" },
+
+        { "type": "header", "content": "Stat 2" },
+        { "type": "text", "id": "stat_2_value", "label": "Waarde", "default": "6 mm" },
+        { "type": "text", "id": "stat_2_label", "label": "Label", "default": "Diep onder tandvlees" },
+
+        { "type": "header", "content": "Stat 3" },
+        { "type": "text", "id": "stat_3_value", "label": "Waarde", "default": "3" },
+        { "type": "text", "id": "stat_3_label", "label": "Label", "default": "Klinische standen" }
+      ]
+    }
+  ],
+  "max_blocks": 2,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "step", "settings": {} },
+      { "type": "step", "settings": {
+          "step_label": "STAP 02 · DIRECT ERNA",
+          "title": "Dan opnieuw opbouwen",
+          "desc": "<p>Nano-hydroxyapatiet bindt direct aan het nu schone glazuuroppervlak. Peer-reviewed studies tonen gemiddeld 40% minder gevoeligheid na 4 weken.</p>",
+          "label": "ORALBIOME PRO · TABS",
+          "stat_1_value": "20–50", "stat_1_label": "nm deeltjesgrootte",
+          "stat_2_value": "40%",   "stat_2_label": "Minder gevoeligheid",
+          "stat_3_value": "28",    "stat_3_label": "Dagen tot zichtbaar"
+      } }
+    ]
+  },
+  "presets": [
+    { "name": "CX Two-step" }
+  ]
+}
+{% endschema %}

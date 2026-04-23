@@ -1,0 +1,127 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Journal (latest 3 blog articles).
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/body.jsx → Journal
+{%- endcomment -%}
+
+{%- assign cx_blog = blogs[section.settings.blog] -%}
+
+<section class="cx-root cx-section cx-section-cream" id="journal" data-cx-reveal>
+  <div class="cx-container">
+    <div class="cx-journal-header">
+      <div class="cx-stack cx-gap-sm">
+        {% render 'cx-eyebrow', text: section.settings.eyebrow %}
+        <h2 class="cx-h2 cx-journal-heading">{{ section.settings.heading }}</h2>
+      </div>
+      {%- if section.settings.cta_text != blank -%}
+        <a class="cx-btn-inline" href="{{ cx_blog.url | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+      {%- endif -%}
+    </div>
+
+    <div class="cx-journal-grid" data-cx-col3 data-cx-stagger>
+      {%- if cx_blog.articles.size > 0 -%}
+        {%- for article in cx_blog.articles limit: 3 -%}
+          <a href="{{ article.url }}" class="cx-journal-card cx-lux-lift">
+            {%- if article.image != blank -%}
+              <div class="cx-journal-media">
+                {{ article.image | image_url: width: 800 | image_tag: loading: 'lazy', alt: article.title, class: 'cx-journal-img' }}
+              </div>
+            {%- else -%}
+              {% render 'cx-placeholder', ratio: '4/3', label: article.tags.first | upcase, radius: 'var(--cx-r-md)' %}
+            {%- endif -%}
+            <div class="cx-journal-meta-row">
+              <span>{{ article.published_at | date: '%d %b %Y' | upcase }}</span>
+              {%- if article.tags.size > 0 -%}
+                <span class="cx-journal-tag">{{ article.tags.first | upcase }}</span>
+              {%- endif -%}
+            </div>
+            <h3 class="cx-journal-title">{{ article.title }}</h3>
+            <p class="cx-journal-excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 28 }}</p>
+            <span class="cx-btn-inline cx-journal-read">Lees artikel <span class="cx-arrow"></span></span>
+          </a>
+        {%- endfor -%}
+      {%- else -%}
+        {%- comment -%} Fallback: show 3 block placeholders {%- endcomment -%}
+        {%- for block in section.blocks limit: 3 -%}
+          {%- if block.type == 'placeholder_post' -%}
+            <a href="{{ block.settings.link | default: '#' }}" class="cx-journal-card cx-lux-lift" {{ block.shopify_attributes }}>
+              {% render 'cx-placeholder', ratio: '4/3', label: block.settings.tag, radius: 'var(--cx-r-md)' %}
+              <div class="cx-journal-meta-row">
+                <span>{{ block.settings.date }}</span>
+                <span class="cx-journal-tag">{{ block.settings.tag }}</span>
+              </div>
+              <h3 class="cx-journal-title">{{ block.settings.title }}</h3>
+              <p class="cx-journal-excerpt">{{ block.settings.excerpt }}</p>
+              <span class="cx-btn-inline cx-journal-read">Lees artikel <span class="cx-arrow"></span></span>
+            </a>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .cx-journal-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 40px; gap: 24px; flex-wrap: wrap;
+  }
+  .cx-journal-heading { max-width: 14ch; }
+  .cx-journal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .cx-journal-card {
+    display: flex; flex-direction: column; gap: 18px;
+    padding: 14px; margin: -14px;
+    border-radius: var(--cx-r-md);
+    border: 1px solid transparent;
+    color: var(--cx-ink);
+  }
+  .cx-journal-media { border-radius: var(--cx-r-md); overflow: hidden; aspect-ratio: 4/3; background: var(--cx-page-2); }
+  .cx-journal-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cx-journal-meta-row {
+    display: flex; gap: 14px;
+    font-family: var(--cx-f-mono); font-size: 11px;
+    color: var(--cx-ink-mute); letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .cx-journal-tag { color: var(--cx-gold-ink); }
+  .cx-journal-title { font-family: var(--cx-f-display); font-size: 22px; margin: 0; letter-spacing: -0.01em; line-height: 1.2; }
+  .cx-journal-excerpt { margin: 0; font-size: 14.5px; color: var(--cx-ink-soft); }
+  .cx-journal-read { margin-top: 4px; }
+</style>
+
+{% schema %}
+{
+  "name": "CX Journal",
+  "tag": "section",
+  "class": "cx-section-journal",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Science Journal" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Gelaagde kennis, <em>helder verteld.</em></p>" },
+    { "type": "blog", "id": "blog", "label": "Blog" },
+    { "type": "text", "id": "cta_text", "label": "CTA tekst", "default": "Alle artikelen" }
+  ],
+  "blocks": [
+    {
+      "type": "placeholder_post",
+      "name": "Fallback post (bij geen blog)",
+      "settings": [
+        { "type": "text", "id": "date", "label": "Datum", "default": "15 APR 2026" },
+        { "type": "text", "id": "tag", "label": "Tag", "default": "WETENSCHAP" },
+        { "type": "text", "id": "title", "label": "Titel", "default": "Nano-hydroxyapatiet: fluoride-alternatief" },
+        { "type": "textarea", "id": "excerpt", "label": "Excerpt", "default": "Elke dag verlies je glazuur. 87% van experts ziet nano-HA als de alternatieve route." },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "placeholder_post", "settings": { "date": "15 APR 2026", "tag": "WETENSCHAP", "title": "Nano-hydroxyapatiet: fluoride-alternatief met 40 jaar onderzoek", "excerpt": "Elke dag verlies je glazuur. 87% van experts ziet nano-HA als de mineraalvrije, klinisch onderbouwde alternatieve route." } },
+      { "type": "placeholder_post", "settings": { "date": "02 APR 2026", "tag": "ROUTINE",    "title": "De wetenschap achter je mondmicrobioom", "excerpt": "Je mond herbergt 700 bacteriesoorten die leven in een fragiel evenwicht. Zo behoud je dat balans." } },
+      { "type": "placeholder_post", "settings": { "date": "18 MRT 2026", "tag": "GEZONDHEID", "title": "Bloedend tandvlees uitgelegd",           "excerpt": "Is tandvlees-bloeden bij het poetsen oké? Over het verschil tussen gezond reinigen en verstoring." } }
+    ]
+  },
+  "presets": [
+    { "name": "CX Journal" }
+  ]
+}
+{% endschema %}

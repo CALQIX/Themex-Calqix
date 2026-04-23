@@ -1,0 +1,232 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Header (sticky, mega-menu, cart badge).
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/header.jsx → Header
+{%- endcomment -%}
+
+<header class="cx-root cx-header" data-cx-header>
+  <div class="cx-container cx-header-inner">
+    <a class="cx-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+      {%- if section.settings.logo != blank -%}
+        {{ section.settings.logo | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:28px;width:auto;' }}
+      {%- else -%}
+        <span class="cx-logo-text">{{ section.settings.logo_text | default: 'CALQIX' }}</span>
+      {%- endif -%}
+    </a>
+
+    <nav class="cx-nav" aria-label="Primary">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'mega' -%}
+          <button type="button" class="cx-nav-link cx-nav-toggle" aria-expanded="false" data-cx-dropdown-toggle="{{ block.id }}" {{ block.shopify_attributes }}>
+            {{ block.settings.label }}
+            <span class="cx-nav-chev">{% render 'cx-icons', name: 'arrowDown', size: 11 %}</span>
+          </button>
+        {%- elsif block.type == 'link' -%}
+          <a class="cx-nav-link" href="{{ block.settings.link }}" {{ block.shopify_attributes }}>{{ block.settings.label }}</a>
+        {%- endif -%}
+      {%- endfor -%}
+    </nav>
+
+    <div class="cx-header-actions">
+      {%- if section.settings.enable_search -%}
+        <a class="cx-icon-btn" href="{{ routes.search_url }}" aria-label="Zoeken">
+          {% render 'cx-icons', name: 'searchLeaf', size: 20 %}
+        </a>
+      {%- endif -%}
+      <a class="cx-icon-btn" href="{{ routes.account_url }}" aria-label="Account">
+        {% render 'cx-icons', name: 'userSlim', size: 20 %}
+      </a>
+      <a class="cx-icon-btn cx-icon-btn-cart" href="{{ routes.cart_url }}" aria-label="Winkelmand">
+        {% render 'cx-icons', name: 'bag', size: 20 %}
+        {%- if cart.item_count > 0 -%}
+          <span class="cx-cart-badge">{{ cart.item_count }}</span>
+        {%- endif -%}
+      </a>
+    </div>
+  </div>
+
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'mega' -%}
+      <div class="cx-mega-panel" data-cx-dropdown-panel="{{ block.id }}" hidden>
+        <div class="cx-container cx-mega-grid">
+          {%- for i in (1..4) -%}
+            {%- assign eyebrow_key = 'eyebrow_' | append: i -%}
+            {%- assign title_key = 'title_' | append: i -%}
+            {%- assign desc_key = 'desc_' | append: i -%}
+            {%- assign link_key = 'link_' | append: i -%}
+            {%- assign card_eyebrow = block.settings[eyebrow_key] -%}
+            {%- assign card_title = block.settings[title_key] -%}
+            {%- if card_title != blank -%}
+              <a class="cx-mega-card" href="{{ block.settings[link_key] | default: '#' }}">
+                {%- if card_eyebrow != blank -%}<div class="cx-eyebrow">{{ card_eyebrow }}</div>{%- endif -%}
+                <div class="cx-mega-card-title">{{ card_title }}</div>
+                <div class="cx-mega-card-desc">{{ block.settings[desc_key] }}</div>
+                <div class="cx-mega-card-cta">Bekijk {% render 'cx-icons', name: 'arrowRight', size: 12 %}</div>
+              </a>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+</header>
+
+<style>
+  .cx-header {
+    background: var(--cx-forest-3);
+    color: var(--cx-forest-ink);
+    position: sticky; top: 0; z-index: 40;
+    border-bottom: 1px solid rgba(242,247,255,0.08);
+  }
+  .cx-header-inner {
+    height: 72px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 16px;
+  }
+  .cx-logo { display: inline-flex; align-items: baseline; gap: 10px; color: var(--cx-forest-ink); }
+  .cx-logo-text {
+    font-family: var(--cx-f-display);
+    font-size: 22px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cx-forest-ink);
+  }
+  .cx-nav {
+    display: flex; gap: 36px; justify-content: center; align-items: center; flex-wrap: nowrap;
+  }
+  .cx-nav-link {
+    font-family: var(--cx-f-display);
+    font-size: 15px; font-weight: 500;
+    color: var(--cx-forest-ink);
+    padding: 6px 0;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent; border: 0;
+    cursor: pointer;
+  }
+  .cx-nav-chev { display: inline-flex; transition: transform .2s ease; }
+  .cx-nav-toggle.cx-is-open .cx-nav-chev { transform: rotate(180deg); }
+  .cx-header-actions {
+    display: flex; align-items: center; gap: 8px; justify-content: flex-end;
+  }
+  .cx-icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; padding: 0;
+    color: var(--cx-forest-ink);
+    line-height: 0;
+    position: relative;
+    background: transparent; border: 0;
+  }
+  .cx-icon-btn:hover { opacity: 0.8; }
+  .cx-cart-badge {
+    position: absolute; top: 0; right: 0;
+    background: var(--cx-gold); color: var(--cx-forest-3);
+    font-family: var(--cx-f-display); font-size: 10px; font-weight: 600;
+    border-radius: 999px; width: 16px; height: 16px;
+    display: inline-flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+  .cx-mega-panel {
+    position: absolute; left: 0; right: 0; top: 100%;
+    background: var(--cx-page);
+    border-top: 1px solid rgba(242,247,255,0.12);
+    border-bottom: 1px solid var(--cx-rule);
+    box-shadow: var(--cx-shadow-card);
+    color: var(--cx-forest-3);
+  }
+  .cx-mega-grid {
+    padding: 36px 28px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+  }
+  .cx-mega-card {
+    display: flex; flex-direction: column; gap: 10px;
+    color: var(--cx-forest-3);
+  }
+  .cx-mega-card-title {
+    font-family: var(--cx-f-display);
+    font-size: 22px; letter-spacing: -0.01em;
+    color: var(--cx-forest-3);
+  }
+  .cx-mega-card-desc { font-size: 13px; max-width: 26ch; }
+  .cx-mega-card-cta {
+    margin-top: 6px;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500;
+  }
+  @media (max-width: 900px) {
+    .cx-nav { display: none; }
+    .cx-header-inner { grid-template-columns: 1fr 1fr; }
+    .cx-mega-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; padding: 24px 20px; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "CX Header",
+  "tag": "section",
+  "class": "cx-section-header",
+  "settings": [
+    { "type": "header", "content": "Logo" },
+    { "type": "text", "id": "logo_text", "label": "Logo tekst", "default": "CALQIX" },
+    { "type": "image_picker", "id": "logo", "label": "Logo afbeelding (optioneel)" },
+    { "type": "header", "content": "Search" },
+    { "type": "checkbox", "id": "enable_search", "label": "Zoek-icoon tonen", "default": true }
+  ],
+  "blocks": [
+    {
+      "type": "link",
+      "name": "Navigatie link",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "Over ons" },
+        { "type": "url",  "id": "link",  "label": "Link" }
+      ]
+    },
+    {
+      "type": "mega",
+      "name": "Mega-menu (4 kaarten)",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "Producten" },
+
+        { "type": "header", "content": "Kaart 1" },
+        { "type": "text", "id": "eyebrow_1", "label": "Eyebrow", "default": "Stap 1 · Reinigen" },
+        { "type": "text", "id": "title_1",   "label": "Titel",   "default": "Flowcore" },
+        { "type": "text", "id": "desc_1",    "label": "Omschrijving", "default": "Draadloze oral irrigator, 1.600 pulses/min" },
+        { "type": "url",  "id": "link_1",    "label": "Link" },
+
+        { "type": "header", "content": "Kaart 2" },
+        { "type": "text", "id": "eyebrow_2", "label": "Eyebrow", "default": "Stap 2 · Opbouwen" },
+        { "type": "text", "id": "title_2",   "label": "Titel",   "default": "Oralbiome Pro" },
+        { "type": "text", "id": "desc_2",    "label": "Omschrijving", "default": "Nano-hydroxyapatiet zuigtabletten, 5 smaken" },
+        { "type": "url",  "id": "link_2",    "label": "Link" },
+
+        { "type": "header", "content": "Kaart 3" },
+        { "type": "text", "id": "eyebrow_3", "label": "Eyebrow", "default": "Bundel · Bespaar 15%" },
+        { "type": "text", "id": "title_3",   "label": "Titel",   "default": "Herstelkit" },
+        { "type": "text", "id": "desc_3",    "label": "Omschrijving", "default": "Flowcore + Oralbiome Pro · compleet protocol" },
+        { "type": "url",  "id": "link_3",    "label": "Link" },
+
+        { "type": "header", "content": "Kaart 4" },
+        { "type": "text", "id": "eyebrow_4", "label": "Eyebrow", "default": "Add-ons" },
+        { "type": "text", "id": "title_4",   "label": "Titel",   "default": "Flowcore tips & refills" },
+        { "type": "text", "id": "desc_4",    "label": "Omschrijving", "default": "Vervangingsonderdelen & abonnement" },
+        { "type": "url",  "id": "link_4",    "label": "Link" }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "mega", "settings": {} },
+      { "type": "link", "settings": { "label": "Het protocol",    "link": "/#protocol" } },
+      { "type": "link", "settings": { "label": "Science Journal", "link": "/blogs/science-journal" } },
+      { "type": "link", "settings": { "label": "Over ons",        "link": "/pages/about" } },
+      { "type": "link", "settings": { "label": "Contact",         "link": "/pages/contact" } }
+    ]
+  },
+  "presets": [
+    { "name": "CX Header" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,156 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Footer.
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/body.jsx → Footer
+{%- endcomment -%}
+
+<footer class="cx-root cx-footer">
+  <div class="cx-container">
+    <div class="cx-footer-grid">
+      <div class="cx-stack cx-gap-md cx-footer-brand">
+        {%- if section.settings.logo != blank -%}
+          {{ section.settings.logo | image_url: width: 240 | image_tag: loading: 'lazy', alt: shop.name, style: 'max-height:28px;width:auto;filter: brightness(1.5);' }}
+        {%- else -%}
+          <div class="cx-footer-logo">{{ section.settings.logo_text | default: 'CALQIX' }}</div>
+        {%- endif -%}
+        <p class="cx-footer-tagline">{{ section.settings.tagline }}</p>
+
+        <div class="cx-footer-social">
+          {%- if section.settings.instagram_url != blank -%}
+            <a class="cx-footer-social-btn" href="{{ section.settings.instagram_url }}" aria-label="Instagram">{% render 'cx-icons', name: 'instagram', size: 15 %}</a>
+          {%- endif -%}
+          {%- if section.settings.tiktok_url != blank -%}
+            <a class="cx-footer-social-btn" href="{{ section.settings.tiktok_url }}" aria-label="TikTok">{% render 'cx-icons', name: 'tiktok', size: 15 %}</a>
+          {%- endif -%}
+          {%- if section.settings.facebook_url != blank -%}
+            <a class="cx-footer-social-btn" href="{{ section.settings.facebook_url }}" aria-label="Facebook">{% render 'cx-icons', name: 'fb', size: 15 %}</a>
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'menu' -%}
+          {%- assign cx_linklist = linklists[block.settings.menu] -%}
+          <div class="cx-stack cx-gap-sm cx-footer-col" {{ block.shopify_attributes }}>
+            <div class="cx-eyebrow cx-footer-col-title">{{ block.settings.title }}</div>
+            {%- if cx_linklist.links.size > 0 -%}
+              {%- for link in cx_linklist.links -%}
+                <a href="{{ link.url }}" class="cx-footer-link">{{ link.title }}</a>
+              {%- endfor -%}
+            {%- else -%}
+              {%- assign cx_fallback = block.settings.fallback_links | newline_to_br | split: '<br />' -%}
+              {%- for item in cx_fallback -%}
+                {%- assign parts = item | strip | split: '|' -%}
+                {%- if parts.size == 2 -%}
+                  <a href="{{ parts[1] | strip }}" class="cx-footer-link">{{ parts[0] | strip }}</a>
+                {%- elsif parts.size == 1 and parts[0] != blank -%}
+                  <a href="#" class="cx-footer-link">{{ parts[0] | strip }}</a>
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    <div class="cx-footer-bottom">
+      <div>{{ section.settings.copyright | replace: '[year]', 'now' | date: '%Y' }}</div>
+      <div class="cx-footer-legal">
+        {%- if section.settings.legal_links != blank -%}
+          {%- assign cx_legal = section.settings.legal_links | newline_to_br | split: '<br />' -%}
+          {%- for item in cx_legal -%}
+            {%- assign parts = item | strip | split: '|' -%}
+            {%- if parts.size == 2 -%}
+              <a href="{{ parts[1] | strip }}">{{ parts[0] | strip }}</a>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .cx-footer {
+    background: var(--cx-forest-3);
+    color: rgba(242,247,255,0.72);
+    padding: 72px 0 32px;
+  }
+  .cx-footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 48px;
+  }
+  .cx-footer-brand { max-width: 320px; }
+  .cx-footer-logo {
+    font-family: var(--cx-f-display);
+    font-size: 22px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--cx-forest-ink);
+  }
+  .cx-footer-tagline { margin: 0; font-size: 14px; color: rgba(242,247,255,0.65); }
+  .cx-footer-social { display: flex; gap: 12px; }
+  .cx-footer-social-btn {
+    width: 36px; height: 36px; border-radius: 999px;
+    border: 1px solid rgba(242,247,255,0.16);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--cx-forest-ink);
+  }
+  .cx-footer-col { gap: 14px; }
+  .cx-footer-col-title { color: rgba(242,247,255,0.85); }
+  .cx-footer-link { font-size: 14px; color: rgba(242,247,255,0.72); }
+  .cx-footer-link:hover { color: #fff; }
+  .cx-footer-bottom {
+    margin-top: 56px; padding-top: 24px;
+    border-top: 1px solid rgba(242,247,255,0.12);
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: rgba(242,247,255,0.55);
+    flex-wrap: wrap; gap: 16px;
+  }
+  .cx-footer-legal { display: flex; gap: 20px; flex-wrap: wrap; }
+  @media (max-width: 900px) {
+    .cx-footer-grid { grid-template-columns: 1fr 1fr; }
+    .cx-footer-brand { grid-column: 1 / -1; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "CX Footer",
+  "tag": "section",
+  "class": "cx-section-footer",
+  "settings": [
+    { "type": "text", "id": "logo_text", "label": "Logo tekst", "default": "CALQIX" },
+    { "type": "image_picker", "id": "logo", "label": "Logo afbeelding (optioneel)" },
+    { "type": "textarea", "id": "tagline", "label": "Tagline", "default": "Evidence-based mondverzorging uit Nederland. Bouw je glazuur opnieuw op — in twee stappen." },
+    { "type": "header", "content": "Social" },
+    { "type": "url", "id": "instagram_url", "label": "Instagram" },
+    { "type": "url", "id": "tiktok_url", "label": "TikTok" },
+    { "type": "url", "id": "facebook_url", "label": "Facebook" },
+    { "type": "header", "content": "Bottom bar" },
+    { "type": "text", "id": "copyright", "label": "Copyright tekst", "default": "© 2026 Calqix B.V. · Alle rechten voorbehouden" },
+    { "type": "textarea", "id": "legal_links", "label": "Legal links (één per regel, format: Label | /url)", "default": "Privacy | /policies/privacy-policy\nAlgemene voorwaarden | /policies/terms-of-service\nCookies | /policies/privacy-policy" }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Menu kolom",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Titel", "default": "Shop" },
+        { "type": "link_list", "id": "menu", "label": "Menu (Shopify linklist)" },
+        { "type": "textarea", "id": "fallback_links", "label": "Fallback links (als geen menu gekozen, één per regel: Label | /url)", "default": "Oralbiome Pro | /products/oralbiome-pro\nFlowcore | /products/calqix-flowcore\nHerstelkit bundle | /products/rebuild-kit\nAdd-ons | /collections/add-ons" }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "menu", "settings": { "title": "Shop",    "fallback_links": "Oralbiome Pro | /products/oralbiome-pro\nFlowcore | /products/calqix-flowcore\nHerstelkit bundle | /products/rebuild-kit\nFlowcore add-ons | /collections/add-ons\nCalqix Priority Support | /pages/support" } },
+      { "type": "menu", "settings": { "title": "Bedrijf", "fallback_links": "Contact | /pages/contact\nOver ons | /pages/about\nVerzendbeleid | /policies/shipping-policy\nRetour & refund | /policies/refund-policy" } },
+      { "type": "menu", "settings": { "title": "Support", "fallback_links": "Impressum | /pages/impressum\nMijn Calqix | /account\nBestellingen | /account\nFAQ | /pages/faq" } }
+    ]
+  },
+  "presets": [
+    { "name": "CX Footer" }
+  ]
+}
+{% endschema %}

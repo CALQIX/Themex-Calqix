@@ -1,0 +1,228 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Bundle callout.
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/bundle.jsx → Bundle
+{%- endcomment -%}
+
+{%- assign cx_p1 = section.settings.product_1 -%}
+{%- assign cx_p2 = section.settings.product_2 -%}
+
+<section class="cx-root cx-section cx-section-cream" id="{{ section.settings.anchor_id | default: 'protocol' }}" data-cx-reveal>
+  <div class="cx-container cx-bundle-grid" data-cx-col2-2-1 data-cx-stagger>
+    <div class="cx-stack cx-gap-md cx-bundle-copy">
+      {% render 'cx-eyebrow', text: section.settings.eyebrow %}
+      <h2 class="cx-h2">{{ section.settings.heading }}</h2>
+      <div class="cx-lede">{{ section.settings.lede }}</div>
+
+      {%- if section.blocks.size > 0 -%}
+        <ul class="cx-bundle-trust">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'trust_item' -%}
+              <li {{ block.shopify_attributes }}>
+                <span class="cx-bundle-trust-ic">{% render 'cx-icons', name: block.settings.icon, size: 16 %}</span>
+                {{ block.settings.text }}
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+
+    <div class="cx-bundle-card cx-lux-lift">
+      <div class="cx-bundle-save">{{ section.settings.savings_badge }}</div>
+      {% render 'cx-eyebrow', text: section.settings.card_eyebrow %}
+      <h3 class="cx-h3 cx-bundle-card-title">{{ section.settings.card_title }}</h3>
+
+      {%- for prod_num in (1..2) -%}
+        {%- if prod_num == 1 -%}
+          {%- assign cx_prod = cx_p1 -%}
+          {%- assign cx_eyebrow = section.settings.item_1_eyebrow -%}
+          {%- assign cx_title = section.settings.item_1_title -%}
+          {%- assign cx_meta = section.settings.item_1_meta -%}
+          {%- assign cx_price = section.settings.item_1_price -%}
+        {%- else -%}
+          {%- assign cx_prod = cx_p2 -%}
+          {%- assign cx_eyebrow = section.settings.item_2_eyebrow -%}
+          {%- assign cx_title = section.settings.item_2_title -%}
+          {%- assign cx_meta = section.settings.item_2_meta -%}
+          {%- assign cx_price = section.settings.item_2_price -%}
+        {%- endif -%}
+
+        <div class="cx-bundle-item{% if prod_num == 1 %} cx-bundle-item-first{% endif %}">
+          {%- if cx_prod.featured_image != blank -%}
+            <div class="cx-bundle-item-media">
+              {{ cx_prod.featured_image | image_url: width: 200 | image_tag: loading: 'lazy', alt: cx_prod.title }}
+            </div>
+          {%- else -%}
+            {% render 'cx-placeholder', width: '52px', height: '66px', radius: '8px' %}
+          {%- endif -%}
+          <div>
+            <div class="cx-eyebrow" style="font-size:10px;">{{ cx_eyebrow }}</div>
+            <div class="cx-bundle-item-title">{{ cx_title | default: cx_prod.title }}</div>
+            <div class="cx-bundle-item-meta">{{ cx_meta }}</div>
+          </div>
+          <div class="cx-bundle-item-price">{{ cx_price }}</div>
+        </div>
+      {%- endfor -%}
+
+      <div class="cx-bundle-total">
+        <div>
+          <div class="cx-bundle-total-price">{{ section.settings.bundle_price }}</div>
+          <div class="cx-bundle-total-note">
+            <span class="cx-strike">{{ section.settings.compare_price }}</span> · {{ section.settings.savings_text }}
+          </div>
+        </div>
+        <div class="cx-pill cx-bundle-ship">
+          {% render 'cx-icons', name: 'truck', size: 13 %}
+          {{ section.settings.shipping_badge }}
+        </div>
+      </div>
+
+      {%- if section.settings.cta_link != blank -%}
+        <a class="cx-btn cx-btn-primary cx-bundle-cta" href="{{ section.settings.cta_link }}">
+          {{ section.settings.cta_text }}
+          <span class="cx-arrow"></span>
+        </a>
+      {%- else -%}
+        <form action="{{ routes.cart_add_url }}" method="post">
+          <input type="hidden" name="id" value="{{ cx_p1.selected_or_first_available_variant.id }}">
+          <input type="hidden" name="quantity" value="1">
+          {%- if cx_p2 -%}<input type="hidden" name="items[0][id]" value="{{ cx_p2.selected_or_first_available_variant.id }}">{%- endif -%}
+          <button type="submit" class="cx-btn cx-btn-primary cx-bundle-cta">
+            {{ section.settings.cta_text }}
+            <span class="cx-arrow"></span>
+          </button>
+        </form>
+      {%- endif -%}
+
+      <div class="cx-bundle-subscribe">{{ section.settings.subscribe_note }}</div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cx-bundle-grid {
+    display: grid;
+    grid-template-columns: 1fr 0.95fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .cx-bundle-copy { max-width: 520px; }
+  .cx-bundle-trust { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-direction: column; gap: 10px; }
+  .cx-bundle-trust li { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--cx-ink-soft); }
+  .cx-bundle-trust-ic { color: var(--cx-forest); display: inline-flex; }
+  .cx-bundle-card {
+    background: var(--cx-page);
+    border: 1px solid var(--cx-rule);
+    border-radius: var(--cx-r-lg);
+    padding: 32px;
+    box-shadow: var(--cx-shadow-card);
+    position: relative;
+  }
+  .cx-bundle-save {
+    position: absolute; top: 20px; right: 24px;
+    font-family: var(--cx-f-mono);
+    font-size: 10px; letter-spacing: 0.14em;
+    padding: 5px 10px; border-radius: 999px;
+    background: var(--cx-gold); color: var(--cx-forest-3);
+  }
+  .cx-bundle-card-title { margin: 10px 0 22px; }
+  .cx-bundle-item {
+    display: grid; grid-template-columns: auto 1fr auto;
+    gap: 16px; align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--cx-rule);
+  }
+  .cx-bundle-item-first { border-top: 1px solid var(--cx-rule); }
+  .cx-bundle-item-media img { width: 52px; height: 66px; border-radius: 8px; object-fit: cover; }
+  .cx-bundle-item-title { font-family: var(--cx-f-display); font-size: 17px; margin-top: 2px; color: var(--cx-forest-3); }
+  .cx-bundle-item-meta { font-size: 12px; color: var(--cx-ink-mute); }
+  .cx-bundle-item-price { font-family: var(--cx-f-mono); font-size: 14px; color: var(--cx-forest-3); }
+  .cx-bundle-total {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-top: 20px;
+  }
+  .cx-bundle-total-price { font-family: var(--cx-f-display); font-size: 36px; color: var(--cx-forest-3); }
+  .cx-bundle-total-note { font-family: var(--cx-f-mono); font-size: 11px; color: var(--cx-ink-mute); }
+  .cx-strike { text-decoration: line-through; }
+  .cx-bundle-ship { background: #dde8f7; border: none; color: var(--cx-forest-2); }
+  .cx-bundle-cta { width: 100%; justify-content: center; margin-top: 20px; padding: 18px; }
+  .cx-bundle-subscribe {
+    text-align: center; font-size: 11.5px; color: var(--cx-ink-mute);
+    margin-top: 12px; font-family: var(--cx-f-mono); letter-spacing: 0.04em;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "CX Bundle",
+  "tag": "section",
+  "class": "cx-section-bundle",
+  "settings": [
+    { "type": "header", "content": "Copy" },
+    { "type": "text", "id": "anchor_id", "label": "Section anchor ID", "default": "protocol" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Het twee-staps protocol" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Reinig diep.<br><em>Bouw opnieuw op.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Flowcore verwijdert wat je tandenborstel mist. Oralbiome Pro herstelt het oppervlak dat er zonder bio-beschikbaar mineraal niet in slaagt te repareren. Eén avondritueel — twee werkingen.</p>" },
+
+    { "type": "header", "content": "Bundel kaart" },
+    { "type": "text", "id": "savings_badge", "label": "Korting badge", "default": "BESPAAR 15%" },
+    { "type": "text", "id": "card_eyebrow", "label": "Card eyebrow", "default": "De herstelkit" },
+    { "type": "text", "id": "card_title", "label": "Card titel", "default": "Jouw twee-staps glazuur protocol" },
+
+    { "type": "header", "content": "Item 1" },
+    { "type": "product", "id": "product_1", "label": "Product 1" },
+    { "type": "text", "id": "item_1_eyebrow", "label": "Eyebrow", "default": "STAP 1 · REINIG" },
+    { "type": "text", "id": "item_1_title", "label": "Titel (override)", "default": "Flowcore Midnight Black" },
+    { "type": "text", "id": "item_1_meta", "label": "Meta", "default": "1.600 pulses/min · 3 standen" },
+    { "type": "text", "id": "item_1_price", "label": "Prijs", "default": "€99,00" },
+
+    { "type": "header", "content": "Item 2" },
+    { "type": "product", "id": "product_2", "label": "Product 2" },
+    { "type": "text", "id": "item_2_eyebrow", "label": "Eyebrow", "default": "STAP 2 · BOUW OP" },
+    { "type": "text", "id": "item_2_title", "label": "Titel (override)", "default": "Oralbiome Pro · Fresh Mint" },
+    { "type": "text", "id": "item_2_meta", "label": "Meta", "default": "60 tabs · 30 dagen" },
+    { "type": "text", "id": "item_2_price", "label": "Prijs", "default": "€24,95" },
+
+    { "type": "header", "content": "Totaal" },
+    { "type": "text", "id": "bundle_price", "label": "Bundel prijs", "default": "€105,40" },
+    { "type": "text", "id": "compare_price", "label": "Was-prijs", "default": "€123,95" },
+    { "type": "text", "id": "savings_text", "label": "Besparing", "default": "je bespaart €18,55" },
+    { "type": "text", "id": "shipping_badge", "label": "Shipping badge", "default": "Gratis verzending" },
+
+    { "type": "header", "content": "CTA" },
+    { "type": "text", "id": "cta_text", "label": "Knop tekst", "default": "Voeg herstelkit toe aan winkelmand" },
+    { "type": "url",  "id": "cta_link", "label": "Link (leeg = add to cart met producten hierboven)" },
+    { "type": "text", "id": "subscribe_note", "label": "Subscribe note", "default": "OF ABONNEER · −20% ELKE MAAND · ANNULEER WANNEER" }
+  ],
+  "blocks": [
+    {
+      "type": "trust_item",
+      "name": "Trust item",
+      "settings": [
+        {
+          "type": "select", "id": "icon", "label": "Icoon", "default": "check",
+          "options": [
+            { "value": "check", "label": "Check" },
+            { "value": "truck", "label": "Truck" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "flask", "label": "Flask" }
+          ]
+        },
+        { "type": "text", "id": "text", "label": "Tekst", "default": "Gratis verzending binnen NL & BE" }
+      ]
+    }
+  ],
+  "max_blocks": 5,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "trust_item", "settings": { "icon": "check", "text": "Gratis verzending binnen NL & BE" } },
+      { "type": "trust_item", "settings": { "icon": "check", "text": "30 dagen tevredenheidsgarantie" } },
+      { "type": "trust_item", "settings": { "icon": "check", "text": "Klinisch getest · tandarts-aanbevolen" } }
+    ]
+  },
+  "presets": [
+    { "name": "CX Bundle" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,92 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Science spotlight.
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/features.jsx → ScienceSpotlight
+{%- endcomment -%}
+
+<section class="cx-root cx-section" data-cx-reveal>
+  <div class="cx-container">
+    <div class="cx-science-grid" data-cx-col2>
+      <div class="cx-science-media">
+        {%- if section.settings.image != blank -%}
+          {{ section.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: section.settings.heading, class: 'cx-science-img' }}
+        {%- else -%}
+          {% render 'cx-placeholder', on_dark: true, ratio: '4/5', label: section.settings.image_label, radius: 'var(--cx-r-lg)' %}
+        {%- endif -%}
+      </div>
+
+      <div class="cx-stack cx-gap-md" data-cx-stagger>
+        {% render 'cx-eyebrow', text: section.settings.eyebrow %}
+        <h2 class="cx-h2">{{ section.settings.heading }}</h2>
+        <div class="cx-lede">{{ section.settings.lede }}</div>
+
+        <div class="cx-feature-accordion" data-cx-accordion>
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'step' -%}
+              <div class="cx-feature-item{% if forloop.first %} cx-is-open{% endif %}" data-cx-accordion-item {{ block.shopify_attributes }}>
+                <button type="button" class="cx-feature-toggle" data-cx-accordion-toggle aria-expanded="{%- if forloop.first -%}true{%- else -%}false{%- endif -%}">
+                  <span class="cx-feature-toggle-left">
+                    <span class="cx-feature-num">0{{ forloop.index }}</span>
+                    <span class="cx-feature-title">{{ block.settings.title }}</span>
+                  </span>
+                  <span class="cx-feature-toggle-ic cx-feature-toggle-ic-open">{% render 'cx-icons', name: 'minus', size: 18 %}</span>
+                  <span class="cx-feature-toggle-ic cx-feature-toggle-ic-closed">{% render 'cx-icons', name: 'plus', size: 18 %}</span>
+                </button>
+                <div class="cx-feature-body" data-cx-accordion-body{% unless forloop.first %} hidden{% endunless %}>
+                  <div class="cx-feature-desc">{{ block.settings.desc }}</div>
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        {%- if section.settings.cta_text != blank -%}
+          <a class="cx-btn-inline" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cx-science-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 72px; align-items: center; }
+  .cx-science-img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--cx-r-lg); }
+</style>
+
+{% schema %}
+{
+  "name": "CX Science Spotlight",
+  "tag": "section",
+  "class": "cx-section-science",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Onze wetenschap" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Van diep reinigen<br>naar <em>echt glazuurherstel.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Flowcore verwijdert wat de tandenborstel niet bereikt. Nano-HA kan direct binden aan het schoongemaakte glazuuroppervlak. Ontdek de wetenschap achter elke stap.</p>" },
+    { "type": "image_picker", "id": "image", "label": "Afbeelding (optioneel)" },
+    { "type": "text", "id": "image_label", "label": "Placeholder label", "default": "DENTAL RESEARCHER · LAB SHOT" },
+    { "type": "text", "id": "cta_text", "label": "CTA tekst", "default": "Ontdek onze wetenschap" },
+    { "type": "url",  "id": "cta_link", "label": "CTA link" }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Stap",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Titel", "default": "Diepe reiniging" },
+        { "type": "textarea", "id": "desc", "label": "Beschrijving", "default": "1.600 pulsen per minuut reinigen plaque en bacteriën tot ver onder de gumline." }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "step", "settings": { "title": "Diepe reiniging",         "desc": "1.600 pulsen per minuut reinigen plaque en bacteriën tot ver onder de gumline." } },
+      { "type": "step", "settings": { "title": "Absorptie vrijmaken",     "desc": "Door biofilm te verwijderen is het glazuuroppervlak klaar om mineralen direct op te nemen." } },
+      { "type": "step", "settings": { "title": "Opbouwen met wetenschap", "desc": "Oralbiome Pro levert nano-hydroxyapatiet via een klinisch onderbouwd protocol." } }
+    ]
+  },
+  "presets": [
+    { "name": "CX Science Spotlight" }
+  ]
+}
+{% endschema %}

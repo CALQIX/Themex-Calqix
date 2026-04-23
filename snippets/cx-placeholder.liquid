@@ -1,0 +1,26 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — striped placeholder.
+  Usage:
+    {% render 'cx-placeholder', label: 'JAR · FRESH MINT', on_dark: true, ratio: '4/5', class: 'cx-lux-float' %}
+    {% render 'cx-placeholder', image: product.featured_image, label: 'JAR' %}
+  If `image` is provided and non-blank, renders the Shopify image instead of the striped fallback.
+{%- endcomment -%}
+{%- assign cx_ph_class = 'cx-ph' -%}
+{%- if on_dark -%}{%- assign cx_ph_class = cx_ph_class | append: ' cx-on-dark' -%}{%- endif -%}
+{%- if class -%}{%- assign cx_ph_class = cx_ph_class | append: ' ' | append: class -%}{%- endif -%}
+{%- capture cx_ph_style -%}
+  {%- if ratio -%}aspect-ratio:{{ ratio }};{%- endif -%}
+  {%- if width -%}width:{{ width }};{%- endif -%}
+  {%- if height -%}height:{{ height }};{%- endif -%}
+  {%- if radius -%}border-radius:{{ radius }};{%- endif -%}
+  {%- if style -%}{{ style }}{%- endif -%}
+{%- endcapture -%}
+<div class="{{ cx_ph_class }}"{% if cx_ph_style != blank %} style="{{ cx_ph_style }}"{% endif %}>
+  {%- if image and image != blank -%}
+    {{ image | image_url: width: 900 | image_tag: loading: 'lazy', alt: image.alt | default: label, style: 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;' }}
+  {%- endif -%}
+  {%- if block_children -%}{{ block_children }}{%- endif -%}
+  {%- if label and image == blank -%}
+    <div class="cx-ph-label">{{ label }}</div>
+  {%- endif -%}
+</div>
