@@ -218,11 +218,49 @@
       </button>
       <div class="ob-ingr__track">
         {%- for block in section.blocks -%}
+          {%- comment -%} Resolve fallback theme asset from ingredient name (case-insensitive, multi-locale keywords). {%- endcomment -%}
+          {%- assign _ob_ing_name_lc = block.settings.name | downcase -%}
+          {%- assign _ob_ing_asset = '' -%}
+          {%- if _ob_ing_name_lc contains 'reuteri' and _ob_ing_name_lc contains 'dsm' -%}
+            {%- assign _ob_ing_asset = 'ob-ingredient-l-reuteri.webp' -%}
+          {%- elsif _ob_ing_name_lc contains 'paracasei' -%}
+            {%- assign _ob_ing_asset = 'ob-ingredient-l-paracasei.webp' -%}
+          {%- elsif _ob_ing_name_lc contains 'reuteri' and _ob_ing_name_lc contains 'atcc' -%}
+            {%- assign _ob_ing_asset = 'ob-ingredient-l-paracasei.webp' -%}
+          {%- elsif _ob_ing_name_lc contains 'reuteri' -%}
+            {%- assign _ob_ing_asset = 'ob-ingredient-l-reuteri.webp' -%}
+          {%- elsif _ob_ing_name_lc contains 'k12' or _ob_ing_name_lc contains 'blis k' -%}
+            {%- assign _ob_ing_asset = 'ob-ingredient-s-salivarius-k12.webp' -%}
+          {%- elsif _ob_ing_name_lc contains 'm18' or _ob_ing_name_lc contains 'blis m' -%}
+            {%- assign _ob_ing_asset = 'ob-ingredient-s-salivarius-m18.webp' -%}
+          {%- elsif _ob_ing_name_lc contains 'xylitol' -%}
+            {%- assign _ob_ing_asset = 'ob-ingredient-xylitol.webp' -%}
+          {%- elsif _ob_ing_name_lc contains 'peppermint' or _ob_ing_name_lc contains 'mint' or _ob_ing_name_lc contains 'munt' or _ob_ing_name_lc contains 'menthe' or _ob_ing_name_lc contains 'pfeffermin' -%}
+            {%- assign _ob_ing_asset = 'ob-ingredient-peppermint.webp' -%}
+          {%- endif -%}
+          {%- if _ob_ing_asset == '' -%}
+            {%- case forloop.index -%}
+              {%- when 1 -%}{%- assign _ob_ing_asset = 'ob-ingredient-l-reuteri.webp' -%}
+              {%- when 2 -%}{%- assign _ob_ing_asset = 'ob-ingredient-l-paracasei.webp' -%}
+              {%- when 3 -%}{%- assign _ob_ing_asset = 'ob-ingredient-s-salivarius-k12.webp' -%}
+              {%- when 4 -%}{%- assign _ob_ing_asset = 'ob-ingredient-s-salivarius-m18.webp' -%}
+              {%- when 5 -%}{%- assign _ob_ing_asset = 'ob-ingredient-xylitol.webp' -%}
+              {%- when 6 -%}{%- assign _ob_ing_asset = 'ob-ingredient-peppermint.webp' -%}
+            {%- endcase -%}
+          {%- endif -%}
           <div class="ob-ingr__card" {{ block.shopify_attributes }}>
             <div class="ob-ingr__card-image">
               {%- if block.settings.image != blank -%}
                 <img
                   src="{{ block.settings.image | image_url: width: 240 }}"
+                  alt="{{ block.settings.name | escape }}"
+                  loading="lazy"
+                  width="120"
+                  height="120"
+                >
+              {%- elsif _ob_ing_asset != '' -%}
+                <img
+                  src="{{ _ob_ing_asset | asset_url }}"
                   alt="{{ block.settings.name | escape }}"
                   loading="lazy"
                   width="120"

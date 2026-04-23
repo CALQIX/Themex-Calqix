@@ -167,6 +167,23 @@
     </div>
     <div class="ob-howto__steps">
       {%- for block in section.blocks -%}
+        {%- comment -%} Resolve fallback theme asset by title keywords, falling back to forloop position. {%- endcomment -%}
+        {%- assign _ob_step_title_lc = block.settings.title | downcase -%}
+        {%- assign _ob_step_asset = '' -%}
+        {%- if _ob_step_title_lc contains 'brush' or _ob_step_title_lc contains 'floss' or _ob_step_title_lc contains 'poets' or _ob_step_title_lc contains 'putz' or _ob_step_title_lc contains 'brosse' -%}
+          {%- assign _ob_step_asset = 'ob-step-01-brush-floss.webp' -%}
+        {%- elsif _ob_step_title_lc contains 'dissolve' or _ob_step_title_lc contains 'lozenge' or _ob_step_title_lc contains 'tongue' or _ob_step_title_lc contains 'tong' or _ob_step_title_lc contains 'zunge' or _ob_step_title_lc contains 'langue' or _ob_step_title_lc contains 'smelt' or _ob_step_title_lc contains 'tablet' -%}
+          {%- assign _ob_step_asset = 'ob-step-02-dissolve-lozenge.webp' -%}
+        {%- elsif _ob_step_title_lc contains 'colon' or _ob_step_title_lc contains 'probiot' or _ob_step_title_lc contains 'wait' or _ob_step_title_lc contains 'wacht' or _ob_step_title_lc contains 'wart' -%}
+          {%- assign _ob_step_asset = 'ob-step-03-colonise.webp' -%}
+        {%- endif -%}
+        {%- if _ob_step_asset == '' -%}
+          {%- case forloop.index -%}
+            {%- when 1 -%}{%- assign _ob_step_asset = 'ob-step-01-brush-floss.webp' -%}
+            {%- when 2 -%}{%- assign _ob_step_asset = 'ob-step-02-dissolve-lozenge.webp' -%}
+            {%- when 3 -%}{%- assign _ob_step_asset = 'ob-step-03-colonise.webp' -%}
+          {%- endcase -%}
+        {%- endif -%}
         <div class="ob-howto__step" {{ block.shopify_attributes }} style="transition-delay: {{ forloop.index0 | times: 150 }}ms">
           <div class="ob-howto__step-visual">
             <span class="ob-howto__step-number">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
@@ -176,6 +193,14 @@
                   src="{{ block.settings.image | image_url: width: 560 }}"
                   srcset="{{ block.settings.image | image_url: width: 400 }} 400w, {{ block.settings.image | image_url: width: 560 }} 560w"
                   sizes="280px"
+                  alt="{{ block.settings.title | escape }}"
+                  loading="lazy"
+                  width="280"
+                  height="280"
+                >
+              {%- elsif _ob_step_asset != '' -%}
+                <img
+                  src="{{ _ob_step_asset | asset_url }}"
                   alt="{{ block.settings.title | escape }}"
                   loading="lazy"
                   width="280"

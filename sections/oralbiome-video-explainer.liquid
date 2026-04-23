@@ -162,7 +162,13 @@
           height="450"
         >
       {%- else -%}
-        <div class="ob-video__placeholder">{{ section.settings.placeholder_text }}</div>
+        <img
+          src="{{ 'ob-video-cover.webp' | asset_url }}"
+          alt="{{ section.settings.heading | escape }}"
+          loading="lazy"
+          width="800"
+          height="450"
+        >
       {%- endif -%}
     </div>
     <div class="ob-video__content">

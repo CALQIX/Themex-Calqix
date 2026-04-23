@@ -546,13 +546,23 @@
             </div>
           {%- endfor -%}
           {%- if product.images.size == 0 -%}
-            <div class="ob-hero__slide">{{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}</div>
+            <div class="ob-hero__slide">
+              <img src="{{ 'ob-hero-packshot.webp' | asset_url }}" alt="{{ product.title | escape }}" loading="eager" width="800" height="800">
+            </div>
+            <div class="ob-hero__slide">
+              <img src="{{ 'ob-packshot-angled.webp' | asset_url }}" alt="{{ product.title | escape }}" loading="lazy" width="800" height="800">
+            </div>
           {%- endif -%}
         </div>
         <div class="ob-hero__dots">
-          {%- for image in product.images -%}
-            <button type="button" class="ob-hero__dot{% if forloop.first %} is-active{% endif %}" data-slide="{{ forloop.index0 }}" aria-label="Slide {{ forloop.index }}"></button>
-          {%- endfor -%}
+          {%- if product.images.size > 0 -%}
+            {%- for image in product.images -%}
+              <button type="button" class="ob-hero__dot{% if forloop.first %} is-active{% endif %}" data-slide="{{ forloop.index0 }}" aria-label="Slide {{ forloop.index }}"></button>
+            {%- endfor -%}
+          {%- else -%}
+            <button type="button" class="ob-hero__dot is-active" data-slide="0" aria-label="Slide 1"></button>
+            <button type="button" class="ob-hero__dot" data-slide="1" aria-label="Slide 2"></button>
+          {%- endif -%}
         </div>
       </div>
 
