@@ -25,20 +25,28 @@ Session 1 — EMQ alerting + catalog sync monitor  [ DONE 2026-04-23 ]
       Cron: CRON_TZ=Europe/Amsterdam 0 6 * * *
 [x] META_CATALOG_ID=1549301396145400 set in Vercel env
 
-Session 2 — Server-side identity enrichment via Meta 7-day window
------------------------------------------------------------------
-NOTE: Existing identity-backfill stores backfill:pending:{event_id} records
-but does NOT re-submit to Meta. Missing piece: re-post to Meta CAPI with
-enriched userData using the SAME event_id (Meta rewrites, does not duplicate).
+Session 2 — Server-side identity enrichment via Meta 24h window  [ DONE 2026-04-23 ]
+------------------------------------------------------------------------------------
+Decision: Use existing meta-capi.sendEvent with same event_id. No separate
+resubmitEvent helper needed — Meta dedups on event_id within its 24h update
+window and merges richer match keys from the later submission.
 
-[ ] lib/meta-capi.js: add resubmitEvent(eventId) helper
-[ ] api/cron/identity-resubmit.js (every 15 min, runs after backfill)
-      - scans backfill:pending:* (last 7 days only — Meta's offline window)
-      - for each: load meta:payload:{event_id}, merge identity fields,
-                  call meta-capi.resubmitEvent with same event_id
-      - track backfill:resubmit:{event_id} to avoid double-work
-[ ] Unit tests for the merge + idempotency logic
-[ ] Update docs/ops/meta-capi-production-runbook.md
+[x] api/cron/identity-resubmit.js                           (commit 2d21a2f)
+      Scans backfill:pending:*, skips if >24h / already-done / bad state,
+      merges new identity (hashed via formatUserData) with original userData,
+      preserves fbp/fbc/IP/UA, calls meta-capi.sendEvent with same event_id,
+      marks backfill:resubmit:{event_id} (7d TTL) and drains pending.
+      Caps MAX_RESUBMITS_PER_RUN=100, P1 Telegram alert on ≥10 failures.
+[x] bootstrap.js: SCHEDULE_ID_IDENTITY_RESUBMIT registered  (QStash OK)
+      Cron: CRON_TZ=Europe/Amsterdam 7,22,37,52 * * * *
+      (offset +7 from identity-backfill at */15 so pending records are ready)
+[x] scripts/test-identity-resubmit.js — end-to-end probe
+      Live smoke test 2026-04-23 19:51 Amsterdam on event
+        addtocart_54065072177481_1776964945 (age 29 min):
+        original user_data: 5 keys  (country, ip, ua, fbp, external_id)
+        merged   user_data: 12 keys (+em, ph, fn, ln, ct, st, zp)
+        Meta ack: trace_id A379js-63t10QHBeSMMcDuj (processed ok)
+        Queue state: resubmit marker PRESENT, pending DRAINED
 
 Session 3 — Dashboard API + radar UI
 -------------------------------------
