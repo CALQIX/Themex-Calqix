@@ -12,21 +12,18 @@ Observ.    : identity-backfill 15min, bridge-health 10min, dedup-audit 30min,
 Content    : content-morning 05:45, publish 08:30 + 18:30, reflect 21:30
 Shared     : alert-dedup (P0/P1/P2 + AI incident on P0/P1), telegram kill-switch
 
-Session 1 — EMQ alerting + catalog sync monitor  [ IN PROGRESS 2026-04-23 ]
-----------------------------------------------------------------------------
+Session 1 — EMQ alerting + catalog sync monitor  [ DONE 2026-04-23 ]
+---------------------------------------------------------------------
 [x] Fix ViewContent Redis tracking parity with AddToCart   (commit 5978e21)
-[ ] emq-deep: add threshold-based Telegram alerts
-      - estimatedEMQ < 6.0                         → P1
-      - coverage.em < 30 && events > 20            → P1 (email caching broken)
-      - coverage.fbp < 75 && events > 20           → P1 (pixel loader broken)
-      - coverage.external_id < 15 && events > 20   → P2 bundled
-[ ] api/cron/catalog-sync-monitor.js
-      - daily 06:00 Amsterdam
-      - fetch Meta /{catalog_id}/products (retailer_id list)
-      - fetch Shopify productVariants (id + sku)
-      - alert P1 if >10% variants missing in catalog, P2 bundled otherwise
-      - persist catalog:sync:{YYYY-MM-DD} for trend
-[ ] bootstrap.js: add SCHEDULE_ID_CATALOG_SYNC schedule
+[x] emq-deep: add threshold-based Telegram alerts          (commit a4775dd)
+      P1: estimatedEMQ<6.0, em<30%, fbp<75%   P2: external_id<15%
+      Dedup via lib/alert-dedup (P1=4h, P2=bundled daily)
+[x] api/cron/catalog-sync-monitor.js                       (commit a4775dd)
+      Live smoke test 2026-04-23 19:42 Amsterdam:
+        catalog_count=21  shopify_variants=11  matched=11  match_rate=100%
+[x] bootstrap.js: SCHEDULE_ID_CATALOG_SYNC registered       (QStash OK)
+      Cron: CRON_TZ=Europe/Amsterdam 0 6 * * *
+[x] META_CATALOG_ID=1549301396145400 set in Vercel env
 
 Session 2 — Server-side identity enrichment via Meta 7-day window
 -----------------------------------------------------------------
