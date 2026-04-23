@@ -2,7 +2,7 @@ CALQIX Meta CAPI + Ads Automation Roadmap
 ===========================================
 Kept as a session-to-session checkpoint. Update when completing items.
 
-Architecture already live (19 QStash schedules)
+Architecture already live (24 QStash schedules)
 ------------------------------------------------
 Real-time  : api/add-to-cart, api/view-content, api/checkout-event, api/recovery/run (1 min)
 Daily ops  : ad-morning 09:00, ad-midday 15:00, ad-close 21:00, reconciliation 04:00
@@ -82,9 +82,48 @@ https://calqix-capi.vercel.app/dashboard.html?token=<DASHBOARD_TOKEN>
   First load caches the token in localStorage so subsequent visits without
   ?token= still work.
 
-Session 4+ — Nightly batch enhancements
----------------------------------------
-[ ] D: Lookalike feeder — daily export Purchase users to Meta Custom Audience
+Session 4-D — Lookalike feeder  [ DONE 2026-04-23 ]
+---------------------------------------------------
+Daily export of paying Shopify customers to a Meta Custom Audience. The
+audience is the seed for a Lookalike Audience Meta computes internally
+(LAL 1-10% can be layered from Ads Manager once the seed matures).
+
+[x] lib/meta-audiences.js                                   (commit 8a178a8 + fix 354405d)
+      addUsers / removeUsers / describeAudience wrapper around
+      POST /{audience_id}/users. Schema order = EMAIL, PHONE, FN, LN,
+      CT, ST, ZIP, COUNTRY, EXTERN_ID. Single-batch (last_batch_flag=true).
+      session_id coerced to numeric epoch-ms — Meta rejects string ids
+      with "(#100) Param session[session_id] must be a number".
+[x] lib/purchase-audience-builder.js                        (commit 8a178a8)
+      Shopify Admin GraphQL orders query (financial_status:paid +
+      rolling lookback, default 180d). Customer dedup per GID with
+      email / phone fallback; shipping > billing > customer address
+      precedence; guest checkouts still surface via email.
+[x] api/cron/lookalike-feeder.js                            (commit 8a178a8)
+      Daily 04:30 Amsterdam. LOOKALIKE_FEEDER_ENABLED kill switch
+      (default true). 30-min Redis lock cron:lock:lookalike-feeder.
+      ?dry_run=1 short-circuits Meta POST. Persists per-run snapshot
+      lookalike:feeder:run:{ts} (90d) + lookalike:feeder:last_success (7d).
+      P1 Telegram alert on Meta API failure (dedup-gated).
+[x] scripts/create-lookalike-audience.js                    (commit 8a178a8)
+      One-time helper. Created "CALQIX Purchasers 180d" on
+      act_2108393566376667 -> META_LOOKALIKE_SOURCE_AUDIENCE_ID=120248767534540715.
+      Requires customer_file_source=USER_PROVIDED_ONLY + accepted ToS at
+      https://business.facebook.com/ads/manage/customaudiences/tos/?act=...
+[x] scripts/test-lookalike-feeder.js                        (commit 8a178a8)
+      --dry / --live / --lookback probe.
+[x] bootstrap.js: SCHEDULE_ID_LOOKALIKE_FEEDER registered    (QStash OK)
+      Cron: CRON_TZ=Europe/Amsterdam 30 4 * * *
+      scheduleId=calqix-lookalike-feeder, retries=2, auth Bearer CRON_SECRET.
+[x] META_LOOKALIKE_SOURCE_AUDIENCE_ID=120248767534540715 in Vercel env
+[x] Live smoke test 2026-04-23 20:31 Amsterdam:
+      orders_scanned=26  unique_users=26  rows_sent=26  num_received=26
+      num_invalid_entries=0  meta_status=200  session_id=1776969064963
+      Sample row keys filled: EMAIL, FN, LN, CT, ST, ZIP, COUNTRY, EXTERN_ID
+      PHONE often blank (Shopify customers rarely leave phone)
+
+Session 4+ — Remaining nightly batch enhancements
+-------------------------------------------------
 [ ] E: Creative fatigue predictor — Bayesian CTR forecast, proactive rotation
 [ ] G: Bridge version check — tag alerts on stuck theme cache
 [ ] H: Auto-A/B creative generator — MUST use lib/predis-client.submitJob()
@@ -93,9 +132,12 @@ Session 4+ — Nightly batch enhancements
       everything upstream (creative-brief-builder, publisher, dashboard) stays
       unchanged because it talks to the provider-agnostic submitJob() facade.
 
-Env vars to set in Vercel (Session 1)
--------------------------------------
-META_CATALOG_ID=1549301396145400    # Meta Commerce catalog for Shopify store
+Env vars to set in Vercel
+-------------------------
+META_CATALOG_ID=1549301396145400                     # Session 1
+META_LOOKALIKE_SOURCE_AUDIENCE_ID=120248767534540715 # Session 4-D
+LOOKALIKE_FEEDER_ENABLED=true (default)              # Session 4-D kill switch
+LOOKALIKE_LOOKBACK_DAYS=180 (default)                # Session 4-D
 # Already present: META_ACCESS_TOKEN, META_PIXEL_ID, TELEGRAM_*, UPSTASH_*
 
 Operational notes
