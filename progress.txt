@@ -122,9 +122,77 @@ audience is the seed for a Lookalike Audience Meta computes internally
       Sample row keys filled: EMAIL, FN, LN, CT, ST, ZIP, COUNTRY, EXTERN_ID
       PHONE often blank (Shopify customers rarely leave phone)
 
+Session 4-E — Creative fatigue predictor  [ DONE 2026-04-23 ]
+-------------------------------------------------------------
+Bayesian CTR forecast over the rolling 7-day ad_fatigue history. Flags ads
+that are on track to drop ≥30% from peak CTR within the next 3 days, before
+the reactive detector in lib/ad-fatigue-tracker.js actually trips. Lets the
+operator rotate creatives *proactively* instead of waiting for the cliff.
+
+Model (lib/creative-fatigue-predictor.js):
+  y_i = log(ctr_i + ε), weights w_i = sqrt(impressions_i + 1)
+  Weighted OLS → residual variance σ² (unbiased, k=2).
+  Prior on slope β ~ N(0, τ²)  τ = PRIOR_SLOPE_STD = 0.3.
+  Posterior β: mean = (Sxy/σ²) / (1/τ² + Sxx/σ²), std = 1/√posterior_precision.
+  Intercept recomputed with shrunken slope (weighted-mean identity).
+  Forecast y_hat at day n-1+3; predictive std combines residual + slope.
+  P(fatigue) = Φ((log(peak·0.7 + ε) - y_hat) / stdForecast).
+  Trend labels from slope: sharp_decline ≤ -0.20, declining ≤ -0.05,
+                             stable ∈ (-0.05, 0.05), growing ≥ 0.05.
+  At-risk cutoff: P(fatigue) ≥ 0.6 AND not already reactively fatigued.
+
+[x] lib/creative-fatigue-predictor.js                      (commit 1c3f142)
+      Pure module — no Redis, no IO. Exports predict(), predictAll(),
+      fitTrend(), classifyTrend(), filterAtRisk(), erf/normCdf helpers.
+      Handles insufficient_data (<3 days), degenerate_fit (all-zero CTR
+      or collinear x), low_signal (<500 total impressions).
+[x] api/cron/fatigue-predictor.js                          (commit 1c3f142)
+      Scans ad_fatigue:* records, runs predictor.predictAll, persists
+      ad_fatigue_forecast:{ad_id} (14d), fatigue_predictor:run:{iso_ts}
+      (14d) and fatigue_predictor:latest (14d). Telegram P1 alert via
+      alert-dedup when ≥2 at-risk ads. 10-min lock, CRON_SECRET auth.
+      Kill switch FATIGUE_PREDICTOR_ALERT_ENABLED (default true).
+      Respects global TELEGRAM_ENABLED kill switch transparently.
+[x] scripts/test-fatigue-predictor.js                      (commit 1c3f142)
+      --synth / live Redis scan / --live (hits deployed endpoint).
+[x] bootstrap.js: SCHEDULE_ID_FATIGUE_PREDICTOR registered  (QStash OK)
+      Cron: CRON_TZ=Europe/Amsterdam 15 9 * * *
+      Ordered 15 minutes after ad-morning (09:00) so it consumes the
+      freshest ad_fatigue:* records written by that chain's Step 1.
+[x] package.json: npm run check covers both new files.
+[x] Live smoke test 2026-04-23 20:47 Amsterdam:
+      Live endpoint /api/cron/fatigue-predictor HTTP 200.
+      scanned=62  forecasted=42  insufficient=20  atRisk=26  alreadyFatigued=1
+      trends: sharp_decline=11, declining=6, stable=8, growing=17
+      fatigue_predictor:latest persisted with 10-item atRiskSample.
+      Top at-risk: FI_IMG_B_PuhtaampiTunne_Orange (P=100%, ΔCTR=-97%, 0d),
+                   NL_IMG_A_Microbioom_CoolMint (P=100%, ΔCTR=-96%, 0d),
+                   SV_IMG_B_RenareDirekt_Peach (P=100%, sharp_decline).
+      Synthetic cases verified: declining→atRisk, stable→not,
+                                cliff→sharp_decline, growing→not,
+                                sparse (n<3)→insufficient_data.
+[x] QStash schedule calqix-fatigue-predictor live
+      destination: https://calqix-capi.vercel.app/api/cron/fatigue-predictor
+      cron=CRON_TZ=Europe/Amsterdam 15 9 * * *, retries=2,
+      header Authorization: Bearer CRON_SECRET.
+
+Redis keys used (observability):
+  ad_fatigue_forecast:{ad_id}    TTL 14d  per-ad forecast (for rules-engine hook-in later)
+  fatigue_predictor:run:{iso_ts} TTL 14d  run snapshot
+  fatigue_predictor:latest       TTL 14d  last summary (dashboard-ready)
+
+Environment variables (optional):
+  FATIGUE_PREDICTOR_ALERT_ENABLED   — default true, set false to mute P1 alerts
+
+Future wiring (not in this session — intentional separation):
+  - lib/ad-rules-engine.evaluate could read ad_fatigue_forecast:{id} and
+    emit a new FLAG_FATIGUE_PREDICTED proposal (APPROVAL_REQUIRED) when
+    atRisk && !alreadyFatigued. Keeps the reactive FLAG_FATIGUE rule intact.
+  - api/dashboard/metrics.js could surface fatigue_predictor:latest next to
+    the existing coverage bars for a single-glance fatigue radar.
+
 Session 4+ — Remaining nightly batch enhancements
 -------------------------------------------------
-[ ] E: Creative fatigue predictor — Bayesian CTR forecast, proactive rotation
 [ ] G: Bridge version check — tag alerts on stuck theme cache
 [ ] H: Auto-A/B creative generator — MUST use lib/predis-client.submitJob()
       abstraction (PREDIS_PROVIDER env var). Do NOT hardcode Predis API calls.
