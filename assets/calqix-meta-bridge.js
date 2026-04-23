@@ -10,6 +10,13 @@
 (function () {
   'use strict';
 
+  // Bumped whenever this file changes in a way the server should care about.
+  // Format: YYYY-MM-DD-<letter>. The server uses this to detect stuck theme
+  // cache (see api/cron/bridge-version-check.js) — if an older version keeps
+  // reporting in after a new one has gone live, Shopify's CDN or browser
+  // caches are serving stale JS.
+  var BRIDGE_VERSION = '2026-04-23-a';
+
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
 
   /* ------------------------------------------------------------------ */
@@ -588,6 +595,11 @@
   /* ------------------------------------------------------------------ */
 
   function postKeepAlive(url, payload) {
+    // Tag every bridge-originated payload so the server-side version check
+    // (api/cron/bridge-version-check.js) can detect stuck theme caches.
+    if (payload && typeof payload === 'object' && !payload.bridge_version) {
+      payload.bridge_version = BRIDGE_VERSION;
+    }
     var bodyStr = JSON.stringify(payload);
 
     // sendBeacon survives page navigation (native form submits, quick-add links).
@@ -663,6 +675,7 @@
   function captureIdentity(fields) {
     var payload = buildUserPayload();
     payload.anon_id = getOrCreateAnonId();
+    payload.bridge_version = BRIDGE_VERSION;
 
     // Merge additional fields (from checkout form, etc.)
     if (fields) {
@@ -719,6 +732,7 @@
   /* ------------------------------------------------------------------ */
 
   window.calqixMeta = {
+    BRIDGE_VERSION: BRIDGE_VERSION,
     getCookie: getCookie,
     getFbc: getFbc,
     getFbp: getFbp,

@@ -49,6 +49,10 @@ var SCHEDULE_ID_IDENTITY_RESUBMIT = 'calqix-identity-resubmit';  // 23. Every 15
 var SCHEDULE_ID_LOOKALIKE_FEEDER = 'calqix-lookalike-feeder';    // 24. Daily 04:30 — refresh purchaser audience
 // Creative fatigue predictor — Bayesian CTR forecast, proactive rotation signal
 var SCHEDULE_ID_FATIGUE_PREDICTOR = 'calqix-fatigue-predictor';  // 25. Daily 09:15 — forecast CTR decay, flag at-risk ads
+// Bridge version check — stuck theme cache detector
+var SCHEDULE_ID_BRIDGE_VERSION_CHECK = 'calqix-bridge-version-check'; // 26. Every 30 min
+// Daily digest — consolidated Telegram rollup (replaces per-cron P1 pings in digest mode)
+var SCHEDULE_ID_DAILY_DIGEST = 'calqix-daily-digest';            // 27. Daily 08:00 — one-message rollup
 // Legacy IDs for deletion cleanup (deprecated schedules + removed Telegram reporting crons)
 var LEGACY_IDS = [
   'calqix-daily-monitor', 'calqix-optimizer-morning', 'calqix-optimizer-afternoon',
@@ -399,7 +403,9 @@ async function createObservabilitySchedules() {
       { id: SCHEDULE_ID_CATALOG_SYNC, endpoint: '/api/cron/catalog-sync-monitor', cron: 'CRON_TZ=Europe/Amsterdam 0 6 * * *' },
       { id: SCHEDULE_ID_IDENTITY_RESUBMIT, endpoint: '/api/cron/identity-resubmit', cron: 'CRON_TZ=Europe/Amsterdam 7,22,37,52 * * * *' },
       { id: SCHEDULE_ID_LOOKALIKE_FEEDER, endpoint: '/api/cron/lookalike-feeder', cron: 'CRON_TZ=Europe/Amsterdam 30 4 * * *' },
-      { id: SCHEDULE_ID_FATIGUE_PREDICTOR, endpoint: '/api/cron/fatigue-predictor', cron: 'CRON_TZ=Europe/Amsterdam 15 9 * * *' }
+      { id: SCHEDULE_ID_FATIGUE_PREDICTOR, endpoint: '/api/cron/fatigue-predictor', cron: 'CRON_TZ=Europe/Amsterdam 15 9 * * *' },
+      { id: SCHEDULE_ID_BRIDGE_VERSION_CHECK, endpoint: '/api/cron/bridge-version-check', cron: 'CRON_TZ=Europe/Amsterdam */30 * * * *' },
+      { id: SCHEDULE_ID_DAILY_DIGEST, endpoint: '/api/cron/daily-digest', cron: 'CRON_TZ=Europe/Amsterdam 0 8 * * *' }
     ];
 
     for (var i = 0; i < schedules.length; i++) {
@@ -503,7 +509,8 @@ async function deleteAllSchedules() {
       SCHEDULE_ID_WEBHOOK_AUDIT, SCHEDULE_ID_RECONCILIATION, SCHEDULE_ID_IDENTITY_CLEANUP,
       SCHEDULE_ID_GADS_UPLOAD,
       SCHEDULE_ID_OB_REVIEWS_ADD, SCHEDULE_ID_CATALOG_SYNC, SCHEDULE_ID_IDENTITY_RESUBMIT,
-      SCHEDULE_ID_LOOKALIKE_FEEDER, SCHEDULE_ID_FATIGUE_PREDICTOR
+      SCHEDULE_ID_LOOKALIKE_FEEDER, SCHEDULE_ID_FATIGUE_PREDICTOR,
+      SCHEDULE_ID_BRIDGE_VERSION_CHECK, SCHEDULE_ID_DAILY_DIGEST
     ].concat(LEGACY_IDS);
     for (var i = 0; i < ids.length; i++) {
       try {

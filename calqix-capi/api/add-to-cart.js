@@ -9,6 +9,7 @@ const eventState = require('../lib/event-state');
 const store = require('../lib/store');
 const multiPlatform = require('../lib/multi-platform-send');
 const capiDiag = require('../lib/capi-diagnostics');
+const bridgeVersionTracker = require('../lib/bridge-version-tracker');
 
 const DEFAULT_SOURCE_URL = 'https://calqix.com/cart';
 const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
@@ -34,6 +35,10 @@ async function handler(req, res) {
 
   try {
     const body = req.body || {};
+
+    if (body.bridge_version) {
+      bridgeVersionTracker.recordVersion(body.bridge_version).catch(function () { /* non-critical */ });
+    }
 
     const contentIds = Array.isArray(body.content_ids) ? body.content_ids : [];
     const contentType = body.content_type || 'product_group';

@@ -21,6 +21,7 @@ const { formatUserData } = require('../lib/hash');
 const { sendEvent } = require('../lib/meta-capi');
 const { isDuplicate, markProcessed } = require('../lib/dedup-guard');
 const eventState = require('../lib/event-state');
+const bridgeVersionTracker = require('../lib/bridge-version-tracker');
 
 const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
 const SOURCE_URL_BASE = 'https://www.calqix.com/';
@@ -51,6 +52,11 @@ async function handler(req, res) {
 
   try {
     const body = req.body || {};
+
+    if (body.bridge_version) {
+      bridgeVersionTracker.recordVersion(body.bridge_version).catch(function () { /* non-critical */ });
+    }
+
     const email = normalizeEmail(body.email);
 
     if (!email) {

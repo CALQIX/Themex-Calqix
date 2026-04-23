@@ -15,6 +15,7 @@
 var store = require('../../lib/store');
 var hash = require('../../lib/hash');
 var nlProvince = require('../../lib/nl-postcode-province');
+var bridgeVersionTracker = require('../../lib/bridge-version-tracker');
 
 var TTL_CART = 7 * 86400;
 var TTL_EMAIL = 30 * 86400;
@@ -37,6 +38,10 @@ module.exports = async function (req, res) {
 
   try {
     var body = req.body || {};
+
+    if (body.bridge_version) {
+      bridgeVersionTracker.recordVersion(body.bridge_version).catch(function () { /* non-critical */ });
+    }
 
     var email = body.email ? body.email.toString().trim().toLowerCase() : null;
     var phone = body.phone || null;

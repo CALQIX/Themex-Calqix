@@ -25,6 +25,48 @@ var PRIORITY = {
   P2: 'P2'
 };
 
+var DIGEST_QUEUE_KEY = 'alert:digest:pending';
+var DIGEST_QUEUE_TTL = 7 * 86400;
+var DIGEST_QUEUE_MAX = 200;
+
+function digestModeEnabled() {
+  // Central toggle that lets the daily-digest cron batch all non-P0 alerts.
+  // Default: off (preserves legacy behavior). Flip on when you want a single
+  // morning Telegram rollup instead of per-cron pings.
+  return process.env.ALERT_DIGEST_MODE === 'true';
+}
+
+async function pushDigestEntry(entry) {
+  try {
+    var raw = await store.get(DIGEST_QUEUE_KEY);
+    var list = [];
+    if (raw) {
+      try { list = JSON.parse(raw); if (!Array.isArray(list)) list = []; }
+      catch (e) { list = []; }
+    }
+    list.push(entry);
+    if (list.length > DIGEST_QUEUE_MAX) list = list.slice(-DIGEST_QUEUE_MAX);
+    await store.set(DIGEST_QUEUE_KEY, JSON.stringify(list), DIGEST_QUEUE_TTL);
+  } catch (e) { /* digest buffering must never break the caller */ }
+}
+
+async function flushDigestQueue() {
+  var raw = await store.get(DIGEST_QUEUE_KEY);
+  if (!raw) return [];
+  var list = [];
+  try { list = JSON.parse(raw); if (!Array.isArray(list)) list = []; }
+  catch (e) { list = []; }
+  await store.del(DIGEST_QUEUE_KEY);
+  return list;
+}
+
+async function peekDigestQueue() {
+  var raw = await store.get(DIGEST_QUEUE_KEY);
+  if (!raw) return [];
+  try { var list = JSON.parse(raw); return Array.isArray(list) ? list : []; }
+  catch (e) { return []; }
+}
+
 var DEDUP_TTL = {
   P0: 5 * 60,       // 5 minutes
   P1: 60 * 60,      // 1 hour
@@ -82,6 +124,30 @@ async function shouldAlert(cron, platform, eventType, issue, priority) {
     priority: p
   }, ttl);
   await recordAlert(hash, p, cron, platform, eventType, issue);
+
+  // Digest mode: P1 alerts are rolled up into the daily digest instead of
+  // firing a Telegram message each time. P0 keeps firing immediately — those
+  // are the actual production fires we can't sit on.
+  if (p === PRIORITY.P1 && digestModeEnabled()) {
+    await pushDigestEntry({
+      priority: p,
+      cron: cron,
+      platform: platform,
+      eventType: eventType,
+      issue: issue,
+      hash: hash,
+      timestamp: new Date().toISOString()
+    });
+    return {
+      send: false,
+      suppressed: 0,
+      priority: p,
+      prefix: PREFIX[p],
+      hash: hash,
+      digested: true,
+      reason: 'P1 buffered into daily digest'
+    };
+  }
 
   return { send: true, suppressed: 0, priority: p, prefix: PREFIX[p], hash: hash };
 }
@@ -164,5 +230,9 @@ module.exports = {
   getSuppressedCount: getSuppressedCount,
   getTodayAlerts: getTodayAlerts,
   formatAlertPrefix: formatAlertPrefix,
-  shouldTriggerIncidentAnalysis: shouldTriggerIncidentAnalysis
+  shouldTriggerIncidentAnalysis: shouldTriggerIncidentAnalysis,
+  digestModeEnabled: digestModeEnabled,
+  flushDigestQueue: flushDigestQueue,
+  peekDigestQueue: peekDigestQueue,
+  pushDigestEntry: pushDigestEntry
 };
