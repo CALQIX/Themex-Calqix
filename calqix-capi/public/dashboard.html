@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CALQIX CAPI Radar</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #141a33;
+      --panel2: #1b2346;
+      --ink: #e6ecff;
+      --muted: #8a95c2;
+      --ok: #2ecc71;
+      --warn: #f1c40f;
+      --bad: #e74c3c;
+      --accent: #4aa3ff;
+      --border: #22305f;
+      --shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(circle at 20% 0%, #1a2a55 0%, var(--bg) 60%);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 24px;
+    }
+    header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    header .timestamp {
+      font-size: 12px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .error-banner {
+      background: rgba(231, 76, 60, 0.18);
+      border: 1px solid rgba(231, 76, 60, 0.4);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      color: #ff8a80;
+      font-size: 13px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+    }
+    .panel.accent { background: linear-gradient(160deg, var(--panel) 0%, var(--panel2) 100%); }
+    .panel h2 {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel .note { font-size: 11px; color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+    .big {
+      font-size: 30px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .big.small { font-size: 20px; }
+    .sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 13px;
+    }
+    .row:last-child { border-bottom: none; }
+    .row .k { color: var(--muted); }
+    .row .v { font-variant-numeric: tabular-nums; font-weight: 500; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .badge.ok { background: rgba(46, 204, 113, 0.18); color: var(--ok); }
+    .badge.warn { background: rgba(241, 196, 15, 0.18); color: var(--warn); }
+    .badge.bad { background: rgba(231, 76, 60, 0.18); color: var(--bad); }
+    .bar {
+      position: relative;
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .bar .fill {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      background: linear-gradient(90deg, var(--accent), #86d1ff);
+      transition: width 400ms ease;
+    }
+    .bar .fill.low { background: linear-gradient(90deg, var(--bad), #ff7968); }
+    .bar .fill.mid { background: linear-gradient(90deg, var(--warn), #ffde6b); }
+    .coverage-row {
+      display: grid;
+      grid-template-columns: 80px 1fr 40px;
+      gap: 8px;
+      align-items: center;
+      padding: 4px 0;
+      font-size: 12px;
+    }
+    .coverage-row .label { color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .coverage-row .pct { text-align: right; font-variant-numeric: tabular-nums; }
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+    .alerts-feed {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .alerts-feed::-webkit-scrollbar { width: 6px; }
+    .alerts-feed::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    .alert-row {
+      font-size: 12px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+    }
+    .alert-row:last-child { border-bottom: none; }
+    .alert-row .ts { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 11px; min-width: 52px; }
+    .alert-row .prio { font-weight: 600; min-width: 26px; }
+    .alert-row .prio.P0 { color: var(--bad); }
+    .alert-row .prio.P1 { color: var(--warn); }
+    .alert-row .prio.P2 { color: var(--muted); }
+    .grid-event-types {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .event-type-tile {
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+    }
+    .event-type-tile .name { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .event-type-tile .count { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+    .event-type-tile .meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .dim { color: var(--muted); font-size: 12px; }
+    @media (max-width: 1000px) {
+      .span-3, .span-4, .span-5 { grid-column: span 6; }
+      .span-6, .span-8 { grid-column: span 12; }
+    }
+    @media (max-width: 620px) {
+      .span-3, .span-4, .span-5, .span-6, .span-8 { grid-column: span 12; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CALQIX CAPI Radar</h1>
+    <div class="timestamp">
+      <span id="status-dot">●</span>
+      <span id="timestamp">—</span>
+      <span style="margin-left: 8px;" class="dim">poll 30s</span>
+    </div>
+  </header>
+
+  <div id="error-banner" class="error-banner" style="display:none;"></div>
+
+  <div class="grid">
+    <!-- Row 1: Headline tiles -->
+    <div class="panel accent span-3">
+      <h2>Events (24h)</h2>
+      <div class="big" id="events-24h">—</div>
+      <div class="sub"><span id="events-1h">—</span> in last hour</div>
+    </div>
+    <div class="panel accent span-3">
+      <h2>EMQ Estimated</h2>
+      <div class="big" id="emq-value">—</div>
+      <div class="sub" id="emq-sample">—</div>
+    </div>
+    <div class="panel accent span-3">
+      <h2>Catalog Match</h2>
+      <div class="big" id="catalog-rate">—</div>
+      <div class="sub" id="catalog-detail">—</div>
+    </div>
+    <div class="panel accent span-3">
+      <h2>Bridge Health</h2>
+      <div class="big small" id="bridge-status">—</div>
+      <div class="sub" id="bridge-detail">—</div>
+    </div>
+
+    <!-- Row 2: Events per type + coverage -->
+    <div class="panel span-5">
+      <h2>Events per Type <span class="note">24h</span></h2>
+      <div class="grid-event-types" id="event-types">
+        <div class="dim">Laden...</div>
+      </div>
+    </div>
+    <div class="panel span-4">
+      <h2>Match Key Coverage <span class="note">latest hour</span></h2>
+      <div id="coverage-bars">
+        <div class="dim">Laden...</div>
+      </div>
+    </div>
+    <div class="panel span-3">
+      <h2>Event Lifecycle</h2>
+      <div id="lifecycle">
+        <div class="dim">Laden...</div>
+      </div>
+    </div>
+
+    <!-- Row 3: Identity resubmit + content + last purchase -->
+    <div class="panel span-4">
+      <h2>Identity Resubmit <span class="note">24h</span></h2>
+      <div class="row"><span class="k">Resubmitted to Meta</span><span class="v" id="resubmit-count">—</span></div>
+      <div class="row"><span class="k">Runs</span><span class="v" id="resubmit-runs">—</span></div>
+      <div class="row"><span class="k">Events scanned</span><span class="v" id="resubmit-scanned">—</span></div>
+      <div class="row"><span class="k">Meta failures</span><span class="v" id="resubmit-failures">—</span></div>
+    </div>
+    <div class="panel span-4">
+      <h2>Content Jobs <span class="note">today, provider-agnostic</span></h2>
+      <div class="row"><span class="k">Total</span><span class="v" id="content-total">—</span></div>
+      <div class="row"><span class="k">Completed</span><span class="v" id="content-completed">—</span></div>
+      <div class="row"><span class="k">Submitted (wachten)</span><span class="v" id="content-submitted">—</span></div>
+      <div class="row"><span class="k">Failed</span><span class="v" id="content-failed">—</span></div>
+      <div class="row"><span class="k">Draft-only</span><span class="v" id="content-draft"><em class="dim" style="font-style:normal;">—</em></span></div>
+      <div class="sub" style="margin-top:6px;" id="content-last">—</div>
+    </div>
+    <div class="panel span-4">
+      <h2>Last Purchase</h2>
+      <div id="last-purchase"><div class="dim">Laden...</div></div>
+    </div>
+
+    <!-- Row 4: Alert feed -->
+    <div class="panel span-12">
+      <h2>Alert Feed <span class="note">today</span></h2>
+      <div class="row" style="margin-bottom:8px;">
+        <span class="k">Totaal vandaag</span>
+        <span class="v"><span id="alerts-total">0</span>
+          <span class="badge bad" id="alerts-p0" style="margin-left:8px;">P0 0</span>
+          <span class="badge warn" id="alerts-p1" style="margin-left:4px;">P1 0</span>
+          <span class="badge" style="background:rgba(138,149,194,0.2);color:var(--muted);margin-left:4px;" id="alerts-p2">P2 0</span>
+        </span>
+      </div>
+      <div class="alerts-feed" id="alerts-feed">
+        <div class="dim">Laden...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var token = params.get('token') || localStorage.getItem('calqix_dashboard_token') || '';
+      if (token) localStorage.setItem('calqix_dashboard_token', token);
+
+      var METRICS_URL = '/api/dashboard/metrics?token=' + encodeURIComponent(token);
+      var POLL_MS = 30000;
+      var RUSH_MS = 2000; // fast retry after error
+
+      function qs(id) { return document.getElementById(id); }
+
+      function showError(msg) {
+        var e = qs('error-banner');
+        e.textContent = msg;
+        e.style.display = 'block';
+        qs('status-dot').style.color = 'var(--bad)';
+      }
+      function clearError() {
+        qs('error-banner').style.display = 'none';
+        qs('status-dot').style.color = 'var(--ok)';
+      }
+
+      function coverageClass(pct) {
+        if (pct >= 70) return '';
+        if (pct >= 40) return 'mid';
+        return 'low';
+      }
+
+      function renderCoverageBars(container, coverage) {
+        var keys = ['em', 'ph', 'fbp', 'external_id', 'fbc', 'country'];
+        var labels = { em: 'Email', ph: 'Phone', fbp: 'FBP', fbc: 'FBC', external_id: 'ExternalID', country: 'Country' };
+        container.innerHTML = '';
+        keys.forEach(function (k) {
+          var pct = typeof coverage[k] === 'number' ? coverage[k] : 0;
+          var row = document.createElement('div');
+          row.className = 'coverage-row';
+          row.innerHTML =
+            '<div class="label">' + labels[k] + '</div>' +
+            '<div><div class="bar"><div class="fill ' + coverageClass(pct) + '" style="width:' + pct + '%"></div></div></div>' +
+            '<div class="pct">' + pct + '%</div>';
+          container.appendChild(row);
+        });
+      }
+
+      function fmtDate(iso) {
+        if (!iso) return '—';
+        try {
+          var d = new Date(iso);
+          var h = ('0' + d.getHours()).slice(-2);
+          var m = ('0' + d.getMinutes()).slice(-2);
+          return d.toLocaleDateString('nl-NL', { day: '2-digit', month: 'short' }) + ' ' + h + ':' + m;
+        } catch (e) { return iso; }
+      }
+
+      function renderEventTypes(container, byEvent) {
+        container.innerHTML = '';
+        var names = Object.keys(byEvent || {});
+        if (!names.length) { container.innerHTML = '<div class="dim">Geen events in laatste 24h</div>'; return; }
+        var order = ['Purchase', 'InitiateCheckout', 'AddToCart', 'ViewContent', 'Lead'];
+        names.sort(function (a, b) {
+          var ai = order.indexOf(a); var bi = order.indexOf(b);
+          if (ai === -1) ai = 99; if (bi === -1) bi = 99;
+          return ai - bi;
+        });
+        names.forEach(function (n) {
+          var e = byEvent[n];
+          var tile = document.createElement('div');
+          tile.className = 'event-type-tile';
+          var failBadge = e.failed > 0 ? ' · <span style="color:var(--bad);">' + e.failed + ' failed</span>' : '';
+          var pendBadge = e.pending > 0 ? ' · <span style="color:var(--warn);">' + e.pending + ' pending</span>' : '';
+          tile.innerHTML =
+            '<div class="name">' + n + '</div>' +
+            '<div class="count">' + e.total + '</div>' +
+            '<div class="meta">' + e.confirmed + ' confirmed' + failBadge + pendBadge + '</div>';
+          container.appendChild(tile);
+        });
+      }
+
+      function renderLifecycle(container, states) {
+        container.innerHTML = '';
+        var order = ['confirmed', 'recovered', 'retry_pending', 'received', 'sent', 'failed_terminal'];
+        order.forEach(function (st) {
+          var v = states[st] || 0;
+          var row = document.createElement('div');
+          row.className = 'row';
+          var badge = '';
+          if (st === 'confirmed' || st === 'recovered') badge = 'ok';
+          else if (st === 'retry_pending') badge = 'warn';
+          else if (st === 'failed_terminal') badge = 'bad';
+          row.innerHTML =
+            '<span class="k">' + st + '</span>' +
+            '<span class="v"' + (badge ? ' style="color:var(--' + (badge === 'ok' ? 'ok' : badge === 'warn' ? 'warn' : 'bad') + ');"' : '') + '>' + v + '</span>';
+          container.appendChild(row);
+        });
+      }
+
+      function renderLastPurchase(container, p) {
+        if (!p || !p.available) {
+          container.innerHTML = '<div class="dim">Nog geen purchase event geregistreerd</div>';
+          return;
+        }
+        container.innerHTML =
+          '<div class="row"><span class="k">Time</span><span class="v">' + fmtDate(p.created_at) + '</span></div>' +
+          '<div class="row"><span class="k">State</span><span class="v"><span class="badge ' + (p.state === 'confirmed' || p.state === 'recovered' ? 'ok' : 'warn') + '">' + p.state + '</span></span></div>' +
+          '<div class="row"><span class="k">Source</span><span class="v">' + (p.source || '—') + '</span></div>' +
+          '<div class="row"><span class="k">Meta ack</span><span class="v">' + (p.meta_response ? '<span class="badge ok">OK</span>' : '<span class="badge warn">unknown</span>') + '</span></div>' +
+          '<div class="row"><span class="k">Order</span><span class="v" style="font-family:monospace;font-size:11px;">' + (p.shopify_id || '—') + '</span></div>';
+      }
+
+      function renderAlertFeed(container, feed) {
+        container.innerHTML = '';
+        var list = (feed && feed.recent) || [];
+        if (!list.length) { container.innerHTML = '<div class="dim">Geen alerts vandaag</div>'; return; }
+        list.forEach(function (a) {
+          var row = document.createElement('div');
+          row.className = 'alert-row';
+          var t = fmtDate(a.timestamp).split(' ').pop();
+          row.innerHTML =
+            '<span class="ts">' + t + '</span>' +
+            '<span class="prio ' + (a.priority || 'P2') + '">' + (a.priority || 'P2') + '</span>' +
+            '<span>' + (a.cron || '—') + ' · ' + (a.platform || '—') + ' · ' + (a.issue || '—') + '</span>';
+          container.appendChild(row);
+        });
+      }
+
+      function catalogStatusBadge(rate) {
+        if (rate >= 100) return '<span class="badge ok">100%</span>';
+        if (rate >= 90) return '<span class="badge warn">' + rate + '%</span>';
+        return '<span class="badge bad">' + rate + '%</span>';
+      }
+
+      async function load() {
+        try {
+          var r = await fetch(METRICS_URL, { credentials: 'omit' });
+          if (!r.ok) throw new Error('HTTP ' + r.status + ' — ' + (r.status === 401 ? 'Ongeldig token — voeg ?token=... toe aan de URL' : ''));
+          var data = await r.json();
+          if (!data.ok) throw new Error(data.error || 'Unknown error');
+          var m = data.metrics;
+          clearError();
+          qs('timestamp').textContent = m.timestamp || m.generated_at;
+
+          // Headline tiles
+          qs('events-24h').textContent = m.events.last_24h;
+          qs('events-1h').textContent = m.events.last_hour;
+
+          if (m.emq.available) {
+            qs('emq-value').textContent = (m.emq.estimatedEMQ || 0).toFixed(1);
+            qs('emq-sample').textContent = 'sample: ' + (m.emq.totalEvents || 0) + ' events';
+          } else {
+            qs('emq-value').textContent = '—';
+            qs('emq-sample').textContent = 'nog geen emq-deep snapshot';
+          }
+
+          if (m.catalog.available) {
+            qs('catalog-rate').innerHTML = catalogStatusBadge(m.catalog.match_rate || 0);
+            qs('catalog-detail').textContent = (m.catalog.matched || 0) + '/' + (m.catalog.shopify_variant_count || 0) + ' variants · ' + (m.catalog.catalog_count || 0) + ' in catalog';
+          } else {
+            qs('catalog-rate').textContent = '—';
+            qs('catalog-detail').textContent = 'cron nog niet gedraaid';
+          }
+
+          if (m.bridge.available) {
+            var bc = m.bridge.status === 'healthy' ? 'ok' : (m.bridge.status === 'degraded' ? 'warn' : 'bad');
+            qs('bridge-status').innerHTML = '<span class="badge ' + bc + '">' + m.bridge.status + '</span>';
+            qs('bridge-detail').textContent = (m.bridge.current || 0) + ' captures · baseline ' + (m.bridge.baseline || 0) + (m.bridge.dropPct !== undefined ? ' · ' + m.bridge.dropPct + '% drop' : '');
+          } else {
+            qs('bridge-status').textContent = '—';
+            qs('bridge-detail').textContent = 'geen bridge metric';
+          }
+
+          renderEventTypes(qs('event-types'), m.events.by_event_name || {});
+
+          // Coverage (from emq-deep latest)
+          renderCoverageBars(qs('coverage-bars'), (m.emq.available && m.emq.coverage) || {});
+
+          renderLifecycle(qs('lifecycle'), m.events.by_state || {});
+
+          // Resubmit
+          qs('resubmit-count').textContent = m.resubmit.resubmitted || 0;
+          qs('resubmit-runs').textContent = m.resubmit.runs_24h || 0;
+          qs('resubmit-scanned').textContent = m.resubmit.scanned || 0;
+          qs('resubmit-failures').textContent = m.resubmit.meta_failures || 0;
+
+          // Content
+          qs('content-total').textContent = m.content.today || 0;
+          qs('content-completed').textContent = m.content.completed || 0;
+          qs('content-submitted').textContent = m.content.submitted || 0;
+          qs('content-failed').textContent = m.content.failed || 0;
+          qs('content-draft').textContent = m.content.draft_only || 0;
+          qs('content-last').textContent = m.content.last_activity ? 'Laatste activiteit ' + fmtDate(m.content.last_activity) : 'Geen activiteit vandaag';
+
+          renderLastPurchase(qs('last-purchase'), m.last_purchase);
+
+          // Alerts
+          var a = m.alerts || { total: 0, by_priority: {}, recent: [] };
+          qs('alerts-total').textContent = a.total || 0;
+          qs('alerts-p0').textContent = 'P0 ' + (a.by_priority.P0 || 0);
+          qs('alerts-p1').textContent = 'P1 ' + (a.by_priority.P1 || 0);
+          qs('alerts-p2').textContent = 'P2 ' + (a.by_priority.P2 || 0);
+          renderAlertFeed(qs('alerts-feed'), a);
+
+          setTimeout(load, POLL_MS);
+        } catch (err) {
+          showError('Fout bij ophalen metrics: ' + (err.message || err));
+          setTimeout(load, RUSH_MS);
+        }
+      }
+
+      if (!token) {
+        showError('Geen token. Voeg ?token=... toe aan de URL.');
+      }
+      load();
+    })();
+  </script>
+</body>
+</html>
