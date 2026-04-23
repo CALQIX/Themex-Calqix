@@ -41,10 +41,12 @@ module.exports = async function (req, res) {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('Content-Type', 'application/json');
 
-  var expected = process.env.DASHBOARD_TOKEN;
-  var provided =
+  // Vercel CLI on some shells stores env values with trailing whitespace; trim to normalise.
+  var expected = (process.env.DASHBOARD_TOKEN || '').trim();
+  var provided = (
     (req.query && req.query.token) ||
-    (req.headers && req.headers['x-dashboard-token']);
+    (req.headers && req.headers['x-dashboard-token']) || ''
+  ).toString().trim();
 
   if (!expected || provided !== expected) {
     return res.status(401).json({ error: 'Unauthorized', hint: 'Set DASHBOARD_TOKEN env and pass ?token=' });
