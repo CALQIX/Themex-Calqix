@@ -48,25 +48,50 @@ window and merges richer match keys from the later submission.
         Meta ack: trace_id A379js-63t10QHBeSMMcDuj (processed ok)
         Queue state: resubmit marker PRESENT, pending DRAINED
 
-Session 3 — Dashboard API + radar UI
--------------------------------------
-[ ] api/dashboard/metrics.js — aggregate Redis counters
-      { last_hour, emq, coverage, catalog_match_rate, last_purchase, webhook_health }
-[ ] public/dashboard.html — vanilla JS, polls every 30s, no build step
-      - event-count timeline (sparklines)
-      - EMQ gauge per event type
-      - coverage bars (em, ph, fbp, external_id, ip, ua)
-      - catalog match rate dial
-      - webhook delivery matrix (last 24h per endpoint)
-      - last Purchase + Telegram alert feed
-[ ] Deploy at https://calqix-capi.vercel.app/dashboard.html (auth via ?token=)
+Session 3 — Dashboard API + radar UI  [ DONE 2026-04-23 ]
+---------------------------------------------------------
+[x] api/dashboard/metrics.js                              (commit b4bf48e + 2d2735e)
+      Read-only aggregator. Scans Redis keys written by existing crons:
+        meta:event:*, emq_hourly:*, diag:summary:{date}, catalog:sync:*,
+        bridge:health:*, backfill:resubmit:run:*, predis:daily/job:*,
+        alert:history:{date}, meta:event:purchase_*
+      Auth via DASHBOARD_TOKEN env (separate from CRON_SECRET so read-only
+      dashboard access can be shared without granting cron-trigger rights).
+      Token comparison .trim()s both sides to tolerate stored \r\n.
+[x] public/dashboard.html                                 (commit b4bf48e)
+      Vanilla JS, no build step, 12-column responsive grid, polls 30s.
+      Sections: headline tiles · events-per-type · coverage bars ·
+                event lifecycle · identity resubmit · content jobs (provider-
+                agnostic) · last purchase · alert feed.
+      Token from ?token= URL param sticks in localStorage for bookmarking.
+[x] DASHBOARD_TOKEN=XjSOD7e8qfbfA02RYJPb4Fcb7mQ1JxxavbsmVkXb7s in Vercel env
+[x] Live smoke test 2026-04-23 20:03 Amsterdam:
+      GET /api/dashboard/metrics?token=...  -> 200
+        events: 103 scanned, 4 in last hour, 25 in 24h, all 103 confirmed
+        event_names: AddToCart 62, IC 26, Lead 6, Purchase 4, VC 3, APIinfo 2
+        by_source: custom_pixel 24, browser_bridge 66, webhook 13
+        catalog: 100% match rate (11/11 variants in 21 retailer_ids)
+        bridge: healthy, resubmit: 1/3 runs, alerts: 0
+      GET /dashboard.html                    -> 200 (20325 bytes)
+[x] catalog-sync-monitor: defensive .trim() on META_CATALOG_ID/ACCESS_TOKEN
+      (Vercel CLI stdin-piped writes can leak trailing \r\n on Windows)
+
+Access URL
+----------
+https://calqix-capi.vercel.app/dashboard.html?token=<DASHBOARD_TOKEN>
+  First load caches the token in localStorage so subsequent visits without
+  ?token= still work.
 
 Session 4+ — Nightly batch enhancements
 ---------------------------------------
 [ ] D: Lookalike feeder — daily export Purchase users to Meta Custom Audience
 [ ] E: Creative fatigue predictor — Bayesian CTR forecast, proactive rotation
 [ ] G: Bridge version check — tag alerts on stuck theme cache
-[ ] H: Auto-A/B creative generator via Predis (leverages existing content-ops)
+[ ] H: Auto-A/B creative generator — MUST use lib/predis-client.submitJob()
+      abstraction (PREDIS_PROVIDER env var). Do NOT hardcode Predis API calls.
+      When swapping providers later, only lib/predis-client.js needs updating;
+      everything upstream (creative-brief-builder, publisher, dashboard) stays
+      unchanged because it talks to the provider-agnostic submitJob() facade.
 
 Env vars to set in Vercel (Session 1)
 -------------------------------------

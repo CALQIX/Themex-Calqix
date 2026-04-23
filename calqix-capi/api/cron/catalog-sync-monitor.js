@@ -55,8 +55,10 @@ module.exports = async function (req, res) {
     }
 
     try {
-      var catalogId = process.env.META_CATALOG_ID;
-      var accessToken = process.env.META_ACCESS_TOKEN;
+      // Trim env vars — Vercel CLI stdin-piped writes can leak trailing \r\n on Windows shells,
+      // which then ends up in the URL and in the persisted snapshot (catalog:sync:*) as "...\r\n".
+      var catalogId = (process.env.META_CATALOG_ID || '').trim();
+      var accessToken = (process.env.META_ACCESS_TOKEN || '').trim();
       if (!catalogId || !accessToken) {
         return res.status(200).json({
           ok: false,
