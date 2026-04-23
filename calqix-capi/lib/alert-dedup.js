@@ -33,7 +33,8 @@ function digestModeEnabled() {
   // Central toggle that lets the daily-digest cron batch all non-P0 alerts.
   // Default: off (preserves legacy behavior). Flip on when you want a single
   // morning Telegram rollup instead of per-cron pings.
-  return process.env.ALERT_DIGEST_MODE === 'true';
+  // .trim() tolereert CRLF dat Vercel CLI op Windows aan env vars plakt.
+  return (process.env.ALERT_DIGEST_MODE || '').trim() === 'true';
 }
 
 async function pushDigestEntry(entry) {

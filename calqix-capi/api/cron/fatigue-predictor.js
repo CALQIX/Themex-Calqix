@@ -38,7 +38,7 @@ var SCAN_BATCH = 100;
 var AT_RISK_MIN_COUNT_FOR_ALERT = 2;
 
 function shouldAlert() {
-  return process.env.FATIGUE_PREDICTOR_ALERT_ENABLED !== 'false';
+  return (process.env.FATIGUE_PREDICTOR_ALERT_ENABLED || '').trim() !== 'false';
 }
 
 function parseRecord(raw) {
