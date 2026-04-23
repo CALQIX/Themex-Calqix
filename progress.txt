@@ -1,0 +1,78 @@
+CALQIX Meta CAPI + Ads Automation Roadmap
+===========================================
+Kept as a session-to-session checkpoint. Update when completing items.
+
+Architecture already live (19 QStash schedules)
+------------------------------------------------
+Real-time  : api/add-to-cart, api/view-content, api/checkout-event, api/recovery/run (1 min)
+Daily ops  : ad-morning 09:00, ad-midday 15:00, ad-close 21:00, reconciliation 04:00
+Observ.    : identity-backfill 15min, bridge-health 10min, dedup-audit 30min,
+             anomaly-watch 5min (z-score, P0 on Purchase), emq-deep hourly,
+             pixel-diag hourly, webhook-audit 30min, identity-cleanup 03:00
+Content    : content-morning 05:45, publish 08:30 + 18:30, reflect 21:30
+Shared     : alert-dedup (P0/P1/P2 + AI incident on P0/P1), telegram kill-switch
+
+Session 1 — EMQ alerting + catalog sync monitor  [ IN PROGRESS 2026-04-23 ]
+----------------------------------------------------------------------------
+[x] Fix ViewContent Redis tracking parity with AddToCart   (commit 5978e21)
+[ ] emq-deep: add threshold-based Telegram alerts
+      - estimatedEMQ < 6.0                         → P1
+      - coverage.em < 30 && events > 20            → P1 (email caching broken)
+      - coverage.fbp < 75 && events > 20           → P1 (pixel loader broken)
+      - coverage.external_id < 15 && events > 20   → P2 bundled
+[ ] api/cron/catalog-sync-monitor.js
+      - daily 06:00 Amsterdam
+      - fetch Meta /{catalog_id}/products (retailer_id list)
+      - fetch Shopify productVariants (id + sku)
+      - alert P1 if >10% variants missing in catalog, P2 bundled otherwise
+      - persist catalog:sync:{YYYY-MM-DD} for trend
+[ ] bootstrap.js: add SCHEDULE_ID_CATALOG_SYNC schedule
+
+Session 2 — Server-side identity enrichment via Meta 7-day window
+-----------------------------------------------------------------
+NOTE: Existing identity-backfill stores backfill:pending:{event_id} records
+but does NOT re-submit to Meta. Missing piece: re-post to Meta CAPI with
+enriched userData using the SAME event_id (Meta rewrites, does not duplicate).
+
+[ ] lib/meta-capi.js: add resubmitEvent(eventId) helper
+[ ] api/cron/identity-resubmit.js (every 15 min, runs after backfill)
+      - scans backfill:pending:* (last 7 days only — Meta's offline window)
+      - for each: load meta:payload:{event_id}, merge identity fields,
+                  call meta-capi.resubmitEvent with same event_id
+      - track backfill:resubmit:{event_id} to avoid double-work
+[ ] Unit tests for the merge + idempotency logic
+[ ] Update docs/ops/meta-capi-production-runbook.md
+
+Session 3 — Dashboard API + radar UI
+-------------------------------------
+[ ] api/dashboard/metrics.js — aggregate Redis counters
+      { last_hour, emq, coverage, catalog_match_rate, last_purchase, webhook_health }
+[ ] public/dashboard.html — vanilla JS, polls every 30s, no build step
+      - event-count timeline (sparklines)
+      - EMQ gauge per event type
+      - coverage bars (em, ph, fbp, external_id, ip, ua)
+      - catalog match rate dial
+      - webhook delivery matrix (last 24h per endpoint)
+      - last Purchase + Telegram alert feed
+[ ] Deploy at https://calqix-capi.vercel.app/dashboard.html (auth via ?token=)
+
+Session 4+ — Nightly batch enhancements
+---------------------------------------
+[ ] D: Lookalike feeder — daily export Purchase users to Meta Custom Audience
+[ ] E: Creative fatigue predictor — Bayesian CTR forecast, proactive rotation
+[ ] G: Bridge version check — tag alerts on stuck theme cache
+[ ] H: Auto-A/B creative generator via Predis (leverages existing content-ops)
+
+Env vars to set in Vercel (Session 1)
+-------------------------------------
+META_CATALOG_ID=1549301396145400    # Meta Commerce catalog for Shopify store
+# Already present: META_ACCESS_TOKEN, META_PIXEL_ID, TELEGRAM_*, UPSTASH_*
+
+Operational notes
+-----------------
+- Shopify's GitHub sync auto-pushes theme asset changes as
+  "Update from Shopify for theme Themex-Calqix/main" commits.
+  Pull --rebase before pushing theme-related commits.
+- Custom Pixel code (shopify-custom-pixel.for-admin.js) has to be
+  pasted manually into Shopify Admin > Customer events; no API exists.
+- progress.txt is the single source of truth across sessions.
