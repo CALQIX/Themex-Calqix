@@ -77,11 +77,23 @@ function buildLineItems(checkout) {
       pid = numericId(li.variant.product.id);
     }
     if (!pid && li.id) pid = numericId(li.id);
+    // CALQIX Meta Commerce catalog uses variant_id or SKU as retailer_id, so
+    // the downstream server (api/checkout-event.js) needs both to match.
+    var vid = null;
+    if (li.variant && li.variant.id) vid = numericId(li.variant.id);
+    var sku = null;
+    if (li.variant && li.variant.sku) sku = String(li.variant.sku);
     var price = null;
     if (li.variant && li.variant.price && li.variant.price.amount) {
       price = parseFloat(li.variant.price.amount);
     }
-    items.push({ product_id: pid, quantity: li.quantity || 1, price: price });
+    items.push({
+      product_id: pid,
+      variant_id: vid,
+      sku: sku,
+      quantity: li.quantity || 1,
+      price: price
+    });
   }
   return items;
 }
@@ -207,10 +219,33 @@ function fireBrowserPixelEvent(eventName, eventId, customData, fbp, fbc, sourceU
 function contentIdsFromItems(items) {
   if (!Array.isArray(items)) return [];
   var out = [];
+  var seen = {};
+  function push(id) {
+    if (id === null || id === undefined || id === '') return;
+    var s = String(id);
+    if (!seen[s]) { seen[s] = true; out.push(s); }
+  }
+  var hasVariantSignal = false;
   for (var i = 0; i < items.length; i++) {
-    if (items[i] && items[i].product_id) out.push(String(items[i].product_id));
+    if (items[i] && items[i].variant_id) { hasVariantSignal = true; push(items[i].variant_id); }
+    if (items[i] && items[i].sku) { hasVariantSignal = true; push(items[i].sku); }
+  }
+  // Only fall back to product_id when NO line item has variant-level data.
+  if (!hasVariantSignal) {
+    for (var j = 0; j < items.length; j++) {
+      if (items[j]) push(items[j].product_id);
+    }
   }
   return out;
+}
+
+function contentTypeFromItems(items) {
+  if (!Array.isArray(items) || items.length === 0) return 'product_group';
+  var hasVariantSignal = false;
+  for (var i = 0; i < items.length; i++) {
+    if (items[i] && (items[i].variant_id || items[i].sku)) { hasVariantSignal = true; break; }
+  }
+  return hasVariantSignal ? 'product' : 'product_group';
 }
 
 function sumQuantities(items) {
@@ -245,7 +280,7 @@ analytics.subscribe("checkout_started", async function (event) {
     value: value,
     currency: curr,
     content_ids: contentIdsFromItems(lineItems),
-    content_type: "product_group",
+    content_type: contentTypeFromItems(lineItems),
     num_items: sumQuantities(lineItems)
   }, fbp, fbc, sourceUrl);
 
@@ -322,7 +357,7 @@ analytics.subscribe("payment_info_submitted", async function (event) {
     value: value,
     currency: curr,
     content_ids: contentIdsFromItems(lineItems),
-    content_type: "product_group",
+    content_type: contentTypeFromItems(lineItems),
     num_items: sumQuantities(lineItems)
   }, effectiveFbp, effectiveFbc, sourceUrl);
 
@@ -372,7 +407,7 @@ analytics.subscribe("checkout_completed", async function (event) {
     value: value,
     currency: curr,
     content_ids: contentIdsFromItems(lineItems),
-    content_type: "product_group",
+    content_type: contentTypeFromItems(lineItems),
     num_items: sumQuantities(lineItems),
     order_id: oid
   }, effectiveFbp, effectiveFbc, sourceUrl);

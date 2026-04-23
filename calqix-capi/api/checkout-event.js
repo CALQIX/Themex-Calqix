@@ -116,20 +116,7 @@ async function handleCheckoutStarted(res, body, checkoutToken, clientIp, clientU
   var userData = formatUserData(customerData, clientIp, clientUserAgent);
 
   var lineItems = Array.isArray(body.line_items) ? body.line_items : [];
-  var customData = {
-    value: body.value !== undefined ? Number(parseFloat(body.value).toFixed(2)) : undefined,
-    currency: body.currency || 'EUR',
-    content_ids: lineItems.map(function (item) { return extractProductId(item); }).filter(Boolean),
-    content_type: 'product_group',
-    contents: lineItems.map(function (item) {
-      return {
-        id: extractProductId(item),
-        quantity: parseInt(item.quantity, 10) || 1,
-        item_price: item.price !== undefined ? Number(parseFloat(item.price).toFixed(2)) : undefined
-      };
-    }).filter(function (c) { return c.id; }),
-    num_items: lineItems.reduce(function (sum, item) { return sum + (parseInt(item.quantity, 10) || 1); }, 0)
-  };
+  var customData = buildCustomDataFromLineItems(lineItems, body);
 
   console.log('[CheckoutEvent] InitiateCheckout', {
     eventId: eventId,
@@ -196,21 +183,9 @@ async function handleCheckoutCompleted(res, body, checkoutToken, clientIp, clien
   var userData = formatUserData(customerData, clientIp, clientUserAgent);
 
   var lineItems = Array.isArray(body.line_items) ? body.line_items : [];
-  var customData = {
-    value: body.value !== undefined ? Number(parseFloat(body.value).toFixed(2)) : undefined,
-    currency: body.currency || 'EUR',
-    content_ids: lineItems.map(function (item) { return extractProductId(item); }).filter(Boolean),
-    content_type: 'product_group',
-    contents: lineItems.map(function (item) {
-      return {
-        id: extractProductId(item),
-        quantity: parseInt(item.quantity, 10) || 1,
-        item_price: item.price !== undefined ? Number(parseFloat(item.price).toFixed(2)) : undefined
-      };
-    }).filter(function (c) { return c.id; }),
-    num_items: lineItems.reduce(function (sum, item) { return sum + (parseInt(item.quantity, 10) || 1); }, 0),
+  var customData = buildCustomDataFromLineItems(lineItems, body, {
     order_id: body.order_id ? String(body.order_id) : undefined
-  };
+  });
 
   console.log('[CheckoutEvent] Purchase', {
     eventId: eventId,
@@ -274,20 +249,7 @@ async function handlePaymentInfo(res, body, checkoutToken, clientIp, clientUserA
   var userData = formatUserData(customerData, clientIp, clientUserAgent);
 
   var lineItems = Array.isArray(body.line_items) ? body.line_items : [];
-  var customData = {
-    value: body.value !== undefined ? Number(parseFloat(body.value).toFixed(2)) : undefined,
-    currency: body.currency || 'EUR',
-    content_ids: lineItems.map(function (item) { return extractProductId(item); }).filter(Boolean),
-    content_type: 'product_group',
-    contents: lineItems.map(function (item) {
-      return {
-        id: extractProductId(item),
-        quantity: parseInt(item.quantity, 10) || 1,
-        item_price: item.price !== undefined ? Number(parseFloat(item.price).toFixed(2)) : undefined
-      };
-    }).filter(function (c) { return c.id; }),
-    num_items: lineItems.reduce(function (sum, item) { return sum + (parseInt(item.quantity, 10) || 1); }, 0)
-  };
+  var customData = buildCustomDataFromLineItems(lineItems, body);
 
   console.log('[CheckoutEvent] AddPaymentInfo', {
     eventId: eventId,
@@ -358,6 +320,81 @@ function extractProductId(item) {
   // Already numeric
   if (/^\d+$/.test(str)) return str;
   return str;
+}
+
+/**
+ * Extract every catalog identifier from a Shopify line_item in priority order.
+ * The CALQIX Meta Commerce catalog uses variant_id or SKU as retailer_id, so
+ * we emit those first; product_id is kept as a last-resort fallback for items
+ * that don't expose variant data. See lib/webhook-utils.js getCatalogItemReferences
+ * for the full rationale.
+ *
+ * Returns an array like ["54065091346761", "CALQIX-OBP-30-CM"]. Never empty
+ * unless the input has no id information at all.
+ */
+function extractCatalogIds(item) {
+  if (!item) return [];
+  var ids = [];
+  if (item.variant_id !== undefined && item.variant_id !== null && item.variant_id !== '') {
+    ids.push(String(item.variant_id));
+  }
+  if (item.sku !== undefined && item.sku !== null && item.sku !== '') {
+    ids.push(String(item.sku));
+  }
+  if (ids.length === 0) {
+    var pid = extractProductId(item);
+    if (pid) ids.push(pid);
+  }
+  return ids;
+}
+
+/**
+ * Build the full Meta custom_data object (content_ids/contents/content_type/
+ * num_items/value/currency) from Shopify line items. Shared across IC, Purchase
+ * and AddPaymentInfo so the catalog-match behaviour is consistent.
+ */
+function buildCustomDataFromLineItems(lineItems, body, extra) {
+  var items = Array.isArray(lineItems) ? lineItems : [];
+
+  var contentIds = [];
+  var seen = Object.create(null);
+  items.forEach(function (item) {
+    extractCatalogIds(item).forEach(function (id) {
+      if (!seen[id]) { seen[id] = true; contentIds.push(id); }
+    });
+  });
+
+  var contents = items.map(function (item) {
+    var ids = extractCatalogIds(item);
+    if (ids.length === 0) return null;
+    return {
+      id: ids[0],
+      quantity: parseInt(item.quantity, 10) || 1,
+      item_price: item.price !== undefined ? Number(parseFloat(item.price).toFixed(2)) : undefined
+    };
+  }).filter(Boolean);
+
+  // Prefer 'product' content_type whenever ANY item has variant-level data,
+  // matching the CALQIX variant-level catalog.
+  var hasVariantSignal = items.some(function (item) {
+    return (item.variant_id !== undefined && item.variant_id !== null && item.variant_id !== '') ||
+      (item.sku !== undefined && item.sku !== null && item.sku !== '');
+  });
+
+  var data = {
+    value: body.value !== undefined ? Number(parseFloat(body.value).toFixed(2)) : undefined,
+    currency: body.currency || 'EUR',
+    content_ids: contentIds,
+    content_type: hasVariantSignal ? 'product' : 'product_group',
+    contents: contents,
+    num_items: items.reduce(function (sum, item) { return sum + (parseInt(item.quantity, 10) || 1); }, 0)
+  };
+
+  if (extra && typeof extra === 'object') {
+    Object.keys(extra).forEach(function (k) { if (extra[k] !== undefined) data[k] = extra[k]; });
+  }
+
+  return data;
 }
 
 module.exports = handler;

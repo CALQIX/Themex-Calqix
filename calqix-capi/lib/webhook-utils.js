@@ -226,63 +226,101 @@ function centsToMoney(value) {
   return Number((numericValue / 100).toFixed(2));
 }
 
-function getCatalogItemReference(item) {
+/**
+ * Returns every catalog identifier we can extract from a Shopify line item,
+ * in the order Meta Commerce is most likely to match (most specific first).
+ *
+ * The CALQIX Meta Commerce catalog (id 1549301396145400) uses variant-level
+ * `retailer_id`s — about half are raw Shopify variant_ids (e.g. `54065091346761`)
+ * and half are manually-set SKUs (e.g. `CALQIX-OBP-30-CM`). Neither format
+ * matches the Shopify parent `product_id`, which is why sending product_id
+ * alone produced the `pixel_has_low_event_source_match_rate = failed` finding
+ * in `/{pixel}/da_checks` on 2026-04-23.
+ *
+ * We therefore emit variant_id + sku (both `type: 'product'`) and keep
+ * product_id as a last-resort fallback. Meta deduplicates against catalog
+ * retailer_id, so adding extra candidates only helps match rate — it never
+ * double-counts.
+ *
+ * @returns {Array<{id: string, type: 'product' | 'product_group'}>}
+ */
+function getCatalogItemReferences(item) {
   if (!item || typeof item !== 'object') {
-    return null;
+    return [];
   }
 
-  const productId = item.product_id;
-  if (productId !== undefined && productId !== null && productId !== '') {
-    return {
-      id: String(productId),
-      type: 'product_group'
-    };
-  }
+  const refs = [];
 
   const variantId = item.variant_id;
   if (variantId !== undefined && variantId !== null && variantId !== '') {
-    return {
-      id: String(variantId),
-      type: 'product'
-    };
+    refs.push({ id: String(variantId), type: 'product' });
   }
 
-  return null;
+  const sku = item.sku;
+  if (sku !== undefined && sku !== null && sku !== '') {
+    refs.push({ id: String(sku), type: 'product' });
+  }
+
+  // Only include product_id if we have no variant-level signal at all.
+  if (refs.length === 0) {
+    const productId = item.product_id;
+    if (productId !== undefined && productId !== null && productId !== '') {
+      refs.push({ id: String(productId), type: 'product_group' });
+    }
+  }
+
+  return refs;
+}
+
+// Back-compat alias — some callers expect a single reference.
+function getCatalogItemReference(item) {
+  const refs = getCatalogItemReferences(item);
+  return refs.length > 0 ? refs[0] : null;
 }
 
 function extractContentIds(lineItems = []) {
-  return lineItems
-    .map((item) => getCatalogItemReference(item))
-    .filter(Boolean)
-    .map((reference) => reference.id);
+  const ids = [];
+  const seen = new Set();
+  lineItems.forEach((item) => {
+    getCatalogItemReferences(item).forEach((ref) => {
+      if (!seen.has(ref.id)) {
+        seen.add(ref.id);
+        ids.push(ref.id);
+      }
+    });
+  });
+  return ids;
 }
 
 function resolveContentType(lineItems = []) {
-  const references = lineItems
-    .map((item) => getCatalogItemReference(item))
-    .filter(Boolean);
+  const allRefs = lineItems.reduce((acc, item) => acc.concat(getCatalogItemReferences(item)), []);
 
-  if (references.length === 0) {
+  if (allRefs.length === 0) {
     return 'product';
   }
 
-  return references.every((reference) => reference.type === 'product_group') ? 'product_group' : 'product';
+  // Mixed arrays are not allowed by Meta. Prefer 'product' (variant-level)
+  // since the CALQIX catalog stores variant-level items. Only fall back to
+  // 'product_group' if EVERY ref is product_group (i.e. no variant data at all).
+  return allRefs.every((ref) => ref.type === 'product_group') ? 'product_group' : 'product';
 }
 
 function buildContents(lineItems = [], getItemPrice) {
   return lineItems
     .map((item) => {
-      const reference = getCatalogItemReference(item);
+      const refs = getCatalogItemReferences(item);
 
-      if (!reference) {
+      if (refs.length === 0) {
         return null;
       }
 
+      // One contents entry per line item — use the most specific (first) ref.
+      const primary = refs[0];
       const quantity = Number.parseInt(item.quantity, 10);
       const itemPrice = getItemPrice ? getItemPrice(item) : toMoney(item.price);
 
       return {
-        id: reference.id,
+        id: primary.id,
         quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
         item_price: itemPrice
       };

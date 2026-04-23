@@ -31,6 +31,7 @@ async function handler(req, res) {
     const productHandle = body.product_handle || '';
     const productTitle = body.product_title || '';
     const variantId = body.variant_id;
+    const sku = body.sku;
     const price = body.price;
     const currency = body.currency || 'EUR';
 
@@ -72,11 +73,17 @@ async function handler(req, res) {
       hasCountry: Boolean(userData.country)
     });
 
-    const contentId = String(productId || variantId);
-    const contentType = productId ? 'product_group' : 'product';
+    // CALQIX Meta Commerce catalog uses variant-level retailer_ids (variant_id or
+    // SKU). Send all catalog candidates so Meta's matching succeeds for either
+    // format. product_id is kept only as fallback when no variant signal exists.
+    const catalogIds = [];
+    if (variantId) catalogIds.push(String(variantId));
+    if (sku) catalogIds.push(String(sku));
+    if (catalogIds.length === 0 && productId) catalogIds.push(String(productId));
+    const contentType = (variantId || sku) ? 'product' : 'product_group';
 
     const customData = {
-      content_ids: [contentId],
+      content_ids: catalogIds,
       content_type: contentType,
       content_name: productTitle || undefined,
       value: price !== undefined ? Number(parseFloat(price).toFixed(2)) : undefined,

@@ -271,16 +271,27 @@
     if (!productData) return;
 
     var eventId = generateEventId('viewcontent', String(productData.id || ''));
-    var price = productData.variants && productData.variants[0] && productData.variants[0].price
-      ? (parseFloat(productData.variants[0].price) / 100)
-      : undefined;
+    var firstVariant = (productData.variants && productData.variants[0]) || null;
+    var price = firstVariant && firstVariant.price ? (parseFloat(firstVariant.price) / 100) : undefined;
+    var variantId = firstVariant && firstVariant.id ? String(firstVariant.id) : undefined;
+    var sku = firstVariant && firstVariant.sku ? String(firstVariant.sku) : undefined;
+    var parentId = productData.id ? String(productData.id) : '';
+
+    // Meta Commerce catalog matches against retailer_id (variant_id or SKU for
+    // the CALQIX catalog). Emit catalog-aligned ids in priority order.
+    var catalogIds = [];
+    if (variantId) catalogIds.push(variantId);
+    if (sku) catalogIds.push(sku);
+    if (catalogIds.length === 0 && parentId) catalogIds.push(parentId);
+    var contentType = (variantId || sku) ? 'product' : 'product_group';
 
     var userPayload = buildUserPayload();
     var payload = {
-      product_id: String(productData.id || ''),
+      product_id: parentId,
       product_handle: productData.handle || '',
       product_title: productData.type || productData.handle || '',
-      variant_id: productData.variants && productData.variants[0] ? String(productData.variants[0].id) : undefined,
+      variant_id: variantId,
+      sku: sku,
       price: price,
       currency: window.Shopify && window.Shopify.currency && window.Shopify.currency.active || 'EUR',
       event_id: eventId,
@@ -296,8 +307,8 @@
 
     if (typeof fbq === 'function') {
       fbq('track', 'ViewContent', {
-        content_ids: [payload.product_id],
-        content_type: 'product_group',
+        content_ids: catalogIds,
+        content_type: contentType,
         content_name: payload.product_title,
         value: price,
         currency: payload.currency
@@ -315,22 +326,46 @@
     var items = detail.items || (detail.item ? [detail.item] : []);
     if (items.length === 0 && detail.id) items = [detail];
 
+    // Shopify AJAX cart line_item shape:
+    //   id         = variant_id  (what Shopify calls "id" on add-to-cart payload)
+    //   product_id = parent product id
+    //   sku        = variant SKU (when set)
+    // For Meta Commerce catalog matching we want variant_id + sku first;
+    // product_id is only used when no variant-level id exists.
     var contentIds = [];
+    var seen = Object.create(null);
     var contents = [];
     var totalValue = 0;
+    var hasVariantSignal = false;
 
     items.forEach(function (item) {
-      var id = String(item.product_id || item.id || '');
-      if (id) contentIds.push(id);
+      var variantId = item.id != null && item.id !== '' ? String(item.id) : null;
+      var sku = item.sku ? String(item.sku) : null;
+      var productIdStr = item.product_id != null && item.product_id !== '' ? String(item.product_id) : null;
+
+      if (variantId || sku) hasVariantSignal = true;
+
+      if (variantId && !seen[variantId]) { seen[variantId] = true; contentIds.push(variantId); }
+      if (sku && !seen[sku]) { seen[sku] = true; contentIds.push(sku); }
+      // product_id is only added if THIS item has no variant-level signal.
+      if (!variantId && !sku && productIdStr && !seen[productIdStr]) {
+        seen[productIdStr] = true;
+        contentIds.push(productIdStr);
+      }
+
+      var primary = variantId || sku || productIdStr;
+      if (!primary) return;
+
       var qty = parseInt(item.quantity, 10) || 1;
       var price = parseFloat(item.price) || 0;
       if (price > 100) price = price / 100;
-      contents.push({ id: id, quantity: qty, item_price: price });
+      contents.push({ id: primary, quantity: qty, item_price: price });
       totalValue += price * qty;
     });
 
     if (contentIds.length === 0) return;
 
+    var contentType = hasVariantSignal ? 'product' : 'product_group';
     var eventId = generateEventId('addtocart', contentIds[0]);
     var currency = window.Shopify && window.Shopify.currency && window.Shopify.currency.active || 'EUR';
     var userPayload = buildUserPayload();
@@ -338,7 +373,7 @@
     var payload = {
       event_id: eventId,
       content_ids: contentIds,
-      content_type: 'product_group',
+      content_type: contentType,
       contents: contents,
       value: Math.round(totalValue * 100) / 100,
       currency: currency,
@@ -356,7 +391,7 @@
     if (typeof fbq === 'function') {
       fbq('track', 'AddToCart', {
         content_ids: contentIds,
-        content_type: 'product_group',
+        content_type: contentType,
         contents: contents,
         value: payload.value,
         currency: currency
