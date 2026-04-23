@@ -191,9 +191,108 @@ Future wiring (not in this session — intentional separation):
   - api/dashboard/metrics.js could surface fatigue_predictor:latest next to
     the existing coverage bars for a single-glance fatigue radar.
 
+Session 4-G — Bridge version check  [ DONE 2026-04-23 ]
+-------------------------------------------------------
+Detects stuck Shopify theme caches. Every browser payload that the bridge
+sends now carries a `bridge_version` constant (see assets/calqix-meta-bridge.js
+top-of-file). The server fans that field into Redis via a tiny tracker, and
+a 30-minute cron flags older versions that keep reporting in *after* a newer
+version has gone live — the telltale sign of a CDN or browser cache that
+didn't purge.
+
+[x] assets/calqix-meta-bridge.js                            (commit 8ba5938)
+      BRIDGE_VERSION = '2026-04-23-a'. postKeepAlive() injects it into every
+      view-content/add-to-cart/lead payload before JSON.stringify so nothing
+      else in the code had to change. captureIdentity() also attaches it.
+      window.calqixMeta.BRIDGE_VERSION exposes it for console/dashboard use.
+[x] lib/bridge-version-tracker.js                           (commit 8ba5938)
+      sanitizeVersion() / recordVersion() / getVersionStats(). Redis:
+        bridge:version:count:{v}:{hour}   TTL 72h  (hourly counter)
+        bridge:version:first_seen:{v}     TTL 30d  (age anchor)
+        bridge:version:last_seen:{v}      TTL 30d
+        bridge:version:known              TTL 30d  (JSON array, max 25)
+      Fire-and-forget — swallows all errors so the CAPI hot path never fails
+      because of a tracker hiccup.
+[x] Wired into api endpoints                                (commit 8ba5938)
+      api/add-to-cart.js · api/view-content.js · api/lead.js ·
+      api/identity/capture.js all call recordVersion(body.bridge_version)
+      with .catch(() => {}) — one line each, no hot-path regression.
+[x] api/cron/bridge-version-check.js                        (commit 8ba5938)
+      Every 30 min. Canonical latest = version with most recent first_seen.
+      Flags stuck cache when:
+        - latest has been live ≥ STUCK_MIN_HOURS (2h) AND
+        - recent window (last 1h) has ≥ MIN_RECENT_EVENTS (20) AND
+        - an older version still holds ≥ STUCK_SHARE_THRESHOLD_PCT (15%).
+      P1 Telegram via alert-dedup (dedup key = sorted stuck-version list).
+      Persists bridge:version_health:latest (14d) for digest + dashboard.
+[x] bootstrap.js: SCHEDULE_ID_BRIDGE_VERSION_CHECK registered
+      Cron: CRON_TZ=Europe/Amsterdam */30 * * * *
+[x] Live smoke test 2026-04-23 21:04 Amsterdam:
+      /api/cron/bridge-version-check → 200
+        status=ok, recent_total=0, stuck=[], latest=null
+      (No bridge hits yet — Shopify GitHub-sync still pushing the new
+       bridge asset. First populated run expected at the next 30-min slot.)
+
+Session 4 Ops — Telegram consolidated digest  [ DONE 2026-04-23 ]
+-----------------------------------------------------------------
+All non-P0 alerts now flow into a single daily rollup instead of pinging
+the operator throughout the day. Individual operator briefings (ad-morning
+09:00, ad-midday 15:00, ad-close 21:00, content-reflect 21:30) remain
+unchanged — they were already 1-message-per-slot consolidations, not alerts.
+
+[x] lib/alert-dedup.js                                      (commit 8ba5938)
+      New ALERT_DIGEST_MODE env toggle (default false → legacy behavior).
+      When true, P1 alerts return {send:false, digested:true} from
+      shouldAlert() and are pushed to a Redis list:
+        alert:digest:pending       JSON array, max 200 entries, TTL 7d
+      P0 always fires immediately (production fires can't wait). P2 keeps
+      its existing bundled-in-history behavior.
+      Exports: digestModeEnabled, flushDigestQueue, peekDigestQueue,
+               pushDigestEntry.
+[x] api/cron/daily-digest.js                                (commit 8ba5938)
+      08:00 Amsterdam. Five sections, each skipped when empty:
+        🚨 Overnight alerts  — flushed P1 buffer + yesterday P2 bundle
+        🧪 System health     — bridge capture, bridge version, EMQ, catalog
+        📡 Events            — 24h counts, resubmit run stats
+        🎯 Ads radar         — fatigue predictor + yesterday ops state
+        🌱 Growth loops      — lookalike feeder
+      Capped at 4000 chars. Quiet-day fallback = "✅ Stille nacht".
+      Dry-run via ?dry_run=1. 30-min Redis lock.
+      Persists daily_digest:latest (30d) for audit + dashboard tile.
+[x] bootstrap.js: SCHEDULE_ID_DAILY_DIGEST registered
+      Cron: CRON_TZ=Europe/Amsterdam 0 8 * * *  (QStash live)
+
+Defensive trim() shim                                       (commit b16026f)
+  Vercel CLI stdin-piped env var writes on Windows PowerShell leak CRLF
+  into the stored value ("true\r\n"). Production was misreading the
+  TELEGRAM_ENABLED + ALERT_DIGEST_MODE toggles as non-"true". Fixed by
+  adding .trim() in:
+    - lib/telegram.js                (TELEGRAM_ENABLED check)
+    - lib/alert-dedup.js             (ALERT_DIGEST_MODE check)
+    - api/cron/fatigue-predictor.js  (FATIGUE_PREDICTOR_ALERT_ENABLED check)
+
+Env vars set in Vercel production:
+  TELEGRAM_ENABLED=true
+  ALERT_DIGEST_MODE=true
+  (FATIGUE_PREDICTOR_ALERT_ENABLED left at default = enabled, but digest
+   mode already neutralizes its P1 path via alert-dedup.)
+
+Live smoke test 2026-04-23 21:05 Amsterdam:
+  /api/cron/daily-digest?dry_run=1 → 200, 568 chars, 4 sections populated
+  /api/cron/daily-digest           → 200, telegram_sent=true (live send)
+
+Cadence the operator now sees:
+  08:00   Daily Digest (new — rollup)
+  09:00   Ad Morning report (existing — ads briefing)
+  15:00   Ad Midday check (existing — only if interesting)
+  18:30   Content Publish (existing — only if new content)
+  21:00   Ad Daily Close (existing — end-of-day)
+  21:30   Content Reflect (existing — content debrief)
+  + P0 immediate alerts for real fires (bridge drop ≥50%, Meta API down).
+  All other P1/P2 → rolled into next 08:00 digest.
+
 Session 4+ — Remaining nightly batch enhancements
 -------------------------------------------------
-[ ] G: Bridge version check — tag alerts on stuck theme cache
 [ ] H: Auto-A/B creative generator — MUST use lib/predis-client.submitJob()
       abstraction (PREDIS_PROVIDER env var). Do NOT hardcode Predis API calls.
       When swapping providers later, only lib/predis-client.js needs updating;
@@ -206,6 +305,8 @@ META_CATALOG_ID=1549301396145400                     # Session 1
 META_LOOKALIKE_SOURCE_AUDIENCE_ID=120248767534540715 # Session 4-D
 LOOKALIKE_FEEDER_ENABLED=true (default)              # Session 4-D kill switch
 LOOKALIKE_LOOKBACK_DAYS=180 (default)                # Session 4-D
+TELEGRAM_ENABLED=true                                # Session 4 Ops (global kill switch)
+ALERT_DIGEST_MODE=true                               # Session 4 Ops (P1 rollup mode)
 # Already present: META_ACCESS_TOKEN, META_PIXEL_ID, TELEGRAM_*, UPSTASH_*
 
 Operational notes
