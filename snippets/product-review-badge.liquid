@@ -8,8 +8,30 @@
   Or auto-detect from product metafields if no args passed.
 {%- endcomment -%}
 
-{%- assign _rb_rating = badge_rating | default: product.metafields.reviews.rating.value | default: '4.8' -%}
-{%- assign _rb_count  = badge_count  | default: product.metafields.reviews.rating_count | default: '127' -%}
+{%- comment -%}
+  Initial server-side count = inline pool baseline (120 reviews in the
+  OralBiome reviews section) + the cron-populated metafield array size.
+  Once the page is hydrated, the reviews section JS syncs real numbers to
+  any `.prb__count` / `.prb__rating` elements on the page — so whatever we
+  render here is only visible for the first few ms before JS runs.
+{%- endcomment -%}
+{%- assign _rb_base_count = 120 -%}
+{%- assign _rb_extra_count = 0 -%}
+{%- assign _rb_extra_raw = product.metafields.calqix.ob_extra_reviews -%}
+{%- if _rb_extra_raw -%}
+  {%- comment -%} json_string metafield: .value is the raw string {%- endcomment -%}
+  {%- assign _rb_extra_str = _rb_extra_raw | default: '' -%}
+  {%- if _rb_extra_str.size > 2 -%}
+    {%- comment -%} Rough count: each entry contains exactly one `"cc":` key.
+        Far cheaper + more robust than parse_json on huge arrays. {%- endcomment -%}
+    {%- assign _rb_extra_count = _rb_extra_str | split: '"cc":' | size | minus: 1 -%}
+    {%- if _rb_extra_count < 0 -%}{%- assign _rb_extra_count = 0 -%}{%- endif -%}
+  {%- endif -%}
+{%- endif -%}
+{%- assign _rb_derived_count = _rb_base_count | plus: _rb_extra_count -%}
+
+{%- assign _rb_rating = badge_rating | default: product.metafields.reviews.rating.value | default: '4.7' -%}
+{%- assign _rb_count  = badge_count  | default: product.metafields.reviews.rating_count | default: _rb_derived_count -%}
 {%- assign _rb_label  = badge_label  | default: 'calqix_oralbiome.hero.rating_text' | t -%}
 
 <style>

@@ -387,8 +387,30 @@
     var sum = 0;
     reviews.forEach(function(r){ sum += r.r; });
     var avg = total > 0 ? (sum / total) : 0;
+    var avgStr = avg.toFixed(1);
     var bigEl = section.querySelector('.ob-reviews__big-number');
-    if (bigEl) bigEl.textContent = avg.toFixed(1);
+    if (bigEl) bigEl.textContent = avgStr;
+
+    /* Sync the hero product-review-badge ("★★★★★ 4.7 · Based on 121 reviews")
+       so it stays consistent with this section's computed numbers. The badge
+       may appear multiple times on the page (mobile + desktop render paths),
+       so update every match. */
+    document.querySelectorAll('.prb__rating').forEach(function(el){
+      el.textContent = avgStr;
+    });
+    document.querySelectorAll('.prb__count').forEach(function(el){
+      var txt = el.textContent || '';
+      if (/\d+/.test(txt)) {
+        el.textContent = txt.replace(/\d+/, String(total));
+      }
+    });
+    document.querySelectorAll('.prb').forEach(function(el){
+      var aria = el.getAttribute('aria-label') || '';
+      if (aria) {
+        var newAria = aria.replace(/[\d.]+\s*out of/, avgStr + ' out of').replace(/—\s*\d+/, '— ' + String(total));
+        el.setAttribute('aria-label', newAria);
+      }
+    });
   } catch (e) { /* silent */ }
   if (breakdownEl) {
     var html = '';

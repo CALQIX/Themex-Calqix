@@ -37,12 +37,9 @@ var MARKETS = [
   { cc: 'GB', co: 'United Kingdom', lang: 'English',    names: ['Amelia','Oliver','Isla','Harry','Ava','George','Poppy','Jack','Grace','Charlie'] }
 ];
 
-var TAG_POOL = [
-  'breath','plaque','gums','sensitivity','whitening','dental','kids','family','travel','pregnancy',
-  'braces','coffee','morning','evening','xylitol','probiotic','freshmint','peach','grape','orange',
-  'consistency','routine','results','gentle','luxurious','subscription','value','flavor','taste',
-  'packaging','trust','science','dentist'
-];
+// The reviews section filters on exactly these 4 bucket tags — stay strict.
+// See sections/oralbiome-reviews.liquid → tagCounts / filter tabs.
+var CATEGORY_TAGS = ['gum_health', 'fresh_breath', 'subscription', 'general'];
 
 function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
@@ -73,7 +70,12 @@ function buildPrompt(market, rating, flavorHint) {
     '- Reviewer first name: "' + name + '" (use exactly as given, no surname).',
     '- Star rating context: ' + rating + '/5 — tone must match (5=enthusiastic; 4=positive with one small reservation; 3=mixed but fair).',
     '- If flavor is mentioned, use: ' + flavorHint + '. Only mention if natural.',
-    '- Tags: pick 2-4 short lowercase English keywords from: ' + TAG_POOL.join(', ') + '.',
+    '- Tags: pick 1 OR 2 values from EXACTLY this set (use no others):',
+    '    * "gum_health"   — bleeding gums, sensitivity, plaque, gingivitis, dentist-confirmed gum change',
+    '    * "fresh_breath" — bad breath, morning breath, confidence in meetings, halitosis',
+    '    * "subscription" — monthly auto-delivery, per-day price, refill convenience',
+    '    * "general"      — routine, taste, travel, family, ingredient research, clean label',
+    '  Pick tags that truly match the body you wrote; if unsure, use ["general"].',
     '- Avoid "game-changer", "miracle", "life-changing", "cure". Do not claim to treat disease.',
     '- Prefer subjective observations ("breath feels fresher", "teeth feel smoother after brushing").'
   ].join('\n');
@@ -127,6 +129,15 @@ async function generateOne(flavorHint) {
       throw new Error('Anthropic response malformed');
     }
 
+    // Hard-coerce tags to the 4-bucket taxonomy — the Liquid filter tabs
+    // in sections/oralbiome-reviews.liquid only recognise these values.
+    var rawTags = parsed.tg.map(function (t) { return String(t).toLowerCase().trim(); });
+    var cleanedTags = rawTags.filter(function (t) { return CATEGORY_TAGS.indexOf(t) !== -1; });
+    if (cleanedTags.length === 0) cleanedTags = ['general'];
+    // De-dupe, cap at 2
+    var seen = {};
+    cleanedTags = cleanedTags.filter(function (t) { return seen[t] ? false : (seen[t] = true); }).slice(0, 2);
+
     return {
       cc: market.cc,
       co: market.co,
@@ -134,7 +145,7 @@ async function generateOne(flavorHint) {
       r: rating,
       t: String(parsed.t).slice(0, 80),
       b: String(parsed.b).slice(0, 400),
-      tg: parsed.tg.slice(0, 4).map(function (t) { return String(t).toLowerCase().slice(0, 20); }),
+      tg: cleanedTags,
       src: 'anthropic'
     };
   } finally {
