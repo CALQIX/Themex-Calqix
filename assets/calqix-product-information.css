@@ -211,7 +211,7 @@ body[class^="template-product"] .wt-product__info .wt-product__add-to-cart_form 
   font-family: 'DM Serif Display', Georgia, serif;
   font-size: 16px;
   letter-spacing: 0;
-  text-transform: uppercase;
+  text-transform: none;
   font-weight: 500;
   cursor: pointer;
   position: relative;
@@ -347,8 +347,51 @@ body[class^="template-product"] .wt-product__info .wt-collapse__target--text str
   color: var(--calqix-navy);
 }
 
+/* Desktop: "Tax included" sits inline next to the price instead of wrapping
+   to a new line. Price + tax become inline-block siblings so the parent
+   wt-product__info flow still respects the rest of the block order. */
+@media (min-width: 961px) {
+  body[class^="template-product"] .wt-product__info .wt-product__price {
+    display: inline-block;
+    vertical-align: baseline;
+    margin-bottom: 0;
+  }
+  body[class^="template-product"] .wt-product__info .product__tax {
+    display: inline-block;
+    vertical-align: baseline;
+    margin: 0 0 0 10px;
+    padding-top: 0;
+  }
+}
+
 @media (max-width: 960px) {
+  /* Title: always one centred line, auto-shrinking with viewport width.
+     clamp() keeps the type between 14px and 28px so long CALQIX product
+     names (e.g. "OralBiome Pro Fresh Mint") never wrap to two rows on
+     mobile. white-space: nowrap forces the single-line behaviour. */
   body[class^="template-product"] .wt-product__info .wt-product__name {
+    font-size: clamp(14px, 5.5vw, 28px);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Hide the main price block and the tax / shipping note on mobile —
+     the bundle picker below already surfaces per-tier pricing, and the
+     sticky Add-to-cart bar shows the current price inside the CTA.
+     `setupPriceSync` in pdp.js keeps reading from the hidden
+     #price-{section.id} element, so variant/subscription changes still
+     update the sticky price correctly. */
+  body[class^="template-product"] .wt-product__info .wt-product__price,
+  body[class^="template-product"] .wt-product__info .product__tax,
+  body[class^="template-product"] .wt-product__info .volume-pricing-note {
+    display: none !important;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__name--legacy-mobile-fallback {
     font-size: 30px;
   }
 
