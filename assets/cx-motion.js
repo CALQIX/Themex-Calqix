@@ -245,6 +245,56 @@
     });
   })();
 
+  /* ---------- 8.5 Locale sheet (popup for country + language) ---------- */
+  (function () {
+    var sheet = document.querySelector('[data-cx-locale-sheet]');
+    if (!sheet) return;
+    var triggers = document.querySelectorAll('[data-cx-locale-open]');
+    var closers = sheet.querySelectorAll('[data-cx-locale-close]');
+    var panel = sheet.querySelector('.cx-locale-sheet__panel');
+
+    function open(e) {
+      if (e) e.preventDefault();
+      sheet.hidden = false;
+      // two-phase so the transition runs
+      requestAnimationFrame(function () {
+        sheet.setAttribute('data-open', '');
+      });
+      document.body.style.overflow = 'hidden';
+      triggers.forEach(function (t) { t.setAttribute('aria-expanded', 'true'); });
+      var firstOption = sheet.querySelector('.cx-locale-sheet__option');
+      if (firstOption) firstOption.focus();
+    }
+    function close() {
+      sheet.removeAttribute('data-open');
+      document.body.style.overflow = '';
+      triggers.forEach(function (t) { t.setAttribute('aria-expanded', 'false'); });
+      setTimeout(function () {
+        if (!sheet.hasAttribute('data-open')) sheet.hidden = true;
+      }, 320);
+    }
+
+    triggers.forEach(function (t) { t.addEventListener('click', open); });
+    closers.forEach(function (c) { c.addEventListener('click', close); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && sheet.hasAttribute('data-open')) close();
+    });
+
+    // Option click → submit its parent form with the chosen iso_code
+    sheet.querySelectorAll('.cx-locale-sheet__option').forEach(function (opt) {
+      opt.addEventListener('click', function (e) {
+        e.preventDefault();
+        var form = opt.closest('form');
+        if (!form) return;
+        var input = form.querySelector('input[name="country_code"], input[name="locale_code"]');
+        if (input) input.value = opt.getAttribute('data-value');
+        // Small delay to show active state feedback before navigation
+        opt.classList.add('is-active');
+        setTimeout(function () { form.submit(); }, 80);
+      });
+    });
+  })();
+
   /* ---------- 9. Counter count-up ---------- */
   (function () {
     var counters = document.querySelectorAll('[data-cx-count]');

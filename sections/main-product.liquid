@@ -1027,6 +1027,13 @@
               {% render block %}
             {%- when 'custom_liquid' -%}
               {{ block.settings.custom_liquid }}
+            {%- when 'calqix_usps_inline' -%}
+              {% render 'calqix-inline-usps',
+                block: block,
+                mobile_columns: block.settings.mobile_columns,
+                show_badge: block.settings.show_badge,
+                badge_text: block.settings.badge_text,
+                animate: block.settings.animate %}
             {%- when 'calqix_badge' -%}
               {%- assign cq_calqix_badge_text = block.settings.text -%}
               {%- if cq_is_translated_flowcore -%}
@@ -5412,6 +5419,84 @@
           "label": "t:sections.custom-liquid.settings.custom_liquid.label",
           "info": "t:sections.custom-liquid.settings.custom_liquid.info"
         }
+      ]
+    },
+    {
+      "type": "calqix_usps_inline",
+      "name": "CALQIX USPs inline (4 cards)",
+      "limit": 2,
+      "settings": [
+        { "type": "header", "content": "Layout" },
+        { "type": "select", "id": "mobile_columns", "label": "Mobile columns", "default": "1",
+          "options": [
+            { "value": "1", "label": "1 column (stacked)" },
+            { "value": "2", "label": "2 columns (2x2)" }
+          ]
+        },
+        { "type": "checkbox", "id": "animate", "label": "Enable entrance + glow animations", "default": true },
+        { "type": "header", "content": "Optional badge" },
+        { "type": "checkbox", "id": "show_badge", "label": "Show step badge", "default": false },
+        { "type": "text", "id": "badge_text", "label": "Badge text", "default": "STEP 3 OF THE CALQIX ROUTINE" },
+
+        { "type": "header", "content": "USP 1" },
+        { "type": "select", "id": "usp_1_icon", "label": "Icon", "default": "microbiome",
+          "options": [
+            { "value": "microbiome", "label": "Microbiome balance" },
+            { "value": "breath-target", "label": "Breath target" },
+            { "value": "lozenge-moon", "label": "Lozenge moon" },
+            { "value": "calendar-30", "label": "30-day calendar" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "leaf", "label": "Leaf" },
+            { "value": "sparkle", "label": "Sparkle" }
+          ]
+        },
+        { "type": "text", "id": "usp_1_title", "label": "Title", "default": "Rebalances your oral microbiome" },
+        { "type": "text", "id": "usp_1_subtitle", "label": "Subtitle", "default": "Live probiotic strains overnight" },
+
+        { "type": "header", "content": "USP 2" },
+        { "type": "select", "id": "usp_2_icon", "label": "Icon", "default": "breath-target",
+          "options": [
+            { "value": "microbiome", "label": "Microbiome balance" },
+            { "value": "breath-target", "label": "Breath target" },
+            { "value": "lozenge-moon", "label": "Lozenge moon" },
+            { "value": "calendar-30", "label": "30-day calendar" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "leaf", "label": "Leaf" },
+            { "value": "sparkle", "label": "Sparkle" }
+          ]
+        },
+        { "type": "text", "id": "usp_2_title", "label": "Title", "default": "Targets bad breath at the source" },
+        { "type": "text", "id": "usp_2_subtitle", "label": "Subtitle", "default": "Where brushing cannot reach" },
+
+        { "type": "header", "content": "USP 3" },
+        { "type": "select", "id": "usp_3_icon", "label": "Icon", "default": "lozenge-moon",
+          "options": [
+            { "value": "microbiome", "label": "Microbiome balance" },
+            { "value": "breath-target", "label": "Breath target" },
+            { "value": "lozenge-moon", "label": "Lozenge moon" },
+            { "value": "calendar-30", "label": "30-day calendar" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "leaf", "label": "Leaf" },
+            { "value": "sparkle", "label": "Sparkle" }
+          ]
+        },
+        { "type": "text", "id": "usp_3_title", "label": "Title", "default": "One lozenge before bed" },
+        { "type": "text", "id": "usp_3_subtitle", "label": "Subtitle", "default": "Dissolves slowly, no sugar" },
+
+        { "type": "header", "content": "USP 4" },
+        { "type": "select", "id": "usp_4_icon", "label": "Icon", "default": "calendar-30",
+          "options": [
+            { "value": "microbiome", "label": "Microbiome balance" },
+            { "value": "breath-target", "label": "Breath target" },
+            { "value": "lozenge-moon", "label": "Lozenge moon" },
+            { "value": "calendar-30", "label": "30-day calendar" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "leaf", "label": "Leaf" },
+            { "value": "sparkle", "label": "Sparkle" }
+          ]
+        },
+        { "type": "text", "id": "usp_4_title", "label": "Title", "default": "30-day supply per jar" },
+        { "type": "text", "id": "usp_4_subtitle", "label": "Subtitle", "default": "Vegan, gluten-free, EU compliant" }
       ]
     },
     {

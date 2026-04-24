@@ -20,8 +20,10 @@
   {%- comment -%} ---------- Desktop row (>= 901px) ---------- {%- endcomment -%}
   <div class="cx-container cx-header-inner cx-header-inner--desktop">
     <a class="cx-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
-      {%- if section.settings.logo != blank -%}
-        {{ section.settings.logo | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:28px;width:auto;' }}
+      {%- if section.settings.logo_url != blank -%}
+        <img src="{{ section.settings.logo_url }}" alt="{{ shop.name | escape }}" width="180" height="32" loading="eager" style="max-height:32px;width:auto;display:block;">
+      {%- elsif section.settings.logo != blank -%}
+        {{ section.settings.logo | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:32px;width:auto;' }}
       {%- else -%}
         <span class="cx-logo-text">{{ section.settings.logo_text | default: 'CALQIX' }}</span>
       {%- endif -%}
@@ -31,48 +33,24 @@
       {%- for block in section.blocks -%}
         {%- if block.type == 'mega' -%}
           <button type="button" class="cx-nav-link cx-nav-toggle" aria-expanded="false" data-cx-dropdown-toggle="{{ block.id }}" {{ block.shopify_attributes }}>
-            {{ block.settings.label }}
-            <span class="cx-nav-chev">{% render 'cx-icons', name: 'arrowDown', size: 11 %}</span>
+            <span class="cx-nav-label">{{ block.settings.label }}</span>
+            <span class="cx-nav-chev" aria-hidden="true">{% render 'cx-icons', name: 'arrowDown', size: 14 %}</span>
           </button>
         {%- elsif block.type == 'link' -%}
-          <a class="cx-nav-link" href="{{ block.settings.link }}" {{ block.shopify_attributes }}>{{ block.settings.label }}</a>
+          <a class="cx-nav-link" href="{{ block.settings.link }}" {{ block.shopify_attributes }}>
+            <span class="cx-nav-label">{{ block.settings.label }}</span>
+          </a>
         {%- endif -%}
       {%- endfor -%}
     </nav>
 
     <div class="cx-header-actions">
       {%- comment -%}
-        Locale + language pickers — rendered inline so customers can
-        switch EUR↔USD / NL↔EN without leaving the header. Wired to
-        the existing localization-form custom element that ships with
-        the Wonder theme base (assets/localization-form.js); snippet
-        output pre-wraps them in `<localization-form>` + `<form>`.
+        Search and locale/language have been moved OUT of the header:
+          - Search removed per merchant request (task 3.2)
+          - Locale/currency now lives in the announcement bar right side (task 3.1)
+          - Mobile drawer keeps its own locale pickers (task 5.2)
       {%- endcomment -%}
-      {%- if section.settings.show_localization -%}
-        {%- if localization.available_countries.size > 1 -%}
-          <div class="cx-localization cx-localization--country">
-            <localization-form>
-              {%- form 'localization', id: 'CxHeaderCountryForm' -%}
-                {% render 'country-localization', localPosition: 'CxHeaderCountry' %}
-              {%- endform -%}
-            </localization-form>
-          </div>
-        {%- endif -%}
-        {%- if localization.available_languages.size > 1 -%}
-          <div class="cx-localization cx-localization--lang">
-            <localization-form>
-              {%- form 'localization', id: 'CxHeaderLangForm' -%}
-                {% render 'language-localization', localPosition: 'CxHeaderLang' %}
-              {%- endform -%}
-            </localization-form>
-          </div>
-        {%- endif -%}
-      {%- endif -%}
-      {%- if section.settings.enable_search -%}
-        <a class="cx-icon-btn" href="{{ routes.search_url }}" aria-label="Zoeken">
-          {% render 'cx-icons', name: 'searchLeaf', size: 20 %}
-        </a>
-      {%- endif -%}
       <a class="cx-icon-btn" href="{{ routes.account_url }}" aria-label="Account">
         {% render 'cx-icons', name: 'userSlim', size: 20 %}
       </a>
@@ -99,10 +77,12 @@
     </button>
 
     <a class="cx-m-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
-      {%- if section.settings.logo_mobile != blank -%}
-        {{ section.settings.logo_mobile | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:26px;width:auto;' }}
+      {%- if section.settings.logo_url != blank -%}
+        <img src="{{ section.settings.logo_url }}" alt="{{ shop.name | escape }}" width="160" height="28" loading="eager" style="max-height:28px;width:auto;display:block;">
+      {%- elsif section.settings.logo_mobile != blank -%}
+        {{ section.settings.logo_mobile | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:28px;width:auto;' }}
       {%- elsif section.settings.logo != blank -%}
-        {{ section.settings.logo | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:26px;width:auto;' }}
+        {{ section.settings.logo | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:28px;width:auto;' }}
       {%- else -%}
         <span class="cx-logo-text">{{ section.settings.logo_text | default: 'CALQIX' }}</span>
       {%- endif -%}
@@ -160,7 +140,9 @@
        hidden>
   <header class="cx-drawer__head">
     <a class="cx-drawer__logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
-      {%- if section.settings.logo != blank -%}
+      {%- if section.settings.logo_url != blank -%}
+        <img src="{{ section.settings.logo_url }}" alt="{{ shop.name | escape }}" width="160" height="28" loading="lazy" style="max-height:28px;width:auto;display:block;">
+      {%- elsif section.settings.logo != blank -%}
         {{ section.settings.logo | image_url: width: 200 | image_tag: loading: 'lazy', alt: shop.name, style: 'max-height:28px;width:auto;' }}
       {%- else -%}
         <span class="cx-drawer__logo-text">{{ section.settings.logo_text | default: 'CALQIX' }}</span>
@@ -170,6 +152,28 @@
       {% render 'cx-icons', name: 'close', size: 14 %}
     </button>
   </header>
+
+  {%- comment -%}
+    Personalised greeting — only renders if logged in.
+    Uses Shopify's `customer` object. `first_name` may be blank on B2B or
+    invite-only accounts, fall back to full name then email local part.
+    Styled: Playfair Display (mapped to --cx-f-display), gold colour.
+  {%- endcomment -%}
+  {%- if customer -%}
+    {%- liquid
+      assign cx_greet_name = customer.first_name
+      if cx_greet_name == blank
+        assign cx_greet_name = customer.name
+      endif
+      if cx_greet_name == blank
+        assign cx_greet_name = customer.email | split: '@' | first
+      endif
+    -%}
+    <div class="cx-drawer__greeting">
+      <span class="cx-drawer__greeting-hi">Hallo</span>
+      <span class="cx-drawer__greeting-name">{{ cx_greet_name }}</span>
+    </div>
+  {%- endif -%}
 
   <nav class="cx-drawer__nav" aria-label="Mobiele navigatie">
     {%- for block in section.blocks -%}
@@ -207,36 +211,113 @@
     {%- endfor -%}
   </nav>
 
+  {%- comment -%}
+    Locale + language — single-row "chip" that opens a popup sheet with
+    smooth animations. Country + language are both selectable in the same
+    sheet. Uses Wonder's localization-form custom element for the form
+    submission mechanics, so Shopify auto-redirects on selection.
+  {%- endcomment -%}
   {%- if section.settings.show_localization -%}
-    <div class="cx-drawer__locale">
-      {%- if localization.available_countries.size > 1 -%}
-        <div class="cx-localization cx-localization--drawer">
-          <localization-form>
-            {%- form 'localization', id: 'CxDrawerCountryForm' -%}
-              {% render 'country-localization', localPosition: 'CxDrawerCountry' %}
-            {%- endform -%}
-          </localization-form>
-        </div>
-      {%- endif -%}
-      {%- if localization.available_languages.size > 1 -%}
-        <div class="cx-localization cx-localization--drawer">
-          <localization-form>
-            {%- form 'localization', id: 'CxDrawerLangForm' -%}
-              {% render 'language-localization', localPosition: 'CxDrawerLang' %}
-            {%- endform -%}
-          </localization-form>
-        </div>
-      {%- endif -%}
-    </div>
+    {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
+      <div class="cx-drawer__locale">
+        <button type="button" class="cx-locale-chip" data-cx-locale-open aria-haspopup="dialog" aria-expanded="false" aria-controls="cx-locale-sheet">
+          <span class="cx-locale-chip__globe" aria-hidden="true">{% render 'cx-icons', name: 'globe', size: 16 %}</span>
+          <span class="cx-locale-chip__text">
+            {%- if localization.available_countries.size > 1 -%}
+              <span class="cx-locale-chip__country">{{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }} · {{ localization.country.name }}</span>
+            {%- endif -%}
+            {%- if localization.available_languages.size > 1 -%}
+              <span class="cx-locale-chip__lang">{{ localization.language.endonym_name | capitalize }}</span>
+            {%- endif -%}
+          </span>
+          <span class="cx-locale-chip__chev" aria-hidden="true">{% render 'cx-icons', name: 'arrowDown', size: 12 %}</span>
+        </button>
+      </div>
+    {%- endif -%}
   {%- endif -%}
 
-  {%- if section.settings.cta_label != blank and section.settings.cta_url != blank -%}
-    <a class="cx-drawer__cta" href="{{ section.settings.cta_url }}">
-      {{ section.settings.cta_label }}
+  {%- comment -%}
+    Login / Account CTA — state-aware.
+    - Logged out: "Log in" → /account/login (Shopify auto-redirects back after login via return_url)
+    - Logged in:  "Mijn account" → /account
+    Uses dark-blue forest-ink palette with subtle glow on hover.
+  {%- endcomment -%}
+  {%- if customer -%}
+    <a class="cx-drawer__cta cx-drawer__cta--account" href="{{ routes.account_url }}">
+      <span class="cx-drawer__cta-label">Mijn account</span>
+      {% render 'cx-icons', name: 'arrowRight', size: 14 %}
+    </a>
+  {%- else -%}
+    <a class="cx-drawer__cta cx-drawer__cta--login" href="{{ routes.account_login_url }}">
+      <span class="cx-drawer__cta-label">Log in</span>
       {% render 'cx-icons', name: 'arrowRight', size: 14 %}
     </a>
   {%- endif -%}
 </aside>
+
+{%- comment -%} ---------- Locale sheet (popup) ---------- {%- endcomment -%}
+{%- if section.settings.show_localization -%}
+  {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
+    <div class="cx-locale-sheet" id="cx-locale-sheet" role="dialog" aria-modal="true" aria-labelledby="cx-locale-sheet-title" data-cx-locale-sheet hidden>
+      <div class="cx-locale-sheet__backdrop" data-cx-locale-close aria-hidden="true"></div>
+      <div class="cx-locale-sheet__panel">
+        <header class="cx-locale-sheet__head">
+          <h2 class="cx-locale-sheet__title" id="cx-locale-sheet-title">Land & taal</h2>
+          <button type="button" class="cx-locale-sheet__close" data-cx-locale-close aria-label="Sluiten">
+            {% render 'cx-icons', name: 'close', size: 14 %}
+          </button>
+        </header>
+        <div class="cx-locale-sheet__body">
+          {%- if localization.available_countries.size > 1 -%}
+            <section class="cx-locale-sheet__group">
+              <h3 class="cx-locale-sheet__group-title">Land / Valuta</h3>
+              <localization-form>
+                {%- form 'localization', id: 'CxSheetCountryForm' -%}
+                  <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
+                  <ul class="cx-locale-sheet__list" role="list">
+                    {%- for country in localization.available_countries -%}
+                      <li>
+                        <a href="#" class="cx-locale-sheet__option{% if country.iso_code == localization.country.iso_code %} is-active{% endif %}" data-value="{{ country.iso_code }}">
+                          <span class="cx-locale-sheet__option-flag" aria-hidden="true">{{ country.currency.iso_code }} {{ country.currency.symbol }}</span>
+                          <span class="cx-locale-sheet__option-name">{{ country.name }}</span>
+                          {%- if country.iso_code == localization.country.iso_code -%}
+                            <span class="cx-locale-sheet__option-check" aria-hidden="true">{% render 'cx-icons', name: 'arrowRight', size: 12 %}</span>
+                          {%- endif -%}
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endform -%}
+              </localization-form>
+            </section>
+          {%- endif -%}
+          {%- if localization.available_languages.size > 1 -%}
+            <section class="cx-locale-sheet__group">
+              <h3 class="cx-locale-sheet__group-title">Taal</h3>
+              <localization-form>
+                {%- form 'localization', id: 'CxSheetLangForm' -%}
+                  <input type="hidden" name="locale_code" value="{{ localization.language.iso_code }}">
+                  <ul class="cx-locale-sheet__list" role="list">
+                    {%- for language in localization.available_languages -%}
+                      <li>
+                        <a href="#" class="cx-locale-sheet__option{% if language.iso_code == localization.language.iso_code %} is-active{% endif %}" data-value="{{ language.iso_code }}" hreflang="{{ language.iso_code }}" lang="{{ language.iso_code }}">
+                          <span class="cx-locale-sheet__option-name">{{ language.endonym_name | capitalize }}</span>
+                          {%- if language.iso_code == localization.language.iso_code -%}
+                            <span class="cx-locale-sheet__option-check" aria-hidden="true">{% render 'cx-icons', name: 'arrowRight', size: 12 %}</span>
+                          {%- endif -%}
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endform -%}
+              </localization-form>
+            </section>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+{%- endif -%}
 
 <style>
   /* ================ Desktop ================ */
@@ -490,58 +571,205 @@
   }
   .cx-drawer__sub[hidden] { display: none; }
   .cx-drawer__sublink {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 8px;
-    padding: 10px 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "eyebrow arrow"
+      "title arrow";
+    align-items: center;
+    gap: 2px 12px;
+    padding: 12px 0;
     color: var(--cx-forest-3);
+    border-bottom: 1px solid rgba(26,59,92,0.04);
   }
+  .cx-drawer__sublink:last-child { border-bottom: 0; }
   .cx-drawer__sublink-eyebrow {
+    grid-area: eyebrow;
     display: inline-block;
     font-family: var(--cx-f-display);
-    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
     font-style: italic;
     color: var(--cx-gold-ink);
     margin-right: 6px;
   }
   .cx-drawer__sublink-title {
+    grid-area: title;
     font-family: var(--cx-f-display);
     font-size: 16px; font-weight: 500;
-    flex: 1 1 auto;
+    line-height: 1.2;
   }
-  .cx-drawer__sublink-arrow { color: var(--cx-ink-mute); }
+  .cx-drawer__sublink-arrow {
+    grid-area: arrow;
+    color: var(--cx-ink-mute);
+    align-self: center;
+  }
 
+  /* Personalised greeting (logged-in only) */
+  .cx-drawer__greeting {
+    padding: 10px 22px 6px;
+    font-family: var(--cx-f-display);
+    font-size: 20px; font-weight: 500;
+    color: var(--cx-gold-ink);
+    letter-spacing: 0.005em;
+    line-height: 1.2;
+  }
+  .cx-drawer__greeting-hi { opacity: 0.85; margin-right: 4px; }
+  .cx-drawer__greeting-name { color: var(--cx-gold-ink); }
+
+  /* Locale chip — single-row trigger */
   .cx-drawer__locale {
-    display: flex; flex-direction: column; gap: 8px;
-    padding: 14px 0;
+    padding: 14px 22px;
     margin-top: auto;
-    border-top: 1px solid var(--cx-rule);
+    border-top: 1px solid rgba(26,59,92,0.08);
   }
-  .cx-localization--drawer .disclosure__button {
-    color: var(--cx-forest-3);
-    font-size: 14px;
-    padding: 10px 12px;
-    border: 1px solid var(--cx-rule);
-    border-radius: 8px;
+  .cx-locale-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     width: 100%;
-    justify-content: space-between;
+    padding: 12px 14px;
+    background: rgba(26,59,92,0.03);
+    border: 1px solid rgba(26,59,92,0.08);
+    border-radius: 12px;
+    color: var(--cx-forest-3);
+    font-family: var(--cx-f-display);
+    font-size: 13.5px; font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
   }
-  .cx-localization--drawer .disclosure__list-wrapper {
-    position: static; right: auto;
-    margin-top: 4px;
-    border-radius: 8px;
+  .cx-locale-chip:hover {
+    background: rgba(26,59,92,0.06);
+    border-color: rgba(26,59,92,0.16);
   }
+  .cx-locale-chip:active { transform: scale(0.98); }
+  .cx-locale-chip__globe { display: inline-flex; color: var(--cx-gold-ink); flex: 0 0 auto; }
+  .cx-locale-chip__text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .cx-locale-chip__country { font-size: 13.5px; font-weight: 500; color: var(--cx-forest-3); line-height: 1.2; }
+  .cx-locale-chip__lang { font-size: 11px; color: rgba(26,59,92,0.6); line-height: 1.2; }
+  .cx-locale-chip__chev { color: rgba(26,59,92,0.4); flex: 0 0 auto; }
 
+  /* Locale popup sheet */
+  .cx-locale-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.28s ease;
+  }
+  .cx-locale-sheet[data-open] {
+    pointer-events: auto;
+    opacity: 1;
+  }
+  .cx-locale-sheet[hidden] { display: none; }
+  .cx-locale-sheet__backdrop {
+    position: absolute; inset: 0;
+    background: rgba(11,37,64,0.52);
+    backdrop-filter: blur(4px);
+  }
+  .cx-locale-sheet__panel {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: min(420px, calc(100vw - 32px));
+    max-height: calc(100vh - 64px);
+    transform: translate(-50%, calc(-50% + 12px)) scale(0.96);
+    background: var(--cx-page);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow: 0 32px 64px -24px rgba(11,37,64,0.35),
+                0 0 0 1px rgba(26,59,92,0.05);
+    opacity: 0;
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease;
+  }
+  .cx-locale-sheet[data-open] .cx-locale-sheet__panel {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  .cx-locale-sheet__head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(26,59,92,0.08);
+  }
+  .cx-locale-sheet__title {
+    margin: 0;
+    font-family: var(--cx-f-display);
+    font-size: 18px; font-weight: 500;
+    color: var(--cx-forest-3);
+  }
+  .cx-locale-sheet__close {
+    background: transparent; border: 0; cursor: pointer;
+    padding: 6px; margin: -6px;
+    color: var(--cx-forest-3);
+    line-height: 0; border-radius: 8px;
+    transition: background 0.2s ease;
+  }
+  .cx-locale-sheet__close:hover { background: rgba(26,59,92,0.06); }
+  .cx-locale-sheet__body {
+    overflow-y: auto;
+    padding: 8px 12px 16px;
+  }
+  .cx-locale-sheet__group { padding: 12px 8px 4px; }
+  .cx-locale-sheet__group-title {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    font-weight: 700;
+    color: rgba(26,59,92,0.5);
+    margin: 0 0 8px;
+  }
+  .cx-locale-sheet__list { list-style: none; margin: 0; padding: 0; }
+  .cx-locale-sheet__option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    color: var(--cx-forest-3);
+    text-decoration: none;
+    font-family: var(--cx-f-display);
+    font-size: 14px;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .cx-locale-sheet__option:hover {
+    background: rgba(26,59,92,0.05);
+  }
+  .cx-locale-sheet__option.is-active {
+    background: rgba(61,139,255,0.09);
+    color: var(--cx-forest-3);
+  }
+  .cx-locale-sheet__option-flag {
+    flex: 0 0 auto;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 11.5px; font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--cx-gold-ink);
+    min-width: 64px;
+  }
+  .cx-locale-sheet__option-name { flex: 1 1 auto; }
+  .cx-locale-sheet__option-check { color: var(--cx-accent, #3d8bff); }
+
+  /* Login / account CTA */
   .cx-drawer__cta {
     display: inline-flex; align-items: center; justify-content: center;
     gap: 10px;
-    padding: 14px 20px;
+    padding: 16px 24px;
     background: var(--cx-forest-3);
     color: var(--cx-forest-ink);
     border-radius: 999px;
     font-family: var(--cx-f-display);
     font-size: 15px; font-weight: 500;
     text-align: center;
+    margin: 14px 22px 22px;
+    box-shadow: 0 10px 24px -12px rgba(26,59,92,0.35);
+    transition: transform 0.2s ease, box-shadow 0.25s ease;
   }
+  .cx-drawer__cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 32px -12px rgba(26,59,92,0.45),
+                0 0 22px -6px rgba(61,139,255,0.4);
+  }
+  .cx-drawer__cta:active { transform: translateY(0); }
+  .cx-drawer__cta--account { background: var(--cx-forest-3); }
+  .cx-drawer__cta--login   { background: var(--cx-forest-3); }
 
   @media (prefers-reduced-motion: reduce) {
     .cx-drawer, .cx-drawer-overlay { transition: none; }
@@ -556,6 +784,7 @@
   "settings": [
     { "type": "header", "content": "Logo" },
     { "type": "text", "id": "logo_text", "label": "Logo tekst", "default": "CALQIX" },
+    { "type": "text", "id": "logo_url", "label": "Logo CDN URL (wint van image picker)", "info": "Plak hier een volledige https:// image URL (bv. shopify CDN). Laat leeg om de image picker hieronder te gebruiken." },
     { "type": "image_picker", "id": "logo", "label": "Logo afbeelding (optioneel)" },
     { "type": "image_picker", "id": "logo_mobile", "label": "Logo mobiel (optioneel — valt terug op desktop logo)" },
     { "type": "header", "content": "Search" },

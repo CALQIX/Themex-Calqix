@@ -1,27 +1,82 @@
 {%- comment -%}
-  CALQIX Navy Rebuild — Announcement bar.
-  Source: _incoming/calqix-web-upgrade/handoff/source/components/header.jsx → AnnouncementBar
+  CALQIX Navy Rebuild — Announcement bar (rotating).
+  Shows ONE announcement at a time with smooth fade crossfade transitions.
+  Right side: locale pill + language pill that BOTH trigger the shared
+  `[data-cx-locale-open]` sheet (same sheet as the mobile drawer uses).
+
+  Configurable via theme editor:
+    - section.settings.rotate_interval_ms (slide duration in ms, default 5000)
+    - section.settings.fade_duration_ms   (crossfade duration, default 400)
+
+  Implementation notes:
+    - Renders ALL blocks but only the first is visible by default. JS toggles
+      `.is-active` every {rotate_interval_ms} ms.
+    - If `prefers-reduced-motion: reduce` the rotation still happens (text
+      rotation is UX-relevant) but the crossfade becomes an instant swap.
+    - Pauses while tab is hidden (visibility API) to avoid wasted work.
 {%- endcomment -%}
 
-<div class="cx-root cx-announce" data-cx-reveal="fade">
+{%- liquid
+  assign rotate_ms = section.settings.rotate_interval_ms | default: 5000
+  assign fade_ms = section.settings.fade_duration_ms | default: 400
+-%}
+
+<div
+  class="cx-root cx-announce"
+  data-cx-announce
+  data-rotate-ms="{{ rotate_ms }}"
+  data-fade-ms="{{ fade_ms }}"
+  style="--cx-ann-fade: {{ fade_ms }}ms;"
+>
   <div class="cx-container cx-announce-inner">
-    <div class="cx-announce-items">
+    <div class="cx-announce-stage" aria-live="polite">
       {%- for block in section.blocks -%}
-        {%- if forloop.index0 > 0 -%}<span class="cx-announce-dot" aria-hidden="true"></span>{%- endif -%}
-        <span class="cx-announce-item" {{ block.shopify_attributes }}>
+        <span
+          class="cx-announce-item{% if forloop.first %} is-active{% endif %}"
+          data-cx-announce-item
+          {{ block.shopify_attributes }}
+        >
           {%- if block.settings.icon != 'none' -%}
-            {% render 'cx-icons', name: block.settings.icon, size: 13 %}
+            <span class="cx-announce-item__icon" aria-hidden="true">
+              {% render 'cx-icons', name: block.settings.icon, size: 13 %}
+            </span>
           {%- endif -%}
-          <span>{{ block.settings.text }}</span>
+          <span class="cx-announce-item__text">{{ block.settings.text }}</span>
         </span>
       {%- endfor -%}
     </div>
+
     {%- if section.settings.show_meta -%}
-      <div class="cx-announce-meta">
-        <span>{{ section.settings.locale_label }}</span>
-        <span class="cx-announce-meta-sep">/</span>
-        <span>{{ section.settings.currency_label }}</span>
-      </div>
+      {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
+        <div class="cx-announce-meta">
+          <button type="button" class="cx-announce-meta__chip" data-cx-locale-open aria-haspopup="dialog" aria-expanded="false" aria-controls="cx-locale-sheet">
+            <span class="cx-announce-meta__label">
+              {%- if localization.available_countries.size > 1 -%}
+                {{ localization.country.name | default: section.settings.locale_label }}
+              {%- else -%}
+                {{ section.settings.locale_label }}
+              {%- endif -%}
+            </span>
+            <span class="cx-announce-meta__sep" aria-hidden="true">/</span>
+            <span class="cx-announce-meta__label">
+              {%- if localization.available_countries.size > 1 -%}
+                {{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }}
+              {%- else -%}
+                {{ section.settings.currency_label }}
+              {%- endif -%}
+            </span>
+            <span class="cx-announce-meta__chev" aria-hidden="true">
+              {% render 'cx-icons', name: 'arrowDown', size: 10 %}
+            </span>
+          </button>
+        </div>
+      {%- else -%}
+        <div class="cx-announce-meta">
+          <span>{{ section.settings.locale_label }}</span>
+          <span class="cx-announce-meta__sep">/</span>
+          <span>{{ section.settings.currency_label }}</span>
+        </div>
+      {%- endif -%}
     {%- endif -%}
   </div>
 </div>
@@ -33,35 +88,148 @@
     font-family: var(--cx-f-body);
     font-size: 12px;
     letter-spacing: 0.02em;
-    padding: 10px 0;
+    padding: 8px 0;
     border-bottom: 1px solid rgba(242,247,255,0.12);
   }
   .cx-announce-inner {
-    display: flex; justify-content: space-between; align-items: center; gap: 24px; overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    min-height: 20px;
   }
-  .cx-announce-items {
-    display: flex; align-items: center; flex: 1; overflow: hidden; white-space: nowrap;
-    gap: 0;
+
+  /* Single-slot rotating stage — all items stacked, fade crossfade */
+  .cx-announce-stage {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
   .cx-announce-item {
-    display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
-  }
-  .cx-announce-dot {
-    width: 3px; height: 3px; border-radius: 999px; background: var(--cx-gold);
-    display: inline-block; margin: 0 18px; opacity: .7;
-  }
-  .cx-announce-meta {
-    display: flex; align-items: center; gap: 14px; font-size: 12px; opacity: .85;
+    position: absolute;
+    inset: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     white-space: nowrap;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity var(--cx-ann-fade, 400ms) ease,
+                transform var(--cx-ann-fade, 400ms) cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
   }
-  .cx-announce-meta-sep { opacity: .3; }
+  .cx-announce-item.is-active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .cx-announce-item__icon {
+    display: inline-flex;
+    color: var(--cx-gold-ink, #C9A84C);
+    flex: 0 0 auto;
+  }
+  .cx-announce-item__text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  /* Meta chip (locale + currency trigger for the sheet) */
+  .cx-announce-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  .cx-announce-meta__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    background: transparent;
+    color: var(--cx-forest-ink);
+    border: 1px solid rgba(242,247,255,0.14);
+    border-radius: 999px;
+    font-family: var(--cx-f-body);
+    font-size: 11.5px;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .cx-announce-meta__chip:hover {
+    background: rgba(242,247,255,0.06);
+    border-color: rgba(242,247,255,0.28);
+  }
+  .cx-announce-meta__sep { opacity: 0.4; }
+  .cx-announce-meta__chev { display: inline-flex; opacity: 0.7; }
+
   @media (max-width: 700px) {
-    .cx-announce-items { justify-content: flex-start; }
-    .cx-announce-item:nth-child(n+5),
-    .cx-announce-dot:nth-child(n+4) { display: none; }
+    .cx-announce { padding: 7px 0; }
+    .cx-announce-item { font-size: 11px; }
     .cx-announce-meta { display: none; }
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cx-announce-item {
+      transition: opacity 0s ease;
+      transform: none;
+    }
+  }
 </style>
+
+<script>
+  (function () {
+    var root = document.querySelector('[data-cx-announce]');
+    if (!root) return;
+    var items = Array.prototype.slice.call(root.querySelectorAll('[data-cx-announce-item]'));
+    if (items.length <= 1) return;
+
+    var interval = parseInt(root.getAttribute('data-rotate-ms'), 10) || 5000;
+    var fadeMs = parseInt(root.getAttribute('data-fade-ms'), 10) || 400;
+    var current = 0;
+    var timer = null;
+
+    function advance() {
+      var next = (current + 1) % items.length;
+      items[current].classList.remove('is-active');
+      items[next].classList.add('is-active');
+      current = next;
+    }
+
+    function start() {
+      if (timer) return;
+      timer = window.setInterval(advance, interval);
+    }
+    function stop() {
+      if (!timer) return;
+      window.clearInterval(timer);
+      timer = null;
+    }
+
+    // Pause when tab hidden, resume when visible
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else start();
+    });
+
+    // Pause while any locale sheet is open (to keep focus steady)
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.closest && e.target.closest('[data-cx-locale-open]')) {
+        stop();
+        // restart 10s later even if user leaves sheet open silently
+        window.setTimeout(start, 10000);
+      }
+    });
+
+    start();
+  })();
+</script>
 
 {% schema %}
 {
@@ -69,10 +237,32 @@
   "tag": "section",
   "class": "cx-section-announce",
   "settings": [
-    { "type": "header", "content": "Meta label" },
-    { "type": "checkbox", "id": "show_meta", "label": "Toon locale/currency", "default": true },
-    { "type": "text", "id": "locale_label", "label": "Locale", "default": "NL" },
-    { "type": "text", "id": "currency_label", "label": "Valuta", "default": "EUR €" }
+    { "type": "header", "content": "Rotation" },
+    {
+      "type": "range",
+      "id": "rotate_interval_ms",
+      "label": "Duur per regel (ms)",
+      "min": 2000,
+      "max": 12000,
+      "step": 500,
+      "default": 5000,
+      "unit": "ms",
+      "info": "Hoe lang elke aankondiging zichtbaar is voor de volgende fades in."
+    },
+    {
+      "type": "range",
+      "id": "fade_duration_ms",
+      "label": "Fade duur (ms)",
+      "min": 150,
+      "max": 1000,
+      "step": 50,
+      "default": 400,
+      "unit": "ms"
+    },
+    { "type": "header", "content": "Locale / currency trigger" },
+    { "type": "checkbox", "id": "show_meta", "label": "Land/taal trigger tonen (rechts)", "default": true },
+    { "type": "text", "id": "locale_label", "label": "Fallback land/locale label", "default": "NL", "info": "Gebruikt wanneer er maar 1 land beschikbaar is." },
+    { "type": "text", "id": "currency_label", "label": "Fallback valuta label", "default": "EUR €" }
   ],
   "blocks": [
     {
