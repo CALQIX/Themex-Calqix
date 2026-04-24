@@ -399,7 +399,7 @@ body[class^="template-product"] .wt-product__info .wt-collapse__target--text str
     border-radius: 10px;
     min-width: 0;
     padding: 0 16px;
-    font-size: 14px;
+    font-size: 16px;
     letter-spacing: 0;
   }
 
@@ -953,9 +953,9 @@ body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta {
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 10px;
-  font-family: "DM Sans", sans-serif;
+  font-family: "Playfair Display", Georgia, serif;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.04em;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.25s ease;
@@ -969,13 +969,45 @@ body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta {
 
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta-icon {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: #fff;
-  stroke-width: 1.5;
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
 }
 
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta-text {
   display: inline-block;
   line-height: 1;
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta-sep {
+  display: inline-block;
+  opacity: 0.6;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta-price {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 600;
+  line-height: 1;
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta-price .cq-sticky__compare {
+  font-size: 11px;
+  opacity: 0.55;
+  text-decoration: line-through;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 400;
 }
 
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta:hover {

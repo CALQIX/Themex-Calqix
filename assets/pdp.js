@@ -72,8 +72,30 @@ class StickyBuyButton extends HTMLElement {
       addToCartModule.querySelector(".wt-product__price");
     if (!mainPriceEl) return;
 
+    // The main price element typically contains a strike-through compare-at
+    // span plus the current selling price span. For the sticky CTA we want a
+    // compact single price, so prefer the most specific "current price" node
+    // when it exists; fall back to the full innerHTML otherwise.
+    const pickCompact = () => {
+      const candidates = [
+        ".price-item--sale:not(.price-item--regular)",
+        ".price-item--last",
+        ".wt-product__price__current",
+        ".price-item--sale",
+        ".price-item--regular",
+      ];
+      for (const sel of candidates) {
+        const el = mainPriceEl.querySelector(sel);
+        if (el && el.textContent.trim()) {
+          return el.textContent.trim();
+        }
+      }
+      const text = mainPriceEl.textContent.replace(/\s+/g, " ").trim();
+      return text || mainPriceEl.innerHTML;
+    };
+
     const mirror = () => {
-      slot.innerHTML = mainPriceEl.innerHTML;
+      slot.textContent = pickCompact();
     };
 
     mirror();
