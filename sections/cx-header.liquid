@@ -41,6 +41,33 @@
     </nav>
 
     <div class="cx-header-actions">
+      {%- comment -%}
+        Locale + language pickers — rendered inline so customers can
+        switch EUR↔USD / NL↔EN without leaving the header. Wired to
+        the existing localization-form custom element that ships with
+        the Wonder theme base (assets/localization-form.js); snippet
+        output pre-wraps them in `<localization-form>` + `<form>`.
+      {%- endcomment -%}
+      {%- if section.settings.show_localization -%}
+        {%- if localization.available_countries.size > 1 -%}
+          <div class="cx-localization cx-localization--country">
+            <localization-form>
+              {%- form 'localization', id: 'CxHeaderCountryForm' -%}
+                {% render 'country-localization', localPosition: 'CxHeaderCountry' %}
+              {%- endform -%}
+            </localization-form>
+          </div>
+        {%- endif -%}
+        {%- if localization.available_languages.size > 1 -%}
+          <div class="cx-localization cx-localization--lang">
+            <localization-form>
+              {%- form 'localization', id: 'CxHeaderLangForm' -%}
+                {% render 'language-localization', localPosition: 'CxHeaderLang' %}
+              {%- endform -%}
+            </localization-form>
+          </div>
+        {%- endif -%}
+      {%- endif -%}
       {%- if section.settings.enable_search -%}
         <a class="cx-icon-btn" href="{{ routes.search_url }}" aria-label="Zoeken">
           {% render 'cx-icons', name: 'searchLeaf', size: 20 %}
@@ -180,6 +207,29 @@
     {%- endfor -%}
   </nav>
 
+  {%- if section.settings.show_localization -%}
+    <div class="cx-drawer__locale">
+      {%- if localization.available_countries.size > 1 -%}
+        <div class="cx-localization cx-localization--drawer">
+          <localization-form>
+            {%- form 'localization', id: 'CxDrawerCountryForm' -%}
+              {% render 'country-localization', localPosition: 'CxDrawerCountry' %}
+            {%- endform -%}
+          </localization-form>
+        </div>
+      {%- endif -%}
+      {%- if localization.available_languages.size > 1 -%}
+        <div class="cx-localization cx-localization--drawer">
+          <localization-form>
+            {%- form 'localization', id: 'CxDrawerLangForm' -%}
+              {% render 'language-localization', localPosition: 'CxDrawerLang' %}
+            {%- endform -%}
+          </localization-form>
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
   {%- if section.settings.cta_label != blank and section.settings.cta_url != blank -%}
     <a class="cx-drawer__cta" href="{{ section.settings.cta_url }}">
       {{ section.settings.cta_label }}
@@ -229,6 +279,47 @@
   .cx-header-actions {
     display: flex; align-items: center; gap: 8px; justify-content: flex-end;
   }
+
+  /* Locale + language pickers — reuse Wonder's .disclosure JS but restyle */
+  .cx-localization { position: relative; }
+  .cx-localization .disclosure__button {
+    background: transparent;
+    border: 0;
+    color: var(--cx-forest-ink);
+    font-family: var(--cx-f-display);
+    font-size: 13px; font-weight: 500;
+    padding: 6px 8px;
+    display: inline-flex; align-items: center; gap: 4px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .cx-localization .disclosure__button:hover { opacity: 0.8; }
+  .cx-localization .disclosure__list-wrapper {
+    position: absolute; top: calc(100% + 4px); right: 0;
+    background: var(--cx-page);
+    color: var(--cx-forest-3);
+    border: 1px solid var(--cx-rule);
+    border-radius: 8px;
+    box-shadow: var(--cx-shadow-card);
+    min-width: 180px;
+    max-height: 320px; overflow-y: auto;
+    padding: 6px;
+    z-index: 50;
+  }
+  .cx-localization .disclosure__list { list-style: none; padding: 0; margin: 0; }
+  .cx-localization .disclosure__link {
+    display: block;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: var(--cx-forest-3);
+    text-decoration: none;
+    border-radius: 6px;
+  }
+  .cx-localization .disclosure__link:hover,
+  .cx-localization .disclosure__link--active {
+    background: color-mix(in srgb, var(--cx-forest-3) 6%, transparent);
+  }
+  .cx-localization .localization-form__currency { color: var(--cx-ink-mute); margin-right: 4px; }
   .cx-icon-btn {
     display: inline-flex; align-items: center; justify-content: center;
     width: 32px; height: 32px; padding: 0;
@@ -419,8 +510,28 @@
   }
   .cx-drawer__sublink-arrow { color: var(--cx-ink-mute); }
 
-  .cx-drawer__cta {
+  .cx-drawer__locale {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 14px 0;
     margin-top: auto;
+    border-top: 1px solid var(--cx-rule);
+  }
+  .cx-localization--drawer .disclosure__button {
+    color: var(--cx-forest-3);
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--cx-rule);
+    border-radius: 8px;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .cx-localization--drawer .disclosure__list-wrapper {
+    position: static; right: auto;
+    margin-top: 4px;
+    border-radius: 8px;
+  }
+
+  .cx-drawer__cta {
     display: inline-flex; align-items: center; justify-content: center;
     gap: 10px;
     padding: 14px 20px;
@@ -449,6 +560,8 @@
     { "type": "image_picker", "id": "logo_mobile", "label": "Logo mobiel (optioneel — valt terug op desktop logo)" },
     { "type": "header", "content": "Search" },
     { "type": "checkbox", "id": "enable_search", "label": "Zoek-icoon tonen", "default": true },
+    { "type": "header", "content": "Locale + language" },
+    { "type": "checkbox", "id": "show_localization", "label": "Land/taal selector tonen", "default": true, "info": "Desktop: pills rechts van nav. Mobile drawer: onderaan voor de CTA." },
     { "type": "header", "content": "Mobile drawer CTA" },
     { "type": "text", "id": "cta_label", "label": "CTA label", "default": "Shop de Rebuild-kit" },
     { "type": "url",  "id": "cta_url",   "label": "CTA link" }

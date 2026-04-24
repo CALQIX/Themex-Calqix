@@ -5,6 +5,11 @@
  * This file may be updated by the Shopify admin theme editor
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
+ *
+ * CALQIX rebuild: switched from `announcement-bar` + `page-header`
+ * (legacy Wonder) to `cx-announcement` + `cx-header`. Logo asset,
+ * locale/language selectors, and the 4 current announcements are
+ * preserved so no visual regression from the old header.
  * ------------------------------------------------------------
  */
 {
@@ -12,111 +17,109 @@
   "name": "Header Group",
   "sections": {
     "announcement-bar": {
-      "type": "announcement-bar",
+      "type": "cx-announcement",
       "blocks": {
-        "announcement_7xBzKV": {
+        "announce_rebuild_kit": {
           "type": "announcement",
           "settings": {
-            "text": "🦷 Rebuild Kit · Save 30% on the two-step enamel protocol",
-            "link": "/#cq-rk-calqix_rebuild_kit_hero_PhaseB1"
+            "icon": "sparkle",
+            "text": "Rebuild Kit · Save 30% on the two-step enamel protocol"
           }
         },
-        "announcement_ThRGUR": {
+        "announce_shipping": {
           "type": "announcement",
           "settings": {
-            "text": "Free shipping on orders over €80, ships within 2 business days",
-            "link": ""
+            "icon": "truck",
+            "text": "Free shipping on orders over €80, ships within 2 business days"
           }
         },
-        "announcement_DKVb4L": {
+        "announce_guarantee": {
           "type": "announcement",
           "settings": {
-            "text": "✓ 30-day money-back guarantee, try it completely risk-free",
-            "link": ""
+            "icon": "shield",
+            "text": "30-day money-back guarantee, try it completely risk-free"
           }
         },
-        "announcement_calqixReviews": {
+        "announce_reviews": {
           "type": "announcement",
           "settings": {
-            "text": "🔬 Clinically tested · 4.9★ · Verified customer reviews",
-            "link": ""
+            "icon": "flask",
+            "text": "Clinically tested · 4.9★ · Verified customer reviews"
           }
         }
       },
       "block_order": [
-        "announcement_7xBzKV",
-        "announcement_ThRGUR",
-        "announcement_DKVb4L",
-        "announcement_calqixReviews"
+        "announce_rebuild_kit",
+        "announce_shipping",
+        "announce_guarantee",
+        "announce_reviews"
       ],
       "settings": {
-        "marquee": true,
-        "animation_speed": "150",
-        "checkbox_close_announcement": true,
-        "color-body-text": "#ffffff",
-        "background_color": "#002549"
+        "show_meta": true,
+        "locale_label": "NL",
+        "currency_label": "EUR €"
       }
     },
     "header": {
-      "type": "page-header",
+      "type": "cx-header",
       "blocks": {
-        "column_yVYQQ3": {
-          "type": "column",
+        "mega_products": {
+          "type": "mega",
           "settings": {
-            "title": "shop",
-            "promo_section_width": 6,
-            "stack_view": true,
-            "image_ratio": "adapt",
-            "heading_1": "",
-            "text_1": "View All Products",
-            "link_1": "",
-            "heading_2": "",
-            "text_2": "Women's Multi Capsules",
-            "link_2": "",
-            "heading_3": "",
-            "text_3": "Immunity Boost Capsules",
-            "link_3": "",
-            "heading_4": "",
-            "text_4": "Natural Collagen Capsules",
-            "link_4": "",
-            "heading_5": "",
-            "text_5": "Boost Energy Capsules",
-            "link_5": "",
-            "heading_6": "",
-            "text_6": "Men's Multi Capsules",
-            "link_6": ""
+            "label": "Products",
+            "eyebrow_1": "Step 1 · Clean",
+            "title_1": "Flowcore",
+            "desc_1": "Cordless oral irrigator · 1,600 pulses/min",
+            "link_1": "/products/flowcore",
+            "eyebrow_2": "Step 2 · Rebuild",
+            "title_2": "OralBiome Pro",
+            "desc_2": "Probiotic lozenges · 5 flavours",
+            "link_2": "/products/oralbiome-pro-freshmint",
+            "eyebrow_3": "Bundle · Save 15%",
+            "title_3": "Rebuild Kit",
+            "desc_3": "Flowcore + OralBiome Pro · full protocol",
+            "link_3": "/products/calqix-rebuild-kit",
+            "eyebrow_4": "Add-ons",
+            "title_4": "Refills & accessories",
+            "desc_4": "Flowcore tips, subscriptions, replacements",
+            "link_4": "/collections/all"
+          }
+        },
+        "link_science": {
+          "type": "link",
+          "settings": {
+            "label": "Science Journal",
+            "link": "/blogs/science-journal"
+          }
+        },
+        "link_about": {
+          "type": "link",
+          "settings": {
+            "label": "About us",
+            "link": "/pages/about"
+          }
+        },
+        "link_contact": {
+          "type": "link",
+          "settings": {
+            "label": "Contact",
+            "link": "/pages/contact"
           }
         }
       },
       "block_order": [
-        "column_yVYQQ3"
+        "mega_products",
+        "link_science",
+        "link_about",
+        "link_contact"
       ],
       "settings": {
-        "layout": "option_5",
-        "sticky_header": true,
-        "sticky_header_always": false,
-        "header_bg_opacity": 44,
-        "header_bg_blur": 30,
-        "header_always_blurred": true,
-        "show_line_separator": true,
-        "show_shadow": true,
+        "logo_text": "CALQIX",
         "logo": "shopify://shop_images/Header_Prime_logo_new_2026_nobg.png",
-        "large_screen_logo_width": 160,
-        "mobile_screen_logo_width": 120,
-        "menu": "main-menu",
-        "mobile_footer_menu": "",
-        "teaser_menu": "main-menu",
-        "teaser_menu_limit": 3,
-        "transparent_header_color": "rgba(0,0,0,0)",
-        "show_country_selector": true,
-        "show_country_selector_label": false,
-        "show_country_selector_flag": true,
-        "show_language_selector": true,
-        "drawer_title": "Welcome to CALQIX",
-        "enable_submenu_link_in_drawer": true,
-        "typing_search": "Search...",
-        "suggestions_title": "most popular",
-        "suggestions_menu": ""
+        "enable_search": true,
+        "show_localization": true,
+        "cta_label": "Shop the Rebuild Kit",
+        "cta_url": "/products/calqix-rebuild-kit"
       }
     }
   },
