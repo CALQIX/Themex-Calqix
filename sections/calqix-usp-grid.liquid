@@ -1,0 +1,477 @@
+{%- comment -%}
+  CALQIX — USP Grid Section
+  2x2 clinical USP block with inline SVG icons, CSS animations, and merchant-editable blocks.
+  Designed for (but not limited to) the OralBiome Pro product template.
+{%- endcomment -%}
+
+{%- liquid
+  assign section_bg       = section.settings.section_bg       | default: '#F7F5F2'
+  assign card_bg          = section.settings.card_bg          | default: '#FFFFFF'
+  assign navy_color       = section.settings.navy_color       | default: '#1A3B5C'
+  assign gold_color       = section.settings.gold_color       | default: '#C9A84C'
+  assign subtitle_color   = section.settings.subtitle_color   | default: '#1A3B5C'
+  assign padding_top      = section.settings.padding_top      | default: 24
+  assign padding_bottom   = section.settings.padding_bottom   | default: 24
+  assign inner_padding    = section.settings.inner_padding    | default: 24
+  assign border_radius    = section.settings.border_radius    | default: 12
+  assign show_badge       = section.settings.show_badge
+  assign badge_text       = section.settings.badge_text       | default: 'STEP 3 OF THE CALQIX ROUTINE'
+  assign enable_animation = section.settings.enable_animation
+-%}
+
+<style>
+  .cq-usp-grid-{{ section.id }} {
+    --cq-usp-navy: {{ navy_color }};
+    --cq-usp-gold: {{ gold_color }};
+    --cq-usp-bg: {{ section_bg }};
+    --cq-usp-card-bg: {{ card_bg }};
+    --cq-usp-subtitle: {{ subtitle_color }};
+    --cq-usp-radius: {{ border_radius }}px;
+    padding: {{ padding_top }}px 0 {{ padding_bottom }}px;
+  }
+  .cq-usp-grid-{{ section.id }} .cq-usp-grid__container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+  .cq-usp-grid-{{ section.id }} .cq-usp-grid__shell {
+    background: var(--cq-usp-bg);
+    border-radius: var(--cq-usp-radius);
+    padding: {{ inner_padding }}px;
+    border-left: 3px solid var(--cq-usp-gold);
+  }
+  .cq-usp-grid-{{ section.id }} .cq-usp-grid__badge {
+    display: inline-block;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--cq-usp-gold);
+    background: rgba(201, 168, 76, 0.1);
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin: 0 0 14px;
+  }
+  .cq-usp-grid-{{ section.id }} .cq-usp-grid__list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  @media (min-width: 768px) {
+    .cq-usp-grid-{{ section.id }} .cq-usp-grid__list { gap: 16px; }
+  }
+  .cq-usp-grid-{{ section.id }} .cq-usp-grid__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    background: var(--cq-usp-card-bg);
+    border-radius: calc(var(--cq-usp-radius) - 4px);
+    border: 1px solid rgba(26, 59, 92, 0.06);
+    opacity: 1;
+    transform: none;
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+  }
+  @media (min-width: 768px) {
+    .cq-usp-grid-{{ section.id }} .cq-usp-grid__item {
+      gap: 12px;
+      padding: 14px;
+    }
+  }
+  .cq-usp-grid-{{ section.id }}[data-animate="true"] .cq-usp-grid__item {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  .cq-usp-grid-{{ section.id }}[data-animate="true"].is-visible .cq-usp-grid__item {
+    animation: cq-usp-card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .cq-usp-grid-{{ section.id }}[data-animate="true"].is-visible .cq-usp-grid__item:nth-child(1) { animation-delay: 0s; }
+  .cq-usp-grid-{{ section.id }}[data-animate="true"].is-visible .cq-usp-grid__item:nth-child(2) { animation-delay: 0.1s; }
+  .cq-usp-grid-{{ section.id }}[data-animate="true"].is-visible .cq-usp-grid__item:nth-child(3) { animation-delay: 0.2s; }
+  .cq-usp-grid-{{ section.id }}[data-animate="true"].is-visible .cq-usp-grid__item:nth-child(4) { animation-delay: 0.3s; }
+
+  .cq-usp-grid-{{ section.id }} .cq-usp-grid__icon {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cq-usp-navy);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .cq-usp-grid-{{ section.id }} .cq-usp-grid__icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .cq-usp-grid-{{ section.id }} .cq-usp-grid__icon svg .cq-accent {
+    stroke: var(--cq-usp-gold);
+  }
+  .cq-usp-grid-{{ section.id }} .cq-usp-grid__body {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .cq-usp-grid-{{ section.id }} .cq-usp-grid__title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-weight: 400;
+    color: var(--cq-usp-navy);
+    font-size: 14px;
+    line-height: 1.2;
+    margin: 0 0 2px;
+  }
+  @media (min-width: 768px) {
+    .cq-usp-grid-{{ section.id }} .cq-usp-grid__title { font-size: 15px; }
+  }
+  .cq-usp-grid-{{ section.id }} .cq-usp-grid__subtitle {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: var(--cq-usp-subtitle);
+    opacity: 0.7;
+    margin: 0;
+  }
+  @media (min-width: 768px) {
+    .cq-usp-grid-{{ section.id }} .cq-usp-grid__subtitle { font-size: 12.5px; }
+  }
+
+  /* Desktop hover micro-animation */
+  @media (hover: hover) and (min-width: 768px) {
+    .cq-usp-grid-{{ section.id }} .cq-usp-grid__item:hover .cq-usp-grid__icon {
+      transform: scale(1.08);
+    }
+    .cq-usp-grid-{{ section.id }} .cq-usp-grid__item:hover .cq-accent {
+      stroke-dasharray: 80;
+      stroke-dashoffset: 80;
+      animation: cq-usp-draw 0.4s ease-out forwards;
+    }
+  }
+
+  @keyframes cq-usp-card-in {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes cq-usp-draw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cq-usp-grid-{{ section.id }} .cq-usp-grid__item,
+    .cq-usp-grid-{{ section.id }} .cq-usp-grid__icon,
+    .cq-usp-grid-{{ section.id }} .cq-accent {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+</style>
+
+<section
+  class="cq-usp-grid-{{ section.id }} cq-usp-grid"
+  data-animate="{% if enable_animation %}true{% else %}false{% endif %}"
+  aria-label="{{ 'sections.calqix_usp_grid.aria_label' | t | default: 'Product highlights' }}"
+>
+  <div class="cq-usp-grid__container">
+    <div class="cq-usp-grid__shell">
+      {%- if show_badge and badge_text != blank -%}
+        <span class="cq-usp-grid__badge">{{ badge_text }}</span>
+      {%- endif -%}
+
+      <ul class="cq-usp-grid__list">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign usp_title = block.settings.title
+            assign usp_subtitle = block.settings.subtitle
+            assign icon_type = block.settings.icon_type
+            assign custom_svg = block.settings.custom_svg
+          -%}
+          <li class="cq-usp-grid__item" {{ block.shopify_attributes }}>
+            <span class="cq-usp-grid__icon" aria-hidden="true">
+              {%- case icon_type -%}
+                {%- when 'microbiome' -%}
+                  <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 30 L32 30" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M20 30 L20 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M10 10 L30 10" class="cq-accent" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                    <circle cx="12" cy="20" r="5" stroke="currentColor" stroke-width="1.8" fill="none"/>
+                    <circle cx="28" cy="20" r="5" stroke="currentColor" stroke-width="1.8" fill="none"/>
+                    <circle cx="11" cy="20" r="0.9" fill="currentColor"/>
+                    <circle cx="13.5" cy="19" r="0.7" fill="currentColor"/>
+                    <circle cx="12" cy="21.5" r="0.7" fill="currentColor"/>
+                    <circle cx="27" cy="20" r="0.9" fill="currentColor"/>
+                    <circle cx="29.2" cy="19.2" r="0.7" fill="currentColor"/>
+                    <circle cx="28" cy="21.6" r="0.7" fill="currentColor"/>
+                  </svg>
+                {%- when 'breath-target' -%}
+                  <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="20" cy="22" rx="11" ry="6" stroke="currentColor" stroke-width="1.8" fill="none"/>
+                    <path d="M11 22 Q20 27 29 22" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+                    <circle cx="20" cy="20" r="8" class="cq-accent" stroke-width="1.6" fill="none" opacity="0.9"/>
+                    <path d="M20 8 L20 14" class="cq-accent" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M20 26 L20 32" class="cq-accent" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M8 20 L14 20" class="cq-accent" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M26 20 L32 20" class="cq-accent" stroke-width="1.6" stroke-linecap="round"/>
+                    <circle cx="20" cy="20" r="1.4" fill="currentColor"/>
+                  </svg>
+                {%- when 'lozenge-moon' -%}
+                  <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M26 8 A12 12 0 1 0 26 32 A9 9 0 0 1 26 8 Z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
+                    <ellipse cx="14" cy="28" rx="5.5" ry="3.2" class="cq-accent" stroke-width="1.8" fill="none"/>
+                    <circle cx="30" cy="14" r="0.8" fill="currentColor"/>
+                    <circle cx="32" cy="20" r="0.6" fill="currentColor"/>
+                  </svg>
+                {%- when 'calendar-30' -%}
+                  <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="20" r="13" stroke="currentColor" stroke-width="1.8" fill="none"/>
+                    <circle cx="20" cy="20" r="13" class="cq-accent" stroke-width="1.8" fill="none" stroke-dasharray="2 4" opacity="0.6"/>
+                    <path d="M20 7 L20 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M20 30 L20 33" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M7 20 L10 20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M30 20 L33 20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    <text x="20" y="24" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="11" font-weight="400" fill="currentColor">30</text>
+                  </svg>
+                {%- when 'custom-svg' -%}
+                  {{ custom_svg }}
+                {%- else -%}
+                  <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="20" r="13" stroke="currentColor" stroke-width="1.8" fill="none"/>
+                    <path d="M14 20 L18 24 L26 16" class="cq-accent" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  </svg>
+              {%- endcase -%}
+            </span>
+            <div class="cq-usp-grid__body">
+              <h3 class="cq-usp-grid__title">{{ usp_title }}</h3>
+              {%- if usp_subtitle != blank -%}
+                <p class="cq-usp-grid__subtitle">{{ usp_subtitle }}</p>
+              {%- endif -%}
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  </div>
+</section>
+
+{%- if enable_animation -%}
+  <script>
+    (function () {
+      var root = document.querySelector('.cq-usp-grid-{{ section.id }}');
+      if (!root) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        root.classList.add('is-visible');
+        return;
+      }
+      if (!('IntersectionObserver' in window)) {
+        root.classList.add('is-visible');
+        return;
+      }
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      observer.observe(root);
+    })();
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "CALQIX USP Grid",
+  "tag": "section",
+  "class": "cq-usp-grid-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show step badge above grid",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Step badge text",
+      "default": "STEP 3 OF THE CALQIX ROUTINE"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 16,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "inner_padding",
+      "label": "Shell inner padding",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "color",
+      "id": "section_bg",
+      "label": "Shell background",
+      "default": "#F7F5F2"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "navy_color",
+      "label": "Title & icon navy",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "color",
+      "id": "gold_color",
+      "label": "Gold accent",
+      "default": "#C9A84C"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle colour",
+      "default": "#1A3B5C"
+    },
+    {
+      "type": "header",
+      "content": "Animation"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_animation",
+      "label": "Enable entrance animation",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "usp",
+      "name": "USP",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon_type",
+          "label": "Icon",
+          "options": [
+            { "value": "microbiome", "label": "Microbiome balance" },
+            { "value": "breath-target", "label": "Breath target" },
+            { "value": "lozenge-moon", "label": "Lozenge moon" },
+            { "value": "calendar-30", "label": "30-day calendar" },
+            { "value": "custom-svg", "label": "Custom SVG" }
+          ],
+          "default": "microbiome"
+        },
+        {
+          "type": "textarea",
+          "id": "custom_svg",
+          "label": "Custom SVG (only used when Icon = Custom SVG)",
+          "info": "Paste a 40x40 viewBox SVG. Use stroke=\"currentColor\" for navy and class=\"cq-accent\" for gold stroke."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "USP title"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle",
+          "default": "Short descriptor"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    {
+      "name": "CALQIX USP Grid",
+      "blocks": [
+        {
+          "type": "usp",
+          "settings": {
+            "icon_type": "microbiome",
+            "title": "Rebalances your oral microbiome",
+            "subtitle": "Live probiotic strains overnight"
+          }
+        },
+        {
+          "type": "usp",
+          "settings": {
+            "icon_type": "breath-target",
+            "title": "Targets bad breath at the source",
+            "subtitle": "Where brushing cannot reach"
+          }
+        },
+        {
+          "type": "usp",
+          "settings": {
+            "icon_type": "lozenge-moon",
+            "title": "One lozenge before bed",
+            "subtitle": "Dissolves slowly, no sugar"
+          }
+        },
+        {
+          "type": "usp",
+          "settings": {
+            "icon_type": "calendar-30",
+            "title": "30-day supply per jar",
+            "subtitle": "Vegan, gluten-free, EU compliant"
+          }
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": ["product", "page", "index", "collection"]
+  }
+}
+{% endschema %}
