@@ -35,10 +35,18 @@
       <a class="cx-icon-btn" href="{{ routes.account_url }}" aria-label="Account">
         {% render 'cx-icons', name: 'userSlim', size: 20 %}
       </a>
-      <a class="cx-icon-btn cx-icon-btn-cart" href="{{ routes.cart_url }}" aria-label="Winkelmand">
+      {%- comment -%}
+        Sidecart trigger — must use `.wt-cart__trigger` + id="cart-icon-bubble"
+        + `.wt-header__panel__counter` so the existing <cart-drawer> custom
+        element (assets/cart-drawer.js) wires up click-to-open and live counter
+        animations. Do NOT rename these hooks.
+      {%- endcomment -%}
+      <a class="cx-icon-btn cx-icon-btn-cart wt-cart__trigger" id="cart-icon-bubble" href="{{ routes.cart_url }}" aria-label="Winkelmand">
         {% render 'cx-icons', name: 'bag', size: 20 %}
         {%- if cart.item_count > 0 -%}
-          <span class="cx-cart-badge">{{ cart.item_count }}</span>
+          <span class="cx-cart-badge wt-header__panel__counter">{{ cart.item_count }}</span>
+        {%- else -%}
+          <span class="cx-cart-badge wt-header__panel__counter" hidden>0</span>
         {%- endif -%}
       </a>
     </div>
