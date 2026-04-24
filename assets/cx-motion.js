@@ -189,6 +189,25 @@
     var closers = document.querySelectorAll('[data-cx-drawer-close]');
     if (!drawer) return;
 
+    /* Time-aware greeting swap. The Liquid template renders the
+       afternoon variant by default (Shopify's CDN cache strips visitor
+       timezone), and we replace the textContent here based on the
+       browser's local hour so each user sees the right greeting in
+       their own locale. Stays a single read of `Date()` per pageview. */
+    (function applyGreeting() {
+      var greet = drawer.querySelector('[data-cx-greeting]');
+      if (!greet) return;
+      var slot = greet.querySelector('[data-cx-greet-text]');
+      if (!slot) return;
+      var h = new Date().getHours();
+      var key;
+      if (h >= 5 && h < 12)       key = 'morning';
+      else if (h >= 12 && h < 18) key = 'afternoon';
+      else                        key = 'evening';
+      var text = greet.getAttribute('data-cx-greet-' + key);
+      if (text) slot.textContent = text;
+    })();
+
     function open() {
       drawer.hidden = false;
       if (overlay) overlay.hidden = false;
@@ -207,13 +226,13 @@
       drawer.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
       openers.forEach(function (o) { o.setAttribute('aria-expanded', 'false'); });
-      // Wait for transition end before hiding (220ms)
+      // Wait for transition end before hiding (matches 360ms slide).
       setTimeout(function () {
         if (!drawer.classList.contains('cx-is-open')) {
           drawer.hidden = true;
           if (overlay) overlay.hidden = true;
         }
-      }, 240);
+      }, 380);
     }
 
     openers.forEach(function (btn) { btn.addEventListener('click', open); });
