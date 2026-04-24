@@ -630,6 +630,14 @@
     text-align: left;
     width: 100%;
   }
+  /* Mega-menu toggle (e.g. "Products") is a <button> wrapped in
+     .cx-drawer__item rather than a bare anchor — user agents apply
+     their default button reset which can override the hairline below.
+     Force the same separator so the row visually matches the rest of
+     the link list. */
+  .cx-drawer__item > .cx-drawer__link--toggle {
+    border-bottom: 1px solid var(--cx-rule);
+  }
   .cx-drawer__link-title {
     font-family: var(--cx-f-display);
     font-size: 18px; font-weight: 500;
@@ -689,10 +697,11 @@
      - Aligned to the same left edge as .cx-drawer__link (no left padding,
        inherits the parent .cx-drawer's 20px gutter).
      - Italic per design spec.
-     - 6px bottom padding + first link's 14px padding-top = 20px gap to
-       the link list, as requested. */
+     - 20px padding-bottom for breathing room between the greeting and
+       the link list (the first link still adds its own 14px padding-top,
+       which gives a generous airy gap below the greeting). */
   .cx-drawer__greeting {
-    padding: 10px 0 6px 0;
+    padding: 10px 0 20px 0;
     font-family: var(--cx-f-display);
     font-style: italic;
     font-size: 20px; font-weight: 500;
