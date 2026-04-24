@@ -90,6 +90,27 @@
             "price_group_gap": 4
           }
         },
+        "calqix_usps_inline_ob01": {
+          "type": "calqix_usps_inline",
+          "settings": {
+            "mobile_columns": "1",
+            "animate": true,
+            "show_badge": false,
+            "badge_text": "STEP 3 OF THE CALQIX ROUTINE",
+            "usp_1_icon": "microbiome",
+            "usp_1_title": "Rebalances your oral microbiome",
+            "usp_1_subtitle": "Live probiotic strains overnight",
+            "usp_2_icon": "breath-target",
+            "usp_2_title": "Targets bad breath at the source",
+            "usp_2_subtitle": "Where brushing cannot reach",
+            "usp_3_icon": "lozenge-moon",
+            "usp_3_title": "One lozenge before bed",
+            "usp_3_subtitle": "Dissolves slowly, no sugar",
+            "usp_4_icon": "calendar-30",
+            "usp_4_title": "30-day supply per jar",
+            "usp_4_subtitle": "Vegan, gluten-free, EU compliant"
+          }
+        },
         "calqix_colour_switcher_LDTXY9": {
           "type": "calqix_colour_switcher",
           "settings": {
@@ -275,6 +296,7 @@
         "title",
         "calqix_subtitle_ob01",
         "price",
+        "calqix_usps_inline_ob01",
         "calqix_colour_switcher_LDTXY9",
         "calqix_bundle_ob01",
         "seal_subscriptions_subscription_widget_PeJpN4",
@@ -306,58 +328,6 @@
         "background_color": "#ffffff",
         "margin-top": 40,
         "margin-bottom": 0
-      }
-    },
-    "calqix_usp_grid_ob01": {
-      "type": "calqix-usp-grid",
-      "blocks": {
-        "usp_1": {
-          "type": "usp",
-          "settings": {
-            "icon_type": "microbiome",
-            "title": "Rebalances your oral microbiome",
-            "subtitle": "Live probiotic strains overnight"
-          }
-        },
-        "usp_2": {
-          "type": "usp",
-          "settings": {
-            "icon_type": "breath-target",
-            "title": "Targets bad breath at the source",
-            "subtitle": "Where brushing cannot reach"
-          }
-        },
-        "usp_3": {
-          "type": "usp",
-          "settings": {
-            "icon_type": "lozenge-moon",
-            "title": "One lozenge before bed",
-            "subtitle": "Dissolves slowly, no sugar"
-          }
-        },
-        "usp_4": {
-          "type": "usp",
-          "settings": {
-            "icon_type": "calendar-30",
-            "title": "30-day supply per jar",
-            "subtitle": "Vegan, gluten-free, EU compliant"
-          }
-        }
-      },
-      "block_order": ["usp_1", "usp_2", "usp_3", "usp_4"],
-      "settings": {
-        "show_badge": false,
-        "badge_text": "STEP 3 OF THE CALQIX ROUTINE",
-        "padding_top": 8,
-        "padding_bottom": 16,
-        "inner_padding": 20,
-        "border_radius": 12,
-        "section_bg": "#F7F5F2",
-        "card_bg": "#FFFFFF",
-        "navy_color": "#1A3B5C",
-        "gold_color": "#C9A84C",
-        "subtitle_color": "#1A3B5C",
-        "enable_animation": true
       }
     },
     "oralbiome-social-proof-bar": {
@@ -954,7 +924,6 @@
   "order": [
     "breadcrumbs",
     "main",
-    "calqix_usp_grid_ob01",
     "oralbiome-social-proof-bar",
     "oralbiome-video-explainer",
     "oralbiome-health-benefits",
