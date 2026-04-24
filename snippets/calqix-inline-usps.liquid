@@ -33,25 +33,39 @@
     --cq-accent-line: rgba(61, 139, 255, 0.28);
     --cq-glow: 0 0 0 1px rgba(61, 139, 255, 0.12), 0 12px 28px -16px rgba(26, 59, 92, 0.28);
     --cq-glow-hover: 0 0 0 1px rgba(61, 139, 255, 0.38), 0 18px 36px -18px rgba(26, 59, 92, 0.32), 0 0 32px -8px rgba(61, 139, 255, 0.45);
+    --cq-pop-shadow: 0 24px 48px -16px rgba(11, 37, 64, 0.32), 0 0 32px -4px rgba(61, 139, 255, 0.55), 0 0 0 1px rgba(61, 139, 255, 0.45);
     margin: 14px 0 18px;
   }
+  /* Mobile-first: minimal shell, no big gradient */
   .{{ ns }}__shell {
     position: relative;
-    background: linear-gradient(180deg, var(--cq-shell) 0%, var(--cq-shell-2) 100%);
-    border-radius: 14px;
-    padding: 14px 12px 12px;
-    border: 1px solid rgba(26, 59, 92, 0.06);
-    overflow: hidden;
+    background: transparent;
+    border-radius: 0;
+    padding: 4px 0 0;
+    border: 0;
+    overflow: visible;
     isolation: isolate;
   }
-  .{{ ns }}__shell::before {
-    content: "";
-    position: absolute;
-    inset: -30% -10% auto auto;
-    width: 60%; height: 120%;
-    background: radial-gradient(ellipse at top right, rgba(61, 139, 255, 0.12), transparent 60%);
-    pointer-events: none;
-    z-index: 0;
+  .{{ ns }}__shell::before { content: none; }
+
+  /* Desktop ≥900px: bring back the soft blue card shell */
+  @media (min-width: 900px) {
+    .{{ ns }}__shell {
+      background: linear-gradient(180deg, var(--cq-shell) 0%, var(--cq-shell-2) 100%);
+      border-radius: 14px;
+      padding: 14px 12px 12px;
+      border: 1px solid rgba(26, 59, 92, 0.06);
+      overflow: hidden;
+    }
+    .{{ ns }}__shell::before {
+      content: "";
+      position: absolute;
+      inset: -30% -10% auto auto;
+      width: 60%; height: 120%;
+      background: radial-gradient(ellipse at top right, rgba(61, 139, 255, 0.12), transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
   }
   .{{ ns }}__badge {
     display: inline-block;
@@ -70,96 +84,170 @@
   .{{ ns }}__list {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 0;
     list-style: none;
     padding: 0; margin: 0;
     position: relative; z-index: 1;
   }
   {%- if mcols == '2' -%}
   @media (min-width: 480px) {
-    .{{ ns }}__list { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .{{ ns }}__list { grid-template-columns: 1fr 1fr; gap: 8px; }
   }
   {%- endif -%}
   @media (min-width: 900px) {
     .{{ ns }}__list { grid-template-columns: 1fr 1fr; gap: 10px; }
   }
 
+  /* MOBILE: minimal flat list, transparent cards, no icon background.
+     Layout = icon LEFT | title RIGHT, cyan line UNDER title, subtitle
+     hidden until tap → appears as floating pop-up ABOVE the row. */
   .{{ ns }}__item {
     position: relative;
     display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    background: var(--cq-card);
-    border: 1px solid rgba(26, 59, 92, 0.08);
-    border-radius: 10px;
-    box-shadow: var(--cq-glow);
-    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-                box-shadow 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-                border-color 0.32s ease;
-    overflow: hidden;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(26, 59, 92, 0.08);
+    border-radius: 0;
+    box-shadow: none;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s ease;
   }
-  /* Cyan sweep line underneath each card */
-  .{{ ns }}__item::after {
-    content: "";
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--cq-accent), transparent);
-    transform: translateX(-100%);
-    opacity: 0;
-    transition: transform 0.6s ease, opacity 0.3s ease;
+  .{{ ns }}__item:last-child { border-bottom: 0; }
+  .{{ ns }}__item:active {
+    background: rgba(61, 139, 255, 0.04);
   }
 
   .{{ ns }}__icon {
     flex: 0 0 auto;
-    width: 38px; height: 38px;
+    width: 32px; height: 32px;
     display: inline-flex; align-items: center; justify-content: center;
     color: var(--cq-ink-2);
-    background: var(--cq-accent-soft);
-    border-radius: 10px;
+    background: transparent;
+    border-radius: 0;
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-                background 0.32s ease,
                 color 0.32s ease;
   }
-  .{{ ns }}__icon svg { width: 22px; height: 22px; display: block; }
+  .{{ ns }}__icon svg { width: 26px; height: 26px; display: block; }
   .{{ ns }}__icon svg .cq-accent { stroke: var(--cq-accent); }
 
-  .{{ ns }}__body { min-width: 0; flex: 1 1 auto; }
+  .{{ ns }}__body { min-width: 0; flex: 1 1 auto; position: relative; }
   .{{ ns }}__title {
-    font-family: 'DM Serif Display', Georgia, serif;
-    font-weight: 400;
+    font-family: 'Playfair Display', 'DM Serif Display', Georgia, serif;
+    font-weight: 500;
     color: var(--cq-ink);
-    font-size: 14px;
-    line-height: 1.2;
-    margin: 0 0 2px;
+    font-size: 14.5px;
+    line-height: 1.25;
+    margin: 0 0 6px;
     letter-spacing: 0.005em;
+    text-align: left;
+  }
+  /* Cyan accent line UNDER title (always visible — replaces the bottom sweep) */
+  .{{ ns }}__title::after {
+    content: "";
+    display: block;
+    width: 36px;
+    height: 2px;
+    margin-top: 6px;
+    background: linear-gradient(90deg, var(--cq-accent), rgba(61, 139, 255, 0));
+    border-radius: 2px;
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
   @media (min-width: 900px) {
     .{{ ns }}__title { font-size: 15px; }
   }
-  .{{ ns }}__subtitle {
-    font-family: 'DM Sans', system-ui, sans-serif;
-    font-weight: 400;
-    font-size: 11.5px;
-    line-height: 1.4;
-    color: var(--cq-ink-soft);
-    margin: 0;
-  }
-  @media (min-width: 900px) {
-    .{{ ns }}__subtitle { font-size: 12.5px; }
+  .{{ ns }}__item.is-active .{{ ns }}__title::after,
+  .{{ ns }}__item:hover .{{ ns }}__title::after {
+    width: 60px;
   }
 
-  /* Desktop hover micro-interaction — pulse + glow + icon lift */
-  @media (hover: hover) and (min-width: 768px) {
+  /* Subtitle = popover floating ABOVE the title.
+     Hidden by default. Toggled via .is-active (mobile tap) or :hover (desktop). */
+  .{{ ns }}__subtitle {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 10px);
+    z-index: 5;
+    width: max-content;
+    max-width: min(calc(100vw - 40px), 280px);
+    margin: 0;
+    padding: 12px 16px;
+    background: var(--cq-card);
+    color: var(--cq-ink);
+    border-radius: 12px;
+    box-shadow: var(--cq-pop-shadow);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 12.5px;
+    line-height: 1.45;
+    text-align: left;
+    opacity: 0;
+    transform: translateY(14px) scale(0.85);
+    transform-origin: bottom left;
+    pointer-events: none;
+    transition: opacity 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  /* Pointer arrow connecting popover to title */
+  .{{ ns }}__subtitle::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 18px;
+    width: 12px; height: 12px;
+    background: var(--cq-card);
+    transform: translateY(-6px) rotate(45deg);
+    box-shadow: 4px 4px 8px -2px rgba(11, 37, 64, 0.08);
+    z-index: -1;
+  }
+
+  /* Active states — clinical exaggerated entrance: bounce-in scale + lift */
+  .{{ ns }}__item.is-active .{{ ns }}__subtitle {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+    animation: {{ ns }}-pop-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes {{ ns }}-pop-in {
+    0%   { opacity: 0; transform: translateY(14px) scale(0.7);   filter: blur(2px); }
+    40%  { opacity: 1; transform: translateY(-4px) scale(1.06); filter: blur(0); }
+    70%  {            transform: translateY(2px) scale(0.98); }
+    100% {            transform: translateY(0)   scale(1); }
+  }
+
+  /* Desktop ≥900px overrides — restore card look + hover popover */
+  @media (min-width: 900px) {
+    .{{ ns }}__list { gap: 10px; }
+    .{{ ns }}__item {
+      padding: 12px 14px;
+      background: var(--cq-card);
+      border: 1px solid rgba(26, 59, 92, 0.08);
+      border-radius: 10px;
+      box-shadow: var(--cq-glow);
+      align-items: center;
+    }
+    .{{ ns }}__item:last-child { border-bottom: 1px solid rgba(26, 59, 92, 0.08); }
+    .{{ ns }}__icon {
+      width: 38px; height: 38px;
+      background: var(--cq-accent-soft);
+      border-radius: 10px;
+    }
+    .{{ ns }}__icon svg { width: 22px; height: 22px; }
+    .{{ ns }}__title { margin-bottom: 4px; }
+    .{{ ns }}__title::after { display: none; }
+  }
+
+  /* Desktop hover micro-interaction — show subtitle popover */
+  @media (hover: hover) and (min-width: 900px) {
     .{{ ns }}__item:hover {
       transform: translateY(-2px);
       box-shadow: var(--cq-glow-hover);
       border-color: var(--cq-accent-line);
-    }
-    .{{ ns }}__item:hover::after {
-      transform: translateX(0);
-      opacity: 1;
     }
     .{{ ns }}__item:hover .{{ ns }}__icon {
       transform: scale(1.08) rotate(-2deg);
@@ -168,6 +256,11 @@
     }
     .{{ ns }}__item:hover .{{ ns }}__icon svg .cq-accent {
       stroke: #fff;
+    }
+    .{{ ns }}__item:hover .{{ ns }}__subtitle {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
     }
   }
 
@@ -340,3 +433,58 @@
   })();
 </script>
 {%- endif -%}
+
+<script>
+  /* Mobile tap-to-toggle for the subtitle popover.
+     Desktop relies on :hover (handled in CSS), so this script only adds
+     pointer-coarse / touch behaviour. Tapping the same item again or
+     anywhere outside the USP list dismisses the active popup. */
+  (function () {
+    var ns = {{ ns | json }};
+    var listSel = '.' + ns;
+    var itemSel = '.' + ns + '__item';
+    var activeClass = 'is-active';
+
+    function init() {
+      var root = document.querySelector(listSel);
+      if (!root) return;
+      var items = root.querySelectorAll(itemSel);
+      if (!items.length) return;
+
+      function closeAll(except) {
+        items.forEach(function (it) {
+          if (it !== except) it.classList.remove(activeClass);
+        });
+      }
+
+      items.forEach(function (item) {
+        item.addEventListener('click', function (e) {
+          // On hover-capable desktop the CSS :hover already does the work,
+          // and we don't want a stuck-open state after tapping with a mouse.
+          var hoverCapable = window.matchMedia && window.matchMedia('(hover: hover) and (min-width: 900px)').matches;
+          if (hoverCapable) return;
+          e.stopPropagation();
+          var wasActive = item.classList.contains(activeClass);
+          closeAll(item);
+          if (!wasActive) item.classList.add(activeClass);
+        });
+      });
+
+      // Tap anywhere else on the page → close all popovers.
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest(itemSel)) closeAll();
+      });
+
+      // Escape key closes too (a11y nicety).
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeAll();
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>

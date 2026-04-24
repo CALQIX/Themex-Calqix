@@ -347,13 +347,24 @@
     display: flex; gap: 36px; justify-content: center; align-items: center; flex-wrap: nowrap;
   }
   .cx-nav-link {
-    font-family: var(--cx-f-display);
+    font-family: var(--cx-f-display) !important;
     font-size: 15px; font-weight: 500;
     color: var(--cx-forest-ink);
     padding: 6px 0;
     display: inline-flex; align-items: center; gap: 6px;
     background: transparent; border: 0;
     cursor: pointer;
+    line-height: 1.2;
+    letter-spacing: 0.005em;
+  }
+  /* Make sure buttons (Products toggle) inherit the same Playfair Display
+     as anchor nav-links — buttons reset font-family on some UAs. */
+  button.cx-nav-link,
+  .cx-nav-toggle,
+  .cx-nav-label {
+    font-family: var(--cx-f-display) !important;
+    font-size: 15px;
+    font-weight: 500;
   }
   .cx-nav-chev { display: inline-flex; transition: transform .2s ease; }
   .cx-nav-toggle.cx-is-open .cx-nav-chev { transform: rotate(180deg); }
