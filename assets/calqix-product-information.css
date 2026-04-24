@@ -668,8 +668,9 @@ body[class^="template-product"] .wt-product__info .calqix-stock-status--sold-out
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge {
-  /* 3px gap above (right under the Add-to-cart button), zero gap below. */
-  margin: 3px 0 0;
+  /* 0px gap above (snug under the Add-to-cart button), 20px clearance
+     below the payment-icon row to the next block. */
+  margin: 0 0 20px;
   padding: 0;
   background: transparent;
   border: 0;
@@ -812,8 +813,8 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__i
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge {
     padding: 0;
-    /* Mobile mirrors desktop: 3px above, zero below. */
-    margin: 3px 0 0;
+    /* Mobile mirrors desktop: snug above, 20px clearance below. */
+    margin: 0 0 20px;
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__content {

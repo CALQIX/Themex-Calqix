@@ -86,7 +86,8 @@
   .{{ ns }}__list {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0;
+    /* Mobile: tight 3px gap between USPs (per design feedback). */
+    gap: 3px;
     list-style: none;
     padding: 0; margin: 0;
     position: relative; z-index: 1;
@@ -100,7 +101,9 @@
     .{{ ns }}__list { grid-template-columns: 1fr 1fr; gap: 10px; }
   }
 
-  /* MOBILE: minimal flat list, transparent cards, no icon background.
+  /* MOBILE: minimal flat list, transparent cards, no icon background,
+     no gray separator line. Adjacent USPs sit max 3px apart so the
+     section reads as one tight stack rather than a divided table.
      Layout = icon LEFT | title RIGHT, cyan line UNDER title, subtitle
      hidden until tap → appears as floating pop-up ABOVE the row. */
   .{{ ns }}__item {
@@ -108,10 +111,9 @@
     display: flex;
     align-items: flex-start;
     gap: 14px;
-    padding: 14px 0;
+    padding: 4px 0;
     background: transparent;
     border: 0;
-    border-bottom: 1px solid rgba(26, 59, 92, 0.08);
     border-radius: 0;
     box-shadow: none;
     text-align: left;
@@ -119,7 +121,6 @@
     -webkit-tap-highlight-color: transparent;
     transition: background 0.2s ease;
   }
-  .{{ ns }}__item:last-child { border-bottom: 0; }
   .{{ ns }}__item:active {
     background: rgba(61, 139, 255, 0.04);
   }
