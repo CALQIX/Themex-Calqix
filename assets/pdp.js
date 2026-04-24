@@ -11,8 +11,8 @@ class StickyBuyButton extends HTMLElement {
 
   initialize() {
     const addToCartModule = document.querySelector(".wt-product__add-to-cart");
-    const btn = this.querySelector("button");
-    if (!addToCartModule || !btn) return;
+    const ctaBtn = this.querySelector(".cq-sticky__cta");
+    if (!addToCartModule || !ctaBtn) return;
     const addToCart = this.dataset.addToCart === "";
 
     const forObserver = document.querySelectorAll(
@@ -21,7 +21,7 @@ class StickyBuyButton extends HTMLElement {
 
     let intersected = [];
 
-    btn.addEventListener("click", (e) => {
+    ctaBtn.addEventListener("click", (e) => {
       if (!addToCart) {
         e.preventDefault();
       }
@@ -47,6 +47,119 @@ class StickyBuyButton extends HTMLElement {
 
     forObserver.forEach((item) => {
       observer.observe(item);
+    });
+
+    this.setupPriceSync(addToCartModule);
+    this.setupQuantitySync(addToCartModule);
+  }
+
+  /**
+   * Mirror the main PDP price block into the sticky bar so variant, subscription
+   * and flavor/bundle selections are reflected in the sticky price automatically.
+   * We target `#price-{sectionId}` which assets/variants.js#renderProductInfo
+   * rewrites after every variant change, and also listen for ad-hoc price DOM
+   * mutations (subscription toggles, rebuild-kit bundle picker, etc.) via a
+   * MutationObserver so any code that updates the on-page price flows through.
+   */
+  setupPriceSync(addToCartModule) {
+    const sectionId = this.dataset.sectionId;
+    const slot = this.querySelector("[data-cq-sticky-price-slot]");
+    if (!slot) return;
+
+    const mainPriceEl =
+      (sectionId && document.getElementById(`price-${sectionId}`)) ||
+      addToCartModule.querySelector("[id^='price-']") ||
+      addToCartModule.querySelector(".wt-product__price");
+    if (!mainPriceEl) return;
+
+    const mirror = () => {
+      slot.innerHTML = mainPriceEl.innerHTML;
+    };
+
+    mirror();
+    const observer = new MutationObserver(mirror);
+    observer.observe(mainPriceEl, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+  }
+
+  /**
+   * Two-way quantity sync between the sticky bar stepper and the main PDP
+   * <quantity-counter> component. The main component is the source of truth —
+   * its +/- buttons own validation, min/max clamping, etc. So the sticky bar
+   * stepper proxies clicks to the main buttons and mirrors the resulting
+   * value back into its own input.
+   */
+  setupQuantitySync(addToCartModule) {
+    const stickyDec = this.querySelector("[data-cq-sticky-qty-dec]");
+    const stickyInc = this.querySelector("[data-cq-sticky-qty-inc]");
+    const stickyInput = this.querySelector("[data-cq-sticky-qty-input]");
+    if (!stickyDec || !stickyInc || !stickyInput) return;
+
+    const mainInput = addToCartModule.querySelector(".js-counter-quantity");
+    const mainDec = addToCartModule.querySelector(".js-counter-decrease");
+    const mainInc = addToCartModule.querySelector(".js-counter-increase");
+
+    // If the PDP doesn't render a quantity counter (qty selector disabled),
+    // let the sticky stepper drive its own hidden flow: keep the input usable
+    // but no main component to proxy to.
+    if (!mainInput) {
+      stickyDec.addEventListener("click", () => {
+        const v = Math.max(1, parseInt(stickyInput.value, 10) - 1 || 1);
+        stickyInput.value = v;
+      });
+      stickyInc.addEventListener("click", () => {
+        const v = Math.min(999, (parseInt(stickyInput.value, 10) || 1) + 1);
+        stickyInput.value = v;
+      });
+      return;
+    }
+
+    // Prime sticky with current main value
+    stickyInput.value = mainInput.value || "1";
+
+    // Sticky -> main (proxy to counter buttons so all events fire correctly)
+    stickyDec.addEventListener("click", () => {
+      if (mainDec) {
+        mainDec.click();
+      } else {
+        mainInput.value = Math.max(1, (parseInt(mainInput.value, 10) || 1) - 1);
+        mainInput.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
+    stickyInc.addEventListener("click", () => {
+      if (mainInc) {
+        mainInc.click();
+      } else {
+        mainInput.value = Math.min(999, (parseInt(mainInput.value, 10) || 1) + 1);
+        mainInput.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
+
+    // Typed input on sticky -> main
+    stickyInput.addEventListener("change", () => {
+      const v = Math.max(1, Math.min(999, parseInt(stickyInput.value, 10) || 1));
+      stickyInput.value = v;
+      if (mainInput.value !== String(v)) {
+        mainInput.value = v;
+        mainInput.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
+
+    // Main -> sticky (catch clicks on main +/-, typed changes, and any
+    // programmatic updates from cart-drawer re-render or flavor picker)
+    const mirror = () => {
+      if (stickyInput.value !== mainInput.value) {
+        stickyInput.value = mainInput.value;
+      }
+    };
+    mainInput.addEventListener("input", mirror);
+    mainInput.addEventListener("change", mirror);
+    new MutationObserver(mirror).observe(mainInput, {
+      attributes: true,
+      attributeFilter: ["value"],
     });
   }
 }

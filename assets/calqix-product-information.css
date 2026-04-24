@@ -810,82 +810,180 @@ body[class^="template-product"] .wt-product__sticky-buy.wt-product__sticky-buy--
               visibility 0s 0s;
 }
 
-/* Inner layout */
+/* ---------------------------------------------------------------
+   Row 1 — info (title + price + optional compare-at price)
+--------------------------------------------------------------- */
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__inner {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+  justify-content: space-between;
   gap: 12px;
-  padding: 12px 16px 6px;
+  padding: 12px 16px 4px;
 }
 
-/* Product info (left) */
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__info {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__title {
   font-family: "DM Sans", sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   letter-spacing: 0.01em;
+  line-height: 1.2;
 }
 
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__price {
   font-family: "DM Serif Display", serif;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 400;
   color: #fff;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
   line-height: 1;
 }
 
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__amount {
+  display: inline-block;
+}
+
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__compare {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.5);
   text-decoration: line-through;
   font-family: "DM Sans", sans-serif;
   font-weight: 400;
 }
 
-/* CTA button (right) */
-body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta {
-  flex-shrink: 0;
-  height: 44px;
-  padding: 0 28px;
-  background: #f7f5f2;
-  color: var(--calqix-navy-deep, #0f2438);
-  border: none;
-  border-radius: 6px;
-  font-family: "DM Sans", sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s, background 0.25s;
-  white-space: nowrap;
+/* ---------------------------------------------------------------
+   Row 2 — action bar: quantity stepper (left) + CTA (right)
+--------------------------------------------------------------- */
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__action {
   display: flex;
   align-items: center;
+  gap: 10px;
+  padding: 4px 16px 8px;
+}
+
+/* Quantity stepper (pill, light cream background with navy text) */
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  gap: 2px;
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty-btn {
+  width: 32px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  background: transparent;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty-btn:active {
+  transform: scale(0.94);
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty-input {
+  width: 28px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  padding: 0;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty-input::-webkit-outer-spin-button,
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+}
+
+/* CTA button — gradient navy pill with bag icon + text */
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 18px;
+  background: linear-gradient(135deg, #1a3b5c 0%, #254a74 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.25s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 10px rgba(0, 12, 26, 0.35);
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta-icon {
+  flex-shrink: 0;
+  color: #fff;
+  stroke-width: 1.5;
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta-text {
+  display: inline-block;
+  line-height: 1;
 }
 
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta:hover {
-  transform: scale(1.03);
-  box-shadow: 0 4px 16px rgba(247, 245, 242, 0.3);
+  transform: scale(1.01);
+  box-shadow: 0 4px 14px rgba(0, 12, 26, 0.45);
 }
 
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta:active {
   transform: scale(0.98);
+}
+
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* One-time attention pulse on the CTA */
@@ -893,7 +991,9 @@ body[class^="template-product"] .wt-product__sticky-buy--show .cq-sticky__cta {
   animation: cq-sticky-cta-pulse 2s ease-in-out 0.6s 2;
 }
 
-/* Trust micro-line */
+/* ---------------------------------------------------------------
+   Row 3 — trust micro-line
+--------------------------------------------------------------- */
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__trust {
   font-family: "DM Sans", sans-serif;
   font-size: 9.5px;
@@ -902,7 +1002,7 @@ body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__trust {
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.5);
   text-align: center;
-  padding: 4px 16px 10px;
+  padding: 2px 16px 10px;
   line-height: 1;
 }
 
@@ -927,8 +1027,13 @@ body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__trust {
 /* Small mobile tweaks */
 @media (max-width: 380px) {
   body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__inner {
-    padding: 10px 12px 4px;
+    padding: 10px 12px 3px;
     gap: 10px;
+  }
+
+  body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__action {
+    padding: 3px 12px 7px;
+    gap: 8px;
   }
 
   body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__title {
@@ -936,13 +1041,29 @@ body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__trust {
   }
 
   body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__price {
-    font-size: 15px;
+    font-size: 16px;
+  }
+
+  body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty {
+    height: 42px;
+    padding: 0 2px;
+  }
+
+  body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty-btn {
+    width: 28px;
+    height: 34px;
+  }
+
+  body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty-input {
+    width: 24px;
+    font-size: 13px;
   }
 
   body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta {
-    height: 40px;
-    padding: 0 20px;
-    font-size: 11px;
+    height: 42px;
+    padding: 0 14px;
+    font-size: 12px;
+    gap: 6px;
   }
 
   body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__trust {
