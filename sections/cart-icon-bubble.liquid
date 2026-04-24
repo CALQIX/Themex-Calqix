@@ -1,5 +1,14 @@
-{% render 'icons', id: 'bag' %}
-{% if cart.item_count > 0 %}
-    <span class="wt-header__panel__counter">{{ cart.item_count }}</span> 
-{% endif %}
-<span class="wt-header__panel__label">Cart</span>
+{%- comment -%}
+  Mirrors the inner HTML of the cx-header desktop cart anchor
+  (`<a id="cart-icon-bubble">` in sections/cx-header.liquid). cart-drawer.js
+  fetches this section after every cart mutation and writes the parsed
+  innerHTML straight into `#cart-icon-bubble` — so anything emitted here
+  must visually match the live header cart icon, otherwise the cart icon
+  reverts to legacy styling on add-to-cart (issue #8).
+{%- endcomment -%}
+{% render 'cx-icons', name: 'bag', size: 20 %}
+{%- if cart.item_count > 0 -%}
+  <span class="cx-cart-badge wt-header__panel__counter">{{ cart.item_count }}</span>
+{%- else -%}
+  <span class="cx-cart-badge wt-header__panel__counter" hidden>0</span>
+{%- endif -%}

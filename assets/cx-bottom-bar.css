@@ -28,7 +28,8 @@
   right: 0;
   bottom: 0;
   z-index: 45;
-  padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+  /* Tightened by 2px top + bottom per design feedback (was 8px). */
+  padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
   display: none; /* desktop: hidden by default, media query flips it */
   pointer-events: none;
   font-family: var(--cx-f-body);
@@ -97,9 +98,11 @@
   align-items: center;
   justify-content: center;
   gap: 3px;
-  padding: 8px 6px 6px;
-  min-height: 56px;
-  color: rgba(242, 247, 255, 0.72);
+  /* Tightened by 2px top + bottom (was 8px / 6px). */
+  padding: 6px 6px 4px;
+  min-height: 52px;
+  /* Primary nav items render fully white per design feedback. */
+  color: #ffffff;
   font-family: var(--cx-f-body);
   font-size: 10.5px;
   font-weight: 500;
@@ -119,22 +122,40 @@
 
 .cx-bb__btn:hover,
 .cx-bb__btn:focus-visible {
-  color: var(--cx-forest-ink);
+  color: #f2f7ff;
 }
 
 .cx-bb__btn:active {
   transform: scale(0.94);
 }
 
+/* Active page = the link matching current path. Soft white/light-blue
+ * idle pulse halo so the user always knows where they are. */
 .cx-bb__btn.cx-bb--active {
-  color: var(--cx-gold);
+  color: #f2f7ff;
 }
 
 .cx-bb__btn.cx-bb--active .cx-bb__ico {
-  background: rgba(201, 165, 90, 0.12);
+  background: rgba(242, 247, 255, 0.12);
   box-shadow:
-    0 0 0 1px rgba(201, 165, 90, 0.25) inset,
-    0 6px 16px -8px rgba(201, 165, 90, 0.55);
+    0 0 0 1px rgba(242, 247, 255, 0.32) inset,
+    0 0 14px -2px rgba(242, 247, 255, 0.55);
+  animation: cxBbActiveIdle 2.6s ease-in-out infinite;
+}
+
+@keyframes cxBbActiveIdle {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(242, 247, 255, 0.28) inset,
+      0 0 0 0 rgba(242, 247, 255, 0.0),
+      0 0 10px -2px rgba(242, 247, 255, 0.32);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(242, 247, 255, 0.5) inset,
+      0 0 0 6px rgba(242, 247, 255, 0.10),
+      0 0 22px -2px rgba(242, 247, 255, 0.7);
+  }
 }
 
 /* ---------- Icon bubble ---------- */
@@ -313,16 +334,21 @@
   position: absolute;
   top: -2px;
   right: -2px;
-  min-width: 18px;
-  height: 18px;
+  min-width: 20px;
+  height: 20px;
   padding: 0 5px;
+  box-sizing: border-box;
   border-radius: 999px;
   background: var(--cx-gold);
   color: var(--cx-forest-3);
-  font-family: var(--cx-f-display);
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 18px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  font-feature-settings: 'tnum' 1;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   box-shadow:
     0 0 0 2px rgba(0, 37, 73, 0.9),
@@ -356,10 +382,10 @@
   }
   /* Reserve room so fixed bottom bar never overlaps page content */
   body:has(.cx-bottom-bar) {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   }
   /* Safari <=16 fallback (no :has) — adds room on mobile template wrappers */
-  main#root { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+  main#root { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
 }
 
 @media (min-width: 901px) {
@@ -376,7 +402,8 @@
   .cx-bb__sparkles i,
   .cx-bb__glow,
   .cx-bb__badge,
-  .cx-bb__btn--cart .cx-bb__ico {
+  .cx-bb__btn--cart .cx-bb__ico,
+  .cx-bb__btn.cx-bb--active .cx-bb__ico {
     animation: none !important;
     transition: none !important;
   }

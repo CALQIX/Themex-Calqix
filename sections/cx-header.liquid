@@ -95,7 +95,7 @@
         </a>
       {%- endif -%}
       <button type="button" class="cx-m-iconbtn cx-m-iconbtn--cart wt-cart__trigger" aria-label="Winkelmand ({{ cart.item_count }})" aria-controls="cart-drawer">
-        {% render 'cx-icons', name: 'bag', size: 17 %}
+        {% render 'cx-icons', name: 'bag', size: 22 %}
         <span class="cx-m-badge wt-header__panel__counter"
               data-cx-cart-counter-mirror
               {% if cart.item_count == 0 %}hidden{% endif %}>{{ cart.item_count }}</span>
@@ -422,10 +422,13 @@
   }
   .cx-icon-btn:hover { opacity: 0.8; }
   .cx-cart-badge {
-    position: absolute; top: 0; right: 0;
+    position: absolute; top: -2px; right: -4px;
     background: var(--cx-gold); color: var(--cx-forest-3);
-    font-family: var(--cx-f-display); font-size: 10px; font-weight: 600;
-    border-radius: 999px; width: 16px; height: 16px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 12px; font-weight: 600; font-feature-settings: 'tnum' 1;
+    border-radius: 999px;
+    min-width: 20px; height: 20px; padding: 0 5px;
+    box-sizing: border-box;
     display: inline-flex; align-items: center; justify-content: center;
     line-height: 1;
   }
@@ -491,8 +494,11 @@
     .cx-m-badge {
       position: absolute; top: -4px; right: -4px;
       background: var(--cx-gold); color: var(--cx-forest-3);
-      font-family: var(--cx-f-display); font-size: 10px; font-weight: 600;
-      border-radius: 999px; width: 17px; height: 17px;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 12px; font-weight: 600; font-feature-settings: 'tnum' 1;
+      border-radius: 999px;
+      min-width: 20px; height: 20px; padding: 0 5px;
+      box-sizing: border-box;
       display: inline-flex; align-items: center; justify-content: center;
       line-height: 1;
     }

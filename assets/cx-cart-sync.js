@@ -44,9 +44,22 @@
 
   // Scope the cascade classes to the bottom bar only — other mirrors get
   // just the numeric/hidden sync, no wow animations.
-  var headerCounter =
-    document.querySelector('#cart-icon-bubble .wt-header__panel__counter') ||
-    document.querySelector('.wt-header__panel__counter');
+  //
+  // We track BOTH the wrapping anchor (`#cart-icon-bubble`) and the inner
+  // counter span. cart-drawer.js fetches the `cart-icon-bubble` section
+  // after every add-to-cart and replaces the wrapper's innerHTML, which
+  // discards the original counter node — any MutationObserver attached to
+  // the span directly would silently die on the first add. The wrapper
+  // itself is stable so we observe that instead, and re-query the counter
+  // every read.
+  var headerWrap = document.getElementById('cart-icon-bubble');
+  function getHeaderCounter() {
+    if (headerWrap) {
+      var inside = headerWrap.querySelector('.wt-header__panel__counter');
+      if (inside) return inside;
+    }
+    return document.querySelector('.wt-header__panel__counter');
+  }
 
   var UPDATE_CLASS = 'cx-bb--cart-updated';
   var HAS_ITEMS_CLASS = 'cx-bb--has-items';
@@ -61,8 +74,10 @@
   }
 
   function readHeaderCount() {
-    if (!headerCounter) return 0;
-    return parseCount(headerCounter.textContent);
+    var counter = getHeaderCounter();
+    if (!counter) return 0;
+    if (counter.hasAttribute('hidden')) return 0;
+    return parseCount(counter.textContent);
   }
 
   function readMirrorCount() {
@@ -133,12 +148,16 @@
   }
 
   // ---------- Mutation observer (reliable fallback) ----------
-
-  if (headerCounter && 'MutationObserver' in window) {
+  //
+  // Observe the wrapping #cart-icon-bubble container so we keep firing
+  // even when cart-drawer.js swaps the innerHTML wholesale. Without
+  // subtree:true the observer would only see immediate-child mutations
+  // and miss text changes inside the rebuilt counter span.
+  if (headerWrap && 'MutationObserver' in window) {
     var mo = new MutationObserver(function () {
       sync('mutation');
     });
-    mo.observe(headerCounter, {
+    mo.observe(headerWrap, {
       characterData: true,
       childList: true,
       subtree: true,
