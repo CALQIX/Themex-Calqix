@@ -181,7 +181,71 @@
     });
   })();
 
-  /* ---------- 8. Counter count-up ---------- */
+  /* ---------- 8. Mobile header drawer + accordion ---------- */
+  (function () {
+    var drawer = document.querySelector('[data-cx-drawer]');
+    var overlay = document.querySelector('[data-cx-drawer-overlay]');
+    var openers = document.querySelectorAll('[data-cx-drawer-open]');
+    var closers = document.querySelectorAll('[data-cx-drawer-close]');
+    if (!drawer) return;
+
+    function open() {
+      drawer.hidden = false;
+      if (overlay) overlay.hidden = false;
+      // Two-phase so the slide-in transition runs on next frame
+      requestAnimationFrame(function () {
+        drawer.classList.add('cx-is-open');
+      });
+      drawer.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      openers.forEach(function (o) { o.setAttribute('aria-expanded', 'true'); });
+      var firstFocusable = drawer.querySelector('a, button');
+      if (firstFocusable) firstFocusable.focus();
+    }
+    function close() {
+      drawer.classList.remove('cx-is-open');
+      drawer.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      openers.forEach(function (o) { o.setAttribute('aria-expanded', 'false'); });
+      // Wait for transition end before hiding (220ms)
+      setTimeout(function () {
+        if (!drawer.classList.contains('cx-is-open')) {
+          drawer.hidden = true;
+          if (overlay) overlay.hidden = true;
+        }
+      }, 240);
+    }
+
+    openers.forEach(function (btn) { btn.addEventListener('click', open); });
+    closers.forEach(function (btn) { btn.addEventListener('click', close); });
+    if (overlay) overlay.addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && drawer.classList.contains('cx-is-open')) close();
+    });
+
+    // Close drawer when navigating a link inside it (SPA-ish feel)
+    drawer.querySelectorAll('a[href]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        // Let the browser follow the link, then close so back/forward feels tidy
+        setTimeout(close, 120);
+      });
+    });
+
+    // Accordion toggles inside the drawer
+    drawer.querySelectorAll('[data-cx-accordion]').forEach(function (item) {
+      var btn = item.querySelector('[data-cx-accordion-toggle]');
+      var body = item.querySelector('[data-cx-accordion-body]');
+      if (!btn || !body) return;
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        var open = item.classList.toggle('cx-is-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        body.hidden = !open;
+      });
+    });
+  })();
+
+  /* ---------- 9. Counter count-up ---------- */
   (function () {
     var counters = document.querySelectorAll('[data-cx-count]');
     if (!counters.length || !('IntersectionObserver' in window)) return;

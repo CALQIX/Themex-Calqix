@@ -1,10 +1,24 @@
 {%- comment -%}
   CALQIX Navy Rebuild — Header (sticky, mega-menu, cart badge).
-  Source: _incoming/calqix-web-upgrade/handoff/source/components/header.jsx → Header
+  Claude handoff: HEADER-SPEC.md §1-7.
+
+  Two stacked layouts in a single section:
+    1. Desktop (>900px): 3-col grid — logo | nav | actions
+    2. Mobile (<=900px): topbar + slide-in drawer
+
+  Cart triggers share the `.wt-cart__trigger` class so the existing
+  <cart-drawer> (assets/cart-drawer.js) auto-binds click → toggle.
+  Desktop cart keeps id `cart-icon-bubble` + counter
+  `.wt-header__panel__counter` so theme code that writes to it still
+  works. Mobile cart uses `data-cx-cart-counter-mirror` so
+  cx-cart-sync.js mirrors the header count into it (and into the
+  bottom bar counter) on every cart-update event.
 {%- endcomment -%}
 
 <header class="cx-root cx-header" data-cx-header>
-  <div class="cx-container cx-header-inner">
+
+  {%- comment -%} ---------- Desktop row (>= 901px) ---------- {%- endcomment -%}
+  <div class="cx-container cx-header-inner cx-header-inner--desktop">
     <a class="cx-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
       {%- if section.settings.logo != blank -%}
         {{ section.settings.logo | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:28px;width:auto;' }}
@@ -36,10 +50,9 @@
         {% render 'cx-icons', name: 'userSlim', size: 20 %}
       </a>
       {%- comment -%}
-        Sidecart trigger — must use `.wt-cart__trigger` + id="cart-icon-bubble"
-        + `.wt-header__panel__counter` so the existing <cart-drawer> custom
-        element (assets/cart-drawer.js) wires up click-to-open and live counter
-        animations. Do NOT rename these hooks.
+        Desktop cart — primary counter source of truth (written by
+        assets/cart-drawer.js on every cartUpdate). Keep both the id
+        and the `wt-header__panel__counter` hooks intact.
       {%- endcomment -%}
       <a class="cx-icon-btn cx-icon-btn-cart wt-cart__trigger" id="cart-icon-bubble" href="{{ routes.cart_url }}" aria-label="Winkelmand">
         {% render 'cx-icons', name: 'bag', size: 20 %}
@@ -52,6 +65,38 @@
     </div>
   </div>
 
+  {%- comment -%} ---------- Mobile topbar (<=900px) ---------- {%- endcomment -%}
+  <div class="cx-header-inner cx-header-inner--mobile">
+    <button type="button" class="cx-m-iconbtn" data-cx-drawer-open aria-label="Menu openen" aria-controls="cx-mobile-drawer" aria-expanded="false">
+      {% render 'cx-icons', name: 'hamburger', size: 16 %}
+    </button>
+
+    <a class="cx-m-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+      {%- if section.settings.logo_mobile != blank -%}
+        {{ section.settings.logo_mobile | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:26px;width:auto;' }}
+      {%- elsif section.settings.logo != blank -%}
+        {{ section.settings.logo | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:26px;width:auto;' }}
+      {%- else -%}
+        <span class="cx-logo-text">{{ section.settings.logo_text | default: 'CALQIX' }}</span>
+      {%- endif -%}
+    </a>
+
+    <div class="cx-m-actions">
+      {%- if section.settings.enable_search -%}
+        <a class="cx-m-iconbtn" href="{{ routes.search_url }}" aria-label="Zoeken">
+          {% render 'cx-icons', name: 'searchLeaf', size: 17 %}
+        </a>
+      {%- endif -%}
+      <button type="button" class="cx-m-iconbtn cx-m-iconbtn--cart wt-cart__trigger" aria-label="Winkelmand ({{ cart.item_count }})" aria-controls="cart-drawer">
+        {% render 'cx-icons', name: 'bag', size: 17 %}
+        <span class="cx-m-badge wt-header__panel__counter"
+              data-cx-cart-counter-mirror
+              {% if cart.item_count == 0 %}hidden{% endif %}>{{ cart.item_count }}</span>
+      </button>
+    </div>
+  </div>
+
+  {%- comment -%} ---------- Desktop mega panels ---------- {%- endcomment -%}
   {%- for block in section.blocks -%}
     {%- if block.type == 'mega' -%}
       <div class="cx-mega-panel" data-cx-dropdown-panel="{{ block.id }}" hidden>
@@ -78,20 +123,88 @@
   {%- endfor -%}
 </header>
 
+{%- comment -%} ---------- Mobile drawer (overlay + panel) ---------- {%- endcomment -%}
+<div class="cx-drawer-overlay" data-cx-drawer-overlay hidden></div>
+<aside class="cx-drawer cx-root"
+       id="cx-mobile-drawer"
+       data-cx-drawer
+       aria-label="Hoofdnavigatie"
+       aria-hidden="true"
+       hidden>
+  <header class="cx-drawer__head">
+    <a class="cx-drawer__logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+      {%- if section.settings.logo != blank -%}
+        {{ section.settings.logo | image_url: width: 200 | image_tag: loading: 'lazy', alt: shop.name, style: 'max-height:28px;width:auto;' }}
+      {%- else -%}
+        <span class="cx-drawer__logo-text">{{ section.settings.logo_text | default: 'CALQIX' }}</span>
+      {%- endif -%}
+    </a>
+    <button type="button" class="cx-drawer__close" data-cx-drawer-close aria-label="Menu sluiten">
+      {% render 'cx-icons', name: 'close', size: 14 %}
+    </button>
+  </header>
+
+  <nav class="cx-drawer__nav" aria-label="Mobiele navigatie">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'mega' -%}
+        <div class="cx-drawer__item" data-cx-accordion>
+          <button type="button" class="cx-drawer__link cx-drawer__link--toggle" aria-expanded="false" data-cx-accordion-toggle>
+            <span class="cx-drawer__link-title">{{ block.settings.label }}</span>
+            <span class="cx-drawer__link-chev">{% render 'cx-icons', name: 'chevR', size: 14 %}</span>
+          </button>
+          <div class="cx-drawer__sub" hidden data-cx-accordion-body>
+            {%- for i in (1..4) -%}
+              {%- assign eyebrow_key = 'eyebrow_' | append: i -%}
+              {%- assign title_key = 'title_' | append: i -%}
+              {%- assign link_key = 'link_' | append: i -%}
+              {%- assign s_title = block.settings[title_key] -%}
+              {%- if s_title != blank -%}
+                <a class="cx-drawer__sublink" href="{{ block.settings[link_key] | default: '#' }}">
+                  {%- assign s_eyebrow = block.settings[eyebrow_key] -%}
+                  {%- if s_eyebrow != blank -%}
+                    <span class="cx-drawer__sublink-eyebrow">{{ s_eyebrow }}</span>
+                  {%- endif -%}
+                  <span class="cx-drawer__sublink-title">{{ s_title }}</span>
+                  <span class="cx-drawer__sublink-arrow">{% render 'cx-icons', name: 'arrowRight', size: 14 %}</span>
+                </a>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- elsif block.type == 'link' -%}
+        <a class="cx-drawer__link" href="{{ block.settings.link }}">
+          <span class="cx-drawer__link-title">{{ block.settings.label }}</span>
+          <span class="cx-drawer__link-arrow">{% render 'cx-icons', name: 'arrowRight', size: 14 %}</span>
+        </a>
+      {%- endif -%}
+    {%- endfor -%}
+  </nav>
+
+  {%- if section.settings.cta_label != blank and section.settings.cta_url != blank -%}
+    <a class="cx-drawer__cta" href="{{ section.settings.cta_url }}">
+      {{ section.settings.cta_label }}
+      {% render 'cx-icons', name: 'arrowRight', size: 14 %}
+    </a>
+  {%- endif -%}
+</aside>
+
 <style>
+  /* ================ Desktop ================ */
   .cx-header {
     background: var(--cx-forest-3);
     color: var(--cx-forest-ink);
     position: sticky; top: 0; z-index: 40;
     border-bottom: 1px solid rgba(242,247,255,0.08);
   }
-  .cx-header-inner {
+  .cx-header-inner--desktop {
     height: 72px;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 16px;
   }
+  .cx-header-inner--mobile { display: none; }
+
   .cx-logo { display: inline-flex; align-items: baseline; gap: 10px; color: var(--cx-forest-ink); }
   .cx-logo-text {
     font-family: var(--cx-f-display);
@@ -133,6 +246,8 @@
     display: inline-flex; align-items: center; justify-content: center;
     line-height: 1;
   }
+  .cx-cart-badge[hidden] { display: none !important; }
+
   .cx-mega-panel {
     position: absolute; left: 0; right: 0; top: 100%;
     background: var(--cx-page);
@@ -162,10 +277,163 @@
     display: inline-flex; align-items: center; gap: 6px;
     font-size: 12px; font-weight: 500;
   }
+
+  /* ================ Mobile topbar ================ */
   @media (max-width: 900px) {
-    .cx-nav { display: none; }
-    .cx-header-inner { grid-template-columns: 1fr 1fr; }
+    .cx-header-inner--desktop { display: none; }
+    .cx-header-inner--mobile {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      background: rgba(0,37,73,0.98);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .cx-m-iconbtn {
+      width: 38px; height: 38px; border-radius: 999px;
+      border: 1px solid rgba(242,247,255,0.18);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--cx-forest-ink);
+      background: transparent;
+      position: relative;
+      cursor: pointer;
+      line-height: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cx-m-iconbtn:active { transform: scale(0.94); }
+    .cx-m-logo { display: inline-flex; justify-content: center; color: var(--cx-forest-ink); }
+    .cx-m-actions { display: flex; gap: 6px; justify-content: flex-end; }
+    .cx-m-badge {
+      position: absolute; top: -4px; right: -4px;
+      background: var(--cx-gold); color: var(--cx-forest-3);
+      font-family: var(--cx-f-display); font-size: 10px; font-weight: 600;
+      border-radius: 999px; width: 17px; height: 17px;
+      display: inline-flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+    .cx-m-badge[hidden] { display: none !important; }
     .cx-mega-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; padding: 24px 20px; }
+  }
+
+  /* ================ Mobile drawer ================ */
+  .cx-drawer-overlay {
+    position: fixed; inset: 0; z-index: 49;
+    background: rgba(0, 20, 40, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 180ms var(--cx-ease-silk);
+  }
+  .cx-drawer-overlay:not([hidden]) { opacity: 1; }
+  .cx-drawer-overlay[hidden] { display: block; pointer-events: none; opacity: 0; }
+
+  .cx-drawer {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: 84vw; max-width: 420px;
+    z-index: 50;
+    background: var(--cx-page);
+    color: var(--cx-forest-3);
+    padding: 20px;
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 220ms var(--cx-ease-silk);
+    -webkit-overflow-scrolling: touch;
+  }
+  .cx-drawer[hidden] { display: none; }
+  .cx-drawer.cx-is-open { transform: translateX(0); }
+
+  .cx-drawer__head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 16px; margin-bottom: 8px;
+    border-bottom: 1px solid var(--cx-rule);
+  }
+  .cx-drawer__logo { color: var(--cx-forest-3); }
+  .cx-drawer__logo-text {
+    font-family: var(--cx-f-display);
+    font-size: 20px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cx-forest-3);
+  }
+  .cx-drawer__close {
+    width: 36px; height: 36px; border-radius: 999px;
+    border: 1px solid var(--cx-rule);
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent; color: var(--cx-forest-3);
+    cursor: pointer;
+  }
+  .cx-drawer__close:active { transform: scale(0.94); }
+
+  .cx-drawer__nav { display: flex; flex-direction: column; }
+  .cx-drawer__link {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--cx-rule);
+    background: transparent; border-left: 0; border-right: 0; border-top: 0;
+    color: var(--cx-forest-3);
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+  }
+  .cx-drawer__link-title {
+    font-family: var(--cx-f-display);
+    font-size: 18px; font-weight: 500;
+    color: var(--cx-forest-3);
+  }
+  .cx-drawer__link-arrow,
+  .cx-drawer__link-chev {
+    display: inline-flex;
+    color: var(--cx-ink-mute);
+    transition: transform 220ms var(--cx-ease-silk);
+  }
+  .cx-drawer__item.cx-is-open .cx-drawer__link-chev {
+    transform: rotate(90deg);
+    color: var(--cx-forest-3);
+  }
+
+  .cx-drawer__sub {
+    display: flex; flex-direction: column;
+    padding: 4px 0 10px 14px;
+  }
+  .cx-drawer__sub[hidden] { display: none; }
+  .cx-drawer__sublink {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
+    padding: 10px 0;
+    color: var(--cx-forest-3);
+  }
+  .cx-drawer__sublink-eyebrow {
+    display: inline-block;
+    font-family: var(--cx-f-display);
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    font-style: italic;
+    color: var(--cx-gold-ink);
+    margin-right: 6px;
+  }
+  .cx-drawer__sublink-title {
+    font-family: var(--cx-f-display);
+    font-size: 16px; font-weight: 500;
+    flex: 1 1 auto;
+  }
+  .cx-drawer__sublink-arrow { color: var(--cx-ink-mute); }
+
+  .cx-drawer__cta {
+    margin-top: auto;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: var(--cx-forest-3);
+    color: var(--cx-forest-ink);
+    border-radius: 999px;
+    font-family: var(--cx-f-display);
+    font-size: 15px; font-weight: 500;
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cx-drawer, .cx-drawer-overlay { transition: none; }
   }
 </style>
 
@@ -178,8 +446,12 @@
     { "type": "header", "content": "Logo" },
     { "type": "text", "id": "logo_text", "label": "Logo tekst", "default": "CALQIX" },
     { "type": "image_picker", "id": "logo", "label": "Logo afbeelding (optioneel)" },
+    { "type": "image_picker", "id": "logo_mobile", "label": "Logo mobiel (optioneel — valt terug op desktop logo)" },
     { "type": "header", "content": "Search" },
-    { "type": "checkbox", "id": "enable_search", "label": "Zoek-icoon tonen", "default": true }
+    { "type": "checkbox", "id": "enable_search", "label": "Zoek-icoon tonen", "default": true },
+    { "type": "header", "content": "Mobile drawer CTA" },
+    { "type": "text", "id": "cta_label", "label": "CTA label", "default": "Shop de Rebuild-kit" },
+    { "type": "url",  "id": "cta_url",   "label": "CTA link" }
   ],
   "blocks": [
     {

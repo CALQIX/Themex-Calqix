@@ -1,0 +1,383 @@
+/* ============================================================
+ * CALQIX — Mobile bottom navigation bar
+ * ------------------------------------------------------------
+ * Scoped to `.cx-bottom-bar` — no bleed into Wonder theme.
+ * Tokens from cx-theme.css:  --cx-forest-3 (navy), --cx-gold,
+ *   --cx-forest-ink, --cx-ease-silk, --cx-r-pill, --cx-f-display.
+ *
+ * Visibility:
+ *   - Shown on mobile (<= 900px). Hidden on desktop where the
+ *     primary nav + cart button already live in the header.
+ *   - Uses env(safe-area-inset-bottom) so it clears the iOS
+ *     home indicator.
+ *
+ * Cart "has items" state:
+ *   - .cx-bb--has-items is toggled by JS when cart.item_count > 0.
+ *   - Persistent steady gold halo glow around the bag icon,
+ *     pulsing softly to hint there's something waiting.
+ *
+ * Add-to-cart wow cascade:
+ *   - .cx-bb--cart-updated is set for ~1.2s after a count change.
+ *   - It triggers: glow pulse, ripple ring, sparkle particles,
+ *     icon squash, counter flip, and a gold sheen sweep.
+ * ============================================================ */
+
+.cx-bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 45;
+  padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+  display: none; /* desktop: hidden by default, media query flips it */
+  pointer-events: none;
+  font-family: var(--cx-f-body);
+}
+
+.cx-bottom-bar__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 6px 6px;
+  pointer-events: auto;
+
+  background: linear-gradient(
+    180deg,
+    rgba(0, 37, 73, 0.92) 0%,
+    rgba(0, 20, 40, 0.96) 100%
+  );
+  border: 1px solid rgba(201, 165, 90, 0.22);
+  border-radius: 22px;
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  box-shadow:
+    0 1px 0 rgba(242, 247, 255, 0.06) inset,
+    0 12px 32px -12px rgba(0, 20, 40, 0.6),
+    0 2px 8px rgba(0, 20, 40, 0.35);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Gold sheen sweep — plays on cart update. Sits inside __inner clip. */
+.cx-bottom-bar__sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(201, 165, 90, 0.35) 50%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+  transform: translateX(-120%);
+}
+.cx-bottom-bar.cx-bb--cart-updated .cx-bottom-bar__sheen {
+  animation: cxBbSheen 1100ms var(--cx-ease-silk) forwards;
+}
+@keyframes cxBbSheen {
+  0%   { opacity: 0; transform: translateX(-120%); }
+  15%  { opacity: 1; }
+  90%  { opacity: 0.4; }
+  100% { opacity: 0; transform: translateX(120%); }
+}
+
+/* ---------- Buttons ---------- */
+
+.cx-bb__btn {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 6px 6px;
+  min-height: 56px;
+  color: rgba(242, 247, 255, 0.72);
+  font-family: var(--cx-f-body);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  background: transparent;
+  border: 0;
+  border-radius: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 180ms var(--cx-ease-silk),
+    background 180ms var(--cx-ease-silk),
+    transform 220ms var(--cx-ease-silk);
+}
+
+.cx-bb__btn:hover,
+.cx-bb__btn:focus-visible {
+  color: var(--cx-forest-ink);
+}
+
+.cx-bb__btn:active {
+  transform: scale(0.94);
+}
+
+.cx-bb__btn.cx-bb--active {
+  color: var(--cx-gold);
+}
+
+.cx-bb__btn.cx-bb--active .cx-bb__ico {
+  background: rgba(201, 165, 90, 0.12);
+  box-shadow:
+    0 0 0 1px rgba(201, 165, 90, 0.25) inset,
+    0 6px 16px -8px rgba(201, 165, 90, 0.55);
+}
+
+/* ---------- Icon bubble ---------- */
+
+.cx-bb__ico {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 32px;
+  border-radius: 14px;
+  background: transparent;
+  transition: background 220ms var(--cx-ease-silk), box-shadow 220ms var(--cx-ease-silk);
+}
+
+.cx-bb__ico svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 1.6;
+  transition: transform 260ms var(--cx-ease-silk);
+}
+
+.cx-bb__btn:active .cx-bb__ico svg {
+  transform: translateY(1px) scale(0.96);
+}
+
+.cx-bb__lbl {
+  font-family: var(--cx-f-body);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+
+/* ============================================================
+ * Cart button — sits-in-cart state
+ * ============================================================ */
+
+.cx-bb__btn--cart {
+  position: relative;
+}
+
+/* The gold pulsing halo lives behind the icon. Always in the DOM, but
+ * only visible when the bar has the .cx-bb--has-items class. */
+.cx-bb__glow {
+  position: absolute;
+  inset: -6px;
+  border-radius: 18px;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    closest-side,
+    rgba(201, 165, 90, 0.55) 0%,
+    rgba(201, 165, 90, 0.22) 55%,
+    transparent 80%
+  );
+  filter: blur(6px);
+  transition: opacity 400ms var(--cx-ease-silk);
+}
+
+.cx-bottom-bar.cx-bb--has-items .cx-bb__btn--cart .cx-bb__glow {
+  opacity: 1;
+  animation: cxBbGlowPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes cxBbGlowPulse {
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.08); }
+}
+
+/* Icon coloring when cart has items */
+.cx-bottom-bar.cx-bb--has-items .cx-bb__btn--cart {
+  color: var(--cx-gold);
+}
+.cx-bottom-bar.cx-bb--has-items .cx-bb__btn--cart .cx-bb__ico {
+  background: rgba(201, 165, 90, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(201, 165, 90, 0.32) inset,
+    0 0 18px -6px rgba(201, 165, 90, 0.75);
+}
+
+/* ============================================================
+ * Cart add-to-cart cascade — 1.2s story
+ * .cx-bb--cart-updated is toggled by cx-cart-sync.js
+ * ============================================================ */
+
+/* 1. Icon squash — "bag catching a jar" */
+.cx-bottom-bar.cx-bb--cart-updated .cx-bb__btn--cart .cx-bb__ico {
+  animation: cxBbBagSquash 720ms var(--cx-ease-bounce);
+}
+@keyframes cxBbBagSquash {
+  0%   { transform: scale(1) translateY(0); }
+  18%  { transform: scale(1.22, 0.82) translateY(1px); }
+  38%  { transform: scale(0.92, 1.14) translateY(-3px); }
+  60%  { transform: scale(1.06, 0.96) translateY(0); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+/* 2. Ripple ring — expanding gold ring from icon center */
+.cx-bb__ripple {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  margin-top: -4px;
+  border-radius: 999px;
+  border: 2px solid rgba(201, 165, 90, 0.9);
+  pointer-events: none;
+  opacity: 0;
+}
+.cx-bottom-bar.cx-bb--cart-updated .cx-bb__btn--cart .cx-bb__ripple {
+  animation: cxBbRipple 900ms var(--cx-ease-silk) forwards;
+}
+@keyframes cxBbRipple {
+  0%   { opacity: 0.9; transform: scale(0.5); border-width: 2.5px; }
+  70%  { opacity: 0.35; }
+  100% { opacity: 0; transform: scale(7); border-width: 0.5px; }
+}
+
+/* 3. Sparkle particles — 6 gold dots shooting radially outward */
+.cx-bb__sparkles {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.cx-bb__sparkles i {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  margin-top: -2px;
+  border-radius: 999px;
+  background: var(--cx-gold);
+  box-shadow: 0 0 6px rgba(201, 165, 90, 0.8);
+  opacity: 0;
+}
+.cx-bottom-bar.cx-bb--cart-updated .cx-bb__btn--cart .cx-bb__sparkles i {
+  animation: cxBbSparkle 820ms var(--cx-ease-silk) forwards;
+}
+/* Distribute 6 sparkles at 60° intervals around the icon. */
+.cx-bb__sparkles i:nth-child(1) { --cx-tx:  22px; --cx-ty: -14px; animation-delay:  40ms; }
+.cx-bb__sparkles i:nth-child(2) { --cx-tx: -22px; --cx-ty: -14px; animation-delay: 110ms; }
+.cx-bb__sparkles i:nth-child(3) { --cx-tx:   0px; --cx-ty: -26px; animation-delay:  70ms; }
+.cx-bb__sparkles i:nth-child(4) { --cx-tx:  20px; --cx-ty:  18px; animation-delay: 160ms; }
+.cx-bb__sparkles i:nth-child(5) { --cx-tx: -20px; --cx-ty:  18px; animation-delay: 140ms; }
+.cx-bb__sparkles i:nth-child(6) { --cx-tx:  26px; --cx-ty:   2px; animation-delay: 210ms; }
+@keyframes cxBbSparkle {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--cx-tx), var(--cx-ty)) scale(1); }
+}
+
+/* 4. Big glow pulse — the whole "I caught a jar" flash */
+.cx-bottom-bar.cx-bb--cart-updated .cx-bb__btn--cart .cx-bb__glow {
+  animation: cxBbGlowBurst 900ms var(--cx-ease-silk);
+}
+@keyframes cxBbGlowBurst {
+  0%   { opacity: 0.8; transform: scale(0.9);  filter: blur(4px); }
+  35%  { opacity: 1;   transform: scale(1.5);  filter: blur(10px); }
+  100% { opacity: 0.9; transform: scale(1);    filter: blur(6px); }
+}
+
+/* ============================================================
+ * Counter badge — mirrors .wt-header__panel__counter behaviour
+ * so the in-theme bounce animation reuses the same hook.
+ * ============================================================ */
+
+.cx-bb__badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--cx-gold);
+  color: var(--cx-forest-3);
+  font-family: var(--cx-f-display);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  box-shadow:
+    0 0 0 2px rgba(0, 37, 73, 0.9),
+    0 2px 6px rgba(201, 165, 90, 0.55);
+  transform-origin: center;
+  will-change: transform;
+}
+
+.cx-bb__badge[hidden] {
+  display: none !important;
+}
+
+.cx-bottom-bar.cx-bb--cart-updated .cx-bb__badge {
+  animation: cxBbBadgePop 620ms var(--cx-ease-bounce);
+}
+@keyframes cxBbBadgePop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.5); }
+  55%  { transform: scale(0.92); }
+  80%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* ============================================================
+ * Responsive — show only on mobile, hide on desktop
+ * ============================================================ */
+
+@media (max-width: 900px) {
+  .cx-bottom-bar {
+    display: block;
+  }
+  /* Reserve room so fixed bottom bar never overlaps page content */
+  body:has(.cx-bottom-bar) {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+  /* Safari <=16 fallback (no :has) — adds room on mobile template wrappers */
+  main#root { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+}
+
+@media (min-width: 901px) {
+  main#root { padding-bottom: 0; }
+}
+
+/* ============================================================
+ * Reduced motion — keep visual state, drop flashy animations
+ * ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .cx-bottom-bar__sheen,
+  .cx-bb__ripple,
+  .cx-bb__sparkles i,
+  .cx-bb__glow,
+  .cx-bb__badge,
+  .cx-bb__btn--cart .cx-bb__ico {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,138 @@
+{%- comment -%}
+  CALQIX — Mobile bottom navigation bar.
+
+  Fixed at the bottom of the viewport on mobile viewports only (< 900px),
+  visible on every page via footer-group.json. 4 actions:
+    1. Home   → {{ routes.root_url }}
+    2. Shop   → configurable collection / page
+    3. Account → {{ routes.account_url }}
+    4. Cart   → opens the existing sidecart (same hooks as header
+               cart trigger: `.wt-cart__trigger` + live counter element
+               watched by cx-cart-sync.js for glow + ripple animations).
+
+  The cart button carries a mirror counter (#cx-bottom-cart-counter) that
+  is kept in sync with the header counter (#cart-icon-bubble
+  .wt-header__panel__counter) by assets/cx-cart-sync.js.
+
+  When the count goes from 0 → N or N → N+1 the bar fires a cascade of
+  clinical animations: glow pulse, ripple ring, counter bounce, bag
+  squash, sparkle particles, and a golden sheen sweep across the bar.
+{%- endcomment -%}
+
+{%- liquid
+  assign home_url = section.settings.home_url | default: routes.root_url
+  assign shop_url = section.settings.shop_url | default: routes.all_products_collection_url
+  assign account_url = section.settings.account_url | default: routes.account_url
+
+  assign label_home = section.settings.label_home | default: 'Home'
+  assign label_shop = section.settings.label_shop | default: 'Shop'
+  assign label_account = section.settings.label_account | default: 'Account'
+  assign label_cart = section.settings.label_cart | default: 'Cart'
+-%}
+
+<nav class="cx-bottom-bar cx-root{% if cart.item_count > 0 %} cx-bb--has-items{% endif %}"
+     id="cx-bottom-bar"
+     data-cx-bottom-bar
+     aria-label="{{ section.settings.aria_label | default: 'Primaire navigatie' | escape }}">
+  <div class="cx-bottom-bar__sheen" aria-hidden="true"></div>
+  <div class="cx-bottom-bar__inner">
+
+    <a class="cx-bb__btn" href="{{ home_url }}" data-cx-bb-key="home" aria-label="{{ label_home | escape }}">
+      <span class="cx-bb__ico">{% render 'cx-icons', name: 'home', size: 22 %}</span>
+      <span class="cx-bb__lbl">{{ label_home }}</span>
+    </a>
+
+    <a class="cx-bb__btn" href="{{ shop_url }}" data-cx-bb-key="shop" aria-label="{{ label_shop | escape }}">
+      <span class="cx-bb__ico">{% render 'cx-icons', name: 'shop', size: 22 %}</span>
+      <span class="cx-bb__lbl">{{ label_shop }}</span>
+    </a>
+
+    <a class="cx-bb__btn" href="{{ account_url }}" data-cx-bb-key="account" aria-label="{{ label_account | escape }}">
+      <span class="cx-bb__ico">{% render 'cx-icons', name: 'userSlim', size: 22 %}</span>
+      <span class="cx-bb__lbl">{{ label_account }}</span>
+    </a>
+
+    {%- comment -%}
+      Cart button — `.wt-cart__trigger` is the shared hook picked up by
+      <cart-drawer> (assets/cart-drawer.js) so a single click toggles the
+      existing sidecart open/closed. Do NOT replace this with a /cart link.
+    {%- endcomment -%}
+    <button type="button"
+            class="cx-bb__btn cx-bb__btn--cart wt-cart__trigger"
+            data-cx-bb-key="cart"
+            data-cx-bb-cart
+            aria-label="{{ label_cart | escape }} ({{ cart.item_count }})"
+            aria-controls="cart-drawer">
+      <span class="cx-bb__ico cx-bb__ico--cart">
+        {% render 'cx-icons', name: 'bag', size: 22 %}
+        <span class="cx-bb__glow" aria-hidden="true"></span>
+        <span class="cx-bb__ripple" aria-hidden="true"></span>
+        <span class="cx-bb__sparkles" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i>
+        </span>
+        {%- comment -%}
+          Badge element is ALWAYS rendered (hidden when empty) so the JS
+          can toggle it without rebuilding markup. Matches the header
+          pattern (.wt-header__panel__counter) for look + transitions.
+        {%- endcomment -%}
+        <span class="cx-bb__badge wt-header__panel__counter"
+              id="cx-bottom-cart-counter"
+              data-cx-cart-counter-mirror
+              {% if cart.item_count == 0 %}hidden{% endif %}>
+          {{ cart.item_count }}
+        </span>
+      </span>
+      <span class="cx-bb__lbl">{{ label_cart }}</span>
+    </button>
+
+  </div>
+</nav>
+
+{%- comment -%}
+  Active-state detection: mark the current page's button so the icon +
+  label render in gold. Keeps highlight state in sync with actual URL.
+{%- endcomment -%}
+<script>
+  (function () {
+    var bar = document.getElementById('cx-bottom-bar');
+    if (!bar) return;
+    var here = location.pathname.replace(/\/+$/, '') || '/';
+    var map = {
+      home: {{ home_url | json }},
+      shop: {{ shop_url | json }},
+      account: {{ account_url | json }}
+    };
+    Object.keys(map).forEach(function (key) {
+      var target = (map[key] || '').replace(/\/+$/, '') || '/';
+      if (target === here || (key === 'home' && here === '/')) {
+        var btn = bar.querySelector('[data-cx-bb-key="' + key + '"]');
+        if (btn) btn.classList.add('cx-bb--active');
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "CX Bottom bar (mobile)",
+  "tag": "section",
+  "class": "cx-section-bottom-bar",
+  "settings": [
+    { "type": "header", "content": "Navigatie" },
+    { "type": "url",  "id": "home_url",    "label": "Home link" },
+    { "type": "url",  "id": "shop_url",    "label": "Shop link" },
+    { "type": "url",  "id": "account_url", "label": "Account link" },
+    { "type": "url",  "id": "cart_url",    "label": "Cart fallback link (klik wordt normaal door sidecart opgevangen)" },
+
+    { "type": "header", "content": "Labels" },
+    { "type": "text", "id": "label_home",    "label": "Label Home",    "default": "Home" },
+    { "type": "text", "id": "label_shop",    "label": "Label Shop",    "default": "Shop" },
+    { "type": "text", "id": "label_account", "label": "Label Account", "default": "Account" },
+    { "type": "text", "id": "label_cart",    "label": "Label Cart",    "default": "Cart" },
+    { "type": "text", "id": "aria_label",    "label": "ARIA label",    "default": "Primaire navigatie" }
+  ],
+  "default": {
+    "settings": {}
+  }
+}
+{% endschema %}
