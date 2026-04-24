@@ -24,7 +24,7 @@ class AnnouncementBar extends HTMLElement {
         "wt-announcement__container--marquee",
       )
     ) {
-      this.announcementInterval = setInterval(this.changeAnnouncement, 4000);
+      this.announcementInterval = setInterval(this.changeAnnouncement, 7000);
 
       if (this.announcementBar) {
         this.announcementBar.addEventListener(
@@ -58,7 +58,7 @@ class AnnouncementBar extends HTMLElement {
     }
 
     if (this.announcementBar)
-      this.announcementBar.style.transition = "transform 0.5s ease-in-out";
+      this.announcementBar.style.transition = "transform 0.85s cubic-bezier(0.65, 0, 0.35, 1)";
 
     this.closeButton = this.querySelector(".wt-announcement__close");
     if (this.closeButton)
@@ -83,7 +83,7 @@ class AnnouncementBar extends HTMLElement {
 
   restartInterval() {
     clearInterval(this.announcementInterval);
-    this.announcementInterval = setInterval(this.changeAnnouncement, 4000);
+    this.announcementInterval = setInterval(this.changeAnnouncement, 7000);
   }
 
   hideForOneDay() {
@@ -114,9 +114,9 @@ class AnnouncementBar extends HTMLElement {
         this.currentIndex = 0;
         // Restore transition after resetting position
         setTimeout(() => {
-          this.announcementBar.style.transition = "transform 0.5s ease-in-out";
+          this.announcementBar.style.transition = "transform 0.85s cubic-bezier(0.65, 0, 0.35, 1)";
         }, 0);
-      }, 490); // Just slightly before 0.5s to ensure it happens before next slide movement.
+      }, 840); // Just slightly before 0.85s so the reset lands before the next slide tick.
     }
   }
 

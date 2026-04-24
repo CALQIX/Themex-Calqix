@@ -226,13 +226,13 @@
       drawer.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
       openers.forEach(function (o) { o.setAttribute('aria-expanded', 'false'); });
-      // Wait for transition end before hiding (matches 360ms slide).
+      // Wait for transition end before hiding (matches 520ms slide).
       setTimeout(function () {
         if (!drawer.classList.contains('cx-is-open')) {
           drawer.hidden = true;
           if (overlay) overlay.hidden = true;
         }
-      }, 380);
+      }, 520);
     }
 
     openers.forEach(function (btn) { btn.addEventListener('click', open); });
@@ -290,7 +290,7 @@
       triggers.forEach(function (t) { t.setAttribute('aria-expanded', 'false'); });
       setTimeout(function () {
         if (!sheet.hasAttribute('data-open')) sheet.hidden = true;
-      }, 320);
+      }, 460);
     }
 
     triggers.forEach(function (t) { t.addEventListener('click', open); });
