@@ -2076,17 +2076,34 @@
                 assign cq_current_variant = product.selected_or_first_available_variant
                 assign cq_variant_available = cq_current_variant.available
                 if cq_variant_available
-                  assign cq_stock_label = 'calqix_product.in_stock' | t
                   assign cq_stock_class = 'calqix-stock-status--in-stock'
                 else
                   assign cq_stock_label = 'calqix_product.sold_out' | t
                   assign cq_stock_class = 'calqix-stock-status--sold-out'
                 endif
+                assign cq_country_code = localization.country.iso_code | default: shop.address.country_code | default: 'EN' | upcase
               -%}
-              <div class="calqix-stock-status {{ cq_stock_class }}">
-                <span class="calqix-stock-status__dot" aria-hidden="true"></span>
-                <span class="calqix-stock-status__text">{{ cq_stock_label }}</span>
-              </div>
+              {%- if cq_variant_available -%}
+                <div
+                  class="calqix-stock-status {{ cq_stock_class }}"
+                  data-cx-stock-countdown
+                  data-cx-country="{{ cq_country_code }}"
+                  data-cx-template="{{ 'calqix_product.cutoff_template' | t: hours: '__H__', minutes: '__M__', date: '__D__' | escape }}"
+                  data-cx-fallback="{{ 'calqix_product.in_stock' | t | escape }}"
+                  data-cx-months="{{ 'calqix_product.months_short' | t | escape }}"
+                >
+                  <span class="calqix-stock-status__dot" aria-hidden="true"></span>
+                  <span class="calqix-stock-status__text">
+                    <span class="calqix-stock-status__label">{{ 'calqix_product.in_stock_label' | t }}:</span>
+                    <span class="calqix-stock-status__detail" data-cx-stock-detail aria-live="polite">{{ 'calqix_product.in_stock' | t }}</span>
+                  </span>
+                </div>
+              {%- else -%}
+                <div class="calqix-stock-status {{ cq_stock_class }}">
+                  <span class="calqix-stock-status__dot" aria-hidden="true"></span>
+                  <span class="calqix-stock-status__text">{{ cq_stock_label }}</span>
+                </div>
+              {%- endif -%}
               <div
                 class="wt-product__add-to-cart_form main-product__buy-buttons--container {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %} {% if section.settings.desktop-media-size == 'large' %}large{% endif %}"
                 style="display:flex;justify-content:center;align-items:center"
