@@ -648,11 +648,18 @@
     width: 100%;
   }
   /* Mega-menu toggle (e.g. "Products") is a <button> wrapped in
-     .cx-drawer__item rather than a bare anchor — user agents apply
-     their default button reset which can override the hairline below.
-     Force the same separator so the row visually matches the rest of
-     the link list. */
+     .cx-drawer__item rather than a bare anchor. iOS Safari + macOS
+     Safari apply a default `-webkit-appearance: button` which paints
+     subtle rounded corners; combined with a 1px bottom border that
+     curls upward at the right edge — visible as a swooping line that
+     does not match the flat hairlines under Science Journal/About
+     us/Contact. Reset the appearance + border-radius + margin so the
+     row is visually identical to the other linklist items. */
   .cx-drawer__item > .cx-drawer__link--toggle {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+    border-radius: 0;
     border-bottom: 1px solid var(--cx-rule);
   }
   .cx-drawer__link-title {
@@ -778,7 +785,15 @@
   .cx-locale-sheet__backdrop {
     position: absolute; inset: 0;
     background: rgba(11,37,64,0.52);
+    /* backdrop-filter is gated to [data-open] only — same compositing
+       trap as .cx-drawer-overlay. Leaving it on the base rule means
+       the blur leaks across the entire viewport between the
+       sheet.hidden=false and requestAnimationFrame(data-open) frames
+       in cx-motion.js, and again during the 320ms close fade. */
+  }
+  .cx-locale-sheet[data-open] .cx-locale-sheet__backdrop {
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
   .cx-locale-sheet__panel {
     position: absolute;
