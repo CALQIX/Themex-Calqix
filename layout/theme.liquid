@@ -19,6 +19,14 @@
   {%- endif -%}"
 >
   <head>
+    {%- comment -%}
+      CALQIX /cart -> product-page redirect (inline, runs FIRST before any
+      other <head> content so `location.replace` stops parsing immediately
+      and the redirect never reaches GTM / Meta Pixel as a false pageview).
+      Paired with assets/cx-cart-redirect.js below for save + auto-open.
+    {%- endcomment -%}
+    {%- render 'cx-cart-redirect-head' -%}
+
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -142,6 +150,14 @@
     {%- comment -%} CALQIX Navy Rebuild — namespaced design system (cx- prefix) {%- endcomment -%}
     {{ 'cx-theme.css' | asset_url | stylesheet_tag }}
     <script src="{{ 'cx-motion.js' | asset_url }}" defer="defer"></script>
+
+    {%- comment -%}
+      CALQIX cart-redirect deferred half:
+      - saves `/products/*` URLs to sessionStorage as `cx:lastProduct`
+      - reads `?open_cart=1` on arrival, strips it from URL, clicks the
+        `.wt-cart__trigger` to open the sidecart drawer.
+    {%- endcomment -%}
+    <script src="{{ 'cx-cart-redirect.js' | asset_url }}" defer="defer"></script>
 
     <script src="{{ 'variants.js' | asset_url }}" defer="defer"></script>
 

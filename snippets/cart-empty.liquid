@@ -3,9 +3,17 @@
     {% render 'icons', id: 'bag', icon_class: 'wt-cart__header__icon-bag' %}
   </div>
   <p class="wt-drawer__title__text">{{ 'sections.cart.empty' | t }}</p>
+  {%- comment -%}
+    Continue Shopping in empty sidecart.
+    Adds `wt-cart__drawer__close` so assets/cart-drawer.js intercepts the click
+    and simply toggles the drawer closed (e.preventDefault + toggleDrawerClasses)
+    instead of navigating. On the standalone /cart page this link is never seen
+    because cx-cart-redirect-head.liquid redirects away before render; but the
+    href remains as a safe fallback for no-JS fallback paths.
+  {%- endcomment -%}
   <a
     href="{{ routes.root_url }}"
-    class="button hero__button hero__button--primary button--continue-shopping "
+    class="button hero__button hero__button--primary button--continue-shopping wt-cart__drawer__close"
     tabindex="-1"
   >
     {{ 'general.continue_shopping' | t }}
