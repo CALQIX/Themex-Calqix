@@ -7,3 +7,41 @@ SHOPIFY CLI TOKEN.txt
 e2e/node_modules/
 e2e/playwright-report/
 e2e/test-results/
+
+# ---------------------------------------------------------------
+# Local dev scratch — never commit
+# ---------------------------------------------------------------
+# Push / pull / deploy log captures (scripts write these, they're noise in git)
+_push-*.log
+_pull-*.log
+_backup-*.log
+_git-*.log
+_commit-msg.txt
+push*.log
+deploy-*.log
+
+# Backup dir/name hints from pre-push scripts
+_last-backup-dir.txt
+_last-backup-theme-name.txt
+
+# Live snapshot dirs from `shopify theme pull` backup scripts
+_backup-live-*/
+_live-check/
+
+# One-off HTML/CSS/JS live dumps (live capture for diffs)
+_live*.html
+_live*.css
+_live*.js
+
+# Claude / ChatGPT handoff unpacks — source material, not build output
+_incoming/
+
+# Image source (PNG masters) — we keep the pushed WEBPs, not the big PNG masters
+assets/generated/
+
+# calqix-capi test captures
+calqix-capi/test-la-*.log
+
+# Local business docs that accidentally land in repo root
+calqix-capi/docs/*.docx
+
