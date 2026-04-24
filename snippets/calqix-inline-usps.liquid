@@ -48,21 +48,23 @@
   }
   .{{ ns }}__shell::before { content: none; }
 
-  /* Desktop ≥900px: bring back the soft blue card shell */
+  /* Desktop ≥900px: bring back the soft blue card shell.
+     overflow stays VISIBLE so top-row popovers can escape upward —
+     the radial gradient ::before is constrained via clip-path instead. */
   @media (min-width: 900px) {
     .{{ ns }}__shell {
       background: linear-gradient(180deg, var(--cq-shell) 0%, var(--cq-shell-2) 100%);
       border-radius: 14px;
       padding: 14px 12px 12px;
       border: 1px solid rgba(26, 59, 92, 0.06);
-      overflow: hidden;
+      overflow: visible;
     }
     .{{ ns }}__shell::before {
       content: "";
       position: absolute;
-      inset: -30% -10% auto auto;
-      width: 60%; height: 120%;
-      background: radial-gradient(ellipse at top right, rgba(61, 139, 255, 0.12), transparent 60%);
+      inset: 0;
+      border-radius: 14px;
+      background: radial-gradient(ellipse 60% 120% at top right, rgba(61, 139, 255, 0.12), transparent 60%);
       pointer-events: none;
       z-index: 0;
     }
