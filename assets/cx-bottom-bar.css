@@ -101,8 +101,11 @@
   /* Tightened by 2px top + bottom (was 8px / 6px). */
   padding: 6px 6px 4px;
   min-height: 52px;
-  /* Primary nav items render fully white per design feedback. */
-  color: #ffffff;
+  /* Primary nav items render in ivory-white (#f2f7ff). Forced with
+     !important because Wonder theme's anchor + button rules in main.css
+     have higher specificity (e.g. `a { color: var(--color-link) }`) and
+     would otherwise paint these icons + labels dark navy on mobile. */
+  color: #f2f7ff !important;
   font-family: var(--cx-f-body);
   font-size: 10.5px;
   font-weight: 500;
@@ -120,9 +123,20 @@
     transform 220ms var(--cx-ease-silk);
 }
 
+/* Force the icon + label + SVG stroke to inherit the ivory color too,
+   so nothing painted by the theme stylesheet can show through. */
+.cx-bb__btn .cx-bb__ico,
+.cx-bb__btn .cx-bb__ico svg,
+.cx-bb__btn .cx-bb__lbl {
+  color: #f2f7ff !important;
+}
+.cx-bb__btn .cx-bb__ico svg {
+  stroke: currentColor;
+}
+
 .cx-bb__btn:hover,
 .cx-bb__btn:focus-visible {
-  color: #f2f7ff;
+  color: #ffffff !important;
 }
 
 .cx-bb__btn:active {

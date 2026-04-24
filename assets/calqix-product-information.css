@@ -668,13 +668,27 @@ body[class^="template-product"] .wt-product__info .calqix-stock-status--sold-out
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge {
-  margin: 14px 0 8px;
+  /* 3px gap above (right under the Add-to-cart button), zero gap below. */
+  margin: 3px 0 0;
   padding: 0;
   background: transparent;
   border: 0;
   border-radius: 0;
+  outline: 0;
   text-align: center;
   animation: cq-pay-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+/* Defensive: kill any red dashed/solid outlines that browser extensions
+   or the Shopify customizer drag-handle overlay can paint around the
+   buy-form blocks on hover/scroll. Leaves real focus rings on inputs. */
+body[class^="template-product"] .wt-product__info .wt-product__buy-buttons,
+body[class^="template-product"] .wt-product__info .wt-product__buy-buttons:hover,
+body[class^="template-product"] .wt-product__info .wt-product__buy-buttons:focus,
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge:hover,
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge:focus {
+  outline: 0 !important;
+  border-color: transparent;
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__content {
@@ -688,7 +702,9 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__c
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-bottom: 10px;
+  /* 2px gap between trust line and payment-icon row — controlled
+     entirely by .__icons margin-top so the value stays in one place. */
+  margin-bottom: 0;
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__content::before {
@@ -710,7 +726,7 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__c
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons {
-  margin-top: 10px;
+  margin-top: 2px;
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__list {
@@ -796,12 +812,13 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__i
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge {
     padding: 0;
-    margin: 12px 0 6px;
+    /* Mobile mirrors desktop: 3px above, zero below. */
+    margin: 3px 0 0;
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__content {
     font-size: 12.5px;
-    margin-bottom: 8px;
+    margin-bottom: 0;
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item {
