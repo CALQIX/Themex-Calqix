@@ -208,11 +208,11 @@ body[class^="template-product"] .wt-product__info .wt-product__add-to-cart_form 
   background: var(--calqix-navy, #1a3b5c) !important;
   color: #fff !important;
   border: none !important;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.12em;
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 16px;
+  letter-spacing: 0;
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 500;
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -399,8 +399,8 @@ body[class^="template-product"] .wt-product__info .wt-collapse__target--text str
     border-radius: 10px;
     min-width: 0;
     padding: 0 16px;
-    font-size: 12px;
-    letter-spacing: 0.08em;
+    font-size: 14px;
+    letter-spacing: 0;
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__add-to-cart_form .product-form__submit span {
@@ -871,11 +871,17 @@ body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__action {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 4px 16px 8px;
+  padding: 4px 16px 10px;
 }
 
-/* Quantity stepper (pill, light cream background with navy text) */
+/* Qty stepper intentionally hidden in sticky bar — sticky shows synced price + full-width CTA. */
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty[hidden],
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty {
+  display: none !important;
+}
+
+/* Legacy qty stepper rules retained but unreachable due to [hidden]/display:none above. */
+body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty--enabled {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -936,12 +942,13 @@ body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__qty-input:fo
   border-radius: 4px;
 }
 
-/* CTA button — gradient navy pill with bag icon + text */
+/* CTA button — gradient navy pill with bag icon + text (spans full action row) */
 body[class^="template-product"] .wt-product__sticky-buy .cq-sticky__cta {
-  flex: 1;
+  flex: 1 1 auto;
+  width: 100%;
   min-width: 0;
-  height: 44px;
-  padding: 0 18px;
+  height: 48px;
+  padding: 0 22px;
   background: linear-gradient(135deg, #1a3b5c 0%, #254a74 100%);
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.14);

@@ -82,7 +82,7 @@
   .cqbp__heading {
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-transform: uppercase;
     color: var(--cqbp-navy);
     margin-bottom: 8px;
@@ -133,8 +133,9 @@
     line-height: 1.3;
   }
   .cqbp__supply {
-    font-size: 13px;
-    font-weight: 600;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 12px;
+    font-weight: 500;
     color: var(--cqbp-navy);
     letter-spacing: 0.02em;
     line-height: 1.2;
@@ -148,15 +149,17 @@
   }
   .cqbp__qty {
     font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    font-weight: 400;
+    font-size: 14px;
+    font-weight: 500;
     color: var(--cqbp-muted);
     line-height: 1.2;
   }
   .cqbp__qty-label {
-    font-size: 10px;
+    font-size: 8px;
     font-weight: 400;
     color: var(--cqbp-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
   .cqbp__price-row {
     display: inline-flex;
@@ -215,7 +218,8 @@
   @media (max-width: 480px) {
     .cqbp__grid { gap: 4px; }
     .cqbp__card { padding: 8px 4px 6px; }
-    .cqbp__qty { font-size: 18px; }
+    .cqbp__qty { font-size: 14px; }
+    .cqbp__qty-label { font-size: 8px; }
     .cqbp__price { font-size: 13px; }
     .cqbp__popular { font-size: 7px; padding: 2px 6px; }
     .cqbp__deal { font-size: 7px; padding: 2px 5px; }

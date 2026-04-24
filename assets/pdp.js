@@ -93,6 +93,13 @@ class StickyBuyButton extends HTMLElement {
    * value back into its own input.
    */
   setupQuantitySync(addToCartModule) {
+    const stickyQtyWrap = this.querySelector("[data-cq-sticky-qty]");
+    // Qty stepper is intentionally hidden in the sticky bar (user requested
+    // price-only display). Skip all wiring so we don't pay for event listeners
+    // on elements the user cannot interact with. Removing `hidden` in the
+    // markup is enough to re-enable stepper behaviour later.
+    if (stickyQtyWrap && stickyQtyWrap.hasAttribute("hidden")) return;
+
     const stickyDec = this.querySelector("[data-cq-sticky-qty-dec]");
     const stickyInc = this.querySelector("[data-cq-sticky-qty-inc]");
     const stickyInput = this.querySelector("[data-cq-sticky-qty-input]");

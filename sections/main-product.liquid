@@ -3413,7 +3413,8 @@
         </div>
 
         <div class="cq-sticky__action">
-          <div class="cq-sticky__qty" data-cq-sticky-qty>
+          {%- comment -%} Qty stepper intentionally removed — sticky shows title + synced price + full-width CTA. {%- endcomment -%}
+          <div class="cq-sticky__qty" data-cq-sticky-qty hidden>
             <button type="button"
               class="cq-sticky__qty-btn cq-sticky__qty-btn--dec"
               aria-label="{{ 'aria-label.component-counter-counter-decrease' | t }}"
