@@ -530,13 +530,30 @@
   .cx-drawer-overlay {
     position: fixed; inset: 0; z-index: 49;
     background: rgba(0, 20, 40, 0.45);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
+    /* backdrop-filter intentionally NOT set on the base rule — see the
+       :not([hidden]) selector below. backdrop-filter is a separate
+       compositing pass in every major engine that ignores the element's
+       own `opacity`, so when the overlay is rendered with
+       display:block + opacity:0 (so we can fade it out on close) the
+       blur still bleeds across the entire viewport. Gating the filter
+       to only the open state kills the dim-haze-while-closed bug. */
     opacity: 0;
     transition: opacity 180ms var(--cx-ease-silk);
   }
-  .cx-drawer-overlay:not([hidden]) { opacity: 1; }
-  .cx-drawer-overlay[hidden] { display: block; pointer-events: none; opacity: 0; }
+  .cx-drawer-overlay:not([hidden]) {
+    opacity: 1;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+  .cx-drawer-overlay[hidden] {
+    display: block;
+    pointer-events: none;
+    opacity: 0;
+    /* Belt-and-braces: explicitly null any backdrop-filter the browser
+       might still cache from a previous open-state render. */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 
   .cx-drawer {
     position: fixed; top: 0; left: 0; bottom: 0;
