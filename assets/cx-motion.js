@@ -254,18 +254,101 @@
       });
     });
 
-    // Accordion toggles inside the drawer
+    // ---- Drawer accordion (mega menu toggle) -------------------------------
+    // Single-open behaviour with a smooth, JS-driven height + opacity
+    // animation. Tapping the same toggle, another mega toggle, or any
+    // non-mega link will collapse the currently open submenu before the
+    // drawer itself navigates/closes — gives the menu a luxe, coordinated
+    // feel instead of an instant collapse.
+    var EASE_OPEN = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    var EASE_CLOSE = 'cubic-bezier(0.65, 0, 0.35, 1)';
+
+    function expandPanel(item, btn, body) {
+      if (item.classList.contains('cx-is-open')) return;
+      item.classList.add('cx-is-open');
+      btn.setAttribute('aria-expanded', 'true');
+      body.hidden = false;
+      body.style.transition = 'none';
+      body.style.height = '0px';
+      body.style.opacity = '0';
+      // force reflow so the next style change actually transitions
+      void body.offsetHeight;
+      var target = body.scrollHeight;
+      body.style.transition =
+        'height 480ms ' + EASE_OPEN + ', opacity 380ms ' + EASE_OPEN;
+      body.style.height = target + 'px';
+      body.style.opacity = '1';
+      function done(ev) {
+        if (ev.target !== body || ev.propertyName !== 'height') return;
+        body.removeEventListener('transitionend', done);
+        // Hand control back to CSS so the panel grows naturally with content.
+        body.style.transition = '';
+        body.style.height = '';
+        body.style.opacity = '';
+      }
+      body.addEventListener('transitionend', done);
+    }
+
+    function collapsePanel(item, btn, body) {
+      if (!item.classList.contains('cx-is-open') && body.hidden) return;
+      var startH = body.scrollHeight;
+      body.style.transition = 'none';
+      body.style.height = startH + 'px';
+      body.style.opacity = '1';
+      // force reflow
+      void body.offsetHeight;
+      body.style.transition =
+        'height 420ms ' + EASE_CLOSE + ', opacity 320ms ' + EASE_CLOSE;
+      body.style.height = '0px';
+      body.style.opacity = '0';
+      item.classList.remove('cx-is-open');
+      btn.setAttribute('aria-expanded', 'false');
+      function done(ev) {
+        if (ev.target !== body || ev.propertyName !== 'height') return;
+        body.removeEventListener('transitionend', done);
+        body.hidden = true;
+        body.style.transition = '';
+        body.style.height = '';
+        body.style.opacity = '';
+      }
+      body.addEventListener('transitionend', done);
+    }
+
+    function closeAllAccordions(except) {
+      drawer
+        .querySelectorAll('[data-cx-accordion].cx-is-open')
+        .forEach(function (other) {
+          if (other === except) return;
+          var ob = other.querySelector('[data-cx-accordion-toggle]');
+          var oc = other.querySelector('[data-cx-accordion-body]');
+          if (ob && oc) collapsePanel(other, ob, oc);
+        });
+    }
+
     drawer.querySelectorAll('[data-cx-accordion]').forEach(function (item) {
       var btn = item.querySelector('[data-cx-accordion-toggle]');
       var body = item.querySelector('[data-cx-accordion-body]');
       if (!btn || !body) return;
       btn.addEventListener('click', function (e) {
         e.preventDefault();
-        var open = item.classList.toggle('cx-is-open');
-        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        body.hidden = !open;
+        var isOpen = item.classList.contains('cx-is-open');
+        // Always collapse siblings first so only one mega is open at a time.
+        closeAllAccordions(item);
+        if (isOpen) collapsePanel(item, btn, body);
+        else expandPanel(item, btn, body);
       });
     });
+
+    // Tapping any non-mega top-level linklist anchor inside the drawer
+    // should also gracefully collapse an open mega before the drawer slides
+    // shut. The existing `setTimeout(close, 120)` lets this animation breathe.
+    drawer
+      .querySelectorAll('a.cx-drawer__link')
+      .forEach(function (a) {
+        a.addEventListener('click', function () {
+          closeAllAccordions(null);
+        });
+      });
   })();
 
   /* ---------- 8.5 Locale sheet (popup for country + language) ---------- */

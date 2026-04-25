@@ -210,7 +210,7 @@
               {%- assign link_key = 'link_' | append: i -%}
               {%- assign s_title = block.settings[title_key] -%}
               {%- if s_title != blank -%}
-                <a class="cx-drawer__sublink" href="{{ block.settings[link_key] | default: '#' }}">
+                <a class="cx-drawer__sublink" href="{{ block.settings[link_key] | default: '#' }}" style="--cx-i: {{ forloop.index0 }};">
                   {%- assign s_eyebrow = block.settings[eyebrow_key] -%}
                   {%- if s_eyebrow != blank -%}
                     <span class="cx-drawer__sublink-eyebrow">{{ s_eyebrow }}</span>
@@ -653,52 +653,116 @@
   .cx-drawer__close:active { transform: scale(0.94); }
 
   .cx-drawer__nav { display: flex; flex-direction: column; }
+  /* All linklist rows (anchors AND the Products <button> toggle) share the
+     same dimensions so the column reads as a clean, evenly-spaced list. */
   .cx-drawer__link {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 0;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 60px;
+    padding: 18px 14px;
+    margin: 0;
+    border: 0;
     border-bottom: 1px solid var(--cx-rule);
-    background: transparent; border-left: 0; border-right: 0; border-top: 0;
+    border-radius: 0;
+    background: transparent;
     color: var(--cx-forest-3);
     cursor: pointer;
     text-align: left;
-    width: 100%;
-  }
-  /* Mega-menu toggle (e.g. "Products") is a <button> wrapped in
-     .cx-drawer__item rather than a bare anchor. iOS Safari + macOS
-     Safari apply a default `-webkit-appearance: button` which paints
-     subtle rounded corners; combined with a 1px bottom border that
-     curls upward at the right edge — visible as a swooping line that
-     does not match the flat hairlines under Science Journal/About
-     us/Contact. Reset the appearance + border-radius + margin so the
-     row is visually identical to the other linklist items. */
-  .cx-drawer__item > .cx-drawer__link--toggle {
+    text-decoration: none;
+    line-height: 1.2;
     -webkit-appearance: none;
     appearance: none;
-    margin: 0;
-    border-radius: 0;
-    border-bottom: 1px solid var(--cx-rule);
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background-color 360ms var(--cx-ease-silk),
+      color 360ms var(--cx-ease-silk);
+  }
+  /* Hover / focus / press / open: gentle navy fill, text fades to ivory.
+     No layout shift — only colour cross-fades — for a luxe feel. */
+  .cx-drawer__link:hover,
+  .cx-drawer__link:focus,
+  .cx-drawer__link:focus-visible,
+  .cx-drawer__link:active,
+  .cx-drawer__item.cx-is-open > .cx-drawer__link--toggle {
+    background-color: var(--cx-forest-3);
+    color: #f2f7ff;
+    outline: none;
   }
   .cx-drawer__link-title {
     font-family: var(--cx-f-display);
     font-size: 18px; font-weight: 500;
-    color: var(--cx-forest-3);
+    line-height: 1.2;
+    color: inherit;
+    transition: color 360ms var(--cx-ease-silk);
+  }
+  .cx-drawer__link:hover .cx-drawer__link-title,
+  .cx-drawer__link:focus .cx-drawer__link-title,
+  .cx-drawer__link:focus-visible .cx-drawer__link-title,
+  .cx-drawer__link:active .cx-drawer__link-title,
+  .cx-drawer__item.cx-is-open > .cx-drawer__link--toggle .cx-drawer__link-title {
+    color: #f2f7ff;
   }
   .cx-drawer__link-arrow,
   .cx-drawer__link-chev {
     display: inline-flex;
     color: var(--cx-ink-mute);
-    transition: transform 220ms var(--cx-ease-silk);
+    transition:
+      transform 360ms var(--cx-ease-silk),
+      color 360ms var(--cx-ease-silk);
+  }
+  .cx-drawer__link:hover .cx-drawer__link-arrow,
+  .cx-drawer__link:hover .cx-drawer__link-chev,
+  .cx-drawer__link:focus .cx-drawer__link-arrow,
+  .cx-drawer__link:focus .cx-drawer__link-chev,
+  .cx-drawer__link:focus-visible .cx-drawer__link-arrow,
+  .cx-drawer__link:focus-visible .cx-drawer__link-chev,
+  .cx-drawer__link:active .cx-drawer__link-arrow,
+  .cx-drawer__link:active .cx-drawer__link-chev,
+  .cx-drawer__item.cx-is-open > .cx-drawer__link--toggle .cx-drawer__link-chev {
+    color: #f2f7ff;
   }
   .cx-drawer__item.cx-is-open .cx-drawer__link-chev {
     transform: rotate(90deg);
-    color: var(--cx-forest-3);
   }
 
+  /* Submenu container — height/opacity are animated by cx-motion.js.
+     Keep display:flex always so JS can read scrollHeight; visibility is
+     controlled via the [hidden] attribute (JS toggles it before/after the
+     transition). */
   .cx-drawer__sub {
     display: flex; flex-direction: column;
     padding: 4px 0 10px 14px;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    will-change: height, opacity;
   }
   .cx-drawer__sub[hidden] { display: none; }
+  .cx-drawer__item.cx-is-open .cx-drawer__sub:not([hidden]) {
+    /* JS sets explicit height/opacity during the transition; once the
+       transition completes JS clears them and the rules below render the
+       fully-open final state. */
+    height: auto;
+    opacity: 1;
+  }
+
+  /* Staggered fade-in of sublinks once the parent expands. */
+  .cx-drawer__item.cx-is-open .cx-drawer__sublink {
+    animation: cx-drawer-sublink-in 480ms var(--cx-ease-silk) both;
+    animation-delay: calc(var(--cx-i, 0) * 60ms + 80ms);
+  }
+  @keyframes cx-drawer-sublink-in {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cx-drawer__link,
+    .cx-drawer__link-title,
+    .cx-drawer__link-arrow,
+    .cx-drawer__link-chev { transition: none; }
+    .cx-drawer__item.cx-is-open .cx-drawer__sublink { animation: none; }
+  }
   .cx-drawer__sublink {
     display: grid;
     grid-template-columns: 1fr auto;
