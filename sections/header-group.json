@@ -5,11 +5,6 @@
  * This file may be updated by the Shopify admin theme editor
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
- *
- * CALQIX rebuild: switched from `announcement-bar` + `page-header`
- * (legacy Wonder) to `cx-announcement` + `cx-header`. Logo asset,
- * locale/language selectors, and the 4 current announcements are
- * preserved so no visual regression from the old header.
  * ------------------------------------------------------------
  */
 {
@@ -55,6 +50,8 @@
         "announce_reviews"
       ],
       "settings": {
+        "rotate_interval_ms": 5000,
+        "fade_duration_ms": 400,
         "show_meta": true,
         "locale_label": "NL",
         "currency_label": "EUR €"
@@ -116,6 +113,8 @@
       "settings": {
         "logo_text": "CALQIX",
         "logo_url": "https://cdn.shopify.com/s/files/1/1000/6262/6121/files/Footer_Prime_logo_new_2026_-_White_nobg.png?v=1777014298",
+        "logo_max_height_desktop": 36,
+        "logo_max_height_mobile": 32,
         "enable_search": false,
         "show_localization": true,
         "cta_label": "",
