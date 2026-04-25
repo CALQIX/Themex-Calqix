@@ -211,9 +211,12 @@
     function open() {
       drawer.hidden = false;
       if (overlay) overlay.hidden = false;
-      // Two-phase so the slide-in transition runs on next frame
+      // Two-phase so the slide-in transition runs on next frame.
+      // Mirroring the open class onto the overlay triggers its fade +
+      // backdrop-blur ramp in lockstep with the drawer slide.
       requestAnimationFrame(function () {
         drawer.classList.add('cx-is-open');
+        if (overlay) overlay.classList.add('cx-is-open');
       });
       drawer.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
@@ -223,16 +226,17 @@
     }
     function close() {
       drawer.classList.remove('cx-is-open');
+      if (overlay) overlay.classList.remove('cx-is-open');
       drawer.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
       openers.forEach(function (o) { o.setAttribute('aria-expanded', 'false'); });
-      // Wait for transition end before hiding (matches 520ms slide).
+      // Wait for transition end before hiding (matches 640ms slide).
       setTimeout(function () {
         if (!drawer.classList.contains('cx-is-open')) {
           drawer.hidden = true;
           if (overlay) overlay.hidden = true;
         }
-      }, 520);
+      }, 640);
     }
 
     openers.forEach(function (btn) { btn.addEventListener('click', open); });

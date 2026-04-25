@@ -539,12 +539,28 @@
    * we drop the 180ms fade-out, the panel still slides smoothly so
    * the lost overlay tween is visually negligible.
    */
+  /* Overlay fade-in: starts at zero opacity + zero blur to keep the
+     compositor work to a minimum until the drawer actually opens.
+     `.cx-is-open` (mirrored from the drawer state by JS) ramps both
+     to their final values over the same duration as the slide so the
+     dim + blur arrive in lockstep with the panel. Close still snaps
+     via [hidden]: display:none — see the long-form comment above. */
   .cx-drawer-overlay {
     position: fixed; inset: 0; z-index: 49;
     background: rgba(0, 20, 40, 0.45);
     pointer-events: auto;
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
+    opacity: 0;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+    transition:
+      opacity 640ms cubic-bezier(0.16, 1, 0.3, 1),
+      backdrop-filter 640ms cubic-bezier(0.16, 1, 0.3, 1),
+      -webkit-backdrop-filter 640ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .cx-drawer-overlay.cx-is-open {
+    opacity: 1;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
   .cx-drawer-overlay[hidden] { display: none !important; }
   @media (min-width: 901px) {
@@ -564,11 +580,13 @@
     overscroll-behavior: contain;
     display: flex; flex-direction: column;
     transform: translateX(-100%);
-    /* Premium silk slide — longer easing + soft halo shadow that
-       fades in alongside the panel for a richer entrance. */
+    /* Luxe silk slide — a longer 640ms ramp on a deep deceleration
+       curve (cubic-bezier(0.16, 1, 0.3, 1)) so the panel glides into
+       place instead of locking. Pairs with the synchronised overlay
+       fade + blur ramp above for a single composed entrance. */
     transition:
-      transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1);
+      transform 640ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 640ms cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 0 0 0 rgba(0, 20, 40, 0);
     -webkit-overflow-scrolling: touch;
   }
@@ -591,8 +609,8 @@
     opacity: 0;
     transform: translateX(-10px);
     transition:
-      opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 640ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 640ms cubic-bezier(0.16, 1, 0.3, 1);
   }
   .cx-drawer.cx-is-open .cx-drawer__head      { transition-delay:  60ms; }
   .cx-drawer.cx-is-open .cx-drawer__greeting  { transition-delay: 110ms; }
