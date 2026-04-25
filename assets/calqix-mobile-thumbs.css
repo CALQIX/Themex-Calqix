@@ -1,18 +1,21 @@
-/* CALQIX mobile pentagon thumbnail overlay
-   Mobile-only (<900px). Sits absolutely at the bottom of the product
-   gallery image, slightly overlapping the lower portion. Pentagon-shaped
-   bubbles with a gentle idle float animation. Tap a bubble to navigate
-   the gallery to that slide. Shows up to ~4 bubbles at a time and
-   horizontally swipes when there are more.
+/* CALQIX mobile hexagon thumbnail overlay
+   Mobile-only (<900px). Sits absolutely near the bottom of the product
+   gallery image, slightly overlapping the lower portion. Flat-top hexagon
+   bubbles (matching the CALQIX brand mark) with a gentle idle float
+   animation. Bubbles are 60% opaque at rest and lift to 100% when
+   hovered, focused, pressed, or marked active.
 */
 
 .cqmt {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 18px;
+  bottom: 6px;
   z-index: 5;
   display: flex;
+  /* Center the strip; on overflow, browsers that support `safe` fall back
+     to flex-start so the leading bubbles remain reachable. */
+  justify-content: safe center;
   gap: 10px;
   padding: 6px 16px 10px;
   margin: 0;
@@ -58,7 +61,8 @@
   flex: 0 0 calc((100% - 30px) / 4);
   max-width: 64px;
   min-width: 48px;
-  aspect-ratio: 1 / 1.05;
+  /* Flat-top hexagon proportions: width / height = 2 / sqrt(3) ≈ 1.155 */
+  aspect-ratio: 1.155 / 1;
   position: relative;
   background: transparent;
   border: 0;
@@ -67,11 +71,20 @@
   cursor: pointer;
   scroll-snap-align: center;
   outline: none;
+  opacity: 0.6;
   filter: drop-shadow(0 6px 14px rgba(0, 20, 40, 0.28));
   animation: cqmt-float 3.8s ease-in-out infinite;
   animation-delay: calc(var(--cqmt-i, 0) * -0.45s);
-  transition: transform 0.25s ease, filter 0.25s ease;
+  transition: opacity 0.2s ease, transform 0.25s ease, filter 0.25s ease;
   -webkit-tap-highlight-color: transparent;
+}
+
+.cqmt__bubble:hover,
+.cqmt__bubble:focus,
+.cqmt__bubble:focus-visible,
+.cqmt__bubble:active,
+.cqmt__bubble.is-active {
+  opacity: 1;
 }
 
 .cqmt__bubble:hover {
@@ -87,8 +100,8 @@
   inset: 0;
   display: block;
   background: var(--cqmt-bg);
-  -webkit-clip-path: polygon(50% 2%, 98% 38%, 82% 98%, 18% 98%, 2% 38%);
-          clip-path: polygon(50% 2%, 98% 38%, 82% 98%, 18% 98%, 2% 38%);
+  -webkit-clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+          clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
   transition: background 0.25s ease;
   overflow: hidden;
 }
@@ -99,8 +112,8 @@
   width: calc(100% - 8px);
   height: calc(100% - 8px);
   object-fit: cover;
-  -webkit-clip-path: polygon(50% 2%, 98% 38%, 82% 98%, 18% 98%, 2% 38%);
-          clip-path: polygon(50% 2%, 98% 38%, 82% 98%, 18% 98%, 2% 38%);
+  -webkit-clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+          clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
   background: #fff;
   display: block;
 }
