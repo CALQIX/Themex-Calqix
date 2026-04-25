@@ -71,7 +71,7 @@
   cursor: pointer;
   scroll-snap-align: center;
   outline: none;
-  opacity: 0.6;
+  opacity: 0.4;
   filter: drop-shadow(0 6px 14px rgba(0, 20, 40, 0.28));
   animation: cqmt-float 3.8s ease-in-out infinite;
   animation-delay: calc(var(--cqmt-i, 0) * -0.45s);
@@ -159,5 +159,15 @@
   }
   .cqmt {
     scroll-behavior: auto;
+  }
+}
+
+/* Hide the fraction pagination ("1 / 4") on the main product gallery on
+   mobile — the hexagon strip now serves as the slide indicator. Scoped to
+   gallery-section[data-product-page] so featured-product galleries are
+   unaffected. */
+@media (max-width: 899px) {
+  gallery-section[data-product-page] .swiper-pagination-fraction {
+    display: none !important;
   }
 }
