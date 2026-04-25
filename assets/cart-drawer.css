@@ -40,9 +40,26 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   contain: layout style;
+  /* Belt-and-braces hide so the drawer can never "peek" through the
+     viewport during mobile scroll/URL-bar transitions. The transform
+     alone slides it offscreen, but on iOS Safari + some Android
+     browsers `100dvh` recomputes one frame after the URL bar collapses
+     which briefly exposes the navy header strip. Visibility + opacity
+     are toggled together with the transform so nothing paints unless
+     the drawer is explicitly opened. */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform 0.34s cubic-bezier(0.16, 0.84, 0.24, 1),
+    opacity 0.22s ease-out,
+    visibility 0s linear 0.34s;
 }
 .drawers-animated .wt-cart__drawer {
-  transition: transform 0.34s cubic-bezier(0.16, 0.84, 0.24, 1), opacity 0.28s ease-out;
+  transition:
+    transform 0.34s cubic-bezier(0.16, 0.84, 0.24, 1),
+    opacity 0.22s ease-out,
+    visibility 0s linear 0.34s;
 }
 .wt-cart__drawer__header {
   display: flex;
@@ -70,10 +87,20 @@
 }
 .wt-cart__drawer--open, .wt-cart[open] .wt-cart__drawer {
   transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    transform 0.26s cubic-bezier(0.4, 0, 0.6, 1),
+    opacity 0.22s ease,
+    visibility 0s linear 0s;
 }
 .drawers-animated .wt-cart__drawer--open,
 .drawers-animated .wt-cart[open] .wt-cart__drawer {
-  transition: transform 0.26s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.22s ease;
+  transition:
+    transform 0.26s cubic-bezier(0.4, 0, 0.6, 1),
+    opacity 0.22s ease,
+    visibility 0s linear 0s;
 }
 .wt-cart__drawer__header {
   padding: calc(var(--gap, 8px) * 2) calc(var(--gap, 8px) * 3);
@@ -1745,7 +1772,10 @@
     bottom: auto;
     width: 100%;
     max-width: 100%;
-    height: 100dvh;
+    /* Slightly over-sized so any 1-2 px viewport jitter from the iOS
+       Safari / Chrome Android URL-bar collapse cannot leave the header
+       strip visible while the drawer is supposed to be off-screen. */
+    height: calc(100dvh + 24px);
     transform: translateY(100%);
     border-radius: 0;
     --drawer-motion-duration-scale: calc(var(--drawer-motion-duration-scale, 1) * 0.8);
