@@ -9,8 +9,38 @@
  */
 {
   "sections": {
+    "flowcore_banner_fb3rHz": {
+      "type": "flowcore-banner",
+      "name": "FlowCore Banner",
+      "settings": {
+        "hide_on_homepage": false,
+        "banner_height": 560,
+        "eyebrow": "CALQIX OralBiome Pro",
+        "title_line1": "Rebuild your enamel",
+        "title_line2_italic": "Fresher breath",
+        "subtitle": "OralBiome Pro",
+        "description": "1,600 pulses per minute. 0.6 mm precision stream. Three clinical modes designed to flush what brushing misses — preparing your enamel surface for remineralisation.",
+        "pill_1": "1,600×/min",
+        "pill_2": "3 Clinical Modes",
+        "pill_3": "IPX Waterproof",
+        "pill_4": "Type-C USB",
+        "cta_label": "Shop FlowCore",
+        "cta_url": "",
+        "cta_price": "€39,95",
+        "trust_line": "✓ 30-day money-back guarantee · Free shipping over €80",
+        "label_v1": "Midnight Black",
+        "color_v1": "#1c1c1e",
+        "label_v2": "Clinical White",
+        "color_v2": "#e2e2e2",
+        "label_v3": "Ocean Blue",
+        "color_v3": "#2c4f7e",
+        "label_v4": "Blush Pink",
+        "color_v4": "#e8aab5"
+      }
+    },
     "hero": {
       "type": "cx-hero",
+      "disabled": true,
       "settings": {
         "featured_product": "",
         "eyebrow": "Oralbiome Pro · Het opbouwmoment",
@@ -27,7 +57,7 @@
       "settings": {
         "anchor_id": "protocol",
         "eyebrow": "Het twee-staps protocol",
-        "heading": "<p>Reinig diep.<br><em>Bouw opnieuw op.</em></p>",
+        "heading": "<p>Reinig diep.<br/><em>Bouw opnieuw op.</em></p>",
         "lede": "<p>Flowcore verwijdert wat je tandenborstel mist. Oralbiome Pro herstelt het oppervlak dat er zonder bio-beschikbaar mineraal niet in slaagt te repareren. Eén avondritueel — twee werkingen.</p>",
         "savings_badge": "BESPAAR 15%",
         "card_eyebrow": "De herstelkit",
@@ -88,8 +118,109 @@
         "cta_link": ""
       }
     },
+    "calqix_tooth_interactive_t4YTG9": {
+      "type": "calqix-tooth-interactive",
+      "blocks": {
+        "tooth_type_8j3f9C": {
+          "type": "tooth_type",
+          "settings": {
+            "name": "Incisor",
+            "code": "I",
+            "description": "Your front teeth. Thinnest enamel layer, most exposed to dietary acid and staining."
+          }
+        },
+        "tooth_type_NzziW3": {
+          "type": "tooth_type",
+          "settings": {
+            "name": "Canine",
+            "code": "C",
+            "description": "Your corner teeth. Longest root, strongest single-crown pressure tolerance."
+          }
+        },
+        "tooth_type_KNjh7Y": {
+          "type": "tooth_type",
+          "settings": {
+            "name": "Premolar",
+            "code": "P",
+            "description": "Transitional teeth with two cusps. First line of grinding."
+          }
+        },
+        "tooth_type_Xcc7ih": {
+          "type": "tooth_type",
+          "settings": {
+            "name": "Molar",
+            "code": "M",
+            "description": "Your grinding teeth. Largest surface area, most vulnerable to biofilm buildup in fissures."
+          }
+        },
+        "tooth_type_YbRg8R": {
+          "type": "tooth_type",
+          "settings": {
+            "name": "Wisdom",
+            "code": "W",
+            "description": "Third molars. Often partially erupted, extremely difficult to clean without floss or irrigation."
+          }
+        }
+      },
+      "block_order": [
+        "tooth_type_8j3f9C",
+        "tooth_type_NzziW3",
+        "tooth_type_KNjh7Y",
+        "tooth_type_Xcc7ih",
+        "tooth_type_YbRg8R"
+      ],
+      "name": "CALQIX Tooth Interactive",
+      "settings": {
+        "eyebrow": "How your tooth works",
+        "heading": "<p>Your enamel does not<br/><em>heal</em> itself.</p>",
+        "intro": "Pick a tooth type, then click any layer to see what it does and how CALQIX rebuilds it.",
+        "info_eyebrow": "Selected layer",
+        "repair_heading": "How CALQIX rebuilds",
+        "enamel_name": "Enamel",
+        "enamel_comp": "97% hydroxyapatite · hardest tissue",
+        "enamel_desc": "Your enamel is the outermost layer and the only one visible. The hardest tissue in your body, but the only one that cannot heal itself biologically.",
+        "enamel_repair_icon": "HA",
+        "enamel_repair_text": "OralBiome Pro delivers nano-hydroxyapatite particles (20 to 80nm) that bind directly to the enamel surface.",
+        "dentin_name": "Dentin",
+        "dentin_comp": "70% hydroxyapatite · contains microtubules",
+        "dentin_desc": "Underneath the enamel. When exposed through wear or recession, the microtubules transmit sensation directly to the nerve, causing hypersensitivity.",
+        "dentin_repair_icon": "HA",
+        "dentin_repair_text": "Nano-hydroxyapatite occludes dentinal tubules, reducing sensitivity within 14 days of daily use.",
+        "pulp_name": "Pulp",
+        "pulp_comp": "Nerve and blood supply · living tissue",
+        "pulp_desc": "The innermost living core. Supplies nutrients and carries pain signals. Once infection reaches the pulp, only root canal treatment is possible.",
+        "pulp_repair_icon": "✓",
+        "pulp_repair_text": "CALQIX prevents pulp exposure by rebuilding enamel before decay progresses that far.",
+        "gum_name": "Gum",
+        "gum_comp": "Keratinized mucosal tissue",
+        "gum_desc": "The soft tissue that seals the tooth in place. Gum recession exposes the root surface and accelerates enamel loss at the gumline.",
+        "gum_repair_icon": "FC",
+        "gum_repair_text": "FlowCore flushes the sulcus (6mm deep) daily, removing the biofilm that causes gingival inflammation.",
+        "cementum_name": "Cementum",
+        "cementum_comp": "45% hydroxyapatite · root surface",
+        "cementum_desc": "Thin calcified layer covering the root. Exposed only when gums recede. Softer than enamel, decays faster, and is rarely visible until damage is done.",
+        "cementum_repair_icon": "HA",
+        "cementum_repair_text": "Nano-hydroxyapatite binds to exposed cementum the same way it binds to enamel, restoring root surface mineralisation."
+      }
+    },
     "teeth": {
       "type": "cx-tooth-atlas",
+      "blocks": {
+        "tooth_BbgaXr": {
+          "type": "tooth",
+          "settings": {
+            "name": "Snijtanden",
+            "sub": "Eerste beet",
+            "desc": "Snijtanden zitten vooraan en worden ingezet om hapjes af te bijten — denk aan fruit, groente en harder brood. Tonen slijtage het eerst.",
+            "care": "Dagelijks reinigen prioriteert gumlijn en zuurbelasting.",
+            "fact": "Dunne snijrand toont slijtage het eerst — let op randtransparantie."
+          }
+        }
+      },
+      "block_order": [
+        "tooth_BbgaXr"
+      ],
+      "disabled": true,
       "settings": {
         "eyebrow": "Tandatlas",
         "heading": "<p>Begrijp hoe je <em>tanden écht werken.</em></p>",
@@ -142,12 +273,14 @@
     }
   },
   "order": [
+    "flowcore_banner_fb3rHz",
     "hero",
     "bundle",
     "two_step",
     "features",
     "ticker",
     "science",
+    "calqix_tooth_interactive_t4YTG9",
     "teeth",
     "journal",
     "reviews",
