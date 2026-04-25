@@ -1,0 +1,82 @@
+{% comment %}
+  CALQIX mobile pentagon thumbnail overlay.
+
+  Renders pentagon-shaped bubbles overlaid at the bottom of the product
+  gallery on mobile. The order mirrors the gallery swiper: the selected
+  variant's featured media first (when present), followed by the remaining
+  product media in declared order. Tapping a bubble drives the gallery
+  swiper to the matching slide via assets/calqix-mobile-thumbs.js.
+
+  Inputs (from caller scope):
+    product           — required, the current product object
+    selected_variant  — optional, used to mirror gallery slide order
+
+  Renders nothing for products with a single media item.
+{% endcomment %}
+
+{%- if product.media.size > 1 -%}
+  {%- assign cqmt_count = product.media.size -%}
+  <div
+    class="cqmt"
+    data-cqmt
+    role="tablist"
+    aria-label="Product image thumbnails"
+  >
+    {%- assign cqmt_index = 0 -%}
+
+    {%- if selected_variant.featured_media != null -%}
+      {%- assign featured_media = selected_variant.featured_media -%}
+      <button
+        type="button"
+        class="cqmt__bubble is-active"
+        data-cqmt-bubble
+        data-cqmt-index="{{ cqmt_index }}"
+        data-media-id="{{ featured_media.id }}"
+        aria-label="Show image {{ cqmt_index | plus: 1 }} of {{ cqmt_count }}"
+        style="--cqmt-i: {{ cqmt_index }};"
+      >
+        <span class="cqmt__bubble-inner">
+          <img
+            src="{{ featured_media.preview_image | image_url: width: 160 }}"
+            alt=""
+            loading="lazy"
+            width="80"
+            height="80"
+          >
+          {%- if featured_media.media_type == 'video' or featured_media.media_type == 'external_video' -%}
+            <span class="cqmt__bubble-icon">{% render 'icon-play' %}</span>
+          {%- endif -%}
+        </span>
+      </button>
+      {%- assign cqmt_index = cqmt_index | plus: 1 -%}
+    {%- endif -%}
+
+    {%- for media in product.media -%}
+      {%- unless media.id == selected_variant.featured_media.id -%}
+        <button
+          type="button"
+          class="cqmt__bubble{% if cqmt_index == 0 %} is-active{% endif %}"
+          data-cqmt-bubble
+          data-cqmt-index="{{ cqmt_index }}"
+          data-media-id="{{ media.id }}"
+          aria-label="Show image {{ cqmt_index | plus: 1 }} of {{ cqmt_count }}"
+          style="--cqmt-i: {{ cqmt_index }};"
+        >
+          <span class="cqmt__bubble-inner">
+            <img
+              src="{{ media.preview_image | image_url: width: 160 }}"
+              alt=""
+              loading="lazy"
+              width="80"
+              height="80"
+            >
+            {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+              <span class="cqmt__bubble-icon">{% render 'icon-play' %}</span>
+            {%- endif -%}
+          </span>
+        </button>
+        {%- assign cqmt_index = cqmt_index | plus: 1 -%}
+      {%- endunless -%}
+    {%- endfor -%}
+  </div>
+{%- endif -%}

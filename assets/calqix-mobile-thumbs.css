@@ -1,0 +1,150 @@
+/* CALQIX mobile pentagon thumbnail overlay
+   Mobile-only (<900px). Sits absolutely at the bottom of the product
+   gallery image, slightly overlapping the lower portion. Pentagon-shaped
+   bubbles with a gentle idle float animation. Tap a bubble to navigate
+   the gallery to that slide. Shows up to ~4 bubbles at a time and
+   horizontally swipes when there are more.
+*/
+
+.cqmt {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18px;
+  z-index: 5;
+  display: flex;
+  gap: 10px;
+  padding: 6px 16px 10px;
+  margin: 0;
+  list-style: none;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  pointer-events: auto;
+  -webkit-overflow-scrolling: touch;
+  /* fade out edges to hint at scrollability */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 16px,
+    #000 calc(100% - 16px),
+    transparent 100%
+  );
+          mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 16px,
+    #000 calc(100% - 16px),
+    transparent 100%
+  );
+}
+
+.cqmt::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .cqmt {
+    display: none;
+  }
+}
+
+.cqmt__bubble {
+  --cqmt-bg: rgba(255, 255, 255, 0.95);
+  --cqmt-active-bg: var(--calqix-gold, #c9a55a);
+  flex: 0 0 calc((100% - 30px) / 4);
+  max-width: 64px;
+  min-width: 48px;
+  aspect-ratio: 1 / 1.05;
+  position: relative;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  scroll-snap-align: center;
+  outline: none;
+  filter: drop-shadow(0 6px 14px rgba(0, 20, 40, 0.28));
+  animation: cqmt-float 3.8s ease-in-out infinite;
+  animation-delay: calc(var(--cqmt-i, 0) * -0.45s);
+  transition: transform 0.25s ease, filter 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cqmt__bubble:hover {
+  transform: translateY(-2px);
+}
+
+.cqmt__bubble:focus-visible .cqmt__bubble-inner {
+  box-shadow: 0 0 0 2px var(--calqix-gold, #c9a55a);
+}
+
+.cqmt__bubble-inner {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: var(--cqmt-bg);
+  -webkit-clip-path: polygon(50% 2%, 98% 38%, 82% 98%, 18% 98%, 2% 38%);
+          clip-path: polygon(50% 2%, 98% 38%, 82% 98%, 18% 98%, 2% 38%);
+  transition: background 0.25s ease;
+  overflow: hidden;
+}
+
+.cqmt__bubble-inner img {
+  position: absolute;
+  inset: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  object-fit: cover;
+  -webkit-clip-path: polygon(50% 2%, 98% 38%, 82% 98%, 18% 98%, 2% 38%);
+          clip-path: polygon(50% 2%, 98% 38%, 82% 98%, 18% 98%, 2% 38%);
+  background: #fff;
+  display: block;
+}
+
+.cqmt__bubble.is-active {
+  animation-play-state: paused;
+  transform: translateY(-3px) scale(1.06);
+}
+
+.cqmt__bubble.is-active .cqmt__bubble-inner {
+  background: var(--cqmt-active-bg);
+}
+
+.cqmt__bubble-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: #fff;
+}
+
+.cqmt__bubble-icon svg {
+  width: 18px;
+  height: 18px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+@keyframes cqmt-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cqmt__bubble {
+    animation: none;
+  }
+  .cqmt {
+    scroll-behavior: auto;
+  }
+}

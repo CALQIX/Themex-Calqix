@@ -1,5 +1,6 @@
 {{ 'photoswipe.css' | asset_url | stylesheet_tag }}
 {{ 'module-product-gallery.css' | asset_url | stylesheet_tag }}
+{{ 'calqix-mobile-thumbs.css' | asset_url | stylesheet_tag }}
 
 {% assign background_rgb = section.settings.background_color | color_to_rgb %}
 {% assign text_rgb = section.settings.text_color | color_to_rgb %}
@@ -864,6 +865,7 @@
           <div class="swiper-scrollbar wt-slider__scrollbar wt-slider__scrollbar--featured"></div>
 
           <div class="swiper-pagination"></div>
+          {% render 'calqix-mobile-thumbs', product: product, selected_variant: selected_variant %}
         {% endif %}
 
         <script data-swiper-configuration type="text/json">
@@ -3568,6 +3570,7 @@
 </script>
 
 <script type="module" src="{{ 'gallery.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'calqix-mobile-thumbs.js' | asset_url }}" defer="defer"></script>
 <script type="module" src="{{ 'pdp.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
