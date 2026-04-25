@@ -24,16 +24,49 @@
   assign shop_url = section.settings.shop_url | default: routes.all_products_collection_url
   assign account_url = section.settings.account_url | default: routes.account_url
 
-  assign label_home = section.settings.label_home | default: 'Home'
-  assign label_shop = section.settings.label_shop | default: 'Shop'
-  assign label_account = section.settings.label_account | default: 'Account'
-  assign label_cart = section.settings.label_cart | default: 'Cart'
+  comment
+    Locale-aware labels. The schema defaults are English ("Home", "Shop"
+    "Account", "Cart") — those values are what's stored in the live
+    settings_data.json for already-published themes, so simply reading
+    `section.settings.label_*` returns English even on /nl, /de, /fr.
+    Override to the translation when:
+      a) the merchant has not customised the label (still equals the
+         English default OR is blank), AND
+      b) a matching `sections.cx_bottom_bar.label_*` key exists in the
+         active locale (en.default + 7 published locales — see
+         scripts/add-cx-i18n-keys.js).
+  endcomment
+
+  assign label_home = section.settings.label_home
+  if label_home == blank or label_home == 'Home'
+    assign label_home = 'sections.cx_bottom_bar.label_home' | t
+  endif
+
+  assign label_shop = section.settings.label_shop
+  if label_shop == blank or label_shop == 'Shop'
+    assign label_shop = 'sections.cx_bottom_bar.label_shop' | t
+  endif
+
+  assign label_account = section.settings.label_account
+  if label_account == blank or label_account == 'Account'
+    assign label_account = 'sections.cx_bottom_bar.label_account' | t
+  endif
+
+  assign label_cart = section.settings.label_cart
+  if label_cart == blank or label_cart == 'Cart'
+    assign label_cart = 'sections.cx_bottom_bar.label_cart' | t
+  endif
+
+  assign aria_label = section.settings.aria_label
+  if aria_label == blank or aria_label == 'Primaire navigatie' or aria_label == 'Primary navigation'
+    assign aria_label = 'sections.cx_bottom_bar.aria_label' | t
+  endif
 -%}
 
 <nav class="cx-bottom-bar cx-root{% if cart.item_count > 0 %} cx-bb--has-items{% endif %}"
      id="cx-bottom-bar"
      data-cx-bottom-bar
-     aria-label="{{ section.settings.aria_label | default: 'Primaire navigatie' | escape }}">
+     aria-label="{{ aria_label | default: 'Primaire navigatie' | escape }}">
   <div class="cx-bottom-bar__sheen" aria-hidden="true"></div>
   <div class="cx-bottom-bar__inner">
 

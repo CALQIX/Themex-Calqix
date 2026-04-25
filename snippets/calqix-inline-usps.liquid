@@ -18,6 +18,31 @@
   if animate == false
     assign anim = false
   endif
+
+  comment
+    Locale-aware copy override for the OralBiome PDP USP block.
+    The 4 default English texts ("Rebalances your oral microbiome",
+    "Live probiotic strains overnight", etc.) are stored in
+    settings_data.json on production. We override at render time when
+    the active locale is one of the 8 published front-end languages
+    (en, nl, de, fr, sv, nb, da, fi) AND the product is the OralBiome
+    family. Mirrors the FlowCore pattern in sections/main-product.liquid.
+    Translation keys live under `sections.calqix_usp_grid.usp_N_*`
+    in each locale file (already populated for all 8 languages).
+  endcomment
+  assign cq_usp_lang = request.locale.iso_code | downcase | slice: 0, 2
+  assign cq_usp_translate = false
+  case cq_usp_lang
+    when 'nl', 'de', 'fr', 'sv', 'nb', 'da', 'fi', 'en'
+      assign cq_usp_translate = true
+  endcase
+  assign cq_usp_is_oralbiome = false
+  if product != blank and product.handle contains 'oralbiome'
+    assign cq_usp_is_oralbiome = true
+  endif
+  if product == blank and template contains 'oralbiome'
+    assign cq_usp_is_oralbiome = true
+  endif
 -%}
 
 <style>
@@ -349,6 +374,25 @@
         {%- assign icon = block.settings[key_icon] -%}
         {%- assign title = block.settings[key_title] -%}
         {%- assign subtitle = block.settings[key_sub] -%}
+        {%- comment -%}
+          When the active locale has translations AND we're on an OralBiome
+          PDP, replace the merchant's English defaults with the localized
+          copy from `sections.calqix_usp_grid.usp_N_*`. Falls back to the
+          merchant value if a key is missing (treats `t` returning the key
+          itself as "not translated").
+        {%- endcomment -%}
+        {%- if cq_usp_translate and cq_usp_is_oralbiome -%}
+          {%- assign t_title_key = 'sections.calqix_usp_grid.usp_' | append: i | append: '_title' -%}
+          {%- assign t_title = t_title_key | t -%}
+          {%- if t_title != t_title_key and t_title != blank -%}
+            {%- assign title = t_title -%}
+          {%- endif -%}
+          {%- assign t_sub_key = 'sections.calqix_usp_grid.usp_' | append: i | append: '_subtitle' -%}
+          {%- assign t_sub = t_sub_key | t -%}
+          {%- if t_sub != t_sub_key and t_sub != blank -%}
+            {%- assign subtitle = t_sub -%}
+          {%- endif -%}
+        {%- endif -%}
         {%- if title != blank -%}
           <li class="{{ ns }}__item">
             <span class="{{ ns }}__icon" aria-hidden="true">
@@ -499,14 +543,23 @@
       });
 
       // Tap anywhere else on the page → close all popovers.
-      document.addEventListener('click', function (e) {
-        if (!e.target.closest(itemSel)) closeAll();
-      });
-
-      // Escape key closes too (a11y nicety).
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeAll();
-      });
+      // Listener is registered once per ns; the OralBiome PDP renders this
+      // snippet twice (block.limit = 2) so we'd otherwise pay 2× O(n) work.
+      // The global flag below dedupes the SHARED handler that closes all
+      // .{{ ns }}__item popovers across the page in a single pass.
+      if (!window.__cqInuGlobalListeners) {
+        window.__cqInuGlobalListeners = true;
+        document.addEventListener('click', function (e) {
+          if (e.target.closest('[class*="cq-inu-"][class*="__item"]')) return;
+          document.querySelectorAll('[class*="cq-inu-"][class*="__item"].is-active')
+            .forEach(function (n) { n.classList.remove('is-active'); });
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key !== 'Escape') return;
+          document.querySelectorAll('[class*="cq-inu-"][class*="__item"].is-active')
+            .forEach(function (n) { n.classList.remove('is-active'); });
+        });
+      }
     }
 
     if (document.readyState === 'loading') {

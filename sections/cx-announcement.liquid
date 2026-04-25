@@ -30,7 +30,23 @@
 >
   <div class="cx-container cx-announce-inner">
     <div class="cx-announce-stage" aria-live="polite">
+      {%- comment -%}
+        Per-locale text override: when a block keeps the canonical id from
+        sections/header-group.json (announce_rebuild_kit / _shipping /
+        _guarantee / _reviews) AND a matching key exists under
+        sections.cx_announcement.<id>, render the translation. Falls back
+        to merchant-edited block.settings.text. Keeps Theme Editor edits
+        possible while ensuring localized markets see translated copy.
+      {%- endcomment -%}
       {%- for block in section.blocks -%}
+        {%- liquid
+          assign cq_ann_key = 'sections.cx_announcement.' | append: block.id
+          assign cq_ann_translated = cq_ann_key | t
+          assign cq_ann_text = block.settings.text
+          if cq_ann_translated != cq_ann_key and cq_ann_translated != blank
+            assign cq_ann_text = cq_ann_translated
+          endif
+        -%}
         <span
           class="cx-announce-item{% if forloop.first %} is-active{% endif %}"
           data-cx-announce-item
@@ -41,7 +57,7 @@
               {% render 'cx-icons', name: block.settings.icon, size: 13 %}
             </span>
           {%- endif -%}
-          <span class="cx-announce-item__text">{{ block.settings.text }}</span>
+          <span class="cx-announce-item__text">{{ cq_ann_text }}</span>
         </span>
       {%- endfor -%}
     </div>
