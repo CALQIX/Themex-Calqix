@@ -18,12 +18,20 @@
 <header class="cx-root cx-header" data-cx-header>
 
   {%- comment -%} ---------- Desktop row (>= 901px) ---------- {%- endcomment -%}
+  {%- liquid
+    assign cx_logo_h_desktop = section.settings.logo_max_height_desktop | default: 32
+    assign cx_logo_h_mobile = section.settings.logo_max_height_mobile | default: 28
+    assign cx_logo_w_desktop = cx_logo_h_desktop | times: 6
+    assign cx_logo_w_mobile = cx_logo_h_mobile | times: 6
+    assign cx_logo_style_desktop = 'max-height:' | append: cx_logo_h_desktop | append: 'px;width:auto;display:block;'
+    assign cx_logo_style_mobile = 'max-height:' | append: cx_logo_h_mobile | append: 'px;width:auto;display:block;'
+  -%}
   <div class="cx-container cx-header-inner cx-header-inner--desktop">
     <a class="cx-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
       {%- if section.settings.logo_url != blank -%}
-        <img src="{{ section.settings.logo_url }}" alt="{{ shop.name | escape }}" width="180" height="32" loading="eager" style="max-height:32px;width:auto;display:block;">
+        <img src="{{ section.settings.logo_url }}" alt="{{ shop.name | escape }}" width="{{ cx_logo_w_desktop }}" height="{{ cx_logo_h_desktop }}" loading="eager" style="{{ cx_logo_style_desktop }}">
       {%- elsif section.settings.logo != blank -%}
-        {{ section.settings.logo | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:32px;width:auto;' }}
+        {{ section.settings.logo | image_url: width: 480 | image_tag: loading: 'eager', alt: shop.name, style: cx_logo_style_desktop }}
       {%- else -%}
         <span class="cx-logo-text">{{ section.settings.logo_text | default: 'CALQIX' }}</span>
       {%- endif -%}
@@ -78,11 +86,11 @@
 
     <a class="cx-m-logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
       {%- if section.settings.logo_url != blank -%}
-        <img src="{{ section.settings.logo_url }}" alt="{{ shop.name | escape }}" width="160" height="28" loading="eager" style="max-height:28px;width:auto;display:block;">
+        <img src="{{ section.settings.logo_url }}" alt="{{ shop.name | escape }}" width="{{ cx_logo_w_mobile }}" height="{{ cx_logo_h_mobile }}" loading="eager" style="{{ cx_logo_style_mobile }}">
       {%- elsif section.settings.logo_mobile != blank -%}
-        {{ section.settings.logo_mobile | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:28px;width:auto;' }}
+        {{ section.settings.logo_mobile | image_url: width: 480 | image_tag: loading: 'eager', alt: shop.name, style: cx_logo_style_mobile }}
       {%- elsif section.settings.logo != blank -%}
-        {{ section.settings.logo | image_url: width: 240 | image_tag: loading: 'eager', alt: shop.name, style: 'max-height:28px;width:auto;' }}
+        {{ section.settings.logo | image_url: width: 480 | image_tag: loading: 'eager', alt: shop.name, style: cx_logo_style_mobile }}
       {%- else -%}
         <span class="cx-logo-text">{{ section.settings.logo_text | default: 'CALQIX' }}</span>
       {%- endif -%}
@@ -282,15 +290,15 @@
       <div class="cx-locale-sheet__backdrop" data-cx-locale-close aria-hidden="true"></div>
       <div class="cx-locale-sheet__panel">
         <header class="cx-locale-sheet__head">
-          <h2 class="cx-locale-sheet__title" id="cx-locale-sheet-title">Land & taal</h2>
-          <button type="button" class="cx-locale-sheet__close" data-cx-locale-close aria-label="Sluiten">
+          <h2 class="cx-locale-sheet__title" id="cx-locale-sheet-title">{{ 'cx.header.locale.title' | t }}</h2>
+          <button type="button" class="cx-locale-sheet__close" data-cx-locale-close aria-label="{{ 'cx.header.locale.close' | t }}">
             {% render 'cx-icons', name: 'close', size: 14 %}
           </button>
         </header>
         <div class="cx-locale-sheet__body">
           {%- if localization.available_countries.size > 1 -%}
             <section class="cx-locale-sheet__group">
-              <h3 class="cx-locale-sheet__group-title">Land / Valuta</h3>
+              <h3 class="cx-locale-sheet__group-title">{{ 'cx.header.locale.country_currency' | t }}</h3>
               <localization-form>
                 {%- form 'localization', id: 'CxSheetCountryForm' -%}
                   <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
@@ -313,7 +321,7 @@
           {%- endif -%}
           {%- if localization.available_languages.size > 1 -%}
             <section class="cx-locale-sheet__group">
-              <h3 class="cx-locale-sheet__group-title">Taal</h3>
+              <h3 class="cx-locale-sheet__group-title">{{ 'cx.header.locale.language' | t }}</h3>
               <localization-form>
                 {%- form 'localization', id: 'CxSheetLangForm' -%}
                   <input type="hidden" name="locale_code" value="{{ localization.language.iso_code }}">
@@ -1010,6 +1018,8 @@
     { "type": "text", "id": "logo_url", "label": "Logo CDN URL (wint van image picker)", "info": "Plak hier een volledige https:// image URL (bv. shopify CDN). Laat leeg om de image picker hieronder te gebruiken." },
     { "type": "image_picker", "id": "logo", "label": "Logo afbeelding (optioneel)" },
     { "type": "image_picker", "id": "logo_mobile", "label": "Logo mobiel (optioneel — valt terug op desktop logo)" },
+    { "type": "range", "id": "logo_max_height_desktop", "label": "Logo hoogte (desktop)", "min": 16, "max": 100, "step": 1, "unit": "px", "default": 32 },
+    { "type": "range", "id": "logo_max_height_mobile", "label": "Logo hoogte (mobiel)", "min": 16, "max": 80, "step": 1, "unit": "px", "default": 28 },
     { "type": "header", "content": "Search" },
     { "type": "checkbox", "id": "enable_search", "label": "Zoek-icoon tonen", "default": true },
     { "type": "header", "content": "Locale + language" },
