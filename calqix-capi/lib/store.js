@@ -246,6 +246,42 @@ async function releaseCronLock() {
 
 var TTL_NOTIFY = 48 * 3600;     // 48 hours
 var TTL_ARTIFACT = 7 * 24 * 3600; // 7 days
+var TTL_CUST_IDENTITY = 90 * 24 * 3600; // 90 days
+
+/**
+ * Persist last-known browser identity for a customer (Shopify customer_id).
+ * Used to enrich subscription renewal CAPI events with fbc/fbp/ip/ua so
+ * EMQ stays high and Meta can attribute the renewal LTV to the original ad.
+ *
+ * Key: identity:cust:{customerKey}
+ * Value: JSON { fbc, fbp, client_ip, client_user_agent, last_seen }
+ *
+ * @param {string} customerKey - Shopify customer.id (numeric string), email is NOT used to avoid PII in keys
+ * @param {object} data        - { fbc?, fbp?, client_ip?, client_user_agent? }
+ */
+async function setCustomerIdentity(customerKey, data) {
+  if (!customerKey || !data) return;
+  var key = 'identity:cust:' + customerKey;
+  var existing = (await getCustomerIdentity(customerKey)) || {};
+  // Merge: only overwrite a slot if new value is truthy. fbc/fbp expire on Meta's side after ~7d
+  // anyway, so refreshing them on every browser hit is desirable.
+  var merged = {
+    fbc: data.fbc || existing.fbc,
+    fbp: data.fbp || existing.fbp,
+    client_ip: data.client_ip || existing.client_ip,
+    client_user_agent: data.client_user_agent || existing.client_user_agent,
+    last_seen: new Date().toISOString()
+  };
+  await set(key, JSON.stringify(merged), TTL_CUST_IDENTITY);
+}
+
+async function getCustomerIdentity(customerKey) {
+  if (!customerKey) return null;
+  var key = 'identity:cust:' + customerKey;
+  var val = await get(key);
+  if (!val) return null;
+  try { return JSON.parse(val); } catch (e) { return null; }
+}
 
 async function setNotifyStatus(runId, data) {
   if (!runId || !data) return;
@@ -347,6 +383,8 @@ module.exports = {
   markProcessed: markProcessed,
   getEnrichment: getEnrichment,
   setEnrichment: setEnrichment,
+  setCustomerIdentity: setCustomerIdentity,
+  getCustomerIdentity: getCustomerIdentity,
   getCronRun: getCronRun,
   setCronRun: setCronRun,
   acquireCronLock: acquireCronLock,

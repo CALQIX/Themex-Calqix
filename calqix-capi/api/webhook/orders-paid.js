@@ -23,6 +23,28 @@ const {
 
 const SOURCE_URL = 'https://calqix.com/checkout';
 
+/**
+ * Detect subscription renewal orders. Shopify subscription apps (native,
+ * Recharge, Subify, Bold, Skio) all use a `source_name` that starts with
+ * `subscription_*` (e.g. `subscription_contract_checkout_one`). Some also
+ * tag the order with `Subscription` / `Recurring`.
+ *
+ * @param {object} order - Shopify order payload
+ * @returns {{isSubscription: boolean, subscriptionSource: string|undefined}}
+ */
+function detectSubscription(order) {
+  const sourceName = order && order.source_name ? String(order.source_name) : '';
+  const tags = order && typeof order.tags === 'string' ? order.tags.toLowerCase() : '';
+  const isSubscription =
+    sourceName.indexOf('subscription_') === 0 ||
+    /\bsubscription\b/.test(tags) ||
+    /\brecurring\b/.test(tags);
+  return {
+    isSubscription: isSubscription,
+    subscriptionSource: isSubscription ? sourceName || 'tag' : undefined
+  };
+}
+
 function getLineItemPrice(item) {
   return (
     toMoney(item && item.price) ??
@@ -143,8 +165,39 @@ async function handler(req, res) {
     // Merge enrichment from Custom Pixel's contact_info_submitted if available
     const enrichment = checkoutToken ? (await store.getEnrichment(String(checkoutToken)) || {}) : {};
 
+    // Subscription detection. Renewals never hit a thank-you page so the Custom
+    // Pixel cannot fire and `_meta_fbc` / `_meta_fbp` note_attributes are absent.
+    // We fall back to per-customer identity captured during a previous browser
+    // session (see api/add-to-cart.js → store.setCustomerIdentity).
+    const subInfo = detectSubscription(order);
+    const externalId = extractExternalId(order);
+    let identityFallback = {};
+    if (subInfo.isSubscription && externalId) {
+      try {
+        const id = await store.getCustomerIdentity(String(externalId));
+        if (id) {
+          identityFallback = {
+            fbc: id.fbc || undefined,
+            fbp: id.fbp || undefined,
+            client_ip: id.client_ip || undefined,
+            client_user_agent: id.client_user_agent || undefined
+          };
+        }
+      } catch (e) { /* identity lookup is non-critical */ }
+    }
+
     const lineItems = Array.isArray(order.line_items) ? order.line_items : [];
-    const userData = buildOrderUserData(order, verification.clientIp, verification.userAgent, enrichment);
+    const userData = buildOrderUserData(
+      order,
+      verification.clientIp || identityFallback.client_ip,
+      verification.userAgent || identityFallback.client_user_agent,
+      Object.assign({}, enrichment, {
+        // Only fill fbc/fbp from identity if the order itself did not carry them
+        // (extractMetaBrowserIds would have returned them otherwise).
+        fbc: enrichment.fbc || identityFallback.fbc,
+        fbp: enrichment.fbp || identityFallback.fbp
+      })
+    );
     const customData = {
       value: toMoney(order.total_price),
       currency: order.currency || 'EUR',
@@ -152,8 +205,15 @@ async function handler(req, res) {
       content_type: resolveContentType(lineItems),
       contents: buildContents(lineItems, getLineItemPrice),
       num_items: countItems(lineItems),
-      order_id: String(order.id)
+      order_id: String(order.id),
+      // Tag every Purchase so Meta Ads Manager / EMQ dashboards can segment
+      // acquisition from recurring revenue. Custom params are accepted by Meta
+      // CAPI and surfaced in Events Manager → Test Events / Diagnostics.
+      order_type: subInfo.isSubscription ? 'subscription_renewal' : 'initial'
     };
+    if (subInfo.subscriptionSource) {
+      customData.subscription_source = subInfo.subscriptionSource;
+    }
 
     console.log('[Webhook orders-paid] Purchase', {
       eventId,
@@ -165,6 +225,9 @@ async function handler(req, res) {
       hasUa: Boolean(userData.client_user_agent),
       hasExternalId: Boolean(userData.external_id),
       enrichedFromStore: Object.keys(enrichment).length > 0,
+      enrichedFromIdentity: Object.keys(identityFallback).length > 0,
+      isSubscription: subInfo.isSubscription,
+      subscriptionSource: subInfo.subscriptionSource,
       correlationKey: checkoutToken ? 'checkout_token' : 'order_id',
       source: 'webhook'
     });

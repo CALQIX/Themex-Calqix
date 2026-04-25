@@ -132,6 +132,21 @@ async function handler(req, res) {
       });
     } catch (e) { /* diagnostics are non-critical */ }
 
+    // Persist customer identity for later subscription-renewal enrichment.
+    // Only when we have an external_id (Shopify customer.id) AND a browser-side signal
+    // (fbc or fbp). These are the only signals worth carrying forward — email/phone
+    // are already on the order at renewal time.
+    try {
+      if (body.external_id && (body.fbc || body.fbp)) {
+        await store.setCustomerIdentity(String(body.external_id), {
+          fbc: body.fbc,
+          fbp: body.fbp,
+          client_ip: clientIp,
+          client_user_agent: clientUserAgent
+        });
+      }
+    } catch (e) { /* identity store is non-critical */ }
+
     // Multi-platform: Klaviyo + GA4 (non-blocking)
     try {
       await multiPlatform.sendAddToCart({
