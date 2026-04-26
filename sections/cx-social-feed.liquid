@@ -3,6 +3,7 @@
   Source: _incoming/calqix-web-upgrade/handoff/source/components/body.jsx → SocialFeed
 {%- endcomment -%}
 
+{% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section cx-section-cream-2" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-social-header">
@@ -11,7 +12,13 @@
         <h2 class="cx-h2">{{ section.settings.heading }}</h2>
       </div>
       {%- if section.settings.cta_text != blank -%}
-        <a class="cx-btn-inline" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+        {%- assign cx_btn_kind = section.settings.cta_style | default: 'inline' -%}
+        {%- case cx_btn_kind -%}
+          {%- when 'gold' -%}<a class="cx-btn cx-btn-gold" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          {%- when 'navy' -%}<a class="cx-btn cx-btn-primary" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          {%- when 'ghost' -%}<a class="cx-btn cx-btn-ghost" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          {%- else -%}<a class="cx-btn-inline" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+        {%- endcase -%}
       {%- endif -%}
     </div>
     <div class="cx-social-grid" data-cx-col4 data-cx-stagger>
@@ -64,10 +71,35 @@
   "tag": "section",
   "class": "cx-section-social",
   "settings": [
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Calqix community" },
-    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Volg ons <em>ritueel.</em></p>" },
-    { "type": "text", "id": "cta_text", "label": "CTA tekst", "default": "@calqix op Instagram" },
-    { "type": "url",  "id": "cta_link", "label": "CTA link" }
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "CALQIX community" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Follow our <em>ritual.</em></p>" },
+    { "type": "text", "id": "cta_text", "label": "Button text", "default": "@calqix on Instagram" },
+    { "type": "url",  "id": "cta_link", "label": "Button link" },
+    {
+      "type": "select", "id": "cta_style", "label": "Button style",
+      "default": "inline",
+      "options": [
+        { "value": "gold",   "label": "Gold (filled)" },
+        { "value": "navy",   "label": "Navy (filled)" },
+        { "value": "ghost",  "label": "Outline" },
+        { "value": "inline", "label": "Inline arrow" }
+      ]
+    },
+
+    { "type": "header", "content": "Style overrides" },
+    { "type": "color", "id": "ovr_bg", "label": "Background color" },
+    { "type": "color", "id": "ovr_fg", "label": "Text color" },
+    { "type": "color", "id": "ovr_accent", "label": "Accent / italic color" },
+    {
+      "type": "select", "id": "ovr_font", "label": "Heading font",
+      "default": "display",
+      "options": [
+        { "value": "display", "label": "Display (Playfair)" },
+        { "value": "sans",    "label": "Sans (Inter)" },
+        { "value": "mono",    "label": "Mono" }
+      ]
+    },
+    { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 48, "unit": "px" }
   ],
   "blocks": [
     {
@@ -75,8 +107,8 @@
       "name": "Post",
       "settings": [
         { "type": "text", "id": "tag", "label": "Tag", "default": "#protocol" },
-        { "type": "text", "id": "title", "label": "Titel", "default": "Twee stappen. Klinisch schoon." },
-        { "type": "image_picker", "id": "image", "label": "Afbeelding (optioneel)" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Two steps. Clinically clean." },
+        { "type": "image_picker", "id": "image", "label": "Image (optional)" },
         { "type": "url", "id": "link", "label": "Link" }
       ]
     }
@@ -85,10 +117,10 @@
   "default": {
     "settings": {},
     "blocks": [
-      { "type": "post", "settings": { "tag": "#protocol",  "title": "Twee stappen. Klinisch schoon." } },
-      { "type": "post", "settings": { "tag": "#routine",   "title": "Tandarts-grade routine thuis" } },
-      { "type": "post", "settings": { "tag": "#science",   "title": "Herstel glazuur natuurlijk" } },
-      { "type": "post", "settings": { "tag": "#community", "title": "6 weken voor en na" } }
+      { "type": "post", "settings": { "tag": "#protocol",  "title": "Two steps. Clinically clean." } },
+      { "type": "post", "settings": { "tag": "#routine",   "title": "Dentist-grade routine at home" } },
+      { "type": "post", "settings": { "tag": "#science",   "title": "Restore enamel naturally" } },
+      { "type": "post", "settings": { "tag": "#community", "title": "6 weeks before and after" } }
     ]
   }
 }

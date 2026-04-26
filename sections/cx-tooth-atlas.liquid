@@ -3,6 +3,7 @@
   Source: _incoming/calqix-web-upgrade/handoff/source/components/body.jsx → TeethInteractive
 {%- endcomment -%}
 
+{% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-stack cx-section-header" data-cx-stagger>
@@ -46,15 +47,15 @@
                   </div>
                 </div>
                 <div class="cx-atlas-text">
-                  <div class="cx-eyebrow">Kort overzicht</div>
+                  <div class="cx-eyebrow">Quick overview</div>
                   <h3 class="cx-h3">{{ block.settings.sub }}.</h3>
                   <p class="cx-atlas-desc">{{ block.settings.desc }}</p>
                   <div class="cx-atlas-block">
-                    <div class="cx-eyebrow">Dagelijkse zorg</div>
+                    <div class="cx-eyebrow">Daily care</div>
                     <p>{{ block.settings.care }}</p>
                   </div>
                   <div class="cx-atlas-block">
-                    <div class="cx-eyebrow">Weetje</div>
+                    <div class="cx-eyebrow">Did you know</div>
                     <p>{{ block.settings.fact }}</p>
                   </div>
                 </div>
@@ -65,7 +66,13 @@
 
         {%- if section.settings.cta_text != blank -%}
           <div class="cx-atlas-cta-wrap">
-            <a class="cx-btn cx-btn-primary" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- assign cx_btn_kind = section.settings.cta_style | default: 'navy' -%}
+            {%- case cx_btn_kind -%}
+              {%- when 'gold' -%}<a class="cx-btn cx-btn-gold" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+              {%- when 'ghost' -%}<a class="cx-btn cx-btn-ghost" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+              {%- when 'inline' -%}<a class="cx-btn-inline" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+              {%- else -%}<a class="cx-btn cx-btn-primary" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- endcase -%}
           </div>
         {%- endif -%}
       </div>
@@ -114,23 +121,48 @@
   "tag": "section",
   "class": "cx-section-tooth-atlas",
   "settings": [
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Tandatlas" },
-    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Begrijp hoe je <em>tanden écht werken.</em></p>" },
-    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Verken elk tandtype en zijn rol in één interactieve weergave.</p>" },
-    { "type": "text", "id": "cta_text", "label": "CTA tekst", "default": "Ontdek Calqix mondverzorging" },
-    { "type": "url",  "id": "cta_link", "label": "CTA link" }
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Tooth atlas" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Understand how your <em>teeth really work.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Explore every tooth type and its role in one interactive view.</p>" },
+    { "type": "text", "id": "cta_text", "label": "Button text", "default": "Discover CALQIX oral care" },
+    { "type": "url",  "id": "cta_link", "label": "Button link" },
+    {
+      "type": "select", "id": "cta_style", "label": "Button style",
+      "default": "navy",
+      "options": [
+        { "value": "gold",   "label": "Gold (filled)" },
+        { "value": "navy",   "label": "Navy (filled)" },
+        { "value": "ghost",  "label": "Outline" },
+        { "value": "inline", "label": "Inline arrow" }
+      ]
+    },
+
+    { "type": "header", "content": "Style overrides" },
+    { "type": "color", "id": "ovr_bg", "label": "Background color" },
+    { "type": "color", "id": "ovr_fg", "label": "Text color" },
+    { "type": "color", "id": "ovr_accent", "label": "Accent / italic color" },
+    {
+      "type": "select", "id": "ovr_font", "label": "Heading font",
+      "default": "display",
+      "options": [
+        { "value": "display", "label": "Display (Playfair)" },
+        { "value": "sans",    "label": "Sans (Inter)" },
+        { "value": "mono",    "label": "Mono" }
+      ]
+    },
+    { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 48, "unit": "px" }
   ],
   "blocks": [
     {
       "type": "tooth",
-      "name": "Tandtype",
+      "name": "Tooth type",
       "settings": [
-        { "type": "text", "id": "name", "label": "Naam", "default": "Snijtanden" },
-        { "type": "text", "id": "sub", "label": "Sub", "default": "Eerste beet" },
-        { "type": "textarea", "id": "desc", "label": "Beschrijving", "default": "Snijtanden zitten vooraan en worden ingezet om hapjes af te bijten — denk aan fruit, groente en harder brood. Tonen slijtage het eerst." },
-        { "type": "textarea", "id": "care", "label": "Dagelijkse zorg", "default": "Dagelijks reinigen prioriteert gumlijn en zuurbelasting." },
-        { "type": "textarea", "id": "fact", "label": "Weetje", "default": "Dunne snijrand toont slijtage het eerst — let op randtransparantie." },
-        { "type": "image_picker", "id": "anatomy_image", "label": "Anatomie afbeelding (optioneel)" }
+        { "type": "text", "id": "name", "label": "Name", "default": "Incisors" },
+        { "type": "text", "id": "sub", "label": "Subtitle", "default": "First bite" },
+        { "type": "textarea", "id": "desc", "label": "Description", "default": "Incisors sit at the front and are used to bite into food — think fruit, vegetables and crusty bread. They show wear first." },
+        { "type": "textarea", "id": "care", "label": "Daily care", "default": "Daily cleaning prioritises the gumline and acid load." },
+        { "type": "textarea", "id": "fact", "label": "Did you know", "default": "The thin biting edge shows wear first — watch for edge translucency." },
+        { "type": "image_picker", "id": "anatomy_image", "label": "Anatomy image (optional)" }
       ]
     }
   ],
@@ -139,30 +171,30 @@
     "settings": {},
     "blocks": [
       { "type": "tooth", "settings": {
-          "name": "Snijtanden", "sub": "Eerste beet",
-          "desc": "Snijtanden zitten vooraan en worden ingezet om hapjes af te bijten — denk aan fruit, groente en harder brood. Tonen slijtage het eerst.",
-          "care": "Dagelijks reinigen prioriteert gumlijn en zuurbelasting.",
-          "fact": "Dunne snijrand toont slijtage het eerst — let op randtransparantie." } },
+          "name": "Incisors", "sub": "First bite",
+          "desc": "Incisors sit at the front and are used to bite into food — think fruit, vegetables and crusty bread. They show wear first.",
+          "care": "Daily cleaning prioritises the gumline and acid load.",
+          "fact": "The thin biting edge shows wear first — watch for edge translucency." } },
       { "type": "tooth", "settings": {
-          "name": "Hoektanden", "sub": "Scheur & scheid",
-          "desc": "De sterkste, langste wortels van je gebit. Hoektanden geleiden je beet en beschermen buurtanden tegen overbelasting.",
-          "care": "Focus op de glazuur-cement-rand — hoekslijtage is vroegsignaal.",
-          "fact": "Hoektanden dragen de zwaarste kauwkracht op hun wortels." } },
+          "name": "Canines", "sub": "Tear & separate",
+          "desc": "The strongest and longest roots in your mouth. Canines guide your bite and protect neighbouring teeth from overload.",
+          "care": "Focus on the enamel–cementum line — corner wear is an early signal.",
+          "fact": "Canines carry the heaviest chewing force through their roots." } },
       { "type": "tooth", "settings": {
-          "name": "Premolaren", "sub": "Breek & maal",
-          "desc": "Twee knobbels en platte oppervlakken maken de eerste grove vermaling. Gevoelig voor zure dranken in de groeven.",
-          "care": "Flossen rondom is essentieel — ruimtes vangen plaque makkelijk.",
-          "fact": "Groeven houden plaque vast tot 3× langer dan gladde oppervlakken." } },
+          "name": "Premolars", "sub": "Break & grind",
+          "desc": "Two cusps and flat surfaces handle the first coarse grinding. Sensitive to acidic drinks in the grooves.",
+          "care": "Flossing all the way around is essential — the gaps trap plaque easily.",
+          "fact": "Grooves hold plaque up to 3× longer than smooth surfaces." } },
       { "type": "tooth", "settings": {
-          "name": "Kiezen", "sub": "Eindmaling",
-          "desc": "Brede kauwvlakken verwerken het echte werk. Kiezen dragen tot 90% van je kauwkracht.",
-          "care": "Dagelijks reinigen van alle vier kauwvlakken — vooral achter.",
-          "fact": "Eerste molaren doorbreken rond je 6e — ze moeten je leven lang mee." } },
+          "name": "Molars", "sub": "Final grind",
+          "desc": "Wide chewing surfaces do the real work. Molars carry up to 90% of your chewing force.",
+          "care": "Clean all four chewing surfaces every day — especially the back ones.",
+          "fact": "First molars erupt around age 6 — they need to last a lifetime." } },
       { "type": "tooth", "settings": {
-          "name": "Verstandskiezen", "sub": "Laat-doorbrekers",
-          "desc": "De laatste die doorbreken (17–25 jaar). Vaak geïmpacteerd of deels zichtbaar waardoor reiniging lastig is.",
-          "care": "Irrigatie bereikt waar de borstel niet komt — cruciaal rondom de flap.",
-          "fact": "Ongeveer 35% van mensen ontwikkelt nooit verstandskiezen." } }
+          "name": "Wisdom teeth", "sub": "Late erupters",
+          "desc": "The last to erupt (17–25 years). Often impacted or partially visible, making them hard to clean.",
+          "care": "Irrigation reaches where the brush can't — critical around the flap.",
+          "fact": "Roughly 35% of people never develop wisdom teeth." } }
     ]
   }
 }

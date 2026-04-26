@@ -3,6 +3,7 @@
   Source: _incoming/calqix-web-upgrade/handoff/source/components/features.jsx → ScienceSpotlight
 {%- endcomment -%}
 
+{% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-science-grid" data-cx-col2>
@@ -40,7 +41,13 @@
         </div>
 
         {%- if section.settings.cta_text != blank -%}
-          <a class="cx-btn-inline" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          {%- assign cx_btn_kind = section.settings.cta_style | default: 'inline' -%}
+          {%- case cx_btn_kind -%}
+            {%- when 'gold' -%}<a class="cx-btn cx-btn-gold" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- when 'navy' -%}<a class="cx-btn cx-btn-primary" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- when 'ghost' -%}<a class="cx-btn cx-btn-ghost" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- else -%}<a class="cx-btn-inline" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          {%- endcase -%}
         {%- endif -%}
       </div>
     </div>
@@ -58,21 +65,46 @@
   "tag": "section",
   "class": "cx-section-science",
   "settings": [
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Onze wetenschap" },
-    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Van diep reinigen<br>naar <em>echt glazuurherstel.</em></p>" },
-    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Flowcore verwijdert wat de tandenborstel niet bereikt. Nano-HA kan direct binden aan het schoongemaakte glazuuroppervlak. Ontdek de wetenschap achter elke stap.</p>" },
-    { "type": "image_picker", "id": "image", "label": "Afbeelding (optioneel)" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our science" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>From deep cleaning<br>to <em>real enamel repair.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Flowcore removes what your toothbrush can't reach. Nano-HA can bind directly to the freshly cleaned enamel surface. Discover the science behind every step.</p>" },
+    { "type": "image_picker", "id": "image", "label": "Image (optional)" },
     { "type": "text", "id": "image_label", "label": "Placeholder label", "default": "DENTAL RESEARCHER · LAB SHOT" },
-    { "type": "text", "id": "cta_text", "label": "CTA tekst", "default": "Ontdek onze wetenschap" },
-    { "type": "url",  "id": "cta_link", "label": "CTA link" }
+    { "type": "text", "id": "cta_text", "label": "Button text", "default": "Discover our science" },
+    { "type": "url",  "id": "cta_link", "label": "Button link" },
+    {
+      "type": "select", "id": "cta_style", "label": "Button style",
+      "default": "inline",
+      "options": [
+        { "value": "gold",   "label": "Gold (filled)" },
+        { "value": "navy",   "label": "Navy (filled)" },
+        { "value": "ghost",  "label": "Outline" },
+        { "value": "inline", "label": "Inline arrow" }
+      ]
+    },
+
+    { "type": "header", "content": "Style overrides" },
+    { "type": "color", "id": "ovr_bg", "label": "Background color" },
+    { "type": "color", "id": "ovr_fg", "label": "Text color" },
+    { "type": "color", "id": "ovr_accent", "label": "Accent / italic color" },
+    {
+      "type": "select", "id": "ovr_font", "label": "Heading font",
+      "default": "display",
+      "options": [
+        { "value": "display", "label": "Display (Playfair)" },
+        { "value": "sans",    "label": "Sans (Inter)" },
+        { "value": "mono",    "label": "Mono" }
+      ]
+    },
+    { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 48, "unit": "px" }
   ],
   "blocks": [
     {
       "type": "step",
-      "name": "Stap",
+      "name": "Step",
       "settings": [
-        { "type": "text", "id": "title", "label": "Titel", "default": "Diepe reiniging" },
-        { "type": "textarea", "id": "desc", "label": "Beschrijving", "default": "1.600 pulsen per minuut reinigen plaque en bacteriën tot ver onder de gumline." }
+        { "type": "text", "id": "title", "label": "Title", "default": "Deep cleaning" },
+        { "type": "textarea", "id": "desc", "label": "Description", "default": "1,600 pulses per minute clean plaque and bacteria far below the gumline." }
       ]
     }
   ],
@@ -80,9 +112,9 @@
   "default": {
     "settings": {},
     "blocks": [
-      { "type": "step", "settings": { "title": "Diepe reiniging",         "desc": "1.600 pulsen per minuut reinigen plaque en bacteriën tot ver onder de gumline." } },
-      { "type": "step", "settings": { "title": "Absorptie vrijmaken",     "desc": "Door biofilm te verwijderen is het glazuuroppervlak klaar om mineralen direct op te nemen." } },
-      { "type": "step", "settings": { "title": "Opbouwen met wetenschap", "desc": "Oralbiome Pro levert nano-hydroxyapatiet via een klinisch onderbouwd protocol." } }
+      { "type": "step", "settings": { "title": "Deep cleaning",        "desc": "1,600 pulses per minute clean plaque and bacteria far below the gumline." } },
+      { "type": "step", "settings": { "title": "Open up absorption",   "desc": "By removing biofilm, the enamel surface is ready to take up minerals directly." } },
+      { "type": "step", "settings": { "title": "Rebuild with science", "desc": "OralBiome Pro delivers nano-hydroxyapatite through a clinically supported protocol." } }
     ]
   }
 }

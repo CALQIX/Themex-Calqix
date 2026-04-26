@@ -257,18 +257,18 @@
     {
       "type": "range",
       "id": "rotate_interval_ms",
-      "label": "Duur per regel (ms)",
+      "label": "Time per line (ms)",
       "min": 2000,
       "max": 9500,
       "step": 500,
       "default": 5000,
       "unit": "ms",
-      "info": "Hoe lang elke aankondiging zichtbaar is voor de volgende fades in."
+      "info": "How long each announcement is visible before the next one fades in."
     },
     {
       "type": "range",
       "id": "fade_duration_ms",
-      "label": "Fade duur (ms)",
+      "label": "Fade duration (ms)",
       "min": 150,
       "max": 1000,
       "step": 50,
@@ -276,31 +276,31 @@
       "unit": "ms"
     },
     { "type": "header", "content": "Locale / currency trigger" },
-    { "type": "checkbox", "id": "show_meta", "label": "Land/taal trigger tonen (rechts)", "default": true },
-    { "type": "text", "id": "locale_label", "label": "Fallback land/locale label", "default": "NL", "info": "Gebruikt wanneer er maar 1 land beschikbaar is." },
-    { "type": "text", "id": "currency_label", "label": "Fallback valuta label", "default": "EUR €" }
+    { "type": "checkbox", "id": "show_meta", "label": "Show country/locale trigger (right)", "default": true },
+    { "type": "text", "id": "locale_label", "label": "Fallback country/locale label", "default": "EN", "info": "Used when only 1 country is available." },
+    { "type": "text", "id": "currency_label", "label": "Fallback currency label", "default": "EUR €" }
   ],
   "blocks": [
     {
       "type": "announcement",
-      "name": "Aankondiging",
+      "name": "Announcement",
       "settings": [
         {
           "type": "select",
           "id": "icon",
-          "label": "Icoon",
+          "label": "Icon",
           "default": "truck",
           "options": [
-            { "value": "none", "label": "Geen" },
+            { "value": "none", "label": "None" },
             { "value": "truck", "label": "Truck" },
             { "value": "shield", "label": "Shield" },
             { "value": "flask", "label": "Flask" },
-            { "value": "star", "label": "Ster" },
-            { "value": "leaf", "label": "Blad" },
+            { "value": "star", "label": "Star" },
+            { "value": "leaf", "label": "Leaf" },
             { "value": "sparkle", "label": "Sparkle" }
           ]
         },
-        { "type": "text", "id": "text", "label": "Tekst", "default": "Gratis verzending vanaf €49" }
+        { "type": "text", "id": "text", "label": "Text", "default": "Free shipping from €49" }
       ]
     }
   ],
@@ -308,10 +308,10 @@
   "default": {
     "settings": {},
     "blocks": [
-      { "type": "announcement", "settings": { "icon": "truck",  "text": "Gratis verzending vanaf €49" } },
-      { "type": "announcement", "settings": { "icon": "shield", "text": "30 dagen tevredenheidsgarantie" } },
-      { "type": "announcement", "settings": { "icon": "flask",  "text": "Klinisch onderzocht · door tandartsen aanbevolen" } },
-      { "type": "announcement", "settings": { "icon": "star",   "text": "4,9 op basis van 2.184 reviews" } }
+      { "type": "announcement", "settings": { "icon": "truck",  "text": "Free shipping from €49" } },
+      { "type": "announcement", "settings": { "icon": "shield", "text": "30-day satisfaction guarantee" } },
+      { "type": "announcement", "settings": { "icon": "flask",  "text": "Clinically researched · dentist recommended" } },
+      { "type": "announcement", "settings": { "icon": "star",   "text": "4.9 based on 2,184 reviews" } }
     ]
   }
 }

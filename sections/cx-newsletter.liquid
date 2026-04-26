@@ -9,6 +9,7 @@
 {%- assign cx_is_dark = false -%}
 {%- if cx_variant == 'dark' -%}{%- assign cx_is_dark = true -%}{%- endif -%}
 
+{% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section{% if cx_is_dark %} cx-news-dark{% endif %}" data-cx-reveal>
   <div class="cx-container">
     {%- if cx_is_dark -%}
@@ -19,7 +20,7 @@
         {%- form 'customer', class: 'cx-news-form cx-news-form-dark' -%}
           {%- if form.posted_successfully? -%}
             <div class="cx-news-success">
-              <strong>Welkom.</strong> {{ section.settings.success_text }}
+              <strong>{{ section.settings.success_title | default: 'Welcome.' }}</strong> {{ section.settings.success_text }}
             </div>
           {%- else -%}
             <input type="hidden" name="contact[tags]" value="newsletter">
@@ -45,7 +46,7 @@
           {%- form 'customer', class: 'cx-news-form' -%}
             {%- if form.posted_successfully? -%}
               <div class="cx-news-success-editorial">
-                <strong class="cx-news-success-title">Welkom.</strong>
+                <strong class="cx-news-success-title">{{ section.settings.success_title | default: 'Welcome.' }}</strong>
                 <div>{{ section.settings.success_text }}</div>
               </div>
             {%- else -%}
@@ -56,9 +57,9 @@
           {%- endform -%}
 
           <div class="cx-news-fine">
-            <span>{% render 'cx-icons', name: 'lock', size: 13 %} Afmelden wanneer</span>
-            <span>{% render 'cx-icons', name: 'shield', size: 13 %} Nooit gedeeld</span>
-            <span>{% render 'cx-icons', name: 'mail', size: 13 %} Maximaal 1×/maand</span>
+            <span>{% render 'cx-icons', name: 'lock', size: 13 %} {{ section.settings.fine_1 | default: 'Unsubscribe anytime' }}</span>
+            <span>{% render 'cx-icons', name: 'shield', size: 13 %} {{ section.settings.fine_2 | default: 'Never shared' }}</span>
+            <span>{% render 'cx-icons', name: 'mail', size: 13 %} {{ section.settings.fine_3 | default: 'Max 1×/month' }}</span>
           </div>
         </div>
       </div>
@@ -142,19 +143,40 @@
   "class": "cx-section-newsletter",
   "settings": [
     {
-      "type": "select", "id": "variant", "label": "Stijl", "default": "editorial",
+      "type": "select", "id": "variant", "label": "Style", "default": "editorial",
       "options": [
-        { "value": "editorial", "label": "Editorial (licht)" },
-        { "value": "dark", "label": "Donker (navy)" }
+        { "value": "editorial", "label": "Editorial (light)" },
+        { "value": "dark", "label": "Dark (navy)" }
       ]
     },
-    { "type": "text", "id": "badge", "label": "Badge / eyebrow", "default": "Alleen nieuwe klanten · Eenmalige kortingscode" },
-    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>10% korting op je <em>eerste bestelling.</em></p>" },
-    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Word lid van de Calqix Inner Circle. Vroege toegang tot nieuwe klinische studies en formule-updates, nooit meer dan één bericht per maand.</p>" },
-    { "type": "text", "id": "placeholder", "label": "Placeholder", "default": "jij@voorbeeld.nl" },
-    { "type": "text", "id": "cta_text", "label": "CTA tekst", "default": "Claim 10%" },
-    { "type": "text", "id": "success_text", "label": "Succes bericht", "default": "Je kortingscode WELKOM10 zit in je mailbox." },
-    { "type": "image_picker", "id": "image", "label": "Afbeelding (alleen editorial)" }
+    { "type": "text", "id": "badge", "label": "Badge / eyebrow", "default": "New customers only · Single-use discount code" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>10% off your <em>first order.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Join the CALQIX Inner Circle. Early access to new clinical studies and formula updates, never more than one message per month.</p>" },
+    { "type": "text", "id": "placeholder", "label": "Email placeholder", "default": "you@example.com" },
+    { "type": "text", "id": "cta_text", "label": "Button text", "default": "Claim 10%" },
+    { "type": "text", "id": "success_title", "label": "Success title", "default": "Welcome." },
+    { "type": "text", "id": "success_text", "label": "Success message", "default": "Your discount code WELCOME10 is on its way." },
+    { "type": "image_picker", "id": "image", "label": "Image (editorial style only)" },
+
+    { "type": "header", "content": "Trust line (editorial only)" },
+    { "type": "text", "id": "fine_1", "label": "Trust 1", "default": "Unsubscribe anytime" },
+    { "type": "text", "id": "fine_2", "label": "Trust 2", "default": "Never shared" },
+    { "type": "text", "id": "fine_3", "label": "Trust 3", "default": "Max 1×/month" },
+
+    { "type": "header", "content": "Style overrides" },
+    { "type": "color", "id": "ovr_bg", "label": "Background color" },
+    { "type": "color", "id": "ovr_fg", "label": "Text color" },
+    { "type": "color", "id": "ovr_accent", "label": "Accent / italic color" },
+    {
+      "type": "select", "id": "ovr_font", "label": "Heading font",
+      "default": "display",
+      "options": [
+        { "value": "display", "label": "Display (Playfair)" },
+        { "value": "sans",    "label": "Sans (Inter)" },
+        { "value": "mono",    "label": "Mono" }
+      ]
+    },
+    { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 48, "unit": "px" }
   ]
 }
 {% endschema %}

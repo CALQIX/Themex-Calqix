@@ -5,6 +5,7 @@
 
 {%- assign cx_blog = blogs[section.settings.blog] -%}
 
+{% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section cx-section-cream" id="journal" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-journal-header">
@@ -13,7 +14,14 @@
         <h2 class="cx-h2 cx-journal-heading">{{ section.settings.heading }}</h2>
       </div>
       {%- if section.settings.cta_text != blank -%}
-        <a class="cx-btn-inline" href="{{ cx_blog.url | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+        {%- assign cx_journal_href = section.settings.cta_link | default: cx_blog.url | default: '#' -%}
+        {%- assign cx_btn_kind = section.settings.cta_style | default: 'inline' -%}
+        {%- case cx_btn_kind -%}
+          {%- when 'gold' -%}<a class="cx-btn cx-btn-gold" href="{{ cx_journal_href }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          {%- when 'navy' -%}<a class="cx-btn cx-btn-primary" href="{{ cx_journal_href }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          {%- when 'ghost' -%}<a class="cx-btn cx-btn-ghost" href="{{ cx_journal_href }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          {%- else -%}<a class="cx-btn-inline" href="{{ cx_journal_href }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+        {%- endcase -%}
       {%- endif -%}
     </div>
 
@@ -36,7 +44,7 @@
             </div>
             <h3 class="cx-journal-title">{{ article.title }}</h3>
             <p class="cx-journal-excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 28 }}</p>
-            <span class="cx-btn-inline cx-journal-read">Lees artikel <span class="cx-arrow"></span></span>
+            <span class="cx-btn-inline cx-journal-read">{{ section.settings.read_label | default: 'Read article' }} <span class="cx-arrow"></span></span>
           </a>
         {%- endfor -%}
       {%- else -%}
@@ -51,7 +59,7 @@
               </div>
               <h3 class="cx-journal-title">{{ block.settings.title }}</h3>
               <p class="cx-journal-excerpt">{{ block.settings.excerpt }}</p>
-              <span class="cx-btn-inline cx-journal-read">Lees artikel <span class="cx-arrow"></span></span>
+              <span class="cx-btn-inline cx-journal-read">{{ section.settings.read_label | default: 'Read article' }} <span class="cx-arrow"></span></span>
             </a>
           {%- endif -%}
         {%- endfor -%}
@@ -94,19 +102,46 @@
   "class": "cx-section-journal",
   "settings": [
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Science Journal" },
-    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Gelaagde kennis, <em>helder verteld.</em></p>" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Layered knowledge, <em>clearly told.</em></p>" },
     { "type": "blog", "id": "blog", "label": "Blog" },
-    { "type": "text", "id": "cta_text", "label": "CTA tekst", "default": "Alle artikelen" }
+    { "type": "text", "id": "read_label", "label": "Read-article link label", "default": "Read article" },
+    { "type": "text", "id": "cta_text", "label": "Button text", "default": "All articles" },
+    { "type": "url",  "id": "cta_link", "label": "Button link (empty = use blog URL)" },
+    {
+      "type": "select", "id": "cta_style", "label": "Button style",
+      "default": "inline",
+      "options": [
+        { "value": "gold",   "label": "Gold (filled)" },
+        { "value": "navy",   "label": "Navy (filled)" },
+        { "value": "ghost",  "label": "Outline" },
+        { "value": "inline", "label": "Inline arrow" }
+      ]
+    },
+
+    { "type": "header", "content": "Style overrides" },
+    { "type": "color", "id": "ovr_bg", "label": "Background color" },
+    { "type": "color", "id": "ovr_fg", "label": "Text color" },
+    { "type": "color", "id": "ovr_accent", "label": "Accent / italic color" },
+    {
+      "type": "select", "id": "ovr_font", "label": "Heading font",
+      "default": "display",
+      "options": [
+        { "value": "display", "label": "Display (Playfair)" },
+        { "value": "sans",    "label": "Sans (Inter)" },
+        { "value": "mono",    "label": "Mono" }
+      ]
+    },
+    { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 48, "unit": "px" }
   ],
   "blocks": [
     {
       "type": "placeholder_post",
       "name": "Fallback post",
       "settings": [
-        { "type": "text", "id": "date", "label": "Datum", "default": "15 APR 2026" },
-        { "type": "text", "id": "tag", "label": "Tag", "default": "WETENSCHAP" },
-        { "type": "text", "id": "title", "label": "Titel", "default": "Nano-hydroxyapatiet: fluoride-alternatief" },
-        { "type": "textarea", "id": "excerpt", "label": "Excerpt", "default": "Elke dag verlies je glazuur. 87% van experts ziet nano-HA als de alternatieve route." },
+        { "type": "text", "id": "date", "label": "Date", "default": "15 APR 2026" },
+        { "type": "text", "id": "tag", "label": "Tag", "default": "SCIENCE" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Nano-hydroxyapatite: the fluoride alternative" },
+        { "type": "textarea", "id": "excerpt", "label": "Excerpt", "default": "You lose enamel every day. 87% of experts see nano-HA as the alternative route." },
         { "type": "url", "id": "link", "label": "Link" }
       ]
     }
@@ -115,9 +150,9 @@
   "default": {
     "settings": {},
     "blocks": [
-      { "type": "placeholder_post", "settings": { "date": "15 APR 2026", "tag": "WETENSCHAP", "title": "Nano-hydroxyapatiet: fluoride-alternatief met 40 jaar onderzoek", "excerpt": "Elke dag verlies je glazuur. 87% van experts ziet nano-HA als de mineraalvrije, klinisch onderbouwde alternatieve route." } },
-      { "type": "placeholder_post", "settings": { "date": "02 APR 2026", "tag": "ROUTINE",    "title": "De wetenschap achter je mondmicrobioom", "excerpt": "Je mond herbergt 700 bacteriesoorten die leven in een fragiel evenwicht. Zo behoud je dat balans." } },
-      { "type": "placeholder_post", "settings": { "date": "18 MRT 2026", "tag": "GEZONDHEID", "title": "Bloedend tandvlees uitgelegd",           "excerpt": "Is tandvlees-bloeden bij het poetsen oké? Over het verschil tussen gezond reinigen en verstoring." } }
+      { "type": "placeholder_post", "settings": { "date": "15 APR 2026", "tag": "SCIENCE", "title": "Nano-hydroxyapatite: the fluoride alternative with 40 years of research", "excerpt": "You lose enamel every day. 87% of experts see nano-HA as the fluoride-free, clinically supported alternative route." } },
+      { "type": "placeholder_post", "settings": { "date": "02 APR 2026", "tag": "ROUTINE", "title": "The science behind your oral microbiome",     "excerpt": "Your mouth hosts 700 bacterial species in a fragile balance. Here's how to protect it." } },
+      { "type": "placeholder_post", "settings": { "date": "18 MAR 2026", "tag": "HEALTH",  "title": "Bleeding gums explained",                    "excerpt": "Is gum bleeding while brushing okay? On the difference between healthy cleaning and disturbance." } }
     ]
   }
 }

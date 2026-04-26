@@ -19,7 +19,7 @@
   {%- endif -%}
 {%- else -%}
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
 
 <style>
   #calqix-banner-{{ section.id }} {
@@ -116,7 +116,38 @@
     opacity: 0; animation: cqFadeUp 0.6s 0.42s ease forwards;
   }
   @media (max-width: 860px) {
-    #calqix-banner-{{ section.id }} .color-switcher { justify-content: center; }
+    #calqix-banner-{{ section.id }} .color-switcher {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    /* Buttons row inside the switcher */
+    #calqix-banner-{{ section.id }} .color-switcher-buttons {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    /* Hide inline desktop label on mobile — replaced by stacked label above buttons */
+    #calqix-banner-{{ section.id }} .color-name { display: none; }
+    /* Show Playfair mobile name below buttons */
+    #calqix-banner-{{ section.id }} .color-name-mobile { display: block; }
+    /* Photo size on mobile uses its own px setting */
+    #calqix-banner-{{ section.id }} .cq-btn-style--photo .color-btn {
+      --cq-photo-size: {{ section.settings.photo_size_mobile | default: 56 }}px;
+    }
+    /* Center label above buttons */
+    #calqix-banner-{{ section.id }} .sw-label {
+      margin-right: 0;
+      text-align: center;
+    }
+  }
+  /* Desktop: keep the buttons row inline next to the label as before */
+  @media (min-width: 861px) {
+    #calqix-banner-{{ section.id }} .color-switcher-buttons {
+      display: contents;
+    }
   }
   #calqix-banner-{{ section.id }} .sw-label {
     font-size: 10px; font-weight: 500; letter-spacing: 0.14em;
@@ -131,28 +162,64 @@
     cursor: pointer; position: relative;
     flex-shrink: 0; flex-grow: 0; padding: 0; margin: 0;
     box-sizing: border-box;
-    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, opacity 0.2s, filter 0.2s, border-color 0.2s, box-shadow 0.2s;
     outline: none; appearance: none; -webkit-appearance: none;
     background-repeat: no-repeat;
   }
+  /* Photo style: no background, no circle, no border, no shadow — just the image. */
   #calqix-banner-{{ section.id }} .cq-btn-style--photo .color-btn {
-    width: 38px; height: 38px; min-width: 38px; min-height: 38px;
-    border-radius: 50%;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    --cq-photo-size: {{ section.settings.photo_size_desktop | default: 38 }}px;
+    width: var(--cq-photo-size); height: var(--cq-photo-size);
+    min-width: var(--cq-photo-size); min-height: var(--cq-photo-size);
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
+    background-color: transparent !important;
+    background-size: contain;
+    background-position: center;
+    opacity: 0.55;
+    filter: grayscale(20%);
   }
-  #calqix-banner-{{ section.id }} .color-btn:hover {
+  #calqix-banner-{{ section.id }} .cq-btn-style--photo .color-btn:hover {
+    transform: scale(1.08);
+    opacity: 0.9;
+    filter: none;
+    border-color: transparent;
+  }
+  #calqix-banner-{{ section.id }} .cq-btn-style--photo .color-btn.active {
+    border-color: transparent;
+    transform: scale(1.1);
+    opacity: 1;
+    filter: none;
+  }
+  #calqix-banner-{{ section.id }} .cq-btn-style--photo .color-btn.active::after {
+    content: none;
+  }
+  /* Color-circle style retains the original ring/dot affordance. */
+  #calqix-banner-{{ section.id }} .cq-btn-style--color .color-btn:hover {
     transform: scale(1.15); border-color: rgba(255,255,255,0.45);
   }
-  #calqix-banner-{{ section.id }} .color-btn.active {
+  #calqix-banner-{{ section.id }} .cq-btn-style--color .color-btn.active {
     border-color: rgba(255,255,255,0.92); transform: scale(1.1);
   }
-  #calqix-banner-{{ section.id }} .color-btn.active::after {
+  #calqix-banner-{{ section.id }} .cq-btn-style--color .color-btn.active::after {
     content: ''; position: absolute; inset: -5px;
     border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); pointer-events: none;
   }
   #calqix-banner-{{ section.id }} .color-name {
     font-size: 11px; color: rgba(255,255,255,0.4); margin-left: 8px;
     min-width: 52px; white-space: nowrap;
+  }
+  /* Mobile-only flavour name shown BELOW the buttons in Playfair Display. */
+  #calqix-banner-{{ section.id }} .color-name-mobile {
+    display: none;
+    font-family: 'Playfair Display', 'DM Serif Display', Georgia, serif;
+    font-style: italic;
+    font-size: 22px;
+    color: rgba(255,255,255,0.92);
+    margin-top: 14px;
+    text-align: center;
+    letter-spacing: 0.01em;
   }
 
   /* ── SPEC PILLS ── */
@@ -455,6 +522,7 @@
       <div class="color-switcher cq-btn-style--{{ cq_btn_style }}">
         <span class="sw-label">{{ section.settings.switcher_label | default: 'Flavour' }}</span>
 
+        <div class="color-switcher-buttons">
         {%- for i in (1..5) -%}
           {%- assign img_key   = 'img_v'   | append: i -%}
           {%- assign label_key = 'label_v' | append: i -%}
@@ -467,13 +535,15 @@
             <button type="button"
               class="color-btn{% if forloop.first %} active{% endif %}"
               data-index="{{ idx }}"
-              style="background: {{ v_color }};{% if cq_btn_style == 'photo' %}background-image:url('{{ v_img | img_url: '120x' }}');background-size:cover;background-position:center;{% endif %}"
+              style="{% if cq_btn_style == 'photo' %}background-image:url('{{ v_img | img_url: '160x' }}');{% else %}background:{{ v_color }};{% endif %}"
               title="{{ v_label }}"
               aria-label="Select {{ v_label }}"></button>
           {%- endif -%}
         {%- endfor -%}
+        </div>
 
         <span class="color-name" id="cq-colorname-{{ section.id }}">{{ section.settings.label_v1 }}</span>
+        <span class="color-name-mobile" id="cq-colorname-mobile-{{ section.id }}">{{ section.settings.label_v1 }}</span>
       </div>
 
       {%- comment -%} SPEC PILLS {%- endcomment -%}
@@ -620,9 +690,10 @@
     {%- if section.settings.particle_img_v5 != blank -%}'{{ section.settings.particle_img_v5 | img_url: "96x" }}'{%- else -%}''{%- endif -%}
   ];
 
-  const glowEl        = document.getElementById('cq-glow-' + SID);
-  const colorNameEl   = document.getElementById('cq-colorname-' + SID);
-  const variantImgs   = document.querySelectorAll('#calqix-banner-' + SID + ' .cq-variant');
+  const glowEl          = document.getElementById('cq-glow-' + SID);
+  const colorNameEl     = document.getElementById('cq-colorname-' + SID);
+  const colorNameMobEl  = document.getElementById('cq-colorname-mobile-' + SID);
+  const variantImgs     = document.querySelectorAll('#calqix-banner-' + SID + ' .cq-variant');
   const mobileImgs    = document.querySelectorAll('#calqix-banner-' + SID + ' .cq-mobile-variant');
   const btns          = document.querySelectorAll('#calqix-banner-' + SID + ' .color-btn');
   let currentIdx = 0;
@@ -657,8 +728,9 @@
       btns.forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
 
-      /* Update label */
-      if (colorNameEl) colorNameEl.textContent = COLOR_NAMES[idx] || '';
+      /* Update labels (desktop inline + mobile Playfair) */
+      if (colorNameEl)    colorNameEl.textContent    = COLOR_NAMES[idx] || '';
+      if (colorNameMobEl) colorNameMobEl.textContent = COLOR_NAMES[idx] || '';
 
       /* Update glow */
       if (glowEl) {
@@ -1002,7 +1074,7 @@
       "label": "Variant button style",
       "default": "photo",
       "options": [
-        { "value": "photo", "label": "Product photo (round)" },
+        { "value": "photo", "label": "Product photo (no background)" },
         { "value": "color", "label": "Colour circle" }
       ]
     },
@@ -1011,6 +1083,24 @@
       "id": "switcher_label",
       "label": "Switcher label",
       "default": "Flavour"
+    },
+    {
+      "type": "range",
+      "id": "photo_size_desktop",
+      "label": "Photo size — desktop (px)",
+      "min": 24, "max": 96, "step": 2,
+      "default": 38,
+      "unit": "px",
+      "info": "Only applies when Variant button style = Product photo."
+    },
+    {
+      "type": "range",
+      "id": "photo_size_mobile",
+      "label": "Photo size — mobile (px)",
+      "min": 32, "max": 120, "step": 2,
+      "default": 56,
+      "unit": "px",
+      "info": "Only applies when Variant button style = Product photo. Controls the size of the photo buttons on mobile."
     },
 
     { "type": "header", "content": "Copy" },

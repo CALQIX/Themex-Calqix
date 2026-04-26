@@ -3,6 +3,7 @@
   Source: _incoming/calqix-web-upgrade/handoff/source/components/features.jsx → FeatureGrid
 {%- endcomment -%}
 
+{% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-feature-grid" data-cx-col2>
@@ -33,7 +34,13 @@
         </div>
 
         {%- if section.settings.cta_text != blank -%}
-          <a class="cx-btn-inline cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          {%- assign cx_btn_kind = section.settings.cta_style | default: 'inline' -%}
+          {%- case cx_btn_kind -%}
+            {%- when 'gold' -%}<a class="cx-btn cx-btn-gold cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- when 'navy' -%}<a class="cx-btn cx-btn-primary cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- when 'ghost' -%}<a class="cx-btn cx-btn-ghost cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- else -%}<a class="cx-btn-inline cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          {%- endcase -%}
         {%- endif -%}
       </div>
 
@@ -79,22 +86,47 @@
   "tag": "section",
   "class": "cx-section-feature-grid",
   "settings": [
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Tot in het kleinste detail" },
-    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Doordacht tot in <em>elk ingrediënt.</em></p>" },
-    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Elk onderdeel van het protocol is herontworpen — van de kristalgrootte van het hydroxyapatiet tot de pulsfrequentie van de irrigator.</p>" },
-    { "type": "text", "id": "cta_text", "label": "CTA tekst", "default": "Bekijk alle specs" },
-    { "type": "url",  "id": "cta_link", "label": "CTA link" },
-    { "type": "image_picker", "id": "image", "label": "Afbeelding (optioneel)" },
-    { "type": "text", "id": "image_label", "label": "Placeholder label", "default": "FORMULE · KRISTALSTRUCTUUR" }
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Down to the last detail" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Engineered into <em>every ingredient.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Every part of the protocol is rebuilt from scratch — from the crystal size of hydroxyapatite to the pulse rate of the irrigator.</p>" },
+    { "type": "text", "id": "cta_text", "label": "Button text", "default": "View all specs" },
+    { "type": "url",  "id": "cta_link", "label": "Button link" },
+    {
+      "type": "select", "id": "cta_style", "label": "Button style",
+      "default": "inline",
+      "options": [
+        { "value": "gold",   "label": "Gold (filled)" },
+        { "value": "navy",   "label": "Navy (filled)" },
+        { "value": "ghost",  "label": "Outline" },
+        { "value": "inline", "label": "Inline arrow" }
+      ]
+    },
+    { "type": "image_picker", "id": "image", "label": "Image (optional)" },
+    { "type": "text", "id": "image_label", "label": "Placeholder label", "default": "FORMULA · CRYSTAL STRUCTURE" },
+
+    { "type": "header", "content": "Style overrides" },
+    { "type": "color", "id": "ovr_bg", "label": "Background color" },
+    { "type": "color", "id": "ovr_fg", "label": "Text color" },
+    { "type": "color", "id": "ovr_accent", "label": "Accent / italic color" },
+    {
+      "type": "select", "id": "ovr_font", "label": "Heading font",
+      "default": "display",
+      "options": [
+        { "value": "display", "label": "Display (Playfair)" },
+        { "value": "sans",    "label": "Sans (Inter)" },
+        { "value": "mono",    "label": "Mono" }
+      ]
+    },
+    { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 48, "unit": "px" }
   ],
   "blocks": [
     {
       "type": "feature",
       "name": "Feature",
       "settings": [
-        { "type": "text", "id": "tag", "label": "Tag", "default": "ACTIEF INGREDIËNT" },
-        { "type": "text", "id": "title", "label": "Titel", "default": "Nano-HA kristalformule" },
-        { "type": "textarea", "id": "desc", "label": "Beschrijving", "default": "Dezelfde mineraalsamenstelling als je glazuur — 20–50 nm voor optimale integratie met het oppervlak." }
+        { "type": "text", "id": "tag", "label": "Tag", "default": "ACTIVE INGREDIENT" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Nano-HA crystal formula" },
+        { "type": "textarea", "id": "desc", "label": "Description", "default": "The same mineral composition as your enamel — 20–50 nm for optimal integration with the surface." }
       ]
     }
   ],
@@ -102,12 +134,12 @@
   "default": {
     "settings": {},
     "blocks": [
-      { "type": "feature", "settings": { "tag": "ACTIEF INGREDIËNT", "title": "Nano-HA kristalformule",   "desc": "Dezelfde mineraalsamenstelling als je glazuur — 20–50 nm voor optimale integratie met het oppervlak." } },
-      { "type": "feature", "settings": { "tag": "FLOWCORE SPEC",     "title": "1.600 pulses per minuut",  "desc": "Precisiestraal met 0,6 mm diameter. Ontworpen om 6 mm onder de gumline te reiken waar je borstel stopt." } },
-      { "type": "feature", "settings": { "tag": "FORMULE",           "title": "Vegan & fluoride-vrij",    "desc": "Zonder fluoride, SLS of parabenen. Geformuleerd met natuurlijk gewonnen ingrediënten, veilig voor het hele gezin." } },
-      { "type": "feature", "settings": { "tag": "ONDERZOEK",         "title": "Peer-reviewed science",    "desc": "Elke formule onderbouwd door meer dan 40 jaar klinisch onderzoek. Niet trend-geleid, evidence-based." } },
-      { "type": "feature", "settings": { "tag": "GECERTIFICEERD",    "title": "CE-gecertificeerd",        "desc": "EU-conforme medische-hulpmiddelcertificering. Voldoet aan normen van tandheelkundigen in heel Europa." } },
-      { "type": "feature", "settings": { "tag": "BEWIJS",            "title": "Klinisch getest",          "desc": "Onafhankelijk getest op effectiviteit en veiligheid. Resultaten geverifieerd tegen ISO-normen." } }
+      { "type": "feature", "settings": { "tag": "ACTIVE INGREDIENT", "title": "Nano-HA crystal formula",  "desc": "The same mineral composition as your enamel — 20–50 nm for optimal integration with the surface." } },
+      { "type": "feature", "settings": { "tag": "FLOWCORE SPEC",     "title": "1,600 pulses per minute",  "desc": "Precision jet with a 0.6 mm diameter. Designed to reach 6 mm below the gumline where your brush stops." } },
+      { "type": "feature", "settings": { "tag": "FORMULA",           "title": "Vegan & fluoride-free",    "desc": "Without fluoride, SLS or parabens. Formulated with naturally sourced ingredients, safe for the whole family." } },
+      { "type": "feature", "settings": { "tag": "RESEARCH",          "title": "Peer-reviewed science",    "desc": "Every formula backed by 40+ years of clinical research. Not trend-driven, evidence-based." } },
+      { "type": "feature", "settings": { "tag": "CERTIFIED",         "title": "CE-certified",             "desc": "EU medical-device certification. Meets dental standards across Europe." } },
+      { "type": "feature", "settings": { "tag": "PROOF",             "title": "Clinically tested",        "desc": "Independently tested for effectiveness and safety. Results verified against ISO standards." } }
     ]
   }
 }

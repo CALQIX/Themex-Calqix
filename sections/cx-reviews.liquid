@@ -5,6 +5,7 @@
 
 {%- assign cx_filters = section.settings.filter_options | split: ',' -%}
 
+{% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-reviews-header">
@@ -17,7 +18,7 @@
         <div class="cx-reviews-stars">
           {%- for i in (1..5) -%}{% render 'cx-icons', name: 'star', size: 16 %}{%- endfor -%}
         </div>
-        <div class="cx-eyebrow cx-reviews-count">{{ section.settings.rating_count }} geverifieerde reviews</div>
+        <div class="cx-eyebrow cx-reviews-count">{{ section.settings.rating_count }} {{ section.settings.rating_count_label | default: 'verified reviews' }}</div>
       </div>
     </div>
 
@@ -46,7 +47,7 @@
                 <div class="cx-reviews-date">{{ block.settings.date }}</div>
               </div>
               <div class="cx-reviews-verified">
-                ✓ GEVERIFIEERD<br>
+                ✓ {{ section.settings.verified_label | default: 'VERIFIED' }}<br>
                 <span>{{ block.settings.verified }}</span>
               </div>
             </div>
@@ -99,23 +100,40 @@
   "tag": "section",
   "class": "cx-section-reviews",
   "settings": [
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Sociaal bewijs" },
-    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Wat klanten <em>zeggen.</em></p>" },
-    { "type": "text", "id": "rating_value", "label": "Gemiddelde score", "default": "4.9" },
-    { "type": "text", "id": "rating_count", "label": "Aantal reviews", "default": "2.184" },
-    { "type": "textarea", "id": "filter_options", "label": "Filter pills (komma-gescheiden)", "default": "Alle reviews, Meest recent, Gevoelige tanden, Witter maken, Frisse adem, Dagelijkse routine" }
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Social proof" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>What customers <em>say.</em></p>" },
+    { "type": "text", "id": "rating_value", "label": "Average score", "default": "4.9" },
+    { "type": "text", "id": "rating_count", "label": "Review count", "default": "2,184" },
+    { "type": "text", "id": "rating_count_label", "label": "Review count label", "default": "verified reviews" },
+    { "type": "text", "id": "verified_label", "label": "Verified badge label (uppercase)", "default": "VERIFIED" },
+    { "type": "textarea", "id": "filter_options", "label": "Filter pills (comma-separated)", "default": "All reviews, Most recent, Sensitive teeth, Whitening, Fresh breath, Daily routine" },
+
+    { "type": "header", "content": "Style overrides" },
+    { "type": "color", "id": "ovr_bg", "label": "Background color" },
+    { "type": "color", "id": "ovr_fg", "label": "Text color" },
+    { "type": "color", "id": "ovr_accent", "label": "Accent / italic color" },
+    {
+      "type": "select", "id": "ovr_font", "label": "Heading font",
+      "default": "display",
+      "options": [
+        { "value": "display", "label": "Display (Playfair)" },
+        { "value": "sans",    "label": "Sans (Inter)" },
+        { "value": "mono",    "label": "Mono" }
+      ]
+    },
+    { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 48, "unit": "px" }
   ],
   "blocks": [
     {
       "type": "review",
       "name": "Review",
       "settings": [
-        { "type": "text", "id": "name", "label": "Naam", "default": "Laurie M." },
-        { "type": "text", "id": "date", "label": "Datum", "default": "14 januari 2026" },
-        { "type": "range", "id": "rating", "label": "Sterren", "min": 1, "max": 5, "step": 1, "default": 5 },
-        { "type": "text", "id": "title", "label": "Titel", "default": "Gevonden wat ik zocht" },
-        { "type": "textarea", "id": "body", "label": "Review", "default": "Alles geprobeerd qua whitening tandpasta. In 30 dagen werd mijn tandarts de eerste die complimenten gaf op hoe natuurlijk gezond mijn gebit eruitzag." },
-        { "type": "text", "id": "verified", "label": "Verificatie", "default": "Fresh Mint · 3 maanden gebruikt" }
+        { "type": "text", "id": "name", "label": "Name", "default": "Laurie M." },
+        { "type": "text", "id": "date", "label": "Date", "default": "January 14, 2026" },
+        { "type": "range", "id": "rating", "label": "Stars", "min": 1, "max": 5, "step": 1, "default": 5 },
+        { "type": "text", "id": "title", "label": "Title", "default": "Found what I was looking for" },
+        { "type": "textarea", "id": "body", "label": "Review", "default": "Tried everything in whitening toothpaste. After 30 days my dentist was the first to compliment how naturally healthy my teeth looked." },
+        { "type": "text", "id": "verified", "label": "Verification", "default": "Fresh Mint · 3 months" }
       ]
     }
   ],
@@ -123,9 +141,9 @@
   "default": {
     "settings": {},
     "blocks": [
-      { "type": "review", "settings": { "name": "Laurie M.", "date": "14 januari 2026", "rating": 5, "title": "Gevonden wat ik zocht", "body": "Alles geprobeerd qua whitening tandpasta. In 30 dagen werd mijn tandarts de eerste die complimenten gaf op hoe natuurlijk gezond mijn gebit eruitzag. Dat zegt alles.", "verified": "Fresh Mint · 3 maanden gebruikt" } },
-      { "type": "review", "settings": { "name": "Dennis B.", "date": "12 januari 2026", "rating": 5, "title": "Serieus het verschil",  "body": "Ik heb erg gevoelige tanden. Na een paar weken Oralbiome Pro zonder dat het mondwater 700 soorten gaat uitmoorden voelt alles eindelijk rustig.", "verified": "Cool Mint · 6 weken gebruikt" } },
-      { "type": "review", "settings": { "name": "Leni K.",   "date": "10 januari 2026", "rating": 5, "title": "Eindelijk fluoride-vrij", "body": "Eindelijk een optie waarvan ik niet hoef te twijfelen. De ingrediënten zijn wat ze zeggen dat ze zijn, de wetenschap staat vast, en het werkt.", "verified": "Peach · geabonneerd" } }
+      { "type": "review", "settings": { "name": "Laurie M.", "date": "January 14, 2026", "rating": 5, "title": "Found what I was looking for", "body": "Tried everything in whitening toothpaste. After 30 days my dentist was the first to compliment how naturally healthy my teeth looked. That says it all.", "verified": "Fresh Mint · 3 months" } },
+      { "type": "review", "settings": { "name": "Dennis B.", "date": "January 12, 2026", "rating": 5, "title": "Real difference",            "body": "I have very sensitive teeth. After a few weeks of OralBiome Pro — without mouthwash that wipes out 700 species — everything finally feels calm.", "verified": "Cool Mint · 6 weeks" } },
+      { "type": "review", "settings": { "name": "Leni K.",   "date": "January 10, 2026", "rating": 5, "title": "Finally fluoride-free",       "body": "Finally an option I don't have to second-guess. The ingredients are what they say they are, the science holds up, and it works.", "verified": "Peach · subscribed" } }
     ]
   }
 }

@@ -3,12 +3,14 @@
   Source: _incoming/calqix-web-upgrade/handoff/source/components/bundle.jsx → TwoStep
 {%- endcomment -%}
 
+{% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-stack cx-section-header" data-cx-stagger>
       {% render 'cx-eyebrow', text: section.settings.eyebrow %}
       <h2 class="cx-h2">{{ section.settings.heading }}</h2>
       <div class="cx-lede">{{ section.settings.lede }}</div>
+      {% render 'cx-section-cta', section: section %}
     </div>
 
     <div class="cx-two-step-grid" data-cx-col2 data-cx-stagger>
@@ -78,32 +80,61 @@
   "tag": "section",
   "class": "cx-section-two-step",
   "settings": [
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Het Calqix-protocol" },
-    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Twee stappen. <em>Eén uitkomst.</em></p>" },
-    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Flowcore maakt schoon waar je tandenborstel niet komt. Oralbiome Pro bouwt het glazuuroppervlak op. Het protocol werkt alleen als beide stappen samenwerken.</p>" }
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The CALQIX protocol" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Two steps. <em>One outcome.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Flowcore cleans where your toothbrush can't reach. OralBiome Pro rebuilds the enamel surface. The protocol only works when both steps work together.</p>" },
+
+    { "type": "header", "content": "Style overrides" },
+    { "type": "color", "id": "ovr_bg", "label": "Background color" },
+    { "type": "color", "id": "ovr_fg", "label": "Text color" },
+    { "type": "color", "id": "ovr_accent", "label": "Accent / italic color" },
+    {
+      "type": "select", "id": "ovr_font", "label": "Heading font",
+      "default": "display",
+      "options": [
+        { "value": "display", "label": "Display (Playfair)" },
+        { "value": "sans",    "label": "Sans (Inter)" },
+        { "value": "mono",    "label": "Mono" }
+      ]
+    },
+    { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 48, "unit": "px" },
+
+    { "type": "header", "content": "Button (optional)" },
+    { "type": "text", "id": "btn_text", "label": "Button text" },
+    { "type": "url", "id": "btn_url", "label": "Button link" },
+    {
+      "type": "select", "id": "btn_style", "label": "Button style",
+      "default": "inline",
+      "options": [
+        { "value": "gold",   "label": "Gold (filled)" },
+        { "value": "navy",   "label": "Navy (filled)" },
+        { "value": "ghost",  "label": "Outline" },
+        { "value": "inline", "label": "Inline arrow" }
+      ]
+    }
   ],
   "blocks": [
     {
       "type": "step",
-      "name": "Stap",
+      "name": "Step",
       "settings": [
-        { "type": "text", "id": "step_label", "label": "Step label", "default": "STAP 01 · AVONDRITUEEL" },
-        { "type": "text", "id": "title", "label": "Titel", "default": "Eerst diep reinigen" },
-        { "type": "richtext", "id": "desc", "label": "Beschrijving", "default": "<p>Flowcore levert 1.600 micro-pulses per minuut langs de tandlijn — de precisiestraal bereikt 6mm onder de gumline waar je borstel stopt.</p>" },
-        { "type": "image_picker", "id": "image", "label": "Afbeelding (optioneel)" },
+        { "type": "text", "id": "step_label", "label": "Step label", "default": "STEP 01 · EVENING RITUAL" },
+        { "type": "text", "id": "title", "label": "Title", "default": "First, clean deeply" },
+        { "type": "richtext", "id": "desc", "label": "Description", "default": "<p>Flowcore delivers 1,600 micro-pulses per minute along the gumline — the precision jet reaches 6mm below the gumline where your brush stops.</p>" },
+        { "type": "image_picker", "id": "image", "label": "Image (optional)" },
         { "type": "text", "id": "label", "label": "Placeholder label", "default": "FLOWCORE IRRIGATOR" },
 
         { "type": "header", "content": "Stat 1" },
-        { "type": "text", "id": "stat_1_value", "label": "Waarde", "default": "1.600" },
+        { "type": "text", "id": "stat_1_value", "label": "Value", "default": "1,600" },
         { "type": "text", "id": "stat_1_label", "label": "Label", "default": "Pulses/min" },
 
         { "type": "header", "content": "Stat 2" },
-        { "type": "text", "id": "stat_2_value", "label": "Waarde", "default": "6 mm" },
-        { "type": "text", "id": "stat_2_label", "label": "Label", "default": "Diep onder tandvlees" },
+        { "type": "text", "id": "stat_2_value", "label": "Value", "default": "6 mm" },
+        { "type": "text", "id": "stat_2_label", "label": "Label", "default": "Below the gumline" },
 
         { "type": "header", "content": "Stat 3" },
-        { "type": "text", "id": "stat_3_value", "label": "Waarde", "default": "3" },
-        { "type": "text", "id": "stat_3_label", "label": "Label", "default": "Klinische standen" }
+        { "type": "text", "id": "stat_3_value", "label": "Value", "default": "3" },
+        { "type": "text", "id": "stat_3_label", "label": "Label", "default": "Clinical modes" }
       ]
     }
   ],
@@ -113,13 +144,13 @@
     "blocks": [
       { "type": "step", "settings": {} },
       { "type": "step", "settings": {
-          "step_label": "STAP 02 · DIRECT ERNA",
-          "title": "Dan opnieuw opbouwen",
-          "desc": "<p>Nano-hydroxyapatiet bindt direct aan het nu schone glazuuroppervlak. Peer-reviewed studies tonen gemiddeld 40% minder gevoeligheid na 4 weken.</p>",
+          "step_label": "STEP 02 · IMMEDIATELY AFTER",
+          "title": "Then rebuild",
+          "desc": "<p>Nano-hydroxyapatite binds directly to the now-clean enamel surface. Peer-reviewed studies show on average 40% less sensitivity after 4 weeks.</p>",
           "label": "ORALBIOME PRO · TABS",
-          "stat_1_value": "20–50", "stat_1_label": "nm deeltjesgrootte",
-          "stat_2_value": "40%",   "stat_2_label": "Minder gevoeligheid",
-          "stat_3_value": "28",    "stat_3_label": "Dagen tot zichtbaar"
+          "stat_1_value": "20–50", "stat_1_label": "nm particle size",
+          "stat_2_value": "40%",   "stat_2_label": "Less sensitivity",
+          "stat_3_value": "28",    "stat_3_label": "Days to visible"
       } }
     ]
   }

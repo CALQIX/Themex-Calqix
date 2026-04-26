@@ -1,0 +1,32 @@
+{%- comment -%}
+  CALQIX — Reusable configurable CTA for cx-* sections.
+
+  Usage:
+    {% render 'cx-section-cta', section: section %}
+    {% render 'cx-section-cta', section: section, fallback_text: 'Shop now', fallback_url: '/collections/all' %}
+
+  Schema settings expected on the calling section (all optional):
+    text    btn_text
+    url     btn_url
+    select  btn_style   (gold | navy | ghost | inline)
+
+  Renders nothing if neither btn_text nor fallback_text is set.
+{%- endcomment -%}
+
+{%- assign cx_btn_text  = section.settings.btn_text  | default: fallback_text  -%}
+{%- assign cx_btn_url   = section.settings.btn_url   | default: fallback_url   -%}
+{%- assign cx_btn_style = section.settings.btn_style | default: 'inline'       -%}
+
+{%- if cx_btn_text != blank -%}
+  {%- assign cx_btn_href = cx_btn_url | default: '#' -%}
+  {%- case cx_btn_style -%}
+    {%- when 'gold' -%}
+      <a class="cx-btn cx-btn-gold" href="{{ cx_btn_href }}">{{ cx_btn_text }} <span class="cx-arrow"></span></a>
+    {%- when 'navy' -%}
+      <a class="cx-btn cx-btn-primary" href="{{ cx_btn_href }}">{{ cx_btn_text }} <span class="cx-arrow"></span></a>
+    {%- when 'ghost' -%}
+      <a class="cx-btn cx-btn-ghost" href="{{ cx_btn_href }}">{{ cx_btn_text }} <span class="cx-arrow"></span></a>
+    {%- else -%}
+      <a class="cx-btn-inline" href="{{ cx_btn_href }}">{{ cx_btn_text }} <span class="cx-arrow"></span></a>
+  {%- endcase -%}
+{%- endif -%}

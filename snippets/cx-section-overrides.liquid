@@ -1,0 +1,59 @@
+{%- comment -%}
+  CALQIX — Reusable Theme-Editor style overrides for cx-* sections.
+  Scopes CSS variable overrides to the section by id, so a merchant can
+  recolor any cx-* section, swap the heading font, or resize the heading
+  without touching the section's hardcoded CSS.
+
+  Usage:
+    {% render 'cx-section-overrides', section: section %}
+
+  Schema settings expected on the calling section (all optional):
+    color   ovr_bg
+    color   ovr_fg
+    color   ovr_accent
+    select  ovr_font     (display | sans | mono)
+    range   ovr_h_size   (px)
+{%- endcomment -%}
+
+{%- assign cx_has_override = false -%}
+{%- if section.settings.ovr_bg     != blank -%}{%- assign cx_has_override = true -%}{%- endif -%}
+{%- if section.settings.ovr_fg     != blank -%}{%- assign cx_has_override = true -%}{%- endif -%}
+{%- if section.settings.ovr_accent != blank -%}{%- assign cx_has_override = true -%}{%- endif -%}
+{%- if section.settings.ovr_font   != blank -%}{%- assign cx_has_override = true -%}{%- endif -%}
+{%- if section.settings.ovr_h_size != blank -%}{%- assign cx_has_override = true -%}{%- endif -%}
+
+{%- if cx_has_override -%}
+  {%- assign cx_font_family = '--cx-f-display' -%}
+  {%- case section.settings.ovr_font -%}
+    {%- when 'sans' -%}{%- assign cx_font_family = '--cx-f-body'    -%}
+    {%- when 'mono' -%}{%- assign cx_font_family = '--cx-f-mono'    -%}
+    {%- else        -%}{%- assign cx_font_family = '--cx-f-display' -%}
+  {%- endcase -%}
+  <style>
+    #shopify-section-{{ section.id }} .cx-root {
+      {%- if section.settings.ovr_bg     != blank %} background: {{ section.settings.ovr_bg }} !important;{% endif -%}
+      {%- if section.settings.ovr_fg     != blank %} color: {{ section.settings.ovr_fg }};{% endif -%}
+    }
+    {%- if section.settings.ovr_fg != blank -%}
+    #shopify-section-{{ section.id }} .cx-root .cx-h2,
+    #shopify-section-{{ section.id }} .cx-root .cx-h3,
+    #shopify-section-{{ section.id }} .cx-root .cx-display {
+      color: {{ section.settings.ovr_fg }};
+    }
+    {%- endif -%}
+    {%- if section.settings.ovr_accent != blank -%}
+    #shopify-section-{{ section.id }} .cx-root .cx-h2 em,
+    #shopify-section-{{ section.id }} .cx-root .cx-h3 em,
+    #shopify-section-{{ section.id }} .cx-root .cx-display em,
+    #shopify-section-{{ section.id }} .cx-root .cx-eyebrow,
+    #shopify-section-{{ section.id }} .cx-root .cx-gold-shimmer {
+      color: {{ section.settings.ovr_accent }};
+    }
+    {%- endif -%}
+    #shopify-section-{{ section.id }} .cx-root .cx-h2,
+    #shopify-section-{{ section.id }} .cx-root .cx-display {
+      {%- if section.settings.ovr_font != blank %} font-family: var({{ cx_font_family }}) !important;{% endif -%}
+      {%- if section.settings.ovr_h_size != blank and section.settings.ovr_h_size != 0 %} font-size: {{ section.settings.ovr_h_size }}px !important;{% endif -%}
+    }
+  </style>
+{%- endif -%}

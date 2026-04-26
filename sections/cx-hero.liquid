@@ -22,6 +22,7 @@
   {%- endif -%}
 {%- endfor -%}
 
+{% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-hero" data-cx-hero-flavor style="--cx-hero-bg: {{ cx_first_color }};" data-cx-reveal>
   <div class="cx-hero-glow" aria-hidden="true"></div>
 
@@ -39,7 +40,7 @@
       {%- endif -%}
 
       {%- if section.blocks.size > 0 -%}
-        <div class="cx-flavor-pills" role="group" aria-label="Kies een smaak">
+        <div class="cx-flavor-pills" role="group" aria-label="Choose a flavor">
           {%- for block in section.blocks -%}
             {%- if block.type == 'flavor' -%}
               <button type="button"
@@ -87,12 +88,12 @@
         <div class="cx-hero-ctas">
           <button type="submit" class="cx-btn cx-btn-gold">
             {% render 'cx-icons', name: 'bag', size: 16 %}
-            <span>In winkelmand · </span>
+            <span>{{ section.settings.cta_buy_label | default: 'Add to cart · ' }}</span>
             <span data-cx-cta-price data-cx-normal="{{ cx_first_price }}" data-cx-sub-ratio="0.8">{{ cx_first_price }}</span>
           </button>
           <button type="button" class="cx-btn cx-btn-ghost" data-cx-subscribe-toggle>
             <span class="cx-sub-box" data-cx-subscribe-box></span>
-            <span>Abonneer · bespaar 20%</span>
+            <span>{{ section.settings.cta_sub_label | default: 'Subscribe · save 20%' }}</span>
           </button>
         </div>
 
@@ -256,27 +257,45 @@
   "tag": "section",
   "class": "cx-section-hero",
   "settings": [
-    { "type": "product", "id": "featured_product", "label": "Gekoppeld product (Oralbiome Pro)" },
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Oralbiome Pro · Het opbouwmoment" },
-    { "type": "richtext", "id": "heading", "label": "Titel (richtext, gebruik <em> voor goud)", "default": "<p>Eén formule.<br><em>Vijf</em> ervaringen.</p>" },
-    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Nano-hydroxyapatiet zuigtabletten met fijn gekristalliseerde probiotische stammen. Elke smaak levert hetzelfde actieve glazuurmineraal. Kies wat bij jouw ritueel past.</p>" },
-    { "type": "text", "id": "card_meta", "label": "Product-card meta", "default": "60 TABS · 30 DAGEN" },
-    { "type": "header", "content": "Trust-items" },
-    { "type": "text", "id": "trust_1", "label": "Trust 1", "default": "Morgen in huis" },
-    { "type": "text", "id": "trust_2", "label": "Trust 2", "default": "30 dagen retour" },
-    { "type": "text", "id": "trust_3", "label": "Trust 3", "default": "Vegan · fluoride-vrij" }
+    { "type": "product", "id": "featured_product", "label": "Linked product (OralBiome Pro)" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "OralBiome Pro · The rebuild moment" },
+    { "type": "richtext", "id": "heading", "label": "Title (richtext, use <em> for gold)", "default": "<p>One formula.<br><em>Five</em> experiences.</p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Nano-hydroxyapatite lozenges with fine-crystallised probiotic strains. Every flavour delivers the same active enamel mineral. Pick what fits your ritual.</p>" },
+    { "type": "text", "id": "card_meta", "label": "Product-card meta", "default": "60 TABS · 30 DAYS" },
+    { "type": "text", "id": "cta_buy_label", "label": "Add-to-cart label (before price)", "default": "Add to cart · " },
+    { "type": "text", "id": "cta_sub_label", "label": "Subscribe button label", "default": "Subscribe · save 20%" },
+
+    { "type": "header", "content": "Trust items" },
+    { "type": "text", "id": "trust_1", "label": "Trust 1", "default": "Next-day delivery" },
+    { "type": "text", "id": "trust_2", "label": "Trust 2", "default": "30-day returns" },
+    { "type": "text", "id": "trust_3", "label": "Trust 3", "default": "Vegan · fluoride-free" },
+
+    { "type": "header", "content": "Style overrides" },
+    { "type": "color", "id": "ovr_bg", "label": "Background color" },
+    { "type": "color", "id": "ovr_fg", "label": "Text color" },
+    { "type": "color", "id": "ovr_accent", "label": "Accent / italic color" },
+    {
+      "type": "select", "id": "ovr_font", "label": "Heading font",
+      "default": "display",
+      "options": [
+        { "value": "display", "label": "Display (Playfair)" },
+        { "value": "sans",    "label": "Sans (Inter)" },
+        { "value": "mono",    "label": "Mono" }
+      ]
+    },
+    { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 76, "unit": "px" }
   ],
   "blocks": [
     {
       "type": "flavor",
-      "name": "Smaak",
+      "name": "Flavor",
       "settings": [
-        { "type": "text", "id": "name", "label": "Naam", "default": "Fresh Mint" },
-        { "type": "text", "id": "tag", "label": "Tag (tagline)", "default": "Koele munt · vers blad & sneeuw" },
-        { "type": "color", "id": "swatch_color", "label": "Swatch kleur", "default": "#9bf1c8" },
-        { "type": "text", "id": "variant_id", "label": "Variant ID (optioneel)", "info": "Shopify variant ID voor add-to-cart. Leeg = gebruikt eerste variant van gekoppeld product." },
-        { "type": "text", "id": "price", "label": "Prijs", "default": "€24,95" },
-        { "type": "text", "id": "compare_at", "label": "Was-prijs (optioneel)", "default": "€29,95" }
+        { "type": "text", "id": "name", "label": "Name", "default": "Fresh Mint" },
+        { "type": "text", "id": "tag", "label": "Tagline", "default": "Cool mint · fresh leaf & snow" },
+        { "type": "color", "id": "swatch_color", "label": "Swatch color", "default": "#9bf1c8" },
+        { "type": "text", "id": "variant_id", "label": "Variant ID (optional)", "info": "Shopify variant ID for add-to-cart. Empty = uses first variant of the linked product." },
+        { "type": "text", "id": "price", "label": "Price", "default": "€24.95" },
+        { "type": "text", "id": "compare_at", "label": "Compare-at price (optional)", "default": "€29.95" }
       ]
     }
   ],
@@ -284,11 +303,11 @@
   "default": {
     "settings": {},
     "blocks": [
-      { "type": "flavor", "settings": { "name": "Fresh Mint",    "tag": "Koele munt · vers blad & sneeuw",       "swatch_color": "#9bf1c8", "price": "€24,95", "compare_at": "€29,95" } },
-      { "type": "flavor", "settings": { "name": "Grape",         "tag": "Perzisch tropisch · druif & paisley",    "swatch_color": "#c76fd1", "price": "€24,95", "compare_at": "€29,95" } },
-      { "type": "flavor", "settings": { "name": "Peach",         "tag": "Zacht · bloesem & perzikfluweel",        "swatch_color": "#ff9e8a", "price": "€24,95", "compare_at": "€29,95" } },
-      { "type": "flavor", "settings": { "name": "Citrus Orange", "tag": "Dorstlessend · zest & waterdruppels",    "swatch_color": "#ff9b3f", "price": "€24,95", "compare_at": "€29,95" } },
-      { "type": "flavor", "settings": { "name": "Cool Mint",     "tag": "Strenge winter · sneeuw & ijskristal",   "swatch_color": "#d6ecff", "price": "€24,95", "compare_at": "€29,95" } }
+      { "type": "flavor", "settings": { "name": "Fresh Mint",    "tag": "Cool mint · fresh leaf & snow",        "swatch_color": "#9bf1c8", "price": "€24.95", "compare_at": "€29.95" } },
+      { "type": "flavor", "settings": { "name": "Grape",         "tag": "Persian tropical · grape & paisley",   "swatch_color": "#c76fd1", "price": "€24.95", "compare_at": "€29.95" } },
+      { "type": "flavor", "settings": { "name": "Peach",         "tag": "Soft · blossom & peach velvet",       "swatch_color": "#ff9e8a", "price": "€24.95", "compare_at": "€29.95" } },
+      { "type": "flavor", "settings": { "name": "Citrus Orange", "tag": "Thirst-quenching · zest & water drops", "swatch_color": "#ff9b3f", "price": "€24.95", "compare_at": "€29.95" } },
+      { "type": "flavor", "settings": { "name": "Cool Mint",     "tag": "Deep winter · snow & ice crystal",   "swatch_color": "#d6ecff", "price": "€24.95", "compare_at": "€29.95" } }
     ]
   }
 }

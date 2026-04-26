@@ -6,6 +6,7 @@
 {%- assign cx_p1 = section.settings.product_1 -%}
 {%- assign cx_p2 = section.settings.product_2 -%}
 
+{% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section cx-section-cream" id="{{ section.settings.anchor_id | default: 'protocol' }}" data-cx-reveal>
   <div class="cx-container cx-bundle-grid" data-cx-col2-2-1 data-cx-stagger>
     <div class="cx-stack cx-gap-md cx-bundle-copy">
@@ -160,39 +161,54 @@
   "settings": [
     { "type": "header", "content": "Copy" },
     { "type": "text", "id": "anchor_id", "label": "Section anchor ID", "default": "protocol" },
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Het twee-staps protocol" },
-    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Reinig diep.<br><em>Bouw opnieuw op.</em></p>" },
-    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Flowcore verwijdert wat je tandenborstel mist. Oralbiome Pro herstelt het oppervlak dat er zonder bio-beschikbaar mineraal niet in slaagt te repareren. Eén avondritueel — twee werkingen.</p>" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The two-step protocol" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>Clean deeply.<br><em>Rebuild from within.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Flowcore removes what your toothbrush misses. OralBiome Pro restores the surface that won't repair itself without bio-available minerals. One evening ritual — two actions.</p>" },
 
-    { "type": "header", "content": "Bundel kaart" },
-    { "type": "text", "id": "savings_badge", "label": "Korting badge", "default": "BESPAAR 15%" },
-    { "type": "text", "id": "card_eyebrow", "label": "Card eyebrow", "default": "De herstelkit" },
-    { "type": "text", "id": "card_title", "label": "Card titel", "default": "Jouw twee-staps glazuur protocol" },
+    { "type": "header", "content": "Bundle card" },
+    { "type": "text", "id": "savings_badge", "label": "Discount badge", "default": "SAVE 15%" },
+    { "type": "text", "id": "card_eyebrow", "label": "Card eyebrow", "default": "The recovery kit" },
+    { "type": "text", "id": "card_title", "label": "Card title", "default": "Your two-step enamel protocol" },
 
     { "type": "header", "content": "Item 1" },
     { "type": "product", "id": "product_1", "label": "Product 1" },
-    { "type": "text", "id": "item_1_eyebrow", "label": "Eyebrow", "default": "STAP 1 · REINIG" },
-    { "type": "text", "id": "item_1_title", "label": "Titel (override)", "default": "Flowcore Midnight Black" },
-    { "type": "text", "id": "item_1_meta", "label": "Meta", "default": "1.600 pulses/min · 3 standen" },
-    { "type": "text", "id": "item_1_price", "label": "Prijs", "default": "€99,00" },
+    { "type": "text", "id": "item_1_eyebrow", "label": "Eyebrow", "default": "STEP 1 · CLEAN" },
+    { "type": "text", "id": "item_1_title", "label": "Title (override)", "default": "Flowcore Midnight Black" },
+    { "type": "text", "id": "item_1_meta", "label": "Meta", "default": "1,600 pulses/min · 3 modes" },
+    { "type": "text", "id": "item_1_price", "label": "Price", "default": "€99.00" },
 
     { "type": "header", "content": "Item 2" },
     { "type": "product", "id": "product_2", "label": "Product 2" },
-    { "type": "text", "id": "item_2_eyebrow", "label": "Eyebrow", "default": "STAP 2 · BOUW OP" },
-    { "type": "text", "id": "item_2_title", "label": "Titel (override)", "default": "Oralbiome Pro · Fresh Mint" },
-    { "type": "text", "id": "item_2_meta", "label": "Meta", "default": "60 tabs · 30 dagen" },
-    { "type": "text", "id": "item_2_price", "label": "Prijs", "default": "€24,95" },
+    { "type": "text", "id": "item_2_eyebrow", "label": "Eyebrow", "default": "STEP 2 · REBUILD" },
+    { "type": "text", "id": "item_2_title", "label": "Title (override)", "default": "OralBiome Pro · Fresh Mint" },
+    { "type": "text", "id": "item_2_meta", "label": "Meta", "default": "60 tabs · 30 days" },
+    { "type": "text", "id": "item_2_price", "label": "Price", "default": "€24.95" },
 
-    { "type": "header", "content": "Totaal" },
-    { "type": "text", "id": "bundle_price", "label": "Bundel prijs", "default": "€105,40" },
-    { "type": "text", "id": "compare_price", "label": "Was-prijs", "default": "€123,95" },
-    { "type": "text", "id": "savings_text", "label": "Besparing", "default": "je bespaart €18,55" },
-    { "type": "text", "id": "shipping_badge", "label": "Shipping badge", "default": "Gratis verzending" },
+    { "type": "header", "content": "Total" },
+    { "type": "text", "id": "bundle_price", "label": "Bundle price", "default": "€105.40" },
+    { "type": "text", "id": "compare_price", "label": "Compare-at price", "default": "€123.95" },
+    { "type": "text", "id": "savings_text", "label": "Savings line", "default": "you save €18.55" },
+    { "type": "text", "id": "shipping_badge", "label": "Shipping badge", "default": "Free shipping" },
 
     { "type": "header", "content": "CTA" },
-    { "type": "text", "id": "cta_text", "label": "Knop tekst", "default": "Voeg herstelkit toe aan winkelmand" },
-    { "type": "url",  "id": "cta_link", "label": "Link (leeg = add to cart met producten hierboven)" },
-    { "type": "text", "id": "subscribe_note", "label": "Subscribe note", "default": "OF ABONNEER · −20% ELKE MAAND · ANNULEER WANNEER" }
+    { "type": "text", "id": "cta_text", "label": "Button text", "default": "Add recovery kit to cart" },
+    { "type": "url",  "id": "cta_link", "label": "Link (empty = add the products above to cart)" },
+    { "type": "text", "id": "subscribe_note", "label": "Subscribe note", "default": "OR SUBSCRIBE · −20% EVERY MONTH · CANCEL ANYTIME" },
+
+    { "type": "header", "content": "Style overrides" },
+    { "type": "color", "id": "ovr_bg", "label": "Background color" },
+    { "type": "color", "id": "ovr_fg", "label": "Text color" },
+    { "type": "color", "id": "ovr_accent", "label": "Accent / italic color" },
+    {
+      "type": "select", "id": "ovr_font", "label": "Heading font",
+      "default": "display",
+      "options": [
+        { "value": "display", "label": "Display (Playfair)" },
+        { "value": "sans",    "label": "Sans (Inter)" },
+        { "value": "mono",    "label": "Mono" }
+      ]
+    },
+    { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 48, "unit": "px" }
   ],
   "blocks": [
     {
@@ -200,7 +216,7 @@
       "name": "Trust item",
       "settings": [
         {
-          "type": "select", "id": "icon", "label": "Icoon", "default": "check",
+          "type": "select", "id": "icon", "label": "Icon", "default": "check",
           "options": [
             { "value": "check", "label": "Check" },
             { "value": "truck", "label": "Truck" },
@@ -208,7 +224,7 @@
             { "value": "flask", "label": "Flask" }
           ]
         },
-        { "type": "text", "id": "text", "label": "Tekst", "default": "Gratis verzending binnen NL & BE" }
+        { "type": "text", "id": "text", "label": "Text", "default": "Free shipping in EU" }
       ]
     }
   ],
@@ -216,9 +232,9 @@
   "default": {
     "settings": {},
     "blocks": [
-      { "type": "trust_item", "settings": { "icon": "check", "text": "Gratis verzending binnen NL & BE" } },
-      { "type": "trust_item", "settings": { "icon": "check", "text": "30 dagen tevredenheidsgarantie" } },
-      { "type": "trust_item", "settings": { "icon": "check", "text": "Klinisch getest · tandarts-aanbevolen" } }
+      { "type": "trust_item", "settings": { "icon": "check", "text": "Free shipping in EU" } },
+      { "type": "trust_item", "settings": { "icon": "check", "text": "30-day satisfaction guarantee" } },
+      { "type": "trust_item", "settings": { "icon": "check", "text": "Clinically tested · dentist-recommended" } }
     ]
   }
 }

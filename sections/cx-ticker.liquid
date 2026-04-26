@@ -5,6 +5,12 @@
 
 {%- assign cx_items = section.settings.items | split: ',' -%}
 
+{%- if section.settings.ovr_bg != blank -%}
+  <style>#shopify-section-{{ section.id }} .cx-ticker { background: {{ section.settings.ovr_bg }} !important; }</style>
+{%- endif -%}
+{%- if section.settings.ovr_fg != blank -%}
+  <style>#shopify-section-{{ section.id }} .cx-ticker { color: {{ section.settings.ovr_fg }} !important; }</style>
+{%- endif -%}
 <div class="cx-root cx-ticker">
   <div class="cx-ticker-track" style="animation-duration: {{ section.settings.speed_sec }}s;">
     {%- for pass in (1..2) -%}
@@ -50,8 +56,12 @@
   "tag": "section",
   "class": "cx-section-ticker",
   "settings": [
-    { "type": "textarea", "id": "items", "label": "Items (komma-gescheiden)", "default": "Fluoride-vrij, Nano-hydroxyapatiet, Klinisch gevalideerd, In-vitro onderbouwd, Vegan & BPA-vrij, CE-gecertificeerd, Tandartsen-aanbevolen, Biocompatibel, Zonder SLS, Zonder parabenen" },
-    { "type": "range", "id": "speed_sec", "label": "Snelheid (sec/loop)", "min": 15, "max": 80, "step": 5, "default": 40 }
+    { "type": "textarea", "id": "items", "label": "Items (comma-separated)", "default": "Fluoride-free, Nano-hydroxyapatite, Clinically validated, In-vitro backed, Vegan & BPA-free, CE-certified, Dentist-recommended, Biocompatible, Without SLS, Without parabens" },
+    { "type": "range", "id": "speed_sec", "label": "Speed (sec/loop)", "min": 15, "max": 80, "step": 5, "default": 40 },
+
+    { "type": "header", "content": "Style overrides" },
+    { "type": "color", "id": "ovr_bg", "label": "Background color" },
+    { "type": "color", "id": "ovr_fg", "label": "Text color" }
   ]
 }
 {% endschema %}
