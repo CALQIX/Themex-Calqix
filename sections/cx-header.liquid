@@ -272,12 +272,12 @@
   {%- endcomment -%}
   {%- if customer -%}
     <a class="cx-drawer__cta cx-drawer__cta--account" href="{{ routes.account_url }}">
-      <span class="cx-drawer__cta-label">Mijn account</span>
+      <span class="cx-drawer__cta-label">{{ 'cx.header.cta.account' | t }}</span>
       {% render 'cx-icons', name: 'arrowRight', size: 14 %}
     </a>
   {%- else -%}
     <a class="cx-drawer__cta cx-drawer__cta--login" href="{{ routes.account_login_url }}">
-      <span class="cx-drawer__cta-label">Log in</span>
+      <span class="cx-drawer__cta-label">{{ 'cx.header.cta.login' | t }}</span>
       {% render 'cx-icons', name: 'arrowRight', size: 14 %}
     </a>
   {%- endif -%}
@@ -701,6 +701,11 @@
       inset 0 0 0 1px rgba(120, 180, 255, 0.12),
       0 0 18px -2px rgba(120, 180, 255, 0.18),
       0 0 36px -4px rgba(60, 130, 220, 0.10);
+  }
+  /* Products linklist title sits 14px in from the pill edge so the rest
+     state matches the open-state padding-left:14px spec (no jump on toggle). */
+  .cx-drawer__link--toggle .cx-drawer__link-title {
+    margin-left: 14px;
   }
 
   /* Hover / focus / press / open: gentle navy fill, text fades to ivory.
