@@ -64,9 +64,9 @@
         "columns_mobile": "2",
         "columns_desktop": "4",
         "spacing_desktop": "16",
-        "full-width-enabled": true,
+        "full-width-enabled": false,
         "spacing_mobile": "16",
-        "image_ratio": "adapt",
+        "image_ratio": "square",
         "show_video": false,
         "show_secondary_image": true,
         "show_vendor": true,
@@ -77,8 +77,8 @@
         "text_alignment": "center",
         "toolbar_style": "buttons",
         "enable_sorting": true,
-        "enable_filtering": false,
-        "filter_position": "drawer",
+        "enable_filtering": true,
+        "filter_position": "always",
         "margin-top": 0,
         "margin-bottom": 0
       }
