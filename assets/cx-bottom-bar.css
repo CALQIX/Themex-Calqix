@@ -28,11 +28,14 @@
   right: 0;
   bottom: 0;
   z-index: 45;
-  /* Tightened by 2px top + bottom per design feedback (was 8px). */
-  padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
+  /* Tightened to 3/5/6+safe-area per April 2026 design pass. The bar reads
+     as a single thin pill on mobile while still clearing the iOS home bar. */
+  padding: 3px 5px calc(6px + env(safe-area-inset-bottom, 0px));
   display: none; /* desktop: hidden by default, media query flips it */
   pointer-events: none;
-  font-family: var(--cx-f-body);
+  /* Wrapper font is the editorial display face; individual labels override
+     to the body font (see .cx-bb__lbl). */
+  font-family: 'Playfair Display', Georgia, serif;
 }
 
 .cx-bottom-bar__inner {
@@ -97,10 +100,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  /* Tightened by 2px top + bottom (was 8px / 6px). */
-  padding: 6px 6px 4px;
-  min-height: 52px;
+  gap: 2px;
+  /* Reduced vertical padding + min-height for the slimmer bar pass. */
+  padding: 4px 6px 3px;
+  min-height: 44px;
   /* Primary nav items render in ivory-white (#f2f7ff). Forced with
      !important because Wonder theme's anchor + button rules in main.css
      have higher specificity (e.g. `a { color: var(--color-link) }`) and
@@ -179,16 +182,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 32px;
-  border-radius: 14px;
+  width: 34px;
+  height: 28px;
+  border-radius: 12px;
   background: transparent;
   transition: background 220ms var(--cx-ease-silk), box-shadow 220ms var(--cx-ease-silk);
 }
 
 .cx-bb__ico svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   stroke-width: 1.6;
   transition: transform 260ms var(--cx-ease-silk);
 }
@@ -199,9 +202,9 @@
 
 .cx-bb__lbl {
   font-family: var(--cx-f-body);
-  font-size: 10.5px;
+  font-size: 9px;
   font-weight: 500;
-  letter-spacing: 0.06em;
+  letter-spacing: 0em;
 }
 
 /* ============================================================
@@ -394,12 +397,13 @@
   .cx-bottom-bar {
     display: block;
   }
-  /* Reserve room so fixed bottom bar never overlaps page content */
+  /* Reserve room so fixed bottom bar never overlaps page content. Reduced
+     to match the slimmer bar (44px button min-height + 3/6 padding). */
   body:has(.cx-bottom-bar) {
-    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
   }
   /* Safari <=16 fallback (no :has) — adds room on mobile template wrappers */
-  main#root { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  main#root { padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
 }
 
 @media (min-width: 901px) {

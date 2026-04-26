@@ -167,12 +167,57 @@
     display: inline-flex; align-items: center; gap: 6px;
     background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 3px; padding: 6px 12px;
-    font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.6);
-    letter-spacing: 0.06em; text-transform: uppercase;
+    font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.62);
+    letter-spacing: 0.04em;
+    /* sentence case per CRO request — no uppercasing */
+    text-transform: none;
+    transition:
+      color 320ms cubic-bezier(0.16, 1, 0.3, 1),
+      background 320ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 320ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1),
+      text-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  /* Hover glow on desktop — letters subtly luminesce in white/blue */
+  @media (hover: hover) and (pointer: fine) {
+    #calqix-banner-{{ section.id }} .pill:hover {
+      color: #ffffff;
+      background: rgba(255,255,255,0.085);
+      border-color: rgba(210, 227, 255, 0.55);
+      text-shadow:
+        0 0 6px rgba(210, 227, 255, 0.85),
+        0 0 14px rgba(120, 180, 255, 0.55),
+        0 0 28px rgba(60, 130, 220, 0.35);
+      box-shadow:
+        0 0 0 1px rgba(210, 227, 255, 0.15) inset,
+        0 4px 18px -6px rgba(120, 180, 255, 0.45);
+      transform: translateY(-1px);
+    }
+    #calqix-banner-{{ section.id }} .pill:hover .pill-dot {
+      background: rgba(210, 227, 255, 1);
+      box-shadow: 0 0 8px rgba(210, 227, 255, 0.9);
+    }
+  }
+  /* Touch glow on mobile — same effect on press */
+  #calqix-banner-{{ section.id }} .pill:active,
+  #calqix-banner-{{ section.id }} .pill:focus-visible {
+    color: #ffffff;
+    background: rgba(255,255,255,0.085);
+    border-color: rgba(210, 227, 255, 0.55);
+    text-shadow:
+      0 0 6px rgba(210, 227, 255, 0.85),
+      0 0 14px rgba(120, 180, 255, 0.55),
+      0 0 28px rgba(60, 130, 220, 0.35);
+    box-shadow:
+      0 0 0 1px rgba(210, 227, 255, 0.15) inset,
+      0 4px 18px -6px rgba(120, 180, 255, 0.45);
+    outline: none;
   }
   #calqix-banner-{{ section.id }} .pill-dot {
     width: 4px; height: 4px; border-radius: 50%;
     background: rgba(100,200,255,0.7); flex-shrink: 0;
+    transition: background 320ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   /* ============================================================
@@ -183,37 +228,33 @@
     animation: cqFadeUp 0.6s 0.58s ease forwards;
   }
 
-  /* Desktop: CTA gewoon inline */
+  /* Desktop: deep-navy CTA (CALQIX brand) */
   #calqix-banner-{{ section.id }} .cta {
     display: inline-flex; align-items: center; gap: 10px;
-    background: var(--white); color: var(--navy);
+    background: #002549; color: #ffffff;
     font-family: 'DM Sans', sans-serif;
-    font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    font-size: 13px; font-weight: 500;
+    letter-spacing: 0;
     padding: 14px 28px; border-radius: 3px; text-decoration: none;
     transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
   }
   #calqix-banner-{{ section.id }} .cta:hover {
-    background: #e8f2ff; transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+    background: #003a73; transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(0, 37, 73, 0.45);
   }
   #calqix-banner-{{ section.id }} .cta-price {
-    color: #E8C96A;
+    color: #d2e3ff;
     font-weight: 600;
-    letter-spacing: 0.04em;
+    letter-spacing: 0;
   }
   #calqix-banner-{{ section.id }} .cta svg { transition: transform 0.2s; }
   #calqix-banner-{{ section.id }} .cta:hover svg { transform: translateX(4px); }
-  #calqix-banner-{{ section.id }} .hero-launch-offer {
-    display: inline-block;
-    margin-top: 10px;
-    color: #C9A84C;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600;
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  #calqix-banner-{{ section.id }} .hero-subscription-trust {
+  /* Hero launch offer + subscription trust copy were intentionally removed
+     from the markup per CRO simplification. Styles retained as no-ops in
+     case operators reintroduce the lines from a future preset. */
+  #calqix-banner-{{ section.id }} .hero-launch-offer { display: none; }
+  #calqix-banner-{{ section.id }} .hero-subscription-trust { display: none; }
+  #calqix-banner-{{ section.id }} ._hero-legacy-style-anchor {
     margin-top: 8px;
     color: #FFFFFF;
     font-family: 'DM Sans', sans-serif;
@@ -244,7 +285,10 @@
     #calqix-banner-{{ section.id }} .cta {
       position: relative;
       z-index: 2;
-      margin-top: -22px; /* overlapt licht de onderkant van het product */
+      margin-top: -20px; /* overlapt licht de onderkant van het product */
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      letter-spacing: 0;
     }
     #calqix-banner-{{ section.id }} .cta-trust {
       margin-top: 12px;
@@ -472,17 +516,28 @@
           {%- endif -%}
         {%- endfor -%}
 
+        {%- comment -%}
+          Locale-aware price: when the merchant links a `cta_product`, render
+          its live price via the `money` filter so Shopify Markets shows the
+          correct currency + amount per visitor (EUR for /nl, GBP for /uk,
+          USD for /us, etc.). Falls back to the static `cta_price` text when
+          no product is linked, preserving existing storefront behaviour.
+        {%- endcomment -%}
+        {%- assign cta_product_obj = section.settings.cta_product -%}
+        {%- if cta_product_obj != blank and cta_product_obj.price != blank -%}
+          {%- assign cta_price_html = cta_product_obj.price | money -%}
+        {%- else -%}
+          {%- assign cta_price_html = section.settings.cta_price -%}
+        {%- endif -%}
         <a href="{{ section.settings.cta_url }}" class="cta">
           {{ section.settings.cta_label }}
-          <span class="cta-price">— {{ section.settings.cta_price }}</span>
+          <span class="cta-price">— {{ cta_price_html }}</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </a>
-        <span class="hero-launch-offer">{{ 'hero.launch_offer' | t }}</span>
-        <p class="hero-subscription-trust">{{ 'hero.subscription_trust' | t }}</p>
         <p class="cta-trust">{{ section.settings.trust_line }}</p>
 
       </div>
@@ -979,7 +1034,19 @@
     { "type": "header", "content": "Call to action" },
     { "type": "text", "id": "cta_label", "label": "CTA label", "default": "Shop OralBiome Pro" },
     { "type": "url",  "id": "cta_url",   "label": "CTA link" },
-    { "type": "text", "id": "cta_price", "label": "CTA price", "default": "€19.95" },
+    {
+      "type": "product",
+      "id": "cta_product",
+      "label": "CTA price source (recommended)",
+      "info": "Link a product to render the price in the visitor's local currency via Shopify Markets. When set, the static text below is ignored."
+    },
+    {
+      "type": "text",
+      "id": "cta_price",
+      "label": "CTA price (fallback text)",
+      "default": "€19.95",
+      "info": "Used only when no CTA price source product is linked above."
+    },
     {
       "type": "text",
       "id": "trust_line",

@@ -167,14 +167,18 @@
         .filter(function (k) { return k !== currentVariantId; })
         .map(function (k) { return { id: parseInt(k, 10), quantity: counts[k] }; });
 
-      // 1) Reduce or keep the current line to currentTarget
-      await fetch("/cart/change.js", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ id: lineKey, quantity: currentTarget })
-      }).then(function (r) { if (!r.ok) throw new Error("change failed"); return r.json(); });
+      // ── ORDER MATTERS ────────────────────────────────────────────────
+      // Previously: change-down first, then add. That left a 1-frame
+      // window where the cart could be empty when the customer was
+      // swapping the only jar in their cart, occasionally causing the
+      // cart drawer to render its empty-state and lose the close button.
+      //
+      // Fix: ADD the new flavour line(s) FIRST, then reduce the original
+      // line. Cart is never empty during the swap, so the drawer markup
+      // stays stable and the close button remains in the DOM.
+      // ────────────────────────────────────────────────────────────────
 
-      // 2) Add other flavor lines (if any)
+      // 1) Add other flavor lines (if any)
       if (otherEntries.length > 0) {
         var addItems = otherEntries.map(function (entry) {
           var payload = { id: entry.id, quantity: entry.quantity };
@@ -188,10 +192,20 @@
         }).then(function (r) { if (!r.ok) throw new Error("add failed"); return r.json(); });
       }
 
+      // 2) Reduce or keep the current line to currentTarget
+      await fetch("/cart/change.js", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ id: lineKey, quantity: currentTarget })
+      }).then(function (r) { if (!r.ok) throw new Error("change failed"); return r.json(); });
+
       // 3) Success feedback
       cta.setAttribute("data-state", "success");
 
-      // 4) Refresh cart drawer to pull fresh state
+      // 4) Refresh cart drawer to pull fresh state. A short delay lets
+      //    the success animation breathe; the dispatched events are
+      //    consumed by cart-drawer.js (refreshCartDrawer) and
+      //    cx-cart-sync.js (counter mirror).
       setTimeout(function () {
         document.dispatchEvent(new CustomEvent("cart-drawer:refresh"));
         if (typeof window.publish === "function" && window.PUB_SUB_EVENTS) {

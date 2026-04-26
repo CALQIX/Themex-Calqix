@@ -136,7 +136,11 @@ class CartDrawerSection extends HTMLElement {
     });
 
     this.addEventListener("click", (e) => {
-      if (e.target.classList.contains("wt-cart__drawer__close")) {
+      // Use closest() so a click on the inner SVG / <path> of the close
+      // anchor still triggers the close. classList.contains was missing
+      // every click that landed on a child node, which made the X feel
+      // unreliable after a flavour swap re-rendered the drawer markup.
+      if (e.target.closest && e.target.closest(".wt-cart__drawer__close")) {
         e.preventDefault();
         this.toggleDrawerClasses();
       }

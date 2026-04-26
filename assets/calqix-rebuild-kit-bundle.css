@@ -126,6 +126,7 @@
   font-weight: 600;
   color: var(--calqix-navy, #1A3B5C);
   line-height: 1.3;
+  font-family: 'DM Serif Display', Georgia, serif;
 }
 
 .cq-rk-banner__sub {
@@ -133,6 +134,20 @@
   color: var(--calqix-navy, #1A3B5C);
   opacity: 0.70;
   line-height: 1.35;
+}
+
+/* Per CRO simplification (April 2026): the in-cart Rebuild-Kit banner now
+   reads as a single-line invitation — icon + title + arrow only. Hide the
+   "SAVE 30%" badge and the supporting subtitle so the title carries all
+   the meaning. Markup is preserved upstream for future reinstatement. */
+.cq-rk-banner__label,
+.cq-rk-banner__sub {
+  display: none;
+}
+.cq-rk-banner__headline {
+  /* No badge alongside the title means the headline can lose its inline
+     gap and just present the title cleanly. */
+  gap: 0;
 }
 
 .cq-rk-banner__arrow {

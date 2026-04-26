@@ -7,6 +7,14 @@
   }
 }
 
+/* Prevent the off-canvas cart drawer (transform: translateX(100%) when
+   closed) from extending the page's horizontal scroll on mobile. The drawer
+   is already absolute-positioned past the viewport — clipping the body
+   keeps phones from showing a white strip when the user pans right. */
+@media (max-width: 900px) {
+  html, body { overflow-x: hidden; }
+}
+
 .wt-cart__list {
   width: 100%;
 }
@@ -85,22 +93,34 @@
   right: auto;
   transform: translateX(-100%);
 }
+/* Open state slides on the SAME axis as the closed state (translateX) so
+   the drawer travels smoothly from off-right back to its resting position
+   when closing. The previous translateY(0) caused a one-frame jump from
+   right to centre on close, breaking the luxe slide-out animation. */
 .wt-cart__drawer--open, .wt-cart[open] .wt-cart__drawer {
-  transform: translateY(0);
+  transform: translateX(0);
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
   transition:
-    transform 0.26s cubic-bezier(0.4, 0, 0.6, 1),
-    opacity 0.22s ease,
-    visibility 0s linear 0s;
+    transform 0.34s cubic-bezier(0.16, 0.84, 0.24, 1),
+    opacity 0.26s ease-out,
+    visibility 0s linear 0s,
+    box-shadow 0.34s cubic-bezier(0.16, 0.84, 0.24, 1);
+  box-shadow:
+    -28px 0 64px -28px rgba(0, 20, 40, 0.4),
+    -2px 0 12px rgba(0, 20, 40, 0.18);
+}
+[dir=rtl] .wt-cart__drawer--open, [dir=rtl] .wt-cart[open] .wt-cart__drawer {
+  transform: translateX(0);
 }
 .drawers-animated .wt-cart__drawer--open,
 .drawers-animated .wt-cart[open] .wt-cart__drawer {
   transition:
-    transform 0.26s cubic-bezier(0.4, 0, 0.6, 1),
-    opacity 0.22s ease,
-    visibility 0s linear 0s;
+    transform 0.34s cubic-bezier(0.16, 0.84, 0.24, 1),
+    opacity 0.26s ease-out,
+    visibility 0s linear 0s,
+    box-shadow 0.34s cubic-bezier(0.16, 0.84, 0.24, 1);
 }
 .wt-cart__drawer__header {
   padding: calc(var(--gap, 8px) * 2) calc(var(--gap, 8px) * 3);
@@ -1308,11 +1328,19 @@
   animation: wtCartProgressShimmer 2.5s ease-in-out infinite;
 }
 
-/* Payment row tuned for CALQIX look */
+/* Payment row tuned for CALQIX look — icons only, no label / trust copy. */
 .wt-cart__drawer .ccd-payment-row {
   margin-top: 5px;
   padding-top: 0;
   border-top: none;
+  margin-bottom: 10px;
+}
+/* "Payment methods accepted" label + trust copy hidden per CRO spec.
+   Markup is preserved upstream so merchants can reinstate them by
+   removing these two display:none rules. */
+.wt-cart__drawer .ccd-payment-label,
+.wt-cart__drawer .ccd-payment-trust {
+  display: none;
 }
 .wt-cart__drawer .ccd-payment-label {
   margin-bottom: 10px;
