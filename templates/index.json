@@ -17,6 +17,8 @@
         "banner_height": 560,
         "variant_button_style": "photo",
         "switcher_label": "Flavour",
+        "photo_size_desktop": 38,
+        "photo_size_mobile": 56,
         "eyebrow": "CALQIX OralBiome Pro",
         "title_line1": "Re-Biobalance",
         "title_line2_italic": "your enamel",
@@ -28,6 +30,7 @@
         "pill_4": "Clinically studied ingredients",
         "cta_label": "Shop OralBiome",
         "cta_url": "shopify://collections/teeth-withening",
+        "cta_product": "",
         "cta_price": "19.95",
         "trust_line": "",
         "img_v1": "shopify://shop_images/Shopify_-_Fresh_Mint_Front.png",
@@ -71,38 +74,62 @@
         "heading": "<p>One formula.<br/><em>Five</em> experiences.</p>",
         "lede": "<p>Nano-hydroxyapatite lozenges with fine-crystallised probiotic strains. Every flavour delivers the same active enamel mineral. Pick what fits your ritual.</p>",
         "card_meta": "30 TABS · 30 DAYS",
+        "cta_buy_label": "Add to cart ·",
+        "cta_sub_label": "Subscribe · save 20%",
         "trust_1": "Next-day delivery",
         "trust_2": "30-day returns",
-        "trust_3": "Vegan · fluoride-free"
+        "trust_3": "Vegan · fluoride-free",
+        "ovr_bg": "",
+        "ovr_fg": "",
+        "ovr_accent": "",
+        "ovr_font": "display",
+        "ovr_h_size": 76
       }
     },
     "bundle_yB3eU4": {
       "type": "cx-bundle",
+      "blocks": {
+        "trust_item_TjhzmY": {
+          "type": "trust_item",
+          "settings": {
+            "icon": "check",
+            "text": "Free shipping in EU"
+          }
+        }
+      },
+      "block_order": [
+        "trust_item_TjhzmY"
+      ],
       "settings": {
         "anchor_id": "protocol",
         "eyebrow": "The two-step protocol",
         "heading": "<p>Clean deeply.<br/><em>Rebuild from within.</em></p>",
         "lede": "<p>Flowcore removes what your toothbrush misses. OralBiome Pro restores the surface that won't repair itself without bio-available minerals. One evening ritual — two actions.</p>",
-        "savings_badge": "SAVE 15%",
+        "savings_badge": "SAVE 30%",
         "card_eyebrow": "The recovery kit",
         "card_title": "Your two-step enamel protocol",
-        "product_1": "",
+        "product_1": "calqix-flowcore",
         "item_1_eyebrow": "STEP 1 · CLEAN",
         "item_1_title": "Flowcore Midnight Black",
         "item_1_meta": "1,600 pulses/min · 3 modes",
-        "item_1_price": "€99.00",
-        "product_2": "",
+        "item_1_price": "€39,95",
+        "product_2": "oralbiome-pro-cool-mint",
         "item_2_eyebrow": "STEP 2 · REBUILD",
         "item_2_title": "OralBiome Pro · Fresh Mint",
-        "item_2_meta": "60 tabs · 30 days",
-        "item_2_price": "€24.95",
-        "bundle_price": "€105.40",
-        "compare_price": "€123.95",
-        "savings_text": "you save €18.55",
-        "shipping_badge": "Free shipping",
+        "item_2_meta": "30 tabs · 30 days",
+        "item_2_price": "€13,97",
+        "bundle_price": "€53,92",
+        "compare_price": "€69,90",
+        "savings_text": "you save €15,98",
+        "shipping_badge": "Rebuild your enamel in 30 days",
         "cta_text": "Add recovery kit to cart",
         "cta_link": "",
-        "subscribe_note": "OR SUBSCRIBE · −20% EVERY MONTH · CANCEL ANYTIME"
+        "subscribe_note": "OR SUBSCRIBE · −20% EVERY MONTH · CANCEL ANYTIME",
+        "ovr_bg": "",
+        "ovr_fg": "",
+        "ovr_accent": "",
+        "ovr_font": "display",
+        "ovr_h_size": 48
       }
     },
     "two_step_5wm36I": {
@@ -110,7 +137,15 @@
       "settings": {
         "eyebrow": "The CALQIX protocol",
         "heading": "<p>Two steps. <em>One outcome.</em></p>",
-        "lede": "<p>Flowcore cleans where your toothbrush can't reach. OralBiome Pro rebuilds the enamel surface. The protocol only works when both steps work together.</p>"
+        "lede": "<p>Flowcore cleans where your toothbrush can't reach. OralBiome Pro rebuilds the enamel surface. The protocol only works when both steps work together.</p>",
+        "ovr_bg": "",
+        "ovr_fg": "",
+        "ovr_accent": "",
+        "ovr_font": "display",
+        "ovr_h_size": 48,
+        "btn_text": "",
+        "btn_url": "",
+        "btn_style": "inline"
       }
     },
     "features_jfrhTe": {
@@ -121,14 +156,22 @@
         "lede": "<p>Every part of the protocol is rebuilt from scratch — from the crystal size of hydroxyapatite to the pulse rate of the irrigator.</p>",
         "cta_text": "View all specs",
         "cta_link": "",
-        "image_label": "FORMULA · CRYSTAL STRUCTURE"
+        "cta_style": "inline",
+        "image_label": "FORMULA · CRYSTAL STRUCTURE",
+        "ovr_bg": "",
+        "ovr_fg": "",
+        "ovr_accent": "",
+        "ovr_font": "display",
+        "ovr_h_size": 48
       }
     },
     "ticker_E1Rg6d": {
       "type": "cx-ticker",
       "settings": {
         "items": "Fluoride-free, Nano-hydroxyapatite, Clinically validated, In-vitro backed, Vegan & BPA-free, CE-certified, Dentist-recommended, Biocompatible, Without SLS, Without parabens",
-        "speed_sec": 40
+        "speed_sec": 40,
+        "ovr_bg": "",
+        "ovr_fg": ""
       }
     },
     "science_KbMl4i": {
@@ -139,7 +182,13 @@
         "lede": "<p>Flowcore removes what your toothbrush can't reach. Nano-HA can bind directly to the freshly cleaned enamel surface. Discover the science behind every step.</p>",
         "image_label": "DENTAL RESEARCHER · LAB SHOT",
         "cta_text": "Discover our science",
-        "cta_link": ""
+        "cta_link": "",
+        "cta_style": "inline",
+        "ovr_bg": "",
+        "ovr_fg": "",
+        "ovr_accent": "",
+        "ovr_font": "display",
+        "ovr_h_size": 48
       }
     },
     "calqix_tooth_interactive_t4YTG9": {
@@ -250,7 +299,13 @@
         "heading": "<p>Understand how your <em>teeth really work.</em></p>",
         "lede": "<p>Explore every tooth type and its role in one interactive view.</p>",
         "cta_text": "Discover CALQIX oral care",
-        "cta_link": ""
+        "cta_link": "",
+        "cta_style": "navy",
+        "ovr_bg": "",
+        "ovr_fg": "",
+        "ovr_accent": "",
+        "ovr_font": "display",
+        "ovr_h_size": 48
       }
     },
     "journal_prF2Eh": {
@@ -259,7 +314,15 @@
         "eyebrow": "Science Journal",
         "heading": "<p>Layered knowledge, <em>clearly told.</em></p>",
         "blog": "",
-        "cta_text": "All articles"
+        "read_label": "Read article",
+        "cta_text": "All articles",
+        "cta_link": "",
+        "cta_style": "inline",
+        "ovr_bg": "",
+        "ovr_fg": "",
+        "ovr_accent": "",
+        "ovr_font": "display",
+        "ovr_h_size": 48
       }
     },
     "reviews_sMebJP": {
@@ -269,7 +332,14 @@
         "heading": "<p>What customers <em>say.</em></p>",
         "rating_value": "4.9",
         "rating_count": "2,184",
-        "filter_options": "All reviews, Most recent, Sensitive teeth, Whitening, Fresh breath, Daily routine"
+        "rating_count_label": "verified reviews",
+        "verified_label": "VERIFIED",
+        "filter_options": "All reviews, Most recent, Sensitive teeth, Whitening, Fresh breath, Daily routine",
+        "ovr_bg": "",
+        "ovr_fg": "",
+        "ovr_accent": "",
+        "ovr_font": "display",
+        "ovr_h_size": 48
       }
     },
     "social_8i08q7": {
@@ -279,7 +349,13 @@
         "eyebrow": "CALQIX community",
         "heading": "<p>Follow our <em>ritual.</em></p>",
         "cta_text": "@calqix on Instagram",
-        "cta_link": ""
+        "cta_link": "",
+        "cta_style": "inline",
+        "ovr_bg": "",
+        "ovr_fg": "",
+        "ovr_accent": "",
+        "ovr_font": "display",
+        "ovr_h_size": 48
       }
     },
     "newsletter_4jquY4": {
@@ -292,7 +368,16 @@
         "lede": "<p>Join the CALQIX Inner Circle. Early access to new clinical studies and formula updates, never more than one message per month.</p>",
         "placeholder": "you@example.com",
         "cta_text": "Claim 10%",
-        "success_text": "Your discount code WELCOME10 is on its way."
+        "success_title": "Welcome.",
+        "success_text": "Your discount code WELCOME10 is on its way.",
+        "fine_1": "Unsubscribe anytime",
+        "fine_2": "Never shared",
+        "fine_3": "Max 1×/month",
+        "ovr_bg": "",
+        "ovr_fg": "",
+        "ovr_accent": "",
+        "ovr_font": "display",
+        "ovr_h_size": 48
       }
     }
   },
