@@ -203,11 +203,42 @@
         }).then(function (r) { if (!r.ok) throw new Error("add failed"); return r.json(); });
       }
 
-      // 2) Reduce or keep the current line to currentTarget
+      // 2) Reduce or keep the current line to currentTarget.
+      //
+      // IMPORTANT: after the /cart/add.js above, Shopify can rehash the
+      // line-item keys of OTHER lines in the cart (this happens when a
+      // cart-level discount or bundle script mutates line properties —
+      // e.g. the Rebuild Kit 30% bundle that toggles a `_bundle_tier`
+      // property on matching lines). If we POST /cart/change.js with
+      // the STALE `lineKey` we captured at render-time, Shopify returns
+      // `400 "no valid id or line parameter"` and the original line is
+      // never reduced, leaving the cart with BOTH flavours.
+      //
+      // Fix: re-fetch the cart and resolve the CURRENT line key for
+      // `currentVariantId` (+ matching selling-plan, if any). Fall back
+      // to the original lineKey for carts where no rehash happened.
+      var freshKey = lineKey;
+      try {
+        var curCart = await fetch("/cart.js", {
+          headers: { Accept: "application/json" }
+        }).then(function (r) { return r.ok ? r.json() : null; });
+        if (curCart && Array.isArray(curCart.items)) {
+          var match = curCart.items.find(function (it) {
+            if (String(it.variant_id) !== String(currentVariantId)) return false;
+            var lineSp = it.selling_plan_allocation &&
+              it.selling_plan_allocation.selling_plan &&
+              String(it.selling_plan_allocation.selling_plan.id);
+            if (sellingPlanId) return lineSp === String(sellingPlanId);
+            return !lineSp;
+          });
+          if (match && match.key) freshKey = match.key;
+        }
+      } catch (e) { /* fall through with stale lineKey */ }
+
       await fetch("/cart/change.js", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ id: lineKey, quantity: currentTarget })
+        body: JSON.stringify({ id: freshKey, quantity: currentTarget })
       }).then(function (r) { if (!r.ok) throw new Error("change failed"); return r.json(); });
 
       // 3) Success feedback
