@@ -1,66 +1,283 @@
-{% comment %}Parse the free shipping threshold based on currency{% endcomment %}
-{% assign free_shipping_setting = settings.free_shipping_bar_amount | default: '100' %}
-{% assign free_shipping_threshold = free_shipping_setting | split: '|' | first | strip %}
+{%- comment -%}
+  CALQIX multi-milestone gift bar
+  ─────────────────────────────────────────────────────────────────
+  Visually a single navy progress bar with two milestones plotted
+  along it: free shipping (lower threshold) and free premium support
+  (higher threshold). Bar fill is computed against the HIGHEST active
+  threshold; markers are rendered at their proportional position so
+  the customer sees both goals at a glance.
 
-{% comment %}Check if we have currency-specific thresholds{% endcomment %}
-{% assign current_currency = cart.currency.iso_code %}
-{% assign currency_specific_threshold = '' %}
-{% assign setting_parts = free_shipping_setting | split: '|' %}
-{% for part in setting_parts %}
-  {% if part contains ':' %}
-    {% assign currency_amount = part | split: ':' %}
-    {% assign currency_code = currency_amount[0] | strip %}
-    {% if currency_code == current_currency %}
-      {% assign currency_specific_threshold = currency_amount[1] | strip %}
-      {% break %}
-    {% endif %}
-  {% endif %}
-{% endfor %}
+  Currency-aware thresholds use the existing pipe-format used by
+  `free_shipping_bar_amount` (e.g. "100|USD:120|GBP:90"). The default
+  amount is the first value; per-currency overrides follow as
+  ISO:amount segments.
 
-{% if currency_specific_threshold != '' %}
-  {% assign free_shipping_threshold = currency_specific_threshold %}
-{% endif %}
-{% assign cart_value = cart.total_price | divided_by: 100.0 %}
+  Data attributes preserved for backwards compatibility with
+  cart-drawer.js animateFreeShipping(): the bar continues to expose
+  `data-free-shipping-threshold-cents`, `data-free-shipping-progress`,
+  `data-free-shipping-remaining-cents` referring to the FINAL
+  milestone (premium support if enabled, otherwise free shipping).
+{%- endcomment -%}
 
-{% assign remaining_amount = free_shipping_threshold | minus: cart_value %}
-{% assign progress_percentage = cart_value | times: 100 | divided_by: free_shipping_threshold | round %}
+{%- liquid
+  assign current_currency = cart.currency.iso_code
 
-{% if remaining_amount < 0 %}
-  {% assign remaining_amount = 0 %}
-  {% assign progress_percentage = 100 %}
-{% endif %}
+  comment
+    Helper-style inline parsing: free shipping threshold (existing).
+  endcomment
+  assign fs_setting = settings.free_shipping_bar_amount | default: '100'
+  assign fs_threshold = fs_setting | split: '|' | first | strip
+  assign fs_currency_value = ''
+  assign fs_parts = fs_setting | split: '|'
+  for part in fs_parts
+    if part contains ':'
+      assign currency_amount = part | split: ':'
+      assign currency_code = currency_amount[0] | strip
+      if currency_code == current_currency
+        assign fs_currency_value = currency_amount[1] | strip
+        break
+      endif
+    endif
+  endfor
+  if fs_currency_value != ''
+    assign fs_threshold = fs_currency_value
+  endif
+  assign fs_threshold_num = fs_threshold | plus: 0
 
-{% assign remaining_amount_with_currency = remaining_amount | times: 100 | money %}
+  comment
+    Premium support threshold (new). Same parser pattern.
+  endcomment
+  assign ps_enabled = settings.drawer_premium_support_enable
+  assign ps_setting = settings.drawer_premium_support_amount | default: '90'
+  assign ps_threshold = ps_setting | split: '|' | first | strip
+  assign ps_currency_value = ''
+  assign ps_parts = ps_setting | split: '|'
+  for part in ps_parts
+    if part contains ':'
+      assign currency_amount = part | split: ':'
+      assign currency_code = currency_amount[0] | strip
+      if currency_code == current_currency
+        assign ps_currency_value = currency_amount[1] | strip
+        break
+      endif
+    endif
+  endfor
+  if ps_currency_value != ''
+    assign ps_threshold = ps_currency_value
+  endif
+  assign ps_threshold_num = ps_threshold | plus: 0
 
-{% assign cq_fs_prefix = 'calqix_cart.free_shipping_text_prefix' | t %}
-{% assign cq_fs_suffix = 'calqix_cart.free_shipping_text_suffix' | t %}
-{% assign cq_fs_success = 'calqix_cart.free_shipping_success' | t %}
+  comment
+    Cart value in major-currency units (Liquid arithmetic on `total_price`
+    cents would overflow `divided_by` on some builds; convert once).
+  endcomment
+  assign cart_value = cart.total_price | divided_by: 100.0
+
+  comment
+    Final (top) threshold drives the bar's denominator. If premium support
+    is disabled or its amount is lower than free shipping, fall back to
+    free shipping as the only milestone.
+  endcomment
+  assign show_ps = false
+  if ps_enabled and ps_threshold_num > fs_threshold_num
+    assign show_ps = true
+  endif
+
+  if show_ps
+    assign top_threshold = ps_threshold_num
+  else
+    assign top_threshold = fs_threshold_num
+  endif
+
+  assign fs_remaining = fs_threshold_num | minus: cart_value
+  if fs_remaining < 0
+    assign fs_remaining = 0
+  endif
+  assign ps_remaining = ps_threshold_num | minus: cart_value
+  if ps_remaining < 0
+    assign ps_remaining = 0
+  endif
+  assign top_remaining = top_threshold | minus: cart_value
+  if top_remaining < 0
+    assign top_remaining = 0
+  endif
+
+  assign progress_percentage = cart_value | times: 100 | divided_by: top_threshold | round
+  if progress_percentage > 100
+    assign progress_percentage = 100
+  endif
+  if progress_percentage < 0
+    assign progress_percentage = 0
+  endif
+
+  comment
+    Free shipping marker position as % of the top threshold.
+  endcomment
+  if show_ps
+    assign fs_marker_pos = fs_threshold_num | times: 100 | divided_by: top_threshold
+  else
+    assign fs_marker_pos = 100
+  endif
+
+  assign fs_unlocked = false
+  if fs_remaining == 0
+    assign fs_unlocked = true
+  endif
+  assign ps_unlocked = false
+  if ps_remaining == 0
+    assign ps_unlocked = true
+  endif
+
+  comment
+    Translation keys with sensible English fallbacks if a locale is
+    missing them — Shopify returns "translation missing: key" otherwise.
+  endcomment
+  assign t_fs_prefix = 'calqix_cart.free_shipping_text_prefix' | t
+  if t_fs_prefix contains 'translation missing'
+    assign t_fs_prefix = 'Spend '
+  endif
+  assign t_fs_suffix = 'calqix_cart.free_shipping_text_suffix' | t
+  if t_fs_suffix contains 'translation missing'
+    assign t_fs_suffix = ' for FREE shipping!'
+  endif
+  assign t_fs_success = 'calqix_cart.free_shipping_success' | t
+  if t_fs_success contains 'translation missing'
+    assign t_fs_success = "You've unlocked FREE shipping!"
+  endif
+
+  assign t_ps_prefix = 'calqix_cart.free_support_text_prefix' | t
+  if t_ps_prefix contains 'translation missing'
+    assign t_ps_prefix = t_fs_prefix
+  endif
+  assign t_ps_suffix = 'calqix_cart.free_support_text_suffix' | t
+  if t_ps_suffix contains 'translation missing'
+    assign t_ps_suffix = ' for FREE Premium Support!'
+  endif
+  assign t_ps_success = 'calqix_cart.free_support_success' | t
+  if t_ps_success contains 'translation missing'
+    assign t_ps_success = "You've unlocked FREE Premium Support!"
+  endif
+
+  assign t_all_unlocked = 'calqix_cart.all_gifts_unlocked' | t
+  if t_all_unlocked contains 'translation missing'
+    assign t_all_unlocked = 'All gifts unlocked!'
+  endif
+
+  comment
+    Pick the contextual message:
+      - cart < free shipping  → "Spend X more for FREE shipping!"
+      - cart < premium support → "Spend Y more for FREE Premium Support!"
+      - otherwise              → "All gifts unlocked!"
+    The legacy data-attributes mirror the FINAL milestone for the
+    drawer's pre-existing animateFreeShipping() / countMoneyValue() JS.
+  endcomment
+  if fs_unlocked == false
+    assign active_prefix = t_fs_prefix
+    assign active_suffix = t_fs_suffix
+    assign active_remaining_cents = fs_remaining | times: 100 | round
+    assign active_state = 'shipping'
+  elsif show_ps and ps_unlocked == false
+    assign active_prefix = t_ps_prefix
+    assign active_suffix = t_ps_suffix
+    assign active_remaining_cents = ps_remaining | times: 100 | round
+    assign active_state = 'support'
+  else
+    assign active_prefix = ''
+    assign active_suffix = ''
+    assign active_remaining_cents = 0
+    assign active_state = 'unlocked'
+  endif
+
+  assign final_threshold_cents = top_threshold | times: 100 | round
+  assign final_remaining_cents = top_remaining | times: 100 | round
+  assign final_success_text = t_all_unlocked
+  if show_ps == false
+    assign final_success_text = t_fs_success
+  endif
+-%}
 
 <div
-  class="wt-free-shipping-bar"
-  data-free-shipping-threshold-cents="{{ free_shipping_threshold | times: 100 | round }}"
+  class="wt-free-shipping-bar wt-free-shipping-bar--multi"
+  data-free-shipping-threshold-cents="{{ final_threshold_cents }}"
   data-free-shipping-progress="{{ progress_percentage }}"
-  data-free-shipping-remaining-cents="{{ remaining_amount | times: 100 | round }}"
-  data-free-shipping-success-text="{{ cq_fs_success | escape }}"
-  data-free-shipping-prefix="{{ cq_fs_prefix | escape }}"
-  data-free-shipping-suffix="{{ cq_fs_suffix | escape }}"
+  data-free-shipping-remaining-cents="{{ final_remaining_cents }}"
+  data-free-shipping-success-text="{{ final_success_text | escape }}"
+  data-free-shipping-prefix="{{ active_prefix | escape }}"
+  data-free-shipping-suffix="{{ active_suffix | escape }}"
+  data-active-milestone="{{ active_state }}"
+  {% if show_ps %}data-multi-milestone="1"{% endif %}
 >
   <p class="wt-free-shipping-bar__text">
-    {% if remaining_amount > 0 %}
-      <span class="wt-free-shipping-bar__prefix">{{ cq_fs_prefix }}</span>
-      <span class="wt-free-shipping-bar__amount" data-remaining-cents="{{ remaining_amount | times: 100 | round }}">
-        {{ remaining_amount_with_currency }}
-      </span>
-      <span class="wt-free-shipping-bar__suffix">{{ cq_fs_suffix }}</span>
-    {% else %}
-      <span class="wt-free-shipping-bar__success">{{ cq_fs_success }}</span>
-    {% endif %}
+    {%- if active_state == 'shipping' -%}
+      <span class="wt-free-shipping-bar__prefix">{{ active_prefix }}</span><span
+        class="wt-free-shipping-bar__amount"
+        data-remaining-cents="{{ active_remaining_cents }}"
+      >{{- fs_remaining | times: 100 | money -}}</span><span class="wt-free-shipping-bar__suffix">{{ active_suffix }}</span>
+    {%- elsif active_state == 'support' -%}
+      <span class="wt-free-shipping-bar__prefix">{{ active_prefix }}</span><span
+        class="wt-free-shipping-bar__amount"
+        data-remaining-cents="{{ active_remaining_cents }}"
+      >{{- ps_remaining | times: 100 | money -}}</span><span class="wt-free-shipping-bar__suffix">{{ active_suffix }}</span>
+    {%- else -%}
+      <span class="wt-free-shipping-bar__success">{{ final_success_text }}</span>
+    {%- endif -%}
   </p>
+
   <div class="wt-progress-bar">
     <div
       class="wt-progress-bar__fill"
       style="width: {{ progress_percentage }}%; --wt-free-progress: {{ progress_percentage }}%;"
       data-progress="{{ progress_percentage }}"
-    ></div>
+    >
+      <span class="wt-progress-bar__particles" aria-hidden="true">
+        <span class="wt-progress-bar__particle"></span>
+        <span class="wt-progress-bar__particle"></span>
+        <span class="wt-progress-bar__particle"></span>
+        <span class="wt-progress-bar__particle"></span>
+        <span class="wt-progress-bar__particle"></span>
+      </span>
+    </div>
+
+    {%- comment -%}
+      Milestone markers — absolutely positioned by the % at which the
+      milestone sits on the bar. Each marker carries its own SVG icon
+      and an unlocked state for the gold ring + glow.
+    {%- endcomment -%}
+    <div
+      class="wt-progress-bar__marker wt-progress-bar__marker--shipping{% if fs_unlocked %} is-unlocked{% endif %}"
+      style="--wt-marker-pos: {{ fs_marker_pos }}%;"
+      aria-label="{{ t_fs_success | escape }}"
+      title="{{ t_fs_success | escape }}"
+    >
+      <span class="wt-progress-bar__marker-icon" aria-hidden="true">
+        {%- comment -%}Shipping = stylised parcel + motion arc{%- endcomment -%}
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M2.5 5.5L8 3l5.5 2.5v5L8 13l-5.5-2.5v-5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M2.5 5.5L8 8m0 0l5.5-2.5M8 8v5" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="wt-progress-bar__marker-pulse" aria-hidden="true"></span>
+    </div>
+
+    {%- if show_ps -%}
+      <div
+        class="wt-progress-bar__marker wt-progress-bar__marker--support{% if ps_unlocked %} is-unlocked{% endif %}"
+        style="--wt-marker-pos: 100%;"
+        aria-label="{{ t_ps_success | escape }}"
+        title="{{ t_ps_success | escape }}"
+      >
+        <span class="wt-progress-bar__marker-icon" aria-hidden="true">
+          {%- comment -%}Premium support = stylised crown + sparkle (luxe){%- endcomment -%}
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M2 5.5l2.5 5h7l2.5-5-3 2.2L8 4 5 7.7 2 5.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            <circle cx="8" cy="3" r="0.7" fill="currentColor"/>
+            <circle cx="2" cy="5" r="0.5" fill="currentColor"/>
+            <circle cx="14" cy="5" r="0.5" fill="currentColor"/>
+            <path d="M3.5 12.5h9" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="wt-progress-bar__marker-pulse" aria-hidden="true"></span>
+      </div>
+    {%- endif -%}
   </div>
 </div>

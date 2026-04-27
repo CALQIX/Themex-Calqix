@@ -575,6 +575,11 @@ class CartDrawerItems extends CartItems {
     if (event?.source === "cart-items") return;
     if (event?.source === "product-form") return;
     if (event?.source === "cart-drawer-addon") return;
+    // Suppress double-fetch: when the publisher has already dispatched a
+    // `cart-drawer:refresh` (e.g. cart-flavor-picker), a concurrent fetch
+    // here would race the in-flight section render and can flicker stale
+    // markup back into the DOM.
+    if (event?._alreadyRefreshing) return;
 
     const drawer = this.closest("cart-drawer");
     if (drawer && typeof drawer.refreshCartDrawer === "function") {

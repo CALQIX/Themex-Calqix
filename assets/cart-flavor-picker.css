@@ -19,8 +19,10 @@
   min-width: 0;
 }
 /* Inline-but-stacked Change-flavour toggle: DM Serif Display, transparent
-   default surface, navy text. Pressed/expanded state inverts to navy on
-   white per design spec. */
+   default surface with #002549 text. When the dropdown opens (aria-expanded
+   true) the surface flips to white but the text stays #002549. The hex is
+   pinned literally because the rebrand token (--cqfp-navy = #1A3B5C) does
+   not match the cart spec — this toggle uses the deeper navy explicitly. */
 .wt-cart__drawer .wt-cart__qty-stack .cqfp__toggle {
   margin: 0;
   flex: 0 0 auto;
@@ -29,18 +31,31 @@
   font-size: 12px;
   letter-spacing: 0;
   background: transparent;
-  color: var(--cqfp-navy);
-  border-color: var(--cqfp-line);
+  color: #002549;
+  border-color: rgba(0, 37, 73, 0.25);
   padding: 4px 10px 4px 10px;
+  transition: background-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .wt-cart__drawer .wt-cart__qty-stack .cqfp__toggle:hover {
-  background: rgba(26, 59, 92, 0.04);
-  border-color: var(--cqfp-navy);
+  background: rgba(0, 37, 73, 0.06);
+  color: #002549;
+  border-color: #002549;
 }
 .wt-cart__drawer .wt-cart__qty-stack .cqfp__toggle[aria-expanded="true"] {
-  background: var(--cqfp-navy);
-  color: #FFFFFF;
-  border-color: var(--cqfp-navy);
+  background: #FFFFFF;
+  color: #002549;
+  border-color: #002549;
+  box-shadow: 0 1px 0 rgba(0, 37, 73, 0.04),
+              0 4px 14px -8px rgba(0, 37, 73, 0.35);
+}
+.wt-cart__drawer .wt-cart__qty-stack .cqfp__toggle[aria-expanded="true"] .cqfp__toggle-chevron {
+  transform: rotate(180deg);
+}
+.wt-cart__drawer .wt-cart__qty-stack .cqfp__toggle .cqfp__toggle-chevron {
+  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .wt-cart__drawer .wt-cart__qty-stack .cqfp__toggle .cqfp__toggle-dot {
   display: none;

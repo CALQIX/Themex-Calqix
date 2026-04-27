@@ -1422,23 +1422,215 @@
     animation: wtCartLockTilt 0.35s ease;
   }
 }
-.wt-cart__drawer .wt-free-shipping-bar__text {
-  color: var(--calqix-navy-soft);
-  font-weight: 600;
+/* ============================================================
+   CALQIX multi-milestone gift bar
+   ------------------------------------------------------------
+   The bar is now a navy surface with ivory text/amounts and two
+   milestone markers (free shipping + free premium support). The
+   fill keeps its shimmer + a stronger glow + drifting particles,
+   while the markers carry their own luxe gold ring + pulse when
+   unlocked. Tokens:
+     --cq-bar-bg     navy surface
+     --cq-bar-ivory  ivory white (text + amounts)
+     --cq-bar-gold   luxe gold accent (icons + glow)
+   ============================================================ */
+.wt-cart__drawer .wt-free-shipping-bar {
+  --cq-bar-bg: #002549;
+  --cq-bar-ivory: #FAF7EF;
+  --cq-bar-gold: #D4B46E;
+  --cq-bar-gold-soft: #C9A55A;
+  position: relative;
+  margin: calc(var(--gap, 8px) * 2) 0 calc(var(--gap, 8px) * 1);
+  padding: 14px 16px 18px;
+  background: var(--cq-bar-bg);
+  background-image:
+    radial-gradient(120% 90% at 100% 0%, rgba(212, 180, 110, 0.10) 0%, transparent 60%),
+    radial-gradient(80% 80% at 0% 100%, rgba(212, 180, 110, 0.06) 0%, transparent 60%);
+  border-radius: 10px;
+  color: var(--cq-bar-ivory);
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 1px 2px rgba(0, 20, 40, 0.06);
 }
+/* Subtle moving sheen on the navy surface — adds the "luxe" feel
+   without distracting from the cart content. */
+.wt-cart__drawer .wt-free-shipping-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(212, 180, 110, 0.07) 48%,
+    rgba(212, 180, 110, 0.12) 50%,
+    rgba(212, 180, 110, 0.07) 52%,
+    transparent 70%
+  );
+  background-size: 220% 100%;
+  background-position: -120% 0;
+  animation: wtBarSheen 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+.wt-cart__drawer .wt-free-shipping-bar > * {
+  position: relative;
+  z-index: 1;
+}
+.wt-cart__drawer .wt-free-shipping-bar__text {
+  color: var(--cq-bar-ivory);
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  margin: 0 0 10px;
+  line-height: 1.35;
+}
+.wt-cart__drawer .wt-free-shipping-bar__amount,
+.wt-cart__drawer .wt-free-shipping-bar__success {
+  color: var(--cq-bar-ivory);
+  font-weight: 700;
+}
+.wt-cart__drawer .wt-free-shipping-bar__success {
+  color: var(--cq-bar-gold);
+}
+
+/* Track + fill */
 .wt-cart__drawer .wt-progress-bar {
-  background-color: #d9dfe6;
+  position: relative;
+  height: 6px;
+  background: rgba(250, 247, 239, 0.16);
+  border-radius: 999px;
+  overflow: visible; /* markers extend above the track */
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.18);
 }
 .wt-cart__drawer .wt-progress-bar__fill {
-  background-color: var(--calqix-navy-soft);
-  background-image: linear-gradient(
+  position: relative;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(
     90deg,
-    var(--calqix-navy-soft) 0%,
-    color-mix(in srgb, var(--calqix-navy-soft) 60%, var(--calqix-gold) 40%) 60%,
-    var(--calqix-gold) 100%
+    rgba(212, 180, 110, 0.85) 0%,
+    rgba(232, 201, 106, 1) 50%,
+    rgba(212, 180, 110, 0.85) 100%
   );
   background-size: 200% 100%;
-  animation: wtCartProgressShimmer 2.5s ease-in-out infinite;
+  box-shadow:
+    0 0 12px 0 rgba(212, 180, 110, 0.55),
+    0 0 28px 0 rgba(212, 180, 110, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  animation: wtCartProgressShimmer 2.6s ease-in-out infinite;
+  overflow: visible;
+}
+
+/* Drifting particles on the fill — five small dots that float up
+   and fade. Each particle has its own delay/path so the motion
+   reads as organic luxury rather than mechanical loops. */
+.wt-cart__drawer .wt-progress-bar__particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 999px;
+}
+.wt-cart__drawer .wt-progress-bar__particle {
+  position: absolute;
+  bottom: 0;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--cq-bar-ivory);
+  box-shadow: 0 0 6px rgba(250, 247, 239, 0.9),
+              0 0 12px rgba(212, 180, 110, 0.6);
+  opacity: 0;
+  animation: wtBarParticle 3.4s ease-in-out infinite;
+}
+.wt-cart__drawer .wt-progress-bar__particle:nth-child(1) { left: 18%; animation-delay: 0s;   }
+.wt-cart__drawer .wt-progress-bar__particle:nth-child(2) { left: 38%; animation-delay: 0.6s; }
+.wt-cart__drawer .wt-progress-bar__particle:nth-child(3) { left: 56%; animation-delay: 1.2s; }
+.wt-cart__drawer .wt-progress-bar__particle:nth-child(4) { left: 74%; animation-delay: 1.8s; width: 2px; height: 2px; }
+.wt-cart__drawer .wt-progress-bar__particle:nth-child(5) { left: 88%; animation-delay: 2.4s; width: 2px; height: 2px; }
+
+/* Milestone markers — circular "coin" badges that anchor on the
+   track at their proportional position. The pulse halo activates
+   once the milestone is unlocked. */
+.wt-cart__drawer .wt-progress-bar__marker {
+  position: absolute;
+  top: 50%;
+  left: var(--wt-marker-pos, 100%);
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border-radius: 50%;
+  background: var(--cq-bar-bg);
+  border: 1.5px solid rgba(212, 180, 110, 0.55);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(250, 247, 239, 0.55);
+  z-index: 2;
+  transition: color 320ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 320ms cubic-bezier(0.4, 0, 0.2, 1),
+              transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 320ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.wt-cart__drawer .wt-progress-bar__marker-icon {
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
+}
+.wt-cart__drawer .wt-progress-bar__marker-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.wt-cart__drawer .wt-progress-bar__marker-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid var(--cq-bar-gold);
+  opacity: 0;
+  pointer-events: none;
+}
+.wt-cart__drawer .wt-progress-bar__marker.is-unlocked {
+  color: var(--cq-bar-bg);
+  background: linear-gradient(180deg, #E8C96A 0%, #C9A55A 100%);
+  border-color: var(--cq-bar-gold);
+  box-shadow:
+    0 0 0 2px rgba(212, 180, 110, 0.18),
+    0 0 14px rgba(212, 180, 110, 0.55);
+  transform: scale(1.06);
+}
+.wt-cart__drawer .wt-progress-bar__marker.is-unlocked .wt-progress-bar__marker-pulse {
+  animation: wtBarMarkerPulse 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+/* Reduced motion: kill the looping animations but preserve the
+   visual states (gold fill, glow halo, ivory text). */
+@media (prefers-reduced-motion: reduce) {
+  .wt-cart__drawer .wt-free-shipping-bar::before,
+  .wt-cart__drawer .wt-progress-bar__fill,
+  .wt-cart__drawer .wt-progress-bar__particle,
+  .wt-cart__drawer .wt-progress-bar__marker.is-unlocked .wt-progress-bar__marker-pulse {
+    animation: none;
+  }
+}
+
+@keyframes wtBarSheen {
+  0%   { background-position: -120% 0; }
+  60%  { background-position: 220% 0; }
+  100% { background-position: 220% 0; }
+}
+@keyframes wtBarParticle {
+  0%   { transform: translateY(0) scale(0.6);  opacity: 0; }
+  20%  { transform: translateY(-2px) scale(1); opacity: 1; }
+  70%  { transform: translateY(-10px) scale(1); opacity: 0.6; }
+  100% { transform: translateY(-14px) scale(0.4); opacity: 0; }
+}
+@keyframes wtBarMarkerPulse {
+  0%   { transform: scale(0.6); opacity: 0.7; }
+  70%  { transform: scale(1.7); opacity: 0; }
+  100% { transform: scale(1.7); opacity: 0; }
 }
 
 /* Payment row tuned for CALQIX look — icons only, no label / trust copy. */

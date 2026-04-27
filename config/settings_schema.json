@@ -930,6 +930,30 @@
       },
       {
         "type": "header",
+        "content": "Free premium support milestone"
+      },
+      {
+        "type": "checkbox",
+        "id": "drawer_premium_support_enable",
+        "default": true,
+        "label": "Enable premium support milestone",
+        "info": "Adds a second milestone marker on the free shipping bar. When the cart total reaches the premium support amount, the customer unlocks free Premium Support (digital product)."
+      },
+      {
+        "type": "text",
+        "id": "drawer_premium_support_amount",
+        "default": "90|USD:100|GBP:80|CAD:130|AUD:150|CHF:90",
+        "label": "Premium support threshold",
+        "info": "Currency-aware. Format: 90|USD:100|GBP:80. The first value is the default; per-currency overrides follow as ISO:amount."
+      },
+      {
+        "type": "product",
+        "id": "drawer_premium_support_product",
+        "label": "Premium support digital product",
+        "info": "Optional. The free gift unlocked at the premium support threshold."
+      },
+      {
+        "type": "header",
         "content": "Gift milestones"
       },
       {

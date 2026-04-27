@@ -213,16 +213,33 @@
       // 3) Success feedback
       cta.setAttribute("data-state", "success");
 
-      // 4) Refresh cart drawer to pull fresh state. A short delay lets
-      //    the success animation breathe; the dispatched events are
-      //    consumed by cart-drawer.js (refreshCartDrawer) and
-      //    cx-cart-sync.js (counter mirror).
-      setTimeout(function () {
-        document.dispatchEvent(new CustomEvent("cart-drawer:refresh"));
-        if (typeof window.publish === "function" && window.PUB_SUB_EVENTS) {
-          try { window.publish(window.PUB_SUB_EVENTS.cartUpdate, { source: "cart-flavor-picker" }); } catch (e) {}
-        }
-      }, 420);
+      // 4) Refresh cart drawer IMMEDIATELY so the new flavour is visible
+      //    before the picker DOM gets replaced. Previously a 420ms timeout
+      //    "let the success animation breathe", but it caused the cart to
+      //    appear stale (the user had to close + reopen to see the new
+      //    flavour). The success state still flashes during the network
+      //    round-trip of the section fetch (~150–300 ms), which is enough.
+      //
+      //    Only ONE refresh dispatch path is used to avoid double-fetching
+      //    the cart sections endpoint — `cart-drawer:refresh` is consumed
+      //    by `cart-drawer.js > refreshCartDrawer`, and `cartUpdate` is
+      //    consumed by `cx-cart-sync.js` (counter mirror) and other
+      //    listeners. CartDrawerItems.onCartUpdate also calls
+      //    refreshCartDrawer; we set a marker on the event so it can opt
+      //    out and avoid the duplicate fetch.
+      document.dispatchEvent(new CustomEvent("cart-drawer:refresh", {
+        detail: { source: "cart-flavor-picker" }
+      }));
+      if (typeof window.publish === "function" && window.PUB_SUB_EVENTS) {
+        try {
+          window.publish(window.PUB_SUB_EVENTS.cartUpdate, {
+            source: "cart-flavor-picker",
+            // Marker consumed by CartDrawerItems.onCartUpdate so it
+            // does NOT issue a second concurrent refresh fetch.
+            _alreadyRefreshing: true,
+          });
+        } catch (e) {}
+      }
     }
   }
 
