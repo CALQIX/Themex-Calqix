@@ -96,6 +96,16 @@
   {% assign customwrapperclass = 'hero__wrapper' %}
 {% endif %}
 
+{%- liquid
+  assign cq_ba_lang = request.locale.iso_code | downcase | slice: 0, 2
+  assign cq_ba_supported = 'nl,de,fr,sv,nb,da,fi' | split: ','
+  assign cq_ba_translated = false
+  if product != blank and product.template_suffix == 'oralbiome' and cq_ba_supported contains cq_ba_lang
+    assign cq_ba_translated = true
+  endif
+-%}
+
+{%- capture cq_ba_rendered -%}
 <div
   data-section-id="{{ section.id }}"
   class="wt-before-after {{ customwrapperclass }}  {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}"
@@ -117,6 +127,30 @@
     %}
   </div>
 </div>
+{%- endcapture -%}
+
+{%- if cq_ba_translated -%}
+  {%- assign cq_ba_t_heading      = 'calqix_oralbiome.before_after.heading'      | t -%}
+  {%- assign cq_ba_t_body         = 'calqix_oralbiome.before_after.body_html'    | t -%}
+  {%- assign cq_ba_t_before_badge = 'calqix_oralbiome.before_after.before_badge' | t -%}
+  {%- assign cq_ba_t_after_badge  = 'calqix_oralbiome.before_after.after_badge'  | t -%}
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'heading' and block.settings.heading != blank -%}
+      {%- assign cq_ba_rendered = cq_ba_rendered | replace: block.settings.heading, cq_ba_t_heading -%}
+    {%- endif -%}
+    {%- if block.type == 'text' and block.settings.text != blank -%}
+      {%- assign cq_ba_rendered = cq_ba_rendered | replace: block.settings.text, cq_ba_t_body -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- if section.settings.before_badge != blank and section.settings.before_badge != cq_ba_t_before_badge -%}
+    {%- assign cq_ba_rendered = cq_ba_rendered | replace: section.settings.before_badge, cq_ba_t_before_badge -%}
+  {%- endif -%}
+  {%- if section.settings.after_badge != blank and section.settings.after_badge != cq_ba_t_after_badge -%}
+    {%- assign cq_ba_rendered = cq_ba_rendered | replace: section.settings.after_badge, cq_ba_t_after_badge -%}
+  {%- endif -%}
+{%- endif -%}
+
+{{ cq_ba_rendered }}
 
 {% schema %}
 {
