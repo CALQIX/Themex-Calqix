@@ -721,6 +721,58 @@
         "label_oralbiome": "OralBiome"
       }
     },
+    "before_and_after_ANpPfc": {
+      "type": "before-and-after",
+      "blocks": {
+        "heading_EitKTY": {
+          "type": "heading",
+          "settings": {
+            "heading": "A brighter-looking smile starts with balance.",
+            "disable_on_mobile": false,
+            "size_heading": 100,
+            "size_heading_mobile": 100
+          }
+        },
+        "text_yxgcPj": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Brushing cleans your teeth. OralBiome Pro supports the living microbiome around them. Each Fresh Mint lozenge delivers 3 billion CFU from four clinically studied strains, selected to support fresher breath, gum comfort, plaque balance and a healthier oral environment. Use it daily after brushing and flossing as the final step in your routine.</p>",
+            "text_style": "body",
+            "disable_on_mobile": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_EitKTY",
+        "text_yxgcPj"
+      ],
+      "name": "t:sections.before_and_after.name",
+      "settings": {
+        "title": "",
+        "layout": "image_first",
+        "before_image": "shopify://shop_images/Before.png",
+        "after_image": "shopify://shop_images/After.png",
+        "desktop-percentage-image-width": 50,
+        "full-width-enabled": false,
+        "slide_height": "adapt_to_first_image",
+        "desktop_fixed_height": 320,
+        "mobile_fixed_height": 460,
+        "enable_badges": true,
+        "before_badge": "Before",
+        "after_badge": "After",
+        "section-color-body-text": "transparent",
+        "section-color-overlay": "transparent",
+        "section-color-overlay-opacity": 100,
+        "color-body-text": "transparent",
+        "color-overlay": "transparent",
+        "color-overlay-opacity": 100,
+        "desktop_text_vertical_position": "center",
+        "desktop_text_horizontal_position": "center",
+        "mobile_text_horizontal_position": "center",
+        "margin-top": 20,
+        "margin-bottom": 20
+      }
+    },
     "oralbiome-video-reviews": {
       "type": "oralbiome-video-reviews",
       "blocks": {
@@ -932,6 +984,7 @@
     "oralbiome-ingredients",
     "oralbiome-comparison",
     "oralbiome-comparison-mobile",
+    "before_and_after_ANpPfc",
     "oralbiome-video-reviews",
     "oralbiome-reviews",
     "oralbiome_faq_KxQ7m3",
