@@ -155,6 +155,13 @@
     </div>
     <div class="wt-cart__item__amount cart-page">
       <div class="item__details">
+        {%- comment -%}
+          .wt-cart__qty-stack wraps the quantity-counter and (for OralBiome
+          items) the "Change flavour" toggle so they stack vertically with a
+          2px gap. The bin (cart-remove-button) stays as a sibling and aligns
+          with the qty stepper row on the right.
+        {%- endcomment -%}
+        <div class="wt-cart__qty-stack">
         <quantity-counter class="counter-wrapper" data-cart="true">
           <div class="counter">
             <button
@@ -173,16 +180,12 @@
               data-quantity-variant-id="{{ item.variant.id }}"
               name="updates[]"
               value="{{ item.quantity }}"
-              {% # theme-check-disable %}
-              data-cart-quantity="{{ cart | item_count_for_variant: item.variant.id }}"
-              min="{{ item.variant.quantity_rule.min }}"
               {% if is_priority_support_line %}
                 max="1"
               {% elsif item.variant.quantity_rule.max != null %}
                 max="{{ item.variant.quantity_rule.max }}"
               {% endif %}
               step="{{ item.variant.quantity_rule.increment }}"
-              {% # theme-check-enable %}
               aria-label="Counter quantity"
               id="Drawer-quantity-{{ item.index | plus: 1 }}"
               data-index="{{ item.index | plus: 1 }}"
@@ -207,10 +210,10 @@
             </button>
           </div>
         </quantity-counter>
-
         {%- if item.product.template_suffix == 'oralbiome' -%}
           {%- render 'cart-flavor-picker', item: item, render: 'toggle' -%}
         {%- endif -%}
+        </div>
 
         <cart-remove-button
           id="CartDrawer-Remove-{{ item.index | plus: 1 }}"

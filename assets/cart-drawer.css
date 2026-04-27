@@ -210,6 +210,90 @@
 .wt-cart--empty .wt-cart__login {
   width: 100%;
 }
+
+/* Empty cart "Continue shopping" CTA: navy button with a soft gold glow on
+   hover and a "magic vanish" animation on click that runs in sync with the
+   drawer's slide-out close transition. The class `wt-cart__drawer__close`
+   on this anchor is consumed by assets/cart-drawer.js to close the drawer;
+   the rotate animation that styles the X-close icon is scoped to the
+   `.wt-cart__drawer__close--button` modifier so it does NOT apply here. */
+.wt-cart--empty .button--continue-shopping.wt-cart__drawer__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 16px auto 0;
+  padding: 12px 28px;
+  min-height: 44px;
+  background: var(--calqix-navy, #1a3b5c);
+  color: #ffffff;
+  border: 1px solid var(--calqix-navy, #1a3b5c);
+  border-radius: 8px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  text-decoration: none;
+  cursor: pointer;
+  overflow: visible;
+  isolation: isolate;
+  transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 260ms cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow;
+}
+.wt-cart--empty .button--continue-shopping.wt-cart__drawer__close:focus-visible {
+  outline: 2px solid var(--calqix-gold, #c9a84c);
+  outline-offset: 3px;
+}
+@media (hover: hover) {
+  .wt-cart--empty .button--continue-shopping.wt-cart__drawer__close:hover {
+    transform: translateY(-1px);
+    background-color: #234975;
+    box-shadow: 0 0 0 4px rgba(26, 59, 92, 0.16),
+                0 0 28px 6px rgba(201, 168, 76, 0.42),
+                0 8px 24px -8px rgba(26, 59, 92, 0.5);
+  }
+}
+.wt-cart--empty .button--continue-shopping.wt-cart__drawer__close:active {
+  transform: scale(0.97);
+}
+.wt-cart--empty .button--continue-shopping__sparkles {
+  position: absolute;
+  inset: -12px;
+  pointer-events: none;
+  border-radius: 14px;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 12% 30%, rgba(201, 168, 76, 0.85) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 88% 22%, rgba(232, 201, 106, 0.85) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 24% 82%, rgba(201, 168, 76, 0.7) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 78% 78%, rgba(232, 201, 106, 0.95) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0) 0 60%, transparent 61%);
+}
+
+/* Magic vanish: triggered by JS adding `is-vanishing` on click. Runs in
+   parallel with the drawer's slide-out so the button "poofs" away while
+   the drawer slides out. */
+@keyframes wtCartContinueVanish {
+  0%   { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0); }
+  35%  { opacity: 1; transform: scale(1.08) rotate(-1.5deg); filter: blur(0); }
+  70%  { opacity: 0.55; transform: scale(1.02) rotate(2deg); filter: blur(1px); }
+  100% { opacity: 0; transform: scale(0.5) rotate(8deg); filter: blur(4px); }
+}
+@keyframes wtCartContinueSparkle {
+  0%   { opacity: 0; transform: scale(0.6); }
+  35%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+.wt-cart--empty .button--continue-shopping.is-vanishing {
+  animation: wtCartContinueVanish 460ms cubic-bezier(0.4, 0, 0.6, 1) forwards;
+  pointer-events: none;
+}
+.wt-cart--empty .button--continue-shopping.is-vanishing .button--continue-shopping__sparkles {
+  animation: wtCartContinueSparkle 460ms cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
 .wt-cart__cross-sell {
   width: 100%;
   background-color: rgba(var(--color-text-rgb), 0.05);
@@ -1114,17 +1198,21 @@
   font-weight: 600;
   letter-spacing: 0;
 }
-.wt-cart__drawer__close {
+/* Scope rotate-on-hover/active animation to the drawer X-close icon ONLY.
+   Other elements that share `wt-cart__drawer__close` (e.g. the empty-cart
+   "Continue shopping" link) must NOT rotate; their own styles define their
+   visual treatment. */
+.wt-cart__drawer__close--button {
   color: var(--calqix-navy-soft);
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
 }
 @media (hover: hover) {
-  .wt-cart__drawer .wt-cart__drawer__close:hover {
+  .wt-cart__drawer .wt-cart__drawer__close--button:hover {
     transform: rotate(90deg) scale(1.1);
     color: var(--calqix-navy);
   }
 }
-.wt-cart__drawer .wt-cart__drawer__close:active {
+.wt-cart__drawer .wt-cart__drawer__close--button:active {
   transform: rotate(90deg) scale(0.92);
 }
 .wt-cart__drawer .wt-cart__item {

@@ -4,19 +4,54 @@
 
 /* Picker is rendered as the last child of .wt-cart__item__body so it
    stacks inside the right column (below title → discount → qty row). */
-/* Inline toggle placed inside the cart item action row (between quantity
-   counter and the remove/trash button). Keep the visual pill compact so it
-   shares the 3-column action row with the qty stepper and bin icon. */
-.wt-cart__drawer .item__details .cqfp__toggle {
+/* The qty-stack is the column wrapper inside .item__details that stacks
+   the quantity-counter and (for OralBiome lines) the "Change flavour"
+   toggle vertically with a 2px gap. The bin remains a sibling, aligned to
+   the top so it sits next to the qty stepper. */
+.wt-cart__drawer .item__details {
+  align-items: flex-start;
+}
+.wt-cart__drawer .wt-cart__qty-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+/* Inline-but-stacked Change-flavour toggle: DM Serif Display, transparent
+   default surface, navy text. Pressed/expanded state inverts to navy on
+   white per design spec. */
+.wt-cart__drawer .wt-cart__qty-stack .cqfp__toggle {
   margin: 0;
   flex: 0 0 auto;
+  font-family: "DM Serif Display", Georgia, serif;
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0;
+  background: transparent;
+  color: var(--cqfp-navy);
+  border-color: var(--cqfp-line);
+  padding: 4px 10px 4px 10px;
 }
-.wt-cart__drawer .item__details .cqfp__toggle-label {
+.wt-cart__drawer .wt-cart__qty-stack .cqfp__toggle:hover {
+  background: rgba(26, 59, 92, 0.04);
+  border-color: var(--cqfp-navy);
+}
+.wt-cart__drawer .wt-cart__qty-stack .cqfp__toggle[aria-expanded="true"] {
+  background: var(--cqfp-navy);
+  color: #FFFFFF;
+  border-color: var(--cqfp-navy);
+}
+.wt-cart__drawer .wt-cart__qty-stack .cqfp__toggle .cqfp__toggle-dot {
+  display: none;
+}
+.wt-cart__drawer .wt-cart__qty-stack .cqfp__toggle-label {
   white-space: nowrap;
 }
 .wt-cart__drawer .item__details .wt-cart__item__remove--amount {
   margin-right: 0;
   margin-left: auto;
+  align-self: flex-start;
 }
 
 .wt-cart__item__body > .cqfp {

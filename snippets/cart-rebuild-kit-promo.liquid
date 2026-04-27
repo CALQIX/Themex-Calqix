@@ -84,14 +84,32 @@
   -%}
 
   {%- comment -%}
-    The floating banner is rendered only when NOT restricted to the combi-badge only.
-    See cart-drawer.liquid: the big banner has been replaced by an inline
-    add-on card inside cart-addons.liquid, while the combi badge still needs
-    to render so the JS can reveal it when both Rebuild Kit products are in
-    the cart. We always render the data-cq-rk-config carrier so JS config is
-    discoverable, but hide the banner markup when render_combi_badge_only.
+    Floating banner UI:
+      - When `render_combi_badge_only` is true (default in cart-drawer.liquid),
+        only an invisible config-carrier element is emitted so the JS can
+        still call readConfig() / openPicker() — the visible <aside> banner
+        is suppressed because the "Complete the Rebuild Kit" promo has been
+        relocated into the add-on list (cart-addons.liquid).
+      - Otherwise the legacy floating banner UI is rendered as before.
   {%- endcomment -%}
-  {%- unless render_combi_badge_only -%}
+  {%- if render_combi_badge_only -%}
+    <span
+      class="cq-rk-banner cq-rk-banner--carrier-only visually-hidden"
+      data-cq-rk-banner
+      data-cq-rk-config='{
+        "enable": true,
+        "pct": {{ pct | json }},
+        "oralbiomeHandle": {{ oralbiome_handle | json }},
+        "flavorCollection": {{ flavor_collection_handle | json }},
+        "requireCartNotEmpty": {{ settings.cq_rk_require_cart_not_empty | json }},
+        "requirePostAtc": {{ settings.cq_rk_require_post_atc | json }},
+        "oncePerSession": {{ settings.cq_rk_once_per_session | json }},
+        "combiLabel": {{ combi_label | json }}
+      }'
+      hidden
+      aria-hidden="true"
+    ></span>
+  {%- else -%}
   <aside
     class="cq-rk-banner"
     data-cq-rk-banner
@@ -147,7 +165,7 @@
       <span class="cq-rk-banner__sheen" aria-hidden="true"></span>
     </button>
   </aside>
-  {%- endunless -%}
+  {%- endif -%}
 
   {%- comment -%}
     Combi-active badge: shown when both products are in cart.

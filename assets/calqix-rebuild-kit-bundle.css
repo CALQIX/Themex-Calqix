@@ -32,6 +32,12 @@
 
 .cq-rk-banner[hidden] { display: none; }
 
+/* Carrier-only variant: emitted by snippets/cart-rebuild-kit-promo.liquid
+   when render_combi_badge_only is true. The element exists purely to host
+   the data-cq-rk-config payload so JS readConfig() works; it must never
+   render a visible banner UI even if showBanner() removes [hidden]. */
+.cq-rk-banner--carrier-only { display: none !important; }
+
 .cq-rk-banner--in {
   opacity: 1;
   transform: translateY(0) scale(1);
