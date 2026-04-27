@@ -8,6 +8,33 @@
   {% endif %}
 {% endfor %}
 
+{%- comment -%}
+  CALQIX Rebuild Kit bundle card: shown as a dedicated add-on when enabled
+  in Theme Editor and the combi (FlowCore + OralBiome Pro) is not yet
+  complete in the cart. Clicking ADD opens the flavor picker modal via
+  data-cq-rk-open (handled by calqix-rebuild-kit-bundle.js).
+{%- endcomment -%}
+{%- assign rk_show = false -%}
+{%- if settings.cq_rk_enable and cart != empty -%}
+  {%- assign rk_has_flowcore = false -%}
+  {%- assign rk_has_oralbiome = false -%}
+  {%- for line in cart.items -%}
+    {%- assign lh = line.product.handle | downcase -%}
+    {%- if lh contains 'flowcore' -%}
+      {%- assign rk_has_flowcore = true -%}
+    {%- endif -%}
+    {%- if line.product.template_suffix == 'oralbiome' -%}
+      {%- assign rk_has_oralbiome = true -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- unless rk_has_flowcore and rk_has_oralbiome -%}
+    {%- assign rk_show = true -%}
+    {%- assign any_addon = true -%}
+    {%- assign addon_count = addon_count | plus: 1 -%}
+  {%- endunless -%}
+{%- endif -%}
+{%- assign rk_pct = settings.cq_rk_discount_pct | default: 30 -%}
+
 {% if any_addon %}
   <div
     class="wt-cart__addons wt-cart__addons--collapsible"
@@ -50,6 +77,32 @@
 
     <div class="wt-cart__addons__content" id="wt-cart-addons-content">
     <div class="wt-cart__addons__list">
+      {%- if rk_show -%}
+        {%- assign rk_title = 'calqix_cart.addon_rebuild_kit_title' | t -%}
+        {%- if rk_title contains 'translation missing' -%}{%- assign rk_title = 'Complete the Rebuild Kit' -%}{%- endif -%}
+        {%- assign rk_text = 'calqix_cart.addon_rebuild_kit_text' | t -%}
+        {%- if rk_text contains 'translation missing' -%}{%- assign rk_text = 'Pair your OralBiome with a FlowCore colour for 30% off.' -%}{%- endif -%}
+        {%- assign rk_badge = 'calqix_cart.addon_rebuild_kit_badge' | t -%}
+        {%- if rk_badge contains 'translation missing' -%}{%- capture rk_badge -%}{{ rk_pct }}% OFF{%- endcapture -%}{%- endif -%}
+        <article class="wt-cart__addon-card wt-cart__addon-card--rebuild-kit" data-cq-rk-addon-card>
+          <div class="wt-cart__addon-card__copy">
+            <p class="wt-cart__addon-card__title">{{ rk_title }}</p>
+            <p class="wt-cart__addon-card__text">{{ rk_text }}</p>
+          </div>
+          <div class="wt-cart__addon-card__actions">
+            <span class="wt-cart__addon-card__badge" aria-hidden="true">{{ rk_badge }}</span>
+            <button
+              type="button"
+              class="wt-cart__addon-card__button"
+              data-cq-rk-open
+              aria-haspopup="dialog"
+              aria-controls="cq-rk-picker"
+            >
+              {{ 'calqix_cart.addon_add' | t }}
+            </button>
+          </div>
+        </article>
+      {%- endif -%}
       {% for i in (1..2) %}
         {% assign show_key = 'drawer_addon_' | append: i | append: '_show' %}
         {% assign price_key = 'drawer_addon_' | append: i | append: '_price' %}

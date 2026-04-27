@@ -83,6 +83,15 @@
     endif
   -%}
 
+  {%- comment -%}
+    The floating banner is rendered only when NOT restricted to the combi-badge only.
+    See cart-drawer.liquid: the big banner has been replaced by an inline
+    add-on card inside cart-addons.liquid, while the combi badge still needs
+    to render so the JS can reveal it when both Rebuild Kit products are in
+    the cart. We always render the data-cq-rk-config carrier so JS config is
+    discoverable, but hide the banner markup when render_combi_badge_only.
+  {%- endcomment -%}
+  {%- unless render_combi_badge_only -%}
   <aside
     class="cq-rk-banner"
     data-cq-rk-banner
@@ -138,6 +147,7 @@
       <span class="cq-rk-banner__sheen" aria-hidden="true"></span>
     </button>
   </aside>
+  {%- endunless -%}
 
   {%- comment -%}
     Combi-active badge: shown when both products are in cart.

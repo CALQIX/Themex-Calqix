@@ -168,8 +168,12 @@
       </div>
 
       <div class="wt-cart__drawer__module-slot wt-cart__drawer__module-slot--post-items">
-        {% comment %} CALQIX Rebuild Kit — banner + combi badge (hidden by default, JS-controlled) {% endcomment %}
-        {% render 'cart-rebuild-kit-promo' %}
+        {% comment %}
+          CALQIX Rebuild Kit — combi badge only. The large "Complete the
+          Rebuild Kit" banner has been relocated into the add-on list below
+          (cart-addons) as a dedicated add-on card with a 30% OFF chip.
+        {% endcomment %}
+        {% render 'cart-rebuild-kit-promo', render_combi_badge_only: true %}
 
         {% if drawer_enable_upsell and settings.enable_cross_sells and cart != empty %}
           {% render 'cart-cross-sell' %}

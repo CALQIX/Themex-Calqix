@@ -208,6 +208,10 @@
           </div>
         </quantity-counter>
 
+        {%- if item.product.template_suffix == 'oralbiome' -%}
+          {%- render 'cart-flavor-picker', item: item, render: 'toggle' -%}
+        {%- endif -%}
+
         <cart-remove-button
           id="CartDrawer-Remove-{{ item.index | plus: 1 }}"
           data-index="{{ item.index | plus: 1 }}"
@@ -290,7 +294,7 @@
     {% endunless %}
 
     {%- if item.product.template_suffix == 'oralbiome' -%}
-      {%- render 'cart-flavor-picker', item: item -%}
+      {%- render 'cart-flavor-picker', item: item, render: 'panel' -%}
     {%- endif -%}
   </div>
 </li>

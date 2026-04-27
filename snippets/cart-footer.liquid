@@ -16,6 +16,9 @@
         <span class="text">{{ 'calqix_cart.total_saved' | t }}</span>
       </div>
       <div class="wt-cart__saved-value">
+        <svg class="wt-cart__saved-check" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M3 7.5l2.8 2.8L11 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
         {{ cart_total_saved | money_with_currency }}
       </div>
     </div>
@@ -30,6 +33,11 @@
       <span class="text">{{ 'sections.cart.subtotal' | t }}</span>
     </div>
     <div class="wt-cart__subtotal__value" data-subtotal-value>
+      {%- if cart_total_saved > 0 and cart_baseline_total > cart.total_price -%}
+        <s class="wt-cart__subtotal__compare" data-compare-cents="{{ cart_baseline_total }}">
+          {{- cart_baseline_total | money_without_currency -}}
+        </s>
+      {%- endif -%}
       {{ cart.total_price | money_with_currency }}
     </div>
   </div>

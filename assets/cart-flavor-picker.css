@@ -4,6 +4,21 @@
 
 /* Picker is rendered as the last child of .wt-cart__item__body so it
    stacks inside the right column (below title → discount → qty row). */
+/* Inline toggle placed inside the cart item action row (between quantity
+   counter and the remove/trash button). Keep the visual pill compact so it
+   shares the 3-column action row with the qty stepper and bin icon. */
+.wt-cart__drawer .item__details .cqfp__toggle {
+  margin: 0;
+  flex: 0 0 auto;
+}
+.wt-cart__drawer .item__details .cqfp__toggle-label {
+  white-space: nowrap;
+}
+.wt-cart__drawer .item__details .wt-cart__item__remove--amount {
+  margin-right: 0;
+  margin-left: auto;
+}
+
 .wt-cart__item__body > .cqfp {
   width: 100%;
   min-width: 0;

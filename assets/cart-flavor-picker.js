@@ -14,9 +14,20 @@
     if (!root || root.getAttribute(INIT_ATTR) === "1") return;
     root.setAttribute(INIT_ATTR, "1");
 
+    // Toggle may live INSIDE root (legacy/full render) OR outside as a sibling
+    // rendered inline in the cart item action row. In split-render mode the
+    // toggle is paired to the panel by matching data-cqfp-pair-id.
     var toggle = root.querySelector(".cqfp__toggle");
+    if (!toggle) {
+      var pairId = root.dataset.cqfpPairId || root.dataset.lineIndex || "";
+      if (pairId) {
+        toggle = document.querySelector('.cqfp__toggle[data-cqfp-pair-id="' + pairId + '"]');
+      }
+    }
     var panel = root.querySelector(".cqfp__panel");
     if (!toggle || !panel) return;
+    if (toggle.getAttribute(INIT_ATTR) === "1") return;
+    toggle.setAttribute(INIT_ATTR, "1");
 
     var currentVariantId = String(root.dataset.currentVariantId || "");
     var lineKey = root.dataset.lineKey || "";

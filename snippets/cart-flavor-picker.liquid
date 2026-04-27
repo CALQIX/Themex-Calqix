@@ -30,20 +30,49 @@
 {%- endfor -%}
 
 {%- if cqfp_count > 1 -%}
-<div class="cqfp"
+  {%- comment -%}
+    Render modes:
+      - 'toggle' : only the inline pill button (used in the action row next to the bin)
+      - 'panel'  : only the dropdown panel + jar grid (renders below the cart item)
+      - default  : backwards-compatible full render (toggle + panel inside one .cqfp wrapper)
+    Toggle and panel are paired by id `cqfp-panel-{line_index}` via aria-controls.
+  {%- endcomment -%}
+  {%- assign cqfp_render = render | default: '' -%}
+
+  {%- if cqfp_render == 'toggle' -%}
+    <button type="button"
+            class="cqfp__toggle"
+            aria-expanded="false"
+            aria-controls="cqfp-panel-{{ cqfp_line_index }}"
+            data-cqfp-pair-id="{{ cqfp_line_index }}">
+      <span class="cqfp__toggle-dot" aria-hidden="true"></span>
+      <span class="cqfp__toggle-label">{{ 'cart.flavor_picker.change' | t | default: 'Change flavor' }}</span>
+      <svg class="cqfp__toggle-chevron" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  {%- else -%}
+<div class="cqfp{% if cqfp_render == 'panel' %} cqfp--panel-only{% endif %}"
      data-line-key="{{ cqfp_line_key | escape }}"
      data-line-index="{{ cqfp_line_index }}"
      data-current-handle="{{ cqfp_current_handle }}"
      data-current-variant-id="{{ cqfp_current_variant }}"
      data-quantity="{{ cqfp_qty }}"
+     data-cqfp-pair-id="{{ cqfp_line_index }}"
      {%- if cqfp_selling_plan_id != '' %} data-selling-plan-id="{{ cqfp_selling_plan_id }}"{% endif %}>
-  <button type="button" class="cqfp__toggle" aria-expanded="false" aria-controls="cqfp-panel-{{ cqfp_line_index }}">
+  {%- if cqfp_render != 'panel' -%}
+  <button type="button"
+          class="cqfp__toggle"
+          aria-expanded="false"
+          aria-controls="cqfp-panel-{{ cqfp_line_index }}"
+          data-cqfp-pair-id="{{ cqfp_line_index }}">
     <span class="cqfp__toggle-dot" aria-hidden="true"></span>
     <span class="cqfp__toggle-label">{{ 'cart.flavor_picker.change' | t | default: 'Change flavor' }}</span>
     <svg class="cqfp__toggle-chevron" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
       <path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </button>
+  {%- endif -%}
 
   <div class="cqfp__panel" id="cqfp-panel-{{ cqfp_line_index }}" hidden>
     <div class="cqfp__panel-inner">
@@ -104,4 +133,5 @@
     </div>
   </div>
 </div>
+  {%- endif -%}
 {%- endif -%}
