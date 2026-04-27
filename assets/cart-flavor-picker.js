@@ -203,27 +203,34 @@
         }).then(function (r) { if (!r.ok) throw new Error("add failed"); return r.json(); });
       }
 
-      // 2) Reduce or keep the current line to currentTarget.
+      // 2) Reduce or keep the current variant to `currentTarget` total.
       //
-      // IMPORTANT: after the /cart/add.js above, Shopify can rehash the
-      // line-item keys of OTHER lines in the cart (this happens when a
-      // cart-level discount or bundle script mutates line properties —
-      // e.g. the Rebuild Kit 30% bundle that toggles a `_bundle_tier`
-      // property on matching lines). If we POST /cart/change.js with
-      // the STALE `lineKey` we captured at render-time, Shopify returns
-      // `400 "no valid id or line parameter"` and the original line is
-      // never reduced, leaving the cart with BOTH flavours.
+      // IMPORTANT: after the /cart/add.js above, Shopify can:
+      //   (a) rehash the line-item keys of OTHER lines (cart-level discount
+      //       or bundle scripts mutating line properties), and/or
+      //   (b) split the original line into multiple lines when an automatic
+      //       "Buy X Get Y" discount applies (e.g. BUNDLE3FREE at 3+ jars,
+      //       which can leave a free copy of the original variant on a
+      //       separate key).
       //
-      // Fix: re-fetch the cart and resolve the CURRENT line key for
-      // `currentVariantId` (+ matching selling-plan, if any). Fall back
-      // to the original lineKey for carts where no rehash happened.
+      // If we POST /cart/change.js with the STALE `lineKey` captured at
+      // render-time, Shopify returns 400 or silently no-ops, leaving the
+      // cart with BOTH flavours (the symptom: 2 jars become 3).
+      //
+      // Fix: refetch the cart, find ALL lines matching the original
+      // variant + selling-plan, and atomically set them via /cart/update.js
+      // by line key — first match gets `currentTarget`, any extras get 0.
+      // /cart/update.js is the only primitive that mutates multiple
+      // lines in one atomic call, which is critical when Shopify's
+      // discount engine has split or duplicated the original line.
+      var resolvedUpdates = null;
       var freshKey = lineKey;
       try {
         var curCart = await fetch("/cart.js", {
           headers: { Accept: "application/json" }
         }).then(function (r) { return r.ok ? r.json() : null; });
         if (curCart && Array.isArray(curCart.items)) {
-          var match = curCart.items.find(function (it) {
+          var matches = curCart.items.filter(function (it) {
             if (String(it.variant_id) !== String(currentVariantId)) return false;
             var lineSp = it.selling_plan_allocation &&
               it.selling_plan_allocation.selling_plan &&
@@ -231,15 +238,89 @@
             if (sellingPlanId) return lineSp === String(sellingPlanId);
             return !lineSp;
           });
-          if (match && match.key) freshKey = match.key;
+          if (matches.length > 0) {
+            resolvedUpdates = {};
+            matches.forEach(function (m, i) {
+              if (!m || !m.key) return;
+              resolvedUpdates[m.key] = i === 0 ? currentTarget : 0;
+            });
+            if (matches[0] && matches[0].key) freshKey = matches[0].key;
+          }
         }
-      } catch (e) { /* fall through with stale lineKey */ }
+      } catch (e) { /* fall through to single-key change */ }
 
-      await fetch("/cart/change.js", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ id: freshKey, quantity: currentTarget })
-      }).then(function (r) { if (!r.ok) throw new Error("change failed"); return r.json(); });
+      if (resolvedUpdates && Object.keys(resolvedUpdates).length > 0) {
+        await fetch("/cart/update.js", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ updates: resolvedUpdates })
+        }).then(function (r) { if (!r.ok) throw new Error("update failed"); return r.json(); });
+      } else {
+        // Fallback: refetch failed (e.g. offline) — best-effort change
+        // by the render-time lineKey. May 400 if the key is stale; the
+        // outer .catch in updateBtn click will surface the error.
+        await fetch("/cart/change.js", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ id: freshKey, quantity: currentTarget })
+        }).then(function (r) { if (!r.ok) throw new Error("change failed"); return r.json(); });
+      }
+
+      // 2b) Reconciliation pass.
+      //
+      // Even after the atomic update above, Shopify's automatic Buy-X-Get-Y
+      // discount engine can re-introduce a free copy of the original
+      // variant if it ran AFTER our update (cart still qualifies for the
+      // bundle threshold during the swap). Refetch one more time and
+      // zero-out any line whose total per (variant + selling-plan) now
+      // exceeds the user's intended target counts.
+      try {
+        var finalCart = await fetch("/cart.js", {
+          headers: { Accept: "application/json" }
+        }).then(function (r) { return r.ok ? r.json() : null; });
+        if (finalCart && Array.isArray(finalCart.items)) {
+          var targetByVariant = Object.create(null);
+          Object.keys(counts).forEach(function (vid) {
+            targetByVariant[String(vid)] = counts[vid];
+          });
+          var byVariant = Object.create(null);
+          finalCart.items.forEach(function (it) {
+            var lineSp = it.selling_plan_allocation &&
+              it.selling_plan_allocation.selling_plan &&
+              String(it.selling_plan_allocation.selling_plan.id);
+            // Only reconcile lines in the same selling-plan context.
+            if (sellingPlanId && lineSp !== String(sellingPlanId)) return;
+            if (!sellingPlanId && lineSp) return;
+            var vid = String(it.variant_id);
+            if (!byVariant[vid]) byVariant[vid] = [];
+            byVariant[vid].push(it);
+          });
+          var stragglers = {};
+          Object.keys(byVariant).forEach(function (vid) {
+            var target = targetByVariant[vid] || 0;
+            var lines = byVariant[vid];
+            var totalQty = lines.reduce(function (s, l) {
+              return s + (parseInt(l.quantity, 10) || 0);
+            }, 0);
+            if (totalQty <= target) return;
+            // Reduce: first line to target, rest to 0
+            lines.forEach(function (l, i) {
+              if (!l || !l.key) return;
+              var desired = i === 0 ? target : 0;
+              if ((parseInt(l.quantity, 10) || 0) !== desired) {
+                stragglers[l.key] = desired;
+              }
+            });
+          });
+          if (Object.keys(stragglers).length > 0) {
+            await fetch("/cart/update.js", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Accept: "application/json" },
+              body: JSON.stringify({ updates: stragglers })
+            }).then(function (r) { if (!r.ok) throw new Error("reconcile failed"); return r.json(); });
+          }
+        }
+      } catch (e) { /* best-effort reconcile */ }
 
       // 3) Success feedback
       cta.setAttribute("data-state", "success");
