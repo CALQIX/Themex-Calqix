@@ -84,10 +84,23 @@
           <span class="cx-arrow"></span>
         </a>
       {%- else -%}
-        <form action="{{ routes.cart_add_url }}" method="post">
-          <input type="hidden" name="id" value="{{ cx_p1.selected_or_first_available_variant.id }}">
-          <input type="hidden" name="quantity" value="1">
-          {%- if cx_p2 -%}<input type="hidden" name="items[0][id]" value="{{ cx_p2.selected_or_first_available_variant.id }}">{%- endif -%}
+        {%- comment -%}
+          Bundle add-to-cart: progressive enhancement.
+          - No-JS fallback: native form POST to /cart/add then Shopify
+            redirects to /cart, which our cx-cart-redirect-head snippet
+            sends to the homepage with ?open_cart=1.
+          - With JS (default): cx-bundle-add.js intercepts the submit,
+            POSTs to /cart/add.js with both items in a single request,
+            dispatches cart-update, then clicks .wt-cart__trigger so the
+            sidecart drawer opens in place — no page navigation.
+        {%- endcomment -%}
+        <form action="{{ routes.cart_add_url }}" method="post" data-cx-bundle-add>
+          <input type="hidden" name="items[0][id]" value="{{ cx_p1.selected_or_first_available_variant.id }}">
+          <input type="hidden" name="items[0][quantity]" value="1">
+          {%- if cx_p2 -%}
+            <input type="hidden" name="items[1][id]" value="{{ cx_p2.selected_or_first_available_variant.id }}">
+            <input type="hidden" name="items[1][quantity]" value="1">
+          {%- endif -%}
           <button type="submit" class="cx-btn cx-btn-primary cx-bundle-cta">
             {{ section.settings.cta_text }}
             <span class="cx-arrow"></span>

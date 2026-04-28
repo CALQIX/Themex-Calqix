@@ -32,12 +32,12 @@
     var stripped = path.replace(/^\/[a-z]{2}(?:-[A-Z]{2})?(?=\/|$)/, '');
     if (stripped !== '/cart' && stripped !== '/cart/') return;
 
-    var last = null;
-    try { last = sessionStorage.getItem('cx:lastProduct'); } catch (e) {}
-    if (!last || !/\/products\//.test(last)) last = '/';
-
-    var sep = last.indexOf('?') >= 0 ? '&' : '?';
-    location.replace(last + sep + 'open_cart=1');
+    // Per merchant request: /cart in any locale always returns to the
+    // localized homepage. Preserve the locale prefix so the visitor stays
+    // in their selected market/language.
+    var localePrefix = (path.match(/^\/[a-z]{2}(?:-[A-Z]{2})?(?=\/|$)/) || [''])[0];
+    var home = localePrefix + '/';
+    location.replace(home + '?open_cart=1');
   } catch (e) { /* fall through to normal /cart page on any failure */ }
 })();
 </script>
