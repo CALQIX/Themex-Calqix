@@ -72,56 +72,33 @@
         "color_border": "#e8eef4"
       }
     },
-    "1771874460517556a7": {
-      "type": "_blocks",
+    "1777408624b77e2f68": {
+      "type": "apps",
       "blocks": {
-        "ai_gen_block_b4d248d_qnGyCc": {
-          "type": "ai_gen_block_b4d248d",
+        "instafeed_app_block_3dqhTk": {
+          "type": "shopify://apps/instafeed/blocks/app-block/c447db20-095d-4a10-9725-b5977662c9d5",
           "settings": {
-            "heading": "<strong>Why Choose Calqix</strong>",
-            "heading_alignment": "center",
-            "heading_size": 24,
-            "heading_spacing": 40,
-            "section_padding": 60,
-            "desktop_width_percent": 100,
-            "grid_gap": 30,
-            "content_alignment": "center",
-            "item_padding": 30,
-            "item_border_radius": 12,
-            "icon_size": 60,
-            "icon_spacing": 20,
-            "title_size": 20,
-            "title_spacing": 12,
-            "description_size": 15,
-            "background_color": "#ffffff",
-            "heading_color": "#1a3b5c",
-            "item_background_color": "#f8fafb",
-            "icon_background_color": "#1a3b5c",
-            "icon_color": "#ffffff",
-            "title_color": "#1a3b5c",
-            "description_color": "#202020",
-            "feature_1_icon": "shield",
-            "feature_1_title": "Premium Quality",
-            "feature_1_description": "Advanced nano-hydroxyapatite formula for superior oral care and enamel protection.",
-            "feature_2_icon": "heart",
-            "feature_2_title": "Natural Ingredients",
-            "feature_2_description": "Fluoride-free formulation with natural ingredients for a healthier smile.",
-            "feature_3_icon": "star",
-            "feature_3_title": "Scientifically Proven",
-            "feature_3_description": "Backed by research and trusted by dental professionals worldwide.",
-            "feature_4_icon": "truck",
-            "feature_4_title": "Fast Delivery",
-            "feature_4_description": "Quick and reliable shipping to bring Calqix to your doorstep."
-          },
-          "blocks": {}
+            "title": "Follow us on Instagram",
+            "title_color": "#f8fafb",
+            "title_size_v2": 0,
+            "alignment": "center",
+            "instafeed_margin_top": 20,
+            "instafeed_margin_bottom": 0,
+            "instafeed_margin_sides": 0,
+            "show_instagram_link": true,
+            "link_alignment": "center",
+            "link_color": "#f8fafb",
+            "background_color": "#0d1c2b",
+            "feed_id": "",
+            "html_area": ""
+          }
         }
       },
       "block_order": [
-        "ai_gen_block_b4d248d_qnGyCc"
+        "instafeed_app_block_3dqhTk"
       ],
-      "disabled": true,
       "settings": {
-        "section-margin": 0
+        "include_margins": true
       }
     },
     "calqix_email_signup_XLGUJi": {
@@ -318,18 +295,6 @@
         "margin-bottom": 0
       }
     },
-    "cx_bottom_bar": {
-      "type": "cx-bottom-bar",
-      "name": "CX Bottom bar (mobile)",
-      "settings": {
-        "shop_url": "/collections",
-        "label_home": "Home",
-        "label_shop": "Shop",
-        "label_account": "Account",
-        "label_cart": "Cart",
-        "aria_label": "Primaire navigatie"
-      }
-    },
     "17718746227a712293": {
       "type": "_blocks",
       "blocks": {
@@ -373,11 +338,26 @@
       "settings": {
         "section-margin": 0
       }
+    },
+    "cx_bottom_bar": {
+      "type": "cx-bottom-bar",
+      "name": "CX Bottom bar (mobile)",
+      "settings": {
+        "home_url": "",
+        "shop_url": "/collections",
+        "account_url": "",
+        "cart_url": "",
+        "label_home": "Home",
+        "label_shop": "Shop",
+        "label_account": "Account",
+        "label_cart": "Cart",
+        "aria_label": "Primaire navigatie"
+      }
     }
   },
   "order": [
     "calqix_benefits_BT8BrE",
-    "1771874460517556a7",
+    "1777408624b77e2f68",
     "calqix_email_signup_XLGUJi",
     "calqix_footer_7Jy6Hf",
     "footer",
