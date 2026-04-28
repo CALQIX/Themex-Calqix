@@ -288,9 +288,21 @@
     },
     "science_KbMl4i": {
       "type": "cx-science-spotlight",
+      "blocks": {
+        "step_bND7Ln": {
+          "type": "step",
+          "settings": {
+            "title": "Deep cleaning",
+            "desc": "1,600 pulses per minute clean plaque and bacteria far below the gumline."
+          }
+        }
+      },
+      "block_order": [
+        "step_bND7Ln"
+      ],
       "settings": {
         "eyebrow": "Our science",
-        "heading": "<p>From deep cleaning<br>to <em>real enamel repair.</em></p>",
+        "heading": "<p>From deep cleaning<br/>to <em>real enamel repair.</em></p>",
         "lede": "<p>Flowcore removes what your toothbrush can't reach. Nano-HA can bind directly to the freshly cleaned enamel surface. Discover the science behind every step.</p>",
         "image_label": "DENTAL RESEARCHER · LAB SHOT",
         "cta_text": "Discover our science",
@@ -425,7 +437,7 @@
       "settings": {
         "eyebrow": "Science Journal",
         "heading": "<p>Layered knowledge, <em>clearly told.</em></p>",
-        "blog": "",
+        "blog": "the-science-journal",
         "read_label": "Read article",
         "cta_text": "All articles",
         "cta_link": "",
