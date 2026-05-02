@@ -1,12 +1,16 @@
 {{ 'cart-drawer.css' | asset_url | stylesheet_tag }}
 {{ 'cart-flavor-picker.css' | asset_url | stylesheet_tag }}
 {{ 'calqix-rebuild-kit-bundle.css' | asset_url | stylesheet_tag }}
+{{ 'cart-discount.css' | asset_url | stylesheet_tag }}
+{{ 'cart-oralbiome-bar.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'cart-drawer-note.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'cart-flavor-picker.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'cart-addons-collapsible.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'calqix-rebuild-kit-bundle.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'cart-discount.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'cart-oralbiome-bar.js' | asset_url }}" defer="defer"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer="defer"></script>
 
 {% assign drawer_enable_upsell = settings.drawer_module_upsell %}
@@ -130,6 +134,9 @@
           {% if drawer_show_progress and settings.enable_free_shipping_bar and cart != empty %}
             {% render 'cart-free-shipping-bar' %}
           {% endif %}
+          {% if cart != empty %}
+            {% render 'cart-oralbiome-bar' %}
+          {% endif %}
 
           {% if settings.drawer_module_urgency and cart != empty %}
             {% render 'cart-urgency' %}
@@ -200,6 +207,7 @@
             {% endif %}
           </div>
 
+          {% render 'cart-discount' %}
           {% render 'cart-footer' %}
           <div id="cart-errors"></div>
         </footer>

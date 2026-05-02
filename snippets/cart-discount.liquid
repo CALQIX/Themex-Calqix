@@ -1,0 +1,211 @@
+{%- liquid
+  assign manual_discount_count = 0
+  assign automatic_discount_count = 0
+  assign discount_count = 0
+  assign rendered_discount_titles = '|'
+  assign locale_code = request.locale.iso_code | default: localization.language.iso_code | default: 'en' | downcase
+  assign discount_prompt = 'Have a discount code?'
+  assign input_label = 'Discount code'
+  assign input_placeholder = 'Enter code'
+  assign apply_label = 'Apply'
+  assign savings_label = "You're saving"
+  assign active_singular_label = 'discount active'
+  assign active_plural_label = 'discounts active'
+  assign already_applied_label = 'Code already applied'
+  assign invalid_label = 'Invalid or expired code'
+  assign remove_label = 'Remove'
+
+  case locale_code
+    when 'nl'
+      assign discount_prompt = 'Heb je een kortingscode?'
+      assign input_label = 'Kortingscode'
+      assign input_placeholder = 'Voer code in'
+      assign apply_label = 'Toepassen'
+      assign savings_label = 'Je bespaart'
+      assign active_singular_label = 'korting actief'
+      assign active_plural_label = 'kortingen actief'
+      assign already_applied_label = 'Code is al toegepast'
+      assign invalid_label = 'Ongeldige of verlopen code'
+      assign remove_label = 'Verwijder'
+    when 'de'
+      assign discount_prompt = 'Hast du einen Rabattcode?'
+      assign input_label = 'Rabattcode'
+      assign input_placeholder = 'Code eingeben'
+      assign apply_label = 'Anwenden'
+      assign savings_label = 'Du sparst'
+      assign active_singular_label = 'Rabatt aktiv'
+      assign active_plural_label = 'Rabatte aktiv'
+      assign already_applied_label = 'Code wurde bereits angewendet'
+      assign invalid_label = 'Ungültiger oder abgelaufener Code'
+      assign remove_label = 'Entfernen'
+    when 'fr'
+      assign discount_prompt = 'Vous avez un code promo ?'
+      assign input_label = 'Code promo'
+      assign input_placeholder = 'Saisir le code'
+      assign apply_label = 'Appliquer'
+      assign savings_label = 'Vous économisez'
+      assign active_singular_label = 'réduction active'
+      assign active_plural_label = 'réductions actives'
+      assign already_applied_label = 'Code déjà appliqué'
+      assign invalid_label = 'Code invalide ou expiré'
+      assign remove_label = 'Supprimer'
+    when 'es'
+      assign discount_prompt = '¿Tienes un código de descuento?'
+      assign input_label = 'Código de descuento'
+      assign input_placeholder = 'Introduce el código'
+      assign apply_label = 'Aplicar'
+      assign savings_label = 'Ahorras'
+      assign active_singular_label = 'descuento activo'
+      assign active_plural_label = 'descuentos activos'
+      assign already_applied_label = 'El código ya se ha aplicado'
+      assign invalid_label = 'Código no válido o caducado'
+      assign remove_label = 'Eliminar'
+    when 'it'
+      assign discount_prompt = 'Hai un codice sconto?'
+      assign input_label = 'Codice sconto'
+      assign input_placeholder = 'Inserisci codice'
+      assign apply_label = 'Applica'
+      assign savings_label = 'Risparmi'
+      assign active_singular_label = 'sconto attivo'
+      assign active_plural_label = 'sconti attivi'
+      assign already_applied_label = 'Codice già applicato'
+      assign invalid_label = 'Codice non valido o scaduto'
+      assign remove_label = 'Rimuovi'
+    when 'pt', 'pt-br', 'pt-pt'
+      assign discount_prompt = 'Tem um código de desconto?'
+      assign input_label = 'Código de desconto'
+      assign input_placeholder = 'Inserir código'
+      assign apply_label = 'Aplicar'
+      assign savings_label = 'Está a poupar'
+      assign active_singular_label = 'desconto ativo'
+      assign active_plural_label = 'descontos ativos'
+      assign already_applied_label = 'Código já aplicado'
+      assign invalid_label = 'Código inválido ou expirado'
+      assign remove_label = 'Remover'
+    when 'da'
+      assign discount_prompt = 'Har du en rabatkode?'
+      assign input_label = 'Rabatkode'
+      assign input_placeholder = 'Indtast kode'
+      assign apply_label = 'Anvend'
+      assign savings_label = 'Du sparer'
+      assign active_singular_label = 'rabat aktiv'
+      assign active_plural_label = 'rabatter aktive'
+      assign already_applied_label = 'Koden er allerede anvendt'
+      assign invalid_label = 'Ugyldig eller udløbet kode'
+      assign remove_label = 'Fjern'
+    when 'sv'
+      assign discount_prompt = 'Har du en rabattkod?'
+      assign input_label = 'Rabattkod'
+      assign input_placeholder = 'Ange kod'
+      assign apply_label = 'Använd'
+      assign savings_label = 'Du sparar'
+      assign active_singular_label = 'rabatt aktiv'
+      assign active_plural_label = 'rabatter aktiva'
+      assign already_applied_label = 'Koden har redan använts'
+      assign invalid_label = 'Ogiltig eller utgången kod'
+      assign remove_label = 'Ta bort'
+    when 'fi'
+      assign discount_prompt = 'Onko sinulla alennuskoodi?'
+      assign input_label = 'Alennuskoodi'
+      assign input_placeholder = 'Syötä koodi'
+      assign apply_label = 'Käytä'
+      assign savings_label = 'Säästät'
+      assign active_singular_label = 'alennus aktiivinen'
+      assign active_plural_label = 'alennusta aktiivinen'
+      assign already_applied_label = 'Koodi on jo käytössä'
+      assign invalid_label = 'Virheellinen tai vanhentunut koodi'
+      assign remove_label = 'Poista'
+  endcase
+-%}
+
+<cart-discount
+  class="cart-discount"
+  data-total-discount="{{ cart.total_discount }}"
+  data-prompt="{{ discount_prompt | escape }}"
+  data-active-singular="{{ active_singular_label | escape }}"
+  data-active-plural="{{ active_plural_label | escape }}"
+  data-already-applied="{{ already_applied_label | escape }}"
+  data-invalid="{{ invalid_label | escape }}"
+>
+  <div class="cart-discount__panel">
+    <button
+      type="button"
+      class="cart-discount__toggle"
+      aria-expanded="false"
+      aria-controls="CartDiscountPanel"
+      data-cart-discount-toggle
+    >
+      <span class="cart-discount__headline">
+        <svg class="cart-discount__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20.59 13.41L13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+          <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+        <span class="cart-discount__title" data-cart-discount-title>
+          {{- discount_prompt -}}
+        </span>
+      </span>
+      <svg class="cart-discount__chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </button>
+
+    <div class="cart-discount__tags" data-cart-discount-tags>
+      {%- for discount in cart.cart_level_discount_applications -%}
+        {%- assign discount_key = discount.title | append: '|' | prepend: '|' -%}
+        {%- unless rendered_discount_titles contains discount_key -%}
+          {%- assign rendered_discount_titles = rendered_discount_titles | append: discount.title | append: '|' -%}
+          {%- assign discount_count = discount_count | plus: 1 -%}
+          {%- if discount.type == 'discount_code' -%}
+            {%- assign manual_discount_count = manual_discount_count | plus: 1 -%}
+            <span class="cart-discount__tag cart-discount__tag--manual" data-discount-code="{{ discount.title | escape }}">
+              <span>{{ discount.title }}</span>
+              <button type="button" class="cart-discount__remove" aria-label="{{ remove_label | escape }} {{ discount.title | escape }}" data-cart-discount-remove="{{ discount.title | escape }}">×</button>
+            </span>
+          {%- else -%}
+            {%- assign automatic_discount_count = automatic_discount_count | plus: 1 -%}
+            <span class="cart-discount__tag cart-discount__tag--automatic" data-discount-title="{{ discount.title | escape }}">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              <span>AUTO · {{ discount.title | upcase | truncate: 14, '' }}</span>
+            </span>
+          {%- endif -%}
+        {%- endunless -%}
+      {%- endfor -%}
+
+      {%- for item in cart.items -%}
+        {%- for allocation in item.line_level_discount_allocations -%}
+          {%- assign discount_title = allocation.discount_application.title -%}
+          {%- assign discount_key = discount_title | append: '|' | prepend: '|' -%}
+          {%- unless discount_title == blank or rendered_discount_titles contains discount_key -%}
+            {%- assign rendered_discount_titles = rendered_discount_titles | append: discount_title | append: '|' -%}
+              {%- assign discount_count = discount_count | plus: 1 -%}
+              {%- assign automatic_discount_count = automatic_discount_count | plus: 1 -%}
+              <span class="cart-discount__tag cart-discount__tag--automatic" data-discount-title="{{ discount_title | escape }}">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                <span>AUTO · {{ discount_title | upcase | truncate: 14, '' }}</span>
+              </span>
+          {%- endunless -%}
+        {%- endfor -%}
+      {%- endfor -%}
+    </div>
+
+    <div class="cart-discount__content" id="CartDiscountPanel" data-cart-discount-content>
+      <form class="cart-discount__form" data-cart-discount-form>
+        <input class="cart-discount__input" type="text" name="discount" autocomplete="off" aria-label="{{ input_label | escape }}" placeholder="{{ input_placeholder | escape }}" data-cart-discount-input>
+        <button class="cart-discount__apply" type="submit" data-cart-discount-apply>
+          <span data-cart-discount-apply-label>{{ apply_label }}</span>
+          <span class="cart-discount__spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+      <p class="cart-discount__message" role="alert" data-cart-discount-message></p>
+    </div>
+  </div>
+
+  {%- if cart.total_discount > 0 -%}
+    <div class="cart-discount__savings" data-cart-discount-savings>
+      <span>{{ savings_label }}</span>
+      <strong>−{{ cart.total_discount | money }}</strong>
+    </div>
+  {%- endif -%}
+
+  <script type="application/json" data-cart-discount-state>{"count":{{ discount_count }},"manual":{{ manual_discount_count }},"automatic":{{ automatic_discount_count }}}</script>
+</cart-discount>

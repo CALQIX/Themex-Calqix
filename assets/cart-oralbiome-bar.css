@@ -1,0 +1,193 @@
+.wt-cart__drawer .oralbiome-bar {
+  --oralbiome-navy: #002549;
+  --oralbiome-ivory: #FAF7EF;
+  --oralbiome-gold: #D4B46E;
+  display: block;
+  position: relative;
+  margin: 8px 0 calc(var(--gap, 8px) * 1);
+  padding: 14px 16px 18px;
+  background: var(--oralbiome-navy);
+  background-image:
+    radial-gradient(120% 90% at 100% 0%, rgba(212, 180, 110, 0.10) 0%, transparent 60%),
+    radial-gradient(80% 80% at 0% 100%, rgba(212, 180, 110, 0.06) 0%, transparent 60%);
+  border-radius: 10px;
+  color: var(--oralbiome-ivory);
+  font-family: "DM Sans", system-ui, sans-serif;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 1px 2px rgba(0, 20, 40, 0.06);
+  animation: oralbiomeBarIn 200ms ease-out both;
+}
+
+.wt-cart__drawer .oralbiome-bar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.wt-cart__drawer .oralbiome-bar__title {
+  color: var(--oralbiome-ivory);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.wt-cart__drawer .oralbiome-bar__badge {
+  flex: 0 0 auto;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: var(--oralbiome-gold);
+  color: var(--oralbiome-navy);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.wt-cart__drawer .oralbiome-bar__ratio {
+  display: none;
+  color: var(--oralbiome-gold);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.wt-cart__drawer .oralbiome-bar__track {
+  position: relative;
+  height: 2px;
+  margin: 0 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+
+.wt-cart__drawer .oralbiome-bar__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--oralbiome-fill, 0%);
+  border-radius: 2px;
+  background: var(--oralbiome-gold);
+  transition: width 220ms ease-out;
+}
+
+.wt-cart__drawer .oralbiome-bar__node {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  transition: background 200ms ease-out, border-color 200ms ease-out;
+}
+
+.wt-cart__drawer .oralbiome-bar__node--1 { left: 0%; }
+.wt-cart__drawer .oralbiome-bar__node--2 { left: 50%; }
+.wt-cart__drawer .oralbiome-bar__node--3 { left: 100%; transform: translate(50%, -50%); }
+
+.wt-cart__drawer .oralbiome-bar__node.is-active {
+  border-color: var(--oralbiome-gold);
+  background: var(--oralbiome-gold);
+}
+
+.wt-cart__drawer .oralbiome-bar__node svg {
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+}
+
+.wt-cart__drawer .oralbiome-bar__node svg path {
+  stroke: var(--oralbiome-navy);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.wt-cart__drawer .oralbiome-bar__node.is-active svg {
+  opacity: 1;
+}
+
+.wt-cart__drawer .oralbiome-bar__labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 6px;
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 9px;
+  line-height: 1.2;
+}
+
+.wt-cart__drawer .oralbiome-bar__labels .is-active {
+  color: var(--oralbiome-gold);
+  font-weight: 700;
+}
+
+.wt-cart__drawer .oralbiome-bar__message {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.wt-cart__drawer .oralbiome-bar__message strong {
+  color: var(--oralbiome-gold);
+  font-weight: 700;
+}
+
+@keyframes oralbiomeBarIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .wt-cart__drawer .oralbiome-bar {
+    padding: 9px 11px;
+  }
+
+  .wt-cart__drawer .oralbiome-bar__header {
+    margin-bottom: 8px;
+  }
+
+  .wt-cart__drawer .oralbiome-bar__title {
+    font-size: 11px;
+  }
+
+  .wt-cart__drawer .oralbiome-bar__badge--desktop {
+    display: none;
+  }
+
+  .wt-cart__drawer .oralbiome-bar__ratio {
+    display: inline-flex;
+  }
+
+  .wt-cart__drawer .oralbiome-bar__track {
+    margin: 0 5px;
+  }
+
+  .wt-cart__drawer .oralbiome-bar__node {
+    width: 12px;
+    height: 12px;
+  }
+
+  .wt-cart__drawer .oralbiome-bar__node svg {
+    display: none;
+  }
+
+  .wt-cart__drawer .oralbiome-bar__labels {
+    display: none;
+  }
+
+  .wt-cart__drawer .oralbiome-bar__message {
+    margin-top: 7px;
+    font-size: 9px;
+  }
+}
