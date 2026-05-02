@@ -19,8 +19,10 @@ class CartOralBiomeBar extends HTMLElement {
     const previousQty = Number(sessionStorage.getItem('oralbiomeRewardQty') || 0);
     if (previousQty > 0 && qty > previousQty) {
       this.classList.add('is-incrementing');
+      if (this.parentElement) this.parentElement.classList.add('is-incrementing');
     } else if (previousQty > qty) {
       this.classList.add('is-decrementing');
+      if (this.parentElement) this.parentElement.classList.add('is-decrementing');
     }
     sessionStorage.setItem('oralbiomeRewardQty', String(qty));
   }

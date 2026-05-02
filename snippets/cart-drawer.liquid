@@ -131,11 +131,13 @@
           {% if drawer_show_progress == blank %}
             {% assign drawer_show_progress = settings.enable_free_shipping_bar %}
           {% endif %}
-          {% if drawer_show_progress and settings.enable_free_shipping_bar and cart != empty %}
-            {% render 'cart-free-shipping-bar' %}
-          {% endif %}
           {% if cart != empty %}
-            {% render 'cart-oralbiome-bar' %}
+            <div class="wt-cart-rewards-stack">
+              {% if drawer_show_progress and settings.enable_free_shipping_bar %}
+                {% render 'cart-free-shipping-bar' %}
+              {% endif %}
+              {% render 'cart-oralbiome-bar' %}
+            </div>
           {% endif %}
 
           {% if settings.drawer_module_urgency and cart != empty %}

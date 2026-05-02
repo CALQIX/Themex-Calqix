@@ -1,16 +1,31 @@
+.wt-cart__drawer .wt-cart-rewards-stack {
+  width: 100%;
+  margin: calc(var(--gap, 8px) * 2) 0 calc(var(--gap, 8px) * 1);
+  transform-origin: top center;
+}
+
+.wt-cart__drawer .wt-cart-rewards-stack .wt-free-shipping-bar {
+  margin: 0;
+  border-radius: 10px;
+}
+
+.wt-cart__drawer .wt-cart-rewards-stack:has(.oralbiome-bar) .wt-free-shipping-bar {
+  border-radius: 10px 10px 0 0;
+}
+
 .wt-cart__drawer .oralbiome-bar {
   --oralbiome-navy: #002549;
   --oralbiome-ivory: #FAF7EF;
   --oralbiome-gold: #D4B46E;
   display: block;
   position: relative;
-  margin: 8px 0 8px;
+  margin: 0;
   padding: 10px 16px 12px;
   background: var(--oralbiome-navy);
   background-image:
     radial-gradient(120% 90% at 100% 0%, rgba(212, 180, 110, 0.10) 0%, transparent 60%),
     radial-gradient(80% 80% at 0% 100%, rgba(212, 180, 110, 0.06) 0%, transparent 60%);
-  border-radius: 10px;
+  border-radius: 0 0 10px 10px;
   color: var(--oralbiome-ivory);
   font-family: "DM Sans", system-ui, sans-serif;
   overflow: hidden;
@@ -18,8 +33,14 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
     0 1px 2px rgba(0, 20, 40, 0.06);
+  border-top: 1px solid rgba(250, 247, 239, 0.12);
   transform-origin: top center;
-  animation: oralbiomeBarIn 260ms cubic-bezier(0.22, 1.1, 0.4, 1) both;
+  animation: oralbiomeBarDropdown 260ms cubic-bezier(0.22, 1.1, 0.4, 1) both;
+}
+
+.wt-cart__drawer .wt-cart-rewards-stack > .oralbiome-bar:first-child {
+  border-radius: 10px;
+  border-top: 0;
 }
 
 .wt-cart__drawer .oralbiome-bar__header {
@@ -144,16 +165,18 @@
   font-weight: 700;
 }
 
-@keyframes oralbiomeBarIn {
-  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
-  70% { opacity: 1; transform: translateY(0) scale(1.012); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes oralbiomeBarDropdown {
+  from { opacity: 0; transform: translateY(-6px) scaleY(0.96); }
+  70% { opacity: 1; transform: translateY(0) scaleY(1.012); }
+  to { opacity: 1; transform: translateY(0) scaleY(1); }
 }
 
+.wt-cart__drawer .wt-cart-rewards-stack.is-incrementing,
 .wt-cart__drawer .oralbiome-bar.is-incrementing {
   animation: oralbiomeBarPop 300ms cubic-bezier(0.22, 1.1, 0.4, 1) both;
 }
 
+.wt-cart__drawer .wt-cart-rewards-stack.is-decrementing,
 .wt-cart__drawer .oralbiome-bar.is-decrementing {
   animation: oralbiomeBarPopSoft 260ms cubic-bezier(0.22, 1.1, 0.4, 1) both;
 }
