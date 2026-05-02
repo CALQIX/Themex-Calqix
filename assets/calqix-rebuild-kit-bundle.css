@@ -736,13 +736,79 @@ body.cq-rk-picker-open {
 /* Desktop: the collapsible variant is a no-op — hide the
    mobile-only trigger, keep the static heading and list
    visible. No behavioural change vs the existing theme UI. */
-.wt-cart__addons--collapsible .wt-cart__addons__trigger { display: none; }
-.wt-cart__addons--collapsible .wt-cart__addons__heading--static { display: block; }
+.wt-cart__addons--collapsible .wt-cart__addons__trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0 0 10px;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  color: var(--calqix-navy, #1A3B5C);
+  font: inherit;
+  font-family: "DM Serif Display", Georgia, serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.wt-cart__addons--collapsible .wt-cart__addons__heading--static { display: none; }
 .wt-cart__addons--collapsible .wt-cart__addons__content {
-  display: block;
-  max-height: none;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(-4px);
+  transition:
+    max-height 420ms cubic-bezier(0.22, 1.1, 0.4, 1),
+    opacity 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 420ms cubic-bezier(0.22, 1.1, 0.4, 1);
+  will-change: max-height, opacity, transform;
+}
+.wt-cart__addons--collapsible.wt-cart__addons--expanded .wt-cart__addons__content {
+  max-height: 720px;
   opacity: 1;
-  overflow: visible;
+  transform: translateY(0);
+}
+.wt-cart__addons--collapsible .wt-cart__addons__trigger-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.wt-cart__addons--collapsible .wt-cart__addons__count {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: rgba(26, 59, 92, 0.08);
+  color: var(--calqix-navy, #1A3B5C);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: background-color 260ms cubic-bezier(0.22, 1.1, 0.4, 1),
+              color 260ms cubic-bezier(0.22, 1.1, 0.4, 1);
+}
+.wt-cart__addons--collapsible .wt-cart__addons__chevron {
+  flex: 0 0 14px;
+  color: rgba(26, 59, 92, 0.55);
+  transition: transform 320ms cubic-bezier(0.22, 1.1, 0.4, 1),
+              color 260ms cubic-bezier(0.22, 1.1, 0.4, 1);
+}
+.wt-cart__addons--collapsible.wt-cart__addons--expanded .wt-cart__addons__chevron {
+  transform: rotate(180deg);
+  color: var(--calqix-gold, #C9A84C);
+}
+.wt-cart__addons--collapsible.wt-cart__addons--expanded .wt-cart__addons__count {
+  background: rgba(201, 168, 76, 0.18);
+  color: var(--calqix-gold-dark, #A68934);
 }
 
 @media (max-width: 599px) {

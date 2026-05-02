@@ -4,8 +4,8 @@
   --oralbiome-gold: #D4B46E;
   display: block;
   position: relative;
-  margin: 8px 0 calc(var(--gap, 8px) * 1);
-  padding: 14px 16px 18px;
+  margin: 8px 0 8px;
+  padding: 10px 16px 12px;
   background: var(--oralbiome-navy);
   background-image:
     radial-gradient(120% 90% at 100% 0%, rgba(212, 180, 110, 0.10) 0%, transparent 60%),
@@ -18,7 +18,8 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
     0 1px 2px rgba(0, 20, 40, 0.06);
-  animation: oralbiomeBarIn 200ms ease-out both;
+  transform-origin: top center;
+  animation: oralbiomeBarIn 260ms cubic-bezier(0.22, 1.1, 0.4, 1) both;
 }
 
 .wt-cart__drawer .oralbiome-bar__header {
@@ -26,12 +27,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 9px;
 }
 
 .wt-cart__drawer .oralbiome-bar__title {
   color: var(--oralbiome-ivory);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   line-height: 1.35;
 }
@@ -76,8 +77,8 @@
 .wt-cart__drawer .oralbiome-bar__node {
   position: absolute;
   top: 50%;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border: 1.5px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
@@ -97,8 +98,8 @@
 }
 
 .wt-cart__drawer .oralbiome-bar__node svg {
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   opacity: 0;
 }
 
@@ -118,7 +119,7 @@
   justify-content: space-between;
   gap: 10px;
   padding: 0 6px;
-  margin-top: 10px;
+  margin-top: 8px;
   color: rgba(255, 255, 255, 0.6);
   font-size: 9px;
   line-height: 1.2;
@@ -130,9 +131,9 @@
 }
 
 .wt-cart__drawer .oralbiome-bar__message {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   color: rgba(255, 255, 255, 0.85);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 500;
   line-height: 1.35;
   text-align: center;
@@ -144,13 +145,44 @@
 }
 
 @keyframes oralbiomeBarIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  70% { opacity: 1; transform: translateY(0) scale(1.012); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.wt-cart__drawer .oralbiome-bar.is-incrementing {
+  animation: oralbiomeBarPop 300ms cubic-bezier(0.22, 1.1, 0.4, 1) both;
+}
+
+.wt-cart__drawer .oralbiome-bar.is-decrementing {
+  animation: oralbiomeBarPopSoft 260ms cubic-bezier(0.22, 1.1, 0.4, 1) both;
+}
+
+.wt-cart__drawer .oralbiome-bar.is-removing {
+  animation: oralbiomeBarRemove 180ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes oralbiomeBarPop {
+  0% { transform: scale(0.985); }
+  55% { transform: scale(1.018); }
+  100% { transform: scale(1); }
+}
+
+@keyframes oralbiomeBarPopSoft {
+  0% { transform: scale(1); }
+  45% { transform: scale(0.975); }
+  100% { transform: scale(1); }
+}
+
+@keyframes oralbiomeBarRemove {
+  0% { opacity: 1; transform: scale(1); max-height: 120px; }
+  55% { opacity: 1; transform: scale(1.018); max-height: 120px; }
+  100% { opacity: 0; transform: scale(0.94); max-height: 0; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; }
 }
 
 @media (max-width: 480px) {
   .wt-cart__drawer .oralbiome-bar {
-    padding: 9px 11px;
+    padding: 9px 11px 10px;
   }
 
   .wt-cart__drawer .oralbiome-bar__header {

@@ -165,6 +165,28 @@ class CartDrawerSection extends HTMLElement {
     const previousSubtotal = this.getSubtotalCents();
     const previousProgress = this.getFreeShippingProgress();
     const previousRemaining = this.getFreeShippingRemainingCents();
+    const previousOralBiomeBar = this.querySelector(".oralbiome-bar");
+    const previousOralBiomeQty = previousOralBiomeBar
+      ? Number(previousOralBiomeBar.dataset.oralbiomeQty || 0)
+      : 0;
+    const nextOralBiomeBar = new DOMParser()
+      .parseFromString(parsedState.sections["cart-drawer"], "text/html")
+      .querySelector("#CartDrawer .oralbiome-bar");
+    const nextOralBiomeQty = nextOralBiomeBar
+      ? Number(nextOralBiomeBar.dataset.oralbiomeQty || 0)
+      : 0;
+
+    if (
+      previousOralBiomeBar &&
+      previousOralBiomeQty > 0 &&
+      nextOralBiomeQty === 0 &&
+      !previousOralBiomeBar.classList.contains("is-removing")
+    ) {
+      previousOralBiomeBar.classList.add("is-removing");
+      sessionStorage.setItem("oralbiomeRewardQty", "0");
+      setTimeout(() => this.renderContents(parsedState, isClosedCart), 180);
+      return;
+    }
 
     this.getSectionsToRender().forEach((section) => {
       const sectionElement = section.selector
