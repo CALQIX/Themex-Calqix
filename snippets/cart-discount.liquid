@@ -8,7 +8,6 @@
   assign input_label = 'Discount code'
   assign input_placeholder = 'Enter code'
   assign apply_label = 'Apply'
-  assign savings_label = "You're saving"
   assign active_singular_label = 'discount active'
   assign active_plural_label = 'discounts active'
   assign already_applied_label = 'Code already applied'
@@ -21,7 +20,6 @@
       assign input_label = 'Kortingscode'
       assign input_placeholder = 'Voer code in'
       assign apply_label = 'Toepassen'
-      assign savings_label = 'Je bespaart'
       assign active_singular_label = 'korting actief'
       assign active_plural_label = 'kortingen actief'
       assign already_applied_label = 'Code is al toegepast'
@@ -32,7 +30,6 @@
       assign input_label = 'Rabattcode'
       assign input_placeholder = 'Code eingeben'
       assign apply_label = 'Anwenden'
-      assign savings_label = 'Du sparst'
       assign active_singular_label = 'Rabatt aktiv'
       assign active_plural_label = 'Rabatte aktiv'
       assign already_applied_label = 'Code wurde bereits angewendet'
@@ -43,7 +40,6 @@
       assign input_label = 'Code promo'
       assign input_placeholder = 'Saisir le code'
       assign apply_label = 'Appliquer'
-      assign savings_label = 'Vous économisez'
       assign active_singular_label = 'réduction active'
       assign active_plural_label = 'réductions actives'
       assign already_applied_label = 'Code déjà appliqué'
@@ -54,7 +50,6 @@
       assign input_label = 'Código de descuento'
       assign input_placeholder = 'Introduce el código'
       assign apply_label = 'Aplicar'
-      assign savings_label = 'Ahorras'
       assign active_singular_label = 'descuento activo'
       assign active_plural_label = 'descuentos activos'
       assign already_applied_label = 'El código ya se ha aplicado'
@@ -65,7 +60,6 @@
       assign input_label = 'Codice sconto'
       assign input_placeholder = 'Inserisci codice'
       assign apply_label = 'Applica'
-      assign savings_label = 'Risparmi'
       assign active_singular_label = 'sconto attivo'
       assign active_plural_label = 'sconti attivi'
       assign already_applied_label = 'Codice già applicato'
@@ -76,7 +70,6 @@
       assign input_label = 'Código de desconto'
       assign input_placeholder = 'Inserir código'
       assign apply_label = 'Aplicar'
-      assign savings_label = 'Está a poupar'
       assign active_singular_label = 'desconto ativo'
       assign active_plural_label = 'descontos ativos'
       assign already_applied_label = 'Código já aplicado'
@@ -87,7 +80,6 @@
       assign input_label = 'Rabatkode'
       assign input_placeholder = 'Indtast kode'
       assign apply_label = 'Anvend'
-      assign savings_label = 'Du sparer'
       assign active_singular_label = 'rabat aktiv'
       assign active_plural_label = 'rabatter aktive'
       assign already_applied_label = 'Koden er allerede anvendt'
@@ -98,7 +90,6 @@
       assign input_label = 'Rabattkod'
       assign input_placeholder = 'Ange kod'
       assign apply_label = 'Använd'
-      assign savings_label = 'Du sparar'
       assign active_singular_label = 'rabatt aktiv'
       assign active_plural_label = 'rabatter aktiva'
       assign already_applied_label = 'Koden har redan använts'
@@ -109,7 +100,6 @@
       assign input_label = 'Alennuskoodi'
       assign input_placeholder = 'Syötä koodi'
       assign apply_label = 'Käytä'
-      assign savings_label = 'Säästät'
       assign active_singular_label = 'alennus aktiivinen'
       assign active_plural_label = 'alennusta aktiivinen'
       assign already_applied_label = 'Koodi on jo käytössä'
@@ -199,13 +189,6 @@
       <p class="cart-discount__message" role="alert" data-cart-discount-message></p>
     </div>
   </div>
-
-  {%- if cart.total_discount > 0 -%}
-    <div class="cart-discount__savings" data-cart-discount-savings>
-      <span>{{ savings_label }}</span>
-      <strong>−{{ cart.total_discount | money }}</strong>
-    </div>
-  {%- endif -%}
 
   <script type="application/json" data-cart-discount-state>{"count":{{ discount_count }},"manual":{{ manual_discount_count }},"automatic":{{ automatic_discount_count }}}</script>
 </cart-discount>

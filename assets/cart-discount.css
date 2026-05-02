@@ -253,28 +253,6 @@
   visibility: hidden;
 }
 
-.wt-cart__drawer .cart-discount__savings {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding-top: 10px;
-  margin-top: 10px;
-  border-top: 0.5px solid #E5E7EB;
-  color: #002549;
-  font-family: "DM Sans", system-ui, sans-serif;
-}
-
-.wt-cart__drawer .cart-discount__savings span {
-  font-size: 11px;
-  font-weight: 500;
-}
-
-.wt-cart__drawer .cart-discount__savings strong {
-  color: #D4B46E;
-  font-size: 12px;
-  font-weight: 700;
-}
-
 @keyframes cartDiscountSpin {
   to { transform: rotate(360deg); }
 }
@@ -309,11 +287,4 @@
     min-width: 78px;
   }
 
-  .wt-cart__drawer .cart-discount__savings span {
-    font-size: 10px;
-  }
-
-  .wt-cart__drawer .cart-discount__savings strong {
-    font-size: 11px;
-  }
 }
