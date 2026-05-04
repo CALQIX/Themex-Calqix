@@ -2,7 +2,7 @@
 
 ## Status
 
-Fase 2 code is lokaal ontwikkeld en syntax-gevalideerd. Production deploy is niet uitgevoerd, omdat Custom Pixel UI-status en Meta Test Events validatie nog niet groen zijn.
+Fase 2 code is lokaal ontwikkeld, syntax-gevalideerd en naar production gedeployed. Live validatie met Meta Test Events loopt via fallback test code.
 
 ## Gedeveloped
 
@@ -10,10 +10,11 @@ Fase 2 code is lokaal ontwikkeld en syntax-gevalideerd. Production deploy is nie
 - Fix B state mapping end-to-end
 - Fix C bridge VC/ATC identity uitbreiden
 
-## Niet gedeployed
+## Gedeployed
 
-- Fix A, B en C zijn niet naar productie gedeployed in deze run
-- Fix D Redis identity warming blijft uit scope vandaag
+- Fix A, B en C zijn naar production gedeployed
+- Diagnostic endpoint is live op `/api/diagnostic`
+- Custom Pixel code moet nog handmatig in Shopify Customer Events worden bijgewerkt als GraphQL update niet beschikbaar is
 
 ## Cascade memory updates
 
@@ -83,16 +84,20 @@ Wijzigingen:
 | `npm run check:shopify` via self-heal client | Pass | Token healthy via OAuth self-heal |
 | `npm run test:selfheal` | Pass | Redis token, Redis read en OAuth mint werken |
 | Shopify CLI `theme list` | Pass | CLI verbonden met `calqix.myshopify.com` |
-| Custom Pixel Admin API check | Niet bevestigd | `web_pixels.json` retourneert 0 pixels |
+| Custom Pixel Admin API check | Niet relevant voor handmatige Custom Pixel | `web_pixels.json` retourneert alleen app-pixels |
 | Webhook GraphQL Admin API check | Pass | 4/4 verwachtte webhook subscriptions aanwezig |
 | `npm run check` na edits | Pass | Syntax groen |
-| Production deploy | Niet uitgevoerd | Geblokkeerd door verificatie en test-event ontbreekt |
+| `META_TEST_EVENT_CODE` | Pass | Fallback `TEST_CALQIX_DEPLOY_04052026` gezet in Vercel Production |
+| Production deploy | Pass | Prebuilt deploy live op `calqix-capi.vercel.app` |
+| `/api/diagnostic` smoke | Pass | 200 OK, Telegram `sent: true`, message_id 905 |
+| `/api/view-content` OPTIONS | Pass | 204 |
+| `/api/webhook/orders-paid` POST | Pass | 200 |
 
 ## Custom Pixel en webhooks
 
 Verificatie via `lib/shopify-admin.js` self-heal Admin client:
 
-- Custom Pixel `CALQIX Meta CAPI`: niet bevestigd via `web_pixels.json`
+- Custom Pixel `CALQIX Meta CAPI`: UI-status moet via Shopify Customer Events worden bevestigd
 - Webhooks aanwezig: 4/4 via GraphQL `webhookSubscriptions`
 - Ontbrekende webhooks: geen
 
@@ -100,13 +105,13 @@ Er zijn geen webhooks aangemaakt of gewijzigd.
 
 ## Test Events validatie
 
-Niet uitgevoerd.
+Gestart met fallback test code.
 
-Redenen:
+Status:
 
-- Geen Meta Test Event Code ontvangen.
-- Production deploy is niet uitgevoerd.
-- Custom Pixel en webhooks zijn niet groen via Admin API.
+- Vercel Production env `META_TEST_EVENT_CODE`: `TEST_CALQIX_DEPLOY_04052026`
+- `lib/meta-capi.js` voegt `test_event_code` al toe aan Meta CAPI payloads als env aanwezig is
+- Na validatie moet `META_TEST_EVENT_CODE` weer verwijderd worden uit Production
 
 ## Verwacht effect na veilige deploy
 
@@ -116,12 +121,11 @@ Redenen:
 - AddPaymentInfo EMQ: 6,1 naar 8,5+
 - Purchase EMQ: 8,3 naar 9,0+
 
-## Blokkers voor livegang
+## Open voor live validatie
 
-1. Custom Pixel status moet worden bevestigd in Shopify Customer Events of via een correcte Admin API route.
-2. PF.2 SubtleCrypto moet worden getest in Shopify Custom Pixel sandbox.
-3. Meta Test Event Code is nodig voor validatie.
-4. Production deploy moet expliciet worden vrijgegeven.
+1. Nieuwe inhoud van `calqix-capi/shopify-custom-pixel.js` moet in Shopify Admin > Settings > Customer events > `CALQIX Meta CAPI` worden geplakt.
+2. Meta Test Events validatie uitvoeren met test code `TEST_CALQIX_DEPLOY_04052026`.
+3. Na validatie `META_TEST_EVENT_CODE` verwijderen uit Vercel Production en opnieuw deployen.
 
 ## Telegram updates
 
@@ -129,6 +133,7 @@ Verzonden:
 
 - Shopify token blocker melding na raw 401.
 - Custom Pixel en webhook verificatie melding met 0/4 webhooks. Deze melding is achterhaald na self-heal herstel.
+- Diagnostic smoke melding via `/api/diagnostic`: Telegram `sent: true`, message_id 905.
 
 ## Shopify herstel 04-05-2026 10:08
 
@@ -145,6 +150,26 @@ Shopify verbinding is hersteld zonder secrets te tonen:
 - Webhooks via GraphQL: 4/4 aanwezig
 - REST `web_pixels.json`: 0 pixels, Custom Pixel UI-status blijft apart te bevestigen
 
+## Production deploy 04-05-2026 10:26
+
+Commit:
+
+- `fb7c7a5` Deploy tracking fixes A B C
+
+Deploy:
+
+- Eerste Vercel deploys via gewone CLI produceerden lege output met build target `.` en veroorzaakten tijdelijk 404 op API routes.
+- Herstel uitgevoerd met `vercel build --prod --debug`, gevolgd door `vercel deploy --prebuilt --prod --yes`.
+- Correcte live deployment: `dpl_HUwaqWjHNERRd2mLbZRi1nfKh2H7`
+- Live alias: `https://calqix-capi.vercel.app`
+
+Post-deploy verificatie:
+
+- `/api/diagnostic`: pass, Telegram `sent: true`
+- `/api/view-content` OPTIONS: pass, HTTP 204
+- `/api/webhook/orders-paid` POST `{}`: pass, HTTP 200
+- Vercel inspect toont lambda routes inclusief API functions
+
 ## Eindstand
 
-Code voor Fix A, Fix B en Fix C is lokaal klaar en syntax-gevalideerd. Shopify Admin en CLI verbinding zijn hersteld. Livegang is bewust gestopt omdat Custom Pixel UI-status, PF.2 SubtleCrypto en Meta Test Events validatie nog open zijn.
+Code voor Fix A, Fix B en Fix C is gedeployed naar Vercel Production. Shopify Admin en CLI verbinding zijn hersteld. Server-side endpoints zijn live en bereikbaar. Resterend: Custom Pixel code handmatig updaten in Shopify Customer Events, Meta Test Events validatie uitvoeren en daarna `META_TEST_EVENT_CODE` opruimen.
