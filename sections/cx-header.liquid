@@ -40,8 +40,21 @@
     <nav class="cx-nav" aria-label="Primary">
       {%- for block in section.blocks -%}
         {%- if block.type == 'mega' -%}
+          {%- liquid
+            assign cx_is_products_mega = false
+            if block.id == 'mega_products' or block.settings.title_2 == 'OralBiome Pro'
+              assign cx_is_products_mega = true
+            endif
+            assign cx_nav_label = block.settings.label
+            if cx_is_products_mega
+              assign cx_nav_label_translated = 'calqix_menu.products.label' | t
+              unless cx_nav_label_translated contains 'translation missing'
+                assign cx_nav_label = cx_nav_label_translated
+              endunless
+            endif
+          -%}
           <button type="button" class="cx-nav-link cx-nav-toggle" aria-expanded="false" data-cx-dropdown-toggle="{{ block.id }}" {{ block.shopify_attributes }}>
-            <span class="cx-nav-label">{{ block.settings.label }}</span>
+            <span class="cx-nav-label">{{ cx_nav_label }}</span>
             <span class="cx-nav-chev" aria-hidden="true">{% render 'cx-icons', name: 'arrowDown', size: 14 %}</span>
           </button>
         {%- elsif block.type == 'link' -%}
@@ -114,6 +127,19 @@
   {%- comment -%} ---------- Desktop mega panels ---------- {%- endcomment -%}
   {%- for block in section.blocks -%}
     {%- if block.type == 'mega' -%}
+      {%- liquid
+        assign cx_is_products_mega = false
+        if block.id == 'mega_products' or block.settings.title_2 == 'OralBiome Pro'
+          assign cx_is_products_mega = true
+        endif
+        assign cx_mega_cta = 'Bekijk'
+        if cx_is_products_mega
+          assign cx_mega_cta_translated = 'calqix_menu.products.cta' | t
+          unless cx_mega_cta_translated contains 'translation missing'
+            assign cx_mega_cta = cx_mega_cta_translated
+          endunless
+        endif
+      -%}
       <div class="cx-mega-panel" data-cx-dropdown-panel="{{ block.id }}" hidden>
         <div class="cx-container cx-mega-grid">
           {%- for i in (1..4) -%}
@@ -123,12 +149,33 @@
             {%- assign link_key = 'link_' | append: i -%}
             {%- assign card_eyebrow = block.settings[eyebrow_key] -%}
             {%- assign card_title = block.settings[title_key] -%}
+            {%- assign card_desc = block.settings[desc_key] -%}
+            {%- if cx_is_products_mega -%}
+              {%- liquid
+                assign locale_base = 'calqix_menu.products.card_' | append: i | append: '.'
+                assign locale_eyebrow_key = locale_base | append: 'eyebrow'
+                assign locale_title_key = locale_base | append: 'title'
+                assign locale_desc_key = locale_base | append: 'desc'
+                assign locale_eyebrow = locale_eyebrow_key | t
+                assign locale_title = locale_title_key | t
+                assign locale_desc = locale_desc_key | t
+                unless locale_eyebrow contains 'translation missing'
+                  assign card_eyebrow = locale_eyebrow
+                endunless
+                unless locale_title contains 'translation missing'
+                  assign card_title = locale_title
+                endunless
+                unless locale_desc contains 'translation missing'
+                  assign card_desc = locale_desc
+                endunless
+              -%}
+            {%- endif -%}
             {%- if card_title != blank -%}
               <a class="cx-mega-card" href="{{ block.settings[link_key] | default: '#' }}">
                 {%- if card_eyebrow != blank -%}<div class="cx-eyebrow">{{ card_eyebrow }}</div>{%- endif -%}
                 <div class="cx-mega-card-title">{{ card_title }}</div>
-                <div class="cx-mega-card-desc">{{ block.settings[desc_key] }}</div>
-                <div class="cx-mega-card-cta">Bekijk {% render 'cx-icons', name: 'arrowRight', size: 12 %}</div>
+                <div class="cx-mega-card-desc">{{ card_desc }}</div>
+                <div class="cx-mega-card-cta">{{ cx_mega_cta }} {% render 'cx-icons', name: 'arrowRight', size: 12 %}</div>
               </a>
             {%- endif -%}
           {%- endfor -%}
@@ -206,9 +253,22 @@
   <nav class="cx-drawer__nav" aria-label="Mobiele navigatie">
     {%- for block in section.blocks -%}
       {%- if block.type == 'mega' -%}
+        {%- liquid
+          assign cx_is_products_mega = false
+          if block.id == 'mega_products' or block.settings.title_2 == 'OralBiome Pro'
+            assign cx_is_products_mega = true
+          endif
+          assign cx_nav_label = block.settings.label
+          if cx_is_products_mega
+            assign cx_nav_label_translated = 'calqix_menu.products.label' | t
+            unless cx_nav_label_translated contains 'translation missing'
+              assign cx_nav_label = cx_nav_label_translated
+            endunless
+          endif
+        -%}
         <div class="cx-drawer__item" data-cx-accordion>
           <button type="button" class="cx-drawer__link cx-drawer__link--toggle" aria-expanded="false" data-cx-accordion-toggle>
-            <span class="cx-drawer__link-title">{{ block.settings.label }}</span>
+            <span class="cx-drawer__link-title">{{ cx_nav_label }}</span>
             <span class="cx-drawer__link-chev">{% render 'cx-icons', name: 'chevR', size: 14 %}</span>
           </button>
           <div class="cx-drawer__sub" hidden data-cx-accordion-body>
@@ -217,9 +277,24 @@
               {%- assign title_key = 'title_' | append: i -%}
               {%- assign link_key = 'link_' | append: i -%}
               {%- assign s_title = block.settings[title_key] -%}
+              {%- assign s_eyebrow = block.settings[eyebrow_key] -%}
+              {%- if cx_is_products_mega -%}
+                {%- liquid
+                  assign locale_base = 'calqix_menu.products.card_' | append: i | append: '.'
+                  assign locale_eyebrow_key = locale_base | append: 'eyebrow'
+                  assign locale_title_key = locale_base | append: 'title'
+                  assign locale_eyebrow = locale_eyebrow_key | t
+                  assign locale_title = locale_title_key | t
+                  unless locale_eyebrow contains 'translation missing'
+                    assign s_eyebrow = locale_eyebrow
+                  endunless
+                  unless locale_title contains 'translation missing'
+                    assign s_title = locale_title
+                  endunless
+                -%}
+              {%- endif -%}
               {%- if s_title != blank -%}
                 <a class="cx-drawer__sublink" href="{{ block.settings[link_key] | default: '#' }}" style="--cx-i: {{ forloop.index0 }};">
-                  {%- assign s_eyebrow = block.settings[eyebrow_key] -%}
                   {%- if s_eyebrow != blank -%}
                     <span class="cx-drawer__sublink-eyebrow">{{ s_eyebrow }}</span>
                   {%- endif -%}

@@ -14,61 +14,23 @@
     assign reward_fill = 100
   endif
 
-  assign locale_code = request.locale.iso_code | default: localization.language.iso_code | default: 'en' | downcase
-  assign rewards_title = 'OralBiome Pro rewards'
-  assign unlocked_10_label = '10% OFF UNLOCKED'
-  assign unlocked_free_label = '3RD FREE UNLOCKED'
-  assign label_one = '1 added'
-  assign label_two = '10% off'
-  assign label_three = '3rd FREE'
-  assign msg_one_prefix = 'Add 1 more for'
-  assign msg_one_strong = '10% off'
-  assign msg_two_prefix = 'Add 1 more for your'
-  assign msg_two_strong = '3rd Pro free'
-  assign msg_full_prefix = 'Maxed out · your'
-  assign msg_full_strong = '3rd Pro is free'
+  assign reward_step = oralbiome_qty
+  if reward_step > 3
+    assign reward_step = 3
+  endif
 
-  case locale_code
-    when 'nl'
-      assign rewards_title = 'OralBiome Pro beloningen'
-      assign unlocked_10_label = '10% KORTING ONTGRENDELD'
-      assign unlocked_free_label = '3E GRATIS ONTGRENDELD'
-      assign label_one = '1 toegevoegd'
-      assign label_two = '10% korting'
-      assign label_three = '3e GRATIS'
-      assign msg_one_prefix = 'Voeg er 1 toe voor'
-      assign msg_one_strong = '10% korting'
-      assign msg_two_prefix = 'Voeg er 1 toe voor je'
-      assign msg_two_strong = '3e Pro gratis'
-      assign msg_full_prefix = 'Maximaal · je'
-      assign msg_full_strong = '3e Pro is gratis'
-    when 'de'
-      assign rewards_title = 'OralBiome Pro Prämien'
-      assign unlocked_10_label = '10% RABATT FREIGESCHALTET'
-      assign unlocked_free_label = '3. GRATIS FREIGESCHALTET'
-      assign label_one = '1 hinzugefügt'
-      assign label_two = '10% Rabatt'
-      assign label_three = '3. GRATIS'
-      assign msg_one_prefix = 'Füge 1 weitere hinzu für'
-      assign msg_one_strong = '10% Rabatt'
-      assign msg_two_prefix = 'Füge 1 weitere hinzu für deine'
-      assign msg_two_strong = '3. Pro gratis'
-      assign msg_full_prefix = 'Maximum erreicht · deine'
-      assign msg_full_strong = '3. Pro ist gratis'
-    when 'fr'
-      assign rewards_title = 'Récompenses OralBiome Pro'
-      assign unlocked_10_label = '10% DE RÉDUCTION DÉBLOQUÉS'
-      assign unlocked_free_label = '3E GRATUIT DÉBLOQUÉ'
-      assign label_one = '1 ajouté'
-      assign label_two = '10% de réduction'
-      assign label_three = '3e GRATUIT'
-      assign msg_one_prefix = 'Ajoutez-en 1 pour'
-      assign msg_one_strong = '10% de réduction'
-      assign msg_two_prefix = 'Ajoutez-en 1 pour votre'
-      assign msg_two_strong = '3e Pro gratuit'
-      assign msg_full_prefix = 'Maximum atteint · votre'
-      assign msg_full_strong = '3e Pro est gratuit'
-  endcase
+  assign rewards_title = 'calqix_cart.oralbiome_rewards.title' | t
+  assign unlocked_10_label = 'calqix_cart.oralbiome_rewards.unlocked_10' | t
+  assign unlocked_free_label = 'calqix_cart.oralbiome_rewards.unlocked_free' | t
+  assign label_one = 'calqix_cart.oralbiome_rewards.label_one' | t
+  assign label_two = 'calqix_cart.oralbiome_rewards.label_two' | t
+  assign label_three = 'calqix_cart.oralbiome_rewards.label_three' | t
+  assign msg_one_prefix = 'calqix_cart.oralbiome_rewards.msg_one_prefix' | t
+  assign msg_one_strong = 'calqix_cart.oralbiome_rewards.msg_one_strong' | t
+  assign msg_two_prefix = 'calqix_cart.oralbiome_rewards.msg_two_prefix' | t
+  assign msg_two_strong = 'calqix_cart.oralbiome_rewards.msg_two_strong' | t
+  assign msg_full_prefix = 'calqix_cart.oralbiome_rewards.msg_full_prefix' | t
+  assign msg_full_strong = 'calqix_cart.oralbiome_rewards.msg_full_strong' | t
 -%}
 
 {%- if oralbiome_qty > 0 -%}
@@ -79,13 +41,7 @@
   >
     <div class="oralbiome-bar__header">
       <span class="oralbiome-bar__title">{{ rewards_title }}</span>
-      {%- if oralbiome_qty == 2 -%}
-        <span class="oralbiome-bar__badge oralbiome-bar__badge--desktop">{{ unlocked_10_label }}</span>
-        <span class="oralbiome-bar__ratio">{{ oralbiome_qty }}/3 ✓</span>
-      {%- elsif oralbiome_qty >= 3 -%}
-        <span class="oralbiome-bar__badge oralbiome-bar__badge--desktop">{{ unlocked_free_label }}</span>
-        <span class="oralbiome-bar__ratio">{{ oralbiome_qty }}/3 ✓</span>
-      {%- endif -%}
+      <span class="oralbiome-bar__ratio">{{ reward_step }}/3</span>
     </div>
 
     <div class="oralbiome-bar__track" style="--oralbiome-fill: {{ reward_fill }}%;">
@@ -98,7 +54,7 @@
     </div>
 
     <div class="oralbiome-bar__labels" aria-hidden="true">
-      <span>{{ label_one }}</span>
+      <span class="is-active">{{ label_one }}</span>
       <span class="{% if oralbiome_qty >= 2 %}is-active{% endif %}">{{ label_two }}</span>
       <span class="{% if oralbiome_qty >= 3 %}is-active{% endif %}">{{ label_three }}</span>
     </div>
@@ -107,8 +63,10 @@
       {%- if oralbiome_qty == 1 -%}
         {{ msg_one_prefix }} <strong>{{ msg_one_strong }}</strong>
       {%- elsif oralbiome_qty == 2 -%}
+        <span class="oralbiome-bar__badge">{{ unlocked_10_label }}</span>
         {{ msg_two_prefix }} <strong>{{ msg_two_strong }}</strong>
       {%- else -%}
+        <span class="oralbiome-bar__badge">{{ unlocked_free_label }}</span>
         {{ msg_full_prefix }} <strong>{{ msg_full_strong }}</strong>
       {%- endif -%}
     </p>
