@@ -58,8 +58,43 @@
             <span class="cx-nav-chev" aria-hidden="true">{% render 'cx-icons', name: 'arrowDown', size: 14 %}</span>
           </button>
         {%- elsif block.type == 'link' -%}
-          <a class="cx-nav-link" href="{{ block.settings.link }}" {{ block.shopify_attributes }}>
-            <span class="cx-nav-label">{{ block.settings.label }}</span>
+          {%- liquid
+            assign cx_link_label = block.settings.label
+            if block.id == 'link_science'
+              assign cx_link_label_translated = 'calqix_menu.header.science_journal' | t
+            elsif block.id == 'link_about'
+              assign cx_link_label_translated = 'calqix_menu.header.about' | t
+            elsif block.id == 'link_contact'
+              assign cx_link_label_translated = 'calqix_menu.header.contact' | t
+            else
+              assign cx_link_label_translated = ''
+            endif
+            unless cx_link_label_translated == blank or cx_link_label_translated contains 'translation missing'
+              assign cx_link_label = cx_link_label_translated
+            endunless
+
+            assign cx_link_href = block.settings.link | default: '#'
+            assign cx_link_href_first = cx_link_href | slice: 0
+            assign cx_locale_root = ''
+            unless routes.root_url == '/'
+              assign cx_locale_root = routes.root_url
+            endunless
+            if cx_link_href != '#' and cx_link_href contains '://'
+              assign cx_link_href = cx_link_href
+            elsif cx_link_href != '#' and cx_link_href contains 'mailto:'
+              assign cx_link_href = cx_link_href
+            elsif cx_link_href != '#' and cx_link_href contains 'tel:'
+              assign cx_link_href = cx_link_href
+            elsif cx_link_href_first == '#'
+              assign cx_link_href = cx_link_href
+            elsif cx_link_href_first == '/'
+              assign cx_link_href = cx_locale_root | append: cx_link_href
+            elsif cx_link_href != blank and cx_link_href != '#'
+              assign cx_link_href = cx_locale_root | append: '/' | append: cx_link_href
+            endif
+          -%}
+          <a class="cx-nav-link" href="{{ cx_link_href }}" {{ block.shopify_attributes }}>
+            <span class="cx-nav-label">{{ cx_link_label }}</span>
           </a>
         {%- endif -%}
       {%- endfor -%}
@@ -348,8 +383,43 @@
           </div>
         </div>
       {%- elsif block.type == 'link' -%}
-        <a class="cx-drawer__link" href="{{ block.settings.link }}">
-          <span class="cx-drawer__link-title">{{ block.settings.label }}</span>
+        {%- liquid
+          assign cx_link_label = block.settings.label
+          if block.id == 'link_science'
+            assign cx_link_label_translated = 'calqix_menu.header.science_journal' | t
+          elsif block.id == 'link_about'
+            assign cx_link_label_translated = 'calqix_menu.header.about' | t
+          elsif block.id == 'link_contact'
+            assign cx_link_label_translated = 'calqix_menu.header.contact' | t
+          else
+            assign cx_link_label_translated = ''
+          endif
+          unless cx_link_label_translated == blank or cx_link_label_translated contains 'translation missing'
+            assign cx_link_label = cx_link_label_translated
+          endunless
+
+          assign cx_link_href = block.settings.link | default: '#'
+          assign cx_link_href_first = cx_link_href | slice: 0
+          assign cx_locale_root = ''
+          unless routes.root_url == '/'
+            assign cx_locale_root = routes.root_url
+          endunless
+          if cx_link_href != '#' and cx_link_href contains '://'
+            assign cx_link_href = cx_link_href
+          elsif cx_link_href != '#' and cx_link_href contains 'mailto:'
+            assign cx_link_href = cx_link_href
+          elsif cx_link_href != '#' and cx_link_href contains 'tel:'
+            assign cx_link_href = cx_link_href
+          elsif cx_link_href_first == '#'
+            assign cx_link_href = cx_link_href
+          elsif cx_link_href_first == '/'
+            assign cx_link_href = cx_locale_root | append: cx_link_href
+          elsif cx_link_href != blank and cx_link_href != '#'
+            assign cx_link_href = cx_locale_root | append: '/' | append: cx_link_href
+          endif
+        -%}
+        <a class="cx-drawer__link" href="{{ cx_link_href }}">
+          <span class="cx-drawer__link-title">{{ cx_link_label }}</span>
           <span class="cx-drawer__link-arrow">{% render 'cx-icons', name: 'arrowRight', size: 14 %}</span>
         </a>
       {%- endif -%}

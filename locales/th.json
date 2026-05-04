@@ -701,18 +701,32 @@
     "total_saved": "ประหยัดรวม",
     "taxes_duties": "รวมภาษีและอากร ค่าจัดส่งคำนวณตอนชำระเงิน",
     "trust_text": "ชำระเงินปลอดภัย · คืนสินค้าใน 30 วัน · ส่งเร็ว",
-    "discount_prompt": "Have a discount code?",
-    "discount_input_label": "Discount code",
-    "discount_input_placeholder": "Enter code",
-    "discount_apply": "Apply",
-    "discount_active_singular": "discount active",
-    "discount_active_plural": "discounts active",
-    "discount_already_applied": "Code already applied",
-    "discount_invalid": "Invalid or expired code",
-    "discount_remove": "Remove",
+    "discount_prompt": "เพิ่มโค้ดส่วนลด",
+    "discount_input_label": "โค้ดส่วนลด",
+    "discount_input_placeholder": "กรอกโค้ด",
+    "discount_apply": "ใช้",
+    "discount_active_singular": "ส่วนลดกำลังใช้งาน",
+    "discount_active_plural": "ส่วนลดกำลังใช้งาน",
+    "discount_already_applied": "ใช้โค้ดนี้แล้ว",
+    "discount_invalid": "โค้ดไม่ถูกต้องหรือหมดอายุ",
+    "discount_remove": "ลบ",
     "discount_auto_prefix": "AUTO",
-    "stock_ready": "Ready to ship",
-    "stock_checking": "Stock checked at checkout"
+    "stock_ready": "พร้อมจัดส่ง",
+    "stock_checking": "ตรวจสต็อกในขั้นตอนชำระเงิน",
+    "oralbiome_rewards": {
+      "title": "รางวัล OralBiome",
+      "unlocked_10": "ปลดล็อก 10%",
+      "unlocked_free": "ปลดล็อกชิ้นที่ 3 ฟรี",
+      "label_one": "เพิ่มแล้ว 1",
+      "label_two": "ลด 10%",
+      "label_three": "ชิ้นที่ 3 ฟรี",
+      "msg_one_prefix": "เพิ่มอีก 1 เพื่อรับ",
+      "msg_one_strong": "ลด 10%",
+      "msg_two_prefix": "เพิ่มอีก 1 เพื่อรับ",
+      "msg_two_strong": "Pro ชิ้นที่ 3 ฟรี",
+      "msg_full_prefix": "ครบแล้ว,",
+      "msg_full_strong": "Pro ชิ้นที่ 3 ฟรี"
+    }
   },
   "cx": {
     "header": {
@@ -739,6 +753,37 @@
         "express_checkout": "ชำระเงินด้วย PayPal",
         "or": "★★★★★ คะแนน 4.9/5 ลูกค้าพึงพอใจกว่า 10,000 ราย"
       }
+    }
+  },
+  "calqix_menu": {
+    "products": {
+      "label": "สินค้า",
+      "card_1": {
+        "eyebrow": "ขั้นที่ 1: ทำความสะอาด",
+        "title": "Flowcore",
+        "desc": "เครื่องฉีดน้ำไร้สาย, 1,600 จังหวะ/นาที"
+      },
+      "card_2": {
+        "eyebrow": "ขั้นที่ 2: ฟื้นฟู",
+        "title": "OralBiome Pro",
+        "desc": "เม็ดอมโปรไบโอติก, 5 รสชาติ"
+      },
+      "card_3": {
+        "eyebrow": "ชุด: ประหยัด 15%",
+        "title": "Rebuild Kit",
+        "desc": "Flowcore + OralBiome Pro, โปรโตคอลครบชุด"
+      },
+      "card_4": {
+        "eyebrow": "ส่วนเสริม",
+        "title": "รีฟิลและอุปกรณ์เสริม",
+        "desc": "หัว Flowcore, สมัครรับ, อะไหล่"
+      },
+      "cta": "ดู"
+    },
+    "header": {
+      "science_journal": "Science Journal",
+      "about": "เกี่ยวกับเรา",
+      "contact": "ติดต่อ"
     }
   }
 }

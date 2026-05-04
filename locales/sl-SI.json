@@ -701,18 +701,32 @@
     "total_saved": "Skupaj prihranjeno",
     "taxes_duties": "Davki in carine vključeni, poštnina obračunana ob plačilu.",
     "trust_text": "Varno plačilo · 30-dnevna vračila · Hitra dostava",
-    "discount_prompt": "Have a discount code?",
-    "discount_input_label": "Discount code",
-    "discount_input_placeholder": "Enter code",
-    "discount_apply": "Apply",
-    "discount_active_singular": "discount active",
-    "discount_active_plural": "discounts active",
-    "discount_already_applied": "Code already applied",
-    "discount_invalid": "Invalid or expired code",
-    "discount_remove": "Remove",
+    "discount_prompt": "Dodaj kodo za popust",
+    "discount_input_label": "Koda za popust",
+    "discount_input_placeholder": "Vnesite kodo",
+    "discount_apply": "Uporabi",
+    "discount_active_singular": "popust aktiven",
+    "discount_active_plural": "popusti aktivni",
+    "discount_already_applied": "Koda je že uporabljena",
+    "discount_invalid": "Neveljavna ali potekla koda",
+    "discount_remove": "Odstrani",
     "discount_auto_prefix": "AUTO",
-    "stock_ready": "Ready to ship",
-    "stock_checking": "Stock checked at checkout"
+    "stock_ready": "Pripravljeno za pošiljanje",
+    "stock_checking": "Zaloga se preveri ob plačilu",
+    "oralbiome_rewards": {
+      "title": "Nagrade OralBiome",
+      "unlocked_10": "10% odklenjeno",
+      "unlocked_free": "3. brezplačen odklenjen",
+      "label_one": "1 dodan",
+      "label_two": "10% popust",
+      "label_three": "3. brezplačen",
+      "msg_one_prefix": "Dodajte še 1 za",
+      "msg_one_strong": "10% popust",
+      "msg_two_prefix": "Dodajte še 1 za svoj",
+      "msg_two_strong": "3. Pro brezplačno",
+      "msg_full_prefix": "Največ, vaš",
+      "msg_full_strong": "3. Pro je brezplačen"
+    }
   },
   "cx": {
     "header": {
@@ -739,6 +753,37 @@
         "express_checkout": "Placaj s PayPalom",
         "or": "★★★★★ Ocena 4,9/5, zaupa nam vec kot 10.000 zadovoljnih kupcev."
       }
+    }
+  },
+  "calqix_menu": {
+    "products": {
+      "label": "Izdelki",
+      "card_1": {
+        "eyebrow": "Korak 1: Očisti",
+        "title": "Flowcore",
+        "desc": "Brezžični ustni irigator, 1.600 pulzov/min"
+      },
+      "card_2": {
+        "eyebrow": "Korak 2: Obnovi",
+        "title": "OralBiome Pro",
+        "desc": "Probiotične pastile, 5 okusov"
+      },
+      "card_3": {
+        "eyebrow": "Paket: Prihranite 15%",
+        "title": "Rebuild Kit",
+        "desc": "Flowcore + OralBiome Pro, celoten protokol"
+      },
+      "card_4": {
+        "eyebrow": "Dodatki",
+        "title": "Polnila in dodatki",
+        "desc": "Nastavki Flowcore, naročnine, zamenjave"
+      },
+      "cta": "Poglej"
+    },
+    "header": {
+      "science_journal": "Science Journal",
+      "about": "O nas",
+      "contact": "Kontakt"
     }
   }
 }

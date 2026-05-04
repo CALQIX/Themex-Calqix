@@ -701,18 +701,32 @@
     "total_saved": "Toplam tasarruf",
     "taxes_duties": "Vergi ve harçlar dahil, kargo ödeme sırasında hesaplanır.",
     "trust_text": "Güvenli ödeme · 30 gün iade · Hızlı kargo",
-    "discount_prompt": "Have a discount code?",
-    "discount_input_label": "Discount code",
-    "discount_input_placeholder": "Enter code",
-    "discount_apply": "Apply",
-    "discount_active_singular": "discount active",
-    "discount_active_plural": "discounts active",
-    "discount_already_applied": "Code already applied",
-    "discount_invalid": "Invalid or expired code",
-    "discount_remove": "Remove",
-    "discount_auto_prefix": "AUTO",
-    "stock_ready": "Ready to ship",
-    "stock_checking": "Stock checked at checkout"
+    "discount_prompt": "İndirim kodu ekle",
+    "discount_input_label": "İndirim kodu",
+    "discount_input_placeholder": "Kodu girin",
+    "discount_apply": "Uygula",
+    "discount_active_singular": "indirim aktif",
+    "discount_active_plural": "indirimler aktif",
+    "discount_already_applied": "Kod zaten uygulandı",
+    "discount_invalid": "Geçersiz veya süresi dolmuş kod",
+    "discount_remove": "Kaldır",
+    "discount_auto_prefix": "OTO",
+    "stock_ready": "Gönderime hazır",
+    "stock_checking": "Stok, ödeme sırasında kontrol edilir",
+    "oralbiome_rewards": {
+      "title": "OralBiome ödülleri",
+      "unlocked_10": "%10 açıldı",
+      "unlocked_free": "3. ücretsiz açıldı",
+      "label_one": "1 eklendi",
+      "label_two": "%10 indirim",
+      "label_three": "3. ücretsiz",
+      "msg_one_prefix": "%10 indirim için 1 tane daha ekle",
+      "msg_one_strong": "%10 indirim",
+      "msg_two_prefix": "3. Pro için 1 tane daha ekle",
+      "msg_two_strong": "3. Pro ücretsiz",
+      "msg_full_prefix": "Maksimum,",
+      "msg_full_strong": "3. Pro ücretsiz"
+    }
   },
   "cx": {
     "header": {
@@ -739,6 +753,37 @@
         "express_checkout": "PayPal ile Ode",
         "or": "★★★★★ 4,9/5 puan, 10.000’den fazla memnun musterinin tercihi."
       }
+    }
+  },
+  "calqix_menu": {
+    "products": {
+      "label": "Ürünler",
+      "card_1": {
+        "eyebrow": "Adım 1: Temizle",
+        "title": "Flowcore",
+        "desc": "Kablosuz ağız duşu, 1.600 atım/dk"
+      },
+      "card_2": {
+        "eyebrow": "Adım 2: Yenile",
+        "title": "OralBiome Pro",
+        "desc": "Probiyotik pastiller, 5 aroma"
+      },
+      "card_3": {
+        "eyebrow": "Paket: %15 tasarruf",
+        "title": "Rebuild Kit",
+        "desc": "Flowcore + OralBiome Pro, tam protokol"
+      },
+      "card_4": {
+        "eyebrow": "Ekler",
+        "title": "Yedekler ve aksesuarlar",
+        "desc": "Flowcore uçları, abonelikler, yedekler"
+      },
+      "cta": "Görüntüle"
+    },
+    "header": {
+      "science_journal": "Science Journal",
+      "about": "Hakkımızda",
+      "contact": "İletişim"
     }
   }
 }
