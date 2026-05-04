@@ -1,12 +1,12 @@
 {%- comment -%}
-  CALQIX /cart -> product page redirect + sidecart auto-open.
+  CALQIX /cart -> localized homepage redirect + sidecart auto-open.
 
   Behavior:
-    Any GET to `/cart` (or localized variants like `/en/cart`, `/de-DE/cart/`,
-    `/nl/cart`) is immediately redirected back to the last product page the
-    customer visited this session, with `?open_cart=1` appended. A companion
-    script (`assets/cx-cart-redirect.js`) then opens the sidecart drawer on
-    arrival and strips the query flag from the URL.
+    Any GET to the locale-aware cart route (for example `/cart`, `/fr/cart`,
+    `/de/cart`, `/pt-br/cart`) immediately redirects to the locale-aware
+    homepage with `?open_cart=1` appended. A companion script
+    (`assets/cx-cart-redirect.js`) then opens the sidecart drawer on arrival
+    and strips the query flag from the URL.
 
   Placement:
     MUST render as the FIRST thing inside <head> so `location.replace` fires
@@ -14,8 +14,6 @@
     would cause a bogus /cart pageview in analytics.
 
   Fallbacks:
-    - No stored product page -> redirect to `/` (homepage)
-    - Stored URL is not a product page -> redirect to `/`
     - Shopify theme editor preview (designMode) -> skip redirect so merchants
       can still view the cart template in editor
     - Cart subpaths like /cart/change, /cart/update, /cart/clear are NOT
@@ -29,15 +27,18 @@
     if (window.Shopify && window.Shopify.designMode) return;
 
     var path = location.pathname;
-    var stripped = path.replace(/^\/[a-z]{2}(?:-[A-Z]{2})?(?=\/|$)/, '');
-    if (stripped !== '/cart' && stripped !== '/cart/') return;
+    var normalize = function (value) {
+      return String(value || '/').replace(/\/+$/, '') || '/';
+    };
+    var currentPath = normalize(path);
+    var cartPath = normalize({{ routes.cart_url | json }});
+    if (currentPath !== cartPath) return;
 
     // Per merchant request: /cart in any locale always returns to the
-    // localized homepage. Preserve the locale prefix so the visitor stays
-    // in their selected market/language.
-    var localePrefix = (path.match(/^\/[a-z]{2}(?:-[A-Z]{2})?(?=\/|$)/) || [''])[0];
-    var home = localePrefix + '/';
-    location.replace(home + '?open_cart=1');
+    // localized homepage. Shopify owns root_url, so market prefixes stay
+    // correct even for mixed-case or regional locale codes.
+    var home = {{ routes.root_url | json }};
+    location.replace(home + (home.indexOf('?') === -1 ? '?' : '&') + 'open_cart=1');
   } catch (e) { /* fall through to normal /cart page on any failure */ }
 })();
 </script>
