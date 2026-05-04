@@ -8,6 +8,7 @@ const { sendEvent } = require('../../lib/meta-capi');
 const store = require('../../lib/store');
 const eventState = require('../../lib/event-state');
 const multiPlatform = require('../../lib/multi-platform-send');
+const eventStats = require('../../lib/event-stats');
 const {
   buildContents,
   countItems,
@@ -24,10 +25,10 @@ const {
 const SOURCE_URL = 'https://calqix.com/checkout';
 
 /**
- * Detect subscription renewal orders. Shopify subscription apps (native,
- * Recharge, Subify, Bold, Skio) all use a `source_name` that starts with
- * `subscription_*` (e.g. `subscription_contract_checkout_one`). Some also
- * tag the order with `Subscription` / `Recurring`.
+ * Detect subscription renewal orders. SEAL renewals arrive through Shopify
+ * ORDERS_PAID with `source_name=subscription_contract_checkout_one`,
+ * `tags=seal_subsequent_order`, and app_id 3501525. Other subscription apps
+ * commonly use `subscription_*` or tag the order as Subscription/Recurring.
  *
  * @param {object} order - Shopify order payload
  * @returns {{isSubscription: boolean, subscriptionSource: string|undefined}}
@@ -35,13 +36,20 @@ const SOURCE_URL = 'https://calqix.com/checkout';
 function detectSubscription(order) {
   const sourceName = order && order.source_name ? String(order.source_name) : '';
   const tags = order && typeof order.tags === 'string' ? order.tags.toLowerCase() : '';
+  const appId = order && order.app_id != null ? String(order.app_id) : '';
+  const isSeal =
+    appId === '3501525' ||
+    /\bseal_subsequent_order\b/.test(tags) ||
+    /\bseal\b/.test(tags);
   const isSubscription =
+    isSeal ||
     sourceName.indexOf('subscription_') === 0 ||
     /\bsubscription\b/.test(tags) ||
     /\brecurring\b/.test(tags);
   return {
     isSubscription: isSubscription,
-    subscriptionSource: isSubscription ? sourceName || 'tag' : undefined
+    subscriptionSource: isSubscription ? sourceName || (isSeal ? 'seal' : 'tag') : undefined,
+    subscriptionProvider: isSeal ? 'seal' : undefined
   };
 }
 
@@ -214,6 +222,9 @@ async function handler(req, res) {
     if (subInfo.subscriptionSource) {
       customData.subscription_source = subInfo.subscriptionSource;
     }
+    if (subInfo.subscriptionProvider) {
+      customData.subscription_provider = subInfo.subscriptionProvider;
+    }
 
     console.log('[Webhook orders-paid] Purchase', {
       eventId,
@@ -228,11 +239,13 @@ async function handler(req, res) {
       enrichedFromIdentity: Object.keys(identityFallback).length > 0,
       isSubscription: subInfo.isSubscription,
       subscriptionSource: subInfo.subscriptionSource,
+      subscriptionProvider: subInfo.subscriptionProvider,
       correlationKey: checkoutToken ? 'checkout_token' : 'order_id',
       source: 'webhook'
     });
 
     await eventState.recordReceived(eventId, 'Purchase', 'webhook', dedupKey);
+    await eventStats.incrementEventStat('Purchase', 'server');
     await eventState.storeEventPayload(eventId, userData, customData, SOURCE_URL);
     var metaResult = await sendEvent('Purchase', eventId, SOURCE_URL, userData, customData);
     await eventState.recordSent(eventId, metaResult);
