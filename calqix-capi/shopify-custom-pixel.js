@@ -149,6 +149,58 @@ function send(payload) {
   } catch (e) { /* fire and forget */ }
 }
 
+function normalizeForHash(field, value) {
+  if (!value) return null;
+  var v = String(value).trim().toLowerCase();
+  if (!v) return null;
+  if (field === "ph") v = v.replace(/\D/g, "");
+  if (field === "zp") v = v.replace(/\s+/g, "");
+  if (field === "country") v = v.substring(0, 2);
+  if (field === "st") v = v.replace(/[^a-z0-9]/g, "");
+  return v || null;
+}
+
+function reportSubtleCrypto(works, error) {
+  try {
+    var key = works ? "__calqixSubtleConfirmed" : "__calqixSubtleFailed";
+    if (typeof globalThis !== "undefined" && !globalThis[key]) {
+      globalThis[key] = true;
+      fetch("https://calqix-capi.vercel.app/api/diagnostic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          test: "subtle_crypto",
+          works: works,
+          error: error ? String(error).slice(0, 180) : undefined,
+          source: "live_custom_pixel",
+          timestamp: Date.now()
+        }),
+        keepalive: true
+      }).catch(function () {});
+    }
+  } catch (e) {}
+}
+
+async function sha256Hash(value) {
+  if (!value) return null;
+  var normalized = String(value).trim().toLowerCase();
+  if (!normalized) return null;
+  if (typeof crypto !== "undefined" && crypto.subtle && crypto.subtle.digest && typeof TextEncoder !== "undefined") {
+    try {
+      var enc = new TextEncoder();
+      var data = enc.encode(normalized);
+      var hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      var hashArray = Array.from(new Uint8Array(hashBuffer));
+      reportSubtleCrypto(true);
+      return hashArray.map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+    } catch (e) {
+      reportSubtleCrypto(false, e && e.message || e);
+    }
+  }
+  reportSubtleCrypto(false, "subtle_crypto_unavailable");
+  return null;
+}
+
 /**
  * Fire a browser-side Meta Pixel event via direct GET to facebook.com/tr.
  *
@@ -163,7 +215,7 @@ function send(payload) {
  * Meta classifies this as a browser-side Pixel event because the request
  *   originates from the user's browser, with their IP, UA and cookies.
  */
-function fireBrowserPixelEvent(eventName, eventId, customData, fbp, fbc, sourceUrl) {
+async function fireBrowserPixelEvent(eventName, eventId, customData, userData, fbp, fbc, sourceUrl) {
   try {
     var qs = [
       "id=" + META_PIXEL_ID,
@@ -203,6 +255,28 @@ function fireBrowserPixelEvent(eventName, eventId, customData, fbp, fbc, sourceU
     // _fbp / _fbc are essential for browser-to-server attribution matching.
     if (fbp) qs.push("fbp=" + encodeURIComponent(fbp));
     if (fbc) qs.push("fbc=" + encodeURIComponent(fbc));
+
+    if (userData) {
+      var fields = [
+        { key: "em", value: userData.email },
+        { key: "ph", value: userData.phone },
+        { key: "fn", value: userData.first_name },
+        { key: "ln", value: userData.last_name },
+        { key: "ct", value: userData.city },
+        { key: "st", value: userData.state },
+        { key: "zp", value: userData.zip },
+        { key: "country", value: userData.country_code },
+        { key: "external_id", value: userData.external_id }
+      ];
+      for (var i = 0; i < fields.length; i++) {
+        var field = fields[i];
+        var normalized = normalizeForHash(field.key, field.value);
+        if (normalized) {
+          var hashed = await sha256Hash(normalized);
+          if (hashed) qs.push("ud[" + field.key + "]=" + encodeURIComponent(hashed));
+        }
+      }
+    }
 
     var url = "https://www.facebook.com/tr/?" + qs.join("&");
 
@@ -274,15 +348,26 @@ analytics.subscribe("checkout_started", async function (event) {
   var value = totalValue(checkout);
   var curr = currency(checkout);
   var sourceUrl = getSourceUrl(event);
+  var userData = {
+    email: checkout.email || null,
+    phone: checkout.phone || null,
+    external_id: customerId(checkout),
+    first_name: addr && (addr.firstName || addr.first_name) || null,
+    last_name: addr && (addr.lastName || addr.last_name) || null,
+    city: addr && addr.city || null,
+    state: addr && (addr.provinceCode || addr.province || addr.region) || null,
+    zip: addr && addr.zip || null,
+    country_code: addr && (addr.countryCode || addr.country_code) || null
+  };
 
   // Browser-side InitiateCheckout — matches server event_id for dedup.
-  fireBrowserPixelEvent("InitiateCheckout", "ic_" + token, {
+  await fireBrowserPixelEvent("InitiateCheckout", "ic_" + token, {
     value: value,
     currency: curr,
     content_ids: contentIdsFromItems(lineItems),
     content_type: contentTypeFromItems(lineItems),
     num_items: sumQuantities(lineItems)
-  }, fbp, fbc, sourceUrl);
+  }, userData, fbp, fbc, sourceUrl);
 
   send({
     event_type: "checkout_started",
@@ -295,6 +380,7 @@ analytics.subscribe("checkout_started", async function (event) {
     first_name: addr && (addr.firstName || addr.first_name) || null,
     last_name: addr && (addr.lastName || addr.last_name) || null,
     city: addr && addr.city || null,
+    state: addr && (addr.provinceCode || addr.province || addr.region) || null,
     zip: addr && addr.zip || null,
     country_code: addr && (addr.countryCode || addr.country_code) || null,
     line_items: lineItems,
@@ -351,15 +437,26 @@ analytics.subscribe("payment_info_submitted", async function (event) {
   var value = totalValue(checkout);
   var curr = currency(checkout);
   var sourceUrl = getSourceUrl(event);
+  var userData = {
+    email: checkout.email || cached.email || null,
+    phone: checkout.phone || cached.phone || null,
+    first_name: addr && (addr.firstName || addr.first_name) || null,
+    last_name: addr && (addr.lastName || addr.last_name) || null,
+    city: addr && addr.city || null,
+    state: addr && (addr.provinceCode || addr.province || addr.region) || null,
+    zip: addr && addr.zip || null,
+    country_code: addr && (addr.countryCode || addr.country_code) || null,
+    external_id: customerId(checkout)
+  };
 
   // Browser-side AddPaymentInfo — matches server event_id for dedup.
-  fireBrowserPixelEvent("AddPaymentInfo", "add_payment_info_" + token, {
+  await fireBrowserPixelEvent("AddPaymentInfo", "add_payment_info_" + token, {
     value: value,
     currency: curr,
     content_ids: contentIdsFromItems(lineItems),
     content_type: contentTypeFromItems(lineItems),
     num_items: sumQuantities(lineItems)
-  }, effectiveFbp, effectiveFbc, sourceUrl);
+  }, userData, effectiveFbp, effectiveFbc, sourceUrl);
 
   send({
     event_type: "payment_info_submitted",
@@ -372,6 +469,7 @@ analytics.subscribe("payment_info_submitted", async function (event) {
     first_name: addr && (addr.firstName || addr.first_name) || null,
     last_name: addr && (addr.lastName || addr.last_name) || null,
     city: addr && addr.city || null,
+    state: addr && (addr.provinceCode || addr.province || addr.region) || null,
     zip: addr && addr.zip || null,
     country_code: addr && (addr.countryCode || addr.country_code) || null,
     line_items: lineItems,
@@ -400,17 +498,28 @@ analytics.subscribe("checkout_completed", async function (event) {
   var curr = currency(checkout);
   var sourceUrl = getSourceUrl(event);
   var oid = orderId(checkout);
+  var userData = {
+    email: checkout.email || cached.email || null,
+    phone: checkout.phone || cached.phone || null,
+    first_name: addr && (addr.firstName || addr.first_name) || null,
+    last_name: addr && (addr.lastName || addr.last_name) || null,
+    city: addr && addr.city || null,
+    state: addr && (addr.provinceCode || addr.province || addr.region) || null,
+    zip: addr && addr.zip || null,
+    country_code: addr && (addr.countryCode || addr.country_code) || null,
+    external_id: customerId(checkout)
+  };
 
   // Browser-side Purchase — matches server event_id for dedup. This is THE
   // high-EMQ event; server-side alone gives lower match quality tier.
-  fireBrowserPixelEvent("Purchase", "purchase_" + token, {
+  await fireBrowserPixelEvent("Purchase", "purchase_" + token, {
     value: value,
     currency: curr,
     content_ids: contentIdsFromItems(lineItems),
     content_type: contentTypeFromItems(lineItems),
     num_items: sumQuantities(lineItems),
     order_id: oid
-  }, effectiveFbp, effectiveFbc, sourceUrl);
+  }, userData, effectiveFbp, effectiveFbc, sourceUrl);
 
   send({
     event_type: "checkout_completed",
@@ -424,6 +533,7 @@ analytics.subscribe("checkout_completed", async function (event) {
     first_name: addr && (addr.firstName || addr.first_name) || null,
     last_name: addr && (addr.lastName || addr.last_name) || null,
     city: addr && addr.city || null,
+    state: addr && (addr.provinceCode || addr.province || addr.region) || null,
     zip: addr && addr.zip || null,
     country_code: addr && (addr.countryCode || addr.country_code) || null,
     line_items: lineItems,

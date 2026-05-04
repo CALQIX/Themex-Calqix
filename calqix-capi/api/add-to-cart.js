@@ -63,6 +63,11 @@ async function handler(req, res) {
     if (body.fbp) customerData.fbp = body.fbp;
     if (body.email) customerData.email = body.email;
     if (body.phone) customerData.phone = body.phone;
+    if (body.first_name) customerData.first_name = body.first_name;
+    if (body.last_name) customerData.last_name = body.last_name;
+    if (body.city) customerData.city = body.city;
+    if (body.state) customerData.state = body.state;
+    if (body.zip) customerData.zip = body.zip;
     if (body.external_id) customerData.external_id = body.external_id;
     if (body.country_code) customerData.country_code = body.country_code;
 
@@ -92,6 +97,11 @@ async function handler(req, res) {
       fbp: Boolean(userData.fbp),
       em: Boolean(userData.em),
       ph: Boolean(userData.ph),
+      fn: Boolean(userData.fn),
+      ln: Boolean(userData.ln),
+      ct: Boolean(userData.ct),
+      st: Boolean(userData.st),
+      zp: Boolean(userData.zp),
       ip: Boolean(userData.client_ip_address),
       ua: Boolean(userData.client_user_agent),
       external_id: Boolean(userData.external_id)
@@ -155,6 +165,11 @@ async function handler(req, res) {
         userData: {
           email: body.email || undefined,
           phone: body.phone || undefined,
+          first_name: body.first_name || undefined,
+          last_name: body.last_name || undefined,
+          city: body.city || undefined,
+          state: body.state || undefined,
+          zip: body.zip || undefined,
           external_id: body.external_id || undefined,
           country_code: body.country_code || undefined
         },

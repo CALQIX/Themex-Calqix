@@ -123,7 +123,7 @@ function formatUserData(customer = {}, ip, userAgent) {
   const firstName = normalizeText(customer.first_name || customer.firstName);
   const lastName = normalizeText(customer.last_name || customer.lastName);
   const city = normalizeText(customer.city, { keepSpaces: true });
-  const state = normalizeText(customer.province_code || customer.provinceCode);
+  const state = normalizeText(customer.state || customer.province_code || customer.provinceCode);
   const zip = normalizeZip(customer.zip || customer.postal_code || customer.postalCode);
   const country = normalizeCountry(customer.country_code || customer.countryCode);
 

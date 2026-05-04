@@ -15,7 +15,7 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-04-23-a';
+  var BRIDGE_VERSION = '2026-05-04-a';
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
 
@@ -283,6 +283,23 @@
     if (wbraid) data.wbraid = wbraid;
     if (ttclid) data.ttclid = ttclid;
     if (ttp) data.ttp = ttp;
+    var dl = window.dataLayer || [];
+    for (var i = dl.length - 1; i >= 0; i--) {
+      var entry = dl[i];
+      if (entry && entry.event === 'calqix_user_data') {
+        var cu = entry.user_data || entry;
+        if (!data.email && cu.em) data.email = cu.em;
+        if (!data.phone && cu.ph) data.phone = cu.ph;
+        if (!data.external_id && cu.external_id) data.external_id = cu.external_id;
+        if (cu.fn) data.first_name = cu.fn;
+        if (cu.ln) data.last_name = cu.ln;
+        if (cu.ct) data.city = cu.ct;
+        if (cu.st) data.state = cu.st;
+        if (cu.zp) data.zip = cu.zp;
+        if (!data.country_code && cu.country) data.country_code = cu.country;
+        break;
+      }
+    }
     return data;
   }
 
@@ -340,6 +357,11 @@
       fbp: userPayload.fbp || undefined,
       email: userPayload.email || undefined,
       phone: userPayload.phone || undefined,
+      first_name: userPayload.first_name || undefined,
+      last_name: userPayload.last_name || undefined,
+      city: userPayload.city || undefined,
+      state: userPayload.state || undefined,
+      zip: userPayload.zip || undefined,
       external_id: userPayload.external_id || undefined,
       country_code: userPayload.country_code || undefined
     };
@@ -422,6 +444,11 @@
       fbp: userPayload.fbp || undefined,
       email: userPayload.email || undefined,
       phone: userPayload.phone || undefined,
+      first_name: userPayload.first_name || undefined,
+      last_name: userPayload.last_name || undefined,
+      city: userPayload.city || undefined,
+      state: userPayload.state || undefined,
+      zip: userPayload.zip || undefined,
       external_id: userPayload.external_id || undefined,
       country_code: userPayload.country_code || undefined,
       source_url: window.location.href

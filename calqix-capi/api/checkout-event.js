@@ -300,6 +300,7 @@ function buildCustomerData(body, enrichment) {
   data.first_name = body.first_name || undefined;
   data.last_name = body.last_name || undefined;
   data.city = body.city || undefined;
+  data.state = body.state || undefined;
   data.zip = body.zip || undefined;
   data.country_code = body.country_code || undefined;
   return data;
