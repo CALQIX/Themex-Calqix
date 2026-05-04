@@ -450,7 +450,8 @@
   display: flex;
 }
 .wt-cart__item .loading-overlay:not(.hidden) ~ * {
-  visibility: hidden;
+  opacity: 0.62;
+  transition: opacity 0.12s ease;
 }
 .wt-cart__item:not(:last-child) {
   border-bottom: 1px solid var(--color-border);
@@ -2113,8 +2114,17 @@
   animation: wtCartQtyFlipDown 0.2s ease;
 }
 .wt-cart__drawer .wt-cart__item.wt-cart-item--stagger-in {
-  animation: wtCartItemStaggerIn 0.32s cubic-bezier(0.22, 0.68, 0, 1.04) both;
-  animation-delay: calc(var(--wt-cart-item-index, 0) * 45ms);
+  animation: wtCartItemStaggerIn 0.22s cubic-bezier(0.22, 0.68, 0, 1) both;
+  animation-delay: calc(var(--wt-cart-item-index, 0) * 24ms);
+}
+
+.wt-cart__drawer .wt-cart-soft-refresh {
+  opacity: 0.72;
+  transform: translateY(1px);
+}
+
+.wt-cart__drawer .wt-cart-soft-refresh--in {
+  animation: wtCartSoftRefresh 0.18s ease-out both;
 }
 
 .wt-cart__drawer .wt-cart__drawer__inner {
@@ -2251,8 +2261,7 @@
   to { background-position: 100% 100%; }
 }
 @keyframes wtCartItemStaggerIn {
-  0% { opacity: 0; transform: translateY(14px) scale(0.98); }
-  70% { opacity: 1; transform: translateY(-2px) scale(1.005); }
+  0% { opacity: 0.55; transform: translateY(5px); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 @keyframes wtCartLineRemoveFlash {
@@ -2261,12 +2270,12 @@
 }
 @keyframes wtCartQtyFlipUp {
   0% { transform: translateY(0); opacity: 1; }
-  50% { transform: translateY(-8px); opacity: 0; }
+  50% { transform: translateY(-3px); opacity: 0.48; }
   100% { transform: translateY(0); opacity: 1; }
 }
 @keyframes wtCartQtyFlipDown {
   0% { transform: translateY(0); opacity: 1; }
-  50% { transform: translateY(8px); opacity: 0; }
+  50% { transform: translateY(3px); opacity: 0.48; }
   100% { transform: translateY(0); opacity: 1; }
 }
 @keyframes wtCartCounterBounce {
@@ -2324,12 +2333,12 @@
   100% { transform: translateX(0); }
 }
 @keyframes wtCartLineEnter {
-  0% { opacity: 0; transform: translateY(calc(12px * var(--drawer-motion-scale, 1))) scale(0.985); }
+  0% { opacity: 0.55; transform: translateY(calc(6px * var(--drawer-motion-scale, 1))); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 @keyframes wtCartLineFlash {
   0% { background-color: rgba(232, 201, 106, 0); }
-  40% { background-color: rgba(232, 201, 106, calc(0.12 * var(--drawer-motion-scale, 1))); }
+  40% { background-color: rgba(232, 201, 106, calc(0.06 * var(--drawer-motion-scale, 1))); }
   100% { background-color: rgba(232, 201, 106, 0); }
 }
 @keyframes wtCartGoldEdgeFade {
@@ -2337,24 +2346,29 @@
   100% { border-left-color: transparent; }
 }
 @keyframes wtCartQtyDeltaUp {
-  0% { opacity: 0; transform: translateY(calc(10px * var(--drawer-motion-scale, 1))) scale(0.75); }
-  35% { opacity: 1; transform: translateY(0) scale(1.05); }
-  100% { opacity: 0; transform: translateY(calc(-14px * var(--drawer-motion-scale, 1))) scale(0.98); }
+  0% { opacity: 0; transform: translateY(calc(5px * var(--drawer-motion-scale, 1))) scale(0.9); }
+  30% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(calc(-8px * var(--drawer-motion-scale, 1))) scale(0.98); }
 }
 @keyframes wtCartQtyDeltaDown {
-  0% { opacity: 0; transform: translateY(calc(-8px * var(--drawer-motion-scale, 1))) scale(0.75); }
-  35% { opacity: 1; transform: translateY(0) scale(1.05); }
-  100% { opacity: 0; transform: translateY(calc(12px * var(--drawer-motion-scale, 1))) scale(0.98); }
+  0% { opacity: 0; transform: translateY(calc(-5px * var(--drawer-motion-scale, 1))) scale(0.9); }
+  30% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(calc(8px * var(--drawer-motion-scale, 1))) scale(0.98); }
 }
 @keyframes wtCartValuePulse {
   0% { transform: translateY(0); color: inherit; }
-  35% { transform: translateY(calc(-2px * var(--drawer-motion-scale, 1))); color: #1a3b5c; }
+  35% { transform: translateY(calc(-1px * var(--drawer-motion-scale, 1))); color: #1a3b5c; }
   100% { transform: translateY(0); color: inherit; }
 }
 @keyframes wtCartProgressPulse {
   0% { filter: saturate(1); box-shadow: 0 0 0 rgba(232, 201, 106, 0); }
   35% { filter: saturate(calc(1 + (0.2 * var(--drawer-motion-scale, 1)))); box-shadow: 0 0 0 calc(4px * var(--drawer-motion-scale, 1)) rgba(232, 201, 106, calc(0.12 * var(--drawer-motion-scale, 1))); }
   100% { filter: saturate(1); box-shadow: 0 0 0 rgba(232, 201, 106, 0); }
+}
+
+@keyframes wtCartSoftRefresh {
+  from { opacity: 0.82; transform: translateY(1px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .wt-cart__drawer[data-motion-intensity="off"] .wt-cart__qty-delta {
