@@ -41,6 +41,41 @@
       {{ cart.total_price | money_with_currency }}
     </div>
   </div>
+
+  {%- liquid
+    assign cart_all_items_available = true
+    for item in cart.items
+      unless item.variant.available
+        assign cart_all_items_available = false
+      endunless
+    endfor
+    assign cart_country_code = localization.country.iso_code | default: shop.address.country_code | default: 'EN' | upcase
+  -%}
+  <div
+    class="wt-cart__stock-status{% unless cart_all_items_available %} wt-cart__stock-status--muted{% endunless %}"
+    {% if cart_all_items_available %}
+      data-cx-stock-countdown
+      data-cx-country="{{ cart_country_code }}"
+      data-cx-template="{{ 'calqix_product.cutoff_template' | t: hours: '__H__', minutes: '__M__', date: '__D__' | escape }}"
+      data-cx-fallback="{{ 'calqix_cart.stock_ready' | t | escape }}"
+      data-cx-months="{{ 'calqix_product.months_short' | t | escape }}"
+    {% endif %}
+  >
+    <span class="wt-cart__stock-dot" aria-hidden="true"></span>
+    <span class="wt-cart__stock-text">
+      <span class="wt-cart__stock-label">
+        {%- if cart_all_items_available -%}
+          {{ 'calqix_product.in_stock_label' | t }}:
+        {%- else -%}
+          {{ 'calqix_cart.stock_checking' | t }}
+        {%- endif -%}
+      </span>
+      {%- if cart_all_items_available -%}
+        <span class="wt-cart__stock-detail" data-cx-stock-detail aria-live="polite">{{ 'calqix_cart.stock_ready' | t }}</span>
+      {%- endif -%}
+    </span>
+  </div>
+
   {% if settings.show_view_cart and settings.hide_checkout_button %}
     {% comment %}Only view cart button{% endcomment %}
     <button

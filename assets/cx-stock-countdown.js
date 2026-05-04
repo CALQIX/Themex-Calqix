@@ -84,12 +84,19 @@
     }
   }
 
+  var initializedNodes = [];
+  var intervalStarted = false;
+
   function init() {
     var nodes = document.querySelectorAll('[data-cx-stock-countdown]');
     if (!nodes.length) return;
     var list = Array.prototype.slice.call(nodes);
     list.forEach(renderNode);
-    setInterval(function () { list.forEach(renderNode); }, TICK_MS);
+    initializedNodes = list;
+    if (!intervalStarted) {
+      intervalStarted = true;
+      setInterval(function () { initializedNodes.forEach(renderNode); }, TICK_MS);
+    }
   }
 
   if (document.readyState === 'loading') {
@@ -97,4 +104,11 @@
   } else {
     init();
   }
+
+  document.addEventListener('cart-drawer:refresh', function () {
+    window.setTimeout(init, 80);
+  });
+  document.addEventListener('cart:updated', function () {
+    window.setTimeout(init, 80);
+  });
 })();
