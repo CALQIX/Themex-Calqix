@@ -1326,12 +1326,17 @@
 .wt-cart__drawer .wt-cart__stock-status {
   display: flex;
   align-items: center;
-  gap: 7px;
-  margin: -2px 0 12px;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 7px 10px;
+  border: 1px solid rgba(53, 223, 97, 0.22);
+  border-radius: 6px;
+  background: rgba(53, 223, 97, 0.055);
   color: var(--calqix-navy-soft);
   font-family: "DM Sans", sans-serif;
-  font-size: 12px;
-  line-height: 1.35;
+  font-size: 11.5px;
+  line-height: 1.25;
+  overflow: hidden;
 }
 .wt-cart__drawer .wt-cart__stock-dot {
   flex: 0 0 auto;
@@ -1347,12 +1352,20 @@
 }
 .wt-cart__drawer .wt-cart__stock-text {
   min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
 }
 .wt-cart__drawer .wt-cart__stock-label {
   font-weight: 700;
+  flex: 0 0 auto;
 }
 .wt-cart__drawer .wt-cart__stock-detail {
   color: rgba(26, 59, 92, 0.78);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .wt-cart__drawer .wt-cart__subtitle__text {
   color: var(--calqix-muted);
