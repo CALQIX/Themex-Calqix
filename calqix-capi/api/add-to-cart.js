@@ -4,12 +4,14 @@
 // Target migration date: TBD
 const { formatUserData } = require('../lib/hash');
 const { sendEvent } = require('../lib/meta-capi');
+const { extractClientIP } = require('../lib/ip-extract');
 const { isDuplicate, markProcessed } = require('../lib/dedup-guard');
 const eventState = require('../lib/event-state');
 const store = require('../lib/store');
 const multiPlatform = require('../lib/multi-platform-send');
 const capiDiag = require('../lib/capi-diagnostics');
 const bridgeVersionTracker = require('../lib/bridge-version-tracker');
+const eventStats = require('../lib/event-stats');
 
 const DEFAULT_SOURCE_URL = 'https://calqix.com/cart';
 const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
@@ -71,10 +73,7 @@ async function handler(req, res) {
     if (body.external_id) customerData.external_id = body.external_id;
     if (body.country_code) customerData.country_code = body.country_code;
 
-    const clientIp =
-      (req.headers && req.headers['x-forwarded-for'] && req.headers['x-forwarded-for'].split(',')[0].trim()) ||
-      (req.socket && req.socket.remoteAddress) ||
-      undefined;
+    const clientIp = extractClientIP(req, body.client_ip);
     const clientUserAgent =
       (req.headers && req.headers['user-agent']) ||
       undefined;
@@ -120,6 +119,7 @@ async function handler(req, res) {
     });
 
     await eventState.recordReceived(eventId, 'AddToCart', 'browser_bridge', eventId);
+    await eventStats.incrementEventStat('AddToCart', 'browser');
     await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
     const result = await sendEvent('AddToCart', eventId, sourceUrl, userData, customData);
     await eventState.recordSent(eventId, result);

@@ -7,6 +7,7 @@ const { formatUserData } = require('../../lib/hash');
 const { sendEvent } = require('../../lib/meta-capi');
 const eventState = require('../../lib/event-state');
 const multiPlatform = require('../../lib/multi-platform-send');
+const eventStats = require('../../lib/event-stats');
 const {
   extractExternalId,
   extractMetaBrowserIds,
@@ -197,6 +198,7 @@ async function handler(req, res) {
     };
 
     await eventState.recordReceived(eventId, 'Lead', 'webhook', String(customer.id));
+    await eventStats.incrementEventStat('Lead', 'server');
     var metaResult = await sendEvent('Lead', eventId, SOURCE_URL, userData, customData);
     await eventState.recordSent(eventId, metaResult);
     await markProcessed('Lead', String(customer.id));

@@ -19,9 +19,11 @@
 const crypto = require('crypto');
 const { formatUserData } = require('../lib/hash');
 const { sendEvent } = require('../lib/meta-capi');
+const { extractClientIP } = require('../lib/ip-extract');
 const { isDuplicate, markProcessed } = require('../lib/dedup-guard');
 const eventState = require('../lib/event-state');
 const bridgeVersionTracker = require('../lib/bridge-version-tracker');
+const eventStats = require('../lib/event-stats');
 
 const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
 const SOURCE_URL_BASE = 'https://www.calqix.com/';
@@ -88,10 +90,7 @@ async function handler(req, res) {
     if (body.first_name) customerData.first_name = body.first_name;
     if (body.last_name) customerData.last_name = body.last_name;
 
-    const clientIp =
-      (req.headers && req.headers['x-forwarded-for'] && req.headers['x-forwarded-for'].split(',')[0].trim()) ||
-      (req.socket && req.socket.remoteAddress) ||
-      undefined;
+    const clientIp = extractClientIP(req, body.client_ip);
     const clientUserAgent = (req.headers && req.headers['user-agent']) || undefined;
 
     const userData = formatUserData(customerData, clientIp, clientUserAgent);
@@ -114,6 +113,7 @@ async function handler(req, res) {
     });
 
     await eventState.recordReceived(eventId, 'Lead', 'browser_bridge', emailHash);
+    await eventStats.incrementEventStat('Lead', 'browser');
     const result = await sendEvent('Lead', eventId, sourceUrl, userData, customData);
     await eventState.recordSent(eventId, result);
     await markProcessed('Lead', emailHash);

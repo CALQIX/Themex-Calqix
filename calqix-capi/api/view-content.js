@@ -1,11 +1,14 @@
+const crypto = require('crypto');
 const { formatUserData } = require('../lib/hash');
 const { sendEvent } = require('../lib/meta-capi');
+const { extractClientIP } = require('../lib/ip-extract');
 const { isDuplicate, markProcessed } = require('../lib/dedup-guard');
 const eventState = require('../lib/event-state');
 const store = require('../lib/store');
 const multiPlatform = require('../lib/multi-platform-send');
 const capiDiag = require('../lib/capi-diagnostics');
 const bridgeVersionTracker = require('../lib/bridge-version-tracker');
+const eventStats = require('../lib/event-stats');
 
 const SOURCE_URL_BASE = 'https://calqix.com/products/';
 const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
@@ -71,10 +74,7 @@ async function handler(req, res) {
     if (body.external_id) customerData.external_id = body.external_id;
     if (body.country_code) customerData.country_code = body.country_code;
 
-    const clientIp =
-      (req.headers && req.headers['x-forwarded-for'] && req.headers['x-forwarded-for'].split(',')[0].trim()) ||
-      (req.socket && req.socket.remoteAddress) ||
-      undefined;
+    const clientIp = extractClientIP(req, body.client_ip);
     const clientUserAgent =
       (req.headers && req.headers['user-agent']) ||
       undefined;
@@ -108,6 +108,18 @@ async function handler(req, res) {
       value: price !== undefined ? Number(parseFloat(price).toFixed(2)) : undefined,
       currency: price !== undefined ? currency : undefined
     };
+
+    await eventStats.incrementEventStat('ViewContent', 'browser');
+
+    var throttleSource = userData.external_id && userData.external_id[0]
+      ? userData.external_id[0]
+      : (userData.fbp || userData.fbc || userData.client_ip_address || 'anonymous');
+    var throttleUserKey = crypto.createHash('sha256').update(String(throttleSource)).digest('hex');
+    var throttleContentKey = (catalogIds[0] || productId || variantId || 'unknown');
+    var throttleKey = 'vc_throttle:' + throttleUserKey + ':' + throttleContentKey;
+    if (!(await store.setnx(throttleKey, '1', 3600))) {
+      return res.status(200).json({ received: true, processed: false, skipped: 'throttled', eventId: eventId });
+    }
 
     var matchKeys = {
       fbc: Boolean(userData.fbc),

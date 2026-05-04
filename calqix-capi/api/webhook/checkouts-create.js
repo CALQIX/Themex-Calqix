@@ -7,6 +7,7 @@ const { sendEvent } = require('../../lib/meta-capi');
 const store = require('../../lib/store');
 const eventState = require('../../lib/event-state');
 const multiPlatform = require('../../lib/multi-platform-send');
+const eventStats = require('../../lib/event-stats');
 const {
   buildContents,
   countItems,
@@ -146,6 +147,7 @@ async function handler(req, res) {
     });
 
     await eventState.recordReceived(eventId, 'InitiateCheckout', 'webhook', String(checkoutKey));
+    await eventStats.incrementEventStat('InitiateCheckout', 'server');
     await eventState.storeEventPayload(eventId, userData, customData, SOURCE_URL);
     var metaResult = await sendEvent('InitiateCheckout', eventId, SOURCE_URL, userData, customData);
     await eventState.recordSent(eventId, metaResult);

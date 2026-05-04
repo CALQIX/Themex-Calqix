@@ -62,6 +62,7 @@ Ad Optimization (3 QStash crons)
 | `POST /api/view-content` | ViewContent — from bridge JS |
 | `POST /api/add-to-cart` | AddToCart — from bridge JS |
 | `POST /api/identity/capture` | Identity enrichment from checkout fields |
+| `GET /api/admin/event-stats` | Bearer-protected 7-day Meta event volume stats |
 | `POST /api/ai/incident-analysis` | AI incident analysis (P0/P1 triggered) |
 | `GET /api/diagnostics` | Health check and env status |
 
@@ -135,9 +136,12 @@ AI_TOKEN_BUDGET_DAILY=200000           # Max input tokens per day
 META_API_VERSION=v21.0
 META_TEST_EVENT_CODE=
 DIAGNOSTICS_KEY=
+DASHBOARD_TOKEN=                       # Also protects /api/admin/event-stats
 GITHUB_TOKEN=                          # For AI optimizer PR creation
 CAPI_BASE_URL=https://calqix-capi.vercel.app
 ```
+
+`META_TEST_EVENT_CODE` should only be set on staging/development Vercel environments. Leave it empty in production.
 
 ## Theme integration
 

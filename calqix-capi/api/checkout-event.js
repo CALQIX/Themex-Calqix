@@ -15,9 +15,11 @@
  */
 const { formatUserData } = require('../lib/hash');
 const { sendEvent } = require('../lib/meta-capi');
+const { extractClientIP } = require('../lib/ip-extract');
 const { isDuplicate, markProcessed } = require('../lib/dedup-guard');
 const store = require('../lib/store');
 const eventState = require('../lib/event-state');
+const eventStats = require('../lib/event-stats');
 
 async function handler(req, res) {
   // CORS — Custom Pixel sandbox may run on various origins
@@ -42,10 +44,7 @@ async function handler(req, res) {
       return res.status(400).json({ error: 'event_type and checkout_token required' });
     }
 
-    const clientIp =
-      (req.headers && req.headers['x-forwarded-for'] && req.headers['x-forwarded-for'].split(',')[0].trim()) ||
-      (req.socket && req.socket.remoteAddress) ||
-      undefined;
+    const clientIp = extractClientIP(req, body.client_ip);
     const clientUserAgent =
       (req.headers && req.headers['user-agent']) ||
       undefined;
@@ -132,6 +131,7 @@ async function handleCheckoutStarted(res, body, checkoutToken, clientIp, clientU
 
   var sourceUrl = body.source_url || 'https://calqix.com/checkout';
   await eventState.recordReceived(eventId, 'InitiateCheckout', 'custom_pixel', checkoutToken);
+  await eventStats.incrementEventStat('InitiateCheckout', 'browser');
   await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
   var result = await sendEvent('InitiateCheckout', eventId, sourceUrl, userData, customData);
   await eventState.recordSent(eventId, result);
@@ -203,6 +203,7 @@ async function handleCheckoutCompleted(res, body, checkoutToken, clientIp, clien
 
   var sourceUrl = body.source_url || 'https://calqix.com/checkout';
   await eventState.recordReceived(eventId, 'Purchase', 'custom_pixel', checkoutToken);
+  await eventStats.incrementEventStat('Purchase', 'browser');
   await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
   var result = await sendEvent('Purchase', eventId, sourceUrl, userData, customData);
   await eventState.recordSent(eventId, result);
@@ -264,6 +265,7 @@ async function handlePaymentInfo(res, body, checkoutToken, clientIp, clientUserA
 
   var sourceUrl = body.source_url || 'https://calqix.com/checkout';
   await eventState.recordReceived(eventId, 'AddPaymentInfo', 'custom_pixel', checkoutToken);
+  await eventStats.incrementEventStat('AddPaymentInfo', 'browser');
   await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
   var result = await sendEvent('AddPaymentInfo', eventId, sourceUrl, userData, customData);
   await eventState.recordSent(eventId, result);
