@@ -15,7 +15,7 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-05-04-a';
+  var BRIDGE_VERSION = '2026-05-04-b';
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
 
@@ -383,6 +383,8 @@
   /*  AddToCart – server-side event with fbc/fbp/email                   */
   /* ------------------------------------------------------------------ */
 
+  var _atcRecent = {};
+
   function fireAddToCart(detail) {
     if (!detail) return;
 
@@ -427,6 +429,13 @@
     });
 
     if (contentIds.length === 0) return;
+
+    var dedupKey = contentIds.join('|') + ':' + contents.map(function (item) {
+      return item.id + 'x' + item.quantity;
+    }).join('|');
+    var now = Date.now();
+    if (_atcRecent[dedupKey] && now - _atcRecent[dedupKey] < 2500) return;
+    _atcRecent[dedupKey] = now;
 
     var contentType = hasVariantSignal ? 'product' : 'product_group';
     var eventId = generateEventId('addtocart', contentIds[0]);
@@ -657,8 +666,12 @@
     window.fetch = function () {
       var url = arguments[0];
       var opts = arguments[1];
+      var urlString = '';
+      try {
+        urlString = typeof url === 'string' ? url : (url && url.url ? String(url.url) : String(url || ''));
+      } catch (e) { urlString = ''; }
 
-      if (typeof url === 'string' && url.indexOf('/cart/add') !== -1 && opts && opts.body) {
+      if (urlString.indexOf('/cart/add') !== -1 && opts && opts.body) {
         var promise = origFetch.apply(this, arguments);
         promise.then(function (response) {
           if (response.ok) {
@@ -693,6 +706,42 @@
       }
       return origXHRSend.apply(this, arguments);
     };
+  }
+
+  function handleCartUpdatePayload(data) {
+    try {
+      if (!data) return;
+      if (data.cartData) {
+        fireAddToCart(data.cartData);
+        return;
+      }
+      if (data.detail && data.detail.cartData) {
+        fireAddToCart(data.detail.cartData);
+        return;
+      }
+      if (data.detail && data.detail.response) {
+        fireAddToCart(data.detail.response);
+      }
+    } catch (e) { /* silent */ }
+  }
+
+  function interceptCartUpdateEvents() {
+    document.addEventListener('cart-update', function (event) {
+      handleCartUpdatePayload(event);
+    });
+
+    function trySubscribe() {
+      try {
+        if (typeof subscribe === 'function') {
+          subscribe('cart-update', handleCartUpdatePayload);
+          return;
+        }
+      } catch (e) { /* retry */ }
+      if ((trySubscribe.tries = (trySubscribe.tries || 0) + 1) < 80) {
+        setTimeout(trySubscribe, 250);
+      }
+    }
+    trySubscribe();
   }
 
   /* ------------------------------------------------------------------ */
@@ -817,6 +866,7 @@
     syncCartAttributes();
     fireViewContent();
     interceptAddToCart();
+    interceptCartUpdateEvents();
     interceptCheckoutClicks();
     interceptLeadForms();
     autoIdentityCapture();
