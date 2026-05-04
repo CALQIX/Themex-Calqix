@@ -150,6 +150,27 @@
             {%- assign card_eyebrow = block.settings[eyebrow_key] -%}
             {%- assign card_title = block.settings[title_key] -%}
             {%- assign card_desc = block.settings[desc_key] -%}
+            {%- liquid
+              assign card_href = block.settings[link_key] | default: '#'
+              assign card_href_first = card_href | slice: 0
+              assign cx_locale_root = ''
+              unless routes.root_url == '/'
+                assign cx_locale_root = routes.root_url
+              endunless
+              if card_href != '#' and card_href contains '://'
+                assign card_href = card_href
+              elsif card_href != '#' and card_href contains 'mailto:'
+                assign card_href = card_href
+              elsif card_href != '#' and card_href contains 'tel:'
+                assign card_href = card_href
+              elsif card_href_first == '#'
+                assign card_href = card_href
+              elsif card_href_first == '/'
+                assign card_href = cx_locale_root | append: card_href
+              elsif card_href != blank and card_href != '#'
+                assign card_href = cx_locale_root | append: '/' | append: card_href
+              endif
+            -%}
             {%- if cx_is_products_mega -%}
               {%- liquid
                 assign locale_base = 'calqix_menu.products.card_' | append: i | append: '.'
@@ -171,7 +192,7 @@
               -%}
             {%- endif -%}
             {%- if card_title != blank -%}
-              <a class="cx-mega-card" href="{{ block.settings[link_key] | default: '#' }}">
+              <a class="cx-mega-card" href="{{ card_href }}">
                 {%- if card_eyebrow != blank -%}<div class="cx-eyebrow">{{ card_eyebrow }}</div>{%- endif -%}
                 <div class="cx-mega-card-title">{{ card_title }}</div>
                 <div class="cx-mega-card-desc">{{ card_desc }}</div>
@@ -278,6 +299,27 @@
               {%- assign link_key = 'link_' | append: i -%}
               {%- assign s_title = block.settings[title_key] -%}
               {%- assign s_eyebrow = block.settings[eyebrow_key] -%}
+              {%- liquid
+                assign s_href = block.settings[link_key] | default: '#'
+                assign s_href_first = s_href | slice: 0
+                assign cx_locale_root = ''
+                unless routes.root_url == '/'
+                  assign cx_locale_root = routes.root_url
+                endunless
+                if s_href != '#' and s_href contains '://'
+                  assign s_href = s_href
+                elsif s_href != '#' and s_href contains 'mailto:'
+                  assign s_href = s_href
+                elsif s_href != '#' and s_href contains 'tel:'
+                  assign s_href = s_href
+                elsif s_href_first == '#'
+                  assign s_href = s_href
+                elsif s_href_first == '/'
+                  assign s_href = cx_locale_root | append: s_href
+                elsif s_href != blank and s_href != '#'
+                  assign s_href = cx_locale_root | append: '/' | append: s_href
+                endif
+              -%}
               {%- if cx_is_products_mega -%}
                 {%- liquid
                   assign locale_base = 'calqix_menu.products.card_' | append: i | append: '.'
@@ -294,7 +336,7 @@
                 -%}
               {%- endif -%}
               {%- if s_title != blank -%}
-                <a class="cx-drawer__sublink" href="{{ block.settings[link_key] | default: '#' }}" style="--cx-i: {{ forloop.index0 }};">
+                <a class="cx-drawer__sublink" href="{{ s_href }}" style="--cx-i: {{ forloop.index0 }};">
                   {%- if s_eyebrow != blank -%}
                     <span class="cx-drawer__sublink-eyebrow">{{ s_eyebrow }}</span>
                   {%- endif -%}
