@@ -38,6 +38,7 @@
     // localized homepage. Shopify owns root_url, so market prefixes stay
     // correct even for mixed-case or regional locale codes.
     var home = {{ routes.root_url | json }};
+    if (home.slice(-1) !== '/') home += '/';
     location.replace(home + (home.indexOf('?') === -1 ? '?' : '&') + 'open_cart=1');
   } catch (e) { /* fall through to normal /cart page on any failure */ }
 })();
