@@ -1,5 +1,6 @@
 const dotenv = require('dotenv');
 const { verifyShopifyWebhook } = require('./verify-webhook');
+const { extractClientIP } = require('./ip-extract');
 
 dotenv.config();
 
@@ -103,13 +104,7 @@ async function readRawBody(req) {
 }
 
 function getClientIp(req) {
-  const forwardedFor = getHeader(req, 'x-forwarded-for');
-
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim();
-  }
-
-  return req.socket && req.socket.remoteAddress ? req.socket.remoteAddress : undefined;
+  return extractClientIP(req);
 }
 
 function getUserAgent(req) {
