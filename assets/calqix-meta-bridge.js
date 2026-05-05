@@ -15,7 +15,7 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-05-04-b';
+  var BRIDGE_VERSION = '2026-05-05-browser-fallback-a';
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
 
@@ -313,6 +313,9 @@
     var eventId = generateEventId(eventName.toLowerCase(), identifier);
 
     fbq('track', eventName, customData || {}, { eventID: eventId });
+    if (typeof window.__calqixMetaTrackFallback === 'function') {
+      window.__calqixMetaTrackFallback(eventName, eventId, customData || {}, 3000);
+    }
 
     return eventId;
   }
@@ -369,13 +372,17 @@
     postKeepAlive(CAPI_BASE + '/view-content', payload);
 
     if (typeof fbq === 'function') {
-      fbq('track', 'ViewContent', {
+      var viewContentData = {
         content_ids: catalogIds,
         content_type: contentType,
         content_name: payload.product_title,
         value: price,
         currency: payload.currency
-      }, { eventID: eventId });
+      };
+      fbq('track', 'ViewContent', viewContentData, { eventID: eventId });
+      if (typeof window.__calqixMetaTrackFallback === 'function') {
+        window.__calqixMetaTrackFallback('ViewContent', eventId, viewContentData, 3000);
+      }
     }
   }
 
@@ -466,13 +473,17 @@
     postKeepAlive(CAPI_BASE + '/add-to-cart', payload);
 
     if (typeof fbq === 'function') {
-      fbq('track', 'AddToCart', {
+      var addToCartData = {
         content_ids: contentIds,
         content_type: contentType,
         contents: contents,
         value: payload.value,
         currency: currency
-      }, { eventID: eventId });
+      };
+      fbq('track', 'AddToCart', addToCartData, { eventID: eventId });
+      if (typeof window.__calqixMetaTrackFallback === 'function') {
+        window.__calqixMetaTrackFallback('AddToCart', eventId, addToCartData, 3000);
+      }
     }
 
     syncCartAttributes();
@@ -510,9 +521,13 @@
     var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'EUR';
 
     if (typeof fbq === 'function') {
-      fbq('track', 'InitiateCheckout', {
+      var initiateCheckoutData = {
         currency: currency
-      }, { eventID: eventId });
+      };
+      fbq('track', 'InitiateCheckout', initiateCheckoutData, { eventID: eventId });
+      if (typeof window.__calqixMetaTrackFallback === 'function') {
+        window.__calqixMetaTrackFallback('InitiateCheckout', eventId, initiateCheckoutData, 3000);
+      }
     }
   }
 
@@ -601,10 +616,14 @@
     postKeepAlive(CAPI_BASE + '/lead', payload);
 
     if (typeof fbq === 'function') {
-      fbq('track', 'Lead', {
+      var leadData = {
         content_name: formContext === 'newsletter' ? 'Newsletter Signup' : 'Lead Capture',
         content_category: formContext || 'newsletter'
-      }, { eventID: eventId });
+      };
+      fbq('track', 'Lead', leadData, { eventID: eventId });
+      if (typeof window.__calqixMetaTrackFallback === 'function') {
+        window.__calqixMetaTrackFallback('Lead', eventId, leadData, 3000);
+      }
     }
   }
 

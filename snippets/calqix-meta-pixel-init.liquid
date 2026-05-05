@@ -22,6 +22,109 @@
 <!-- CALQIX Meta Pixel + Advanced Matching -->
 <script>
 (function () {
+  var CALQIX_PIXEL = '934134615770602';
+
+  function markMetaBeacon(url) {
+    try {
+      var value = String(url || '');
+      if (value.indexOf('facebook.com/tr') === -1) return;
+      window.__calqixMetaBrowserBeaconSeen = true;
+      window.__calqixMetaBeaconSeenByEventId = window.__calqixMetaBeaconSeenByEventId || {};
+      var parsed = new URL(value, window.location.href);
+      var eid = parsed.searchParams.get('eid') || parsed.searchParams.get('eventID');
+      if (eid) window.__calqixMetaBeaconSeenByEventId[eid] = true;
+    } catch (e) { /* silent */ }
+  }
+
+  function installMetaBeaconWatch() {
+    if (window.__calqixMetaBeaconWatch) return;
+    window.__calqixMetaBeaconWatch = true;
+    window.__calqixMetaBeaconSeenByEventId = window.__calqixMetaBeaconSeenByEventId || {};
+
+    try {
+      var oldBeacon = navigator.sendBeacon;
+      if (oldBeacon) {
+        navigator.sendBeacon = function (url, data) {
+          markMetaBeacon(url);
+          return oldBeacon.apply(this, arguments);
+        };
+      }
+    } catch (e) { /* silent */ }
+
+    try {
+      var oldFetch = window.fetch;
+      if (oldFetch) {
+        window.fetch = function (input) {
+          markMetaBeacon(input && input.url ? input.url : input);
+          return oldFetch.apply(this, arguments);
+        };
+      }
+    } catch (e) { /* silent */ }
+
+    try {
+      var oldOpen = XMLHttpRequest.prototype.open;
+      XMLHttpRequest.prototype.open = function (method, url) {
+        markMetaBeacon(url);
+        return oldOpen.apply(this, arguments);
+      };
+    } catch (e) { /* silent */ }
+
+    try {
+      var srcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+      if (srcDescriptor && srcDescriptor.set && srcDescriptor.get) {
+        Object.defineProperty(HTMLImageElement.prototype, 'src', {
+          configurable: true,
+          enumerable: srcDescriptor.enumerable,
+          get: function () {
+            return srcDescriptor.get.call(this);
+          },
+          set: function (value) {
+            markMetaBeacon(value);
+            return srcDescriptor.set.call(this, value);
+          }
+        });
+      }
+    } catch (e) { /* silent */ }
+  }
+
+  function appendMetaParam(params, key, value) {
+    if (value === undefined || value === null || value === '') return;
+    if (Array.isArray(value) || (typeof value === 'object' && value !== null)) {
+      try { params.append(key, JSON.stringify(value)); } catch (e) { /* silent */ }
+      return;
+    }
+    params.append(key, String(value));
+  }
+
+  window.__calqixMetaTrackFallback = function (eventName, eventId, customData, delayMs) {
+    if (!eventName || !eventId) return;
+    window.__calqixMetaBeaconSeenByEventId = window.__calqixMetaBeaconSeenByEventId || {};
+    window.setTimeout(function () {
+      if (window.__calqixMetaBeaconSeenByEventId[eventId]) return;
+      try {
+        var params = new URLSearchParams();
+        params.set('id', CALQIX_PIXEL);
+        params.set('ev', eventName);
+        params.set('dl', window.location.href);
+        params.set('rl', document.referrer || '');
+        params.set('if', 'false');
+        params.set('ts', String(Date.now()));
+        params.set('eid', eventId);
+        var data = customData || {};
+        Object.keys(data).forEach(function (key) {
+          appendMetaParam(params, 'cd[' + key + ']', data[key]);
+        });
+        var img = new Image(1, 1);
+        img.style.display = 'none';
+        img.alt = '';
+        img.src = 'https://www.facebook.com/tr?' + params.toString();
+        window.__calqixMetaBeaconSeenByEventId[eventId] = true;
+      } catch (e) { /* silent */ }
+    }, delayMs || 3000);
+  };
+
+  installMetaBeaconWatch();
+
   /* Meta Pixel base loader (official snippet) */
   !function (f, b, e, v, n, t, s) {
     if (f.fbq) return;
@@ -62,15 +165,16 @@
   }
 
   if (am.external_id) {
-    fbq('init', '934134615770602', am);
+    fbq('init', CALQIX_PIXEL, am);
   } else {
-    fbq('init', '934134615770602');
+    fbq('init', CALQIX_PIXEL);
   }
 
   /* PageView — browser-only event. Includes eventID so a future server-side
      PageView CAPI endpoint (if added) can dedupe on the same ID. */
   var pvEventId = 'pv_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
   fbq('track', 'PageView', {}, { eventID: pvEventId });
+  window.__calqixMetaTrackFallback('PageView', pvEventId, {}, 3000);
   window.__calqixPvEventId = pvEventId;
 
   /* ------------------------------------------------------------------ */
@@ -85,7 +189,6 @@
   /*  later via defer — they hit the patched callMethod and get blocked.*/
   /* ------------------------------------------------------------------ */
   var BLOCKED_AGENTS = /^(tmSimo-GTM-WebTemplate|facebookarchive|tm-google-tagmanager|facebook-pixel-archive|facebook-for-woocommerce)/i;
-  var CALQIX_PIXEL = '934134615770602';
   var PATCH_FLAG = '__calqix_fbq_vangnet';
   var guardPending = false;
 
