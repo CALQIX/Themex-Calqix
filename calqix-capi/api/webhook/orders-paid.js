@@ -22,7 +22,7 @@ const {
   toMoney
 } = require('../../lib/webhook-utils');
 
-const SOURCE_URL = 'https://calqix.com/checkout';
+const SOURCE_URL = 'https://www.calqix.com/checkout';
 
 /**
  * Detect subscription renewal orders. SEAL renewals arrive through Shopify

@@ -129,7 +129,7 @@ async function handleCheckoutStarted(res, body, checkoutToken, clientIp, clientU
     source: 'custom_pixel'
   });
 
-  var sourceUrl = body.source_url || 'https://calqix.com/checkout';
+  var sourceUrl = body.source_url || 'https://www.calqix.com/checkout';
   await eventState.recordReceived(eventId, 'InitiateCheckout', 'custom_pixel', checkoutToken);
   await eventStats.incrementEventStat('InitiateCheckout', 'browser');
   await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
@@ -201,7 +201,7 @@ async function handleCheckoutCompleted(res, body, checkoutToken, clientIp, clien
     source: 'custom_pixel'
   });
 
-  var sourceUrl = body.source_url || 'https://calqix.com/checkout';
+  var sourceUrl = body.source_url || 'https://www.calqix.com/checkout';
   await eventState.recordReceived(eventId, 'Purchase', 'custom_pixel', checkoutToken);
   await eventStats.incrementEventStat('Purchase', 'browser');
   await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
@@ -263,7 +263,7 @@ async function handlePaymentInfo(res, body, checkoutToken, clientIp, clientUserA
     source: 'custom_pixel'
   });
 
-  var sourceUrl = body.source_url || 'https://calqix.com/checkout';
+  var sourceUrl = body.source_url || 'https://www.calqix.com/checkout';
   await eventState.recordReceived(eventId, 'AddPaymentInfo', 'custom_pixel', checkoutToken);
   await eventStats.incrementEventStat('AddPaymentInfo', 'browser');
   await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);

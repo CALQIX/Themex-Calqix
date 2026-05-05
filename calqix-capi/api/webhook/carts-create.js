@@ -17,7 +17,7 @@ const {
   respondOk
 } = require('../../lib/webhook-utils');
 
-const SOURCE_URL = 'https://calqix.com/cart';
+const SOURCE_URL = 'https://www.calqix.com/cart';
 
 function getLineItemPrice(item) {
   return (

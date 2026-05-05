@@ -99,7 +99,7 @@ async function sendEvent(opts) {
     context: {
       user: user,
       page: {
-        url: opts.sourceUrl || 'https://calqix.com'
+        url: opts.sourceUrl || 'https://www.calqix.com'
       }
     },
     properties: properties

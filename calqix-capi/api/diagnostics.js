@@ -30,7 +30,7 @@ async function checkPixelIdConflict() {
   var error = null;
 
   try {
-    var response = await fetch('https://calqix.com', {
+    var response = await fetch('https://www.calqix.com', {
       headers: { 'User-Agent': 'CALQIX-Diagnostics/2.0' },
       timeout: 5000
     });
@@ -96,7 +96,7 @@ async function handler(req, res) {
     metaResult = await sendEvent(
       'PageView',
       eventId,
-      'https://calqix.com/diagnostics-test',
+      'https://www.calqix.com/diagnostics-test',
       testUserData,
       testCustomData
     );

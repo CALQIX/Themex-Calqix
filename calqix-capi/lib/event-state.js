@@ -200,7 +200,7 @@ async function storeEventPayload(eventId, userData, customData, sourceUrl) {
     var payload = {
       user_data: userData || {},
       custom_data: customData || {},
-      source_url: sourceUrl || 'https://calqix.com'
+      source_url: sourceUrl || 'https://www.calqix.com'
     };
     await store.set(payloadKey(eventId), JSON.stringify(payload), TTL_EVENT);
   } catch (err) {

@@ -147,7 +147,9 @@ module.exports = async function (req, res) {
         if (!raw) continue;
 
         var event;
-        try { event = JSON.parse(raw); } catch (e) { continue; }
+        try {
+          event = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        } catch (e) { continue; }
 
         if (event.event_name !== 'Purchase') continue;
 

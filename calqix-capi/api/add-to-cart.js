@@ -13,7 +13,7 @@ const capiDiag = require('../lib/capi-diagnostics');
 const bridgeVersionTracker = require('../lib/bridge-version-tracker');
 const eventStats = require('../lib/event-stats');
 
-const DEFAULT_SOURCE_URL = 'https://calqix.com/cart';
+const DEFAULT_SOURCE_URL = 'https://www.calqix.com/cart';
 const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
 
 async function handler(req, res) {

@@ -16,7 +16,7 @@ const {
   respondOk
 } = require('../../lib/webhook-utils');
 
-const SOURCE_URL = 'https://calqix.com/account/register';
+const SOURCE_URL = 'https://www.calqix.com/account/register';
 
 /**
  * Parse registration marker from customer.note and persist as metafields.
