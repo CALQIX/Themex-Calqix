@@ -105,6 +105,7 @@ async function handleContactInfo(res, body, checkoutToken) {
  */
 async function handleCheckoutStarted(res, body, checkoutToken, clientIp, clientUserAgent) {
   var eventId = 'ic_' + checkoutToken;
+  var eventSource = body.source === 'shopify_web_pixel' ? 'shopify_web_pixel' : 'custom_pixel';
 
   if (await isDuplicate('InitiateCheckout', checkoutToken)) {
     console.log('[CheckoutEvent] InitiateCheckout already sent', { checkoutToken: checkoutToken.substring(0, 8) + '...' });
@@ -130,7 +131,7 @@ async function handleCheckoutStarted(res, body, checkoutToken, clientIp, clientU
   });
 
   var sourceUrl = body.source_url || 'https://www.calqix.com/checkout';
-  await eventState.recordReceived(eventId, 'InitiateCheckout', 'custom_pixel', checkoutToken);
+  await eventState.recordReceived(eventId, 'InitiateCheckout', eventSource, checkoutToken);
   await eventStats.incrementEventStat('InitiateCheckout', 'browser');
   await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
   var result = await sendEvent('InitiateCheckout', eventId, sourceUrl, userData, customData);
@@ -171,6 +172,7 @@ async function handleCheckoutStarted(res, body, checkoutToken, clientIp, clientU
  */
 async function handleCheckoutCompleted(res, body, checkoutToken, clientIp, clientUserAgent) {
   var eventId = 'purchase_' + checkoutToken;
+  var eventSource = body.source === 'shopify_web_pixel' ? 'shopify_web_pixel' : 'custom_pixel';
 
   if (await isDuplicate('Purchase', checkoutToken)) {
     console.log('[CheckoutEvent] Purchase already sent', { checkoutToken: checkoutToken.substring(0, 8) + '...' });
@@ -202,7 +204,7 @@ async function handleCheckoutCompleted(res, body, checkoutToken, clientIp, clien
   });
 
   var sourceUrl = body.source_url || 'https://www.calqix.com/checkout';
-  await eventState.recordReceived(eventId, 'Purchase', 'custom_pixel', checkoutToken);
+  await eventState.recordReceived(eventId, 'Purchase', eventSource, checkoutToken);
   await eventStats.incrementEventStat('Purchase', 'browser');
   await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
   var result = await sendEvent('Purchase', eventId, sourceUrl, userData, customData);
@@ -232,6 +234,7 @@ async function handleCheckoutCompleted(res, body, checkoutToken, clientIp, clien
  */
 async function handlePaymentInfo(res, body, checkoutToken, clientIp, clientUserAgent) {
   var eventId = 'add_payment_info_' + checkoutToken;
+  var eventSource = body.source === 'shopify_web_pixel' ? 'shopify_web_pixel' : 'custom_pixel';
 
   if (await isDuplicate('AddPaymentInfo', checkoutToken)) {
     console.log('[CheckoutEvent] AddPaymentInfo already sent', {
@@ -264,7 +267,7 @@ async function handlePaymentInfo(res, body, checkoutToken, clientIp, clientUserA
   });
 
   var sourceUrl = body.source_url || 'https://www.calqix.com/checkout';
-  await eventState.recordReceived(eventId, 'AddPaymentInfo', 'custom_pixel', checkoutToken);
+  await eventState.recordReceived(eventId, 'AddPaymentInfo', eventSource, checkoutToken);
   await eventStats.incrementEventStat('AddPaymentInfo', 'browser');
   await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
   var result = await sendEvent('AddPaymentInfo', eventId, sourceUrl, userData, customData);
