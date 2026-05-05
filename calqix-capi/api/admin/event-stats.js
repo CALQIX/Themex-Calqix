@@ -38,6 +38,8 @@ async function handler(req, res) {
       auth: process.env.ADMIN_TOKEN ? 'ADMIN_TOKEN' : 'DASHBOARD_TOKEN',
       stats: stats,
       recovery_queue_size: operational.recovery_queue_size,
+      backfill_pending_count: operational.backfill_pending_count,
+      event_recovery_queue_size: operational.event_recovery_queue_size,
       identity_store_count: operational.identity_store_count
     });
   } catch (err) {
