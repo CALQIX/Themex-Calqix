@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 dotenv.config();
 
 const META_API_VERSION = process.env.META_API_VERSION || 'v21.0';
-const DEFAULT_SOURCE_URL = 'https://calqix.com';
+const DEFAULT_SOURCE_URL = 'https://www.calqix.com';
 
 function removeUndefined(value) {
   if (Array.isArray(value)) {
