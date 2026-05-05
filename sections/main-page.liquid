@@ -18,6 +18,7 @@
     assign cq_show_impressum = true
   endif
 %}
+<!-- cq-debug page={{ page.handle }} id={{ page.id }} suffix={{ template.suffix }} path={{ request.path }} about={{ cq_is_about_page }} -->
 <style>
   section[id="shopify-section-{{ section.id }}"]{
       {% if section.settings.full-width-enabled %}
