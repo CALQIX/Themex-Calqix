@@ -318,6 +318,37 @@
     flex-wrap: wrap;
     margin-top: 4px;
   }
+  .cx-home-cro-actions .cx-btn-primary {
+    color: #ffffff !important;
+    background:
+      linear-gradient(135deg, #002549 0%, #003c72 52%, #0076c2 100%);
+    border: 1px solid rgba(210,227,255,0.22);
+    box-shadow:
+      0 14px 34px -18px rgba(0,37,73,0.86),
+      0 0 0 1px rgba(255,255,255,0.08) inset;
+    transform: translateY(0);
+    transition:
+      transform 280ms var(--cx-ease-silk),
+      box-shadow 280ms var(--cx-ease-silk),
+      background-position 700ms var(--cx-ease-lux);
+    background-size: 180% 100%;
+  }
+  .cx-home-cro-actions .cx-btn-primary .cx-arrow::after {
+    color: #ffffff;
+  }
+  .cx-home-cro-actions .cx-btn-primary::before {
+    background: linear-gradient(115deg, transparent 24%, rgba(255,255,255,0.32) 48%, transparent 72%);
+  }
+  .cx-home-cro-actions .cx-btn-primary:hover,
+  .cx-home-cro-actions .cx-btn-primary:focus-visible {
+    color: #ffffff !important;
+    background-position: 100% 0;
+    transform: translateY(-2px);
+    box-shadow:
+      0 20px 42px -20px rgba(0,37,73,0.95),
+      0 0 0 1px rgba(210,227,255,0.24) inset,
+      0 0 22px rgba(0,118,194,0.28);
+  }
   .cx-home-cro-board {
     position: relative;
     display: grid;
@@ -428,7 +459,12 @@
     max-height: 170px;
     object-fit: contain;
     margin: 22px auto 0;
-    filter: drop-shadow(0 18px 28px rgba(0,37,73,0.18));
+    mix-blend-mode: multiply;
+    background: transparent !important;
+    filter:
+      contrast(1.04)
+      saturate(1.04)
+      drop-shadow(0 18px 28px rgba(0,37,73,0.18));
     transform: translateY(5px) scale(1);
     transition: transform 520ms var(--cx-ease-silk);
   }
@@ -462,7 +498,12 @@
     width: 118px;
     height: 136px;
     object-fit: contain;
-    filter: drop-shadow(0 18px 26px rgba(0,0,0,0.28));
+    mix-blend-mode: multiply;
+    background: transparent !important;
+    filter:
+      contrast(1.08)
+      saturate(1.08)
+      drop-shadow(0 18px 26px rgba(0,0,0,0.30));
     transition: transform 520ms var(--cx-ease-silk);
   }
   .cx-home-cro-mini-a { left: 18%; bottom: 0; transform: rotate(-7deg); }
