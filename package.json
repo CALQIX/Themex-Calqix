@@ -1,0 +1,13 @@
+{
+  "name": "calqix-shopify-app",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "shopify:deploy": "shopify app deploy",
+    "shopify:build": "shopify app build"
+  },
+  "dependencies": {
+    "@shopify/web-pixels-extension": "^2.0.0"
+  },
+  "devDependencies": {}
+}
