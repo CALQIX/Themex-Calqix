@@ -8,7 +8,7 @@ application_url = "https://calqix-capi.vercel.app"
 embedded = false
 
 [access_scopes]
-scopes = "read_products,read_orders,read_markets,write_markets,read_shipping,write_shipping,read_locales,write_locales"
+scopes = "read_products,read_orders,read_all_orders,read_customers,read_checkouts,read_customer_events,read_pixels,write_pixels,read_custom_pixels,write_custom_pixels,read_themes,write_themes,read_markets,write_markets,read_shipping,write_shipping,read_locales,write_locales"
 
 [auth]
 redirect_urls = ["https://calqix-capi.vercel.app/api/auth/callback"]
