@@ -15,7 +15,7 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-05-05-catalog-ids-a';
+  var BRIDGE_VERSION = '2026-05-05-emq-optimizations-a';
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
 
@@ -372,9 +372,17 @@
     postKeepAlive(CAPI_BASE + '/view-content', payload);
 
     if (typeof fbq === 'function') {
+      var viewContentContents = catalogIds.length > 0 ? [{
+        id: catalogIds[0],
+        quantity: 1
+      }] : undefined;
+      if (viewContentContents && price !== undefined) {
+        viewContentContents[0].item_price = price;
+      }
       var viewContentData = {
         content_ids: catalogIds,
         content_type: contentType,
+        contents: viewContentContents,
         content_name: payload.product_title,
         value: price,
         currency: payload.currency
