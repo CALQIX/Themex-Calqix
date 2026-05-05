@@ -143,10 +143,30 @@
     {%- endif -%}
   {%- endfor -%}
   {%- if section.settings.before_badge != blank and section.settings.before_badge != cq_ba_t_before_badge -%}
-    {%- assign cq_ba_rendered = cq_ba_rendered | replace: section.settings.before_badge, cq_ba_t_before_badge -%}
+    {%- capture cq_ba_before_badge_original -%}
+            <span class="wt-before-after__img-before-badge">
+              {{ section.settings.before_badge }}
+            </span>
+    {%- endcapture -%}
+    {%- capture cq_ba_before_badge_translated -%}
+            <span class="wt-before-after__img-before-badge">
+              {{ cq_ba_t_before_badge }}
+            </span>
+    {%- endcapture -%}
+    {%- assign cq_ba_rendered = cq_ba_rendered | replace: cq_ba_before_badge_original, cq_ba_before_badge_translated -%}
   {%- endif -%}
   {%- if section.settings.after_badge != blank and section.settings.after_badge != cq_ba_t_after_badge -%}
-    {%- assign cq_ba_rendered = cq_ba_rendered | replace: section.settings.after_badge, cq_ba_t_after_badge -%}
+    {%- capture cq_ba_after_badge_original -%}
+            <span class="wt-before-after__img-after-badge">
+              {{ section.settings.after_badge }}
+            </span>
+    {%- endcapture -%}
+    {%- capture cq_ba_after_badge_translated -%}
+            <span class="wt-before-after__img-after-badge">
+              {{ cq_ba_t_after_badge }}
+            </span>
+    {%- endcapture -%}
+    {%- assign cq_ba_rendered = cq_ba_rendered | replace: cq_ba_after_badge_original, cq_ba_after_badge_translated -%}
   {%- endif -%}
 {%- endif -%}
 
