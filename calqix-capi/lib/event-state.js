@@ -32,12 +32,30 @@ var TTL_PENDING = 7 * 24 * 3600;    // 7 days
 var TTL_FAILED = 7 * 24 * 3600;     // 7 days
 var MAX_RETRY_ATTEMPTS = 5;
 var STALE_SENT_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes — treat "sent" as lost after this
+var RETRY_DELAYS_MS = [0, 60 * 1000, 2 * 60 * 1000, 5 * 60 * 1000, 15 * 60 * 1000, 30 * 60 * 1000];
 
 function eventKey(eventId) { return 'meta:event:' + eventId; }
 function pendingKey(eventId) { return 'meta:pending:' + eventId; }
 function failedKey(eventId) { return 'meta:failed:' + eventId; }
 function payloadKey(eventId) { return 'meta:payload:' + eventId; }
 var RECOVERY_QUEUE_KEY = 'recovery:queue';
+var RECOVERY_DELAYED_KEY = 'recovery:delayed';
+
+function stableJitterMs(eventId, delayMs) {
+  var source = String(eventId || '');
+  var hash = 0;
+  for (var i = 0; i < source.length; i++) {
+    hash = (hash + source.charCodeAt(i) * (i + 1)) % 1000;
+  }
+  var maxJitter = Math.min(30 * 1000, Math.round(delayMs * 0.15));
+  return Math.round((hash / 1000) * maxJitter);
+}
+
+function calculateRetryDelayMs(attempts, eventId) {
+  var index = Math.max(1, Math.min(Number(attempts) || 1, RETRY_DELAYS_MS.length - 1));
+  var delay = RETRY_DELAYS_MS[index];
+  return delay + stableJitterMs(eventId, delay);
+}
 
 /**
  * Record that an event was received from a source.
@@ -87,6 +105,8 @@ async function recordSent(eventId, metaResponse) {
 
   if (metaResponse && metaResponse.ok) {
     state.state = STATES.CONFIRMED;
+    state.next_retry_at = null;
+    state.retry_delay_ms = null;
     // Remove from pending and failed sets
     await store.del(pendingKey(eventId));
     await store.del(failedKey(eventId));
@@ -96,10 +116,11 @@ async function recordSent(eventId, metaResponse) {
     await store.set(failedKey(eventId), '1', TTL_FAILED);
   } else {
     state.state = STATES.RETRY_PENDING;
+    state.retry_delay_ms = calculateRetryDelayMs(state.attempts, eventId);
+    state.next_retry_at = new Date(Date.now() + state.retry_delay_ms).toISOString();
     // Keep in pending set, also add to failed
     await store.set(failedKey(eventId), '1', TTL_FAILED);
-    // Push to recovery queue for retry
-    await pushToRecoveryQueue(eventId);
+    await pushToRecoveryQueue(eventId, state.retry_delay_ms);
   }
 
   await store.set(eventKey(eventId), JSON.stringify(state), TTL_EVENT);
@@ -119,6 +140,8 @@ async function recordRecovered(eventId) {
   try { state = JSON.parse(raw); } catch (e) { return null; }
 
   state.state = STATES.RECOVERED;
+  state.next_retry_at = null;
+  state.retry_delay_ms = null;
   state.updated_at = new Date().toISOString();
 
   await store.del(pendingKey(eventId));
@@ -154,16 +177,29 @@ async function isConfirmed(eventId) {
  * @param {string} eventId
  * @returns {Promise<void>}
  */
-async function pushToRecoveryQueue(eventId) {
+async function pushToRecoveryQueue(eventId, delayMs) {
   if (store.isRedisActive()) {
     try {
-      // Use raw Redis LPUSH via store's internal redis
       var redis = store._getRedis();
       if (redis) {
-        await redis.lpush(RECOVERY_QUEUE_KEY, eventId);
+        var delay = Math.max(0, Number(delayMs) || 0);
+        if (delay > 0) {
+          await redis.zadd(RECOVERY_DELAYED_KEY, {
+            score: Date.now() + delay,
+            member: eventId
+          });
+        } else {
+          await redis.lpush(RECOVERY_QUEUE_KEY, eventId);
+        }
       }
     } catch (err) {
       console.error('[EventState] Failed to push to recovery queue:', err.message);
+      try {
+        var fallbackRedis = store._getRedis();
+        if (fallbackRedis) await fallbackRedis.lpush(RECOVERY_QUEUE_KEY, eventId);
+      } catch (fallbackErr) {
+        console.error('[EventState] Failed to push fallback recovery queue:', fallbackErr.message);
+      }
     }
   }
 }
@@ -177,6 +213,15 @@ async function popFromRecoveryQueue() {
     try {
       var redis = store._getRedis();
       if (redis) {
+        var due = await redis.zrange(RECOVERY_DELAYED_KEY, 0, Date.now(), {
+          byScore: true,
+          offset: 0,
+          count: 1
+        });
+        if (Array.isArray(due) && due.length > 0) {
+          await redis.zrem(RECOVERY_DELAYED_KEY, due[0]);
+          return due[0];
+        }
         return await redis.rpop(RECOVERY_QUEUE_KEY);
       }
     } catch (err) {
@@ -232,7 +277,9 @@ async function getRecoveryQueueLength() {
     try {
       var redis = store._getRedis();
       if (redis) {
-        return await redis.llen(RECOVERY_QUEUE_KEY) || 0;
+        var listLength = await redis.llen(RECOVERY_QUEUE_KEY) || 0;
+        var delayedLength = await redis.zcard(RECOVERY_DELAYED_KEY) || 0;
+        return listLength + delayedLength;
       }
     } catch (err) {
       console.error('[EventState] Failed to get queue length:', err.message);
@@ -244,7 +291,9 @@ async function getRecoveryQueueLength() {
 module.exports = {
   STATES: STATES,
   MAX_RETRY_ATTEMPTS: MAX_RETRY_ATTEMPTS,
+  RETRY_DELAYS_MS: RETRY_DELAYS_MS,
   STALE_SENT_THRESHOLD_MS: STALE_SENT_THRESHOLD_MS,
+  calculateRetryDelayMs: calculateRetryDelayMs,
   recordReceived: recordReceived,
   recordSent: recordSent,
   recordRecovered: recordRecovered,

@@ -318,6 +318,26 @@ function contentIdsFromItems(items) {
   return out;
 }
 
+function contentsFromItems(items) {
+  if (!Array.isArray(items)) return [];
+  var out = [];
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i] || {};
+    var id = item.variant_id || item.sku || item.product_id;
+    if (!id) continue;
+    var row = {
+      id: String(id),
+      quantity: item.quantity || 1
+    };
+    if (item.price !== null && item.price !== undefined && item.price !== '') {
+      var price = parseFloat(item.price);
+      if (isFinite(price)) row.item_price = price;
+    }
+    out.push(row);
+  }
+  return out;
+}
+
 function contentTypeFromItems(items) {
   if (!Array.isArray(items) || items.length === 0) return 'product_group';
   var hasVariantSignal = false;
@@ -370,6 +390,7 @@ analytics.subscribe("checkout_started", async function (event) {
     value: value,
     currency: curr,
     content_ids: contentIdsFromItems(lineItems),
+    contents: contentsFromItems(lineItems),
     content_type: contentTypeFromItems(lineItems),
     num_items: sumQuantities(lineItems)
   }, userData, fbp, fbc, sourceUrl);
@@ -459,6 +480,7 @@ analytics.subscribe("payment_info_submitted", async function (event) {
     value: value,
     currency: curr,
     content_ids: contentIdsFromItems(lineItems),
+    contents: contentsFromItems(lineItems),
     content_type: contentTypeFromItems(lineItems),
     num_items: sumQuantities(lineItems)
   }, userData, effectiveFbp, effectiveFbc, sourceUrl);
@@ -521,6 +543,7 @@ analytics.subscribe("checkout_completed", async function (event) {
     value: value,
     currency: curr,
     content_ids: contentIdsFromItems(lineItems),
+    contents: contentsFromItems(lineItems),
     content_type: contentTypeFromItems(lineItems),
     num_items: sumQuantities(lineItems),
     order_id: oid

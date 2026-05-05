@@ -169,11 +169,20 @@ async function processRetry(eventId) {
     return 'terminal';
   }
 
+  if (state.next_retry_at) {
+    var retryAt = new Date(state.next_retry_at).getTime();
+    if (Number.isFinite(retryAt) && retryAt > Date.now()) {
+      await eventState.pushToRecoveryQueue(eventId, retryAt - Date.now());
+      return 'skipped';
+    }
+  }
+
   // Retry the Meta CAPI send
   console.log('[Recovery] Retrying event', {
     eventId: eventId.substring(0, 20),
     eventName: state.event_name,
     attempt: (state.attempts || 0) + 1,
+    previousDelayMs: state.retry_delay_ms || null,
     source: state.source
   });
 

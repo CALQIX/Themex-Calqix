@@ -12,6 +12,27 @@ const eventStats = require('../lib/event-stats');
 
 const SOURCE_URL_BASE = 'https://www.calqix.com/products/';
 const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
+const VIEW_CONTENT_THROTTLE_SECONDS = 15;
+
+function buildViewContentContents(catalogIds, price) {
+  if (!Array.isArray(catalogIds) || catalogIds.length === 0) {
+    return undefined;
+  }
+
+  var item = {
+    id: catalogIds[0],
+    quantity: 1
+  };
+
+  if (price !== undefined && price !== null && price !== '') {
+    var parsedPrice = Number(parseFloat(price).toFixed(2));
+    if (Number.isFinite(parsedPrice)) {
+      item.item_price = parsedPrice;
+    }
+  }
+
+  return [item];
+}
 
 async function handler(req, res) {
   const origin = (req.headers && req.headers.origin) || '';
@@ -104,6 +125,7 @@ async function handler(req, res) {
     const customData = {
       content_ids: catalogIds,
       content_type: contentType,
+      contents: buildViewContentContents(catalogIds, price),
       content_name: productTitle || undefined,
       value: price !== undefined ? Number(parseFloat(price).toFixed(2)) : undefined,
       currency: price !== undefined ? currency : undefined
@@ -117,7 +139,7 @@ async function handler(req, res) {
     var throttleUserKey = crypto.createHash('sha256').update(String(throttleSource)).digest('hex');
     var throttleContentKey = (catalogIds[0] || productId || variantId || 'unknown');
     var throttleKey = 'vc_throttle:' + throttleUserKey + ':' + throttleContentKey;
-    if (!(await store.setnx(throttleKey, '1', 3600))) {
+    if (!(await store.setnx(throttleKey, '1', VIEW_CONTENT_THROTTLE_SECONDS))) {
       return res.status(200).json({ received: true, processed: false, skipped: 'throttled', eventId: eventId });
     }
 

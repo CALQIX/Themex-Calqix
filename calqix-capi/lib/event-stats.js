@@ -1,4 +1,5 @@
 var store = require('./store');
+var eventState = require('./event-state');
 
 var STATS_TTL = 14 * 86400;
 
@@ -77,10 +78,13 @@ async function countKeys(pattern, max) {
 }
 
 async function getOperationalCounts() {
-  var recovery = await countKeys('backfill:pending:*');
+  var backfillPending = await countKeys('backfill:pending:*');
+  var eventRecovery = await eventState.getRecoveryQueueLength();
   var identities = await countKeys('identity:*');
   return {
-    recovery_queue_size: recovery,
+    recovery_queue_size: (backfillPending || 0) + (eventRecovery || 0),
+    backfill_pending_count: backfillPending,
+    event_recovery_queue_size: eventRecovery,
     identity_store_count: identities
   };
 }
