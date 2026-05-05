@@ -92,12 +92,12 @@ async function handler(req, res) {
       hasCountry: Boolean(userData.country)
     });
 
-    // CALQIX Meta Commerce catalog uses variant-level retailer_ids (variant_id or
-    // SKU). Send all catalog candidates so Meta's matching succeeds for either
-    // format. product_id is kept only as fallback when no variant signal exists.
+    // CALQIX Meta Commerce catalog matches active Shopify variants by raw
+    // variant_id. SKU is fallback-only because not every active SKU exists as
+    // a catalog retailer_id.
     const catalogIds = [];
     if (variantId) catalogIds.push(String(variantId));
-    if (sku) catalogIds.push(String(sku));
+    else if (sku) catalogIds.push(String(sku));
     if (catalogIds.length === 0 && productId) catalogIds.push(String(productId));
     const contentType = (variantId || sku) ? 'product' : 'product_group';
 

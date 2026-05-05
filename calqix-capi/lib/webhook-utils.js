@@ -222,20 +222,14 @@ function centsToMoney(value) {
 }
 
 /**
- * Returns every catalog identifier we can extract from a Shopify line item,
- * in the order Meta Commerce is most likely to match (most specific first).
+ * Returns the best catalog identifier we can extract from a Shopify line item.
+ * The result is still an array for backward compatibility with existing
+ * callers.
  *
- * The CALQIX Meta Commerce catalog (id 1549301396145400) uses variant-level
- * `retailer_id`s — about half are raw Shopify variant_ids (e.g. `54065091346761`)
- * and half are manually-set SKUs (e.g. `CALQIX-OBP-30-CM`). Neither format
- * matches the Shopify parent `product_id`, which is why sending product_id
- * alone produced the `pixel_has_low_event_source_match_rate = failed` finding
- * in `/{pixel}/da_checks` on 2026-04-23.
- *
- * We therefore emit variant_id + sku (both `type: 'product'`) and keep
- * product_id as a last-resort fallback. Meta deduplicates against catalog
- * retailer_id, so adding extra candidates only helps match rate — it never
- * double-counts.
+ * Current catalog inspection shows every active Shopify variant exists as raw
+ * variant_id in Meta. Several active SKUs do not exist as retailer_id, so SKU
+ * is fallback-only when variant_id is unavailable. product_id stays a final
+ * fallback for records without variant data.
  *
  * @returns {Array<{id: string, type: 'product' | 'product_group'}>}
  */
@@ -244,27 +238,22 @@ function getCatalogItemReferences(item) {
     return [];
   }
 
-  const refs = [];
-
   const variantId = item.variant_id;
   if (variantId !== undefined && variantId !== null && variantId !== '') {
-    refs.push({ id: String(variantId), type: 'product' });
+    return [{ id: String(variantId), type: 'product' }];
   }
 
   const sku = item.sku;
   if (sku !== undefined && sku !== null && sku !== '') {
-    refs.push({ id: String(sku), type: 'product' });
+    return [{ id: String(sku), type: 'product' }];
   }
 
-  // Only include product_id if we have no variant-level signal at all.
-  if (refs.length === 0) {
-    const productId = item.product_id;
-    if (productId !== undefined && productId !== null && productId !== '') {
-      refs.push({ id: String(productId), type: 'product_group' });
-    }
+  const productId = item.product_id;
+  if (productId !== undefined && productId !== null && productId !== '') {
+    return [{ id: String(productId), type: 'product_group' }];
   }
 
-  return refs;
+  return [];
 }
 
 // Back-compat alias — some callers expect a single reference.

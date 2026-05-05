@@ -1,6 +1,6 @@
 import {register} from '@shopify/web-pixels-extension';
 
-var PIXEL_VERSION = '2026-05-05-native-web-pixel-a';
+var PIXEL_VERSION = '2026-05-05-catalog-ids-a';
 var DEFAULT_ENDPOINT = 'https://calqix-capi.vercel.app/api/checkout-event';
 var DEFAULT_HEALTH_ENDPOINT = 'https://calqix-capi.vercel.app/api/shopify-web-pixel';
 var DEFAULT_PIXEL_ID = '934134615770602';
@@ -8,6 +8,14 @@ var DEFAULT_PIXEL_ID = '934134615770602';
 function asString(value) {
   if (value === undefined || value === null) return null;
   return String(value);
+}
+
+function numericId(value) {
+  var str = asString(value);
+  if (!str) return null;
+  var match = str.match(/\/(\d+)$/);
+  if (match) return match[1];
+  return str;
 }
 
 function amount(value) {
@@ -64,7 +72,7 @@ function lineItems(checkout) {
     var variant = line.variant || line.merchandise || {};
     var price = amount(line.finalLinePrice || line.cost && line.cost.totalAmount || variant.price);
     return {
-      id: asString(variant.id || line.variantId || line.id),
+      id: numericId(variant.id || line.variantId || line.id),
       sku: asString(variant.sku),
       quantity: line.quantity || 1,
       item_price: price

@@ -329,23 +329,22 @@ function extractProductId(item) {
 }
 
 /**
- * Extract every catalog identifier from a Shopify line_item in priority order.
- * The CALQIX Meta Commerce catalog uses variant_id or SKU as retailer_id, so
- * we emit those first; product_id is kept as a last-resort fallback for items
- * that don't expose variant data. See lib/webhook-utils.js getCatalogItemReferences
- * for the full rationale.
+ * Extract the best catalog identifier from a Shopify line_item. The CALQIX
+ * Meta Commerce catalog matches active variants by raw variant_id. SKU is a
+ * fallback only when variant_id is unavailable.
  *
- * Returns an array like ["54065091346761", "CALQIX-OBP-30-CM"]. Never empty
- * unless the input has no id information at all.
+ * Returns one id unless the input has no id information at all.
  */
 function extractCatalogIds(item) {
   if (!item) return [];
   var ids = [];
   if (item.variant_id !== undefined && item.variant_id !== null && item.variant_id !== '') {
     ids.push(String(item.variant_id));
+    return ids;
   }
   if (item.sku !== undefined && item.sku !== null && item.sku !== '') {
     ids.push(String(item.sku));
+    return ids;
   }
   if (ids.length === 0) {
     var pid = extractProductId(item);

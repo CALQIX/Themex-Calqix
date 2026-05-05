@@ -77,8 +77,8 @@ function buildLineItems(checkout) {
       pid = numericId(li.variant.product.id);
     }
     if (!pid && li.id) pid = numericId(li.id);
-    // CALQIX Meta Commerce catalog uses variant_id or SKU as retailer_id, so
-    // the downstream server (api/checkout-event.js) needs both to match.
+    // CALQIX Meta Commerce catalog matches active variants by raw variant_id.
+    // SKU remains available as a fallback if variant_id is missing.
     var vid = null;
     if (li.variant && li.variant.id) vid = numericId(li.variant.id);
     var sku = null;
@@ -301,8 +301,13 @@ function contentIdsFromItems(items) {
   }
   var hasVariantSignal = false;
   for (var i = 0; i < items.length; i++) {
-    if (items[i] && items[i].variant_id) { hasVariantSignal = true; push(items[i].variant_id); }
-    if (items[i] && items[i].sku) { hasVariantSignal = true; push(items[i].sku); }
+    if (items[i] && items[i].variant_id) {
+      hasVariantSignal = true;
+      push(items[i].variant_id);
+    } else if (items[i] && items[i].sku) {
+      hasVariantSignal = true;
+      push(items[i].sku);
+    }
   }
   // Only fall back to product_id when NO line item has variant-level data.
   if (!hasVariantSignal) {

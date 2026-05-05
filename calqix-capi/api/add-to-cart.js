@@ -16,6 +16,65 @@ const eventStats = require('../lib/event-stats');
 const DEFAULT_SOURCE_URL = 'https://www.calqix.com/cart';
 const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
 
+function cleanCatalogId(value) {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+  return String(value);
+}
+
+function uniqueIds(values) {
+  const seen = new Set();
+  return values.reduce(function (ids, value) {
+    const id = cleanCatalogId(value);
+    if (id && !seen.has(id)) {
+      seen.add(id);
+      ids.push(id);
+    }
+    return ids;
+  }, []);
+}
+
+function isNumericCatalogId(value) {
+  return /^\d+$/.test(String(value || ''));
+}
+
+function normalizeCatalogPayload(rawContentIds, rawContentType, rawContents) {
+  const contentIds = uniqueIds(Array.isArray(rawContentIds) ? rawContentIds : []);
+  const contentType = rawContentType || 'product_group';
+  const contents = (Array.isArray(rawContents) ? rawContents : [])
+    .map(function (item) {
+      if (!item || typeof item !== 'object') return null;
+      const id = cleanCatalogId(item.id);
+      if (!id) return null;
+      return Object.assign({}, item, { id: id });
+    })
+    .filter(Boolean);
+
+  if (contentType !== 'product') {
+    return { contentIds: contentIds, contentType: contentType, contents: contents };
+  }
+
+  // Backward compatibility: older browser payloads sent [variant_id, sku].
+  // The current Meta catalog has every active Shopify variant_id, but several
+  // SKUs are missing as retailer_id. If a product payload contains numeric
+  // variant ids, keep only those and drop SKU candidates.
+  const numericContentIds = contentIds.filter(isNumericCatalogId);
+  if (numericContentIds.length === 0) {
+    return { contentIds: contentIds, contentType: contentType, contents: contents };
+  }
+
+  const numericContents = contents.filter(function (item) {
+    return isNumericCatalogId(item.id);
+  });
+
+  return {
+    contentIds: numericContentIds,
+    contentType: 'product',
+    contents: numericContents.length > 0 ? numericContents : contents
+  };
+}
+
 async function handler(req, res) {
   const origin = (req.headers && req.headers.origin) || '';
   res.setHeader(
@@ -42,9 +101,10 @@ async function handler(req, res) {
       bridgeVersionTracker.recordVersion(body.bridge_version).catch(function () { /* non-critical */ });
     }
 
-    const contentIds = Array.isArray(body.content_ids) ? body.content_ids : [];
-    const contentType = body.content_type || 'product_group';
-    const contents = Array.isArray(body.contents) ? body.contents : [];
+    const catalogPayload = normalizeCatalogPayload(body.content_ids, body.content_type, body.contents);
+    const contentIds = catalogPayload.contentIds;
+    const contentType = catalogPayload.contentType;
+    const contents = catalogPayload.contents;
     const value = body.value !== undefined ? Number(parseFloat(body.value).toFixed(2)) : undefined;
     const currency = body.currency || 'EUR';
 
