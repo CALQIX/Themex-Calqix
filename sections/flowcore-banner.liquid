@@ -599,7 +599,14 @@
         {%- else -%}
           {%- assign cta_price_html = section.settings.cta_price -%}
         {%- endif -%}
-        <a href="{{ section.settings.cta_url }}" class="cta">
+        {%- assign cta_href = section.settings.cta_url -%}
+        {%- if cta_product_obj != blank -%}
+          {%- assign cta_href = cta_product_obj.url -%}
+        {%- endif -%}
+        {%- if cta_href == blank -%}
+          {%- assign cta_href = routes.root_url | append: 'collections/all' -%}
+        {%- endif -%}
+        <a href="{{ cta_href }}" class="cta">
           {{ section.settings.cta_label }}
           <span class="cta-price">— {{ cta_price_html }}</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"

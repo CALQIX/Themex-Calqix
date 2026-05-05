@@ -1,0 +1,549 @@
+{%- comment -%}
+  CALQIX homepage CRO panel
+  - Locale-aware product URLs through Shopify product objects.
+  - Compact interactive protocol cards for the top of the homepage.
+{%- endcomment -%}
+
+<script src="{{ 'cx-home.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign cx_lang = request.locale.iso_code | downcase | split: '-' | first
+  assign cx_flowcore = section.settings.flowcore_product
+  assign cx_oralbiome = section.settings.oralbiome_product
+  assign cx_bundle_href = routes.root_url | append: '#protocol'
+  assign cx_flowcore_href = cx_flowcore.url | default: cx_bundle_href
+  assign cx_oralbiome_href = cx_oralbiome.url | default: cx_bundle_href
+  assign cx_shop_href = routes.root_url | append: 'collections/all'
+
+  assign cx_eyebrow = 'Clinical routine'
+  assign cx_heading = 'Choose the oral-care protocol that fits your day.'
+  assign cx_lede = 'Start with the product you need most, or build the complete CALQIX routine for a cleaner mouth and a stronger enamel surface.'
+  assign cx_clean_label = 'Clean'
+  assign cx_clean_title = 'FlowCore'
+  assign cx_clean_body = 'Precision water flossing for the gumline and tight spaces your toothbrush misses.'
+  assign cx_rebuild_label = 'Rebuild'
+  assign cx_rebuild_title = 'OralBiome Pro'
+  assign cx_rebuild_body = 'Daily probiotic lozenges with nano-hydroxyapatite to support enamel balance and fresher breath.'
+  assign cx_bundle_label = 'Best value'
+  assign cx_bundle_title = 'Rebuild Kit'
+  assign cx_bundle_body = 'The complete protocol: deep clean first, then rebuild with OralBiome Pro.'
+  assign cx_primary = 'Shop the routine'
+  assign cx_secondary = 'View OralBiome Pro'
+  assign cx_stat_1 = '2 steps'
+  assign cx_stat_1_label = 'clean + rebuild'
+  assign cx_stat_2 = '30 days'
+  assign cx_stat_2_label = 'daily protocol'
+  assign cx_stat_3 = 'EU'
+  assign cx_stat_3_label = 'fast delivery'
+
+  case cx_lang
+    when 'nl'
+      assign cx_eyebrow = 'Klinisch ritueel'
+      assign cx_heading = 'Kies de mondverzorging die bij je dag past.'
+      assign cx_lede = 'Begin met wat je nu nodig hebt, of kies de complete CALQIX-routine voor een schonere mond en een sterker glazuuroppervlak.'
+      assign cx_clean_label = 'Reinig'
+      assign cx_clean_body = 'Gerichte waterflossing voor de tandvleesrand en plekken waar je tandenborstel niet goed komt.'
+      assign cx_rebuild_label = 'Herstel'
+      assign cx_rebuild_body = 'Dagelijkse probiotische zuigtabletten met nano-hydroxyapatiet voor glazuurbalans en frissere adem.'
+      assign cx_bundle_label = 'Beste keuze'
+      assign cx_bundle_body = 'Het complete protocol: eerst diep reinigen, daarna herstellen met OralBiome Pro.'
+      assign cx_primary = 'Shop de routine'
+      assign cx_secondary = 'Bekijk OralBiome Pro'
+      assign cx_stat_1 = '2 stappen'
+      assign cx_stat_1_label = 'reinigen + herstellen'
+      assign cx_stat_2 = '30 dagen'
+      assign cx_stat_2_label = 'dagelijks ritueel'
+      assign cx_stat_3 = 'EU'
+      assign cx_stat_3_label = 'snelle levering'
+    when 'de'
+      assign cx_eyebrow = 'Klinische Routine'
+      assign cx_heading = 'Waehle die Mundpflege, die zu deinem Tag passt.'
+      assign cx_lede = 'Starte mit dem Produkt, das du gerade brauchst, oder nutze die komplette CALQIX-Routine fuer eine sauberere Mundumgebung und eine staerkere Schmelzoberflaeche.'
+      assign cx_clean_label = 'Reinigen'
+      assign cx_clean_body = 'Praezise Munddusche fuer Zahnfleischrand und enge Zwischenraeume.'
+      assign cx_rebuild_label = 'Aufbauen'
+      assign cx_rebuild_body = 'Taegliche probiotische Lutschtabletten mit Nano-Hydroxylapatit fuer Schmelzbalance und frischeren Atem.'
+      assign cx_bundle_label = 'Bester Wert'
+      assign cx_bundle_body = 'Das komplette Protokoll: erst tief reinigen, dann mit OralBiome Pro aufbauen.'
+      assign cx_primary = 'Routine shoppen'
+      assign cx_secondary = 'OralBiome Pro ansehen'
+      assign cx_stat_1 = '2 Schritte'
+      assign cx_stat_1_label = 'reinigen + aufbauen'
+      assign cx_stat_2 = '30 Tage'
+      assign cx_stat_2_label = 'taeglich'
+      assign cx_stat_3 = 'EU'
+      assign cx_stat_3_label = 'schnelle Lieferung'
+    when 'fr'
+      assign cx_eyebrow = 'Routine clinique'
+      assign cx_heading = 'Choisissez le soin bucco-dentaire adapte a votre journee.'
+      assign cx_lede = 'Commencez par le produit dont vous avez besoin, ou choisissez la routine CALQIX complete pour une bouche plus propre et une surface d email mieux soutenue.'
+      assign cx_clean_label = 'Nettoyer'
+      assign cx_clean_body = 'Hydropulseur precis pour la ligne gingivale et les zones que la brosse atteint mal.'
+      assign cx_rebuild_label = 'Reequilibrer'
+      assign cx_rebuild_body = 'Pastilles probiotiques quotidiennes avec nano-hydroxyapatite pour soutenir l email et une haleine plus fraiche.'
+      assign cx_bundle_label = 'Meilleur choix'
+      assign cx_bundle_body = 'Le protocole complet : nettoyer en profondeur, puis reequilibrer avec OralBiome Pro.'
+      assign cx_primary = 'Voir la routine'
+      assign cx_secondary = 'Voir OralBiome Pro'
+      assign cx_stat_1 = '2 etapes'
+      assign cx_stat_1_label = 'nettoyer + soutenir'
+      assign cx_stat_2 = '30 jours'
+      assign cx_stat_2_label = 'routine quotidienne'
+      assign cx_stat_3 = 'UE'
+      assign cx_stat_3_label = 'livraison rapide'
+    when 'sv'
+      assign cx_eyebrow = 'Klinisk rutin'
+      assign cx_heading = 'Vaelj munvarden som passar din dag.'
+      assign cx_lede = 'Börja med produkten du behöver mest, eller välj hela CALQIX-rutinen för en renare mun och en starkare emaljyta.'
+      assign cx_clean_label = 'Rengör'
+      assign cx_clean_body = 'Precis vattenflossning för tandköttskanten och trånga ytor borsten missar.'
+      assign cx_rebuild_label = 'Bygg upp'
+      assign cx_rebuild_body = 'Dagliga probiotiska sugtabletter med nano-hydroxyapatit för emaljbalans och fräschare andedräkt.'
+      assign cx_bundle_label = 'Bäst värde'
+      assign cx_bundle_body = 'Hela protokollet: rengör djupt först, bygg sedan upp med OralBiome Pro.'
+      assign cx_primary = 'Shoppa rutinen'
+      assign cx_secondary = 'Se OralBiome Pro'
+      assign cx_stat_1 = '2 steg'
+      assign cx_stat_1_label = 'rengör + bygg upp'
+      assign cx_stat_2 = '30 dagar'
+      assign cx_stat_2_label = 'daglig rutin'
+      assign cx_stat_3 = 'EU'
+      assign cx_stat_3_label = 'snabb leverans'
+    when 'da'
+      assign cx_eyebrow = 'Klinisk rutine'
+      assign cx_heading = 'Vaelg den mundpleje, der passer til din dag.'
+      assign cx_lede = 'Start med det produkt, du har mest brug for, eller vaelg hele CALQIX-rutinen for en renere mund og en staerkere emaljeoverflade.'
+      assign cx_clean_label = 'Rens'
+      assign cx_clean_body = 'Praecis vandflossing til tandkoedskanten og de steder, tandborsten ikke naar.'
+      assign cx_rebuild_label = 'Genopbyg'
+      assign cx_rebuild_body = 'Daglige probiotiske sugetabletter med nano-hydroxyapatit til emaljebalance og friskere aande.'
+      assign cx_bundle_label = 'Bedste valg'
+      assign cx_bundle_body = 'Hele protokollen: rens dybt foerst, genopbyg derefter med OralBiome Pro.'
+      assign cx_primary = 'Shop rutinen'
+      assign cx_secondary = 'Se OralBiome Pro'
+      assign cx_stat_1 = '2 trin'
+      assign cx_stat_1_label = 'rens + genopbyg'
+      assign cx_stat_2 = '30 dage'
+      assign cx_stat_2_label = 'daglig rutine'
+      assign cx_stat_3 = 'EU'
+      assign cx_stat_3_label = 'hurtig levering'
+    when 'fi'
+      assign cx_eyebrow = 'Kliininen rutiini'
+      assign cx_heading = 'Valitse suunhoito, joka sopii paivaasi.'
+      assign cx_lede = 'Aloita tuotteesta, jota tarvitset eniten, tai valitse koko CALQIX-rutiini puhtaampaan suuhun ja vahvempaan kiillepintaan.'
+      assign cx_clean_label = 'Puhdista'
+      assign cx_clean_body = 'Tarkka vesisuihku ienrajaan ja ahtaisiin valeihin, joihin harja ei kunnolla yllä.'
+      assign cx_rebuild_label = 'Vahvista'
+      assign cx_rebuild_body = 'Paivittaiset probioottiset imeskelytabletit nano-hydroksiapatiitilla tukevat kiilteen tasapainoa ja raikkaampaa hengitysta.'
+      assign cx_bundle_label = 'Paras valinta'
+      assign cx_bundle_body = 'Koko protokolla: syvapuhdista ensin, vahvista sitten OralBiome Prolla.'
+      assign cx_primary = 'Osta rutiini'
+      assign cx_secondary = 'Katso OralBiome Pro'
+      assign cx_stat_1 = '2 vaihetta'
+      assign cx_stat_1_label = 'puhdista + vahvista'
+      assign cx_stat_2 = '30 paivaa'
+      assign cx_stat_2_label = 'paivittain'
+      assign cx_stat_3 = 'EU'
+      assign cx_stat_3_label = 'nopea toimitus'
+    when 'nb'
+      assign cx_eyebrow = 'Klinisk rutine'
+      assign cx_heading = 'Velg munnpleien som passer dagen din.'
+      assign cx_lede = 'Start med produktet du trenger mest, eller velg hele CALQIX-rutinen for en renere munn og en sterkere emaljeoverflate.'
+      assign cx_clean_label = 'Rens'
+      assign cx_clean_body = 'Presis vannflossing for tannkjottkanten og trange omrader borsten ikke nar.'
+      assign cx_rebuild_label = 'Bygg opp'
+      assign cx_rebuild_body = 'Daglige probiotiske sugetabletter med nano-hydroksyapatitt for emaljebalanse og friskere pust.'
+      assign cx_bundle_label = 'Best verdi'
+      assign cx_bundle_body = 'Hele protokollen: rens dypt forst, bygg deretter opp med OralBiome Pro.'
+      assign cx_primary = 'Shop rutinen'
+      assign cx_secondary = 'Se OralBiome Pro'
+      assign cx_stat_1 = '2 steg'
+      assign cx_stat_1_label = 'rens + bygg opp'
+      assign cx_stat_2 = '30 dager'
+      assign cx_stat_2_label = 'daglig rutine'
+      assign cx_stat_3 = 'EU'
+      assign cx_stat_3_label = 'rask levering'
+  endcase
+-%}
+
+<section class="cx-root cx-home-cro" data-cx-home-cro data-cx-reveal="rise-lg">
+  <div class="cx-container">
+    <div class="cx-home-cro-shell">
+      <div class="cx-home-cro-copy" data-cx-stagger>
+        {% render 'cx-eyebrow', text: cx_eyebrow %}
+        <h2 class="cx-h2">{{ cx_heading }}</h2>
+        <p class="cx-home-cro-lede">{{ cx_lede }}</p>
+
+        <div class="cx-home-cro-stats" aria-label="CALQIX routine facts">
+          <div>
+            <strong data-cx-count="2">{{ cx_stat_1 }}</strong>
+            <span>{{ cx_stat_1_label }}</span>
+          </div>
+          <div>
+            <strong data-cx-count="30">{{ cx_stat_2 }}</strong>
+            <span>{{ cx_stat_2_label }}</span>
+          </div>
+          <div>
+            <strong>{{ cx_stat_3 }}</strong>
+            <span>{{ cx_stat_3_label }}</span>
+          </div>
+        </div>
+
+        <div class="cx-home-cro-actions">
+          <a class="cx-btn cx-btn-primary" href="{{ cx_bundle_href }}">{{ cx_primary }} <span class="cx-arrow"></span></a>
+          <a class="cx-btn-inline" href="{{ cx_oralbiome_href }}">{{ cx_secondary }} <span class="cx-arrow"></span></a>
+        </div>
+      </div>
+
+      <div class="cx-home-cro-board" data-cx-home-board>
+        <div class="cx-home-cro-line" aria-hidden="true"></div>
+
+        <article class="cx-home-cro-card cx-is-active" data-cx-home-card="clean">
+          <a href="{{ cx_flowcore_href }}" class="cx-home-cro-card-link" aria-label="{{ cx_clean_title }}">
+            <span class="cx-home-cro-step">01</span>
+            <span class="cx-home-cro-tag">{{ cx_clean_label }}</span>
+            <span class="cx-home-cro-title">{{ cx_clean_title }}</span>
+            <span class="cx-home-cro-body">{{ cx_clean_body }}</span>
+            {%- if cx_flowcore.featured_image != blank -%}
+              {{ cx_flowcore.featured_image | image_url: width: 420 | image_tag: loading: 'lazy', alt: cx_flowcore.title, class: 'cx-home-cro-img' }}
+            {%- endif -%}
+          </a>
+        </article>
+
+        <article class="cx-home-cro-card" data-cx-home-card="rebuild">
+          <a href="{{ cx_oralbiome_href }}" class="cx-home-cro-card-link" aria-label="{{ cx_rebuild_title }}">
+            <span class="cx-home-cro-step">02</span>
+            <span class="cx-home-cro-tag">{{ cx_rebuild_label }}</span>
+            <span class="cx-home-cro-title">{{ cx_rebuild_title }}</span>
+            <span class="cx-home-cro-body">{{ cx_rebuild_body }}</span>
+            {%- if cx_oralbiome.featured_image != blank -%}
+              {{ cx_oralbiome.featured_image | image_url: width: 420 | image_tag: loading: 'lazy', alt: cx_oralbiome.title, class: 'cx-home-cro-img' }}
+            {%- endif -%}
+          </a>
+        </article>
+
+        <article class="cx-home-cro-card cx-home-cro-card-bundle" data-cx-home-card="bundle">
+          <a href="{{ cx_bundle_href }}" class="cx-home-cro-card-link" aria-label="{{ cx_bundle_title }}">
+            <span class="cx-home-cro-step">03</span>
+            <span class="cx-home-cro-tag">{{ cx_bundle_label }}</span>
+            <span class="cx-home-cro-title">{{ cx_bundle_title }}</span>
+            <span class="cx-home-cro-body">{{ cx_bundle_body }}</span>
+            <span class="cx-home-cro-mini-products" aria-hidden="true">
+              {%- if cx_flowcore.featured_image != blank -%}
+                {{ cx_flowcore.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: '', class: 'cx-home-cro-mini cx-home-cro-mini-a' }}
+              {%- endif -%}
+              {%- if cx_oralbiome.featured_image != blank -%}
+                {{ cx_oralbiome.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: '', class: 'cx-home-cro-mini cx-home-cro-mini-b' }}
+              {%- endif -%}
+            </span>
+          </a>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cx-home-cro {
+    background:
+      linear-gradient(180deg, rgba(242,247,255,0) 0%, rgba(230,238,249,0.72) 100%),
+      var(--cx-page);
+    padding: clamp(42px, 7vw, 96px) 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .cx-home-cro::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,37,73,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,37,73,0.035) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+    pointer-events: none;
+  }
+  .cx-home-cro-shell {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(520px, 1.08fr);
+    gap: clamp(28px, 6vw, 76px);
+    align-items: center;
+  }
+  .cx-home-cro-copy {
+    max-width: 560px;
+    position: relative;
+    z-index: 2;
+  }
+  .cx-home-cro-lede {
+    margin: 0;
+    color: var(--cx-ink-soft);
+    font-size: clamp(15px, 1.15vw, 18px);
+    line-height: 1.62;
+    max-width: 54ch;
+  }
+  .cx-home-cro-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .cx-home-cro-stats div {
+    border: 1px solid rgba(0,37,73,0.12);
+    background: rgba(255,255,255,0.58);
+    border-radius: var(--cx-r-sm);
+    padding: 13px 12px;
+    min-height: 82px;
+  }
+  .cx-home-cro-stats strong {
+    display: block;
+    font-family: var(--cx-f-display);
+    font-size: clamp(20px, 2vw, 30px);
+    line-height: 1;
+    color: var(--cx-forest-3);
+    margin-bottom: 7px;
+  }
+  .cx-home-cro-stats span {
+    display: block;
+    font-size: 11px;
+    line-height: 1.25;
+    color: var(--cx-ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .cx-home-cro-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  .cx-home-cro-board {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    min-height: 380px;
+    perspective: 1200px;
+  }
+  .cx-home-cro-line {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    top: 54px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,37,73,0.28), var(--cx-gold), rgba(0,37,73,0.28), transparent);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 1200ms var(--cx-ease-silk);
+    pointer-events: none;
+  }
+  .cx-in .cx-home-cro-line,
+  .cx-home-cro.cx-in .cx-home-cro-line {
+    transform: scaleX(1);
+  }
+  .cx-home-cro-card {
+    position: relative;
+    z-index: 1;
+    align-self: stretch;
+    transform: translateY(0) rotateX(0deg);
+    transition:
+      transform 520ms var(--cx-ease-silk),
+      filter 520ms var(--cx-ease-silk);
+  }
+  .cx-home-cro-card:nth-child(3) { margin-top: 34px; }
+  .cx-home-cro-card:nth-child(4) { margin-top: 68px; }
+  .cx-home-cro-card-link {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 316px;
+    height: 100%;
+    padding: 22px;
+    overflow: hidden;
+    border-radius: var(--cx-r-md);
+    border: 1px solid rgba(0,37,73,0.14);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.42)),
+      rgba(242,247,255,0.78);
+    box-shadow: 0 18px 54px -34px rgba(0,37,73,0.42);
+    color: var(--cx-forest-3);
+    isolation: isolate;
+  }
+  .cx-home-cro-card-link::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.7) 42%, transparent 58%);
+    transform: translateX(-120%);
+    transition: transform 1000ms var(--cx-ease-lux);
+    z-index: -1;
+  }
+  .cx-home-cro-card:hover,
+  .cx-home-cro-card.cx-is-active {
+    transform: translateY(-8px);
+    filter: saturate(1.04);
+  }
+  .cx-home-cro-card:hover .cx-home-cro-card-link::before,
+  .cx-home-cro-card.cx-is-active .cx-home-cro-card-link::before {
+    transform: translateX(120%);
+  }
+  .cx-home-cro-step {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--cx-forest-3);
+    color: #fff;
+    font-family: var(--cx-f-display);
+    font-size: 13px;
+    margin-bottom: 18px;
+    box-shadow: 0 0 0 8px rgba(0,37,73,0.08);
+  }
+  .cx-home-cro-tag {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cx-gold-ink);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .cx-home-cro-title {
+    font-family: var(--cx-f-display);
+    font-size: clamp(23px, 2vw, 32px);
+    line-height: 1.04;
+    margin-bottom: 10px;
+  }
+  .cx-home-cro-body {
+    font-size: 13.5px;
+    line-height: 1.48;
+    color: var(--cx-ink-soft);
+    max-width: 28ch;
+    margin-bottom: auto;
+  }
+  .cx-home-cro-img {
+    width: min(78%, 230px);
+    max-height: 170px;
+    object-fit: contain;
+    margin: 22px auto 0;
+    filter: drop-shadow(0 18px 28px rgba(0,37,73,0.18));
+    transform: translateY(5px) scale(1);
+    transition: transform 520ms var(--cx-ease-silk);
+  }
+  .cx-home-cro-card:hover .cx-home-cro-img,
+  .cx-home-cro-card.cx-is-active .cx-home-cro-img {
+    transform: translateY(-4px) scale(1.035);
+  }
+  .cx-home-cro-card-bundle .cx-home-cro-card-link {
+    background:
+      linear-gradient(180deg, rgba(0,37,73,0.96), rgba(0,20,40,0.96)),
+      var(--cx-forest-3);
+    color: #fff;
+    border-color: rgba(201,165,90,0.45);
+  }
+  .cx-home-cro-card-bundle .cx-home-cro-body {
+    color: rgba(242,247,255,0.78);
+  }
+  .cx-home-cro-card-bundle .cx-home-cro-step {
+    background: var(--cx-gold);
+    color: #1a1004;
+    box-shadow: 0 0 0 8px rgba(201,165,90,0.16);
+  }
+  .cx-home-cro-mini-products {
+    position: relative;
+    display: block;
+    min-height: 146px;
+    margin-top: 24px;
+  }
+  .cx-home-cro-mini {
+    position: absolute;
+    width: 118px;
+    height: 136px;
+    object-fit: contain;
+    filter: drop-shadow(0 18px 26px rgba(0,0,0,0.28));
+    transition: transform 520ms var(--cx-ease-silk);
+  }
+  .cx-home-cro-mini-a { left: 18%; bottom: 0; transform: rotate(-7deg); }
+  .cx-home-cro-mini-b { right: 16%; bottom: 4px; transform: rotate(7deg); }
+  .cx-home-cro-card:hover .cx-home-cro-mini-a { transform: translateY(-5px) rotate(-10deg); }
+  .cx-home-cro-card:hover .cx-home-cro-mini-b { transform: translateY(-7px) rotate(10deg); }
+
+  @media (max-width: 980px) {
+    .cx-home-cro-shell {
+      grid-template-columns: 1fr;
+    }
+    .cx-home-cro-copy {
+      max-width: 720px;
+    }
+    .cx-home-cro-board {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+    .cx-home-cro-card,
+    .cx-home-cro-card:nth-child(3),
+    .cx-home-cro-card:nth-child(4) {
+      margin-top: 0;
+    }
+    .cx-home-cro-card-link {
+      min-height: 230px;
+    }
+    .cx-home-cro-line {
+      display: none;
+    }
+  }
+  @media (max-width: 640px) {
+    .cx-home-cro {
+      padding-top: 34px;
+    }
+    .cx-home-cro-stats {
+      grid-template-columns: 1fr;
+    }
+    .cx-home-cro-stats div {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      align-items: center;
+      gap: 10px;
+    }
+    .cx-home-cro-stats strong {
+      margin-bottom: 0;
+    }
+    .cx-home-cro-actions {
+      align-items: stretch;
+    }
+    .cx-home-cro-actions .cx-btn,
+    .cx-home-cro-actions .cx-btn-inline {
+      justify-content: center;
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cx-home-cro-card,
+    .cx-home-cro-card-link::before,
+    .cx-home-cro-img,
+    .cx-home-cro-mini,
+    .cx-home-cro-line {
+      transition: none;
+      animation: none;
+      transform: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "CX Home CRO panel",
+  "tag": "section",
+  "class": "cx-section-home-cro",
+  "settings": [
+    { "type": "product", "id": "flowcore_product", "label": "FlowCore product" },
+    { "type": "product", "id": "oralbiome_product", "label": "OralBiome product" }
+  ],
+  "presets": [
+    { "name": "CX Home CRO panel" }
+  ]
+}
+{% endschema %}

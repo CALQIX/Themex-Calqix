@@ -363,3 +363,109 @@
 @media (max-width: 640px) {
   .cx-root [data-cx-col3] { grid-template-columns: 1fr !important; }
 }
+
+/* ============================================================
+ * Homepage polish — clinical CALQIX colour rhythm
+ * Scoped to section classes so product pages stay untouched.
+ * ============================================================ */
+.cx-section-bundle .cx-bundle-card,
+.cx-section-two-step .cx-two-step-card,
+.cx-section-feature-grid .cx-feature-media,
+.cx-section-science .cx-science-media,
+.cx-section-tooth-atlas .cx-atlas-display,
+.cx-section-reviews .cx-reviews-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.cx-section-bundle .cx-bundle-card::before,
+.cx-section-two-step .cx-two-step-card::before,
+.cx-section-reviews .cx-reviews-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.62), rgba(255,255,255,0) 42%);
+  opacity: 0;
+  transition: opacity var(--cx-motion-med) var(--cx-ease-silk);
+  pointer-events: none;
+}
+
+.cx-section-bundle .cx-bundle-card:hover::before,
+.cx-section-two-step .cx-two-step-card:hover::before,
+.cx-section-reviews .cx-reviews-card:hover::before {
+  opacity: 1;
+}
+
+.cx-section-bundle .cx-bundle-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.96), rgba(247,250,255,0.94)),
+    var(--cx-page);
+}
+
+.cx-section-two-step .cx-two-step-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.9), rgba(242,247,255,0.72)),
+    var(--cx-page);
+  transition:
+    transform var(--cx-motion-med) var(--cx-ease-silk),
+    box-shadow var(--cx-motion-med) var(--cx-ease-silk),
+    border-color var(--cx-motion-med) var(--cx-ease-silk);
+}
+
+.cx-section-two-step .cx-two-step-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(0,67,129,0.34);
+  box-shadow: 0 24px 70px -38px rgba(0,37,73,0.45);
+}
+
+.cx-section-two-step .cx-two-step-media::after,
+.cx-section-feature-grid .cx-feature-media::after,
+.cx-section-science .cx-science-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(201,165,90,0.18), rgba(0,118,194,0) 46%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.cx-section-feature-grid .cx-feature-media,
+.cx-section-science .cx-science-media {
+  border-radius: var(--cx-r-lg);
+  box-shadow: 0 34px 90px -54px rgba(0,37,73,0.55);
+}
+
+.cx-section-feature-grid .cx-feature-toggle,
+.cx-section-science .cx-feature-toggle {
+  transition: color var(--cx-motion-short) ease, transform var(--cx-motion-short) ease;
+}
+
+.cx-section-feature-grid .cx-feature-toggle:hover,
+.cx-section-science .cx-feature-toggle:hover {
+  color: var(--cx-forest);
+  transform: translateX(3px);
+}
+
+.cx-section-tooth-atlas .cx-atlas-display {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.66), rgba(230,238,249,0.82)),
+    var(--cx-page-2);
+  box-shadow: 0 26px 80px -48px rgba(0,37,73,0.42);
+}
+
+.cx-section-tooth-atlas .cx-atlas-text {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,250,255,0.92)),
+    var(--cx-page);
+}
+
+.cx-section-reviews .cx-reviews-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.88), rgba(242,247,255,0.76)),
+    var(--cx-page);
+}
+
+.cx-section-reviews .cx-reviews-card:hover {
+  border-color: rgba(201,165,90,0.48);
+}
