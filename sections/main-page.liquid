@@ -9,7 +9,8 @@
   endif
 
   assign cq_is_about_page = false
-  if page.id == 156646211913 or page.handle == 'about-us' or page.handle == 'over-ons' or page.handle == 'uber-uns' or page.handle == 'a-propos' or template.suffix == 'about-us'
+  assign cq_request_path = request.path
+  if page.id == 156646211913 or page.handle == 'about-us' or page.handle == 'over-ons' or page.handle == 'uber-uns' or page.handle == 'a-propos' or template.suffix == 'about-us' or cq_request_path contains '/pages/about-us' or cq_request_path contains '/pages/over-ons' or cq_request_path contains '/pages/uber-uns' or cq_request_path contains '/pages/a-propos'
     assign cq_is_about_page = true
   endif
 
