@@ -156,12 +156,43 @@
     {%- if cq_gender -%}    am.ge = {{ cq_gender | downcase | slice: 0 | json }};{%- endif -%}
   {%- endif -%}
 
-  /* Anonymous fallback: stable _cq_anon_id cookie from calqix-meta-bridge.js */
-  if (!am.external_id) {
+  function readFirstPartyCookie(name) {
     try {
-      var m = document.cookie.match(/(?:^|;\s*)_cq_anon_id=([^;]*)/);
-      if (m) am.external_id = decodeURIComponent(m[1]);
+      var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
+      return m ? decodeURIComponent(m[1]) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function writeFirstPartyCookie(name, value, days) {
+    try {
+      var expires = '';
+      if (days) {
+        var d = new Date();
+        d.setTime(d.getTime() + days * 86400000);
+        expires = '; expires=' + d.toUTCString();
+      }
+      document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax';
     } catch (e) { /* silent */ }
+  }
+
+  function getOrCreateAnonId() {
+    var key = '_cq_anon_id';
+    var existing = null;
+    try { existing = localStorage.getItem(key); } catch (e) { /* silent */ }
+    if (!existing) existing = readFirstPartyCookie(key);
+    if (existing) return existing;
+
+    var id = 'cq_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+    try { localStorage.setItem(key, id); } catch (e) { /* silent */ }
+    writeFirstPartyCookie(key, id, 365);
+    return id;
+  }
+
+  /* Anonymous fallback: create the bridge-compatible id before fbq('init'). */
+  if (!am.external_id) {
+    am.external_id = getOrCreateAnonId();
   }
 
   if (am.external_id) {
