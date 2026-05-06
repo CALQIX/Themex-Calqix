@@ -1105,7 +1105,7 @@
     .cx-atlas-v2-visual,
     .cx-atlas-v2-panel { border-radius: 18px; }
     .cx-atlas-v2-visual {
-      min-height: 448px;
+      min-height: 500px;
       max-width: 100%;
       background:
         radial-gradient(circle at 50% 26%, rgba(0, 118, 194, .12), transparent 34%),
@@ -1113,14 +1113,14 @@
       box-shadow: 0 18px 48px rgba(0, 37, 73, .09);
     }
     .cx-atlas-v2-orbit {
-      inset: 58px 13px 118px;
+      inset: 58px 13px 150px;
       border-radius: 38% 38% 46% 46%;
       transform: rotate(0);
     }
     .cx-atlas-v2-tooth {
       top: 48px;
-      width: min(72vw, 242px);
-      height: 292px;
+      width: min(68vw, 230px);
+      height: 276px;
       transform: translateX(-50%);
       filter: drop-shadow(0 18px 26px rgba(0, 37, 73, .13));
     }
@@ -1142,21 +1142,24 @@
       position: absolute;
       left: 12px;
       right: 12px;
-      bottom: 74px;
+      bottom: 78px;
       z-index: 6;
       display: flex;
-      gap: 7px;
-      overflow-x: auto;
-      padding: 3px 2px 9px;
-      scroll-snap-type: x proximity;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 7px 6px;
+      overflow: visible;
+      padding: 0 2px;
+      scroll-snap-type: none;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
     }
     .cx-atlas-v2-callouts::-webkit-scrollbar { display: none; }
     .cx-atlas-v2-callouts span {
       position: static;
-      flex: 0 0 auto;
-      scroll-snap-align: start;
+      flex: 0 1 auto;
+      min-height: 30px;
+      scroll-snap-align: none;
       background: rgba(255,255,255,.86);
       box-shadow: 0 10px 24px rgba(0, 37, 73, .08);
       transform: none;
@@ -1169,7 +1172,7 @@
     .cx-atlas-v2-nutrition {
       left: 14px;
       right: 14px;
-      bottom: 16px;
+      bottom: 17px;
       gap: 6px;
       justify-content: center;
     }
