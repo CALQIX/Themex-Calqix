@@ -274,10 +274,12 @@
     gap: clamp(18px, 3vw, 34px);
     align-items: stretch;
     margin-top: clamp(26px, 5vw, 58px);
+    min-width: 0;
   }
 
   .cx-atlas-v2-visual,
   .cx-atlas-v2-panel {
+    min-width: 0;
     border: 1px solid rgba(0, 37, 73, .16);
     border-radius: 24px;
     background: rgba(255, 255, 255, .82);
@@ -1044,7 +1046,7 @@
   }
 
   @media (max-width: 980px) {
-    .cx-atlas-v2-shell { grid-template-columns: 1fr; }
+    .cx-atlas-v2-shell { grid-template-columns: minmax(0, 1fr); }
     .cx-atlas-v2-visual { min-height: 390px; }
     .cx-atlas-v2-tooth { height: 310px; top: 34px; transform: translateX(-50%) scale(.86); transform-origin: top center; }
     .cx-atlas-v2-tabs {
@@ -1087,31 +1089,113 @@
 
   @media (max-width: 640px) {
     .cx-tooth-atlas-v2 { padding-top: 56px; padding-bottom: 56px; }
-    .cx-atlas-v2-header { text-align: left; }
+    .cx-tooth-atlas-v2 .cx-container {
+      width: min(100% - 28px, var(--cx-container));
+      margin-inline: auto;
+    }
+    .cx-atlas-v2-header {
+      max-width: 100%;
+      text-align: left;
+    }
+    .cx-atlas-v2-shell {
+      gap: 14px;
+      margin-top: 22px;
+      overflow: hidden;
+    }
     .cx-atlas-v2-visual,
     .cx-atlas-v2-panel { border-radius: 18px; }
-    .cx-atlas-v2-visual { min-height: 315px; }
-    .cx-atlas-v2-orbit { inset: 38px 18px 86px; }
-    .cx-atlas-v2-tooth { top: 28px; transform: translateX(-50%) scale(.68); }
-    .cx-atlas-v2-slide-meter { top: 16px; }
-    .cx-atlas-v2-callouts span {
-      padding: 6px 8px;
-      font-size: 9.5px;
+    .cx-atlas-v2-visual {
+      min-height: 448px;
+      max-width: 100%;
+      background:
+        radial-gradient(circle at 50% 26%, rgba(0, 118, 194, .12), transparent 34%),
+        linear-gradient(180deg, rgba(255,255,255,.95), rgba(239,247,255,.88));
+      box-shadow: 0 18px 48px rgba(0, 37, 73, .09);
     }
-    .cx-atlas-v2-callouts span:nth-child(2),
-    .cx-atlas-v2-callouts span:nth-child(4) { display: none; }
+    .cx-atlas-v2-orbit {
+      inset: 58px 13px 118px;
+      border-radius: 38% 38% 46% 46%;
+      transform: rotate(0);
+    }
+    .cx-atlas-v2-tooth {
+      top: 48px;
+      width: min(72vw, 242px);
+      height: 292px;
+      transform: translateX(-50%);
+      filter: drop-shadow(0 18px 26px rgba(0, 37, 73, .13));
+    }
+    .cx-atlas-v2-slide-meter {
+      top: 18px;
+      gap: 8px;
+      padding: 6px 9px;
+      border: 1px solid rgba(0, 37, 73, .1);
+      border-radius: 999px;
+      background: rgba(255,255,255,.74);
+      box-shadow: 0 10px 22px rgba(0, 37, 73, .06);
+    }
+    .cx-atlas-v2-callouts span {
+      padding: 7px 10px;
+      font-size: 9.5px;
+      white-space: nowrap;
+    }
+    .cx-atlas-v2-callouts {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 74px;
+      z-index: 6;
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      padding: 3px 2px 9px;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .cx-atlas-v2-callouts::-webkit-scrollbar { display: none; }
+    .cx-atlas-v2-callouts span {
+      position: static;
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      background: rgba(255,255,255,.86);
+      box-shadow: 0 10px 24px rgba(0, 37, 73, .08);
+      transform: none;
+    }
+    .cx-atlas-v2-callouts span.cx-is-active {
+      transform: translateY(-2px);
+      background: #fff;
+      box-shadow: 0 14px 30px rgba(0, 37, 73, .12), 0 0 0 4px rgba(0, 118, 194, .06);
+    }
     .cx-atlas-v2-nutrition {
       left: 14px;
       right: 14px;
-      bottom: 14px;
+      bottom: 16px;
       gap: 6px;
+      justify-content: center;
     }
-    .cx-atlas-v2-nutrition p { font-size: 10px; }
+    .cx-atlas-v2-nutrition p {
+      margin-bottom: 1px;
+      font-size: 10px;
+      text-align: center;
+    }
     .cx-atlas-v2-nutrition span {
       padding: 7px 9px;
-      font-size: 11px;
+      font-size: 10.5px;
     }
-    .cx-atlas-v2-panel { padding: 14px; }
+    .cx-atlas-v2-panel {
+      max-width: 100%;
+      padding: 14px;
+      overflow: hidden;
+    }
+    .cx-atlas-v2-tabs {
+      width: 100%;
+      max-width: 100%;
+      gap: 8px;
+    }
+    .cx-atlas-v2-tab {
+      min-width: 126px;
+      padding: 11px 12px;
+    }
     .cx-atlas-v2-layer {
       min-height: 0;
       padding: 18px;
