@@ -60,9 +60,9 @@ function normalizeZip(zip) {
 }
 
 function getDialCode(countryCode) {
-  if (!countryCode) return '31';
+  if (!countryCode) return null;
 
-  return COUNTRY_DIAL_CODES[countryCode.toString().trim().toUpperCase()] || '31';
+  return COUNTRY_DIAL_CODES[countryCode.toString().trim().toUpperCase()] || null;
 }
 
 function normalizePhone(phone, countryCode) {
@@ -84,12 +84,15 @@ function normalizePhone(phone, countryCode) {
   const dialCode = getDialCode(countryCode);
 
   if (digits.startsWith('0')) {
+    if (!dialCode) return null;
     digits = `${dialCode}${digits.replace(/^0+/, '')}`;
     return digits || null;
   }
 
-  if (countryCode && digits.length <= 10 && !digits.startsWith(dialCode)) {
+  if (dialCode && digits.length <= 10 && !digits.startsWith(dialCode)) {
     digits = `${dialCode}${digits}`;
+  } else if (!dialCode && digits.length <= 10) {
+    return null;
   }
 
   return digits || null;

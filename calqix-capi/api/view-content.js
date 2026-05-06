@@ -113,12 +113,11 @@ async function handler(req, res) {
       hasCountry: Boolean(userData.country)
     });
 
-    // CALQIX Meta Commerce catalog matches active Shopify variants by raw
-    // variant_id. SKU is fallback-only because not every active SKU exists as
-    // a catalog retailer_id.
+    // Send every known product reference. The active catalog primarily matches
+    // Shopify variant_id, but SKU can be a valid retailer_id in some feeds.
     const catalogIds = [];
     if (variantId) catalogIds.push(String(variantId));
-    else if (sku) catalogIds.push(String(sku));
+    if (sku && catalogIds.indexOf(String(sku)) === -1) catalogIds.push(String(sku));
     if (catalogIds.length === 0 && productId) catalogIds.push(String(productId));
     const contentType = (variantId || sku) ? 'product' : 'product_group';
 

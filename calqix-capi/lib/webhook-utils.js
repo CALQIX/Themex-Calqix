@@ -226,10 +226,9 @@ function centsToMoney(value) {
  * The result is still an array for backward compatibility with existing
  * callers.
  *
- * Current catalog inspection shows every active Shopify variant exists as raw
- * variant_id in Meta. Several active SKUs do not exist as retailer_id, so SKU
- * is fallback-only when variant_id is unavailable. product_id stays a final
- * fallback for records without variant data.
+ * Return every useful catalog identifier. Variant id is first because it is
+ * the strongest CALQIX catalog match, but SKU is preserved when present so we
+ * do not drop a valid retailer_id for feeds that expose SKU.
  *
  * @returns {Array<{id: string, type: 'product' | 'product_group'}>}
  */
@@ -238,22 +237,32 @@ function getCatalogItemReferences(item) {
     return [];
   }
 
+  const refs = [];
+  const seen = new Set();
+  function push(id, type) {
+    if (id === undefined || id === null || id === '') return;
+    const str = String(id);
+    if (seen.has(str)) return;
+    seen.add(str);
+    refs.push({ id: str, type: type });
+  }
+
   const variantId = item.variant_id;
   if (variantId !== undefined && variantId !== null && variantId !== '') {
-    return [{ id: String(variantId), type: 'product' }];
+    push(variantId, 'product');
   }
 
   const sku = item.sku;
   if (sku !== undefined && sku !== null && sku !== '') {
-    return [{ id: String(sku), type: 'product' }];
+    push(sku, 'product');
   }
 
   const productId = item.product_id;
-  if (productId !== undefined && productId !== null && productId !== '') {
-    return [{ id: String(productId), type: 'product_group' }];
+  if (refs.length === 0 && productId !== undefined && productId !== null && productId !== '') {
+    push(productId, 'product_group');
   }
 
-  return [];
+  return refs;
 }
 
 // Back-compat alias — some callers expect a single reference.

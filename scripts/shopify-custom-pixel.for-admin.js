@@ -135,7 +135,20 @@ function customerId(checkout) {
 }
 
 function shippingAddress(checkout) {
-  return (checkout && (checkout.shippingAddress || checkout.shipping_address)) || null;
+  return (checkout && (checkout.shippingAddress || checkout.shipping_address || checkout.billingAddress || checkout.billing_address)) || null;
+}
+
+function checkoutPhone(checkout, addr) {
+  if (!checkout) return null;
+  return checkout.phone ||
+    (addr && addr.phone) ||
+    (checkout.shippingAddress && checkout.shippingAddress.phone) ||
+    (checkout.shipping_address && checkout.shipping_address.phone) ||
+    (checkout.billingAddress && checkout.billingAddress.phone) ||
+    (checkout.billing_address && checkout.billing_address.phone) ||
+    (checkout.customer && checkout.customer.phone) ||
+    (checkout.order && checkout.order.customer && checkout.order.customer.phone) ||
+    null;
 }
 
 function send(payload) {
@@ -290,7 +303,7 @@ analytics.subscribe("checkout_started", async function (event) {
     fbc: fbc,
     fbp: fbp,
     email: checkout.email || null,
-    phone: checkout.phone || null,
+    phone: checkoutPhone(checkout, addr),
     external_id: customerId(checkout),
     first_name: addr && (addr.firstName || addr.first_name) || null,
     last_name: addr && (addr.lastName || addr.last_name) || null,
@@ -319,14 +332,14 @@ analytics.subscribe("checkout_contact_info_submitted", async function (event) {
     fbc: fbc || cached.fbc || null,
     fbp: fbp || cached.fbp || null,
     email: checkout.email || cached.email || null,
-    phone: checkout.phone || cached.phone || null
+    phone: checkoutPhone(checkout, shippingAddress(checkout)) || cached.phone || null
   };
 
   send({
     event_type: "contact_info_submitted",
     checkout_token: token,
     email: checkout.email || null,
-    phone: checkout.phone || null,
+    phone: checkoutPhone(checkout, shippingAddress(checkout)) || null,
     external_id: customerId(checkout),
     fbc: fbc,
     fbp: fbp
@@ -368,7 +381,7 @@ analytics.subscribe("payment_info_submitted", async function (event) {
     fbc: effectiveFbc,
     fbp: effectiveFbp,
     email: checkout.email || cached.email || null,
-    phone: checkout.phone || cached.phone || null,
+    phone: checkoutPhone(checkout, addr) || cached.phone || null,
     first_name: addr && (addr.firstName || addr.first_name) || null,
     last_name: addr && (addr.lastName || addr.last_name) || null,
     city: addr && addr.city || null,
@@ -420,7 +433,7 @@ analytics.subscribe("checkout_completed", async function (event) {
     fbc: effectiveFbc,
     fbp: effectiveFbp,
     email: checkout.email || cached.email || null,
-    phone: checkout.phone || cached.phone || null,
+    phone: checkoutPhone(checkout, addr) || cached.phone || null,
     first_name: addr && (addr.firstName || addr.first_name) || null,
     last_name: addr && (addr.lastName || addr.last_name) || null,
     city: addr && addr.city || null,

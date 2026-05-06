@@ -329,26 +329,31 @@ function extractProductId(item) {
 }
 
 /**
- * Extract the best catalog identifier from a Shopify line_item. The CALQIX
- * Meta Commerce catalog matches active variants by raw variant_id. SKU is a
- * fallback only when variant_id is unavailable.
- *
- * Returns one id unless the input has no id information at all.
+ * Extract all useful catalog identifiers from a Shopify line_item. Variant id
+ * stays first for contents rows; SKU is also preserved for content_ids when it
+ * may exist as a valid retailer_id.
  */
 function extractCatalogIds(item) {
   if (!item) return [];
   var ids = [];
+  var seen = Object.create(null);
+  function push(id) {
+    if (id === undefined || id === null || id === '') return;
+    var str = String(id);
+    if (!seen[str]) {
+      seen[str] = true;
+      ids.push(str);
+    }
+  }
   if (item.variant_id !== undefined && item.variant_id !== null && item.variant_id !== '') {
-    ids.push(String(item.variant_id));
-    return ids;
+    push(item.variant_id);
   }
   if (item.sku !== undefined && item.sku !== null && item.sku !== '') {
-    ids.push(String(item.sku));
-    return ids;
+    push(item.sku);
   }
   if (ids.length === 0) {
     var pid = extractProductId(item);
-    if (pid) ids.push(pid);
+    if (pid) push(pid);
   }
   return ids;
 }

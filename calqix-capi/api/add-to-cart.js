@@ -56,22 +56,18 @@ function normalizeCatalogPayload(rawContentIds, rawContentType, rawContents) {
   }
 
   // Backward compatibility: older browser payloads sent [variant_id, sku].
-  // The current Meta catalog has every active Shopify variant_id, but several
-  // SKUs are missing as retailer_id. If a product payload contains numeric
-  // variant ids, keep only those and drop SKU candidates.
+  // Keep both identifiers when present. Meta can match on any valid catalog
+  // reference, and preserving SKU avoids losing a valid retailer_id on feeds
+  // where SKU is the stronger match key.
   const numericContentIds = contentIds.filter(isNumericCatalogId);
   if (numericContentIds.length === 0) {
     return { contentIds: contentIds, contentType: contentType, contents: contents };
   }
 
-  const numericContents = contents.filter(function (item) {
-    return isNumericCatalogId(item.id);
-  });
-
   return {
-    contentIds: numericContentIds,
+    contentIds: contentIds,
     contentType: 'product',
-    contents: numericContents.length > 0 ? numericContents : contents
+    contents: contents
   };
 }
 
