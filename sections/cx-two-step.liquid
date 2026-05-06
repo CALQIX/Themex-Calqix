@@ -63,6 +63,7 @@
         {%- endif -%}
       {%- endfor -%}
     </div>
+    <div class="cx-two-step-scroll-hint" aria-hidden="true"><span></span></div>
   </div>
 </section>
 
@@ -334,13 +335,27 @@
       font-size: clamp(38px, 12vw, 56px);
     }
     .cx-two-step-grid {
-      gap: 16px;
+      display: flex;
+      gap: 14px;
+      max-width: none;
+      margin-inline: -16px;
+      padding: 2px 16px 18px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      overscroll-behavior-x: contain;
+      -webkit-overflow-scrolling: touch;
+      mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+    }
+    .cx-two-step-grid::-webkit-scrollbar {
+      height: 0;
     }
     .cx-two-step-card {
-      margin-left: 16px;
+      flex: 0 0 min(82vw, 338px);
+      margin-left: 0;
       border-radius: 20px;
       padding: 14px;
       gap: 15px;
+      scroll-snap-align: center;
     }
     .cx-two-step-card::after {
       left: 18px;
@@ -379,14 +394,44 @@
       margin: 0;
       font-size: 24px;
     }
+    .cx-two-step-scroll-hint {
+      position: relative;
+      display: block;
+      width: min(168px, 48vw);
+      height: 4px;
+      margin: 0 auto;
+      border-radius: 999px;
+      background: rgba(0,37,73,0.12);
+      overflow: hidden;
+    }
+    .cx-two-step-scroll-hint span {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 42%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cx-gold), var(--cx-forest), var(--cx-blue));
+      box-shadow: 0 0 18px rgba(0,118,194,0.26);
+      animation: cxTwoStepScrollCue 1800ms var(--cx-ease-silk) infinite;
+    }
+  }
+
+  @media (min-width: 641px) {
+    .cx-two-step-scroll-hint { display: none; }
+  }
+
+  @keyframes cxTwoStepScrollCue {
+    0%, 100% { transform: translateX(0); opacity: .62; }
+    50% { transform: translateX(138%); opacity: 1; }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .cx-two-step-grid::before,
     .cx-two-step-card,
     .cx-two-step-media img,
-    .cx-two-step-media-sheen {
+    .cx-two-step-media-sheen,
+    .cx-two-step-scroll-hint span {
       transition: none;
+      animation: none;
       transform: none;
     }
   }

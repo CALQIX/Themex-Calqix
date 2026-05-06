@@ -41,6 +41,7 @@
       <span>{{ 'homepage.journal.theme_3' | t }}</span>
       <span>{{ 'homepage.journal.theme_4' | t }}</span>
     </div>
+    <div class="cx-journal-guide-hint" aria-hidden="true"><span></span></div>
 
     <div class="cx-journal-grid" data-cx-col3 data-cx-stagger>
       {%- if cx_blog.articles.size > 0 -%}
@@ -83,6 +84,7 @@
         {%- endfor -%}
       {%- endif -%}
     </div>
+    <div class="cx-journal-scroll-hint" aria-hidden="true"><span></span></div>
   </div>
 </section>
 
@@ -327,6 +329,12 @@
       overflow-x: auto;
       padding: 2px 2px 18px;
       scroll-snap-type: x mandatory;
+      overscroll-behavior-x: contain;
+      -webkit-overflow-scrolling: touch;
+      mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+    }
+    .cx-journal-grid::-webkit-scrollbar {
+      height: 0;
     }
     .cx-journal-card {
       flex: 0 0 min(82vw, 380px);
@@ -343,8 +351,44 @@
       overflow-x: auto;
       padding-bottom: 8px;
       margin-bottom: 16px;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
     }
-    .cx-journal-guide span { flex: 0 0 auto; }
+    .cx-journal-guide::-webkit-scrollbar { display: none; }
+    .cx-journal-guide span {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+    }
+    .cx-journal-guide-hint,
+    .cx-journal-scroll-hint {
+      position: relative;
+      display: block;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(0, 37, 73, .12);
+      overflow: hidden;
+    }
+    .cx-journal-guide-hint {
+      width: min(132px, 38vw);
+      margin: -6px auto 20px;
+    }
+    .cx-journal-scroll-hint {
+      width: min(176px, 52vw);
+      margin: 12px auto 0;
+    }
+    .cx-journal-guide-hint span,
+    .cx-journal-scroll-hint span {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 42%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #d1aa54, #002549, #0076c2);
+      box-shadow: 0 0 18px rgba(0, 118, 194, .24);
+      animation: cxJournalScrollCue 1800ms var(--cx-ease-silk) infinite;
+    }
     .cx-journal-card {
       flex-basis: min(78vw, 320px);
       border-radius: 18px;
@@ -360,6 +404,24 @@
     .cx-journal-card:not(.cx-journal-card-featured) .cx-journal-title { font-size: 22px; }
     .cx-journal-excerpt { font-size: 13.5px; }
     .cx-journal-read { width: 100%; }
+  }
+
+  @media (min-width: 641px) {
+    .cx-journal-guide-hint,
+    .cx-journal-scroll-hint { display: none; }
+  }
+
+  @keyframes cxJournalScrollCue {
+    0%, 100% { transform: translateX(0); opacity: .62; }
+    50% { transform: translateX(138%); opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cx-journal-guide-hint span,
+    .cx-journal-scroll-hint span {
+      animation: none;
+      transform: none;
+    }
   }
 </style>
 

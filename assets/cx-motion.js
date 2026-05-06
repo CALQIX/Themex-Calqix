@@ -146,7 +146,11 @@
       function activateLayer(id) {
         if (visual) visual.setAttribute('data-cx-atlas-state', id);
         meters.forEach(function (m) { m.classList.toggle('cx-is-active', m.getAttribute('data-cx-atlas-meter') === id); });
-        callouts.forEach(function (c) { c.classList.toggle('cx-is-active', c.getAttribute('data-cx-atlas-callout') === id); });
+        callouts.forEach(function (c) {
+          var active = c.getAttribute('data-cx-atlas-callout') === id;
+          c.classList.toggle('cx-is-active', active);
+          c.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
         pills.forEach(function (p) {
           var active = p.getAttribute('data-cx-tooth-pill') === id;
           p.classList.toggle('cx-is-active', active);
@@ -158,6 +162,16 @@
         var id = pill.getAttribute('data-cx-tooth-pill');
         pill.addEventListener('click', function () { activateLayer(id); });
         pill.addEventListener('mouseenter', function () { activateLayer(id); });
+      });
+      callouts.forEach(function (callout) {
+        var id = callout.getAttribute('data-cx-atlas-callout');
+        callout.addEventListener('click', function () { activateLayer(id); });
+        callout.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            activateLayer(id);
+          }
+        });
       });
     });
   })();

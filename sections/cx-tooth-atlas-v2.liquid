@@ -94,11 +94,11 @@
           <span data-cx-atlas-meter="atlas-gumline"></span>
         </div>
         <div class="cx-atlas-v2-callouts">
-          <span data-cx-atlas-callout="atlas-enamel" class="cx-is-active" style="--x: 10%; --y: 21%;">{{ 'homepage.tooth_atlas.callout_enamel' | t }}</span>
-          <span data-cx-atlas-callout="atlas-dentin" style="--x: 72%; --y: 28%;">{{ 'homepage.tooth_atlas.callout_dentin' | t }}</span>
-          <span data-cx-atlas-callout="atlas-pulp" style="--x: 12%; --y: 60%;">{{ 'homepage.tooth_atlas.callout_pulp' | t }}</span>
-          <span data-cx-atlas-callout="atlas-root" style="--x: 63%; --y: 76%;">{{ 'homepage.tooth_atlas.callout_root' | t }}</span>
-          <span data-cx-atlas-callout="atlas-gumline" style="--x: 68%; --y: 49%;">{{ 'homepage.tooth_atlas.layer_5_tab' | t }}</span>
+          <button type="button" class="cx-atlas-v2-callout cx-is-active" data-cx-atlas-callout="atlas-enamel" aria-pressed="true" style="--x: 10%; --y: 21%;">{{ 'homepage.tooth_atlas.callout_enamel' | t }}</button>
+          <button type="button" class="cx-atlas-v2-callout" data-cx-atlas-callout="atlas-dentin" aria-pressed="false" style="--x: 72%; --y: 28%;">{{ 'homepage.tooth_atlas.callout_dentin' | t }}</button>
+          <button type="button" class="cx-atlas-v2-callout" data-cx-atlas-callout="atlas-pulp" aria-pressed="false" style="--x: 12%; --y: 60%;">{{ 'homepage.tooth_atlas.callout_pulp' | t }}</button>
+          <button type="button" class="cx-atlas-v2-callout" data-cx-atlas-callout="atlas-root" aria-pressed="false" style="--x: 63%; --y: 76%;">{{ 'homepage.tooth_atlas.callout_root' | t }}</button>
+          <button type="button" class="cx-atlas-v2-callout" data-cx-atlas-callout="atlas-gumline" aria-pressed="false" style="--x: 68%; --y: 49%;">{{ 'homepage.tooth_atlas.layer_5_tab' | t }}</button>
         </div>
         <div class="cx-atlas-v2-nutrition">
           <p>{{ 'homepage.tooth_atlas.feed_system' | t }}</p>
@@ -128,6 +128,7 @@
             <span>05</span> {{ 'homepage.tooth_atlas.layer_5_tab' | t }}
           </button>
         </div>
+        <div class="cx-atlas-v2-tab-hint" aria-hidden="true"><span></span></div>
 
         <div class="cx-atlas-v2-panels">
           <article class="cx-atlas-v2-layer cx-is-active" data-cx-tooth-panel="atlas-enamel" role="tabpanel">
@@ -503,15 +504,21 @@
     box-shadow: inset 0 16px 22px rgba(255,255,255,.18), 0 12px 34px rgba(151, 90, 70, .08);
   }
 
-  .cx-atlas-v2-callouts span {
+  .cx-atlas-v2-callout {
     position: absolute;
     left: var(--x);
     top: var(--y);
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 7px 10px;
     border: 1px solid rgba(0, 37, 73, .14);
     border-radius: 999px;
     background: rgba(255, 255, 255, .78);
     color: #002549;
+    cursor: pointer;
+    font-family: inherit;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: .06em;
@@ -904,7 +911,7 @@
     box-shadow: 0 0 18px rgba(0, 118, 194, .24);
   }
 
-  .cx-atlas-v2-callouts span {
+  .cx-atlas-v2-callout {
     opacity: .54;
     transform: translateY(0) scale(.96);
     transition:
@@ -915,7 +922,7 @@
       background 320ms ease;
   }
 
-  .cx-atlas-v2-callouts span.cx-is-active {
+  .cx-atlas-v2-callout.cx-is-active {
     opacity: 1;
     transform: translateY(-3px) scale(1);
     border-color: rgba(0, 118, 194, .34);
@@ -923,9 +930,16 @@
     box-shadow: 0 18px 44px rgba(0, 37, 73, .14), 0 0 0 5px rgba(0, 118, 194, .06);
   }
 
+  .cx-atlas-v2-callout:focus-visible {
+    outline: 2px solid rgba(0, 118, 194, .55);
+    outline-offset: 3px;
+  }
+
   .cx-atlas-v2-layer {
     transform-origin: center;
   }
+
+  .cx-atlas-v2-tab-hint { display: none; }
 
   .cx-atlas-v2-role-lab {
     display: grid;
@@ -1133,7 +1147,7 @@
       background: rgba(255,255,255,.74);
       box-shadow: 0 10px 22px rgba(0, 37, 73, .06);
     }
-    .cx-atlas-v2-callouts span {
+    .cx-atlas-v2-callout {
       padding: 7px 10px;
       font-size: 9.5px;
       white-space: nowrap;
@@ -1155,7 +1169,7 @@
       -webkit-overflow-scrolling: touch;
     }
     .cx-atlas-v2-callouts::-webkit-scrollbar { display: none; }
-    .cx-atlas-v2-callouts span {
+    .cx-atlas-v2-callout {
       position: static;
       flex: 0 1 auto;
       min-height: 30px;
@@ -1164,7 +1178,7 @@
       box-shadow: 0 10px 24px rgba(0, 37, 73, .08);
       transform: none;
     }
-    .cx-atlas-v2-callouts span.cx-is-active {
+    .cx-atlas-v2-callout.cx-is-active {
       transform: translateY(-2px);
       background: #fff;
       box-shadow: 0 14px 30px rgba(0, 37, 73, .12), 0 0 0 4px rgba(0, 118, 194, .06);
@@ -1198,6 +1212,27 @@
     .cx-atlas-v2-tab {
       min-width: 126px;
       padding: 11px 12px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .cx-atlas-v2-tab-hint {
+      position: relative;
+      display: block;
+      width: min(154px, 46vw);
+      height: 4px;
+      margin: 1px auto 12px;
+      border-radius: 999px;
+      background: rgba(0, 37, 73, .12);
+      overflow: hidden;
+    }
+    .cx-atlas-v2-tab-hint span {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 42%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #d1aa54, #002549, #0076c2);
+      box-shadow: 0 0 18px rgba(0, 118, 194, .24);
+      animation: cxAtlasTabScrollCue 1800ms var(--cx-ease-silk) infinite;
     }
     .cx-atlas-v2-layer {
       min-height: 0;
@@ -1229,6 +1264,18 @@
       width: 100%;
       min-height: 52px;
       padding-inline: 18px;
+    }
+  }
+
+  @keyframes cxAtlasTabScrollCue {
+    0%, 100% { transform: translateX(0); opacity: .62; }
+    50% { transform: translateX(138%); opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cx-atlas-v2-tab-hint span {
+      animation: none;
+      transform: none;
     }
   }
 </style>

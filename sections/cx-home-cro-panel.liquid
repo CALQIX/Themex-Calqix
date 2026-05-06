@@ -277,6 +277,7 @@
           </a>
         </article>
       </div>
+      <div class="cx-home-cro-scroll-hint" aria-hidden="true"><span></span></div>
     </div>
   </div>
 </section>
@@ -639,9 +640,10 @@
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       overscroll-behavior-x: contain;
-      padding: 2px 16px 14px;
+      padding: 2px 16px 18px;
       margin-inline: -16px;
       -webkit-overflow-scrolling: touch;
+      mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
     }
     .cx-home-cro-board::-webkit-scrollbar {
       height: 0;
@@ -662,6 +664,34 @@
     .cx-home-cro-mini-products {
       min-height: 148px;
     }
+    .cx-home-cro-scroll-hint {
+      position: relative;
+      display: block;
+      width: min(168px, 48vw);
+      height: 4px;
+      margin: 8px auto 0;
+      border-radius: 999px;
+      background: rgba(0,37,73,0.12);
+      overflow: hidden;
+    }
+    .cx-home-cro-scroll-hint span {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 42%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cx-gold), var(--cx-forest), var(--cx-blue));
+      box-shadow: 0 0 18px rgba(0,118,194,0.26);
+      animation: cxHomeCroScrollCue 1800ms var(--cx-ease-silk) infinite;
+    }
+  }
+
+  @media (min-width: 641px) {
+    .cx-home-cro-scroll-hint { display: none; }
+  }
+
+  @keyframes cxHomeCroScrollCue {
+    0%, 100% { transform: translateX(0); opacity: .62; }
+    50% { transform: translateX(138%); opacity: 1; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -669,7 +699,8 @@
     .cx-home-cro-card-link::before,
     .cx-home-cro-img,
     .cx-home-cro-mini,
-    .cx-home-cro-line {
+    .cx-home-cro-line,
+    .cx-home-cro-scroll-hint span {
       transition: none;
       animation: none;
       transform: none;
