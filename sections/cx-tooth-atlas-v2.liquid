@@ -834,31 +834,41 @@
   .cx-atlas-v2-role-switches {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
     justify-content: center;
   }
 
-  .cx-atlas-v2-role-pill {
-    min-height: 40px;
-    padding: 0 15px;
+  .cx-tooth-atlas-v2 .cx-atlas-v2-role-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: clamp(112px, 10vw, 150px);
+    min-height: 46px;
+    padding: 0 22px;
     border: 1px solid rgba(0, 37, 73, .13);
     border-radius: 999px;
-    background: rgba(255,255,255,.78);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.92), rgba(241,247,255,.74));
     color: #16385b;
     cursor: pointer;
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 800;
-    box-shadow: 0 14px 34px rgba(0, 37, 73, .06);
+    box-shadow:
+      0 16px 38px rgba(0, 37, 73, .07),
+      inset 0 1px 0 rgba(255,255,255,.86);
     transition: transform .28s var(--cx-ease-silk), background .28s ease, color .28s ease, border-color .28s ease, box-shadow .28s ease;
   }
 
   .cx-atlas-v2-role-pill:hover,
   .cx-atlas-v2-role-pill.cx-is-active {
     transform: translateY(-2px);
-    background: #002549;
+    background:
+      linear-gradient(180deg, #003b72, #002549);
     color: #fff;
     border-color: #002549;
-    box-shadow: 0 18px 42px rgba(0, 37, 73, .17);
+    box-shadow:
+      0 20px 46px rgba(0, 37, 73, .2),
+      inset 0 1px 0 rgba(255,255,255,.16);
   }
 
   .cx-atlas-v2-arch {
@@ -965,7 +975,7 @@
       padding: 2px 2px 10px;
       scroll-snap-type: x mandatory;
     }
-    .cx-atlas-v2-role-pill {
+    .cx-tooth-atlas-v2 .cx-atlas-v2-role-pill {
       flex: 0 0 auto;
       scroll-snap-align: start;
     }

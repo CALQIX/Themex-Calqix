@@ -302,14 +302,15 @@
   .cx-science-item.cx-is-open::before {
     opacity: 1;
   }
-  .cx-science-toggle {
+  .cx-science-section .cx-science-toggle {
     position: relative;
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 14px;
-    padding: 18px;
+    min-height: 60px;
+    padding: 13px 18px;
     color: var(--cx-forest-2);
     text-align: left;
     background: transparent;
@@ -469,7 +470,8 @@
     .cx-science-accordion {
       gap: 8px;
     }
-    .cx-science-toggle {
+    .cx-science-section .cx-science-toggle {
+      min-height: 62px;
       padding: 14px;
       align-items: flex-start;
     }
