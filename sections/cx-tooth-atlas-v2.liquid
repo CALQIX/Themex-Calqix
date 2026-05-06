@@ -667,6 +667,20 @@
     },
     { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 48, "unit": "px" }
   ],
+  "blocks": [
+    {
+      "type": "tooth",
+      "name": "Legacy tooth block",
+      "settings": [
+        { "type": "text", "id": "name", "label": "Name" },
+        { "type": "text", "id": "sub", "label": "Subtitle" },
+        { "type": "textarea", "id": "desc", "label": "Description" },
+        { "type": "textarea", "id": "care", "label": "Daily care" },
+        { "type": "textarea", "id": "fact", "label": "Did you know" },
+        { "type": "image_picker", "id": "anatomy_image", "label": "Anatomy image (optional)" }
+      ]
+    }
+  ],
   "presets": [
     { "name": "CX Tooth Atlas V2" }
   ]
