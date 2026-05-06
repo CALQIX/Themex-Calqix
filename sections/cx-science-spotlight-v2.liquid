@@ -1,0 +1,567 @@
+{%- comment -%}
+  CALQIX Navy Rebuild — Science spotlight.
+  Source: _incoming/calqix-web-upgrade/handoff/source/components/features.jsx → ScienceSpotlight
+{%- endcomment -%}
+
+{% render 'cx-section-overrides', section: section %}
+{%- assign cx_use_generated_image = section.settings.use_generated_science_image -%}
+
+<section class="cx-root cx-section cx-science-section" data-cx-reveal>
+  <div class="cx-container">
+    <div class="cx-science-grid" data-cx-col2>
+      <div class="cx-science-media">
+        <div class="cx-science-media-frame">
+          <div class="cx-science-media-topline">
+            <span>{{ section.settings.image_label }}</span>
+            <span>Nano-HA protocol</span>
+          </div>
+          {%- if cx_use_generated_image -%}
+            <img
+              src="{{ 'calqix-science-lab-v2.png' | asset_url }}"
+              alt="{{ section.settings.heading | strip_html | escape }}"
+              class="cx-science-img"
+              loading="lazy"
+              width="1536"
+              height="2048"
+            >
+          {%- elsif section.settings.image != blank -%}
+            {{ section.settings.image | image_url: width: 1000 | image_tag: loading: 'lazy', alt: section.settings.heading, class: 'cx-science-img' }}
+          {%- else -%}
+            {% render 'cx-placeholder', on_dark: true, ratio: '4/5', label: section.settings.image_label, radius: 'var(--cx-r-lg)' %}
+          {%- endif -%}
+          <span class="cx-science-glow" aria-hidden="true"></span>
+          <span class="cx-science-scan" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="cx-science-copy" data-cx-stagger>
+        {% render 'cx-eyebrow', text: section.settings.eyebrow %}
+        <h2 class="cx-h2">{{ section.settings.heading }}</h2>
+        <div class="cx-lede">{{ section.settings.lede }}</div>
+
+        <div class="cx-science-proof-row" aria-label="CALQIX science proof">
+          <span>Biofilm first</span>
+          <span>Nano-HA after</span>
+          <span>Daily protocol</span>
+        </div>
+
+        <div class="cx-science-accordion" data-cx-accordion>
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'step' -%}
+              <div class="cx-science-item{% if forloop.first %} cx-is-open{% endif %}" data-cx-accordion-item {{ block.shopify_attributes }}>
+                <button type="button" class="cx-science-toggle" data-cx-accordion-toggle aria-expanded="{%- if forloop.first -%}true{%- else -%}false{%- endif -%}">
+                  <span class="cx-science-toggle-left">
+                    <span class="cx-science-num">0{{ forloop.index }}</span>
+                    <span class="cx-science-title-wrap">
+                      <span class="cx-science-title">{{ block.settings.title }}</span>
+                      <span class="cx-science-mobile-label">Protocol step</span>
+                    </span>
+                  </span>
+                  <span class="cx-science-toggle-ic cx-science-toggle-ic-open">{% render 'cx-icons', name: 'minus', size: 18 %}</span>
+                  <span class="cx-science-toggle-ic cx-science-toggle-ic-closed">{% render 'cx-icons', name: 'plus', size: 18 %}</span>
+                </button>
+                <div class="cx-science-body" data-cx-accordion-body{% unless forloop.first %} hidden{% endunless %}>
+                  <div class="cx-science-desc">{{ block.settings.desc }}</div>
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        {%- if section.settings.cta_text != blank -%}
+          {%- assign cx_btn_kind = section.settings.cta_style | default: 'inline' -%}
+          {%- case cx_btn_kind -%}
+            {%- when 'gold' -%}<a class="cx-btn cx-btn-gold cx-science-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- when 'navy' -%}<a class="cx-btn cx-btn-primary cx-science-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- when 'ghost' -%}<a class="cx-btn cx-btn-ghost cx-science-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- else -%}<a class="cx-btn-inline cx-science-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          {%- endcase -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cx-science-section {
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, #edf5ff 0%, #f7fbff 45%, #ffffff 100%),
+      var(--cx-page);
+  }
+  .cx-science-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,37,73,0.036) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,37,73,0.036) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
+    pointer-events: none;
+  }
+  .cx-science-section::after {
+    content: "";
+    position: absolute;
+    left: -18vw;
+    top: 14%;
+    width: min(58vw, 760px);
+    height: min(58vw, 760px);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,118,194,0.10), rgba(201,165,90,0.07) 32%, transparent 66%);
+    filter: blur(16px);
+    pointer-events: none;
+  }
+  .cx-science-section .cx-container {
+    position: relative;
+    z-index: 1;
+  }
+  .cx-science-grid {
+    display: grid;
+    grid-template-columns: minmax(460px, 1.03fr) minmax(0, 0.97fr);
+    gap: clamp(34px, 6vw, 76px);
+    align-items: center;
+  }
+  .cx-science-media {
+    position: relative;
+    min-height: min(54vw, 760px);
+  }
+  .cx-science-media-frame {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: min(54vw, 760px);
+    border-radius: 26px;
+    background:
+      linear-gradient(180deg, rgba(0,37,73,0.96), rgba(0,18,34,0.98)),
+      var(--cx-forest-3);
+    box-shadow:
+      0 38px 112px -66px rgba(0,37,73,0.86),
+      inset 0 1px 0 rgba(255,255,255,0.12);
+    transform: translateZ(0);
+    transition:
+      transform 560ms var(--cx-ease-silk),
+      box-shadow 560ms var(--cx-ease-silk);
+  }
+  .cx-science-media-frame:hover {
+    transform: translate3d(0, -5px, 0);
+    box-shadow:
+      0 46px 124px -66px rgba(0,37,73,0.95),
+      0 0 42px rgba(0,118,194,0.13),
+      inset 0 1px 0 rgba(255,255,255,0.16);
+  }
+  .cx-science-media-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 18px 18px;
+    opacity: 0.46;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .cx-science-media-topline {
+    position: absolute;
+    z-index: 4;
+    left: 18px;
+    right: 18px;
+    top: 18px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: rgba(242,247,255,0.75);
+    font-family: var(--cx-f-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+  .cx-science-img {
+    width: 100%;
+    height: 100%;
+    min-height: min(54vw, 760px);
+    object-fit: cover;
+    border-radius: 26px;
+    display: block;
+    transform: scale(1.01);
+    transition:
+      transform 900ms var(--cx-ease-silk),
+      filter 900ms var(--cx-ease-silk);
+  }
+  .cx-science-media-frame:hover .cx-science-img {
+    transform: scale(1.04);
+    filter: saturate(1.05) contrast(1.04);
+  }
+  .cx-science-glow {
+    position: absolute;
+    inset: auto 9% 5% 9%;
+    height: 30%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(127,202,255,0.24), transparent 68%);
+    filter: blur(22px);
+    z-index: 3;
+    pointer-events: none;
+    animation: cxScienceGlow 5.8s var(--cx-ease-silk) infinite alternate;
+  }
+  .cx-science-scan {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -20%;
+    height: 18%;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.16), transparent);
+    z-index: 5;
+    pointer-events: none;
+    animation: cxScienceScan 7.2s linear infinite;
+    opacity: 0.52;
+  }
+  .cx-science-copy {
+    display: grid;
+    gap: 18px;
+    max-width: 620px;
+  }
+  .cx-science-copy .cx-h2 {
+    max-width: 13ch;
+    line-height: 0.98;
+    letter-spacing: 0;
+  }
+  .cx-science-copy .cx-lede {
+    max-width: 55ch;
+    color: var(--cx-ink-soft);
+    font-size: clamp(15.5px, 1.15vw, 18px);
+    line-height: 1.62;
+  }
+  .cx-science-proof-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .cx-science-proof-row span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 8px 12px;
+    border: 1px solid rgba(0,67,129,0.13);
+    border-radius: var(--cx-r-pill);
+    background: rgba(255,255,255,0.72);
+    box-shadow: 0 16px 38px -34px rgba(0,37,73,0.54);
+    color: var(--cx-ink-soft);
+    font-size: 12.5px;
+  }
+  .cx-science-accordion {
+    display: grid;
+    gap: 9px;
+    margin-top: 4px;
+  }
+  .cx-science-item {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0,67,129,0.12);
+    border-radius: 18px;
+    background: rgba(255,255,255,0.66);
+    box-shadow: 0 18px 44px -38px rgba(0,37,73,0.52);
+    transition:
+      transform var(--cx-motion-short) var(--cx-ease-silk),
+      border-color var(--cx-motion-short) ease,
+      box-shadow var(--cx-motion-short) ease,
+      background var(--cx-motion-short) ease;
+  }
+  .cx-science-item::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.52) 42%, transparent 58%),
+      radial-gradient(circle at 12% 0%, rgba(0,118,194,0.08), transparent 36%);
+    opacity: 0;
+    transition: opacity var(--cx-motion-med) var(--cx-ease-silk);
+    pointer-events: none;
+  }
+  .cx-science-item:hover,
+  .cx-science-item.cx-is-open {
+    transform: translate3d(0, -2px, 0);
+    border-color: rgba(0,118,194,0.26);
+    background: rgba(255,255,255,0.82);
+    box-shadow: 0 24px 58px -42px rgba(0,37,73,0.72);
+  }
+  .cx-science-item:hover::before,
+  .cx-science-item.cx-is-open::before {
+    opacity: 1;
+  }
+  .cx-science-toggle {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    color: var(--cx-forest-2);
+    text-align: left;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+  .cx-science-toggle-left {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    min-width: 0;
+  }
+  .cx-science-num {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(0,37,73,0.07);
+    color: var(--cx-gold-ink);
+    font-family: var(--cx-f-display);
+    font-style: italic;
+    font-size: 13px;
+    flex: 0 0 auto;
+    transition:
+      background var(--cx-motion-short) ease,
+      color var(--cx-motion-short) ease,
+      box-shadow var(--cx-motion-short) ease;
+  }
+  .cx-science-item.cx-is-open .cx-science-num,
+  .cx-science-item:hover .cx-science-num {
+    background: var(--cx-forest-3);
+    color: #ffffff;
+    box-shadow: 0 0 0 7px rgba(0,37,73,0.08);
+  }
+  .cx-science-title-wrap {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+  .cx-science-title {
+    font-family: var(--cx-f-display);
+    font-size: clamp(18px, 1.55vw, 23px);
+    line-height: 1.08;
+  }
+  .cx-science-mobile-label {
+    display: none;
+    font-family: var(--cx-f-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cx-gold-ink);
+  }
+  .cx-science-toggle-ic {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,67,129,0.14);
+    background: rgba(255,255,255,0.64);
+    color: var(--cx-forest-2);
+    flex: 0 0 auto;
+    transition:
+      transform var(--cx-motion-short) var(--cx-ease-silk),
+      border-color var(--cx-motion-short) ease,
+      background var(--cx-motion-short) ease;
+  }
+  .cx-science-item:hover .cx-science-toggle-ic {
+    transform: rotate(90deg);
+    border-color: rgba(201,165,90,0.42);
+    background: rgba(255,255,255,0.88);
+  }
+  .cx-science-toggle-ic-open { display: none; }
+  .cx-science-item.cx-is-open .cx-science-toggle-ic-open { display: inline-flex; }
+  .cx-science-item.cx-is-open .cx-science-toggle-ic-closed { display: none; }
+  .cx-science-body {
+    position: relative;
+    padding: 0 18px 18px 66px;
+    font-size: 15px;
+    color: var(--cx-ink-soft);
+    max-width: 62ch;
+  }
+  .cx-science-desc {
+    line-height: 1.58;
+  }
+  .cx-science-cta {
+    width: fit-content;
+    margin-top: 6px;
+  }
+  @keyframes cxScienceGlow {
+    from { transform: translate3d(-2%, 0, 0) scaleX(0.94); opacity: 0.62; }
+    to { transform: translate3d(2%, -5%, 0) scaleX(1.08); opacity: 1; }
+  }
+  @keyframes cxScienceScan {
+    0% { transform: translateY(-40%); opacity: 0; }
+    18% { opacity: 0.4; }
+    50% { opacity: 0.65; }
+    100% { transform: translateY(760%); opacity: 0; }
+  }
+
+  @media (max-width: 980px) {
+    .cx-science-grid {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+    .cx-science-media {
+      min-height: 0;
+    }
+    .cx-science-media-frame,
+    .cx-science-img {
+      min-height: 460px;
+    }
+    .cx-science-copy {
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .cx-science-section {
+      padding-top: 44px;
+      padding-bottom: 48px;
+    }
+    .cx-science-grid {
+      gap: 22px;
+    }
+    .cx-science-media {
+      margin-inline: -4px;
+    }
+    .cx-science-media-frame,
+    .cx-science-img {
+      min-height: 390px;
+      border-radius: 20px;
+    }
+    .cx-science-media-topline {
+      left: 14px;
+      right: 14px;
+      top: 14px;
+      font-size: 9px;
+    }
+    .cx-science-copy .cx-h2 {
+      max-width: 12ch;
+      font-size: clamp(38px, 12vw, 56px);
+    }
+    .cx-science-proof-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 7px;
+    }
+    .cx-science-proof-row span {
+      justify-content: center;
+      text-align: center;
+    }
+    .cx-science-accordion {
+      gap: 8px;
+    }
+    .cx-science-toggle {
+      padding: 14px;
+      align-items: flex-start;
+    }
+    .cx-science-toggle-left {
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .cx-science-num {
+      width: 30px;
+      height: 30px;
+      font-size: 12px;
+    }
+    .cx-science-title {
+      font-size: 19px;
+    }
+    .cx-science-mobile-label {
+      display: block;
+    }
+    .cx-science-toggle-ic {
+      width: 30px;
+      height: 30px;
+    }
+    .cx-science-body {
+      padding: 0 14px 15px 54px;
+      font-size: 14px;
+    }
+    .cx-science-cta {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cx-science-media-frame,
+    .cx-science-img,
+    .cx-science-glow,
+    .cx-science-scan,
+    .cx-science-item,
+    .cx-science-toggle-ic {
+      transition: none;
+      animation: none;
+      transform: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "CX Science Spotlight V2",
+  "tag": "section",
+  "class": "cx-section-science",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our science" },
+    { "type": "richtext", "id": "heading", "label": "Heading", "default": "<p>From deep cleaning<br>to <em>real enamel repair.</em></p>" },
+    { "type": "richtext", "id": "lede", "label": "Lede", "default": "<p>Flowcore removes what your toothbrush can't reach. Nano-HA can bind directly to the freshly cleaned enamel surface. Discover the science behind every step.</p>" },
+    { "type": "checkbox", "id": "use_generated_science_image", "label": "Use CALQIX generated science image", "default": true },
+    { "type": "image_picker", "id": "image", "label": "Image (optional)" },
+    { "type": "text", "id": "image_label", "label": "Placeholder label", "default": "DENTAL RESEARCHER · LAB SHOT" },
+    { "type": "text", "id": "cta_text", "label": "Button text", "default": "Discover our science" },
+    { "type": "url",  "id": "cta_link", "label": "Button link" },
+    {
+      "type": "select", "id": "cta_style", "label": "Button style",
+      "default": "inline",
+      "options": [
+        { "value": "gold",   "label": "Gold (filled)" },
+        { "value": "navy",   "label": "Navy (filled)" },
+        { "value": "ghost",  "label": "Outline" },
+        { "value": "inline", "label": "Inline arrow" }
+      ]
+    },
+
+    { "type": "header", "content": "Style overrides" },
+    { "type": "color", "id": "ovr_bg", "label": "Background color" },
+    { "type": "color", "id": "ovr_fg", "label": "Text color" },
+    { "type": "color", "id": "ovr_accent", "label": "Accent / italic color" },
+    {
+      "type": "select", "id": "ovr_font", "label": "Heading font",
+      "default": "display",
+      "options": [
+        { "value": "display", "label": "Display (Playfair)" },
+        { "value": "sans",    "label": "Sans (Inter)" },
+        { "value": "mono",    "label": "Mono" }
+      ]
+    },
+    { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 48, "unit": "px" }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Deep cleaning" },
+        { "type": "textarea", "id": "desc", "label": "Description", "default": "1,600 pulses per minute clean plaque and bacteria far below the gumline." }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "default": {
+    "settings": {},
+    "blocks": [
+      { "type": "step", "settings": { "title": "Deep cleaning",        "desc": "1,600 pulses per minute clean plaque and bacteria far below the gumline." } },
+      { "type": "step", "settings": { "title": "Open up absorption",   "desc": "By removing biofilm, the enamel surface is ready to take up minerals directly." } },
+      { "type": "step", "settings": { "title": "Rebuild with science", "desc": "OralBiome Pro delivers nano-hydroxyapatite through a clinically supported protocol." } }
+    ]
+  }
+}
+{% endschema %}
