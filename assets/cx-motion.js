@@ -142,7 +142,11 @@
       pills.forEach(function (pill) {
         pill.addEventListener('click', function () {
           var id = pill.getAttribute('data-cx-tooth-pill');
-          pills.forEach(function (p) { p.classList.toggle('cx-is-active', p.getAttribute('data-cx-tooth-pill') === id); });
+          pills.forEach(function (p) {
+            var active = p.getAttribute('data-cx-tooth-pill') === id;
+            p.classList.toggle('cx-is-active', active);
+            p.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
           panels.forEach(function (p) { p.classList.toggle('cx-is-active', p.getAttribute('data-cx-tooth-panel') === id); });
         });
       });
