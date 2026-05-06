@@ -24,12 +24,66 @@
         <div class="cx-atlas-v2-orbit" aria-hidden="true"></div>
         <div class="cx-atlas-v2-tooth" aria-hidden="true">
           <span class="cx-atlas-v2-shadow"></span>
-          <span class="cx-atlas-v2-crown" data-cx-atlas-part="atlas-enamel"></span>
-          <span class="cx-atlas-v2-enamel" data-cx-atlas-part="atlas-enamel"></span>
-          <span class="cx-atlas-v2-dentin" data-cx-atlas-part="atlas-dentin"></span>
-          <span class="cx-atlas-v2-pulp" data-cx-atlas-part="atlas-pulp"></span>
-          <span class="cx-atlas-v2-root" data-cx-atlas-part="atlas-root"></span>
-          <span class="cx-atlas-v2-gum" data-cx-atlas-part="atlas-gumline"></span>
+          <svg class="cx-atlas-v2-tooth-illustration" viewBox="0 0 300 386" role="img" aria-hidden="true" focusable="false">
+            <defs>
+              <radialGradient id="cxAtlasEnamelGlow-{{ section.id }}" cx="36%" cy="16%" r="72%">
+                <stop offset="0" stop-color="#ffffff"/>
+                <stop offset=".46" stop-color="#f7fcff"/>
+                <stop offset="1" stop-color="#d8ebf8"/>
+              </radialGradient>
+              <linearGradient id="cxAtlasDentinGold-{{ section.id }}" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#fff4cf"/>
+                <stop offset=".58" stop-color="#edd28a"/>
+                <stop offset="1" stop-color="#d8b45d"/>
+              </linearGradient>
+              <linearGradient id="cxAtlasPulpBlue-{{ section.id }}" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#35a3dc"/>
+                <stop offset=".5" stop-color="#0076c2"/>
+                <stop offset="1" stop-color="#00375f"/>
+              </linearGradient>
+              <linearGradient id="cxAtlasRootIvory-{{ section.id }}" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#fbfdff"/>
+                <stop offset=".58" stop-color="#e8f4fd"/>
+                <stop offset="1" stop-color="#cfe4f3"/>
+              </linearGradient>
+              <linearGradient id="cxAtlasGumRose-{{ section.id }}" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#f7cfbf"/>
+                <stop offset=".5" stop-color="#ebb29b"/>
+                <stop offset="1" stop-color="#f7d5c7"/>
+              </linearGradient>
+              <filter id="cxAtlasSoftShadow-{{ section.id }}" x="-25%" y="-20%" width="150%" height="150%">
+                <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#002549" flood-opacity=".16"/>
+              </filter>
+            </defs>
+            <g filter="url(#cxAtlasSoftShadow-{{ section.id }})">
+              <g class="cx-atlas-svg-gum" data-cx-atlas-part="atlas-gumline">
+                <path d="M28 166 C58 130 100 142 130 164 C144 174 156 174 170 164 C202 141 244 130 272 166 C284 184 270 211 242 214 C207 218 186 199 151 199 C115 199 94 218 59 214 C31 211 16 184 28 166 Z" fill="url(#cxAtlasGumRose-{{ section.id }})"/>
+                <path d="M37 169 C82 184 116 184 150 172 C184 184 218 184 263 169" fill="none" stroke="#ffffff" stroke-opacity=".28" stroke-width="5" stroke-linecap="round"/>
+              </g>
+              <g class="cx-atlas-svg-root" data-cx-atlas-part="atlas-root">
+                <path d="M83 151 C83 179 74 199 73 229 C72 281 85 347 115 368 C134 381 140 325 145 280 C149 239 149 203 139 174 Z" fill="url(#cxAtlasRootIvory-{{ section.id }})" stroke="#8dc8ea" stroke-opacity=".42" stroke-width="2"/>
+                <path d="M217 151 C217 179 226 199 227 229 C228 281 215 347 185 368 C166 381 160 325 155 280 C151 239 151 203 161 174 Z" fill="url(#cxAtlasRootIvory-{{ section.id }})" stroke="#8dc8ea" stroke-opacity=".42" stroke-width="2"/>
+                <path d="M150 188 C144 233 143 296 148 360" fill="none" stroke="#7fbfe5" stroke-opacity=".28" stroke-width="2"/>
+                <path d="M150 188 C156 233 157 296 152 360" fill="none" stroke="#ffffff" stroke-opacity=".52" stroke-width="2"/>
+              </g>
+              <g class="cx-atlas-svg-dentin" data-cx-atlas-part="atlas-dentin">
+                <path d="M81 55 C96 25 126 34 143 50 C148 55 152 55 157 50 C174 34 204 25 219 55 C240 96 218 145 193 165 C178 177 169 196 169 219 L131 219 C131 196 122 177 107 165 C82 145 60 96 81 55 Z" fill="url(#cxAtlasDentinGold-{{ section.id }})" opacity=".72"/>
+                <path d="M103 74 C118 54 137 65 150 78 C163 65 182 54 197 74 C210 98 196 129 178 141 C166 150 159 163 158 181 L142 181 C141 163 134 150 122 141 C104 129 90 98 103 74 Z" fill="#fff8de" opacity=".42"/>
+              </g>
+              <g class="cx-atlas-svg-pulp" data-cx-atlas-part="atlas-pulp">
+                <path d="M129 91 C137 81 144 84 150 95 C156 84 163 81 171 91 C181 104 173 128 161 143 C156 150 154 168 154 202 C154 246 164 310 182 350" fill="none" stroke="url(#cxAtlasPulpBlue-{{ section.id }})" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M150 143 C144 178 144 246 118 348" fill="none" stroke="url(#cxAtlasPulpBlue-{{ section.id }})" stroke-width="10" stroke-linecap="round"/>
+                <path d="M150 143 C156 178 156 246 182 348" fill="none" stroke="#006daf" stroke-opacity=".6" stroke-width="8" stroke-linecap="round"/>
+              </g>
+              <g class="cx-atlas-svg-enamel" data-cx-atlas-part="atlas-enamel">
+                <path d="M67 52 C82 13 120 20 141 40 C147 46 153 46 159 40 C180 20 218 13 233 52 C252 100 230 151 201 173 C183 187 177 207 176 229 C169 221 159 216 150 216 C141 216 131 221 124 229 C123 207 117 187 99 173 C70 151 48 100 67 52 Z" fill="url(#cxAtlasEnamelGlow-{{ section.id }})" stroke="#a9d7ef" stroke-width="2.5"/>
+                <path d="M88 60 C104 34 126 44 143 61 C148 66 152 66 157 61 C174 44 196 34 212 60 C226 91 212 126 188 143 C172 155 160 163 150 181 C140 163 128 155 112 143 C88 126 74 91 88 60 Z" fill="none" stroke="#53b4e8" stroke-opacity=".36" stroke-width="3"/>
+                <path d="M89 55 C100 31 124 39 141 58" fill="none" stroke="#ffffff" stroke-opacity=".76" stroke-width="7" stroke-linecap="round"/>
+                <path d="M166 51 C184 38 204 44 215 68" fill="none" stroke="#ffffff" stroke-opacity=".56" stroke-width="6" stroke-linecap="round"/>
+              </g>
+              <path class="cx-atlas-svg-outline" d="M67 52 C82 13 120 20 141 40 C147 46 153 46 159 40 C180 20 218 13 233 52 C252 100 230 151 201 173 C183 187 177 207 176 229 C178 270 202 342 185 368 C166 381 160 325 155 280 C153 258 152 237 150 219 C148 237 147 258 145 280 C140 325 134 381 115 368 C98 356 86 331 80 301 C74 272 72 246 73 229 C76 206 117 187 99 173 C70 151 48 100 67 52 Z" fill="none" stroke="#002549" stroke-opacity=".16" stroke-width="2.5"/>
+            </g>
+          </svg>
           <span class="cx-atlas-v2-signal" aria-hidden="true"></span>
         </div>
         <div class="cx-atlas-v2-slide-meter" aria-hidden="true">
@@ -40,11 +94,11 @@
           <span data-cx-atlas-meter="atlas-gumline"></span>
         </div>
         <div class="cx-atlas-v2-callouts">
-          <span data-cx-atlas-callout="atlas-enamel" class="cx-is-active" style="--x: 13%; --y: 20%;">{{ 'homepage.tooth_atlas.callout_enamel' | t }}</span>
-          <span data-cx-atlas-callout="atlas-dentin" style="--x: 70%; --y: 29%;">{{ 'homepage.tooth_atlas.callout_dentin' | t }}</span>
-          <span data-cx-atlas-callout="atlas-pulp" style="--x: 14%; --y: 54%;">{{ 'homepage.tooth_atlas.callout_pulp' | t }}</span>
-          <span data-cx-atlas-callout="atlas-root" style="--x: 62%; --y: 72%;">{{ 'homepage.tooth_atlas.callout_root' | t }}</span>
-          <span data-cx-atlas-callout="atlas-gumline" style="--x: 64%; --y: 48%;">{{ 'homepage.tooth_atlas.layer_5_tab' | t }}</span>
+          <span data-cx-atlas-callout="atlas-enamel" class="cx-is-active" style="--x: 10%; --y: 21%;">{{ 'homepage.tooth_atlas.callout_enamel' | t }}</span>
+          <span data-cx-atlas-callout="atlas-dentin" style="--x: 72%; --y: 28%;">{{ 'homepage.tooth_atlas.callout_dentin' | t }}</span>
+          <span data-cx-atlas-callout="atlas-pulp" style="--x: 12%; --y: 60%;">{{ 'homepage.tooth_atlas.callout_pulp' | t }}</span>
+          <span data-cx-atlas-callout="atlas-root" style="--x: 63%; --y: 76%;">{{ 'homepage.tooth_atlas.callout_root' | t }}</span>
+          <span data-cx-atlas-callout="atlas-gumline" style="--x: 68%; --y: 49%;">{{ 'homepage.tooth_atlas.layer_5_tab' | t }}</span>
         </div>
         <div class="cx-atlas-v2-nutrition">
           <p>{{ 'homepage.tooth_atlas.feed_system' | t }}</p>
@@ -253,12 +307,36 @@
   .cx-atlas-v2-tooth {
     position: absolute;
     left: 50%;
-    top: 52px;
-    width: min(62%, 300px);
-    height: 382px;
+    top: 48px;
+    width: min(70%, 330px);
+    height: 392px;
     transform: translateX(-50%);
     filter: drop-shadow(0 26px 34px rgba(0, 37, 73, .12));
   }
+
+  .cx-atlas-v2-tooth-illustration {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .cx-atlas-v2-tooth-illustration [data-cx-atlas-part] {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      opacity 420ms var(--cx-ease-silk),
+      transform 520ms var(--cx-ease-silk),
+      filter 520ms var(--cx-ease-silk);
+  }
+
+  .cx-atlas-svg-enamel { opacity: .96; }
+  .cx-atlas-svg-dentin { opacity: .76; }
+  .cx-atlas-svg-pulp { opacity: .86; }
+  .cx-atlas-svg-root { opacity: .88; }
+  .cx-atlas-svg-gum { opacity: .86; }
 
   .cx-atlas-v2-crown,
   .cx-atlas-v2-enamel,
@@ -758,6 +836,28 @@
       0 0 0 5px rgba(209, 170, 84, .12),
       0 0 42px rgba(0, 118, 194, .24),
       inset 0 0 28px rgba(255, 255, 255, .52);
+  }
+
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-enamel"] .cx-atlas-svg-enamel,
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-dentin"] .cx-atlas-svg-dentin,
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-pulp"] .cx-atlas-svg-pulp,
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-root"] .cx-atlas-svg-root,
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-gumline"] .cx-atlas-svg-gum {
+    opacity: 1;
+    transform: scale(1.025);
+    filter:
+      drop-shadow(0 0 14px rgba(0, 118, 194, .28))
+      drop-shadow(0 0 5px rgba(209, 170, 84, .22))
+      saturate(1.16)
+      brightness(1.04);
+  }
+
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-pulp"] .cx-atlas-svg-pulp {
+    transform: scale(1.04);
+  }
+
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-gumline"] .cx-atlas-svg-gum {
+    transform: translateY(-2px) scale(1.015);
   }
 
   .cx-atlas-v2-visual[data-cx-atlas-state="atlas-enamel"] .cx-atlas-v2-signal,
