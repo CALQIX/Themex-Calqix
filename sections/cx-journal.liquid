@@ -4,33 +4,42 @@
 {%- endcomment -%}
 
 {%- assign cx_blog = blogs[section.settings.blog] -%}
+{%- liquid
+  assign cx_journal_eyebrow = 'homepage.journal.eyebrow' | t
+  assign cx_journal_heading = 'homepage.journal.heading_html' | t
+  assign cx_journal_lede = 'homepage.journal.lede' | t
+  assign cx_journal_cta = 'homepage.journal.cta_text' | t
+  assign cx_journal_start = 'homepage.journal.start_here' | t
+  assign cx_journal_next = 'homepage.journal.read_next' | t
+  assign cx_journal_read = 'homepage.journal.read_label' | t
+-%}
 
 {% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section cx-journal-v2" id="journal" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-journal-header">
       <div class="cx-stack cx-gap-sm">
-        {% render 'cx-eyebrow', text: section.settings.eyebrow %}
-        <h2 class="cx-h2 cx-journal-heading">{{ section.settings.heading }}</h2>
-        <p class="cx-journal-lede">{{ section.settings.lede | default: 'Short, evidence-led reads for people who want to understand what actually changes their mouth.' }}</p>
+        {% render 'cx-eyebrow', text: cx_journal_eyebrow %}
+        <h2 class="cx-h2 cx-journal-heading">{{ cx_journal_heading }}</h2>
+        <p class="cx-journal-lede">{{ cx_journal_lede }}</p>
       </div>
       {%- if section.settings.cta_text != blank -%}
         {%- assign cx_journal_href = section.settings.cta_link | default: cx_blog.url | default: '#' -%}
         {%- assign cx_btn_kind = section.settings.cta_style | default: 'inline' -%}
         {%- case cx_btn_kind -%}
-          {%- when 'gold' -%}<a class="cx-btn cx-btn-gold" href="{{ cx_journal_href }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
-          {%- when 'navy' -%}<a class="cx-btn cx-btn-primary" href="{{ cx_journal_href }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
-          {%- when 'ghost' -%}<a class="cx-btn cx-btn-ghost" href="{{ cx_journal_href }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
-          {%- else -%}<a class="cx-btn-inline" href="{{ cx_journal_href }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+          {%- when 'gold' -%}<a class="cx-btn cx-btn-gold" href="{{ cx_journal_href }}">{{ cx_journal_cta }} <span class="cx-arrow"></span></a>
+          {%- when 'navy' -%}<a class="cx-btn cx-btn-primary" href="{{ cx_journal_href }}">{{ cx_journal_cta }} <span class="cx-arrow"></span></a>
+          {%- when 'ghost' -%}<a class="cx-btn cx-btn-ghost" href="{{ cx_journal_href }}">{{ cx_journal_cta }} <span class="cx-arrow"></span></a>
+          {%- else -%}<a class="cx-btn-inline" href="{{ cx_journal_href }}">{{ cx_journal_cta }} <span class="cx-arrow"></span></a>
         {%- endcase -%}
       {%- endif -%}
     </div>
 
     <div class="cx-journal-guide" aria-label="Journal reading themes">
-      <span>Enamel science</span>
-      <span>Microbiome balance</span>
-      <span>Gum signals</span>
-      <span>Daily protocol</span>
+      <span>{{ 'homepage.journal.theme_1' | t }}</span>
+      <span>{{ 'homepage.journal.theme_2' | t }}</span>
+      <span>{{ 'homepage.journal.theme_3' | t }}</span>
+      <span>{{ 'homepage.journal.theme_4' | t }}</span>
     </div>
 
     <div class="cx-journal-grid" data-cx-col3 data-cx-stagger>
@@ -40,7 +49,7 @@
             {%- if article.image != blank -%}
               <div class="cx-journal-media">
                 {{ article.image | image_url: width: 800 | image_tag: loading: 'lazy', alt: article.title, class: 'cx-journal-img' }}
-                <span class="cx-journal-media-badge">{% if forloop.first %}Start here{% else %}Read next{% endif %}</span>
+                <span class="cx-journal-media-badge">{% if forloop.first %}{{ cx_journal_start }}{% else %}{{ cx_journal_next }}{% endif %}</span>
               </div>
             {%- else -%}
               {% render 'cx-placeholder', ratio: '4/3', label: article.tags.first | upcase, radius: 'var(--cx-r-md)' %}
@@ -53,7 +62,7 @@
             </div>
             <h3 class="cx-journal-title">{{ article.title }}</h3>
             <p class="cx-journal-excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 28 }}</p>
-            <span class="cx-journal-read">{{ section.settings.read_label | default: 'Read article' }} <span class="cx-arrow"></span></span>
+            <span class="cx-journal-read">{{ cx_journal_read }} <span class="cx-arrow"></span></span>
           </a>
         {%- endfor -%}
       {%- else -%}
@@ -68,7 +77,7 @@
               </div>
               <h3 class="cx-journal-title">{{ block.settings.title }}</h3>
               <p class="cx-journal-excerpt">{{ block.settings.excerpt }}</p>
-              <span class="cx-journal-read">{{ section.settings.read_label | default: 'Read article' }} <span class="cx-arrow"></span></span>
+              <span class="cx-journal-read">{{ cx_journal_read }} <span class="cx-arrow"></span></span>
             </a>
           {%- endif -%}
         {%- endfor -%}

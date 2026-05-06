@@ -2,152 +2,188 @@
   CALQIX Tooth Atlas V2 - compact anatomy, tooth layers and function education.
 {%- endcomment -%}
 
+{%- liquid
+  assign cx_atlas_eyebrow = 'homepage.tooth_atlas.eyebrow' | t
+  assign cx_atlas_heading = 'homepage.tooth_atlas.heading_html' | t
+  assign cx_atlas_lede = 'homepage.tooth_atlas.lede_html' | t
+  assign cx_atlas_visual_label = 'homepage.tooth_atlas.visual_label' | t
+  assign cx_atlas_cta = 'homepage.tooth_atlas.cta_text' | t
+-%}
+
 {% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section cx-tooth-atlas-v2" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-stack cx-section-header cx-atlas-v2-header" data-cx-stagger>
-      {% render 'cx-eyebrow', text: section.settings.eyebrow %}
-      <h2 class="cx-h2">{{ section.settings.heading }}</h2>
-      <div class="cx-lede">{{ section.settings.lede }}</div>
+      {% render 'cx-eyebrow', text: cx_atlas_eyebrow %}
+      <h2 class="cx-h2">{{ cx_atlas_heading }}</h2>
+      <div class="cx-lede">{{ cx_atlas_lede }}</div>
     </div>
 
     <div class="cx-atlas-v2-shell" data-cx-stagger>
-      <div class="cx-atlas-v2-visual" aria-label="Simplified tooth layer diagram">
+      <div class="cx-atlas-v2-visual" data-cx-atlas-visual data-cx-atlas-state="atlas-enamel" aria-label="{{ cx_atlas_visual_label }}">
         <div class="cx-atlas-v2-orbit" aria-hidden="true"></div>
         <div class="cx-atlas-v2-tooth" aria-hidden="true">
-          <span class="cx-atlas-v2-crown"></span>
-          <span class="cx-atlas-v2-enamel"></span>
-          <span class="cx-atlas-v2-dentin"></span>
-          <span class="cx-atlas-v2-pulp"></span>
-          <span class="cx-atlas-v2-root"></span>
-          <span class="cx-atlas-v2-gum"></span>
+          <span class="cx-atlas-v2-shadow"></span>
+          <span class="cx-atlas-v2-crown" data-cx-atlas-part="atlas-enamel"></span>
+          <span class="cx-atlas-v2-enamel" data-cx-atlas-part="atlas-enamel"></span>
+          <span class="cx-atlas-v2-dentin" data-cx-atlas-part="atlas-dentin"></span>
+          <span class="cx-atlas-v2-pulp" data-cx-atlas-part="atlas-pulp"></span>
+          <span class="cx-atlas-v2-root" data-cx-atlas-part="atlas-root"></span>
+          <span class="cx-atlas-v2-gum" data-cx-atlas-part="atlas-gumline"></span>
+          <span class="cx-atlas-v2-signal" aria-hidden="true"></span>
+        </div>
+        <div class="cx-atlas-v2-slide-meter" aria-hidden="true">
+          <span data-cx-atlas-meter="atlas-enamel" class="cx-is-active"></span>
+          <span data-cx-atlas-meter="atlas-dentin"></span>
+          <span data-cx-atlas-meter="atlas-pulp"></span>
+          <span data-cx-atlas-meter="atlas-root"></span>
+          <span data-cx-atlas-meter="atlas-gumline"></span>
         </div>
         <div class="cx-atlas-v2-callouts">
-          <span style="--x: 15%; --y: 21%;">Enamel</span>
-          <span style="--x: 69%; --y: 28%;">Dentin</span>
-          <span style="--x: 16%; --y: 54%;">Pulp</span>
-          <span style="--x: 64%; --y: 71%;">Root support</span>
+          <span data-cx-atlas-callout="atlas-enamel" class="cx-is-active" style="--x: 13%; --y: 20%;">{{ 'homepage.tooth_atlas.callout_enamel' | t }}</span>
+          <span data-cx-atlas-callout="atlas-dentin" style="--x: 70%; --y: 29%;">{{ 'homepage.tooth_atlas.callout_dentin' | t }}</span>
+          <span data-cx-atlas-callout="atlas-pulp" style="--x: 14%; --y: 54%;">{{ 'homepage.tooth_atlas.callout_pulp' | t }}</span>
+          <span data-cx-atlas-callout="atlas-root" style="--x: 62%; --y: 72%;">{{ 'homepage.tooth_atlas.callout_root' | t }}</span>
+          <span data-cx-atlas-callout="atlas-gumline" style="--x: 64%; --y: 48%;">{{ 'homepage.tooth_atlas.layer_5_tab' | t }}</span>
         </div>
         <div class="cx-atlas-v2-nutrition">
-          <p>Feed the system</p>
-          <span>Calcium</span>
-          <span>Phosphorus</span>
-          <span>Vitamin D</span>
-          <span>Protein</span>
-          <span>Water</span>
+          <p>{{ 'homepage.tooth_atlas.feed_system' | t }}</p>
+          <span>{{ 'homepage.tooth_atlas.nutrient_1' | t }}</span>
+          <span>{{ 'homepage.tooth_atlas.nutrient_2' | t }}</span>
+          <span>{{ 'homepage.tooth_atlas.nutrient_3' | t }}</span>
+          <span>{{ 'homepage.tooth_atlas.nutrient_4' | t }}</span>
+          <span>{{ 'homepage.tooth_atlas.nutrient_5' | t }}</span>
         </div>
       </div>
 
       <div class="cx-atlas-v2-panel" data-cx-tooth-atlas>
-        <div class="cx-atlas-v2-tabs" role="tablist" aria-label="Tooth layers">
+        <div class="cx-atlas-v2-tabs" role="tablist" aria-label="{{ 'homepage.tooth_atlas.tabs_label' | t }}">
           <button type="button" class="cx-atlas-v2-tab cx-is-active" data-cx-tooth-pill="atlas-enamel" role="tab" aria-selected="true">
-            <span>01</span> Enamel
+            <span>01</span> {{ 'homepage.tooth_atlas.layer_1_tab' | t }}
           </button>
           <button type="button" class="cx-atlas-v2-tab" data-cx-tooth-pill="atlas-dentin" role="tab" aria-selected="false">
-            <span>02</span> Dentin
+            <span>02</span> {{ 'homepage.tooth_atlas.layer_2_tab' | t }}
           </button>
           <button type="button" class="cx-atlas-v2-tab" data-cx-tooth-pill="atlas-pulp" role="tab" aria-selected="false">
-            <span>03</span> Pulp
+            <span>03</span> {{ 'homepage.tooth_atlas.layer_3_tab' | t }}
           </button>
           <button type="button" class="cx-atlas-v2-tab" data-cx-tooth-pill="atlas-root" role="tab" aria-selected="false">
-            <span>04</span> Root
+            <span>04</span> {{ 'homepage.tooth_atlas.layer_4_tab' | t }}
           </button>
           <button type="button" class="cx-atlas-v2-tab" data-cx-tooth-pill="atlas-gumline" role="tab" aria-selected="false">
-            <span>05</span> Gumline
+            <span>05</span> {{ 'homepage.tooth_atlas.layer_5_tab' | t }}
           </button>
         </div>
 
         <div class="cx-atlas-v2-panels">
           <article class="cx-atlas-v2-layer cx-is-active" data-cx-tooth-panel="atlas-enamel" role="tabpanel">
-            <div class="cx-eyebrow">Outer shield</div>
-            <h3>Enamel protects the bite.</h3>
-            <p>Enamel is the hard mineral surface that helps teeth cut, crush and resist daily acid attacks. Humans need it because chewing starts digestion before food is swallowed.</p>
+            <div class="cx-eyebrow">{{ 'homepage.tooth_atlas.layer_1_eyebrow' | t }}</div>
+            <h3>{{ 'homepage.tooth_atlas.layer_1_title' | t }}</h3>
+            <p>{{ 'homepage.tooth_atlas.layer_1_desc' | t }}</p>
             <dl>
-              <div><dt>Maintain</dt><dd>Brush gently, clean between teeth, limit frequent sugar and acidic sipping.</dd></div>
-              <div><dt>Eat</dt><dd>Calcium, phosphorus and vitamin D from dairy, fortified foods, leafy greens, nuts and fish.</dd></div>
+              <div><dt>{{ 'homepage.tooth_atlas.maintain_label' | t }}</dt><dd>{{ 'homepage.tooth_atlas.layer_1_maintain' | t }}</dd></div>
+              <div><dt>{{ 'homepage.tooth_atlas.eat_label' | t }}</dt><dd>{{ 'homepage.tooth_atlas.layer_1_eat' | t }}</dd></div>
             </dl>
           </article>
 
           <article class="cx-atlas-v2-layer" data-cx-tooth-panel="atlas-dentin" role="tabpanel">
-            <div class="cx-eyebrow">Sensitive core wall</div>
-            <h3>Dentin gives structure and feel.</h3>
-            <p>Dentin sits under enamel. Its tiny tubules can transmit cold, heat and acid sensitivity when protection is thin or roots are exposed.</p>
+            <div class="cx-eyebrow">{{ 'homepage.tooth_atlas.layer_2_eyebrow' | t }}</div>
+            <h3>{{ 'homepage.tooth_atlas.layer_2_title' | t }}</h3>
+            <p>{{ 'homepage.tooth_atlas.layer_2_desc' | t }}</p>
             <dl>
-              <div><dt>Maintain</dt><dd>Avoid hard scrubbing, manage grinding, and protect exposed necks around the gumline.</dd></div>
-              <div><dt>Eat</dt><dd>Protein, minerals and water support saliva, the natural buffer that helps protect dentin.</dd></div>
+              <div><dt>{{ 'homepage.tooth_atlas.maintain_label' | t }}</dt><dd>{{ 'homepage.tooth_atlas.layer_2_maintain' | t }}</dd></div>
+              <div><dt>{{ 'homepage.tooth_atlas.eat_label' | t }}</dt><dd>{{ 'homepage.tooth_atlas.layer_2_eat' | t }}</dd></div>
             </dl>
           </article>
 
           <article class="cx-atlas-v2-layer" data-cx-tooth-panel="atlas-pulp" role="tabpanel">
-            <div class="cx-eyebrow">Living center</div>
-            <h3>Pulp keeps the tooth alive.</h3>
-            <p>The pulp contains nerves and blood vessels. It lets you feel pain when decay, cracks or infection get too close to the center.</p>
+            <div class="cx-eyebrow">{{ 'homepage.tooth_atlas.layer_3_eyebrow' | t }}</div>
+            <h3>{{ 'homepage.tooth_atlas.layer_3_title' | t }}</h3>
+            <p>{{ 'homepage.tooth_atlas.layer_3_desc' | t }}</p>
             <dl>
-              <div><dt>Maintain</dt><dd>Do not ignore lasting sensitivity, swelling or deep pain. That is dentist territory.</dd></div>
-              <div><dt>Eat</dt><dd>A balanced diet helps tissue repair, but pulp health mainly depends on preventing deep decay.</dd></div>
+              <div><dt>{{ 'homepage.tooth_atlas.maintain_label' | t }}</dt><dd>{{ 'homepage.tooth_atlas.layer_3_maintain' | t }}</dd></div>
+              <div><dt>{{ 'homepage.tooth_atlas.eat_label' | t }}</dt><dd>{{ 'homepage.tooth_atlas.layer_3_eat' | t }}</dd></div>
             </dl>
           </article>
 
           <article class="cx-atlas-v2-layer" data-cx-tooth-panel="atlas-root" role="tabpanel">
-            <div class="cx-eyebrow">Anchor system</div>
-            <h3>Cementum and ligament hold position.</h3>
-            <p>Cementum covers the root, while the periodontal ligament connects the tooth to the jaw socket. This lets teeth absorb chewing force instead of acting like rigid pegs.</p>
+            <div class="cx-eyebrow">{{ 'homepage.tooth_atlas.layer_4_eyebrow' | t }}</div>
+            <h3>{{ 'homepage.tooth_atlas.layer_4_title' | t }}</h3>
+            <p>{{ 'homepage.tooth_atlas.layer_4_desc' | t }}</p>
             <dl>
-              <div><dt>Maintain</dt><dd>Clean the gumline daily and keep bite pressure balanced, especially if you clench.</dd></div>
-              <div><dt>Eat</dt><dd>Vitamin C, protein and minerals support the tissues that surround the root.</dd></div>
+              <div><dt>{{ 'homepage.tooth_atlas.maintain_label' | t }}</dt><dd>{{ 'homepage.tooth_atlas.layer_4_maintain' | t }}</dd></div>
+              <div><dt>{{ 'homepage.tooth_atlas.eat_label' | t }}</dt><dd>{{ 'homepage.tooth_atlas.layer_4_eat' | t }}</dd></div>
             </dl>
           </article>
 
           <article class="cx-atlas-v2-layer" data-cx-tooth-panel="atlas-gumline" role="tabpanel">
-            <div class="cx-eyebrow">Protective seal</div>
-            <h3>Gums protect roots and bone.</h3>
-            <p>Healthy gums seal around teeth and protect the roots. When plaque stays at the margin, inflammation can make teeth feel loose or sensitive over time.</p>
+            <div class="cx-eyebrow">{{ 'homepage.tooth_atlas.layer_5_eyebrow' | t }}</div>
+            <h3>{{ 'homepage.tooth_atlas.layer_5_title' | t }}</h3>
+            <p>{{ 'homepage.tooth_atlas.layer_5_desc' | t }}</p>
             <dl>
-              <div><dt>Maintain</dt><dd>Clean between teeth, rinse debris away, and give the back molars extra attention.</dd></div>
-              <div><dt>Eat</dt><dd>Crunchy vegetables, vitamin C rich fruit, enough protein and plenty of water support gum resilience.</dd></div>
+              <div><dt>{{ 'homepage.tooth_atlas.maintain_label' | t }}</dt><dd>{{ 'homepage.tooth_atlas.layer_5_maintain' | t }}</dd></div>
+              <div><dt>{{ 'homepage.tooth_atlas.eat_label' | t }}</dt><dd>{{ 'homepage.tooth_atlas.layer_5_eat' | t }}</dd></div>
             </dl>
           </article>
         </div>
       </div>
     </div>
 
-    <div class="cx-atlas-v2-role-grid" aria-label="Tooth type roles">
-      <article>
-        <span>Incisors</span>
-        <h3>First bite</h3>
-        <p>Cut fruit, bread and vegetables. They also help shape clear front-of-mouth speech sounds and show edge wear early.</p>
+    <div class="cx-atlas-v2-role-lab" data-cx-tooth-role-lab>
+      <div class="cx-atlas-v2-role-switches" role="tablist" aria-label="{{ 'homepage.tooth_atlas.role_grid_label' | t }}">
+        <button type="button" class="cx-atlas-v2-role-pill cx-is-active" data-cx-tooth-role="role-incisors" role="tab" aria-selected="true">{{ 'homepage.tooth_atlas.role_1_name' | t }}</button>
+        <button type="button" class="cx-atlas-v2-role-pill" data-cx-tooth-role="role-canines" role="tab" aria-selected="false">{{ 'homepage.tooth_atlas.role_2_name' | t }}</button>
+        <button type="button" class="cx-atlas-v2-role-pill" data-cx-tooth-role="role-premolars" role="tab" aria-selected="false">{{ 'homepage.tooth_atlas.role_3_name' | t }}</button>
+        <button type="button" class="cx-atlas-v2-role-pill" data-cx-tooth-role="role-molars" role="tab" aria-selected="false">{{ 'homepage.tooth_atlas.role_4_name' | t }}</button>
+        <button type="button" class="cx-atlas-v2-role-pill" data-cx-tooth-role="role-wisdom" role="tab" aria-selected="false">{{ 'homepage.tooth_atlas.role_5_name' | t }}</button>
+      </div>
+
+      <div class="cx-atlas-v2-arch" data-cx-tooth-arch="role-incisors" aria-hidden="true">
+        <span class="cx-arch-tooth cx-incisor cx-is-active"></span>
+        <span class="cx-arch-tooth cx-canine"></span>
+        <span class="cx-arch-tooth cx-premolar"></span>
+        <span class="cx-arch-tooth cx-molar"></span>
+        <span class="cx-arch-tooth cx-wisdom"></span>
+      </div>
+    </div>
+
+    <div class="cx-atlas-v2-role-grid" aria-label="{{ 'homepage.tooth_atlas.role_grid_label' | t }}">
+      <article class="cx-is-active" data-cx-tooth-role-panel="role-incisors">
+        <span>{{ 'homepage.tooth_atlas.role_1_name' | t }}</span>
+        <h3>{{ 'homepage.tooth_atlas.role_1_title' | t }}</h3>
+        <p>{{ 'homepage.tooth_atlas.role_1_desc' | t }}</p>
       </article>
-      <article>
-        <span>Canines</span>
-        <h3>Guide and tear</h3>
-        <p>Grip food and help guide side-to-side jaw movement, reducing overload on smaller contact points.</p>
+      <article data-cx-tooth-role-panel="role-canines">
+        <span>{{ 'homepage.tooth_atlas.role_2_name' | t }}</span>
+        <h3>{{ 'homepage.tooth_atlas.role_2_title' | t }}</h3>
+        <p>{{ 'homepage.tooth_atlas.role_2_desc' | t }}</p>
       </article>
-      <article>
-        <span>Premolars</span>
-        <h3>Break down</h3>
-        <p>Bridge front and back teeth. They crush food into smaller pieces so molars can grind efficiently.</p>
+      <article data-cx-tooth-role-panel="role-premolars">
+        <span>{{ 'homepage.tooth_atlas.role_3_name' | t }}</span>
+        <h3>{{ 'homepage.tooth_atlas.role_3_title' | t }}</h3>
+        <p>{{ 'homepage.tooth_atlas.role_3_desc' | t }}</p>
       </article>
-      <article>
-        <span>Molars</span>
-        <h3>Main engine</h3>
-        <p>Do most chewing. Cleaner molar grooves support better chewing, easier swallowing and steadier nutrition.</p>
+      <article data-cx-tooth-role-panel="role-molars">
+        <span>{{ 'homepage.tooth_atlas.role_4_name' | t }}</span>
+        <h3>{{ 'homepage.tooth_atlas.role_4_title' | t }}</h3>
+        <p>{{ 'homepage.tooth_atlas.role_4_desc' | t }}</p>
       </article>
-      <article>
-        <span>Wisdom teeth</span>
-        <h3>Late space test</h3>
-        <p>Third molars can be useful when fully erupted, but partial eruption often creates hard-to-clean pockets.</p>
+      <article data-cx-tooth-role-panel="role-wisdom">
+        <span>{{ 'homepage.tooth_atlas.role_5_name' | t }}</span>
+        <h3>{{ 'homepage.tooth_atlas.role_5_title' | t }}</h3>
+        <p>{{ 'homepage.tooth_atlas.role_5_desc' | t }}</p>
       </article>
     </div>
 
     <div class="cx-atlas-v2-body-note">
-      <strong>Whole-body link:</strong>
-      <span>Teeth do not have a proven organ-by-organ map. Their reliable influence is through chewing, speech, jaw load, nutrition, sleep comfort and inflammation control.</span>
+      <strong>{{ 'homepage.tooth_atlas.body_note_label' | t }}</strong>
+      <span>{{ 'homepage.tooth_atlas.body_note_text' | t }}</span>
     </div>
 
     {%- if section.settings.cta_text != blank -%}
       <div class="cx-atlas-v2-cta">
         <a class="cx-atlas-v2-button" href="{{ section.settings.cta_link | default: '#' }}">
-          {{ section.settings.cta_text }}
+          {{ cx_atlas_cta }}
           <span aria-hidden="true">-></span>
         </a>
       </div>
@@ -564,6 +600,242 @@
     box-shadow: 0 24px 58px rgba(0, 37, 73, .28);
   }
 
+  .cx-atlas-v2-shadow {
+    position: absolute;
+    left: 50%;
+    bottom: -12px;
+    width: 230px;
+    height: 32px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 37, 73, .22), transparent 68%);
+    filter: blur(8px);
+    transform: translateX(-50%);
+    opacity: .42;
+  }
+
+  .cx-atlas-v2-crown {
+    background:
+      radial-gradient(circle at 32% 24%, rgba(255,255,255,.98), transparent 19%),
+      radial-gradient(circle at 72% 24%, rgba(255,255,255,.96), transparent 16%),
+      linear-gradient(145deg, #ffffff 0%, #eef7ff 48%, #d9ebfa 100%);
+    box-shadow:
+      inset 18px -24px 44px rgba(0, 118, 194, .12),
+      inset -18px 18px 34px rgba(255,255,255,.88),
+      0 18px 48px rgba(0, 37, 73, .11);
+  }
+
+  .cx-atlas-v2-enamel,
+  .cx-atlas-v2-dentin,
+  .cx-atlas-v2-pulp,
+  .cx-atlas-v2-root,
+  .cx-atlas-v2-gum {
+    transition:
+      opacity 420ms var(--cx-ease-silk),
+      transform 520ms var(--cx-ease-silk),
+      filter 520ms var(--cx-ease-silk),
+      box-shadow 520ms var(--cx-ease-silk);
+  }
+
+  .cx-atlas-v2-signal {
+    position: absolute;
+    left: 50%;
+    top: 22px;
+    width: 238px;
+    height: 238px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 118, 194, .16);
+    transform: translateX(-50%) scale(.82);
+    opacity: 0;
+    box-shadow: 0 0 0 0 rgba(0, 118, 194, .18);
+    animation: cxAtlasPulse 2400ms ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-enamel"] [data-cx-atlas-part="atlas-enamel"],
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-dentin"] [data-cx-atlas-part="atlas-dentin"],
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-pulp"] [data-cx-atlas-part="atlas-pulp"],
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-root"] [data-cx-atlas-part="atlas-root"],
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-gumline"] [data-cx-atlas-part="atlas-gumline"] {
+    filter: saturate(1.15) brightness(1.04);
+    box-shadow:
+      0 0 0 5px rgba(209, 170, 84, .12),
+      0 0 42px rgba(0, 118, 194, .24),
+      inset 0 0 28px rgba(255, 255, 255, .52);
+  }
+
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-enamel"] .cx-atlas-v2-signal,
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-dentin"] .cx-atlas-v2-signal,
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-pulp"] .cx-atlas-v2-signal,
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-root"] .cx-atlas-v2-signal,
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-gumline"] .cx-atlas-v2-signal {
+    opacity: 1;
+  }
+
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-dentin"] .cx-atlas-v2-signal { top: 54px; transform: translateX(-50%) scale(.64); }
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-pulp"] .cx-atlas-v2-signal { top: 76px; transform: translateX(-50%) scale(.46); }
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-root"] .cx-atlas-v2-signal { top: 156px; transform: translateX(-50%) scale(.58); }
+  .cx-atlas-v2-visual[data-cx-atlas-state="atlas-gumline"] .cx-atlas-v2-signal { top: 132px; transform: translateX(-50%) scale(1.06); }
+
+  @keyframes cxAtlasPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 118, 194, .18); }
+    50% { box-shadow: 0 0 0 14px rgba(0, 118, 194, 0); }
+  }
+
+  .cx-atlas-v2-slide-meter {
+    position: absolute;
+    left: 50%;
+    top: 24px;
+    display: flex;
+    gap: 7px;
+    transform: translateX(-50%);
+    z-index: 3;
+  }
+
+  .cx-atlas-v2-slide-meter span {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: rgba(0, 37, 73, .16);
+    transition: width 320ms var(--cx-ease-silk), background 320ms ease, box-shadow 320ms ease;
+  }
+
+  .cx-atlas-v2-slide-meter span.cx-is-active {
+    width: 26px;
+    background: linear-gradient(90deg, #d1aa54, #0076c2);
+    box-shadow: 0 0 18px rgba(0, 118, 194, .24);
+  }
+
+  .cx-atlas-v2-callouts span {
+    opacity: .54;
+    transform: translateY(0) scale(.96);
+    transition:
+      opacity 320ms ease,
+      transform 380ms var(--cx-ease-silk),
+      border-color 320ms ease,
+      box-shadow 320ms ease,
+      background 320ms ease;
+  }
+
+  .cx-atlas-v2-callouts span.cx-is-active {
+    opacity: 1;
+    transform: translateY(-3px) scale(1);
+    border-color: rgba(0, 118, 194, .34);
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 18px 44px rgba(0, 37, 73, .14), 0 0 0 5px rgba(0, 118, 194, .06);
+  }
+
+  .cx-atlas-v2-layer {
+    transform-origin: center;
+  }
+
+  .cx-atlas-v2-role-lab {
+    display: grid;
+    gap: 16px;
+    margin-top: clamp(20px, 3vw, 30px);
+  }
+
+  .cx-atlas-v2-role-switches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .cx-atlas-v2-role-pill {
+    min-height: 40px;
+    padding: 0 15px;
+    border: 1px solid rgba(0, 37, 73, .13);
+    border-radius: 999px;
+    background: rgba(255,255,255,.78);
+    color: #16385b;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 800;
+    box-shadow: 0 14px 34px rgba(0, 37, 73, .06);
+    transition: transform .28s var(--cx-ease-silk), background .28s ease, color .28s ease, border-color .28s ease, box-shadow .28s ease;
+  }
+
+  .cx-atlas-v2-role-pill:hover,
+  .cx-atlas-v2-role-pill.cx-is-active {
+    transform: translateY(-2px);
+    background: #002549;
+    color: #fff;
+    border-color: #002549;
+    box-shadow: 0 18px 42px rgba(0, 37, 73, .17);
+  }
+
+  .cx-atlas-v2-arch {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    gap: clamp(6px, 1vw, 13px);
+    min-height: 104px;
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 24px 24px 20px;
+    border: 1px solid rgba(0, 118, 194, .13);
+    border-radius: 28px;
+    background:
+      radial-gradient(circle at 50% 20%, rgba(255,255,255,.9), transparent 44%),
+      linear-gradient(180deg, rgba(239, 247, 255, .82), rgba(255,255,255,.82));
+    box-shadow: 0 22px 60px rgba(0, 37, 73, .07);
+    overflow: hidden;
+  }
+
+  .cx-atlas-v2-arch::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 17px;
+    width: 74%;
+    height: 54px;
+    border: 1px solid rgba(218, 171, 148, .42);
+    border-top: 0;
+    border-radius: 0 0 999px 999px;
+    transform: translateX(-50%);
+  }
+
+  .cx-arch-tooth {
+    position: relative;
+    width: 34px;
+    height: 54px;
+    border-radius: 48% 48% 34% 34%;
+    background:
+      radial-gradient(circle at 34% 22%, rgba(255,255,255,.96), transparent 18%),
+      linear-gradient(145deg, #fff, #e3f0fb 88%);
+    border: 1px solid rgba(0, 37, 73, .12);
+    box-shadow: inset -6px -9px 18px rgba(0, 118, 194, .1), 0 11px 24px rgba(0, 37, 73, .08);
+    transform: translateY(0) scale(.94);
+    opacity: .62;
+    transition: transform .38s var(--cx-ease-silk), opacity .28s ease, box-shadow .28s ease, filter .28s ease;
+  }
+
+  .cx-arch-tooth.cx-canine { height: 64px; border-radius: 52% 52% 54% 54%; }
+  .cx-arch-tooth.cx-premolar { width: 42px; height: 58px; }
+  .cx-arch-tooth.cx-molar { width: 52px; height: 62px; border-radius: 42% 42% 34% 34%; }
+  .cx-arch-tooth.cx-wisdom { width: 46px; height: 54px; opacity: .44; }
+
+  .cx-atlas-v2-arch[data-cx-tooth-arch="role-incisors"] .cx-incisor,
+  .cx-atlas-v2-arch[data-cx-tooth-arch="role-canines"] .cx-canine,
+  .cx-atlas-v2-arch[data-cx-tooth-arch="role-premolars"] .cx-premolar,
+  .cx-atlas-v2-arch[data-cx-tooth-arch="role-molars"] .cx-molar,
+  .cx-atlas-v2-arch[data-cx-tooth-arch="role-wisdom"] .cx-wisdom {
+    opacity: 1;
+    transform: translateY(-9px) scale(1.08);
+    filter: saturate(1.08) brightness(1.03);
+    box-shadow: 0 0 0 6px rgba(209, 170, 84, .15), 0 18px 38px rgba(0, 37, 73, .15);
+  }
+
+  .cx-atlas-v2-role-grid article.cx-is-active {
+    border-color: rgba(0, 118, 194, .34);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.96), rgba(239,247,255,.86)),
+      radial-gradient(circle at 86% 8%, rgba(209, 170, 84, .18), transparent 34%);
+    transform: translateY(-4px);
+    box-shadow: 0 24px 64px rgba(0, 37, 73, .12);
+  }
+
   @media (max-width: 980px) {
     .cx-atlas-v2-shell { grid-template-columns: 1fr; }
     .cx-atlas-v2-visual { min-height: 390px; }
@@ -589,6 +861,21 @@
       flex: 0 0 min(78vw, 260px);
       scroll-snap-align: start;
     }
+    .cx-atlas-v2-role-switches {
+      justify-content: flex-start;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      padding: 2px 2px 10px;
+      scroll-snap-type: x mandatory;
+    }
+    .cx-atlas-v2-role-pill {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+    }
+    .cx-atlas-v2-arch {
+      min-height: 92px;
+      padding-inline: 14px;
+    }
   }
 
   @media (max-width: 640px) {
@@ -599,6 +886,7 @@
     .cx-atlas-v2-visual { min-height: 315px; }
     .cx-atlas-v2-orbit { inset: 38px 18px 86px; }
     .cx-atlas-v2-tooth { top: 28px; transform: translateX(-50%) scale(.68); }
+    .cx-atlas-v2-slide-meter { top: 16px; }
     .cx-atlas-v2-callouts span {
       padding: 6px 8px;
       font-size: 9.5px;
@@ -626,6 +914,16 @@
     .cx-atlas-v2-layer p { font-size: 14.5px; line-height: 1.52; }
     .cx-atlas-v2-layer dl { grid-template-columns: 1fr; gap: 8px; margin-top: 16px; }
     .cx-atlas-v2-role-grid article { min-height: 152px; }
+    .cx-atlas-v2-arch {
+      gap: 5px;
+      min-height: 76px;
+      border-radius: 20px;
+    }
+    .cx-arch-tooth { width: 26px; height: 42px; }
+    .cx-arch-tooth.cx-canine { height: 50px; }
+    .cx-arch-tooth.cx-premolar { width: 32px; height: 46px; }
+    .cx-arch-tooth.cx-molar { width: 38px; height: 49px; }
+    .cx-arch-tooth.cx-wisdom { width: 32px; height: 42px; }
     .cx-atlas-v2-body-note {
       align-items: flex-start;
       border-radius: 16px;

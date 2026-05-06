@@ -3,39 +3,51 @@
   Source: _incoming/calqix-web-upgrade/handoff/source/components/features.jsx → FeatureGrid
 {%- endcomment -%}
 
+{%- liquid
+  assign cx_feature_eyebrow = 'homepage.features.eyebrow' | t
+  assign cx_feature_heading = 'homepage.features.heading_html' | t
+  assign cx_feature_lede = 'homepage.features.lede_html' | t
+  assign cx_feature_cta = 'homepage.features.cta_text' | t
+  assign cx_feature_image_label = 'homepage.features.image_label' | t
+-%}
+
 {% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section cx-feature-section" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-feature-grid" data-cx-col2>
       <div class="cx-feature-copy" data-cx-stagger>
-        {% render 'cx-eyebrow', text: section.settings.eyebrow %}
-        <h2 class="cx-h2">{{ section.settings.heading }}</h2>
-        <div class="cx-lede">{{ section.settings.lede }}</div>
+        {% render 'cx-eyebrow', text: cx_feature_eyebrow %}
+        <h2 class="cx-h2">{{ cx_feature_heading }}</h2>
+        <div class="cx-lede">{{ cx_feature_lede }}</div>
 
         <div class="cx-feature-proof-row" aria-label="Clinical proof highlights">
-          <span>Clinical-grade protocol</span>
-          <span>Ingredient-level proof</span>
-          <span>Daily-use formula</span>
+          <span>{{ 'homepage.features.proof_1' | t }}</span>
+          <span>{{ 'homepage.features.proof_2' | t }}</span>
+          <span>{{ 'homepage.features.proof_3' | t }}</span>
         </div>
 
         <div class="cx-feature-accordion" data-cx-accordion>
           {%- for block in section.blocks -%}
             {%- if block.type == 'feature' -%}
+              {%- assign cx_feature_prefix = 'homepage.features.feature_' | append: forloop.index -%}
+              {%- assign cx_feature_tag_key = cx_feature_prefix | append: '_tag' -%}
+              {%- assign cx_feature_title_key = cx_feature_prefix | append: '_title' -%}
+              {%- assign cx_feature_desc_key = cx_feature_prefix | append: '_desc' -%}
               <div class="cx-feature-item{% if forloop.first %} cx-is-open{% endif %}" data-cx-accordion-item {{ block.shopify_attributes }}>
                 <button type="button" class="cx-feature-toggle" data-cx-accordion-toggle aria-expanded="{%- if forloop.first -%}true{%- else -%}false{%- endif -%}">
                   <span class="cx-feature-toggle-left">
                     <span class="cx-feature-num">0{{ forloop.index }}</span>
                     <span class="cx-feature-title-wrap">
-                      <span class="cx-feature-title">{{ block.settings.title }}</span>
-                      <span class="cx-feature-mobile-tag">{{ block.settings.tag }}</span>
+                      <span class="cx-feature-title">{{ cx_feature_title_key | t }}</span>
+                      <span class="cx-feature-mobile-tag">{{ cx_feature_tag_key | t }}</span>
                     </span>
                   </span>
                   <span class="cx-feature-toggle-ic cx-feature-toggle-ic-open">{% render 'cx-icons', name: 'minus', size: 18 %}</span>
                   <span class="cx-feature-toggle-ic cx-feature-toggle-ic-closed">{% render 'cx-icons', name: 'plus', size: 18 %}</span>
                 </button>
                 <div class="cx-feature-body" data-cx-accordion-body{% unless forloop.first %} hidden{% endunless %}>
-                  <div class="cx-feature-tag">{{ block.settings.tag }}</div>
-                  <div class="cx-feature-desc">{{ block.settings.desc }}</div>
+                  <div class="cx-feature-tag">{{ cx_feature_tag_key | t }}</div>
+                  <div class="cx-feature-desc">{{ cx_feature_desc_key | t }}</div>
                 </div>
               </div>
             {%- endif -%}
@@ -45,10 +57,10 @@
         {%- if section.settings.cta_text != blank -%}
           {%- assign cx_btn_kind = section.settings.cta_style | default: 'inline' -%}
           {%- case cx_btn_kind -%}
-            {%- when 'gold' -%}<a class="cx-btn cx-btn-gold cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
-            {%- when 'navy' -%}<a class="cx-btn cx-btn-primary cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
-            {%- when 'ghost' -%}<a class="cx-btn cx-btn-ghost cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
-            {%- else -%}<a class="cx-btn-inline cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- when 'gold' -%}<a class="cx-btn cx-btn-gold cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ cx_feature_cta }} <span class="cx-arrow"></span></a>
+            {%- when 'navy' -%}<a class="cx-btn cx-btn-primary cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ cx_feature_cta }} <span class="cx-arrow"></span></a>
+            {%- when 'ghost' -%}<a class="cx-btn cx-btn-ghost cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ cx_feature_cta }} <span class="cx-arrow"></span></a>
+            {%- else -%}<a class="cx-btn-inline cx-feature-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ cx_feature_cta }} <span class="cx-arrow"></span></a>
           {%- endcase -%}
         {%- endif -%}
       </div>
@@ -56,11 +68,11 @@
       <div class="cx-feature-media">
         <div class="cx-feature-media-frame">
           <div class="cx-feature-media-topline">
-            <span>{{ section.settings.image_label }}</span>
+            <span>{{ cx_feature_image_label }}</span>
             <span>20-50 nm</span>
           </div>
         {%- if section.settings.image != blank -%}
-          {{ section.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: section.settings.heading, class: 'cx-feature-img' }}
+          {{ section.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: cx_feature_heading, class: 'cx-feature-img' }}
         {%- else -%}
           {% render 'cx-placeholder', on_dark: true, ratio: '4/5', label: section.settings.image_label, radius: 'var(--cx-r-lg)' %}
         {%- endif -%}

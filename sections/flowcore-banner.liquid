@@ -19,6 +19,23 @@
   {%- endif -%}
 {%- else -%}
 
+{%- liquid
+  assign cx_banner_eyebrow = 'homepage.banner.eyebrow' | t
+  assign cx_banner_title_line1 = 'homepage.banner.title_line1' | t
+  assign cx_banner_title_line2 = 'homepage.banner.title_line2_italic' | t
+  assign cx_banner_subtitle = 'homepage.banner.subtitle' | t
+  assign cx_banner_description = 'homepage.banner.description' | t
+  assign cx_banner_switcher_label = 'homepage.banner.switcher_label' | t
+  assign cx_banner_cta = 'homepage.banner.cta_label' | t
+  assign cx_banner_trust = 'homepage.banner.trust_line' | t
+  assign cx_banner_select = 'homepage.banner.select_flavour' | t
+  assign cx_label_v1 = 'homepage.banner.flavour_1' | t
+  assign cx_label_v2 = 'homepage.banner.flavour_2' | t
+  assign cx_label_v3 = 'homepage.banner.flavour_3' | t
+  assign cx_label_v4 = 'homepage.banner.flavour_4' | t
+  assign cx_label_v5 = 'homepage.banner.flavour_5' | t
+-%}
+
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
 
 <style>
@@ -509,30 +526,31 @@
 
       <div class="eyebrow">
         <span class="eyebrow-line"></span>
-        {{ section.settings.eyebrow }}
+        {{ cx_banner_eyebrow }}
       </div>
 
       <h2 class="title">
-        {{ section.settings.title_line1 }}<br>
-        <em>{{ section.settings.title_line2_italic }}</em>
+        {{ cx_banner_title_line1 }}<br>
+        <em>{{ cx_banner_title_line2 }}</em>
       </h2>
 
-      <div class="subtitle">{{ section.settings.subtitle }}</div>
+      <div class="subtitle">{{ cx_banner_subtitle }}</div>
 
-      <p class="desc">{{ section.settings.description }}</p>
+      <p class="desc">{{ cx_banner_description }}</p>
 
       {%- comment -%} VARIANT SWITCHER (photo or colour circle) {%- endcomment -%}
       {%- assign cq_btn_style = section.settings.variant_button_style | default: 'photo' -%}
       <div class="color-switcher cq-btn-style--{{ cq_btn_style }}">
-        <span class="sw-label">{{ section.settings.switcher_label | default: 'Flavour' }}</span>
+        <span class="sw-label">{{ cx_banner_switcher_label }}</span>
 
         <div class="color-switcher-buttons">
         {%- for i in (1..5) -%}
           {%- assign img_key   = 'img_v'   | append: i -%}
           {%- assign label_key = 'label_v' | append: i -%}
+          {%- assign label_t_key = 'homepage.banner.flavour_' | append: i -%}
           {%- assign color_key = 'color_v' | append: i -%}
           {%- assign v_img   = section.settings[img_key]   -%}
-          {%- assign v_label = section.settings[label_key] -%}
+          {%- assign v_label = label_t_key | t -%}
           {%- assign v_color = section.settings[color_key] -%}
           {%- if v_img != blank -%}
             {%- assign idx = forloop.index0 -%}
@@ -541,20 +559,20 @@
               data-index="{{ idx }}"
               style="{% if cq_btn_style == 'photo' %}background-image:url('{{ v_img | img_url: '160x' }}');{% else %}background:{{ v_color }};{% endif %}"
               title="{{ v_label }}"
-              aria-label="Select {{ v_label }}"></button>
+              aria-label="{{ cx_banner_select }} {{ v_label }}"></button>
           {%- endif -%}
         {%- endfor -%}
         </div>
 
-        <span class="color-name" id="cq-colorname-{{ section.id }}">{{ section.settings.label_v1 }}</span>
-        <span class="color-name-mobile" id="cq-colorname-mobile-{{ section.id }}">{{ section.settings.label_v1 }}</span>
+        <span class="color-name" id="cq-colorname-{{ section.id }}">{{ cx_label_v1 }}</span>
+        <span class="color-name-mobile" id="cq-colorname-mobile-{{ section.id }}">{{ cx_label_v1 }}</span>
       </div>
 
       {%- comment -%} SPEC PILLS {%- endcomment -%}
       <div class="spec-pills">
         {%- for i in (1..4) -%}
-          {%- assign pill_key = 'pill_' | append: i -%}
-          {%- assign pill_val = section.settings[pill_key] -%}
+          {%- assign pill_key = 'homepage.banner.pill_' | append: i -%}
+          {%- assign pill_val = pill_key | t -%}
           {%- if pill_val != blank -%}
             <span class="pill"><span class="pill-dot"></span>{{ pill_val }}</span>
           {%- endif -%}
@@ -575,8 +593,9 @@
         {%- for i in (1..5) -%}
           {%- assign img_key   = 'img_v'   | append: i -%}
           {%- assign label_key = 'label_v' | append: i -%}
+          {%- assign label_t_key = 'homepage.banner.flavour_' | append: i -%}
           {%- assign v_img   = section.settings[img_key]   -%}
-          {%- assign v_label = section.settings[label_key] -%}
+          {%- assign v_label = label_t_key | t -%}
           {%- if v_img != blank -%}
             {%- assign idx = forloop.index0 -%}
             <img
@@ -611,7 +630,7 @@
           {%- assign cta_href = routes.root_url | append: 'collections/all' -%}
         {%- endif -%}
         <a href="{{ cta_href }}" class="cta">
-          {{ section.settings.cta_label }}
+          {{ cx_banner_cta }}
           <span class="cta-price">— {{ cta_price_html }}</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2"
@@ -619,7 +638,7 @@
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </a>
-        <p class="cta-trust">{{ section.settings.trust_line }}</p>
+        <p class="cta-trust">{{ cx_banner_trust }}</p>
 
       </div>
       {%- comment -%} /cta-row {%- endcomment -%}
@@ -637,11 +656,12 @@
           alt="FlowCore packaging" loading="lazy">
       {%- endif -%}
 
-      {%- for i in (1..5) -%}
-        {%- assign img_key   = 'img_v'   | append: i -%}
-        {%- assign label_key = 'label_v' | append: i -%}
-        {%- assign v_img   = section.settings[img_key]   -%}
-        {%- assign v_label = section.settings[label_key] -%}
+        {%- for i in (1..5) -%}
+          {%- assign img_key   = 'img_v'   | append: i -%}
+          {%- assign label_key = 'label_v' | append: i -%}
+          {%- assign label_t_key = 'homepage.banner.flavour_' | append: i -%}
+          {%- assign v_img   = section.settings[img_key]   -%}
+          {%- assign v_label = label_t_key | t -%}
         {%- if v_img != blank -%}
           {%- assign idx = forloop.index0 -%}
           <img class="device-img cq-variant{% if forloop.first %} active{% endif %}" data-index="{{ idx }}"
@@ -663,11 +683,11 @@
   const SID = '{{ section.id }}';
 
   const COLOR_NAMES = [
-    '{{ section.settings.label_v1 }}',
-    '{{ section.settings.label_v2 }}',
-    '{{ section.settings.label_v3 }}',
-    '{{ section.settings.label_v4 }}',
-    '{{ section.settings.label_v5 }}'
+    {{ cx_label_v1 | json }},
+    {{ cx_label_v2 | json }},
+    {{ cx_label_v3 | json }},
+    {{ cx_label_v4 | json }},
+    {{ cx_label_v5 | json }}
   ];
   const GLOW_COLORS = [
     '{{ section.settings.glow_v1 | default: "rgba(123,255,219,0.22)" }}',

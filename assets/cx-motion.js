@@ -137,18 +137,54 @@
   (function () {
     var atlases = document.querySelectorAll('[data-cx-tooth-atlas]');
     atlases.forEach(function (atlas) {
+      var section = atlas.closest('.cx-tooth-atlas-v2');
+      var visual = section ? section.querySelector('[data-cx-atlas-visual]') : null;
+      var meters = section ? section.querySelectorAll('[data-cx-atlas-meter]') : [];
+      var callouts = section ? section.querySelectorAll('[data-cx-atlas-callout]') : [];
       var pills = atlas.querySelectorAll('[data-cx-tooth-pill]');
       var panels = atlas.querySelectorAll('[data-cx-tooth-panel]');
-      pills.forEach(function (pill) {
-        pill.addEventListener('click', function () {
-          var id = pill.getAttribute('data-cx-tooth-pill');
-          pills.forEach(function (p) {
-            var active = p.getAttribute('data-cx-tooth-pill') === id;
-            p.classList.toggle('cx-is-active', active);
-            p.setAttribute('aria-selected', active ? 'true' : 'false');
-          });
-          panels.forEach(function (p) { p.classList.toggle('cx-is-active', p.getAttribute('data-cx-tooth-panel') === id); });
+      function activateLayer(id) {
+        if (visual) visual.setAttribute('data-cx-atlas-state', id);
+        meters.forEach(function (m) { m.classList.toggle('cx-is-active', m.getAttribute('data-cx-atlas-meter') === id); });
+        callouts.forEach(function (c) { c.classList.toggle('cx-is-active', c.getAttribute('data-cx-atlas-callout') === id); });
+        pills.forEach(function (p) {
+          var active = p.getAttribute('data-cx-tooth-pill') === id;
+          p.classList.toggle('cx-is-active', active);
+          p.setAttribute('aria-selected', active ? 'true' : 'false');
         });
+        panels.forEach(function (p) { p.classList.toggle('cx-is-active', p.getAttribute('data-cx-tooth-panel') === id); });
+      }
+      pills.forEach(function (pill) {
+        var id = pill.getAttribute('data-cx-tooth-pill');
+        pill.addEventListener('click', function () { activateLayer(id); });
+        pill.addEventListener('mouseenter', function () { activateLayer(id); });
+      });
+    });
+  })();
+
+  /* ---------- 5b. Tooth role switcher ---------- */
+  (function () {
+    var labs = document.querySelectorAll('[data-cx-tooth-role-lab]');
+    labs.forEach(function (lab) {
+      var section = lab.closest('.cx-tooth-atlas-v2');
+      var pills = section ? section.querySelectorAll('[data-cx-tooth-role]') : [];
+      var panels = section ? section.querySelectorAll('[data-cx-tooth-role-panel]') : [];
+      var arch = section ? section.querySelector('[data-cx-tooth-arch]') : null;
+      function activateRole(id) {
+        if (arch) arch.setAttribute('data-cx-tooth-arch', id);
+        pills.forEach(function (pill) {
+          var active = pill.getAttribute('data-cx-tooth-role') === id;
+          pill.classList.toggle('cx-is-active', active);
+          pill.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        panels.forEach(function (panel) {
+          panel.classList.toggle('cx-is-active', panel.getAttribute('data-cx-tooth-role-panel') === id);
+        });
+      }
+      pills.forEach(function (pill) {
+        var id = pill.getAttribute('data-cx-tooth-role');
+        pill.addEventListener('click', function () { activateRole(id); });
+        pill.addEventListener('mouseenter', function () { activateRole(id); });
       });
     });
   })();

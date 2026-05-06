@@ -3,23 +3,33 @@
   Source: _incoming/calqix-web-upgrade/handoff/source/components/bundle.jsx → TwoStep
 {%- endcomment -%}
 
+{%- liquid
+  assign cx_two_step_eyebrow = 'homepage.two_step.eyebrow' | t
+  assign cx_two_step_heading = 'homepage.two_step.heading_html' | t
+  assign cx_two_step_lede = 'homepage.two_step.lede_html' | t
+-%}
+
 {% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section cx-two-step-section" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-stack cx-section-header" data-cx-stagger>
-      {% render 'cx-eyebrow', text: section.settings.eyebrow %}
-      <h2 class="cx-h2">{{ section.settings.heading }}</h2>
-      <div class="cx-lede">{{ section.settings.lede }}</div>
+      {% render 'cx-eyebrow', text: cx_two_step_eyebrow %}
+      <h2 class="cx-h2">{{ cx_two_step_heading }}</h2>
+      <div class="cx-lede">{{ cx_two_step_lede }}</div>
       {% render 'cx-section-cta', section: section %}
     </div>
 
     <div class="cx-two-step-grid" data-cx-col2 data-cx-stagger>
       {%- for block in section.blocks -%}
         {%- if block.type == 'step' -%}
+          {%- assign cx_step_prefix = 'homepage.two_step.step_' | append: forloop.index -%}
+          {%- assign cx_step_label_key = cx_step_prefix | append: '_label' -%}
+          {%- assign cx_step_title_key = cx_step_prefix | append: '_title' -%}
+          {%- assign cx_step_desc_key = cx_step_prefix | append: '_desc_html' -%}
           <article class="cx-two-step-card" style="--cx-step-index: '{{ forloop.index }}';" {{ block.shopify_attributes }}>
             {%- if block.settings.image != blank -%}
               <div class="cx-two-step-media">
-                {{ block.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: block.settings.title }}
+                {{ block.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: cx_step_title_key | t }}
                 <span class="cx-two-step-media-sheen" aria-hidden="true"></span>
               </div>
             {%- else -%}
@@ -28,17 +38,18 @@
             <div class="cx-two-step-copy">
               <div class="cx-two-step-label-row">
                 <span class="cx-two-step-number">0{{ forloop.index }}</span>
-                <div class="cx-eyebrow">{{ block.settings.step_label }}</div>
+                <div class="cx-eyebrow">{{ cx_step_label_key | t }}</div>
               </div>
-              <h3 class="cx-h3 cx-two-step-title">{{ block.settings.title }}</h3>
-              <div class="cx-two-step-desc">{{ block.settings.desc }}</div>
+              <h3 class="cx-h3 cx-two-step-title">{{ cx_step_title_key | t }}</h3>
+              <div class="cx-two-step-desc">{{ cx_step_desc_key | t }}</div>
             </div>
             <div class="cx-two-step-stats">
               {%- for i in (1..3) -%}
                 {%- assign v_key = 'stat_' | append: i | append: '_value' -%}
                 {%- assign l_key = 'stat_' | append: i | append: '_label' -%}
                 {%- assign stat_v = block.settings[v_key] -%}
-                {%- assign stat_l = block.settings[l_key] -%}
+                {%- assign stat_l_t_key = cx_step_prefix | append: '_stat_' | append: i | append: '_label' -%}
+                {%- assign stat_l = stat_l_t_key | t -%}
                 {%- if stat_v != blank -%}
                   <div class="cx-two-step-stat">
                     <div class="cx-two-step-stat-v">{{ stat_v }}</div>

@@ -13,22 +13,35 @@
 {%- if cx_p2_image == blank and cx_p2.featured_image != blank -%}
   {%- assign cx_p2_image = cx_p2.featured_image -%}
 {%- endif -%}
+{%- liquid
+  assign cx_bundle_eyebrow = 'homepage.bundle.eyebrow' | t
+  assign cx_bundle_heading = 'homepage.bundle.heading_html' | t
+  assign cx_bundle_lede = 'homepage.bundle.lede_html' | t
+  assign cx_bundle_savings_badge = 'homepage.bundle.savings_badge' | t
+  assign cx_bundle_card_eyebrow = 'homepage.bundle.card_eyebrow' | t
+  assign cx_bundle_card_title = 'homepage.bundle.card_title' | t
+  assign cx_bundle_savings_text = 'homepage.bundle.savings_text' | t
+  assign cx_bundle_shipping_badge = 'homepage.bundle.shipping_badge' | t
+  assign cx_bundle_cta = 'homepage.bundle.cta_text' | t
+  assign cx_bundle_subscribe = 'homepage.bundle.subscribe_note' | t
+-%}
 
 {% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section cx-section-cream cx-bundle-section" id="{{ section.settings.anchor_id | default: 'protocol' }}" data-cx-reveal>
   <div class="cx-container cx-bundle-grid" data-cx-col2-2-1 data-cx-stagger>
     <div class="cx-stack cx-gap-md cx-bundle-copy">
-      {% render 'cx-eyebrow', text: section.settings.eyebrow %}
-      <h2 class="cx-h2">{{ section.settings.heading }}</h2>
-      <div class="cx-lede">{{ section.settings.lede }}</div>
+      {% render 'cx-eyebrow', text: cx_bundle_eyebrow %}
+      <h2 class="cx-h2">{{ cx_bundle_heading }}</h2>
+      <div class="cx-lede">{{ cx_bundle_lede }}</div>
 
       {%- if section.blocks.size > 0 -%}
         <ul class="cx-bundle-trust">
           {%- for block in section.blocks -%}
             {%- if block.type == 'trust_item' -%}
+              {%- assign cx_trust_key = 'homepage.bundle.trust_' | append: forloop.index -%}
               <li {{ block.shopify_attributes }}>
                 <span class="cx-bundle-trust-ic">{% render 'cx-icons', name: block.settings.icon, size: 16 %}</span>
-                {{ block.settings.text }}
+                {{ cx_trust_key | t }}
               </li>
             {%- endif -%}
           {%- endfor -%}
@@ -37,24 +50,24 @@
     </div>
 
     <div class="cx-bundle-card cx-lux-lift">
-      <div class="cx-bundle-save">{{ section.settings.savings_badge }}</div>
-      {% render 'cx-eyebrow', text: section.settings.card_eyebrow %}
-      <h3 class="cx-h3 cx-bundle-card-title">{{ section.settings.card_title }}</h3>
+      <div class="cx-bundle-save">{{ cx_bundle_savings_badge }}</div>
+      {% render 'cx-eyebrow', text: cx_bundle_card_eyebrow %}
+      <h3 class="cx-h3 cx-bundle-card-title">{{ cx_bundle_card_title }}</h3>
 
       {%- for prod_num in (1..2) -%}
         {%- if prod_num == 1 -%}
           {%- assign cx_prod = cx_p1 -%}
           {%- assign cx_item_image = cx_p1_image -%}
-          {%- assign cx_eyebrow = section.settings.item_1_eyebrow -%}
-          {%- assign cx_title = section.settings.item_1_title -%}
-          {%- assign cx_meta = section.settings.item_1_meta -%}
+          {%- assign cx_eyebrow = 'homepage.bundle.item_1_eyebrow' | t -%}
+          {%- assign cx_title = 'homepage.bundle.item_1_title' | t -%}
+          {%- assign cx_meta = 'homepage.bundle.item_1_meta' | t -%}
           {%- assign cx_price = section.settings.item_1_price -%}
         {%- else -%}
           {%- assign cx_prod = cx_p2 -%}
           {%- assign cx_item_image = cx_p2_image -%}
-          {%- assign cx_eyebrow = section.settings.item_2_eyebrow -%}
-          {%- assign cx_title = section.settings.item_2_title -%}
-          {%- assign cx_meta = section.settings.item_2_meta -%}
+          {%- assign cx_eyebrow = 'homepage.bundle.item_2_eyebrow' | t -%}
+          {%- assign cx_title = 'homepage.bundle.item_2_title' | t -%}
+          {%- assign cx_meta = 'homepage.bundle.item_2_meta' | t -%}
           {%- assign cx_price = section.settings.item_2_price -%}
         {%- endif -%}
 
@@ -80,19 +93,19 @@
         <div>
           <div class="cx-bundle-total-price">{{ section.settings.bundle_price }}</div>
           <div class="cx-bundle-total-note">
-            <span class="cx-strike">{{ section.settings.compare_price }}</span> · {{ section.settings.savings_text }}
+            <span class="cx-strike">{{ section.settings.compare_price }}</span> · {{ cx_bundle_savings_text }}
           </div>
         </div>
         <div class="cx-pill cx-bundle-ship">
           {% render 'cx-icons', name: 'truck', size: 13 %}
-          {{ section.settings.shipping_badge }}
+          {{ cx_bundle_shipping_badge }}
         </div>
       </div>
 
       {%- if section.settings.cta_link != blank -%}
         <a class="cx-btn cx-btn-primary cx-bundle-cta" href="{{ section.settings.cta_link }}">
           {% render 'cx-icons', name: 'bag', size: 16 %}
-          {{ section.settings.cta_text }}
+          {{ cx_bundle_cta }}
           <span class="cx-arrow"></span>
         </a>
       {%- else -%}
@@ -115,13 +128,13 @@
           {%- endif -%}
           <button type="submit" class="cx-btn cx-btn-primary cx-bundle-cta">
             {% render 'cx-icons', name: 'bag', size: 16 %}
-            {{ section.settings.cta_text }}
+            {{ cx_bundle_cta }}
             <span class="cx-arrow"></span>
           </button>
         </form>
       {%- endif -%}
 
-      <div class="cx-bundle-subscribe">{{ section.settings.subscribe_note }}</div>
+      <div class="cx-bundle-subscribe">{{ cx_bundle_subscribe }}</div>
     </div>
   </div>
 </section>

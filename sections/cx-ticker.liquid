@@ -3,7 +3,7 @@
   Source: _incoming/calqix-web-upgrade/handoff/source/components/features.jsx → Ticker
 {%- endcomment -%}
 
-{%- assign cx_items = section.settings.items | split: ',' -%}
+{%- assign cx_items = 'homepage.ticker.items' | t | split: ',' -%}
 
 {%- if section.settings.ovr_bg != blank -%}
   <style>#shopify-section-{{ section.id }} .cx-ticker { background: {{ section.settings.ovr_bg }} !important; }</style>

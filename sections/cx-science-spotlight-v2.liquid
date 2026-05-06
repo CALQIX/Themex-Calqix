@@ -5,6 +5,15 @@
 
 {% render 'cx-section-overrides', section: section %}
 {%- assign cx_use_generated_image = section.settings.use_generated_science_image -%}
+{%- liquid
+  assign cx_science_eyebrow = 'homepage.science.eyebrow' | t
+  assign cx_science_heading = 'homepage.science.heading_html' | t
+  assign cx_science_lede = 'homepage.science.lede_html' | t
+  assign cx_science_cta = 'homepage.science.cta_text' | t
+  assign cx_science_image_label = 'homepage.science.image_label' | t
+  assign cx_science_media_label = 'homepage.science.media_label' | t
+  assign cx_science_protocol_step = 'homepage.science.protocol_step' | t
+-%}
 
 <section class="cx-root cx-section cx-science-section" data-cx-reveal>
   <div class="cx-container">
@@ -12,20 +21,20 @@
       <div class="cx-science-media">
         <div class="cx-science-media-frame">
           <div class="cx-science-media-topline">
-            <span>{{ section.settings.image_label }}</span>
-            <span>Nano-HA protocol</span>
+            <span>{{ cx_science_image_label }}</span>
+            <span>{{ cx_science_media_label }}</span>
           </div>
           {%- if cx_use_generated_image -%}
             <img
               src="{{ 'calqix-science-lab-v2.png' | asset_url }}"
-              alt="{{ section.settings.heading | strip_html | escape }}"
+              alt="{{ cx_science_heading | strip_html | escape }}"
               class="cx-science-img"
               loading="lazy"
               width="1536"
               height="2048"
             >
           {%- elsif section.settings.image != blank -%}
-            {{ section.settings.image | image_url: width: 1000 | image_tag: loading: 'lazy', alt: section.settings.heading, class: 'cx-science-img' }}
+            {{ section.settings.image | image_url: width: 1000 | image_tag: loading: 'lazy', alt: cx_science_heading, class: 'cx-science-img' }}
           {%- else -%}
             {% render 'cx-placeholder', on_dark: true, ratio: '4/5', label: section.settings.image_label, radius: 'var(--cx-r-lg)' %}
           {%- endif -%}
@@ -35,33 +44,36 @@
       </div>
 
       <div class="cx-science-copy" data-cx-stagger>
-        {% render 'cx-eyebrow', text: section.settings.eyebrow %}
-        <h2 class="cx-h2">{{ section.settings.heading }}</h2>
-        <div class="cx-lede">{{ section.settings.lede }}</div>
+        {% render 'cx-eyebrow', text: cx_science_eyebrow %}
+        <h2 class="cx-h2">{{ cx_science_heading }}</h2>
+        <div class="cx-lede">{{ cx_science_lede }}</div>
 
         <div class="cx-science-proof-row" aria-label="CALQIX science proof">
-          <span>Biofilm first</span>
-          <span>Nano-HA after</span>
-          <span>Daily protocol</span>
+          <span>{{ 'homepage.science.proof_1' | t }}</span>
+          <span>{{ 'homepage.science.proof_2' | t }}</span>
+          <span>{{ 'homepage.science.proof_3' | t }}</span>
         </div>
 
         <div class="cx-science-accordion" data-cx-accordion>
           {%- for block in section.blocks -%}
             {%- if block.type == 'step' -%}
+              {%- assign cx_science_step_prefix = 'homepage.science.step_' | append: forloop.index -%}
+              {%- assign cx_science_step_title_key = cx_science_step_prefix | append: '_title' -%}
+              {%- assign cx_science_step_desc_key = cx_science_step_prefix | append: '_desc' -%}
               <div class="cx-science-item{% if forloop.first %} cx-is-open{% endif %}" data-cx-accordion-item {{ block.shopify_attributes }}>
                 <button type="button" class="cx-science-toggle" data-cx-accordion-toggle aria-expanded="{%- if forloop.first -%}true{%- else -%}false{%- endif -%}">
                   <span class="cx-science-toggle-left">
                     <span class="cx-science-num">0{{ forloop.index }}</span>
                     <span class="cx-science-title-wrap">
-                      <span class="cx-science-title">{{ block.settings.title }}</span>
-                      <span class="cx-science-mobile-label">Protocol step</span>
+                      <span class="cx-science-title">{{ cx_science_step_title_key | t }}</span>
+                      <span class="cx-science-mobile-label">{{ cx_science_protocol_step }}</span>
                     </span>
                   </span>
                   <span class="cx-science-toggle-ic cx-science-toggle-ic-open">{% render 'cx-icons', name: 'minus', size: 18 %}</span>
                   <span class="cx-science-toggle-ic cx-science-toggle-ic-closed">{% render 'cx-icons', name: 'plus', size: 18 %}</span>
                 </button>
                 <div class="cx-science-body" data-cx-accordion-body{% unless forloop.first %} hidden{% endunless %}>
-                  <div class="cx-science-desc">{{ block.settings.desc }}</div>
+                  <div class="cx-science-desc">{{ cx_science_step_desc_key | t }}</div>
                 </div>
               </div>
             {%- endif -%}
@@ -71,10 +83,10 @@
         {%- if section.settings.cta_text != blank -%}
           {%- assign cx_btn_kind = section.settings.cta_style | default: 'inline' -%}
           {%- case cx_btn_kind -%}
-            {%- when 'gold' -%}<a class="cx-btn cx-btn-gold cx-science-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
-            {%- when 'navy' -%}<a class="cx-btn cx-btn-primary cx-science-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
-            {%- when 'ghost' -%}<a class="cx-btn cx-btn-ghost cx-science-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
-            {%- else -%}<a class="cx-btn-inline cx-science-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ section.settings.cta_text }} <span class="cx-arrow"></span></a>
+            {%- when 'gold' -%}<a class="cx-btn cx-btn-gold cx-science-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ cx_science_cta }} <span class="cx-arrow"></span></a>
+            {%- when 'navy' -%}<a class="cx-btn cx-btn-primary cx-science-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ cx_science_cta }} <span class="cx-arrow"></span></a>
+            {%- when 'ghost' -%}<a class="cx-btn cx-btn-ghost cx-science-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ cx_science_cta }} <span class="cx-arrow"></span></a>
+            {%- else -%}<a class="cx-btn-inline cx-science-cta" href="{{ section.settings.cta_link | default: '#' }}">{{ cx_science_cta }} <span class="cx-arrow"></span></a>
           {%- endcase -%}
         {%- endif -%}
       </div>

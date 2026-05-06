@@ -3,22 +3,28 @@
   Source: _incoming/calqix-web-upgrade/handoff/source/components/body.jsx → Reviews
 {%- endcomment -%}
 
-{%- assign cx_filters = section.settings.filter_options | split: ',' -%}
+{%- assign cx_filters = 'homepage.reviews.filter_options' | t | split: ',' -%}
+{%- liquid
+  assign cx_reviews_eyebrow = 'homepage.reviews.eyebrow' | t
+  assign cx_reviews_heading = 'homepage.reviews.heading_html' | t
+  assign cx_reviews_count_label = 'homepage.reviews.rating_count_label' | t
+  assign cx_reviews_verified = 'homepage.reviews.verified_label' | t
+-%}
 
 {% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-reviews-header">
       <div class="cx-stack cx-gap-sm">
-        {% render 'cx-eyebrow', text: section.settings.eyebrow %}
-        <h2 class="cx-h2">{{ section.settings.heading }}</h2>
+        {% render 'cx-eyebrow', text: cx_reviews_eyebrow %}
+        <h2 class="cx-h2">{{ cx_reviews_heading }}</h2>
       </div>
       <div class="cx-reviews-rating">
         <div class="cx-gold-shimmer cx-reviews-score" data-cx-count="{{ section.settings.rating_value }}" data-cx-count-decimals="1" data-cx-count-duration="1600">0,0</div>
         <div class="cx-reviews-stars">
           {%- for i in (1..5) -%}{% render 'cx-icons', name: 'star', size: 16 %}{%- endfor -%}
         </div>
-        <div class="cx-eyebrow cx-reviews-count">{{ section.settings.rating_count }} {{ section.settings.rating_count_label | default: 'verified reviews' }}</div>
+        <div class="cx-eyebrow cx-reviews-count">{{ section.settings.rating_count }} {{ cx_reviews_count_label }}</div>
       </div>
     </div>
 
@@ -35,20 +41,24 @@
       {%- for block in section.blocks -%}
         {%- if block.type == 'review' -%}
           <div class="cx-reviews-card cx-lux-lift" {{ block.shopify_attributes }}>
+            {%- assign cx_review_prefix = 'homepage.reviews.review_' | append: forloop.index -%}
+            {%- assign cx_review_title_key = cx_review_prefix | append: '_title' -%}
+            {%- assign cx_review_body_key = cx_review_prefix | append: '_body' -%}
+            {%- assign cx_review_verified_key = cx_review_prefix | append: '_verified' -%}
             <div class="cx-reviews-stars-row">
               {%- assign r = block.settings.rating | plus: 0 -%}
               {%- for i in (1..r) -%}{% render 'cx-icons', name: 'star', size: 14 %}{%- endfor -%}
             </div>
-            <h3 class="cx-reviews-title">&ldquo;{{ block.settings.title }}&rdquo;</h3>
-            <p class="cx-reviews-body">{{ block.settings.body }}</p>
+            <h3 class="cx-reviews-title">&ldquo;{{ cx_review_title_key | t }}&rdquo;</h3>
+            <p class="cx-reviews-body">{{ cx_review_body_key | t }}</p>
             <div class="cx-reviews-footer">
               <div>
                 <div class="cx-reviews-name">{{ block.settings.name }}</div>
                 <div class="cx-reviews-date">{{ block.settings.date }}</div>
               </div>
               <div class="cx-reviews-verified">
-                ✓ {{ section.settings.verified_label | default: 'VERIFIED' }}<br>
-                <span>{{ block.settings.verified }}</span>
+                ✓ {{ cx_reviews_verified }}<br>
+                <span>{{ cx_review_verified_key | t }}</span>
               </div>
             </div>
           </div>
