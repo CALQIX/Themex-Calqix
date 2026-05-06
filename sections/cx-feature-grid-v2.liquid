@@ -200,14 +200,15 @@
   .cx-feature-item.cx-is-open::before {
     opacity: 1;
   }
-  .cx-feature-toggle {
+  .cx-feature-section .cx-feature-toggle {
     position: relative;
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 14px;
-    padding: 18px 18px;
+    min-height: 58px;
+    padding: 12px 18px;
     color: var(--cx-forest-2);
     text-align: left;
     background: transparent;
@@ -463,8 +464,9 @@
     .cx-feature-accordion {
       gap: 8px;
     }
-    .cx-feature-toggle {
-      padding: 14px;
+    .cx-feature-section .cx-feature-toggle {
+      min-height: 60px;
+      padding: 13px 14px;
       align-items: flex-start;
     }
     .cx-feature-toggle-left {
