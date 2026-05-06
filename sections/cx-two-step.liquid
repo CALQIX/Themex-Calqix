@@ -22,14 +22,15 @@
     <div class="cx-two-step-grid" data-cx-col2 data-cx-stagger>
       {%- for block in section.blocks -%}
         {%- if block.type == 'step' -%}
-          {%- assign cx_step_prefix = 'homepage.two_step.step_' | append: forloop.index -%}
-          {%- assign cx_step_label_key = cx_step_prefix | append: '_label' -%}
-          {%- assign cx_step_title_key = cx_step_prefix | append: '_title' -%}
-          {%- assign cx_step_desc_key = cx_step_prefix | append: '_desc_html' -%}
-          <article class="cx-two-step-card" style="--cx-step-index: '{{ forloop.index }}';" {{ block.shopify_attributes }}>
+              {%- assign cx_step_prefix = 'homepage.two_step.step_' | append: forloop.index -%}
+              {%- assign cx_step_label_key = cx_step_prefix | append: '_label' -%}
+              {%- assign cx_step_title_key = cx_step_prefix | append: '_title' -%}
+              {%- assign cx_step_desc_key = cx_step_prefix | append: '_desc_html' -%}
+              {%- assign cx_step_title = cx_step_title_key | t -%}
+              <article class="cx-two-step-card" style="--cx-step-index: '{{ forloop.index }}';" {{ block.shopify_attributes }}>
             {%- if block.settings.image != blank -%}
               <div class="cx-two-step-media">
-                {{ block.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: cx_step_title_key | t }}
+                {{ block.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: cx_step_title }}
                 <span class="cx-two-step-media-sheen" aria-hidden="true"></span>
               </div>
             {%- else -%}
@@ -40,7 +41,7 @@
                 <span class="cx-two-step-number">0{{ forloop.index }}</span>
                 <div class="cx-eyebrow">{{ cx_step_label_key | t }}</div>
               </div>
-              <h3 class="cx-h3 cx-two-step-title">{{ cx_step_title_key | t }}</h3>
+              <h3 class="cx-h3 cx-two-step-title">{{ cx_step_title }}</h3>
               <div class="cx-two-step-desc">{{ cx_step_desc_key | t }}</div>
             </div>
             <div class="cx-two-step-stats">
