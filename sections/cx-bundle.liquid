@@ -5,6 +5,14 @@
 
 {%- assign cx_p1 = section.settings.product_1 -%}
 {%- assign cx_p2 = section.settings.product_2 -%}
+{%- assign cx_p1_image = section.settings.product_1_image -%}
+{%- assign cx_p2_image = section.settings.product_2_image -%}
+{%- if cx_p1_image == blank and cx_p1.featured_image != blank -%}
+  {%- assign cx_p1_image = cx_p1.featured_image -%}
+{%- endif -%}
+{%- if cx_p2_image == blank and cx_p2.featured_image != blank -%}
+  {%- assign cx_p2_image = cx_p2.featured_image -%}
+{%- endif -%}
 
 {% render 'cx-section-overrides', section: section %}
 <section class="cx-root cx-section cx-section-cream cx-bundle-section" id="{{ section.settings.anchor_id | default: 'protocol' }}" data-cx-reveal>
@@ -36,12 +44,14 @@
       {%- for prod_num in (1..2) -%}
         {%- if prod_num == 1 -%}
           {%- assign cx_prod = cx_p1 -%}
+          {%- assign cx_item_image = cx_p1_image -%}
           {%- assign cx_eyebrow = section.settings.item_1_eyebrow -%}
           {%- assign cx_title = section.settings.item_1_title -%}
           {%- assign cx_meta = section.settings.item_1_meta -%}
           {%- assign cx_price = section.settings.item_1_price -%}
         {%- else -%}
           {%- assign cx_prod = cx_p2 -%}
+          {%- assign cx_item_image = cx_p2_image -%}
           {%- assign cx_eyebrow = section.settings.item_2_eyebrow -%}
           {%- assign cx_title = section.settings.item_2_title -%}
           {%- assign cx_meta = section.settings.item_2_meta -%}
@@ -50,9 +60,9 @@
 
         <div class="cx-bundle-item{% if prod_num == 1 %} cx-bundle-item-first{% endif %}">
           <div class="cx-bundle-step-index">0{{ prod_num }}</div>
-          {%- if cx_prod.featured_image != blank -%}
+          {%- if cx_item_image != blank -%}
             <div class="cx-bundle-item-media">
-              {{ cx_prod.featured_image | image_url: width: 200 | image_tag: loading: 'lazy', alt: cx_prod.title }}
+              {{ cx_item_image | image_url: width: 240 | image_tag: loading: 'lazy', alt: cx_prod.title }}
             </div>
           {%- else -%}
             {% render 'cx-placeholder', width: '52px', height: '66px', radius: '8px' %}
@@ -170,9 +180,10 @@
     list-style: none;
     padding: 0;
     margin: 12px 0 0;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
+    max-width: 420px;
   }
   .cx-bundle-trust li {
     display: inline-flex;
@@ -187,6 +198,15 @@
     font-size: 13.5px;
     color: var(--cx-ink-soft);
     backdrop-filter: blur(10px);
+    transition:
+      transform var(--cx-motion-short) var(--cx-ease-silk),
+      border-color var(--cx-motion-short) ease,
+      box-shadow var(--cx-motion-short) ease;
+  }
+  .cx-bundle-trust li:hover {
+    transform: translate3d(4px, -1px, 0);
+    border-color: rgba(0, 118, 194, 0.24);
+    box-shadow: 0 20px 48px -34px rgba(0, 37, 73, 0.64);
   }
   .cx-bundle-trust-ic {
     color: var(--cx-forest);
@@ -326,10 +346,14 @@
     margin-top: 20px;
     padding: 18px 22px;
     border: 1px solid rgba(255,255,255,0.18);
-    background: linear-gradient(135deg, #002549 0%, #003c72 52%, #0076c2 100%);
+    background: linear-gradient(135deg, #002549 0%, #003c72 52%, #0076c2 100%) !important;
     color: #ffffff !important;
+    opacity: 1 !important;
     box-shadow: 0 22px 48px -30px rgba(0, 37, 73, 0.82);
     transform: translateZ(0);
+  }
+  .cx-bundle-card form {
+    margin: 0;
   }
   .cx-bundle-cta::before {
     content: "";
@@ -341,7 +365,7 @@
   }
   .cx-bundle-cta:hover,
   .cx-bundle-cta:focus-visible {
-    background: linear-gradient(135deg, #00315f 0%, #005899 48%, #0082d4 100%);
+    background: linear-gradient(135deg, #00315f 0%, #005899 48%, #0082d4 100%) !important;
     color: #ffffff !important;
     transform: translate3d(0, -2px, 0);
     box-shadow: 0 28px 58px -32px rgba(0, 37, 73, 0.94);
@@ -351,7 +375,8 @@
     transform: translateX(120%);
   }
   .cx-bundle-cta svg,
-  .cx-bundle-cta .cx-arrow {
+  .cx-bundle-cta .cx-arrow,
+  .cx-bundle-cta {
     position: relative;
     z-index: 1;
     color: currentColor;
@@ -386,8 +411,7 @@
       font-size: clamp(38px, 13vw, 58px);
     }
     .cx-bundle-trust {
-      display: grid;
-      grid-template-columns: 1fr;
+      max-width: none;
     }
     .cx-bundle-card {
       border-radius: 20px;
@@ -403,7 +427,7 @@
       margin-right: 0;
     }
     .cx-bundle-item {
-      grid-template-columns: auto 1fr auto;
+      grid-template-columns: 54px minmax(0, 1fr) auto;
       gap: 12px;
       padding: 12px;
     }
@@ -413,12 +437,14 @@
       width: 28px;
       height: 28px;
       font-size: 11px;
+      z-index: 2;
     }
     .cx-bundle-item-media {
       grid-column: 1;
-      grid-row: 2;
+      grid-row: 1 / span 2;
       width: 56px;
       height: 62px;
+      align-self: end;
     }
     .cx-bundle-item-media img {
       width: 50px;
@@ -428,6 +454,7 @@
       grid-column: 2;
       grid-row: 1 / span 2;
       min-width: 0;
+      padding-left: 4px;
     }
     .cx-bundle-item-price {
       grid-column: 3;
@@ -446,6 +473,8 @@
     .cx-bundle-cta {
       min-height: 56px;
       padding-inline: 16px;
+      white-space: normal;
+      text-align: center;
     }
   }
 </style>
@@ -469,6 +498,7 @@
 
     { "type": "header", "content": "Item 1" },
     { "type": "product", "id": "product_1", "label": "Product 1" },
+    { "type": "image_picker", "id": "product_1_image", "label": "Product 1 image override" },
     { "type": "text", "id": "item_1_eyebrow", "label": "Eyebrow", "default": "STEP 1 · CLEAN" },
     { "type": "text", "id": "item_1_title", "label": "Title (override)", "default": "Flowcore Midnight Black" },
     { "type": "text", "id": "item_1_meta", "label": "Meta", "default": "1,600 pulses/min · 3 modes" },
@@ -476,6 +506,7 @@
 
     { "type": "header", "content": "Item 2" },
     { "type": "product", "id": "product_2", "label": "Product 2" },
+    { "type": "image_picker", "id": "product_2_image", "label": "Product 2 image override" },
     { "type": "text", "id": "item_2_eyebrow", "label": "Eyebrow", "default": "STEP 2 · REBUILD" },
     { "type": "text", "id": "item_2_title", "label": "Title (override)", "default": "OralBiome Pro · Fresh Mint" },
     { "type": "text", "id": "item_2_meta", "label": "Meta", "default": "60 tabs · 30 days" },

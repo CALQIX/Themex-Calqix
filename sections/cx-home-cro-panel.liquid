@@ -10,6 +10,15 @@
   assign cx_lang = request.locale.iso_code | downcase | split: '-' | first
   assign cx_flowcore = section.settings.flowcore_product
   assign cx_oralbiome = section.settings.oralbiome_product
+  assign cx_flowcore_image = section.settings.flowcore_image
+  assign cx_oralbiome_image = section.settings.oralbiome_image
+  assign cx_bundle_image = section.settings.bundle_image
+  if cx_flowcore_image == blank and cx_flowcore.featured_image != blank
+    assign cx_flowcore_image = cx_flowcore.featured_image
+  endif
+  if cx_oralbiome_image == blank and cx_oralbiome.featured_image != blank
+    assign cx_oralbiome_image = cx_oralbiome.featured_image
+  endif
   assign cx_bundle_href = routes.root_url | append: '#protocol'
   assign cx_flowcore_href = cx_flowcore.url | default: cx_bundle_href
   assign cx_oralbiome_href = cx_oralbiome.url | default: cx_bundle_href
@@ -204,8 +213,10 @@
             <span class="cx-home-cro-tag">{{ cx_clean_label }}</span>
             <span class="cx-home-cro-title">{{ cx_clean_title }}</span>
             <span class="cx-home-cro-body">{{ cx_clean_body }}</span>
-            {%- if cx_flowcore.featured_image != blank -%}
-              {{ cx_flowcore.featured_image | image_url: width: 420 | image_tag: loading: 'lazy', alt: cx_flowcore.title, class: 'cx-home-cro-img' }}
+            {%- if cx_flowcore_image != blank -%}
+              <span class="cx-home-cro-product-stage">
+                {{ cx_flowcore_image | image_url: width: 520 | image_tag: loading: 'lazy', alt: cx_flowcore.title, class: 'cx-home-cro-img' }}
+              </span>
             {%- endif -%}
           </a>
         </article>
@@ -216,8 +227,10 @@
             <span class="cx-home-cro-tag">{{ cx_rebuild_label }}</span>
             <span class="cx-home-cro-title">{{ cx_rebuild_title }}</span>
             <span class="cx-home-cro-body">{{ cx_rebuild_body }}</span>
-            {%- if cx_oralbiome.featured_image != blank -%}
-              {{ cx_oralbiome.featured_image | image_url: width: 420 | image_tag: loading: 'lazy', alt: cx_oralbiome.title, class: 'cx-home-cro-img' }}
+            {%- if cx_oralbiome_image != blank -%}
+              <span class="cx-home-cro-product-stage">
+                {{ cx_oralbiome_image | image_url: width: 520 | image_tag: loading: 'lazy', alt: cx_oralbiome.title, class: 'cx-home-cro-img' }}
+              </span>
             {%- endif -%}
           </a>
         </article>
@@ -229,11 +242,15 @@
             <span class="cx-home-cro-title">{{ cx_bundle_title }}</span>
             <span class="cx-home-cro-body">{{ cx_bundle_body }}</span>
             <span class="cx-home-cro-mini-products" aria-hidden="true">
-              {%- if cx_flowcore.featured_image != blank -%}
-                {{ cx_flowcore.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: '', class: 'cx-home-cro-mini cx-home-cro-mini-a' }}
-              {%- endif -%}
-              {%- if cx_oralbiome.featured_image != blank -%}
-                {{ cx_oralbiome.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: '', class: 'cx-home-cro-mini cx-home-cro-mini-b' }}
+              {%- if cx_bundle_image != blank -%}
+                {{ cx_bundle_image | image_url: width: 420 | image_tag: loading: 'lazy', alt: '', class: 'cx-home-cro-bundle-img' }}
+              {%- else -%}
+                {%- if cx_flowcore_image != blank -%}
+                  {{ cx_flowcore_image | image_url: width: 220 | image_tag: loading: 'lazy', alt: '', class: 'cx-home-cro-mini cx-home-cro-mini-a' }}
+                {%- endif -%}
+                {%- if cx_oralbiome_image != blank -%}
+                  {{ cx_oralbiome_image | image_url: width: 220 | image_tag: loading: 'lazy', alt: '', class: 'cx-home-cro-mini cx-home-cro-mini-b' }}
+                {%- endif -%}
               {%- endif -%}
             </span>
           </a>
@@ -454,11 +471,25 @@
     max-width: 28ch;
     margin-bottom: auto;
   }
+  .cx-home-cro-product-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(86%, 228px);
+    min-height: 154px;
+    margin: 22px auto 0;
+    border-radius: 18px;
+    background:
+      radial-gradient(circle at 50% 36%, rgba(255,255,255,0.96), rgba(239,246,255,0.72) 64%, rgba(226,238,252,0.42));
+    box-shadow:
+      0 20px 42px -34px rgba(0,37,73,0.5),
+      inset 0 1px 0 rgba(255,255,255,0.86);
+  }
   .cx-home-cro-img {
-    width: min(78%, 230px);
+    width: min(78%, 210px);
     max-height: 170px;
     object-fit: contain;
-    margin: 22px auto 0;
+    margin: 0 auto;
     mix-blend-mode: multiply;
     background: transparent !important;
     filter:
@@ -492,19 +523,39 @@
     display: block;
     min-height: 146px;
     margin-top: 24px;
+    border-radius: 20px;
+    background:
+      radial-gradient(circle at 50% 40%, rgba(255,255,255,0.18), transparent 62%),
+      linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
   }
   .cx-home-cro-mini {
     position: absolute;
     width: 118px;
     height: 136px;
     object-fit: contain;
-    mix-blend-mode: multiply;
+    mix-blend-mode: normal;
     background: transparent !important;
     filter:
       contrast(1.08)
       saturate(1.08)
       drop-shadow(0 18px 26px rgba(0,0,0,0.30));
     transition: transform 520ms var(--cx-ease-silk);
+  }
+  .cx-home-cro-bundle-img {
+    display: block;
+    width: min(86%, 190px);
+    height: 150px;
+    object-fit: contain;
+    margin: 0 auto;
+    filter:
+      contrast(1.08)
+      saturate(1.08)
+      drop-shadow(0 20px 28px rgba(0,0,0,0.34));
+    transform: translateY(4px);
+    transition: transform 520ms var(--cx-ease-silk);
+  }
+  .cx-home-cro-card:hover .cx-home-cro-bundle-img {
+    transform: translateY(-4px) scale(1.035);
   }
   .cx-home-cro-mini-a { left: 18%; bottom: 0; transform: rotate(-7deg); }
   .cx-home-cro-mini-b { right: 16%; bottom: 4px; transform: rotate(7deg); }
@@ -539,17 +590,19 @@
       padding-top: 34px;
     }
     .cx-home-cro-stats {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
     .cx-home-cro-stats div {
       min-height: 0;
-      display: grid;
-      grid-template-columns: 86px 1fr;
-      align-items: center;
-      gap: 10px;
+      padding: 11px 9px;
     }
     .cx-home-cro-stats strong {
-      margin-bottom: 0;
+      margin-bottom: 5px;
+      font-size: 21px;
+    }
+    .cx-home-cro-stats span {
+      font-size: 9.5px;
+      letter-spacing: 0.05em;
     }
     .cx-home-cro-actions {
       align-items: stretch;
@@ -558,6 +611,35 @@
     .cx-home-cro-actions .cx-btn-inline {
       justify-content: center;
       width: 100%;
+    }
+    .cx-home-cro-board {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      overscroll-behavior-x: contain;
+      padding: 2px 16px 14px;
+      margin-inline: -16px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .cx-home-cro-board::-webkit-scrollbar {
+      height: 0;
+    }
+    .cx-home-cro-card {
+      flex: 0 0 min(82vw, 330px);
+      scroll-snap-align: center;
+    }
+    .cx-home-cro-card-link {
+      min-height: 334px;
+      padding: 20px;
+    }
+    .cx-home-cro-product-stage {
+      width: 100%;
+      min-height: 148px;
+      margin-top: 18px;
+    }
+    .cx-home-cro-mini-products {
+      min-height: 148px;
     }
   }
 
@@ -581,7 +663,10 @@
   "class": "cx-section-home-cro",
   "settings": [
     { "type": "product", "id": "flowcore_product", "label": "FlowCore product" },
-    { "type": "product", "id": "oralbiome_product", "label": "OralBiome product" }
+    { "type": "image_picker", "id": "flowcore_image", "label": "FlowCore image override" },
+    { "type": "product", "id": "oralbiome_product", "label": "OralBiome product" },
+    { "type": "image_picker", "id": "oralbiome_image", "label": "OralBiome image override" },
+    { "type": "image_picker", "id": "bundle_image", "label": "Bundle card image override" }
   ],
   "presets": [
     { "name": "CX Home CRO panel" }

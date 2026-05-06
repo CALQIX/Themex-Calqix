@@ -102,10 +102,26 @@
             "icon": "check",
             "text": "Free shipping in EU"
           }
+        },
+        "trust_item_repair": {
+          "type": "trust_item",
+          "settings": {
+            "icon": "flask",
+            "text": "Nano-HA rebuild support"
+          }
+        },
+        "trust_item_protocol": {
+          "type": "trust_item",
+          "settings": {
+            "icon": "shield",
+            "text": "Clean first, rebuild after"
+          }
         }
       },
       "block_order": [
-        "trust_item_TjhzmY"
+        "trust_item_TjhzmY",
+        "trust_item_repair",
+        "trust_item_protocol"
       ],
       "settings": {
         "anchor_id": "protocol",
