@@ -15,7 +15,7 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-05-05-emq-optimizations-a';
+  var BRIDGE_VERSION = '2026-05-06-emq-clean-match-a';
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
 
@@ -60,13 +60,7 @@
   }
 
   function getFbp() {
-    var existing = getCookie('_fbp');
-    if (existing) return existing;
-
-    // Generate fallback _fbp if Meta Pixel hasn't set it yet
-    var fallback = 'fb.1.' + Date.now() + '.' + Math.floor(1000000000 + Math.random() * 9000000000);
-    setCookie('_fbp', fallback, 90);
-    return fallback;
+    return getCookie('_fbp');
   }
 
   /* ------------------------------------------------------------------ */
@@ -338,11 +332,11 @@
     var sku = firstVariant && firstVariant.sku ? String(firstVariant.sku) : undefined;
     var parentId = productData.id ? String(productData.id) : '';
 
-    // Meta Commerce catalog is matched on Shopify variant_id first. SKU is only
-    // a fallback because a few active SKUs are not present as retailer_id.
+    // Meta Commerce catalog is matched on Shopify variant_id first. Keep SKU as
+    // an additional retailer_id candidate when present.
     var catalogIds = [];
     if (variantId) catalogIds.push(variantId);
-    else if (sku) catalogIds.push(sku);
+    if (sku && catalogIds.indexOf(sku) === -1) catalogIds.push(sku);
     if (catalogIds.length === 0 && parentId) catalogIds.push(parentId);
     var contentType = (variantId || sku) ? 'product' : 'product_group';
 
@@ -411,7 +405,7 @@
     //   product_id = parent product id
     //   sku        = variant SKU (when set)
     // For Meta Commerce catalog matching we send Shopify variant_id first.
-    // SKU and product_id are fallbacks only when no variant-level id exists.
+    // SKU is also kept when present; product_id is only a final fallback.
     var contentIds = [];
     var seen = Object.create(null);
     var contents = [];
@@ -426,7 +420,9 @@
       var primary = variantId || sku || productIdStr;
       if (!primary) return;
       if (variantId || sku) hasVariantSignal = true;
-      if (!seen[primary]) { seen[primary] = true; contentIds.push(primary); }
+      if (variantId && !seen[variantId]) { seen[variantId] = true; contentIds.push(variantId); }
+      if (sku && !seen[sku]) { seen[sku] = true; contentIds.push(sku); }
+      if (!variantId && !sku && productIdStr && !seen[productIdStr]) { seen[productIdStr] = true; contentIds.push(productIdStr); }
 
       var qty = parseInt(item.quantity, 10) || 1;
       var price = parseFloat(item.price) || 0;
@@ -880,7 +876,6 @@
     persistFbclid();
     captureClickIds();
     getOrCreateAnonId();
-    getFbp(); // Ensures _fbp fallback is generated if missing
     pushUserDataToDataLayer();
     syncCartAttributes();
     fireViewContent();
