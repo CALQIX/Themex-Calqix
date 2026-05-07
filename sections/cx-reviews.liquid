@@ -172,12 +172,32 @@
   }
 
   .cx-reviews-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px;
+    --cx-review-gap: 20px;
+    display: flex;
+    gap: var(--cx-review-gap);
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 2px 18px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 2px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 37, 73, .26) rgba(0, 37, 73, .06);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cx-reviews-grid::-webkit-scrollbar { height: 8px; }
+  .cx-reviews-grid::-webkit-scrollbar-track {
+    border-radius: 999px;
+    background: rgba(0, 37, 73, .06);
+  }
+  .cx-reviews-grid::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(0, 37, 73, .22), rgba(0, 118, 194, .3));
   }
 
   .cx-reviews-card {
+    flex: 0 0 calc((100% - (var(--cx-review-gap) * 3)) / 4);
+    scroll-snap-align: start;
     border: 1px solid var(--cx-rule);
     border-radius: var(--cx-r-md);
     padding: 28px;
@@ -255,7 +275,14 @@
   }
 
   @media (max-width: 980px) {
-    .cx-reviews-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cx-reviews-grid {
+      --cx-review-gap: 16px;
+    }
+
+    .cx-reviews-card {
+      flex-basis: calc((100% - (var(--cx-review-gap) * 2)) / 3);
+    }
+
     .cx-reviews-filters {
       flex-wrap: nowrap;
       overflow-x: auto;
@@ -285,10 +312,40 @@
       padding: 0 18px;
       font-size: 13px;
     }
-    .cx-reviews-grid { grid-template-columns: 1fr; }
+    .cx-reviews-grid {
+      --cx-review-gap: 12px;
+      padding-bottom: 14px;
+      scrollbar-width: none;
+    }
+
+    .cx-reviews-grid::-webkit-scrollbar {
+      display: none;
+    }
+
     .cx-reviews-card {
+      flex-basis: calc((100% - var(--cx-review-gap)) / 2);
       padding: 22px;
       min-height: 0;
+    }
+
+    .cx-reviews-title {
+      font-size: 17px;
+    }
+
+    .cx-reviews-body {
+      font-size: 13px;
+      line-height: 1.46;
+    }
+
+    .cx-reviews-footer {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cx-reviews-verified {
+      max-width: 100%;
+      text-align: left;
     }
   }
 </style>
@@ -396,6 +453,7 @@
             cards.forEach((card) => {
               if (!card.hidden) card.classList.remove('cx-is-filtering');
             });
+            grid.scrollTo({ left: 0, behavior: 'smooth' });
             grid.classList.remove('cx-is-changing');
           });
         }, 150);
