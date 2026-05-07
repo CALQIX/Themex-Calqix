@@ -1,6 +1,5 @@
 {%- comment -%}
-  CALQIX Navy Rebuild — Reviews (filter pills + 3 cards + aggregate rating).
-  Source: _incoming/calqix-web-upgrade/handoff/source/components/body.jsx → Reviews
+  CALQIX Navy Rebuild - Reviews with categorized filters.
 {%- endcomment -%}
 
 {%- assign cx_filters = 'homepage.reviews.filter_options' | t | split: ',' -%}
@@ -12,7 +11,7 @@
 -%}
 
 {% render 'cx-section-overrides', section: section %}
-<section class="cx-root cx-section" data-cx-reveal>
+<section class="cx-root cx-section" data-cx-reviews-section data-cx-reveal>
   <div class="cx-container">
     <div class="cx-reviews-header">
       <div class="cx-stack cx-gap-sm">
@@ -29,39 +28,55 @@
     </div>
 
     {%- if cx_filters.size > 0 -%}
-      <div class="cx-reviews-filters" data-cx-review-filter>
+      <div class="cx-reviews-filters" data-cx-review-filter role="tablist" aria-label="Review filters">
         {%- for f in cx_filters -%}
           {%- assign label = f | strip -%}
-          <button type="button" class="cx-pill{% if forloop.first %} cx-is-active{% endif %}" data-cx-review-pill>{{ label }}</button>
+          {%- liquid
+            assign filter_key = 'all'
+            case forloop.index
+              when 2
+                assign filter_key = 'recent'
+              when 3
+                assign filter_key = 'sensitive'
+              when 4
+                assign filter_key = 'whitening'
+              when 5
+                assign filter_key = 'fresh-breath'
+              when 6
+                assign filter_key = 'daily-routine'
+            endcase
+          -%}
+          <button type="button" class="cx-reviews-pill{% if forloop.first %} cx-is-active{% endif %}" data-cx-review-pill="{{ filter_key }}" role="tab" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+            <span>{{ label }}</span>
+          </button>
         {%- endfor -%}
       </div>
     {%- endif -%}
 
-    <div class="cx-reviews-grid" data-cx-col3 data-cx-stagger>
+    <div class="cx-reviews-grid" data-cx-col3 data-cx-stagger data-cx-reviews-grid>
       {%- for block in section.blocks -%}
         {%- if block.type == 'review' -%}
-          <div class="cx-reviews-card cx-lux-lift" {{ block.shopify_attributes }}>
-            {%- assign cx_review_prefix = 'homepage.reviews.review_' | append: forloop.index -%}
-            {%- assign cx_review_title_key = cx_review_prefix | append: '_title' -%}
-            {%- assign cx_review_body_key = cx_review_prefix | append: '_body' -%}
-            {%- assign cx_review_verified_key = cx_review_prefix | append: '_verified' -%}
-            <div class="cx-reviews-stars-row">
+          {%- assign cx_review_category = block.settings.category | default: 'daily-routine' -%}
+          <article class="cx-reviews-card cx-lux-lift" data-cx-review-card data-category="{{ cx_review_category }}" data-date="{{ block.settings.sort_date | default: block.settings.date | escape }}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+            <div class="cx-reviews-stars-row" aria-label="{{ block.settings.rating }} out of 5 stars">
               {%- assign r = block.settings.rating | plus: 0 -%}
-              {%- for i in (1..r) -%}{% render 'cx-icons', name: 'star', size: 14 %}{%- endfor -%}
+              {%- for i in (1..5) -%}
+                {%- if i <= r -%}{% render 'cx-icons', name: 'star', size: 14 %}{%- endif -%}
+              {%- endfor -%}
             </div>
-            <h3 class="cx-reviews-title">&ldquo;{{ cx_review_title_key | t }}&rdquo;</h3>
-            <p class="cx-reviews-body">{{ cx_review_body_key | t }}</p>
+            <h3 class="cx-reviews-title">&ldquo;{{ block.settings.title | escape }}&rdquo;</h3>
+            <p class="cx-reviews-body">{{ block.settings.body }}</p>
             <div class="cx-reviews-footer">
               <div>
-                <div class="cx-reviews-name">{{ block.settings.name }}</div>
-                <div class="cx-reviews-date">{{ block.settings.date }}</div>
+                <div class="cx-reviews-name">{{ block.settings.name | escape }}</div>
+                <div class="cx-reviews-date">{{ block.settings.date | escape }}</div>
               </div>
               <div class="cx-reviews-verified">
-                ✓ {{ cx_reviews_verified }}<br>
-                <span>{{ cx_review_verified_key | t }}</span>
+                <span class="cx-reviews-check" aria-hidden="true"></span>{{ cx_reviews_verified }}<br>
+                <span>{{ block.settings.verified | escape }}</span>
               </div>
             </div>
-          </div>
+          </article>
         {%- endif -%}
       {%- endfor -%}
     </div>
@@ -70,39 +85,270 @@
 
 <style>
   .cx-reviews-header {
-    display: flex; justify-content: space-between; align-items: flex-end;
-    margin-bottom: 32px; gap: 24px; flex-wrap: wrap;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    gap: 24px;
+    flex-wrap: wrap;
   }
+
   .cx-reviews-rating { text-align: right; }
   .cx-reviews-score { font-family: var(--cx-f-display); font-size: 60px; line-height: 1; }
   .cx-reviews-stars { display: flex; gap: 2px; justify-content: flex-end; margin-top: 4px; color: var(--cx-gold); }
   .cx-reviews-count { margin-top: 6px; }
-  .cx-reviews-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
-  .cx-reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+  .cx-reviews-filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  .cx-reviews-pill {
+    position: relative;
+    isolation: isolate;
+    flex: 0 0 auto;
+    min-width: 168px;
+    min-height: 48px;
+    padding: 0 22px;
+    border: 1px solid rgba(0, 37, 73, .14);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .78);
+    color: #002549;
+    cursor: pointer;
+    font-size: 14.5px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0;
+    white-space: nowrap;
+    box-shadow: 0 14px 34px rgba(0, 37, 73, .06);
+    overflow: hidden;
+    transition:
+      transform .24s var(--cx-ease-silk),
+      color .24s ease,
+      border-color .24s ease,
+      box-shadow .24s ease,
+      background .24s ease;
+  }
+
+  .cx-reviews-pill::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #002549, #00528f);
+    opacity: 0;
+    transform: scale(.92);
+    transition: opacity .26s ease, transform .32s var(--cx-ease-silk);
+    z-index: -1;
+  }
+
+  .cx-reviews-pill span {
+    display: block;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+
+  .cx-reviews-pill:hover,
+  .cx-reviews-pill:focus-visible {
+    transform: translateY(-2px);
+    border-color: rgba(0, 118, 194, .32);
+    box-shadow: 0 18px 42px rgba(0, 37, 73, .11);
+    outline: none;
+  }
+
+  .cx-reviews-pill.cx-is-active {
+    color: #fff;
+    border-color: #002549;
+    box-shadow: 0 18px 42px rgba(0, 37, 73, .16);
+  }
+
+  .cx-reviews-pill.cx-is-active::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .cx-reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+
   .cx-reviews-card {
     border: 1px solid var(--cx-rule);
     border-radius: var(--cx-r-md);
     padding: 28px;
-    background: var(--cx-page);
-    display: flex; flex-direction: column; gap: 14px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.9), rgba(248,251,255,.78)),
+      var(--cx-page);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 260px;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    box-shadow: 0 18px 46px rgba(0, 37, 73, .05);
+    transition:
+      opacity .26s ease,
+      transform .32s var(--cx-ease-silk),
+      border-color .28s ease,
+      box-shadow .28s ease,
+      background .28s ease;
   }
+
+  .cx-reviews-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0, 118, 194, .26);
+    box-shadow: 0 24px 58px rgba(0, 37, 73, .1);
+  }
+
+  .cx-reviews-card.cx-is-filtering {
+    opacity: 0;
+    transform: translateY(10px) scale(.985);
+  }
+
+  .cx-reviews-card[hidden] { display: none; }
   .cx-reviews-stars-row { display: flex; gap: 2px; color: var(--cx-gold); }
-  .cx-reviews-title { font-family: var(--cx-f-display); font-size: 18px; margin: 0; color: var(--cx-forest-3); }
-  .cx-reviews-body { margin: 0; font-size: 14.5px; color: var(--cx-ink-soft); }
+  .cx-reviews-title { font-family: var(--cx-f-display); font-size: 20px; line-height: 1.18; margin: 0; color: var(--cx-forest-3); }
+  .cx-reviews-body { margin: 0; font-size: 15px; line-height: 1.58; color: var(--cx-ink-soft); }
+
   .cx-reviews-footer {
     border-top: 1px solid var(--cx-rule);
     padding-top: 14px;
-    display: flex; justify-content: space-between; align-items: center;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
   }
-  .cx-reviews-name { font-size: 13px; font-weight: 500; color: var(--cx-ink); }
+
+  .cx-reviews-name { font-size: 13px; font-weight: 700; color: var(--cx-ink); }
   .cx-reviews-date { font-family: var(--cx-f-mono); font-size: 10.5px; color: var(--cx-ink-mute); }
+
   .cx-reviews-verified {
-    font-family: var(--cx-f-mono); font-size: 10px;
-    color: var(--cx-gold-ink); letter-spacing: 0.06em;
-    text-align: right; max-width: 130px;
+    font-family: var(--cx-f-mono);
+    font-size: 10px;
+    color: var(--cx-gold-ink);
+    letter-spacing: .06em;
+    text-align: right;
+    max-width: 150px;
+    text-transform: uppercase;
   }
-  .cx-reviews-verified span { color: var(--cx-ink-mute); }
+
+  .cx-reviews-check {
+    display: inline-block;
+    width: 7px;
+    height: 12px;
+    margin-right: 5px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(42deg) translateY(-1px);
+  }
+
+  .cx-reviews-verified span:last-child {
+    color: var(--cx-ink-mute);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  @media (max-width: 980px) {
+    .cx-reviews-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cx-reviews-filters {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding: 2px 2px 10px;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+    }
+    .cx-reviews-filters::-webkit-scrollbar { display: none; }
+    .cx-reviews-pill {
+      flex: 0 0 auto;
+      min-width: 172px;
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .cx-reviews-header {
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+    .cx-reviews-rating { text-align: left; }
+    .cx-reviews-stars { justify-content: flex-start; }
+    .cx-reviews-score { font-size: 52px; }
+    .cx-reviews-pill {
+      min-width: 166px;
+      min-height: 46px;
+      padding: 0 18px;
+      font-size: 13px;
+    }
+    .cx-reviews-grid { grid-template-columns: 1fr; }
+    .cx-reviews-card {
+      padding: 22px;
+      min-height: 0;
+    }
+  }
 </style>
+
+<script>
+  (() => {
+    const sections = document.querySelectorAll('[data-cx-reviews-section]:not([data-cx-reviews-bound])');
+
+    sections.forEach((section) => {
+      section.setAttribute('data-cx-reviews-bound', 'true');
+      const grid = section.querySelector('[data-cx-reviews-grid]');
+      const pills = Array.from(section.querySelectorAll('[data-cx-review-pill]'));
+      const cards = Array.from(section.querySelectorAll('[data-cx-review-card]'));
+      if (!grid || !pills.length || !cards.length) return;
+
+      const sortCards = (mode) => {
+        const sorted = [...cards].sort((a, b) => {
+          if (mode === 'recent') {
+            return String(b.dataset.date || '').localeCompare(String(a.dataset.date || ''));
+          }
+          return Number(a.dataset.index || 0) - Number(b.dataset.index || 0);
+        });
+        sorted.forEach((card) => grid.appendChild(card));
+      };
+
+      const applyFilter = (filter) => {
+        grid.classList.add('cx-is-changing');
+        cards.forEach((card) => card.classList.add('cx-is-filtering'));
+
+        window.setTimeout(() => {
+          sortCards(filter);
+          cards.forEach((card) => {
+            const visible = filter === 'all' || filter === 'recent' || card.dataset.category === filter;
+            card.hidden = !visible;
+            card.classList.toggle('cx-is-filtering', !visible);
+          });
+
+          window.requestAnimationFrame(() => {
+            cards.forEach((card) => {
+              if (!card.hidden) card.classList.remove('cx-is-filtering');
+            });
+            grid.classList.remove('cx-is-changing');
+          });
+        }, 150);
+      };
+
+      pills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          const filter = pill.dataset.cxReviewPill || 'all';
+          pills.forEach((item) => {
+            const active = item === pill;
+            item.classList.toggle('cx-is-active', active);
+            item.setAttribute('aria-selected', String(active));
+          });
+          applyFilter(filter);
+        });
+      });
+    });
+  })();
+</script>
 
 {% schema %}
 {
@@ -127,8 +373,8 @@
       "default": "display",
       "options": [
         { "value": "display", "label": "Display (Playfair)" },
-        { "value": "sans",    "label": "Sans (Inter)" },
-        { "value": "mono",    "label": "Mono" }
+        { "value": "sans", "label": "Sans (Inter)" },
+        { "value": "mono", "label": "Mono" }
       ]
     },
     { "type": "range", "id": "ovr_h_size", "label": "Heading size", "min": 24, "max": 96, "step": 2, "default": 48, "unit": "px" }
@@ -139,21 +385,61 @@
       "name": "Review",
       "settings": [
         { "type": "text", "id": "name", "label": "Name", "default": "Laurie M." },
-        { "type": "text", "id": "date", "label": "Date", "default": "January 14, 2026" },
+        { "type": "text", "id": "date", "label": "Display date", "default": "January 14, 2026" },
+        { "type": "text", "id": "sort_date", "label": "Sort date (YYYY-MM-DD)", "default": "2026-01-14" },
         { "type": "range", "id": "rating", "label": "Stars", "min": 1, "max": 5, "step": 1, "default": 5 },
+        {
+          "type": "select",
+          "id": "category",
+          "label": "Filter category",
+          "default": "whitening",
+          "options": [
+            { "value": "sensitive", "label": "Sensitive teeth" },
+            { "value": "whitening", "label": "Whitening" },
+            { "value": "fresh-breath", "label": "Fresh breath" },
+            { "value": "daily-routine", "label": "Daily routine" }
+          ]
+        },
         { "type": "text", "id": "title", "label": "Title", "default": "Found what I was looking for" },
         { "type": "textarea", "id": "body", "label": "Review", "default": "Tried everything in whitening toothpaste. After 30 days my dentist was the first to compliment how naturally healthy my teeth looked." },
-        { "type": "text", "id": "verified", "label": "Verification", "default": "Fresh Mint · 3 months" }
+        { "type": "text", "id": "verified", "label": "Verification", "default": "Fresh Mint - 3 months" }
       ]
     }
   ],
-  "max_blocks": 6,
+  "max_blocks": 30,
   "default": {
     "settings": {},
     "blocks": [
-      { "type": "review", "settings": { "name": "Laurie M.", "date": "January 14, 2026", "rating": 5, "title": "Found what I was looking for", "body": "Tried everything in whitening toothpaste. After 30 days my dentist was the first to compliment how naturally healthy my teeth looked. That says it all.", "verified": "Fresh Mint · 3 months" } },
-      { "type": "review", "settings": { "name": "Dennis B.", "date": "January 12, 2026", "rating": 5, "title": "Real difference",            "body": "I have very sensitive teeth. After a few weeks of OralBiome Pro — without mouthwash that wipes out 700 species — everything finally feels calm.", "verified": "Cool Mint · 6 weeks" } },
-      { "type": "review", "settings": { "name": "Leni K.",   "date": "January 10, 2026", "rating": 5, "title": "Finally fluoride-free",       "body": "Finally an option I don't have to second-guess. The ingredients are what they say they are, the science holds up, and it works.", "verified": "Peach · subscribed" } }
+      { "type": "review", "settings": { "name": "Laurie M.", "date": "May 1, 2026", "sort_date": "2026-05-01", "rating": 5, "category": "whitening", "title": "Naturally brighter", "body": "After a month my teeth looked brighter without that stripped feeling. The change is subtle in the best way: clean, healthy and natural.", "verified": "Fresh Mint - 3 months" } },
+      { "type": "review", "settings": { "name": "Mila S.", "date": "April 28, 2026", "sort_date": "2026-04-28", "rating": 5, "category": "sensitive", "title": "Calmer mornings", "body": "Cold water used to make me pause. Now brushing feels comfortable and my teeth feel stronger throughout the morning.", "verified": "Cool Mint - 8 weeks" } },
+      { "type": "review", "settings": { "name": "Thomas R.", "date": "April 24, 2026", "sort_date": "2026-04-24", "rating": 5, "category": "fresh-breath", "title": "Fresh without burn", "body": "The freshness lasts, but it does not feel aggressive. I like that my mouth feels balanced instead of blasted by mint.", "verified": "Fresh Mint - subscribed" } },
+      { "type": "review", "settings": { "name": "Nina K.", "date": "April 21, 2026", "sort_date": "2026-04-21", "rating": 5, "category": "daily-routine", "title": "Easy to keep using", "body": "It slipped into my daily routine immediately. No complicated steps, just a cleaner feeling after every brush.", "verified": "Fresh Mint - 6 weeks" } },
+      { "type": "review", "settings": { "name": "Eva L.", "date": "April 17, 2026", "sort_date": "2026-04-17", "rating": 5, "category": "whitening", "title": "My smile looks cleaner", "body": "I was not chasing a fake white look. I wanted my smile to look healthier, and that is exactly what happened.", "verified": "Fresh Mint - 2 months" } },
+      { "type": "review", "settings": { "name": "Jonas V.", "date": "April 13, 2026", "sort_date": "2026-04-13", "rating": 5, "category": "sensitive", "title": "No sharp zing", "body": "The sharp zing near my gumline has eased a lot. It feels gentle, but the clean feeling is still very noticeable.", "verified": "Cool Mint - 10 weeks" } },
+      { "type": "review", "settings": { "name": "Amira B.", "date": "April 9, 2026", "sort_date": "2026-04-09", "rating": 5, "category": "fresh-breath", "title": "Better after coffee", "body": "Coffee breath used to bother me by midday. This keeps things fresher for longer without feeling like mouthwash.", "verified": "Fresh Mint - 7 weeks" } },
+      { "type": "review", "settings": { "name": "Lucas D.", "date": "April 5, 2026", "sort_date": "2026-04-05", "rating": 5, "category": "daily-routine", "title": "Dentist noticed", "body": "At my checkup, my hygienist said my gumline looked cleaner. That was enough proof for me to keep going.", "verified": "Fresh Mint - 3 months" } },
+      { "type": "review", "settings": { "name": "Sanne P.", "date": "March 31, 2026", "sort_date": "2026-03-31", "rating": 5, "category": "whitening", "title": "Glow without sensitivity", "body": "Other whitening products made my teeth feel exposed. This gave me a brighter look while still feeling protective.", "verified": "Fresh Mint - 9 weeks" } },
+      { "type": "review", "settings": { "name": "Noah J.", "date": "March 27, 2026", "sort_date": "2026-03-27", "rating": 5, "category": "sensitive", "title": "Finally gentle enough", "body": "I usually stop using new toothpaste after a few days because my teeth react. This one stayed comfortable.", "verified": "Cool Mint - 2 months" } },
+      { "type": "review", "settings": { "name": "Femke A.", "date": "March 23, 2026", "sort_date": "2026-03-23", "rating": 5, "category": "fresh-breath", "title": "Clean feeling lasts", "body": "The clean feeling lasts well into the day. It is fresh, smooth and not overpowering.", "verified": "Fresh Mint - subscribed" } },
+      { "type": "review", "settings": { "name": "David H.", "date": "March 18, 2026", "sort_date": "2026-03-18", "rating": 5, "category": "daily-routine", "title": "The whole family uses it", "body": "We switched as a household. Everyone likes the texture, and I like knowing the routine is more thoughtful.", "verified": "Family routine - 2 months" } },
+      { "type": "review", "settings": { "name": "Iris C.", "date": "March 14, 2026", "sort_date": "2026-03-14", "rating": 5, "category": "whitening", "title": "Less dullness", "body": "My teeth looked less dull after a few weeks. It is not harsh, just a steady healthier brightness.", "verified": "Fresh Mint - 6 weeks" } },
+      { "type": "review", "settings": { "name": "Koen M.", "date": "March 10, 2026", "sort_date": "2026-03-10", "rating": 5, "category": "sensitive", "title": "Comfort came back", "body": "I can drink cold sparkling water again without bracing for it. That sounds small, but it makes a big difference.", "verified": "Cool Mint - 11 weeks" } },
+      { "type": "review", "settings": { "name": "Lotte F.", "date": "March 6, 2026", "sort_date": "2026-03-06", "rating": 5, "category": "fresh-breath", "title": "Morning breath improved", "body": "Morning breath is noticeably better. My mouth feels cleaner when I wake up, not dry or coated.", "verified": "Fresh Mint - 9 weeks" } },
+      { "type": "review", "settings": { "name": "Owen T.", "date": "March 2, 2026", "sort_date": "2026-03-02", "rating": 5, "category": "daily-routine", "title": "Feels premium every day", "body": "The texture and taste make brushing feel more premium. It is one of those small upgrades I actually notice.", "verified": "Fresh Mint - 8 weeks" } },
+      { "type": "review", "settings": { "name": "Sara N.", "date": "February 26, 2026", "sort_date": "2026-02-26", "rating": 5, "category": "whitening", "title": "Healthy white, not chalky", "body": "The result looks healthy, not chalky or artificial. I have had several compliments on my smile.", "verified": "Fresh Mint - 3 months" } },
+      { "type": "review", "settings": { "name": "Bram W.", "date": "February 22, 2026", "sort_date": "2026-02-22", "rating": 5, "category": "sensitive", "title": "Gentle on exposed areas", "body": "I have a few sensitive spots near old recession. This feels much kinder there than my previous toothpaste.", "verified": "Cool Mint - 3 months" } },
+      { "type": "review", "settings": { "name": "Yara E.", "date": "February 18, 2026", "sort_date": "2026-02-18", "rating": 5, "category": "fresh-breath", "title": "No heavy aftertaste", "body": "Fresh breath without a heavy artificial aftertaste. That balance is exactly what I wanted.", "verified": "Fresh Mint - 2 months" } },
+      { "type": "review", "settings": { "name": "Mark G.", "date": "February 14, 2026", "sort_date": "2026-02-14", "rating": 5, "category": "daily-routine", "title": "Routine finally stuck", "body": "I am usually inconsistent with oral care upgrades. This is simple enough that the habit actually stuck.", "verified": "Daily kit - 7 weeks" } },
+      { "type": "review", "settings": { "name": "Elise R.", "date": "February 10, 2026", "sort_date": "2026-02-10", "rating": 5, "category": "whitening", "title": "Better than strips", "body": "Whitening strips always felt like too much. This is slower, gentler and much easier to keep using.", "verified": "Fresh Mint - subscribed" } },
+      { "type": "review", "settings": { "name": "Adam S.", "date": "February 6, 2026", "sort_date": "2026-02-06", "rating": 5, "category": "sensitive", "title": "Noticeably less reactive", "body": "My teeth are less reactive after brushing and eating. I did not expect to feel the difference so clearly.", "verified": "Cool Mint - 8 weeks" } },
+      { "type": "review", "settings": { "name": "Hanna O.", "date": "February 2, 2026", "sort_date": "2026-02-02", "rating": 5, "category": "fresh-breath", "title": "Fresh through meetings", "body": "It gets me through long meeting days with more confidence. The fresh feeling is clean, not loud.", "verified": "Fresh Mint - 6 weeks" } },
+      { "type": "review", "settings": { "name": "Ruben C.", "date": "January 29, 2026", "sort_date": "2026-01-29", "rating": 5, "category": "daily-routine", "title": "Clean at the gumline", "body": "My teeth feel especially clean along the gumline. That is where I normally notice buildup first.", "verified": "Fresh Mint - 3 months" } },
+      { "type": "review", "settings": { "name": "Claire V.", "date": "January 25, 2026", "sort_date": "2026-01-25", "rating": 5, "category": "whitening", "title": "Photos look better", "body": "I noticed it most in photos. My teeth reflect light better and still look like my natural smile.", "verified": "Fresh Mint - 10 weeks" } },
+      { "type": "review", "settings": { "name": "Jesse L.", "date": "January 21, 2026", "sort_date": "2026-01-21", "rating": 5, "category": "sensitive", "title": "Less cold sensitivity", "body": "Cold sensitivity has eased enough that I stopped thinking about it every time I drink something cold.", "verified": "Cool Mint - 2 months" } },
+      { "type": "review", "settings": { "name": "Roos B.", "date": "January 17, 2026", "sort_date": "2026-01-17", "rating": 5, "category": "fresh-breath", "title": "Balanced mouthfeel", "body": "My mouth feels balanced after brushing, not dry. The freshness feels like health, not perfume.", "verified": "Fresh Mint - 5 weeks" } },
+      { "type": "review", "settings": { "name": "Tim D.", "date": "January 13, 2026", "sort_date": "2026-01-13", "rating": 5, "category": "daily-routine", "title": "Worth the switch", "body": "I switched because I wanted something more modern. I stayed because the daily clean feels excellent.", "verified": "Daily kit - subscribed" } },
+      { "type": "review", "settings": { "name": "Mara H.", "date": "January 9, 2026", "sort_date": "2026-01-09", "rating": 5, "category": "whitening", "title": "Subtle but real", "body": "The whitening effect is subtle but real. My teeth look polished instead of artificially bright.", "verified": "Fresh Mint - 7 weeks" } },
+      { "type": "review", "settings": { "name": "Peter A.", "date": "January 5, 2026", "sort_date": "2026-01-05", "rating": 5, "category": "daily-routine", "title": "Best daily toothpaste", "body": "It is the first toothpaste I have reordered before running out. Simple, clean and clearly better than what I used before.", "verified": "Fresh Mint - 3 months" } }
     ]
   }
 }
