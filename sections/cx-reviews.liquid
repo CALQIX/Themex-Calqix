@@ -379,10 +379,10 @@
       padding: 25px 22px 22px;
     }
     .cx-reviews-card:hover { transform: none; }
-    .cx-reviews-card.cx-has-more .cx-reviews-more {
-      display: inline-flex;
+    .cx-section-reviews .cx-reviews-card.cx-has-more .cx-reviews-more {
+      display: inline-flex !important;
     }
-    .cx-reviews-more {
+    .cx-section-reviews .cx-reviews-more {
       align-items: center;
       align-self: flex-start;
       gap: 7px;
@@ -392,8 +392,9 @@
       border-radius: 999px;
       background: rgba(255,255,255,.78);
       color: var(--cx-forest);
-      font-family: var(--cx-f-display), "DM Serif Display", serif;
-      font-size: 10px;
+      font-family: var(--cx-f-display), "DM Serif Display", serif !important;
+      font-size: 10px !important;
+      line-height: 1.1;
       font-weight: 400;
       letter-spacing: .08em;
       text-transform: uppercase;
@@ -529,6 +530,12 @@
       resume = window.setTimeout(startAutoplay, 7600);
     }
 
+    function navigate(delta) {
+      var current = track.scrollLeft / stepSize();
+      var target = delta > 0 ? Math.floor(current) + 1 : Math.ceil(current) - 1;
+      goTo(target);
+    }
+
     function getWords(text) {
       return String(text || '').trim().split(/\s+/).filter(Boolean);
     }
@@ -575,12 +582,12 @@
 
     if (prev) prev.addEventListener('click', function () {
       pauseAutoplay();
-      goTo(activeIndex() - 1);
+      navigate(-1);
     });
 
     if (next) next.addEventListener('click', function () {
       pauseAutoplay();
-      goTo(activeIndex() + 1);
+      navigate(1);
     });
 
     track.addEventListener('click', function (event) {
