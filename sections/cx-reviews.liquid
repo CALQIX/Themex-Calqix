@@ -12,6 +12,7 @@
 -%}
 
 {% render 'cx-section-overrides', section: section %}
+{{ 'cx-reviews-data.js' | asset_url | script_tag }}
 <section class="cx-root cx-section" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-reviews-header">
@@ -451,8 +452,87 @@
 
 <script>
 (function () {
-  var scopes = document.querySelectorAll('.cx-section-reviews .cx-root');
-  scopes.forEach(function (scope) {
+  var importedReviews = Array.isArray(window.CX_CALQIX_REVIEWS) ? window.CX_CALQIX_REVIEWS.slice() : [];
+  var verifiedLabel = {{ cx_reviews_verified | json }};
+  var categoryMap = {
+    all: 'all',
+    recent: 'recent',
+    sensitive: 'sensitive_teeth',
+    whitening: 'whitening',
+    fresh: 'fresh_breath',
+    daily: 'daily_routine'
+  };
+  var filterKeys = ['all', 'recent', 'sensitive', 'whitening', 'fresh', 'daily'];
+  var WORD_LIMIT = 10;
+
+  function escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function dateValue(review) {
+    return Date.parse(review.date || '') || 0;
+  }
+
+  function formatDate(value) {
+    var parsed = Date.parse(value || '');
+    if (!parsed) return escapeHtml(value || '');
+    var locale = document.documentElement.lang || navigator.language || 'en';
+    return new Intl.DateTimeFormat(locale, { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(parsed));
+  }
+
+  function productLabel(value) {
+    var labels = {
+      flowcore_flosser: 'FlowCore',
+      nha_tablets: 'Fresh Mint',
+      oralbiome_pro: 'OralBiome Pro'
+    };
+    return labels[value] || String(value || '').replace(/_/g, ' ');
+  }
+
+  function starsHtml(rating) {
+    var count = Math.max(1, Math.min(5, parseInt(rating, 10) || 5));
+    var html = '';
+    for (var i = 0; i < count; i += 1) {
+      html += '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>';
+    }
+    return html;
+  }
+
+  function reviewCard(review) {
+    var title = String(review.title || '').trim();
+    var body = String(review.body || '').trim();
+    var name = String(review.name_or_initials || '').trim();
+    var meta = productLabel(review.product_context);
+    return [
+      '<div class="cx-reviews-card cx-lux-lift" data-cx-review-id="' + escapeHtml(review.id) + '" data-cx-filter="' + escapeHtml(review.category) + '" data-cx-locale="' + escapeHtml(review.locale) + '">',
+      '<div class="cx-reviews-stars-row">' + starsHtml(review.rating) + '</div>',
+      '<h3 class="cx-reviews-title">&ldquo;' + escapeHtml(title) + '&rdquo;</h3>',
+      '<p class="cx-reviews-body">' + escapeHtml(body) + '</p>',
+      '<button type="button" class="cx-reviews-more" data-cx-reviews-more aria-expanded="false">Meer lezen</button>',
+      '<div class="cx-reviews-footer">',
+      '<div><div class="cx-reviews-name">' + escapeHtml(name) + '</div><div class="cx-reviews-date">' + formatDate(review.date) + '</div></div>',
+      '<div class="cx-reviews-verified">✓ ' + escapeHtml(verifiedLabel) + '<br><span>' + escapeHtml(meta) + '</span></div>',
+      '</div>',
+      '</div>'
+    ].join('');
+  }
+
+  function getWords(text) {
+    return String(text || '').trim().split(/\s+/).filter(Boolean);
+  }
+
+  function truncateWords(text) {
+    var words = getWords(text);
+    if (words.length <= WORD_LIMIT) return text;
+    return words.slice(0, WORD_LIMIT).join(' ') + '...';
+  }
+
+  document.querySelectorAll('.cx-section-reviews .cx-root').forEach(function (scope) {
     var track = scope.querySelector('[data-cx-reviews-track]');
     var rail = scope.querySelector('[data-cx-reviews-rail]');
     var railThumb = rail ? rail.querySelector('span') : null;
@@ -461,7 +541,23 @@
     var filters = scope.querySelector('[data-cx-review-filter]');
     if (!track) return;
 
-    var cards = Array.prototype.slice.call(track.querySelectorAll('.cx-reviews-card'));
+    var sourceReviews = importedReviews.length ? importedReviews : Array.prototype.slice.call(track.querySelectorAll('.cx-reviews-card')).map(function (card, index) {
+      return {
+        id: 'fallback-' + index,
+        category: filterKeys[(index % (filterKeys.length - 2)) + 2],
+        locale: document.documentElement.lang || 'en',
+        rating: card.querySelectorAll('.cx-reviews-stars-row svg').length || 5,
+        title: (card.querySelector('.cx-reviews-title') || {}).textContent || '',
+        body: (card.querySelector('.cx-reviews-body') || {}).textContent || '',
+        name_or_initials: (card.querySelector('.cx-reviews-name') || {}).textContent || '',
+        date: (card.querySelector('.cx-reviews-date') || {}).textContent || '',
+        product_context: (card.querySelector('.cx-reviews-verified span') || {}).textContent || '',
+        verified_status: 'verified',
+        source: 'theme'
+      };
+    });
+    var activeFilter = 'all';
+    var cards = [];
     var autoplay = null;
     var resume = null;
     var scrollTicking = false;
@@ -469,8 +565,6 @@
     var dragStartX = 0;
     var dragStartScroll = 0;
     var dragMoved = false;
-    var WORD_LIMIT = 10;
-    var filterMap = ['all', 'recent', 'sensitive', 'whitening', 'fresh', 'daily'];
 
     function isMobile() {
       return window.matchMedia('(max-width: 640px)').matches;
@@ -519,7 +613,7 @@
         left: target * stepSize(),
         behavior: behavior || (prefersReducedMotion() ? 'auto' : 'smooth')
       });
-      window.setTimeout(updateRail, 90);
+      window.setTimeout(updateRail, 100);
     }
 
     function stopAutoplay() {
@@ -552,14 +646,16 @@
       goTo(target);
     }
 
-    function getWords(text) {
-      return String(text || '').trim().split(/\s+/).filter(Boolean);
-    }
-
-    function truncateWords(text) {
-      var words = getWords(text);
-      if (words.length <= WORD_LIMIT) return text;
-      return words.slice(0, WORD_LIMIT).join(' ') + '...';
+    function reviewsForFilter(key) {
+      var mapped = categoryMap[key] || 'all';
+      var reviews = sourceReviews.slice();
+      if (mapped === 'recent') {
+        return reviews.sort(function (a, b) { return dateValue(b) - dateValue(a); });
+      }
+      if (mapped !== 'all') {
+        reviews = reviews.filter(function (review) { return review.category === mapped; });
+      }
+      return reviews;
     }
 
     function applyMobileReadMore() {
@@ -567,15 +663,10 @@
         var body = card.querySelector('.cx-reviews-body');
         var button = card.querySelector('[data-cx-reviews-more]');
         if (!body || !button) return;
-
-        if (!body.dataset.fullText) {
-          body.dataset.fullText = body.textContent.trim();
-        }
-
+        if (!body.dataset.fullText) body.dataset.fullText = body.textContent.trim();
         var full = body.dataset.fullText;
         var hasMore = getWords(full).length > WORD_LIMIT;
         card.classList.toggle('cx-has-more', isMobile() && hasMore);
-
         if (!isMobile() || !hasMore) {
           card.classList.remove('cx-is-expanded');
           body.textContent = full;
@@ -583,7 +674,6 @@
           button.textContent = 'Meer lezen';
           return;
         }
-
         if (card.classList.contains('cx-is-expanded')) {
           body.textContent = full;
           button.textContent = 'Minder lezen';
@@ -616,28 +706,28 @@
       });
     }
 
-    function activeCards() {
-      cards = Array.prototype.slice.call(track.querySelectorAll('.cx-reviews-card:not([data-cx-review-hidden])'));
-    }
-
-    function applyFilter(key) {
+    function renderReviews(key) {
+      activeFilter = key || activeFilter || 'all';
+      var reviews = reviewsForFilter(activeFilter);
+      track.innerHTML = reviews.map(reviewCard).join('');
       cards = Array.prototype.slice.call(track.querySelectorAll('.cx-reviews-card'));
-      cards.forEach(function (card, index) {
-        var hide = key && key !== 'all' && key !== 'recent' && card.dataset.cxFilter !== key;
-        if (hide) {
-          card.setAttribute('data-cx-review-hidden', 'true');
-        } else {
-          card.removeAttribute('data-cx-review-hidden');
-        }
-      });
-      activeCards();
-      if (key === 'recent') {
-        cards.forEach(function (card, index) { card.style.order = String(cards.length - index); });
-      } else {
-        cards.forEach(function (card) { card.style.order = ''; });
-      }
+      bindReadMoreButtons();
+      applyMobileReadMore();
       goTo(0, 'auto');
       updateRail();
+      startAutoplay();
+    }
+
+    if (filters) {
+      filters.querySelectorAll('[data-cx-review-pill]').forEach(function (pill, index) {
+        pill.dataset.cxReviewFilterValue = filterKeys[index] || 'all';
+      });
+      filters.addEventListener('click', function (event) {
+        var pill = event.target.closest('[data-cx-review-pill]');
+        if (!pill) return;
+        pauseAutoplay();
+        renderReviews(pill.dataset.cxReviewFilterValue || 'all');
+      });
     }
 
     if (prev) prev.addEventListener('click', function () {
@@ -694,34 +784,13 @@
       dragMoved = false;
     }, true);
 
-    if (filters) {
-      filters.querySelectorAll('[data-cx-review-pill]').forEach(function (pill, index) {
-        pill.dataset.cxReviewFilterValue = filterMap[index] || 'all';
-      });
-
-      Array.prototype.slice.call(track.querySelectorAll('.cx-reviews-card')).forEach(function (card, index) {
-        card.dataset.cxFilter = filterMap[(index % (filterMap.length - 1)) + 1] || 'all';
-      });
-
-      filters.addEventListener('click', function (event) {
-        var pill = event.target.closest('[data-cx-review-pill]');
-        if (!pill) return;
-        pauseAutoplay();
-        applyFilter(pill.dataset.cxReviewFilterValue || 'all');
-      });
-    }
-
     window.addEventListener('resize', function () {
       applyMobileReadMore();
       updateRail();
       startAutoplay();
     });
 
-    bindReadMoreButtons();
-    applyMobileReadMore();
-    activeCards();
-    updateRail();
-    startAutoplay();
+    renderReviews('all');
   });
 })();
 </script>
