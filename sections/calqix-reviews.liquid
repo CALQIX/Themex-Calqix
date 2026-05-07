@@ -142,9 +142,61 @@
     color: {{ color_arrow_hover_icon }};
   }
   @media (max-width: 640px) {
+    #cq-reviews-{{ section.id }} {
+      padding-top: 58px;
+      padding-bottom: 68px;
+    }
+    #cq-reviews-{{ section.id }} .cqr-inner {
+      padding: 0 18px;
+    }
+    #cq-reviews-{{ section.id }} .cqr-header {
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+    #cq-reviews-{{ section.id }} .cqr-title {
+      font-size: clamp(34px, 10vw, 44px);
+      max-width: 10ch;
+    }
+    #cq-reviews-{{ section.id }} .cqr-aggregate {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 12px;
+      align-items: center;
+    }
+    #cq-reviews-{{ section.id }} .cqr-agg-score {
+      grid-row: span 2;
+      font-size: 44px;
+    }
+    #cq-reviews-{{ section.id }} .cqr-filters {
+      flex-wrap: nowrap;
+      gap: 10px;
+      margin: 0 -18px 18px;
+      padding: 2px 18px 12px;
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      mask-image: linear-gradient(90deg, transparent 0, black 18px, black calc(100% - 18px), transparent 100%);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, black 18px, black calc(100% - 18px), transparent 100%);
+    }
+    #cq-reviews-{{ section.id }} .cqr-filters::-webkit-scrollbar {
+      display: none;
+    }
+    #cq-reviews-{{ section.id }} .cqr-filter {
+      flex: 0 0 auto;
+      min-height: 44px;
+      padding: 10px 17px;
+      scroll-snap-align: start;
+      text-transform: none;
+      font-size: 13px;
+      letter-spacing: 0;
+      box-shadow: 0 10px 28px rgba(15, 36, 56, .06);
+    }
     #cq-reviews-{{ section.id }} .cqr-track-wrap {
-      mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
-      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+      margin: 0 -18px;
+      padding: 0 18px;
+      mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
     }
   }
 
@@ -174,7 +226,23 @@
     #cq-reviews-{{ section.id }} .cqr-card { flex: 0 0 300px; padding: 24px 20px 20px; }
   }
   @media (max-width: 480px) {
-    #cq-reviews-{{ section.id }} .cqr-card { flex: 0 0 calc(100vw - 56px); }
+    #cq-reviews-{{ section.id }} .cqr-track {
+      gap: 14px;
+      transition: transform 0.72s cubic-bezier(.2, .78, .16, 1);
+    }
+    #cq-reviews-{{ section.id }} .cqr-card {
+      flex: 0 0 calc(100vw - 54px);
+      min-height: 356px;
+      padding: 25px 22px 22px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 88% 12%, {{ color_accent | color_modify: 'alpha', 0.10 }}, transparent 26%),
+        linear-gradient(180deg, {{ bg_card }}, {{ bg_card | color_modify: 'alpha', 0.92 }});
+      box-shadow: 0 18px 46px rgba(0, 37, 73, .08), inset 0 1px 0 rgba(255,255,255,.78);
+    }
+    #cq-reviews-{{ section.id }} .cqr-card:hover {
+      transform: none;
+    }
   }
 
   #cq-reviews-{{ section.id }} .cqr-verified {
@@ -218,6 +286,45 @@
     font-family: 'DM Sans', sans-serif;
     font-size: 14.5px; line-height: 1.7;
     color: {{ color_body }}; flex: 1; margin-bottom: 24px;
+  }
+  #cq-reviews-{{ section.id }} .cqr-read-more {
+    display: none;
+    align-self: flex-start;
+    border: 0;
+    background: transparent;
+    color: {{ color_accent }};
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    padding: 0;
+    margin: -6px 0 18px;
+    cursor: pointer;
+  }
+  #cq-reviews-{{ section.id }} .cqr-read-more::after {
+    content: "→";
+    margin-left: 7px;
+    transition: transform .24s ease;
+  }
+  #cq-reviews-{{ section.id }} .cqr-card.cqr-expanded .cqr-read-more::after {
+    transform: rotate(-90deg);
+  }
+  @media (max-width: 640px) {
+    #cq-reviews-{{ section.id }} .cqr-card:not(.cqr-expanded) .cqr-body {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      max-height: 6.8em;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    #cq-reviews-{{ section.id }} .cqr-card.cqr-expanded .cqr-body {
+      max-height: none;
+    }
+    #cq-reviews-{{ section.id }} .cqr-read-more {
+      display: inline-flex;
+      align-items: center;
+    }
   }
 
   #cq-reviews-{{ section.id }} .cqr-author {
@@ -298,10 +405,114 @@
     box-shadow: none;
     transform: none;
   }
+  #cq-reviews-{{ section.id }} .cqr-edge-btn,
+  #cq-reviews-{{ section.id }} .cqr-mobile-progress {
+    display: none;
+  }
   @media (max-width: 640px) {
+    #cq-reviews-{{ section.id }} .cqr-nav {
+      margin-top: 22px;
+      gap: 10px;
+    }
     #cq-reviews-{{ section.id }} .cqr-arrow {
+      width: 44px;
+      height: 44px;
+      background: {{ color_arrow_hover_bg }};
+      border-color: {{ color_arrow_hover_bg }};
+      box-shadow: 0 14px 28px rgba(0, 37, 73, .16);
+    }
+    #cq-reviews-{{ section.id }} .cqr-arrow .cqr-arrow-svg {
+      stroke: {{ color_arrow_hover_icon }} !important;
+    }
+    #cq-reviews-{{ section.id }} .cqr-edge-btn {
+      position: absolute;
+      top: 50%;
+      z-index: 4;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       width: 42px;
-      height: 42px;
+      height: 82px;
+      border: 1px solid {{ color_arrow_border | color_modify: 'alpha', 0.65 }};
+      border-radius: 999px;
+      background: rgba(255,255,255,.86);
+      color: {{ color_title }};
+      box-shadow: 0 16px 38px rgba(0, 37, 73, .14), inset 0 1px 0 rgba(255,255,255,.86);
+      backdrop-filter: blur(14px);
+      transform: translateY(-50%);
+      cursor: pointer;
+      transition: transform .24s ease, opacity .24s ease, background .24s ease;
+    }
+    #cq-reviews-{{ section.id }} .cqr-edge-btn[data-dir="prev"] {
+      left: 7px;
+    }
+    #cq-reviews-{{ section.id }} .cqr-edge-btn[data-dir="next"] {
+      right: 7px;
+    }
+    #cq-reviews-{{ section.id }} .cqr-edge-btn:active {
+      transform: translateY(-50%) scale(.96);
+    }
+    #cq-reviews-{{ section.id }} .cqr-edge-btn:disabled {
+      opacity: .24;
+      pointer-events: none;
+    }
+    #cq-reviews-{{ section.id }} .cqr-mobile-progress {
+      position: relative;
+      display: block;
+      width: min(232px, 66vw);
+      height: 7px;
+      margin: 18px auto 0;
+      border-radius: 999px;
+      background:
+        linear-gradient(90deg, rgba(0,37,73,0), rgba(0,37,73,.16) 14%, rgba(0,37,73,.16) 86%, rgba(0,37,73,0));
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(0, 37, 73, .08);
+    }
+    #cq-reviews-{{ section.id }} .cqr-mobile-progress::before,
+    #cq-reviews-{{ section.id }} .cqr-mobile-progress::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      z-index: 2;
+      width: 7px;
+      height: 7px;
+      border-top: 1.5px solid rgba(0, 37, 73, .42);
+      border-right: 1.5px solid rgba(0, 37, 73, .42);
+    }
+    #cq-reviews-{{ section.id }} .cqr-mobile-progress::before {
+      left: 5px;
+      transform: translateY(-50%) rotate(-135deg);
+    }
+    #cq-reviews-{{ section.id }} .cqr-mobile-progress::after {
+      right: 5px;
+      transform: translateY(-50%) rotate(45deg);
+    }
+    #cq-reviews-{{ section.id }} .cqr-progress-thumb {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: var(--cqr-progress-width, 34%);
+      border-radius: inherit;
+      background: linear-gradient(90deg, {{ color_accent }}, #0076c2, {{ color_title }});
+      box-shadow: 0 0 18px rgba(0,118,194,.28), 0 0 8px {{ color_accent | color_modify: 'alpha', 0.28 }};
+      transform: translateX(var(--cqr-progress-x, 0%));
+      transition: transform .72s cubic-bezier(.2, .78, .16, 1), width .32s ease;
+    }
+    #cq-reviews-{{ section.id }} .cqr-mobile-progress.cqr-is-autoplaying .cqr-progress-thumb {
+      animation: cqrMobilePulse 1800ms ease-in-out infinite;
+    }
+  }
+
+  @keyframes cqrMobilePulse {
+    0%, 100% { filter: saturate(1); opacity: .82; }
+    50% { filter: saturate(1.18); opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #cq-reviews-{{ section.id }} .cqr-track,
+    #cq-reviews-{{ section.id }} .cqr-progress-thumb,
+    #cq-reviews-{{ section.id }} .cqr-mobile-progress.cqr-is-autoplaying .cqr-progress-thumb {
+      transition: none;
+      animation: none;
     }
   }
 </style>
@@ -333,6 +544,11 @@
     </div>
 
     <div class="cqr-track-wrap">
+      <button class="cqr-edge-btn" id="cqr-edge-prev-{{ section.id }}" data-dir="prev" type="button" aria-label="Previous review">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{ color_arrow_icon }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 18L9 12L15 6"/>
+        </svg>
+      </button>
       <div class="cqr-track" id="cqr-track-{{ section.id }}">
         {% for block in section.blocks %}
           <div class="cqr-card">
@@ -357,6 +573,7 @@
             {% endif %}
             <span class="cqr-quote-mark">"</span>
             <p class="cqr-body">{{ block.settings.body }}</p>
+            <button class="cqr-read-more" type="button" aria-expanded="false">Meer lezen</button>
             <div class="cqr-author">
               <div class="cqr-avatar">{{ block.settings.name | slice: 0 }}</div>
               <div>
@@ -367,6 +584,14 @@
           </div>
         {% endfor %}
       </div>
+      <button class="cqr-edge-btn" id="cqr-edge-next-{{ section.id }}" data-dir="next" type="button" aria-label="Next review">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{ color_arrow_icon }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18L15 12L9 6"/>
+        </svg>
+      </button>
+    </div>
+    <div class="cqr-mobile-progress cqr-is-autoplaying" id="cqr-mobile-progress-{{ section.id }}" aria-hidden="true">
+      <span class="cqr-progress-thumb"></span>
     </div>
 
     <div class="cqr-nav">
@@ -394,6 +619,9 @@
   const dotsEl = document.getElementById('cqr-dots-' + SID);
   const prev = document.getElementById('cqr-prev-' + SID);
   const next = document.getElementById('cqr-next-' + SID);
+  const edgePrev = document.getElementById('cqr-edge-prev-' + SID);
+  const edgeNext = document.getElementById('cqr-edge-next-' + SID);
+  const mobileProgress = document.getElementById('cqr-mobile-progress-' + SID);
   const aggEl = document.getElementById('cqr-agg-stars-' + SID);
   const filters = document.getElementById('cqr-filters-' + SID);
   const localeCode = ('{{ request.locale.iso_code | downcase | slice: 0, 2 }}' || 'en').toLowerCase();
@@ -430,6 +658,18 @@
         nl: 'Geverifieerd',
         de: 'Verifiziert',
         fr: 'Vérifié'
+      },
+      readMoreLabel: {
+        en: 'Read more',
+        nl: 'Meer lezen',
+        de: 'Mehr lesen',
+        fr: 'Lire plus'
+      },
+      readLessLabel: {
+        en: 'Read less',
+        nl: 'Minder lezen',
+        de: 'Weniger lesen',
+        fr: 'Lire moins'
       },
       filterTabs: {
         en: ['All Reviews', 'Most Recent', 'Sensitive Teeth', 'Whitening', 'Gum Health', 'Daily Routine'],
@@ -1008,6 +1248,7 @@
 
   function buildReviewCard(review) {
     const verifiedLabel = localizedValue(localizedContent.sectionSettings.verifiedLabel);
+    const readMoreLabel = localizedValue(localizedContent.sectionSettings.readMoreLabel);
     const tag = localizedValue(review.tag);
     const body = localizedValue(review.body);
     const date = localizedValue(review.date);
@@ -1019,6 +1260,7 @@
         ${tag ? `<span class="cqr-tag">${escapeHtml(tag)}</span>` : ''}
         <span class="cqr-quote-mark">"</span>
         <p class="cqr-body">${escapeHtml(body)}</p>
+        <button class="cqr-read-more" type="button" aria-expanded="false">${escapeHtml(readMoreLabel)}</button>
         <div class="cqr-author">
           <div class="cqr-avatar">${escapeHtml((review.name || '').slice(0, 1))}</div>
           <div>
@@ -1036,13 +1278,26 @@
   let sx = 0;
   let dx = 0;
   let activeFilter = 'all';
+  let autoplayTimer = null;
+  let resumeTimer = null;
 
   const getVis = () => {
     const width = track.parentElement.offsetWidth;
     return width < 480 ? 1 : width < 820 ? 2 : 3;
   };
-  const getW = () => cards[0] ? cards[0].offsetWidth + 20 : 380;
+  const isMobile = () => window.matchMedia('(max-width: 640px)').matches;
+  const getGap = () => parseFloat(window.getComputedStyle(track).columnGap || window.getComputedStyle(track).gap || 20) || 20;
+  const getW = () => cards[0] ? cards[0].offsetWidth + getGap() : 380;
   const maxIdx = () => Math.max(0, cards.length - getVis());
+
+  function updateMobileProgress() {
+    if (!mobileProgress) return;
+    const max = maxIdx();
+    const width = max > 0 ? 100 / (max + 1) : 100;
+    const x = max > 0 ? cur * 100 : 0;
+    mobileProgress.style.setProperty('--cqr-progress-width', width + '%');
+    mobileProgress.style.setProperty('--cqr-progress-x', x + '%');
+  }
 
   function goTo(index) {
     cur = Math.max(0, Math.min(index, maxIdx()));
@@ -1050,6 +1305,30 @@
     if (dotsEl) dotsEl.querySelectorAll('.cqr-dot').forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === cur));
     if (prev) prev.disabled = cur === 0;
     if (next) next.disabled = cur >= maxIdx();
+    if (edgePrev) edgePrev.disabled = cur === 0;
+    if (edgeNext) edgeNext.disabled = cur >= maxIdx();
+    updateMobileProgress();
+  }
+
+  function stopAutoplay() {
+    if (autoplayTimer) window.clearInterval(autoplayTimer);
+    autoplayTimer = null;
+    if (mobileProgress) mobileProgress.classList.remove('cqr-is-autoplaying');
+  }
+
+  function startAutoplay() {
+    stopAutoplay();
+    if (!isMobile() || maxIdx() < 1 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (mobileProgress) mobileProgress.classList.add('cqr-is-autoplaying');
+    autoplayTimer = window.setInterval(() => {
+      goTo(cur >= maxIdx() ? 0 : cur + 1);
+    }, 4600);
+  }
+
+  function pauseAutoplay() {
+    stopAutoplay();
+    if (resumeTimer) window.clearTimeout(resumeTimer);
+    resumeTimer = window.setTimeout(startAutoplay, 7200);
   }
 
   function buildDots() {
@@ -1058,7 +1337,10 @@
     for (let i = 0; i <= maxIdx(); i++) {
       const button = document.createElement('button');
       button.className = 'cqr-dot' + (i === cur ? ' active' : '');
-      button.addEventListener('click', () => goTo(i));
+      button.addEventListener('click', () => {
+        pauseAutoplay();
+        goTo(i);
+      });
       dotsEl.appendChild(button);
     }
   }
@@ -1085,14 +1367,23 @@
     cur = 0;
     buildDots();
     goTo(0);
+    startAutoplay();
   }
 
-  if (prev) prev.addEventListener('click', () => goTo(cur - 1));
-  if (next) next.addEventListener('click', () => goTo(cur + 1));
+  function navigateBy(delta) {
+    pauseAutoplay();
+    goTo(cur + delta);
+  }
+
+  if (prev) prev.addEventListener('click', () => navigateBy(-1));
+  if (next) next.addEventListener('click', () => navigateBy(1));
+  if (edgePrev) edgePrev.addEventListener('click', () => navigateBy(-1));
+  if (edgeNext) edgeNext.addEventListener('click', () => navigateBy(1));
 
   if (filters) {
     filters.querySelectorAll('.cqr-filter').forEach((btn) => {
       btn.addEventListener('click', () => {
+        pauseAutoplay();
         activeFilter = btn.dataset.filter || 'all';
         filters.querySelectorAll('.cqr-filter').forEach((item) => item.classList.remove('active'));
         btn.classList.add('active');
@@ -1101,7 +1392,21 @@
     });
   }
 
+  track.addEventListener('click', (event) => {
+    const button = event.target.closest('.cqr-read-more');
+    if (!button) return;
+    pauseAutoplay();
+    const card = button.closest('.cqr-card');
+    if (!card) return;
+    const expanded = card.classList.toggle('cqr-expanded');
+    button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    button.textContent = expanded
+      ? localizedValue(localizedContent.sectionSettings.readLessLabel)
+      : localizedValue(localizedContent.sectionSettings.readMoreLabel);
+  });
+
   track.addEventListener('mousedown', (event) => {
+    pauseAutoplay();
     drag = true;
     sx = event.clientX;
     track.style.transition = 'none';
@@ -1119,6 +1424,7 @@
     dx = 0;
   });
   track.addEventListener('touchstart', (event) => {
+    pauseAutoplay();
     drag = true;
     sx = event.touches[0].clientX;
     track.style.transition = 'none';
@@ -1142,6 +1448,7 @@
   window.addEventListener('resize', () => {
     buildDots();
     goTo(Math.min(cur, maxIdx()));
+    startAutoplay();
   });
 })();
 </script>
