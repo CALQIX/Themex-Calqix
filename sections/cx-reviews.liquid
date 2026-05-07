@@ -20,7 +20,7 @@
         <h2 class="cx-h2">{{ cx_reviews_heading }}</h2>
       </div>
       <div class="cx-reviews-rating">
-        <div class="cx-gold-shimmer cx-reviews-score" data-cx-count="{{ section.settings.rating_value }}" data-cx-count-decimals="1" data-cx-count-duration="1600">0,0</div>
+        <div class="cx-gold-shimmer cx-reviews-score" data-cx-count="{{ section.settings.rating_value }}" data-cx-count-decimals="1" data-cx-count-duration="1600">{{ section.settings.rating_value }}</div>
         <div class="cx-reviews-stars">
           {%- for i in (1..5) -%}{% render 'cx-icons', name: 'star', size: 16 %}{%- endfor -%}
         </div>
@@ -118,7 +118,7 @@
   }
   .cx-reviews-score {
     font-family: var(--cx-f-display);
-    font-size: clamp(46px, 4.5vw, 62px);
+    font-size: clamp(38px, 3.6vw, 50px);
     line-height: .9;
   }
   .cx-reviews-stars {
@@ -148,18 +148,21 @@
     border: 1px solid rgba(0,67,129,.12);
     border-radius: 999px;
     background: rgba(255,255,255,.76);
-    color: var(--cx-forest);
+    color: #002549;
     box-shadow: 0 16px 40px rgba(0,37,73,.07), inset 0 1px 0 rgba(255,255,255,.78);
     backdrop-filter: blur(14px);
     transition: color .24s ease, background .24s ease, border-color .24s ease, box-shadow .24s ease, transform .24s ease;
   }
   .cx-reviews-filters .cx-pill:hover {
+    border-color: #002549;
+    background: #002549;
+    color: #fff;
     transform: translateY(-1px);
-    box-shadow: 0 20px 44px rgba(0,37,73,.10), inset 0 1px 0 rgba(255,255,255,.84);
+    box-shadow: 0 20px 44px rgba(0,37,73,.18), inset 0 1px 0 rgba(255,255,255,.18);
   }
   .cx-reviews-filters .cx-pill.cx-is-active {
-    border-color: var(--cx-forest);
-    background: var(--cx-forest);
+    border-color: #002549;
+    background: #002549;
     color: #fff;
     box-shadow: 0 18px 36px rgba(0,37,73,.22);
   }
@@ -251,7 +254,7 @@
     border: 1px solid rgba(0,67,129,.17);
     border-radius: 999px;
     background: rgba(255,255,255,.88);
-    color: var(--cx-forest);
+    color: #002549;
     box-shadow: 0 18px 44px rgba(0,37,73,.14), inset 0 1px 0 rgba(255,255,255,.88);
     backdrop-filter: blur(16px);
     transform: translateY(-50%);
@@ -265,17 +268,20 @@
     margin-top: -3px;
   }
   .cx-reviews-edge:hover {
-    background: var(--cx-forest);
+    background: #002549;
     color: #fff;
     box-shadow: 0 22px 50px rgba(0,37,73,.20);
   }
   .cx-reviews-edge:active { transform: translateY(-50%) scale(.96); }
   .cx-reviews-edge:disabled {
-    opacity: .28;
-    pointer-events: none;
+    opacity: 1;
+    pointer-events: auto;
   }
   .cx-reviews-edge[data-cx-reviews-prev] { left: 4px; }
   .cx-reviews-edge[data-cx-reviews-next] { right: 4px; }
+  .cx-reviews-card[data-cx-review-hidden] {
+    display: none;
+  }
   .cx-reviews-mobile-rail {
     position: relative;
     z-index: 1;
@@ -330,26 +336,33 @@
     .cx-section-reviews .cx-root::after { width: 520px; height: 520px; top: 52%; }
     .cx-reviews-header {
       align-items: flex-start;
-      flex-direction: column;
-      gap: 16px;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 12px;
       margin-bottom: 22px;
     }
+    .cx-reviews-header .cx-stack {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
     .cx-reviews-header .cx-h2 {
-      max-width: 10ch;
-      font-size: clamp(38px, 12vw, 54px);
+      max-width: 7.7ch;
+      font-size: clamp(34px, 10.6vw, 46px);
     }
     .cx-reviews-rating {
       display: grid;
-      grid-template-columns: auto 1fr;
-      column-gap: 12px;
+      grid-template-columns: 1fr;
+      flex: 0 0 auto;
+      justify-items: flex-end;
+      row-gap: 4px;
       align-items: center;
       padding: 0;
       border: 0;
       background: transparent;
       box-shadow: none;
-      text-align: left;
+      text-align: right;
     }
-    .cx-reviews-score { grid-row: span 2; font-size: 44px; }
+    .cx-reviews-score { grid-row: auto; font-size: 34px; }
     .cx-reviews-stars { justify-content: flex-start; margin-top: 0; }
     .cx-reviews-filters {
       gap: 10px;
@@ -391,7 +404,7 @@
       border: 1px solid rgba(0,67,129,.12);
       border-radius: 999px;
       background: rgba(255,255,255,.78);
-      color: var(--cx-forest);
+      color: #002549;
       font-family: var(--cx-f-display), "DM Serif Display", serif !important;
       font-size: 10px !important;
       line-height: 1.1;
@@ -457,6 +470,7 @@
     var dragStartScroll = 0;
     var dragMoved = false;
     var WORD_LIMIT = 10;
+    var filterMap = ['all', 'recent', 'sensitive', 'whitening', 'fresh', 'daily'];
 
     function isMobile() {
       return window.matchMedia('(max-width: 640px)').matches;
@@ -495,8 +509,8 @@
       var x = max > 0 ? activeIndex() * ((100 - width) / max) : 0;
       railThumb.style.setProperty('--cx-review-progress-w', width + '%');
       railThumb.style.setProperty('--cx-review-progress-x', x + '%');
-      if (prev) prev.disabled = activeIndex() === 0;
-      if (next) next.disabled = activeIndex() >= max;
+      if (prev) prev.disabled = false;
+      if (next) next.disabled = false;
     }
 
     function goTo(index, behavior) {
@@ -533,6 +547,8 @@
     function navigate(delta) {
       var current = track.scrollLeft / stepSize();
       var target = delta > 0 ? Math.floor(current) + 1 : Math.ceil(current) - 1;
+      if (target > maxIndex()) target = 0;
+      if (target < 0) target = maxIndex();
       goTo(target);
     }
 
@@ -580,6 +596,50 @@
       });
     }
 
+    function bindReadMoreButtons() {
+      cards.forEach(function (card) {
+        var button = card.querySelector('[data-cx-reviews-more]');
+        if (!button || button.dataset.cxBound === 'true') return;
+        button.dataset.cxBound = 'true';
+        button.addEventListener('click', function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          pauseAutoplay();
+          var body = card.querySelector('.cx-reviews-body');
+          var expanded = card.classList.toggle('cx-is-expanded');
+          if (body && body.dataset.fullText) {
+            body.textContent = expanded ? body.dataset.fullText : truncateWords(body.dataset.fullText);
+          }
+          button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+          button.textContent = expanded ? 'Minder lezen' : 'Meer lezen';
+        });
+      });
+    }
+
+    function activeCards() {
+      cards = Array.prototype.slice.call(track.querySelectorAll('.cx-reviews-card:not([data-cx-review-hidden])'));
+    }
+
+    function applyFilter(key) {
+      cards = Array.prototype.slice.call(track.querySelectorAll('.cx-reviews-card'));
+      cards.forEach(function (card, index) {
+        var hide = key && key !== 'all' && key !== 'recent' && card.dataset.cxFilter !== key;
+        if (hide) {
+          card.setAttribute('data-cx-review-hidden', 'true');
+        } else {
+          card.removeAttribute('data-cx-review-hidden');
+        }
+      });
+      activeCards();
+      if (key === 'recent') {
+        cards.forEach(function (card, index) { card.style.order = String(cards.length - index); });
+      } else {
+        cards.forEach(function (card) { card.style.order = ''; });
+      }
+      goTo(0, 'auto');
+      updateRail();
+    }
+
     if (prev) prev.addEventListener('click', function () {
       pauseAutoplay();
       navigate(-1);
@@ -588,21 +648,6 @@
     if (next) next.addEventListener('click', function () {
       pauseAutoplay();
       navigate(1);
-    });
-
-    track.addEventListener('click', function (event) {
-      var button = event.target.closest('[data-cx-reviews-more]');
-      if (!button) return;
-      pauseAutoplay();
-      var card = button.closest('.cx-reviews-card');
-      if (!card) return;
-      var expanded = card.classList.toggle('cx-is-expanded');
-      var body = card.querySelector('.cx-reviews-body');
-      if (body && body.dataset.fullText) {
-        body.textContent = expanded ? body.dataset.fullText : truncateWords(body.dataset.fullText);
-      }
-      button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-      button.textContent = expanded ? 'Minder lezen' : 'Meer lezen';
     });
 
     track.addEventListener('scroll', function () {
@@ -650,10 +695,19 @@
     }, true);
 
     if (filters) {
+      filters.querySelectorAll('[data-cx-review-pill]').forEach(function (pill, index) {
+        pill.dataset.cxReviewFilterValue = filterMap[index] || 'all';
+      });
+
+      Array.prototype.slice.call(track.querySelectorAll('.cx-reviews-card')).forEach(function (card, index) {
+        card.dataset.cxFilter = filterMap[(index % (filterMap.length - 1)) + 1] || 'all';
+      });
+
       filters.addEventListener('click', function (event) {
-        if (!event.target.closest('[data-cx-review-pill]')) return;
+        var pill = event.target.closest('[data-cx-review-pill]');
+        if (!pill) return;
         pauseAutoplay();
-        goTo(0, 'auto');
+        applyFilter(pill.dataset.cxReviewFilterValue || 'all');
       });
     }
 
@@ -663,7 +717,9 @@
       startAutoplay();
     });
 
+    bindReadMoreButtons();
     applyMobileReadMore();
+    activeCards();
     updateRail();
     startAutoplay();
   });
