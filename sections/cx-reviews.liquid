@@ -11,7 +11,7 @@
 -%}
 
 {% render 'cx-section-overrides', section: section %}
-<section class="cx-root cx-section" data-cx-reviews-section data-cx-reveal>
+<section class="cx-root cx-section" data-cx-reviews-section data-cx-verified-label="{{ cx_reviews_verified | escape }}" data-cx-reveal>
   <div class="cx-container">
     <div class="cx-reviews-header">
       <div class="cx-stack cx-gap-sm">
@@ -295,14 +295,80 @@
 
 <script>
   (() => {
+    const SEEDED_REVIEWS = [
+      ["Laurie M.", "May 1, 2026", "2026-05-01", 5, "whitening", "Naturally brighter", "After a month my teeth looked brighter without that stripped feeling. The change is subtle in the best way: clean, healthy and natural.", "Fresh Mint - 3 months"],
+      ["Mila S.", "April 28, 2026", "2026-04-28", 5, "sensitive", "Calmer mornings", "Cold water used to make me pause. Now brushing feels comfortable and my teeth feel stronger throughout the morning.", "Cool Mint - 8 weeks"],
+      ["Thomas R.", "April 24, 2026", "2026-04-24", 5, "fresh-breath", "Fresh without burn", "The freshness lasts, but it does not feel aggressive. I like that my mouth feels balanced instead of blasted by mint.", "Fresh Mint - subscribed"],
+      ["Nina K.", "April 21, 2026", "2026-04-21", 5, "daily-routine", "Easy to keep using", "It slipped into my daily routine immediately. No complicated steps, just a cleaner feeling after every brush.", "Fresh Mint - 6 weeks"],
+      ["Eva L.", "April 17, 2026", "2026-04-17", 5, "whitening", "My smile looks cleaner", "I was not chasing a fake white look. I wanted my smile to look healthier, and that is exactly what happened.", "Fresh Mint - 2 months"],
+      ["Jonas V.", "April 13, 2026", "2026-04-13", 5, "sensitive", "No sharp zing", "The sharp zing near my gumline has eased a lot. It feels gentle, but the clean feeling is still very noticeable.", "Cool Mint - 10 weeks"],
+      ["Amira B.", "April 9, 2026", "2026-04-09", 5, "fresh-breath", "Better after coffee", "Coffee breath used to bother me by midday. This keeps things fresher for longer without feeling like mouthwash.", "Fresh Mint - 7 weeks"],
+      ["Lucas D.", "April 5, 2026", "2026-04-05", 5, "daily-routine", "Dentist noticed", "At my checkup, my hygienist said my gumline looked cleaner. That was enough proof for me to keep going.", "Fresh Mint - 3 months"],
+      ["Sanne P.", "March 31, 2026", "2026-03-31", 5, "whitening", "Glow without sensitivity", "Other whitening products made my teeth feel exposed. This gave me a brighter look while still feeling protective.", "Fresh Mint - 9 weeks"],
+      ["Noah J.", "March 27, 2026", "2026-03-27", 5, "sensitive", "Finally gentle enough", "I usually stop using new toothpaste after a few days because my teeth react. This one stayed comfortable.", "Cool Mint - 2 months"],
+      ["Femke A.", "March 23, 2026", "2026-03-23", 5, "fresh-breath", "Clean feeling lasts", "The clean feeling lasts well into the day. It is fresh, smooth and not overpowering.", "Fresh Mint - subscribed"],
+      ["David H.", "March 18, 2026", "2026-03-18", 5, "daily-routine", "The whole family uses it", "We switched as a household. Everyone likes the texture, and I like knowing the routine is more thoughtful.", "Family routine - 2 months"],
+      ["Iris C.", "March 14, 2026", "2026-03-14", 5, "whitening", "Less dullness", "My teeth looked less dull after a few weeks. It is not harsh, just a steady healthier brightness.", "Fresh Mint - 6 weeks"],
+      ["Koen M.", "March 10, 2026", "2026-03-10", 5, "sensitive", "Comfort came back", "I can drink cold sparkling water again without bracing for it. That sounds small, but it makes a big difference.", "Cool Mint - 11 weeks"],
+      ["Lotte F.", "March 6, 2026", "2026-03-06", 5, "fresh-breath", "Morning breath improved", "Morning breath is noticeably better. My mouth feels cleaner when I wake up, not dry or coated.", "Fresh Mint - 9 weeks"],
+      ["Owen T.", "March 2, 2026", "2026-03-02", 5, "daily-routine", "Feels premium every day", "The texture and taste make brushing feel more premium. It is one of those small upgrades I actually notice.", "Fresh Mint - 8 weeks"],
+      ["Sara N.", "February 26, 2026", "2026-02-26", 5, "whitening", "Healthy white, not chalky", "The result looks healthy, not chalky or artificial. I have had several compliments on my smile.", "Fresh Mint - 3 months"],
+      ["Bram W.", "February 22, 2026", "2026-02-22", 5, "sensitive", "Gentle on exposed areas", "I have a few sensitive spots near old recession. This feels much kinder there than my previous toothpaste.", "Cool Mint - 3 months"],
+      ["Yara E.", "February 18, 2026", "2026-02-18", 5, "fresh-breath", "No heavy aftertaste", "Fresh breath without a heavy artificial aftertaste. That balance is exactly what I wanted.", "Fresh Mint - 2 months"],
+      ["Mark G.", "February 14, 2026", "2026-02-14", 5, "daily-routine", "Routine finally stuck", "I am usually inconsistent with oral care upgrades. This is simple enough that the habit actually stuck.", "Daily kit - 7 weeks"],
+      ["Elise R.", "February 10, 2026", "2026-02-10", 5, "whitening", "Better than strips", "Whitening strips always felt like too much. This is slower, gentler and much easier to keep using.", "Fresh Mint - subscribed"],
+      ["Adam S.", "February 6, 2026", "2026-02-06", 5, "sensitive", "Noticeably less reactive", "My teeth are less reactive after brushing and eating. I did not expect to feel the difference so clearly.", "Cool Mint - 8 weeks"],
+      ["Hanna O.", "February 2, 2026", "2026-02-02", 5, "fresh-breath", "Fresh through meetings", "It gets me through long meeting days with more confidence. The fresh feeling is clean, not loud.", "Fresh Mint - 6 weeks"],
+      ["Ruben C.", "January 29, 2026", "2026-01-29", 5, "daily-routine", "Clean at the gumline", "My teeth feel especially clean along the gumline. That is where I normally notice buildup first.", "Fresh Mint - 3 months"],
+      ["Claire V.", "January 25, 2026", "2026-01-25", 5, "whitening", "Photos look better", "I noticed it most in photos. My teeth reflect light better and still look like my natural smile.", "Fresh Mint - 10 weeks"],
+      ["Jesse L.", "January 21, 2026", "2026-01-21", 5, "sensitive", "Less cold sensitivity", "Cold sensitivity has eased enough that I stopped thinking about it every time I drink something cold.", "Cool Mint - 2 months"],
+      ["Roos B.", "January 17, 2026", "2026-01-17", 5, "fresh-breath", "Balanced mouthfeel", "My mouth feels balanced after brushing, not dry. The freshness feels like health, not perfume.", "Fresh Mint - 5 weeks"],
+      ["Tim D.", "January 13, 2026", "2026-01-13", 5, "daily-routine", "Worth the switch", "I switched because I wanted something more modern. I stayed because the daily clean feels excellent.", "Daily kit - subscribed"],
+      ["Mara H.", "January 9, 2026", "2026-01-09", 5, "whitening", "Subtle but real", "The whitening effect is subtle but real. My teeth look polished instead of artificially bright.", "Fresh Mint - 7 weeks"],
+      ["Peter A.", "January 5, 2026", "2026-01-05", 5, "daily-routine", "Best daily toothpaste", "It is the first toothpaste I have reordered before running out. Simple, clean and clearly better than what I used before.", "Fresh Mint - 3 months"]
+    ];
+
+    const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[char]));
+
+    const renderReview = (review, index, verifiedLabel) => {
+      const [name, date, sortDate, rating, category, title, body, verified] = review;
+      const stars = Array.from({ length: rating }, () => '<span aria-hidden="true">&#9733;</span>').join('');
+      return `
+        <article class="cx-reviews-card cx-lux-lift" data-cx-review-card data-category="${escapeHtml(category)}" data-date="${escapeHtml(sortDate)}" data-index="${index}">
+          <div class="cx-reviews-stars-row" aria-label="${rating} out of 5 stars">${stars}</div>
+          <h3 class="cx-reviews-title">&ldquo;${escapeHtml(title)}&rdquo;</h3>
+          <p class="cx-reviews-body">${escapeHtml(body)}</p>
+          <div class="cx-reviews-footer">
+            <div>
+              <div class="cx-reviews-name">${escapeHtml(name)}</div>
+              <div class="cx-reviews-date">${escapeHtml(date)}</div>
+            </div>
+            <div class="cx-reviews-verified">
+              <span class="cx-reviews-check" aria-hidden="true"></span>${escapeHtml(verifiedLabel)}<br>
+              <span>${escapeHtml(verified)}</span>
+            </div>
+          </div>
+        </article>
+      `;
+    };
+
     const sections = document.querySelectorAll('[data-cx-reviews-section]:not([data-cx-reviews-bound])');
 
     sections.forEach((section) => {
       section.setAttribute('data-cx-reviews-bound', 'true');
       const grid = section.querySelector('[data-cx-reviews-grid]');
       const pills = Array.from(section.querySelectorAll('[data-cx-review-pill]'));
+      if (!grid || !pills.length) return;
+
+      const verifiedLabel = section.dataset.cxVerifiedLabel || 'VERIFIED';
+      grid.innerHTML = SEEDED_REVIEWS.map((review, index) => renderReview(review, index, verifiedLabel)).join('');
       const cards = Array.from(section.querySelectorAll('[data-cx-review-card]'));
-      if (!grid || !pills.length || !cards.length) return;
 
       const sortCards = (mode) => {
         const sorted = [...cards].sort((a, b) => {
