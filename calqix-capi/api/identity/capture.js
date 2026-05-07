@@ -60,6 +60,7 @@ module.exports = async function (req, res) {
     var gclid = body.gclid || null;
     var gbraid = body.gbraid || null;
     var wbraid = body.wbraid || null;
+    var gaClientId = body.ga_client_id || body.client_id || null;
     var ttclid = body.ttclid || null;
     var ttp = body.ttp || null;
 
@@ -84,6 +85,7 @@ module.exports = async function (req, res) {
     if (gclid) identity.gclid = gclid;
     if (gbraid) identity.gbraid = gbraid;
     if (wbraid) identity.wbraid = wbraid;
+    if (gaClientId) identity.ga_client_id = gaClientId;
     if (ttclid) identity.ttclid = ttclid;
     if (ttp) identity.ttp = ttp;
 

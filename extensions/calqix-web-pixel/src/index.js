@@ -100,6 +100,13 @@ async function readCookie(browser, name) {
   }
 }
 
+function parseGaClientId(value) {
+  if (!value) return undefined;
+  var str = String(value);
+  var match = str.match(/^GA\d+\.\d+\.(.+)$/);
+  return match ? match[1] : str;
+}
+
 function postJson(url, payload) {
   try {
     fetch(url, {
@@ -126,6 +133,7 @@ register(function ({analytics, browser, settings}) {
       source_url: sourceUrl(event),
       fbc: await readCookie(browser, '_fbc'),
       fbp: await readCookie(browser, '_fbp'),
+      ga_client_id: parseGaClientId(await readCookie(browser, '_ga')),
       external_id: await readCookie(browser, '_cq_anon_id')
     };
   }

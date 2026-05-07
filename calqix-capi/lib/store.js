@@ -221,7 +221,14 @@ async function getEnrichment(checkoutToken) {
 async function setEnrichment(checkoutToken, data) {
   if (!checkoutToken || !data) return;
   var key = 'enrich:' + checkoutToken;
-  await set(key, JSON.stringify(data), TTL_ENRICH);
+  var existing = (await getEnrichment(checkoutToken)) || {};
+  var merged = Object.assign({}, existing);
+  Object.keys(data).forEach(function (field) {
+    if (data[field] !== undefined && data[field] !== null && data[field] !== '') {
+      merged[field] = data[field];
+    }
+  });
+  await set(key, JSON.stringify(merged), TTL_ENRICH);
 }
 
 async function getCronRun(dateKey) {

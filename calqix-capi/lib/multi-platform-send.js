@@ -410,15 +410,18 @@ async function extractGoogleIds(checkoutToken) {
     var redis = store._getRedis();
     if (!redis) return ids;
 
-    // Try identity store (from /api/identity/capture)
-    var identity = await redis.get('identity:' + checkoutToken);
-    if (identity) {
+    // Try identity store (from /api/identity/capture). New key is identity:cart:*;
+    // identity:* is kept as a legacy fallback for older captures.
+    var identityKeys = ['identity:cart:' + checkoutToken, 'identity:' + checkoutToken];
+    for (var i = 0; i < identityKeys.length; i++) {
+      var identity = await redis.get(identityKeys[i]);
+      if (!identity) continue;
       try {
         var parsed = typeof identity === 'string' ? JSON.parse(identity) : identity;
-        ids.gclid = parsed.gclid || null;
-        ids.gbraid = parsed.gbraid || null;
-        ids.wbraid = parsed.wbraid || null;
-        ids.clientId = parsed.ga_client_id || parsed.client_id || null;
+        ids.gclid = ids.gclid || parsed.gclid || null;
+        ids.gbraid = ids.gbraid || parsed.gbraid || null;
+        ids.wbraid = ids.wbraid || parsed.wbraid || null;
+        ids.clientId = ids.clientId || parsed.ga_client_id || parsed.client_id || null;
       } catch (e) {}
     }
 

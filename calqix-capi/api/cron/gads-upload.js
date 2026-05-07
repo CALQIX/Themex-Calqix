@@ -23,7 +23,7 @@ module.exports = async function (req, res) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    var locked = await store.set(LOCK_KEY, '1', LOCK_TTL, true);
+    var locked = await store.setnx(LOCK_KEY, '1', LOCK_TTL);
     if (!locked) {
       return res.status(200).json({ ok: true, skipped: true, reason: 'Lock actief' });
     }

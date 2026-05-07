@@ -47,6 +47,17 @@ function getCookie(name) {
   catch (e) { return Promise.resolve(null); }
 }
 
+function parseGaClientId(value) {
+  if (!value) return null;
+  var s = String(value);
+  var match = s.match(/^GA\d+\.\d+\.(.+)$/);
+  return match ? match[1] : s;
+}
+
+async function getGaClientId() {
+  return parseGaClientId(await getCookie("_ga"));
+}
+
 function getSourceUrl(event) {
   try {
     var loc = event.context.document.location;
@@ -379,8 +390,9 @@ analytics.subscribe("checkout_started", async function (event) {
   var token = checkout.token;
   var fbc = await getCookie("_fbc");
   var fbp = await getCookie("_fbp");
+  var gaClientId = await getGaClientId();
 
-  enrichment[token] = { fbc: fbc, fbp: fbp };
+  enrichment[token] = { fbc: fbc, fbp: fbp, ga_client_id: gaClientId };
 
   var addr = shippingAddress(checkout);
   var lineItems = buildLineItems(checkout);
@@ -391,6 +403,7 @@ analytics.subscribe("checkout_started", async function (event) {
     email: checkout.email || null,
     phone: checkoutPhone(checkout, addr),
     external_id: customerId(checkout),
+    ga_client_id: gaClientId,
     first_name: addr && (addr.firstName || addr.first_name) || null,
     last_name: addr && (addr.lastName || addr.last_name) || null,
     city: addr && addr.city || null,
@@ -417,6 +430,7 @@ analytics.subscribe("checkout_started", async function (event) {
     email: checkout.email || null,
     phone: checkoutPhone(checkout, addr),
     external_id: customerId(checkout),
+    ga_client_id: gaClientId,
     first_name: addr && (addr.firstName || addr.first_name) || null,
     last_name: addr && (addr.lastName || addr.last_name) || null,
     city: addr && addr.city || null,
@@ -439,11 +453,13 @@ analytics.subscribe("checkout_contact_info_submitted", async function (event) {
   var token = checkout.token;
   var fbc = await getCookie("_fbc");
   var fbp = await getCookie("_fbp");
+  var gaClientId = await getGaClientId();
 
   var cached = enrichment[token] || {};
   enrichment[token] = {
     fbc: fbc || cached.fbc || null,
     fbp: fbp || cached.fbp || null,
+    ga_client_id: gaClientId || cached.ga_client_id || null,
     email: checkout.email || cached.email || null,
     phone: checkoutPhone(checkout, shippingAddress(checkout)) || cached.phone || null
   };
@@ -454,6 +470,7 @@ analytics.subscribe("checkout_contact_info_submitted", async function (event) {
     email: checkout.email || null,
     phone: checkout.phone || null,
     external_id: customerId(checkout),
+    ga_client_id: gaClientId,
     fbc: fbc,
     fbp: fbp
   });
@@ -468,9 +485,11 @@ analytics.subscribe("payment_info_submitted", async function (event) {
   var token = checkout.token;
   var fbc = await getCookie("_fbc");
   var fbp = await getCookie("_fbp");
+  var gaClientId = await getGaClientId();
   var cached = enrichment[token] || {};
   var effectiveFbp = fbp || cached.fbp || null;
   var effectiveFbc = fbc || cached.fbc || null;
+  var effectiveGaClientId = gaClientId || cached.ga_client_id || null;
 
   var addr = shippingAddress(checkout);
   var lineItems = buildLineItems(checkout);
@@ -503,6 +522,7 @@ analytics.subscribe("payment_info_submitted", async function (event) {
     event_type: "payment_info_submitted",
     checkout_token: token,
     external_id: customerId(checkout),
+    ga_client_id: effectiveGaClientId,
     fbc: effectiveFbc,
     fbp: effectiveFbp,
     email: checkout.email || cached.email || null,
@@ -529,9 +549,11 @@ analytics.subscribe("checkout_completed", async function (event) {
   var token = checkout.token;
   var fbc = await getCookie("_fbc");
   var fbp = await getCookie("_fbp");
+  var gaClientId = await getGaClientId();
   var cached = enrichment[token] || {};
   var effectiveFbp = fbp || cached.fbp || null;
   var effectiveFbc = fbc || cached.fbc || null;
+  var effectiveGaClientId = gaClientId || cached.ga_client_id || null;
 
   var addr = shippingAddress(checkout);
   var lineItems = buildLineItems(checkout);
@@ -568,6 +590,7 @@ analytics.subscribe("checkout_completed", async function (event) {
     checkout_token: token,
     order_id: oid,
     external_id: customerId(checkout),
+    ga_client_id: effectiveGaClientId,
     fbc: effectiveFbc,
     fbp: effectiveFbp,
     email: checkout.email || cached.email || null,

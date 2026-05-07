@@ -229,7 +229,8 @@ async function handler(req, res) {
           external_id: body.external_id || undefined,
           country_code: body.country_code || undefined
         },
-        userId: body.external_id || undefined
+        userId: body.external_id || undefined,
+        clientId: body.ga_client_id || body.client_id || undefined
       });
     } catch (e) { /* non-fatal */ }
 

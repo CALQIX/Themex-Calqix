@@ -179,7 +179,8 @@ async function handler(req, res) {
           external_id: extractExternalId(checkout)
         },
         checkoutUrl: checkout && checkout.abandoned_checkout_url,
-        userId: extractExternalId(checkout)
+        userId: extractExternalId(checkout),
+        clientId: enrichment.ga_client_id || enrichment.client_id || undefined
       });
     } catch (e) { /* non-fatal */ }
 

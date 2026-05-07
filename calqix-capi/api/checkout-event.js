@@ -82,6 +82,7 @@ async function handleContactInfo(res, body, checkoutToken) {
   if (body.fbc) enrichment.fbc = body.fbc;
   if (body.fbp) enrichment.fbp = body.fbp;
   if (body.external_id) enrichment.external_id = body.external_id;
+  if (body.ga_client_id || body.client_id) enrichment.ga_client_id = body.ga_client_id || body.client_id;
 
   if (Object.keys(enrichment).length === 0) {
     return res.status(200).json({ received: true, stored: false, reason: 'no_enrichment_data' });
@@ -145,6 +146,7 @@ async function handleCheckoutStarted(res, body, checkoutToken, clientIp, clientU
   if (body.email) enrichment.email = body.email;
   if (body.phone) enrichment.phone = body.phone;
   if (body.external_id) enrichment.external_id = body.external_id;
+  if (body.ga_client_id || body.client_id) enrichment.ga_client_id = body.ga_client_id || body.client_id;
   if (Object.keys(enrichment).length > 0) {
     await store.setEnrichment(checkoutToken, enrichment);
   }

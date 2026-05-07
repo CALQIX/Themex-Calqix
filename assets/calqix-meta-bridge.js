@@ -179,6 +179,12 @@
   function getWbraid() { return getCookie('_cq_wbraid') || null; }
   function getTtclid() { return getCookie('_cq_ttclid') || null; }
   function getTtp() { return getCookie('_ttp') || null; }
+  function getGaClientId() {
+    var ga = getCookie('_ga');
+    if (!ga) return null;
+    var match = String(ga).match(/^GA\d+\.\d+\.(.+)$/);
+    return match ? match[1] : String(ga);
+  }
 
   /* ------------------------------------------------------------------ */
   /*  Stable anonymous external_id (first-party, cross-session)          */
@@ -263,6 +269,7 @@
     var gclid = getGclid();
     var gbraid = getGbraid();
     var wbraid = getWbraid();
+    var gaClientId = getGaClientId();
     var ttclid = getTtclid();
     var ttp = getTtp();
 
@@ -275,6 +282,7 @@
     if (gclid) data.gclid = gclid;
     if (gbraid) data.gbraid = gbraid;
     if (wbraid) data.wbraid = wbraid;
+    if (gaClientId) data.ga_client_id = gaClientId;
     if (ttclid) data.ttclid = ttclid;
     if (ttp) data.ttp = ttp;
     var dl = window.dataLayer || [];
@@ -360,7 +368,8 @@
       state: userPayload.state || undefined,
       zip: userPayload.zip || undefined,
       external_id: userPayload.external_id || undefined,
-      country_code: userPayload.country_code || undefined
+      country_code: userPayload.country_code || undefined,
+      ga_client_id: userPayload.ga_client_id || undefined
     };
 
     postKeepAlive(CAPI_BASE + '/view-content', payload);
@@ -463,6 +472,7 @@
       zip: userPayload.zip || undefined,
       external_id: userPayload.external_id || undefined,
       country_code: userPayload.country_code || undefined,
+      ga_client_id: userPayload.ga_client_id || undefined,
       source_url: window.location.href
     };
 
@@ -606,6 +616,7 @@
       fbp: userPayload.fbp || undefined,
       external_id: userPayload.external_id || undefined,
       country_code: userPayload.country_code || undefined,
+      ga_client_id: userPayload.ga_client_id || undefined,
       source_url: window.location.href
     };
 
@@ -839,6 +850,7 @@
     buildUserPayload: buildUserPayload,
     captureIdentity: captureIdentity,
     getGclid: getGclid,
+    getGaClientId: getGaClientId,
     getTtclid: getTtclid
   };
 
