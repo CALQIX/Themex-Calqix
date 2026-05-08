@@ -166,16 +166,18 @@ body.template-collection {
   box-shadow: 0 8px 24px rgba(18, 49, 79, 0.06);
 }
 
-.template-collection .collection__aside:not(.wt-filter--drawer) {
-  position: sticky;
-  top: calc(var(--filters-sticky-offset, 0px) + 18px);
-  align-self: start;
-  padding: 16px !important;
-  border: 1px solid var(--cx-line);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: 0 16px 50px rgba(18, 49, 79, 0.07);
-  backdrop-filter: blur(16px);
+@media (min-width: 1200px) {
+  .template-collection .collection__aside:not(.wt-filter--drawer) {
+    position: sticky;
+    top: calc(var(--filters-sticky-offset, 0px) + 18px);
+    align-self: start;
+    padding: 16px !important;
+    border: 1px solid var(--cx-line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 16px 50px rgba(18, 49, 79, 0.07);
+    backdrop-filter: blur(16px);
+  }
 }
 
 .template-collection .collection__grid {
@@ -378,6 +380,44 @@ body.template-collection {
   box-shadow: 0 10px 24px rgba(18, 49, 79, 0.18);
 }
 
+@media (max-width: 1199px) {
+  .template-collection .collection.collection--with-aside {
+    display: block;
+  }
+
+  .template-collection .collection__aside:not(.wt-filter--drawer),
+  .template-collection .wt-filter:not(.wt-filter--drawer) {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(88vw, 390px);
+    max-width: 390px;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    padding: 0 !important;
+    border: 0;
+    border-radius: 0 8px 8px 0;
+    background: #ffffff;
+    box-shadow: 24px 0 80px rgba(18, 49, 79, 0.22);
+    transform: translateX(-105%);
+    z-index: 120;
+  }
+
+  .template-collection .collection__aside.wt-filter--drawer-open,
+  .template-collection .wt-filter.wt-filter--drawer-open {
+    transform: translateX(0);
+  }
+
+  .template-collection .wt-filter__header {
+    padding: 18px 20px;
+    color: var(--cx-ink);
+  }
+
+  .template-collection .wt-filter__body {
+    padding: 14px 18px 0;
+  }
+}
+
 @media (max-width: 899px) {
   .template-collection .collection-banner .hero {
     border-radius: 0;
@@ -397,6 +437,92 @@ body.template-collection {
     top: var(--filters-sticky-offset, 0px);
     margin-inline: -4px;
     border-radius: 8px;
+    overflow: visible;
+    z-index: 35;
+  }
+
+  .template-collection .collection__toolbar {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+    overflow: visible;
+  }
+
+  .template-collection .collection__filter-trigger,
+  .template-collection .wt-options.collection__sort {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+  }
+
+  .template-collection .wt-options.collection__sort {
+    position: relative;
+    overflow: visible;
+  }
+
+  .template-collection .wt-options.collection__sort .wt-options__trigger {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 10px;
+  }
+
+  .template-collection .wt-options__value {
+    min-width: 0;
+  }
+
+  body.template-collection[custom-select-opened] {
+    height: auto;
+    overflow: auto;
+    touch-action: auto;
+  }
+
+  body.template-collection [custom-select-overlay],
+  body.template-collection custom-select [custom-select-drawer]::before {
+    display: none !important;
+  }
+
+  .template-collection .wt-options.collection__sort [custom-select-body] {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    bottom: auto;
+    left: auto;
+    display: block;
+    width: min(82vw, 320px);
+    max-height: min(56vh, 360px);
+    overflow: hidden;
+    border: 1px solid var(--cx-line);
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 20px 52px rgba(18, 49, 79, 0.18);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    z-index: 80;
+  }
+
+  .template-collection .wt-options.collection__sort[open] [custom-select-body] {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .template-collection .wt-options__title {
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+
+  .template-collection .wt-options__list {
+    max-height: calc(min(56vh, 360px) - 54px);
+    padding: 8px;
+    overflow: auto;
+  }
+
+  .template-collection .wt-options__list__item {
+    padding: 12px;
+    border-radius: 6px;
   }
 }
 
