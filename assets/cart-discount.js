@@ -8,6 +8,7 @@ class CartDiscount extends HTMLElement {
     this.stateNode = this.querySelector('[data-cart-discount-state]');
     this.bindEvents();
     this.syncState();
+    this.handleUrlDiscountIntent();
   }
 
   bindEvents() {
@@ -130,6 +131,56 @@ class CartDiscount extends HTMLElement {
 
   async refreshDrawer() {
     document.dispatchEvent(new CustomEvent('cart-drawer:refresh', { bubbles: true, detail: { source: 'cart-discount' } }));
+  }
+
+  async handleUrlDiscountIntent() {
+    if (CartDiscount.urlIntentHandled) return;
+    const params = new URLSearchParams(window.location.search);
+    const shouldOpenCart = params.get('cq_open_cart') === '1';
+    const code = (params.get('cq_discount') || '').trim();
+
+    if (!shouldOpenCart && !code) return;
+    CartDiscount.urlIntentHandled = true;
+
+    this.clearUrlDiscountIntent(params);
+    this.setLoading(Boolean(code));
+    this.clearError();
+
+    try {
+      if (code) {
+        const result = await this.applyDiscount(code);
+        if (!result.success) {
+          this.showError(result.error || this.dataset.invalid || 'Invalid or expired code');
+        }
+      }
+      await this.refreshDrawer();
+    } catch (error) {
+      if (code) this.showError(this.dataset.invalid || 'Invalid or expired code');
+    } finally {
+      this.setLoading(false);
+      window.setTimeout(() => this.openCartDrawer(), 120);
+    }
+  }
+
+  clearUrlDiscountIntent(params) {
+    if (!window.history?.replaceState) return;
+    const nextParams = new URLSearchParams(params);
+    nextParams.delete('cq_open_cart');
+    nextParams.delete('cq_discount');
+    const query = nextParams.toString();
+    const nextUrl = `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`;
+    window.history.replaceState({}, document.title, nextUrl);
+  }
+
+  openCartDrawer() {
+    const drawer = document.querySelector('cart-drawer');
+    const isOpen = drawer?.hasAttribute('open') || document.body.classList.contains('page-overlay-cart-on');
+    if (isOpen) return;
+    if (drawer && typeof drawer.toggleDrawerClasses === 'function') {
+      drawer.toggleDrawerClasses();
+      return;
+    }
+    document.querySelector('.wt-cart__trigger')?.click();
   }
 
   setLoading(isLoading) {
