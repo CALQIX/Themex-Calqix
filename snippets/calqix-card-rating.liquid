@@ -1,19 +1,27 @@
 {%- liquid
   assign rating_value = 0
   assign rating_count = 0
+  assign reviews_anchor = '#judgeme_product_reviews'
+  assign uses_product_page_rating = false
 
-  if reviews.rating.value != blank and reviews.rating_count != blank and reviews.rating_count != 0
+  if product.template_suffix == 'oralbiome' or product.handle contains 'oralbiome-pro'
+    assign rating_value = 4.7
+    assign rating_count = 132
+    assign reviews_anchor = '#oralbiome-reviews'
+    assign uses_product_page_rating = true
+  elsif reviews.rating.value != blank and reviews.rating_count != blank and reviews.rating_count != 0
     assign rating_value = reviews.rating.value.rating | plus: 0
     assign rating_count = reviews.rating_count | plus: 0
   endif
 
   assign rating_percent = rating_value | times: 20
-  assign reviews_url = url | append: '#judgeme_product_reviews'
+  assign reviews_url = url | append: reviews_anchor
 -%}
 
 <a
   class="cx-card-rating{% if text_alignment %} cx-card-rating--{{ text_alignment }}{% endif %}{% if rating_count == 0 %} cx-card-rating--empty{% endif %}"
   href="{{ reviews_url }}"
+  data-cx-rating-source="{% if uses_product_page_rating %}product-page{% else %}shopify-reviews{% endif %}"
   aria-label="{% if rating_count > 0 %}{{ rating_value | round: 1 }} van 5 op basis van {{ rating_count }} beoordelingen{% else %}Bekijk beoordelingen voor {{ product.title | escape }}{% endif %}"
 >
   <span class="cx-card-rating__stars" style="--cx-rating-percent: {{ rating_percent }}%;">
