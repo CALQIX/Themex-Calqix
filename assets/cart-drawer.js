@@ -153,6 +153,7 @@ class CartDrawerSection extends HTMLElement {
       passive: true,
     });
     this.addEventListener("touchend", (event) => this.handleTouchThumb(event));
+    this.handleUrlCartIntent();
 
     document.addEventListener("cart-drawer:refresh", (e) =>
       this.refreshCartDrawer(e),
@@ -522,6 +523,50 @@ class CartDrawerSection extends HTMLElement {
         if (cart) refreshCalqixCartState(cart);
       })
       .catch(() => {});
+  }
+
+  async handleUrlCartIntent() {
+    if (CartDrawerSection.urlIntentHandled) return;
+    const params = new URLSearchParams(window.location.search);
+    const shouldOpenCart = params.get("cq_open_cart") === "1";
+    const discountCode = (params.get("cq_discount") || "").trim();
+
+    if (!shouldOpenCart && !discountCode) return;
+    CartDrawerSection.urlIntentHandled = true;
+    this.clearUrlCartIntent(params);
+
+    try {
+      if (discountCode) {
+        await fetch("/cart/update.js", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ discount: discountCode }),
+        });
+      }
+      await this.refreshSectionsInPlace();
+    } catch (error) {
+      console.warn("CALQIX cart intent failed", error);
+    } finally {
+      window.setTimeout(() => this.openFromUrlIntent(), 120);
+    }
+  }
+
+  clearUrlCartIntent(params) {
+    if (!window.history?.replaceState) return;
+    const nextParams = new URLSearchParams(params);
+    nextParams.delete("cq_open_cart");
+    nextParams.delete("cq_discount");
+    const query = nextParams.toString();
+    const nextUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+    window.history.replaceState({}, document.title, nextUrl);
+  }
+
+  openFromUrlIntent() {
+    const isOpen = this.hasAttribute("open") || this.body.classList.contains(this.activeOverlayBodyClass);
+    if (!isOpen) this.toggleDrawerClasses();
   }
 
   countMoneyValue(node, fromCents, toCents, duration, currencyCode) {
