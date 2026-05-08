@@ -392,11 +392,19 @@
             "description": "Place one OralBiome Pro lozenge on your tongue. Let it dissolve slowly, do not chew."
           }
         },
+        "step_dissolve_brush": {
+          "type": "step",
+          "settings": {
+            "image": "",
+            "title": "Step 03: Let It Dissolve or Brush",
+            "description": "Let the lozenge dissolve on your teeth, or gently brush it across your teeth with a toothbrush."
+          }
+        },
         "step_aWQBJD": {
           "type": "step",
           "settings": {
             "image": "shopify://shop_images/Woman_going_to_sleep.png",
-            "title": "Step 03: Let Probiotics Colonise",
+            "title": "Step 04: Let Probiotics Colonise",
             "description": "Avoid eating or drinking for 30 minutes. The beneficial bacteria need time to settle in."
           }
         }
@@ -404,11 +412,12 @@
       "block_order": [
         "step_PVaEmk",
         "step_k7e9wX",
+        "step_dissolve_brush",
         "step_aWQBJD"
       ],
       "settings": {
         "eyebrow": "YOUR DAILY RITUAL",
-        "heading": "3 steps. 60 seconds. Done.",
+        "heading": "4 steps. 60 seconds. Done.",
         "note": "For best results, use daily before bed. Each jar contains a 30-day supply."
       }
     },
