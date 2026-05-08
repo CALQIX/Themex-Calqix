@@ -445,16 +445,31 @@ body.template-collection {
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: 42px;
     gap: 8px;
+    align-items: center;
     overflow: visible;
   }
 
-  .template-collection .collection__filter-trigger,
+  .template-collection .collection__toolbar.collection__toolbar--buttons > .collection__filter-trigger.wt-filter__trigger,
   .template-collection .wt-options.collection__sort {
-    width: 100%;
+    width: 100% !important;
     max-width: none;
     min-width: 0;
-    margin: 0;
+    height: 42px;
+    margin: 0 !important;
+    order: 0;
+  }
+
+  .template-collection .collection__toolbar.collection__toolbar--buttons > .collection__filter-trigger.wt-filter__trigger {
+    grid-column: 1;
+    grid-row: 1;
+    justify-content: center;
+  }
+
+  .template-collection .wt-options.collection__sort {
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .template-collection .wt-options.collection__sort {
