@@ -26,7 +26,7 @@
   <div class="breadcrumbs {% if section.settings.full-width-enabled %}breadcrumbs--full-width{% endif %}">
     <ul class="breadcrumbs__list">
       <li class="breadcrumbs__item">
-        <a href="{{ shop.url }}" class="breadcrumbs__link">{{ 'homepage' | t }}</a>
+        <a href="{{ routes.root_url }}" class="breadcrumbs__link">{{ shop.name | default: 'CALQIX' }}</a>
       </li>
       <li class="breadcrumbs__item">
         {% if collection.url %}

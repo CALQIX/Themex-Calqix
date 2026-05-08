@@ -78,10 +78,10 @@
 
     <section id="ProductGridContainer" class="collection__body">
 
-      <header role="banner" class="collection__header"></header>
+      <header class="collection__header" aria-label="{{ collection.title | escape }}"></header>
 
       <div class="collection__counter mobile">
-        <span id="ProductCount" class="counter__value">
+        <span id="ProductCountMobile" class="counter__value">
           {%- if collection.results_count -%}
             {{ 'templates.search.results_with_count' | t: terms: collection.terms, count: collection.results_count }}
           {%- elsif collection.products_count == collection.all_products_count -%}

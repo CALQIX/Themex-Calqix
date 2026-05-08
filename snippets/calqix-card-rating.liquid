@@ -1,0 +1,44 @@
+{%- liquid
+  assign rating_value = 0
+  assign rating_count = 0
+
+  if reviews.rating.value != blank and reviews.rating_count != blank and reviews.rating_count != 0
+    assign rating_value = reviews.rating.value.rating | plus: 0
+    assign rating_count = reviews.rating_count | plus: 0
+  endif
+
+  assign rating_percent = rating_value | times: 20
+  assign reviews_url = url | append: '#judgeme_product_reviews'
+-%}
+
+<a
+  class="cx-card-rating{% if text_alignment %} cx-card-rating--{{ text_alignment }}{% endif %}{% if rating_count == 0 %} cx-card-rating--empty{% endif %}"
+  href="{{ reviews_url }}"
+  aria-label="{% if rating_count > 0 %}{{ rating_value | round: 1 }} van 5 op basis van {{ rating_count }} beoordelingen{% else %}Bekijk beoordelingen voor {{ product.title | escape }}{% endif %}"
+>
+  <span class="cx-card-rating__stars" style="--cx-rating-percent: {{ rating_percent }}%;">
+    <span class="cx-card-rating__base" aria-hidden="true">
+      {%- for i in (1..5) -%}
+        <svg viewBox="0 0 24 24" focusable="false" class="cx-card-rating__star">
+          <path d="M12 2.7l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5-4.7-4.6 6.5-.9L12 2.7z"></path>
+        </svg>
+      {%- endfor -%}
+    </span>
+    <span class="cx-card-rating__fill" aria-hidden="true">
+      {%- for i in (1..5) -%}
+        <svg viewBox="0 0 24 24" focusable="false" class="cx-card-rating__star">
+          <path d="M12 2.7l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5-4.7-4.6 6.5-.9L12 2.7z"></path>
+        </svg>
+      {%- endfor -%}
+    </span>
+  </span>
+
+  <span class="cx-card-rating__text">
+    {%- if rating_count > 0 -%}
+      <span class="cx-card-rating__score">{{ rating_value | round: 1 }}</span>
+      <span class="cx-card-rating__count">({{ rating_count }})</span>
+    {%- else -%}
+      <span class="cx-card-rating__count">{{ 'no_reviews' | t }}</span>
+    {%- endif -%}
+  </span>
+</a>

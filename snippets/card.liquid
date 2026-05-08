@@ -448,7 +448,12 @@
 
       {% if show_reviews_row %}
         <div class="card__reviews card__meta-row card__meta-row--reviews">
-          {% render 'rating', reviews: reviews, text_alignment: settings.product_card_reviews_alignment %}
+          {% render 'calqix-card-rating',
+            reviews: reviews,
+            text_alignment: settings.product_card_reviews_alignment,
+            product: product,
+            url: url
+          %}
         </div>
       {% endif %}
 
