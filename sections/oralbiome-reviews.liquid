@@ -363,7 +363,7 @@
      reviewed data as the source of truth. Existing hardcoded reviews are
      kept only as metadata fallback for tags/country labels. */
   try {
-    {%- assign synced_reviews_raw = product.metafields.calqix_reviews.reviews_json.value -%}
+    {%- assign synced_reviews_raw = product.metafields.calqix_reviews.reviews_payload.value | default: product.metafields.calqix_reviews.reviews_json.value -%}
     {%- if synced_reviews_raw != blank -%}
       var syncedReviewsRaw = {{ synced_reviews_raw | json }};
       var syncedReviews = Array.isArray(syncedReviewsRaw) ? syncedReviewsRaw : [];
