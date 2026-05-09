@@ -3,8 +3,15 @@
   assign rating_count = 0
   assign reviews_anchor = '#judgeme_product_reviews'
   assign uses_product_page_rating = false
+  assign calqix_rating_value = product.metafields.calqix_reviews.average_rating.value | default: 0 | plus: 0
+  assign calqix_rating_count = product.metafields.calqix_reviews.review_count.value | default: 0 | plus: 0
 
-  if product.template_suffix == 'oralbiome' or product.handle contains 'oralbiome-pro'
+  if calqix_rating_count > 0
+    assign rating_value = calqix_rating_value
+    assign rating_count = calqix_rating_count
+    assign reviews_anchor = '#oralbiome-reviews'
+    assign uses_product_page_rating = false
+  elsif product.template_suffix == 'oralbiome' or product.handle contains 'oralbiome-pro'
     assign rating_value = 4.7
     assign rating_count = 132
     assign reviews_anchor = '#oralbiome-reviews'

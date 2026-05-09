@@ -91,6 +91,12 @@
 {%- assign _ob_rev_eyebrow = section.settings.eyebrow -%}
 {%- assign _ob_rev_heading = section.settings.heading -%}
 {%- assign _ob_rev_write = section.settings.write_review_text -%}
+{%- assign _ob_synced_average = product.metafields.calqix_reviews.average_rating.value | default: section.settings.avg_rating | plus: 0 -%}
+{%- assign _ob_synced_count = product.metafields.calqix_reviews.review_count.value | default: 0 | plus: 0 -%}
+{%- assign _ob_based_on_text = section.settings.based_on_text -%}
+{%- if _ob_synced_count > 0 -%}
+  {%- assign _ob_based_on_text = section.settings.based_on_text | replace: '120', _ob_synced_count | replace: '121', _ob_synced_count | replace: '132', _ob_synced_count | replace: '133', _ob_synced_count -%}
+{%- endif -%}
 {%- if _ob_lang == 'nl' or _ob_lang == 'de' or _ob_lang == 'fr' or _ob_lang == 'sv' or _ob_lang == 'nb' or _ob_lang == 'da' or _ob_lang == 'fi' -%}
   {%- assign _ob_rev_eyebrow = 'calqix_oralbiome.reviews.eyebrow' | t -%}
   {%- assign _ob_rev_heading = 'calqix_oralbiome.reviews.heading' | t -%}
@@ -103,13 +109,13 @@
       <p class="ob-reviews__eyebrow">{{ _ob_rev_eyebrow }}</p>
       <h2 class="ob-reviews__heading">{{ _ob_rev_heading }}</h2>
       <div class="ob-reviews__aggregate">
-        <span class="ob-reviews__big-number">{{ section.settings.avg_rating }}</span>
+        <span class="ob-reviews__big-number">{{ _ob_synced_average | round: 1 }}</span>
         <div class="ob-reviews__agg-stars">
           {%- for i in (1..5) -%}
             <svg viewBox="0 0 24 24" fill="#C9A84C"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
           {%- endfor -%}
         </div>
-        <span class="ob-reviews__count">{{ section.settings.based_on_text }}</span>
+        <span class="ob-reviews__count">{{ _ob_based_on_text }}</span>
       </div>
       <div class="ob-reviews__breakdown" data-ob-breakdown></div>
     </div>
@@ -351,6 +357,52 @@
       }
     {%- endif -%}
   } catch (e) { /* silently ignore */ }
+
+  /* Reviews Manager sync
+     When the CALQIX Reviews Manager writes product metafields, use that
+     reviewed data as the source of truth. Existing hardcoded reviews are
+     kept only as metadata fallback for tags/country labels. */
+  try {
+    {%- assign synced_reviews_raw = product.metafields.calqix_reviews.reviews_json.value -%}
+    {%- if synced_reviews_raw != blank -%}
+      var syncedReviewsRaw = {{ synced_reviews_raw | json }};
+      var syncedReviews = Array.isArray(syncedReviewsRaw) ? syncedReviewsRaw : [];
+      if (typeof syncedReviewsRaw === 'string' && syncedReviewsRaw.length > 0) {
+        try {
+          var parsedSyncedReviews = JSON.parse(syncedReviewsRaw);
+          if (Array.isArray(parsedSyncedReviews)) syncedReviews = parsedSyncedReviews;
+        } catch (e) { syncedReviews = []; }
+      }
+
+      if (syncedReviews.length > 0) {
+        var fallbackById = {};
+        reviews.forEach(function(review){
+          fallbackById[String(review.id)] = review;
+        });
+
+        reviews = syncedReviews.map(function(review, index){
+          var fallback = fallbackById[String(review.id)] || {};
+          var rating = parseInt(review.r || fallback.r || 5, 10);
+          if (!rating || rating < 1) rating = 1;
+          if (rating > 5) rating = 5;
+
+          return {
+            id: review.id || fallback.id || ('crm-' + index),
+            n: review.n || fallback.n || 'CALQIX customer',
+            cc: fallback.cc || review.cc || 'NL',
+            co: fallback.co || review.co || 'Netherlands',
+            r: rating,
+            t: review.t || fallback.t || '',
+            b: review.b || fallback.b || '',
+            tg: Array.isArray(fallback.tg) ? fallback.tg : (Array.isArray(review.tg) ? review.tg : ['general']),
+            d: review.d || fallback.d || new Date().toISOString().slice(0, 10)
+          };
+        }).filter(function(review){
+          return review && review.r && review.t && review.b;
+        });
+      }
+    {%- endif -%}
+  } catch (e) { /* silently ignore synced review payload */ }
 
   var PER_PAGE = 6;
   var currentFilter = 'all';
