@@ -23,6 +23,42 @@
 <script>
 (function () {
   var CALQIX_PIXEL = '934134615770602';
+  var cqCountryCode = {{ localization.country.iso_code | downcase | json }};
+  if (cqCountryCode) window.CALQIX_COUNTRY_CODE = cqCountryCode;
+
+  function cqWriteCookie(name, value, days) {
+    try {
+      if (!name || !value) return;
+      var expires = '';
+      if (days) {
+        var d = new Date();
+        d.setTime(d.getTime() + days * 86400000);
+        expires = '; expires=' + d.toUTCString();
+      }
+      var secure = location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax' + secure;
+    } catch (e) { /* silent */ }
+  }
+
+  function cqWriteStorage(key, value) {
+    if (!key || !value) return;
+    try { localStorage.setItem(key, value); } catch (e) { /* silent */ }
+    try { sessionStorage.setItem(key, value); } catch (e) { /* silent */ }
+  }
+
+  function cqPersistMetaClickId() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var fbclid = params.get('fbclid');
+      if (!fbclid) return;
+      cqWriteStorage('_cq_fbclid', fbclid);
+      var fbc = 'fb.1.' + Date.now() + '.' + fbclid;
+      cqWriteCookie('_fbc', fbc, 90);
+      cqWriteStorage('_cq_fbc', fbc);
+    } catch (e) { /* silent */ }
+  }
+
+  cqPersistMetaClickId();
 
   function markMetaBeacon(url) {
     try {
@@ -155,6 +191,10 @@
     {%- if cq_birthday -%}  am.db = {{ cq_birthday | date: '%Y%m%d' | json }};{%- endif -%}
     {%- if cq_gender -%}    am.ge = {{ cq_gender | downcase | slice: 0 | json }};{%- endif -%}
   {%- endif -%}
+
+  if (cqCountryCode && !am.country) {
+    am.country = cqCountryCode;
+  }
 
   function readFirstPartyCookie(name) {
     try {

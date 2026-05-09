@@ -15,7 +15,7 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-05-06-emq-clean-match-a';
+  var BRIDGE_VERSION = '2026-05-09-click-id-consistency-a';
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
 
@@ -35,7 +35,27 @@
       d.setTime(d.getTime() + days * 86400000);
       expires = '; expires=' + d.toUTCString();
     }
-    document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax';
+    var secure = window.location && window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax' + secure;
+  }
+
+  function writeStorage(key, value) {
+    if (!key || !value) return;
+    try { localStorage.setItem(key, value); } catch (e) { /* silent */ }
+    try { sessionStorage.setItem(key, value); } catch (e) { /* silent */ }
+  }
+
+  function readStorage(key) {
+    if (!key) return null;
+    try {
+      var localValue = localStorage.getItem(key);
+      if (localValue) return localValue;
+    } catch (e) { /* silent */ }
+    try {
+      var sessionValue = sessionStorage.getItem(key);
+      if (sessionValue) return sessionValue;
+    } catch (e) { /* silent */ }
+    return null;
   }
 
   /* ------------------------------------------------------------------ */
@@ -47,12 +67,17 @@
       var params = new URLSearchParams(window.location.search);
       var fbclid = params.get('fbclid');
       if (fbclid) {
-        var fbc = 'fb.1.' + Date.now() + '.' + fbclid;
+        writeStorage('_cq_fbclid', fbclid);
+        var currentFbc = getCookie('_fbc') || readStorage('_cq_fbc');
+        var fbc = currentFbc && currentFbc.indexOf('.' + fbclid) !== -1
+          ? currentFbc
+          : 'fb.1.' + Date.now() + '.' + fbclid;
         setCookie('_fbc', fbc, 90);
+        writeStorage('_cq_fbc', fbc);
         return fbc;
       }
     } catch (e) { /* silent */ }
-    return null;
+    return readStorage('_cq_fbc');
   }
 
   function getFbc() {
@@ -60,7 +85,17 @@
   }
 
   function getFbp() {
-    return getCookie('_fbp');
+    var existing = getCookie('_fbp') || readStorage('_cq_fbp');
+    if (existing) {
+      writeStorage('_cq_fbp', existing);
+      return existing;
+    }
+
+    var randomPart = Math.floor(Math.random() * 10000000000);
+    var generated = 'fb.1.' + Date.now() + '.' + randomPart;
+    setCookie('_fbp', generated, 90);
+    writeStorage('_cq_fbp', generated);
+    return generated;
   }
 
   /* ------------------------------------------------------------------ */
@@ -141,6 +176,9 @@
 
   function getCountryCode() {
     try {
+      if (window.CALQIX_COUNTRY_CODE) {
+        return window.CALQIX_COUNTRY_CODE;
+      }
       if (window.Shopify && window.Shopify.country) {
         return window.Shopify.country;
       }
@@ -222,23 +260,49 @@
 
   var ATTR_FBC = '_meta_fbc';
   var ATTR_FBP = '_meta_fbp';
+  var ATTR_EXTERNAL_ID = '_meta_external_id';
+  var _lastCartAttributePayload = '';
+  var _lastCartAttributeSyncAt = 0;
 
-  function syncCartAttributes() {
+  function syncCartAttributes(options) {
+    options = options || {};
     var fbc = getFbc();
     var fbp = getFbp();
+    var externalId = getExternalId();
 
-    if (!fbc && !fbp) return;
+    if (!fbc && !fbp && !externalId) return Promise.resolve(false);
 
     var attributes = {};
     if (fbc) attributes[ATTR_FBC] = fbc;
     if (fbp) attributes[ATTR_FBP] = fbp;
+    if (externalId) attributes[ATTR_EXTERNAL_ID] = externalId;
 
-    fetch('/cart/update.js', {
+    var body = JSON.stringify({ attributes: attributes });
+    var now = Date.now();
+    if (!options.force && body === _lastCartAttributePayload && now - _lastCartAttributeSyncAt < 10000) {
+      return Promise.resolve(true);
+    }
+    _lastCartAttributePayload = body;
+    _lastCartAttributeSyncAt = now;
+
+    return fetch('/cart/update.js', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ attributes: attributes }),
-      credentials: 'same-origin'
-    }).catch(function () { /* silent */ });
+      body: body,
+      credentials: 'same-origin',
+      keepalive: true
+    }).then(function () {
+      return true;
+    }).catch(function () {
+      return false;
+    });
+  }
+
+  function primeTrackingForCartMutation() {
+    persistFbclid();
+    captureClickIds();
+    getOrCreateAnonId();
+    return syncCartAttributes({ force: true });
   }
 
   /* ------------------------------------------------------------------ */
@@ -698,15 +762,21 @@
       } catch (e) { urlString = ''; }
 
       if (urlString.indexOf('/cart/add') !== -1 && opts && opts.body) {
-        var promise = origFetch.apply(this, arguments);
-        promise.then(function (response) {
-          if (response.ok) {
-            response.clone().json().then(function (data) {
-              fireAddToCart(data);
-            }).catch(function () { /* silent */ });
-          }
-        }).catch(function () { /* silent */ });
-        return promise;
+        var fetchThis = this;
+        var fetchArgs = arguments;
+        var sendAddRequest = function () {
+          var promise = origFetch.apply(fetchThis, fetchArgs);
+          promise.then(function (response) {
+            if (response.ok) {
+              response.clone().json().then(function (data) {
+                fireAddToCart(data);
+              }).catch(function () { /* silent */ });
+            }
+          }).catch(function () { /* silent */ });
+          return promise;
+        };
+
+        return primeTrackingForCartMutation().then(sendAddRequest, sendAddRequest);
       }
 
       return origFetch.apply(this, arguments);
@@ -721,6 +791,7 @@
     XMLHttpRequest.prototype.send = function () {
       var xhr = this;
       if (xhr._calqixUrl && xhr._calqixUrl.indexOf('/cart/add') !== -1) {
+        primeTrackingForCartMutation();
         xhr.addEventListener('load', function () {
           if (xhr.status >= 200 && xhr.status < 300) {
             try {
@@ -732,6 +803,16 @@
       }
       return origXHRSend.apply(this, arguments);
     };
+  }
+
+  function interceptNativeAddToCartForms() {
+    document.addEventListener('submit', function (evt) {
+      var form = evt.target;
+      if (!form || !form.getAttribute) return;
+      var action = form.getAttribute('action') || '';
+      if (action.indexOf('/cart/add') === -1 && action.indexOf('/cart/add.js') === -1) return;
+      primeTrackingForCartMutation();
+    }, true);
   }
 
   function handleCartUpdatePayload(data) {
@@ -849,6 +930,7 @@
     fireLead: fireLead,
     buildUserPayload: buildUserPayload,
     captureIdentity: captureIdentity,
+    primeTrackingForCartMutation: primeTrackingForCartMutation,
     getGclid: getGclid,
     getGaClientId: getGaClientId,
     getTtclid: getTtclid
@@ -892,6 +974,7 @@
     syncCartAttributes();
     fireViewContent();
     interceptAddToCart();
+    interceptNativeAddToCartForms();
     interceptCartUpdateEvents();
     interceptCheckoutClicks();
     interceptLeadForms();
