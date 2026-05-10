@@ -245,7 +245,6 @@
      PageView CAPI endpoint (if added) can dedupe on the same ID. */
   var pvEventId = 'pv_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
   fbq('track', 'PageView', {}, { eventID: pvEventId });
-  window.__calqixMetaTrackFallback('PageView', pvEventId, {}, 3000);
   window.__calqixPvEventId = pvEventId;
 })();
 </script>

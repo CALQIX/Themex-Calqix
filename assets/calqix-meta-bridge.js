@@ -385,9 +385,6 @@
     var eventId = generateEventId(eventName.toLowerCase(), identifier);
 
     fbq('track', eventName, customData || {}, { eventID: eventId });
-    if (typeof window.__calqixMetaTrackFallback === 'function') {
-      window.__calqixMetaTrackFallback(eventName, eventId, customData || {}, 3000);
-    }
 
     return eventId;
   }
@@ -462,9 +459,6 @@
         currency: payload.currency
       };
       fbq('track', 'ViewContent', viewContentData, { eventID: eventId });
-      if (typeof window.__calqixMetaTrackFallback === 'function') {
-        window.__calqixMetaTrackFallback('ViewContent', eventId, viewContentData, 3000);
-      }
     }
   }
 
@@ -559,9 +553,6 @@
         currency: currency
       };
       fbq('track', 'AddToCart', addToCartData, { eventID: eventId });
-      if (typeof window.__calqixMetaTrackFallback === 'function') {
-        window.__calqixMetaTrackFallback('AddToCart', eventId, addToCartData, 3000);
-      }
     }
 
     syncCartAttributes();
@@ -603,9 +594,6 @@
         currency: currency
       };
       fbq('track', 'InitiateCheckout', initiateCheckoutData, { eventID: eventId });
-      if (typeof window.__calqixMetaTrackFallback === 'function') {
-        window.__calqixMetaTrackFallback('InitiateCheckout', eventId, initiateCheckoutData, 3000);
-      }
     }
   }
 
@@ -701,9 +689,6 @@
         content_category: formContext || 'newsletter'
       };
       fbq('track', 'Lead', leadData, { eventID: eventId });
-      if (typeof window.__calqixMetaTrackFallback === 'function') {
-        window.__calqixMetaTrackFallback('Lead', eventId, leadData, 3000);
-      }
     }
   }
 
