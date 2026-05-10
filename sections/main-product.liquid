@@ -3526,7 +3526,7 @@
                               {%- when 'belfius' -%}
                                 {{ 'belfius' | payment_type_svg_tag: class: 'icon icon--full-color' }}
                               {%- when 'kbc_cbc' -%}
-                                {{ 'kbc' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+                                <span class="wt-product__payments-badge__mini-logo wt-product__payments-badge__mini-logo--kbc" aria-hidden="true">KBC</span>
                               {%- when 'twint' -%}
                                 {{ 'twint' | payment_type_svg_tag: class: 'icon icon--full-color' }}
                               {%- when 'swish' -%}

@@ -1763,6 +1763,25 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__c
   max-width: 32px !important;
 }
 
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__mini-logo {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 14px !important;
+  padding: 0 3px !important;
+  border-radius: 2px !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 7px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__mini-logo--kbc {
+  color: #fff !important;
+  background: #009fe3 !important;
+}
+
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item--ideal-wero,
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item--credit-card {
   min-width: 62px !important;
@@ -1792,6 +1811,11 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__i
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__custom-logo {
     height: 11px !important;
     max-width: 22px !important;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__payments-badge__mini-logo {
+    height: 11px !important;
+    font-size: 6px !important;
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item--ideal-wero,
