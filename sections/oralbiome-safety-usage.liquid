@@ -1,16 +1,19 @@
 <style>
   .ob-safety {
-    background: #FFFFFF;
-    padding: 48px 0;
+    background:
+      radial-gradient(circle at 18% 0%, rgba(201, 168, 76, 0.08), transparent 28%),
+      linear-gradient(180deg, #ffffff 0%, #f6f9fc 100%);
+    padding: 58px 0;
+    overflow: hidden;
   }
   .ob-safety__container {
-    max-width: 1200px;
+    max-width: 1180px;
     margin: 0 auto;
     padding: 0 20px;
   }
   .ob-safety__header {
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 34px;
   }
   .ob-safety__eyebrow {
     font-family: 'DM Sans', sans-serif;
@@ -23,56 +26,202 @@
   }
   .ob-safety__heading {
     font-family: 'DM Serif Display', serif;
-    font-size: 28px;
-    color: #1A3B5C;
+    font-size: clamp(32px, 3vw, 46px);
+    color: #002549;
     margin: 0;
-    line-height: 1.3;
+    line-height: 1.08;
   }
   .ob-safety__card {
-    max-width: 720px;
+    position: relative;
+    max-width: 980px;
     margin: 0 auto;
-    background: #F7F5F2;
-    border-radius: 12px;
-    padding: 28px 28px 24px;
-    border: 1px solid rgba(26,59,92,0.06);
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 253, 0.92)) padding-box,
+      linear-gradient(145deg, rgba(0, 37, 73, 0.12), rgba(201, 168, 76, 0.32)) border-box;
+    border: 1px solid transparent;
+    border-radius: 22px;
+    padding: clamp(22px, 3vw, 38px);
+    box-shadow: 0 28px 70px -52px rgba(0, 37, 73, 0.55);
+    overflow: hidden;
+  }
+  .ob-safety__card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(201, 168, 76, 0.12), transparent 28%),
+      radial-gradient(circle at 86% 14%, rgba(0, 37, 73, 0.06), transparent 34%);
+    pointer-events: none;
+  }
+  .ob-safety__card-inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(220px, 0.78fr) minmax(0, 1.45fr);
+    gap: clamp(22px, 3vw, 36px);
+    align-items: start;
+  }
+  .ob-safety__summary {
+    position: sticky;
+    top: 96px;
+    padding: 20px;
+    border-radius: 18px;
+    background: #002549;
+    color: #ffffff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 22px 42px -34px rgba(0, 37, 73, 0.75);
+  }
+  .ob-safety__summary-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    margin-bottom: 16px;
+    border-radius: 15px;
+    color: #002549;
+    background: linear-gradient(135deg, #d6b65a, #c9a84c);
+    box-shadow: 0 14px 26px -20px rgba(201, 168, 76, 0.9);
+  }
+  .ob-safety__summary-icon svg {
+    width: 23px;
+    height: 23px;
+  }
+  .ob-safety__summary-label {
+    display: block;
+    margin: 0 0 8px;
+    color: #c9a84c;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
   }
   .ob-safety__intro {
     font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    color: #1A3B5C;
-    line-height: 1.6;
-    margin: 0 0 20px;
+    font-size: clamp(15px, 1.2vw, 17px);
+    color: inherit;
+    line-height: 1.55;
+    margin: 0;
   }
   .ob-safety__list {
     list-style: none;
     padding: 0;
     margin: 0;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
   .ob-safety__list li {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    align-items: start;
+    gap: 12px;
+    min-height: 76px;
+    padding: 14px;
+    border: 1px solid rgba(0, 37, 73, 0.08);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
     font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: #4A5568;
-    line-height: 1.55;
-    padding-left: 22px;
+    font-size: 13.5px;
+    color: #4f6070;
+    line-height: 1.45;
     position: relative;
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.48s ease,
+      transform 0.48s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.22s ease,
+      box-shadow 0.22s ease,
+      background 0.22s ease;
+  }
+  .ob-safety.is-animating .ob-safety__list li {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  .ob-safety.is-animating.is-visible .ob-safety__list li {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .ob-safety__list li:nth-child(1) { transition-delay: 0.03s; }
+  .ob-safety__list li:nth-child(2) { transition-delay: 0.06s; }
+  .ob-safety__list li:nth-child(3) { transition-delay: 0.09s; }
+  .ob-safety__list li:nth-child(4) { transition-delay: 0.12s; }
+  .ob-safety__list li:nth-child(5) { transition-delay: 0.15s; }
+  .ob-safety__list li:nth-child(6) { transition-delay: 0.18s; }
+  .ob-safety__list li:nth-child(7) { transition-delay: 0.21s; }
+  .ob-safety__list li:nth-child(8) { transition-delay: 0.24s; }
+  .ob-safety__list li:nth-child(9) { transition-delay: 0.27s; }
+  .ob-safety__list li:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(201, 168, 76, 0.36);
+    box-shadow: 0 18px 34px -30px rgba(0, 37, 73, 0.48);
   }
   .ob-safety__list li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 7px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #C9A84C;
+    content: attr(data-step);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+    background: rgba(0, 37, 73, 0.06);
+    color: #9f7d27;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+  .ob-safety__item-text {
+    display: block;
+    padding-top: 1px;
   }
   @media (min-width: 1024px) {
-    .ob-safety { padding: 80px 0; }
-    .ob-safety__heading { font-size: 36px; }
-    .ob-safety__card { padding: 36px 40px 32px; }
+    .ob-safety { padding: 88px 0; }
+  }
+  @media (max-width: 899px) {
+    .ob-safety__card-inner {
+      grid-template-columns: 1fr;
+    }
+    .ob-safety__summary {
+      position: relative;
+      top: auto;
+    }
+  }
+  @media (max-width: 640px) {
+    .ob-safety {
+      padding: 56px 0;
+    }
+    .ob-safety__container {
+      padding: 0 16px;
+    }
+    .ob-safety__header {
+      margin-bottom: 24px;
+    }
+    .ob-safety__card {
+      border-radius: 18px;
+      padding: 16px;
+    }
+    .ob-safety__summary {
+      padding: 18px;
+      border-radius: 16px;
+    }
+    .ob-safety__list {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .ob-safety__list li {
+      min-height: 0;
+      padding: 12px;
+      font-size: 13px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ob-safety__list li {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
   }
 </style>
 
@@ -112,21 +261,52 @@
       <h2 class="ob-safety__heading">{{ _su_heading }}</h2>
     </div>
     <div class="ob-safety__card">
-      <p class="ob-safety__intro">{{ _su_intro }}</p>
-      <ul class="ob-safety__list">
-        <li>{{ _su_item_1 }}</li>
-        <li>{{ _su_item_2 }}</li>
-        <li>{{ _su_item_3 }}</li>
-        <li>{{ _su_item_4 }}</li>
-        <li>{{ _su_item_5 }}</li>
-        <li>{{ _su_item_6 }}</li>
-        <li>{{ _su_item_7 }}</li>
-        <li>{{ _su_item_8 }}</li>
-        <li>{{ _su_item_9 }}</li>
-      </ul>
+      <div class="ob-safety__card-inner">
+        <div class="ob-safety__summary">
+          <span class="ob-safety__summary-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 3.5 19 6v5.6c0 4.1-2.8 7.6-7 8.9-4.2-1.3-7-4.8-7-8.9V6l7-2.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="m8.8 12.1 2 2 4.4-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="ob-safety__summary-label">{{ _su_eyebrow }}</span>
+          <p class="ob-safety__intro">{{ _su_intro }}</p>
+        </div>
+        <ul class="ob-safety__list">
+          <li data-step="01"><span class="ob-safety__item-text">{{ _su_item_1 }}</span></li>
+          <li data-step="02"><span class="ob-safety__item-text">{{ _su_item_2 }}</span></li>
+          <li data-step="03"><span class="ob-safety__item-text">{{ _su_item_3 }}</span></li>
+          <li data-step="04"><span class="ob-safety__item-text">{{ _su_item_4 }}</span></li>
+          <li data-step="05"><span class="ob-safety__item-text">{{ _su_item_5 }}</span></li>
+          <li data-step="06"><span class="ob-safety__item-text">{{ _su_item_6 }}</span></li>
+          <li data-step="07"><span class="ob-safety__item-text">{{ _su_item_7 }}</span></li>
+          <li data-step="08"><span class="ob-safety__item-text">{{ _su_item_8 }}</span></li>
+          <li data-step="09"><span class="ob-safety__item-text">{{ _su_item_9 }}</span></li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
+
+<script>
+  (function() {
+    var section = document.getElementById('safety-usage');
+    if (!section || !('IntersectionObserver' in window)) {
+      if (section) section.classList.add('is-visible');
+      return;
+    }
+    section.classList.add('is-animating');
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          section.classList.add('is-visible');
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.2 });
+    observer.observe(section);
+  })();
+</script>
 
 {% schema %}
 {
