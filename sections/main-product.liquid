@@ -2803,7 +2803,7 @@
               {%- endif -%}
 
             {%- when 'calqix_colour_switcher' -%}
-              {%- if cq_is_oralbiome and cq_inline_usps_rendered == false -%}
+              {%- if cq_is_oralbiome -%}
                 <div class="calqix-obp-usp-fallback calqix-inline-usps" data-block-id="oralbiome-usp-fallback">
                   <ul class="calqix-obp-usp-fallback__list" role="list">
                     {%- for i in (1..4) -%}
