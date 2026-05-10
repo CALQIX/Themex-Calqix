@@ -20,6 +20,8 @@
 {% assign cq_is_oralbiome = false %}
 {% if product != blank and product.template_suffix == 'oralbiome' %}
   {% assign cq_is_oralbiome = true %}
+{% elsif product != blank and product.handle contains 'oralbiome' %}
+  {% assign cq_is_oralbiome = true %}
 {% endif %}
 {% assign cq_is_translated_oralbiome = false %}
 {% if cq_is_oralbiome %}
