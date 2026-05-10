@@ -492,27 +492,27 @@ body.template-product-oralbiome #root > [id$="__oralbiome-health-benefits"] {
   order: 30;
 }
 
-body.template-product-oralbiome #root > [id$="__oralbiome-reviews"] {
+body.template-product-oralbiome #root > [id$="__oralbiome-how-to-use"] {
   order: 40;
 }
 
-body.template-product-oralbiome #root > [id$="__oralbiome-how-to-use"] {
+body.template-product-oralbiome #root > [id$="__oralbiome-ingredients"] {
   order: 50;
 }
 
-body.template-product-oralbiome #root > [id$="__oralbiome-ingredients"] {
+body.template-product-oralbiome #root > [id$="__oralbiome-comparison"] {
   order: 60;
 }
 
-body.template-product-oralbiome #root > [id$="__oralbiome-comparison"] {
+body.template-product-oralbiome #root > [id$="__oralbiome-comparison-mobile"] {
   order: 70;
 }
 
-body.template-product-oralbiome #root > [id$="__oralbiome-comparison-mobile"] {
+body.template-product-oralbiome #root > [id$="__oralbiome-safety-usage"] {
   order: 80;
 }
 
-body.template-product-oralbiome #root > [id$="__oralbiome-safety-usage"] {
+body.template-product-oralbiome #root > [id$="__oralbiome-reviews"] {
   order: 90;
 }
 
@@ -531,6 +531,21 @@ body.template-product-oralbiome #root > [id*="__before_and_after"] {
 
 body.template-product-oralbiome .ob-benefits__card:nth-child(n+5) {
   display: none !important;
+}
+
+@media (min-width: 1024px) {
+  body.template-product-oralbiome #root > [id$="__oralbiome-reviews"] .ob-reviews {
+    padding-top: clamp(112px, 8vw, 148px) !important;
+    padding-bottom: clamp(84px, 6vw, 112px) !important;
+  }
+
+  body.template-product-oralbiome #root > [id$="__oralbiome-reviews"] .ob-reviews__container {
+    max-width: 1040px;
+  }
+
+  body.template-product-oralbiome #root > [id$="__oralbiome-reviews"] .ob-reviews__header {
+    margin-bottom: 36px;
+  }
 }
 
 @media (min-width: 1024px) {
