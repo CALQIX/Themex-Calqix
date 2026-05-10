@@ -22,6 +22,8 @@
   {% assign cq_is_oralbiome = true %}
 {% elsif product != blank and product.handle contains 'oralbiome' %}
   {% assign cq_is_oralbiome = true %}
+{% elsif request.path contains 'oralbiome' %}
+  {% assign cq_is_oralbiome = true %}
 {% endif %}
 {% assign cq_is_translated_oralbiome = false %}
 {% if cq_is_oralbiome %}
