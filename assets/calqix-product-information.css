@@ -1681,3 +1681,122 @@ body.template-product-oralbiome .wt-product__info .calqix-stock-status {
   margin-bottom: 10px;
 }
 
+/* Product payment icons: compact image buttons directly under ATC */
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge {
+  --cq-payment-strip-width: 100%;
+  margin: 8px 0 18px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__content {
+  display: none !important;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__content::before,
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__list::after {
+  content: none !important;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons {
+  width: 100% !important;
+  max-width: min(100%, var(--cq-payment-strip-width)) !important;
+  margin: 0 auto !important;
+  overflow: hidden !important;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__list {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 5px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item {
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 38px !important;
+  height: 28px !important;
+  padding: 3px 6px !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  border: 1px solid rgba(0, 37, 73, 0.12) !important;
+  border-radius: 5px !important;
+  box-shadow: 0 5px 14px -13px rgba(0, 37, 73, 0.35) !important;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px -14px rgba(0, 37, 73, 0.42) !important;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item .icon {
+  display: block !important;
+  width: auto !important;
+  height: 16px !important;
+  max-width: 36px !important;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__logo-set {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  line-height: 0 !important;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__logo-set .icon {
+  height: 14px !important;
+  max-width: 28px !important;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__custom-logo {
+  display: block !important;
+  width: auto !important;
+  height: 14px !important;
+  max-width: 32px !important;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item--ideal-wero,
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item--credit-card {
+  min-width: 62px !important;
+}
+
+@media (max-width: 960px) {
+  body[class^="template-product"] .wt-product__info .wt-product__payments-badge {
+    margin: 7px 0 16px !important;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__list {
+    gap: 3px !important;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item {
+    min-width: 31px !important;
+    height: 24px !important;
+    padding: 2px 4px !important;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item .icon {
+    height: 13px !important;
+    max-width: 28px !important;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__payments-badge__logo-set .icon,
+  body[class^="template-product"] .wt-product__info .wt-product__payments-badge__custom-logo {
+    height: 11px !important;
+    max-width: 22px !important;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item--ideal-wero,
+  body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item--credit-card {
+    min-width: 50px !important;
+  }
+}
+

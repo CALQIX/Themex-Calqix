@@ -3506,17 +3506,33 @@
                           -%}
                           <li class="wt-product__payments-badge__icons__item wt-product__payments-badge__icons__item--{{ cq_method | replace: '_', '-' }}" title="{{ cq_method_label }}" aria-label="{{ cq_method_label }}">
                             {%- case cq_method -%}
+                              {%- when 'ideal_wero' -%}
+                                <span class="wt-product__payments-badge__logo-set wt-product__payments-badge__logo-set--ideal-wero" aria-hidden="true">
+                                  {{ 'ideal' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+                                  <img src="{{ 'WERO.png' | file_url }}" alt="" loading="lazy" class="wt-product__payments-badge__custom-logo">
+                                </span>
                               {%- when 'klarna' -%}
                                 {{ 'klarna' | payment_type_svg_tag: class: 'icon icon--full-color' }}
                               {%- when 'paypal' -%}
                                 {{ 'paypal' | payment_type_svg_tag: class: 'icon icon--full-color' }}
                               {%- when 'credit_card' -%}
-                                <span class="wt-product__payments-badge__cards" aria-hidden="true">
+                                <span class="wt-product__payments-badge__logo-set wt-product__payments-badge__logo-set--cards" aria-hidden="true">
                                   {{ 'visa' | payment_type_svg_tag: class: 'icon icon--full-color' }}
                                   {{ 'master' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+                                  {{ 'maestro' | payment_type_svg_tag: class: 'icon icon--full-color' }}
                                 </span>
+                              {%- when 'eps' -%}
+                                {{ 'eps' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+                              {%- when 'belfius' -%}
+                                {{ 'belfius' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+                              {%- when 'kbc_cbc' -%}
+                                {{ 'kbc' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+                              {%- when 'twint' -%}
+                                {{ 'twint' | payment_type_svg_tag: class: 'icon icon--full-color' }}
+                              {%- when 'swish' -%}
+                                {{ 'swish' | payment_type_svg_tag: class: 'icon icon--full-color' }}
                               {%- else -%}
-                                <span class="wt-product__payments-badge__method-label">{{ cq_method_label }}</span>
+                                <span class="wt-product__payments-badge__method-label" aria-hidden="true">{{ cq_method_label }}</span>
                             {%- endcase -%}
                           </li>
                         {%- endfor -%}
