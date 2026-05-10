@@ -1744,7 +1744,7 @@ body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__titl
 /* Product payment icons: compact image buttons directly under ATC */
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge {
   --cq-payment-strip-width: 100%;
-  margin: 4px 0 16px !important;
+  margin: -6px 0 14px !important;
   padding: 0 !important;
   background: transparent !important;
   border: 0 !important;
@@ -1860,7 +1860,7 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__i
 
 @media (max-width: 960px) {
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge {
-    margin: 3px 0 14px !important;
+    margin: -8px 0 12px !important;
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__content {
