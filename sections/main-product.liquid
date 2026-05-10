@@ -1063,13 +1063,15 @@
             {%- when 'custom_liquid' -%}
               {{ block.settings.custom_liquid }}
             {%- when 'calqix_usps_inline' -%}
-              {%- assign cq_inline_usps_rendered = true -%}
-              {% render 'calqix-inline-usps',
-                block: block,
-                mobile_columns: block.settings.mobile_columns,
-                show_badge: block.settings.show_badge,
-                badge_text: block.settings.badge_text,
-                animate: block.settings.animate %}
+              {%- unless cq_is_oralbiome -%}
+                {%- assign cq_inline_usps_rendered = true -%}
+                {% render 'calqix-inline-usps',
+                  block: block,
+                  mobile_columns: block.settings.mobile_columns,
+                  show_badge: block.settings.show_badge,
+                  badge_text: block.settings.badge_text,
+                  animate: block.settings.animate %}
+              {%- endunless -%}
             {%- when 'calqix_badge' -%}
               {%- assign cq_calqix_badge_text = block.settings.text -%}
               {%- if cq_is_translated_flowcore -%}
