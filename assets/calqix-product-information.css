@@ -563,13 +563,15 @@ body.template-product-oralbiome .wt-product__info [class*="calqix-usps"] {
   }
 
   body.template-product-oralbiome .wt-product__gallery {
+    max-height: 330px;
     margin-bottom: 10px !important;
+    overflow: hidden;
   }
 
   body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide,
   body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide img,
   body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide .wt-product__slide-media {
-    max-height: 430px;
+    max-height: 300px;
     object-fit: contain;
   }
 
@@ -578,7 +580,49 @@ body.template-product-oralbiome .wt-product__info [class*="calqix-usps"] {
   }
 
   body.template-product-oralbiome .wt-product__info {
+    display: flex;
+    flex-direction: column;
     padding-top: 0;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-product-badge {
+    order: 1;
+  }
+
+  body.template-product-oralbiome .wt-product__info > [data-block-id="title"] {
+    order: 2;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-product-subtitle {
+    order: 3;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-inline-usps {
+    order: 4;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block {
+    order: 5;
+  }
+
+  body.template-product-oralbiome .wt-product__info .cqbp {
+    order: 6;
+  }
+
+  body.template-product-oralbiome .wt-product__info .cqsw {
+    order: 7;
+  }
+
+  body.template-product-oralbiome .wt-product__info > [data-block-id="buy_buttons"] {
+    order: 8;
+  }
+
+  body.template-product-oralbiome .wt-product__info > [data-block-id="payments_badge_ob01"] {
+    order: 9;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-cert-inline {
+    order: 10;
   }
 
   body.template-product-oralbiome .wt-product__info .calqix-product-badge {
@@ -601,7 +645,75 @@ body.template-product-oralbiome .wt-product__info [class*="calqix-usps"] {
   }
 
   body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block {
+    padding: 8px 0 !important;
     margin-bottom: 8px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-label {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-helper {
+    display: none !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-swatches {
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-swatches::-webkit-scrollbar {
+    display: none;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-swatch {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .cqbp {
+    margin-bottom: 6px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .cqbp__heading {
+    font-size: 10px !important;
+    margin-bottom: 5px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .cqbp__grid {
+    gap: 4px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .cqbp__card {
+    border-radius: 7px !important;
+    gap: 2px !important;
+    padding: 8px 4px 7px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .cqsw {
+    margin: 2px 0 8px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-cert-inline {
+    margin-top: 10px !important;
+    margin-bottom: 0 !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-cert-inline__row {
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-cert-inline__row::-webkit-scrollbar {
+    display: none;
   }
 }
 
