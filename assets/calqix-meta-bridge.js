@@ -15,7 +15,7 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-05-09-click-id-consistency-a';
+  var BRIDGE_VERSION = '2026-05-10-db-st-matchkeys-a';
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
 
@@ -261,6 +261,8 @@
   var ATTR_FBC = '_meta_fbc';
   var ATTR_FBP = '_meta_fbp';
   var ATTR_EXTERNAL_ID = '_meta_external_id';
+  var ATTR_DB = '_meta_db';
+  var ATTR_ST = '_meta_st';
   var _lastCartAttributePayload = '';
   var _lastCartAttributeSyncAt = 0;
 
@@ -269,13 +271,16 @@
     var fbc = getFbc();
     var fbp = getFbp();
     var externalId = getExternalId();
+    var userPayload = buildUserPayload();
 
-    if (!fbc && !fbp && !externalId) return Promise.resolve(false);
+    if (!fbc && !fbp && !externalId && !userPayload.date_of_birth && !userPayload.state) return Promise.resolve(false);
 
     var attributes = {};
     if (fbc) attributes[ATTR_FBC] = fbc;
     if (fbp) attributes[ATTR_FBP] = fbp;
     if (externalId) attributes[ATTR_EXTERNAL_ID] = externalId;
+    if (userPayload.date_of_birth) attributes[ATTR_DB] = userPayload.date_of_birth;
+    if (userPayload.state) attributes[ATTR_ST] = userPayload.state;
 
     var body = JSON.stringify({ attributes: attributes });
     var now = Date.now();
@@ -361,6 +366,7 @@
         if (cu.ln) data.last_name = cu.ln;
         if (cu.ct) data.city = cu.ct;
         if (cu.st) data.state = cu.st;
+        if (cu.db) data.date_of_birth = cu.db;
         if (cu.zp) data.zip = cu.zp;
         if (!data.country_code && cu.country) data.country_code = cu.country;
         break;
@@ -430,6 +436,7 @@
       last_name: userPayload.last_name || undefined,
       city: userPayload.city || undefined,
       state: userPayload.state || undefined,
+      date_of_birth: userPayload.date_of_birth || undefined,
       zip: userPayload.zip || undefined,
       external_id: userPayload.external_id || undefined,
       country_code: userPayload.country_code || undefined,
@@ -533,6 +540,7 @@
       last_name: userPayload.last_name || undefined,
       city: userPayload.city || undefined,
       state: userPayload.state || undefined,
+      date_of_birth: userPayload.date_of_birth || undefined,
       zip: userPayload.zip || undefined,
       external_id: userPayload.external_id || undefined,
       country_code: userPayload.country_code || undefined,
@@ -679,6 +687,7 @@
       fbc: userPayload.fbc || undefined,
       fbp: userPayload.fbp || undefined,
       external_id: userPayload.external_id || undefined,
+      date_of_birth: userPayload.date_of_birth || undefined,
       country_code: userPayload.country_code || undefined,
       ga_client_id: userPayload.ga_client_id || undefined,
       source_url: window.location.href
@@ -957,6 +966,7 @@
       var userData = { external_id: externalId };
       if (payload.email) userData.em = payload.email;
       if (payload.phone) userData.ph = payload.phone;
+      if (payload.date_of_birth) userData.db = payload.date_of_birth;
       if (payload.country_code) userData.country = payload.country_code;
 
       window.dataLayer.push({
