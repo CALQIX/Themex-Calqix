@@ -1054,6 +1054,7 @@
     <section class="wt-product__main rte">
       <div class="wt-product__info product__info-container">
         {%- assign product_form_id = 'product-form-' | append: section.id -%}
+        {%- assign cq_inline_usps_rendered = false -%}
 
         {%- for block in section.blocks -%}
           {%- case block.type -%}
@@ -1062,6 +1063,7 @@
             {%- when 'custom_liquid' -%}
               {{ block.settings.custom_liquid }}
             {%- when 'calqix_usps_inline' -%}
+              {%- assign cq_inline_usps_rendered = true -%}
               {% render 'calqix-inline-usps',
                 block: block,
                 mobile_columns: block.settings.mobile_columns,
@@ -2799,6 +2801,56 @@
               {%- endif -%}
 
             {%- when 'calqix_colour_switcher' -%}
+              {%- if cq_is_oralbiome and cq_inline_usps_rendered == false -%}
+                <div class="calqix-obp-usp-fallback calqix-inline-usps" data-block-id="oralbiome-usp-fallback">
+                  <ul class="calqix-obp-usp-fallback__list" role="list">
+                    {%- for i in (1..4) -%}
+                      {%- assign title_key = 'sections.calqix_usp_grid.usp_' | append: i | append: '_title' -%}
+                      {%- assign usp_title = title_key | t -%}
+                      {%- if usp_title == title_key or usp_title == blank -%}
+                        {%- case i -%}
+                          {%- when 1 -%}{%- assign usp_title = '4 studied oral strains' -%}
+                          {%- when 2 -%}{%- assign usp_title = 'Fresh breath support' -%}
+                          {%- when 3 -%}{%- assign usp_title = 'One lozenge daily' -%}
+                          {%- when 4 -%}{%- assign usp_title = '30-day supply per jar' -%}
+                        {%- endcase -%}
+                      {%- endif -%}
+                      <li class="calqix-obp-usp-fallback__item">
+                        <span class="calqix-obp-usp-fallback__icon" aria-hidden="true">
+                          {%- case i -%}
+                            {%- when 1 -%}
+                              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 30h24M20 30V10M10 10h20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                <circle cx="12" cy="20" r="5" stroke="currentColor" stroke-width="1.8"/>
+                                <circle cx="28" cy="20" r="5" stroke="currentColor" stroke-width="1.8"/>
+                                <path d="M16 20h8" stroke="#9f7d27" stroke-width="1.6" stroke-linecap="round"/>
+                              </svg>
+                            {%- when 2 -%}
+                              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <ellipse cx="20" cy="22" rx="11" ry="6" stroke="currentColor" stroke-width="1.8"/>
+                                <circle cx="20" cy="20" r="8" stroke="#9f7d27" stroke-width="1.6"/>
+                                <path d="M20 8v6M20 26v6M8 20h6M26 20h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                              </svg>
+                            {%- when 3 -%}
+                              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M26 8a12 12 0 1 0 0 24 9 9 0 0 1 0-24Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                                <ellipse cx="14" cy="28" rx="5.5" ry="3.2" stroke="#9f7d27" stroke-width="1.8"/>
+                                <circle cx="30" cy="14" r="1" fill="currentColor"/>
+                              </svg>
+                            {%- else -%}
+                              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="20" cy="20" r="13" stroke="currentColor" stroke-width="1.8"/>
+                                <circle cx="20" cy="20" r="13" stroke="#9f7d27" stroke-width="1.8" stroke-dasharray="2 4"/>
+                                <text x="20" y="24" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="11" fill="currentColor">30</text>
+                              </svg>
+                          {%- endcase -%}
+                        </span>
+                        <span class="calqix-obp-usp-fallback__text">{{ usp_title }}</span>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              {%- endif -%}
               {%- assign b = block.settings -%}
               {%- assign ccs_label_text = b.label_text -%}
               {%- assign ccs_highlight_text = b.highlight_text -%}
