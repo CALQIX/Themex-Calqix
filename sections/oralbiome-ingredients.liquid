@@ -13,21 +13,6 @@
     text-align: center;
     margin-bottom: 40px;
   }
-  .ob-ingr__visual {
-    max-width: 980px;
-    margin: -12px auto 40px;
-    border-radius: 18px;
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.14);
-    box-shadow: 0 30px 70px -36px rgba(0,0,0,0.6);
-    background: #FFFFFF;
-  }
-  .ob-ingr__visual img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 16 / 7;
-    object-fit: cover;
-  }
   .ob-ingr__eyebrow {
     font-family: 'DM Sans', sans-serif;
     font-size: 12px;
@@ -202,16 +187,6 @@
     .ob-ingr__card { flex: 0 0 calc(28% - 12px); }
     .ob-ingr__card-image { width: 120px; height: 120px; }
   }
-  @media (max-width: 767px) {
-    .ob-ingr__visual {
-      margin: -14px auto 28px;
-      border-radius: 14px;
-    }
-    .ob-ingr__visual img {
-      aspect-ratio: 1.05 / 1;
-      object-position: center;
-    }
-  }
 </style>
 
 {%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
@@ -236,9 +211,6 @@
     <div class="ob-ingr__header">
       <p class="ob-ingr__eyebrow">{{ _ob_ingr_eyebrow }}</p>
       <h2 class="ob-ingr__heading">{{ _ob_ingr_heading }}</h2>
-    </div>
-    <div class="ob-ingr__visual" aria-hidden="true">
-      <img src="{{ 'obp-ingredients-strains-grid-1600x1000.png' | asset_url }}" alt="" loading="lazy" width="1600" height="1000">
     </div>
     <div class="ob-ingr__carousel-wrap">
       <button type="button" class="ob-ingr__arrow ob-ingr__arrow--prev" aria-label="{{ section.settings.prev_label }}">
