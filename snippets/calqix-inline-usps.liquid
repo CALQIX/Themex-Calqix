@@ -343,6 +343,147 @@
   }
   {%- endif -%}
 
+  {%- if cq_usp_is_oralbiome -%}
+  .{{ ns }} {
+    --cq-ink: #002549;
+    --cq-ink-2: #103b62;
+    --cq-accent: #c9a84c;
+    --cq-accent-soft: rgba(201, 168, 76, 0.12);
+    --cq-accent-line: rgba(0, 37, 73, 0.13);
+    --cq-card: rgba(255, 255, 255, 0.92);
+    --cq-glow: 0 12px 28px -22px rgba(0, 37, 73, 0.42), 0 0 0 1px rgba(0, 37, 73, 0.12);
+    --cq-glow-hover: 0 18px 34px -22px rgba(0, 37, 73, 0.5), 0 0 0 1px rgba(201, 168, 76, 0.34);
+    margin: 16px 0 20px;
+  }
+
+  .{{ ns }}__shell {
+    padding: 0;
+  }
+
+  .{{ ns }}__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .{{ ns }}__item {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    align-items: center;
+    min-height: 72px;
+    gap: 12px;
+    padding: 11px 14px 11px 10px;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(246, 250, 254, 0.92)) padding-box,
+      linear-gradient(135deg, rgba(0, 37, 73, 0.15), rgba(201, 168, 76, 0.25)) border-box;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    box-shadow: var(--cq-glow);
+    cursor: default;
+    overflow: hidden;
+  }
+
+  .{{ ns }}__item::after {
+    content: "";
+    position: absolute;
+    inset: auto 12px 9px 70px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(201, 168, 76, 0.5), rgba(201, 168, 76, 0));
+    opacity: 0.55;
+  }
+
+  .{{ ns }}__icon {
+    width: 48px;
+    height: 48px;
+    color: #002549;
+    background:
+      radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.18) 42%, transparent 43%),
+      linear-gradient(145deg, #dcebff 0%, #bcd8ff 100%);
+    border: 1px solid rgba(255, 255, 255, 0.86);
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 5px rgba(255, 255, 255, 0.34), 0 10px 20px -16px rgba(0, 37, 73, 0.55);
+  }
+
+  .{{ ns }}__icon svg {
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.5));
+  }
+
+  .{{ ns }}__icon svg .cq-accent {
+    stroke: #9f7d27;
+  }
+
+  .{{ ns }}__body {
+    align-self: center;
+  }
+
+  .{{ ns }}__title {
+    color: #002549;
+    font-family: "DM Serif Display", "Playfair Display", Georgia, serif;
+    font-size: clamp(14px, 1.1vw, 16px);
+    font-weight: 500;
+    line-height: 1.2;
+    margin: 0;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .{{ ns }}__title::after,
+  .{{ ns }}__subtitle,
+  .{{ ns }}__subtitle::after {
+    display: none !important;
+  }
+
+  @media (hover: hover) and (min-width: 900px) {
+    .{{ ns }}__item:hover {
+      transform: translateY(-1px);
+      border-color: transparent;
+      box-shadow: var(--cq-glow-hover);
+    }
+
+    .{{ ns }}__item:hover .{{ ns }}__icon {
+      color: #002549;
+      background:
+        radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.18) 42%, transparent 43%),
+        linear-gradient(145deg, #e9f3ff 0%, #c5ddff 100%);
+      transform: translateY(-1px);
+    }
+
+    .{{ ns }}__item:hover .{{ ns }}__icon svg .cq-accent {
+      stroke: #9f7d27;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .{{ ns }}__list {
+      grid-template-columns: 1fr;
+      gap: 7px;
+    }
+
+    .{{ ns }}__item {
+      min-height: 62px;
+      grid-template-columns: 42px minmax(0, 1fr);
+      padding: 9px 12px 9px 9px;
+      border-radius: 11px;
+    }
+
+    .{{ ns }}__item::after {
+      left: 62px;
+      bottom: 7px;
+    }
+
+    .{{ ns }}__icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+    }
+
+    .{{ ns }}__title {
+      font-size: 14px;
+    }
+  }
+  {%- endif -%}
+
   @media (prefers-reduced-motion: reduce) {
     .{{ ns }} *,
     .{{ ns }} *::before,

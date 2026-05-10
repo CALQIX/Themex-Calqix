@@ -555,6 +555,38 @@ body.template-product-oralbiome .wt-product__info [class*="calqix-usps"] {
   margin-top: 10px;
 }
 
+body.template-product-oralbiome .wt-product__gallery::before {
+  content: none !important;
+}
+
+body.template-product-oralbiome .wt-product__gallery > * {
+  opacity: 1 !important;
+}
+
+body.template-product-oralbiome .wt-product__gallery [data-gallery] [data-swiper-slide] {
+  overflow: hidden;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #f8fbff 0%, #edf5fc 100%);
+}
+
+body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-product__img {
+  transform-origin: var(--cq-zoom-x, 50%) var(--cq-zoom-y, 50%);
+  transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1), filter 0.34s ease;
+  will-change: transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-product__img {
+    cursor: zoom-in;
+  }
+
+  body.template-product-oralbiome .wt-product__gallery [data-gallery] [data-swiper-slide]:hover .wt-product__img {
+    transform: scale(1.78);
+    filter: saturate(1.02) contrast(1.03);
+    cursor: zoom-out;
+  }
+}
+
 @media (max-width: 899px) {
   body.template-product-oralbiome .product-section,
   body.template-product-oralbiome .product-section .wt-product__wrapper {
@@ -563,16 +595,8 @@ body.template-product-oralbiome .wt-product__info [class*="calqix-usps"] {
   }
 
   body.template-product-oralbiome .wt-product__gallery {
-    max-height: 330px;
     margin-bottom: 10px !important;
-    overflow: hidden;
-  }
-
-  body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide,
-  body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide img,
-  body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide .wt-product__slide-media {
-    max-height: 300px;
-    object-fit: contain;
+    overflow: visible;
   }
 
   body.template-product-oralbiome .wt-product__gallery [data-thumbs-mobile] .wt-slider__slide {

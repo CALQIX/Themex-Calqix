@@ -29,63 +29,6 @@
   {% endcase %}
 {% endif %}
 
-{% if cq_is_oralbiome %}
-  <style>
-    body.template-product-oralbiome .wt-product__gallery { position: relative; }
-    body.template-product-oralbiome .wt-product__gallery::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 5;
-      pointer-events: none;
-      background: url({{ 'obp-hero-freshmint-clinical-routine-1600x1200.png' | asset_url }}) center / cover no-repeat;
-    }
-    body.template-product-oralbiome .wt-product__gallery > * { opacity: 0; }
-    @media (max-width: 899px) {
-      body.template-product-oralbiome .wt-product__gallery { max-height: 330px; overflow: hidden; }
-      body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide,
-      body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide img,
-      body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide .wt-product__slide-media {
-        max-height: 300px; object-fit: contain;
-      }
-      body.template-product-oralbiome .wt-product__info { display: flex; flex-direction: column; }
-      body.template-product-oralbiome .wt-product__info .calqix-product-badge { order: 1; }
-      body.template-product-oralbiome .wt-product__info > [data-block-id="title"] { order: 2; }
-      body.template-product-oralbiome .wt-product__info .calqix-product-subtitle { order: 3; }
-      body.template-product-oralbiome .wt-product__info .calqix-inline-usps { order: 4; }
-      body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block { order: 5; }
-      body.template-product-oralbiome .wt-product__info .cqbp { order: 6; }
-      body.template-product-oralbiome .wt-product__info .cqsw { order: 7; }
-      body.template-product-oralbiome .wt-product__info > [data-block-id="buy_buttons"] { order: 8; }
-      body.template-product-oralbiome .wt-product__info > [data-block-id="payments_badge_ob01"] { order: 9; }
-      body.template-product-oralbiome .wt-product__info .calqix-cert-inline { order: 10; }
-      body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block { padding: 8px 0 !important; margin-bottom: 8px !important; }
-      body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-label { font-size: 12px; margin-bottom: 6px; }
-      body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-helper { display: none !important; }
-      body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-swatches {
-        gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none;
-      }
-      body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-swatches::-webkit-scrollbar { display: none; }
-      body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-swatch {
-        width: 42px !important; height: 42px !important; min-width: 42px !important;
-      }
-      body.template-product-oralbiome .wt-product__info .cqbp { margin-bottom: 6px !important; }
-      body.template-product-oralbiome .wt-product__info .cqbp__heading { font-size: 10px !important; margin-bottom: 5px !important; }
-      body.template-product-oralbiome .wt-product__info .cqbp__grid { gap: 4px !important; }
-      body.template-product-oralbiome .wt-product__info .cqbp__card {
-        border-radius: 7px !important; gap: 2px !important; padding: 8px 4px 7px !important;
-      }
-      body.template-product-oralbiome .wt-product__info .cqsw { margin: 2px 0 8px !important; }
-      body.template-product-oralbiome .wt-product__info .calqix-cert-inline { margin-top: 10px !important; margin-bottom: 0 !important; }
-      body.template-product-oralbiome .wt-product__info .calqix-cert-inline__row {
-        flex-wrap: nowrap !important; justify-content: flex-start !important; gap: 6px !important;
-        overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;
-      }
-      body.template-product-oralbiome .wt-product__info .calqix-cert-inline__row::-webkit-scrollbar { display: none; }
-    }
-  </style>
-{% endif %}
-
 <style>
   [id="shopify-section-{{ section.id }}"] {
     {% if background_rgb != 'rgba(0, 0, 0, 0.0)' %}
@@ -442,6 +385,38 @@
   {{ 'calqix-product-information.css' | asset_url | stylesheet_tag }}
 {%- endif -%}
 
+{% if cq_is_oralbiome %}
+  <script>
+    (function () {
+      function initOralBiomeZoom() {
+        var gallery = document.getElementById('MediaGallery-{{ section.id }}');
+        if (!gallery) return;
+        var images = gallery.querySelectorAll('[data-gallery] .wt-product__img');
+        images.forEach(function (image) {
+          image.addEventListener('pointermove', function (event) {
+            if (event.pointerType === 'touch') return;
+            var rect = image.getBoundingClientRect();
+            var x = ((event.clientX - rect.left) / rect.width) * 100;
+            var y = ((event.clientY - rect.top) / rect.height) * 100;
+            image.style.setProperty('--cq-zoom-x', Math.max(0, Math.min(100, x)).toFixed(2) + '%');
+            image.style.setProperty('--cq-zoom-y', Math.max(0, Math.min(100, y)).toFixed(2) + '%');
+          }, { passive: true });
+          image.addEventListener('pointerleave', function () {
+            image.style.removeProperty('--cq-zoom-x');
+            image.style.removeProperty('--cq-zoom-y');
+          }, { passive: true });
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initOralBiomeZoom);
+      } else {
+        initOralBiomeZoom();
+      }
+    })();
+  </script>
+{% endif %}
+
 {% assign selected_variant = product.selected_variant %}
 {% assign enabled_preselect = false %}
 {% if section.settings['enable-preselected-variant'] and selected_variant == blank %}
@@ -531,7 +506,7 @@
         }
       </script>
 
-      <div data-gallery class="{% if section.settings.enable_image_zoom %}photoswipe{% endif %}">
+      <div data-gallery class="{% if section.settings.enable_image_zoom and cq_is_oralbiome == false %}photoswipe{% endif %}">
         <div class="card__badges card__badges--product">
           {% assign custom-badge-1-input = settings['custom-badge-1-input'] | downcase %}
           {% assign custom-badge-2-input = settings['custom-badge-2-input'] | downcase %}
@@ -625,7 +600,7 @@
               style="--slide-ratio: {{ featured_media.preview_image.aspect_ratio }}"
             >
               {%- if featured_media.media_type == 'image' -%}
-                {% if section.settings['enable-image-zoom'] -%}
+                {% if section.settings['enable-image-zoom'] and cq_is_oralbiome == false -%}
                   <a
                     href="{{ featured_media.preview_image | image_url: width: 4096 }}"
                     data-pswp-width="{{ featured_media.width }}"
@@ -653,7 +628,7 @@
                   data-media-id="{{ featured_media.id }}"
                   class="wt-product__img {% if section.settings.enable-image-zoom %} wt-product__img--zoom-cursor {% endif %}"
                 >
-                {% if section.settings['enable-image-zoom'] %}</a>{% endif %}
+                {% if section.settings['enable-image-zoom'] and cq_is_oralbiome == false %}</a>{% endif %}
               {%- endif -%}
             </li>
           {%- endif -%}
@@ -668,7 +643,7 @@
                 style="--slide-ratio: {{ media.preview_image.aspect_ratio }}"
               >
                 {%- if media.media_type == 'image' -%}
-                  {% if section.settings['enable-image-zoom'] -%}
+                  {% if section.settings['enable-image-zoom'] and cq_is_oralbiome == false -%}
                     <a
                       href="{{ media | image_url: width: 4096 }}"
                       data-pswp-width="{{ media.width }}"
@@ -700,7 +675,7 @@
                       fetchpriority="high"
                     {% endif %}
                   >
-                  {% if section.settings['enable-image-zoom'] %}</a>{% endif %}
+                  {% if section.settings['enable-image-zoom'] and cq_is_oralbiome == false %}</a>{% endif %}
                 {%- endif -%}
 
                 {% if media.media_type == 'video' %}

@@ -170,4 +170,45 @@
   gallery-section[data-product-page] .swiper-pagination-fraction {
     display: none !important;
   }
+
+  body.template-product-oralbiome gallery-section[data-product-page] .cqmt {
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 1;
+    justify-content: center;
+    gap: 8px;
+    width: min(100%, 320px);
+    padding: 10px 8px 0;
+    margin: 0 auto;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  }
+
+  body.template-product-oralbiome gallery-section[data-product-page] .cqmt__bubble {
+    flex: 0 0 42px;
+    min-width: 42px;
+    max-width: 42px;
+    opacity: 0.72;
+    filter: drop-shadow(0 8px 14px rgba(0, 37, 73, 0.16));
+    animation: none;
+  }
+
+  body.template-product-oralbiome gallery-section[data-product-page] .cqmt__bubble-inner {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(0, 37, 73, 0.12);
+  }
+
+  body.template-product-oralbiome gallery-section[data-product-page] .cqmt__bubble.is-active {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.05);
+  }
+
+  body.template-product-oralbiome gallery-section[data-product-page] .cqmt__bubble.is-active .cqmt__bubble-inner {
+    background: #c9a84c;
+    border-color: rgba(201, 168, 76, 0.42);
+  }
 }
