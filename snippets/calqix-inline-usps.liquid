@@ -393,6 +393,22 @@
             {%- assign subtitle = t_sub -%}
           {%- endif -%}
         {%- endif -%}
+        {%- if cq_usp_is_oralbiome and cq_usp_lang == 'en' -%}
+          {%- case i -%}
+            {%- when 1 -%}
+              {%- assign title = '4 studied oral strains' -%}
+              {%- assign subtitle = '3 billion CFU per lozenge' -%}
+            {%- when 2 -%}
+              {%- assign title = 'Fresh breath support' -%}
+              {%- assign subtitle = 'Made for after brushing' -%}
+            {%- when 3 -%}
+              {%- assign title = 'One lozenge daily' -%}
+              {%- assign subtitle = 'Best before bed' -%}
+            {%- when 4 -%}
+              {%- assign title = '30-day supply per jar' -%}
+              {%- assign subtitle = 'Sugar-free and shelf-stable' -%}
+          {%- endcase -%}
+        {%- endif -%}
         {%- if title != blank -%}
           <li class="{{ ns }}__item">
             <span class="{{ ns }}__icon" aria-hidden="true">
