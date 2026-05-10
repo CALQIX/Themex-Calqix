@@ -338,21 +338,6 @@
         "item_5": "Made for Daily Use"
       }
     },
-    "oralbiome-video-explainer": {
-      "type": "oralbiome-video-explainer",
-      "settings": {
-        "video": "shopify://files/videos/Watch How OralBiome Pro Works.mp4",
-        "cover_image": "shopify://shop_images/Watch_How_OralBiome_Pro_Works.png",
-        "play_label": "Play video",
-        "placeholder_text": "Watch: How OralBiome Pro Works",
-        "eyebrow": "THE SCIENCE",
-        "heading": "Your mouth contains 700+ bacterial species. Most oral care treats them like the enemy.",
-        "body": "But your mouth is not meant to be sterilised. It is a living microbiome, and balance is what keeps it feeling fresh, clean, and healthy.\n\nOralBiome Pro supports that balance with clinically studied probiotic strains selected for the oral microbiome. These beneficial bacteria help create a better environment inside your mouth, giving unwanted bacteria less room to take over.\n\nUse it after brushing and flossing as the final step in your routine.\n<br>\n<b>Clean your teeth. Then support the microbiome that keeps your mouth feeling fresh.</b>",
-        "cta_text": "Read the research",
-        "cta_url": "shopify://blogs/the-science-journal/the-science-of-your-oral-microbiome-why-most-oral-care-gets-it-wrong"
-      },
-      "disabled": true
-    },
     "oralbiome-health-benefits": {
       "type": "oralbiome-health-benefits",
       "settings": {
@@ -394,6 +379,7 @@
         "step_aWQBJD": {
           "type": "step",
           "settings": {
+            "image": "shopify://shop_images/Calqix_stap_3.png",
             "title": "Step 03: Let It Dissolve or Brush",
             "description": "Let the lozenge dissolve on your teeth, or gently brush it across your teeth with a toothbrush."
           }
@@ -417,23 +403,6 @@
         "eyebrow": "YOUR DAILY RITUAL",
         "heading": "4 steps. 60 seconds. Done.",
         "note": "For best results, use daily before bed. Each jar contains a 30-day supply."
-      }
-    },
-    "oralbiome-safety-usage": {
-      "type": "oralbiome-safety-usage",
-      "settings": {
-        "eyebrow": "IMPORTANT INFORMATION",
-        "heading": "Safety & Usage",
-        "intro": "OralBiome Pro is designed for daily oral care use as a dissolvable lozenge.",
-        "item_1": "Food supplement. Recommended use: dissolve 1 lozenge daily after brushing and flossing.",
-        "item_2": "Do not exceed the recommended daily dose. Food supplements should not be used as a substitute for a varied and balanced diet and a healthy lifestyle.",
-        "item_3": "Keep out of reach of young children.",
-        "item_4": "Contains xylitol. Excessive consumption may produce laxative effects.",
-        "item_5": "Keep away from pets, especially dogs.",
-        "item_6": "Do not give to children who cannot safely dissolve a lozenge. Choking risk applies to young children.",
-        "item_7": "If you are pregnant, breastfeeding, taking medication, or have a medical condition, consult a healthcare professional before use.",
-        "item_8": "Store in a cool, dry place below 25°C. Keep the container tightly closed.",
-        "item_9": "For best results, use as part of a complete daily oral care routine including brushing and flossing."
       }
     },
     "oralbiome-ingredients": {
@@ -728,6 +697,38 @@
         "label_oralbiome": "OralBiome"
       }
     },
+    "oralbiome-safety-usage": {
+      "type": "oralbiome-safety-usage",
+      "settings": {
+        "eyebrow": "IMPORTANT INFORMATION",
+        "heading": "Safety & Usage",
+        "intro": "OralBiome Pro is designed for daily oral care use as a dissolvable lozenge.",
+        "item_1": "Food supplement. Recommended use: dissolve 1 lozenge daily after brushing and flossing.",
+        "item_2": "Do not exceed the recommended daily dose. Food supplements should not be used as a substitute for a varied and balanced diet and a healthy lifestyle.",
+        "item_3": "Keep out of reach of young children.",
+        "item_4": "Contains xylitol. Excessive consumption may produce laxative effects.",
+        "item_5": "Keep away from pets, especially dogs.",
+        "item_6": "Do not give to children who cannot safely dissolve a lozenge. Choking risk applies to young children.",
+        "item_7": "If you are pregnant, breastfeeding, taking medication, or have a medical condition, consult a healthcare professional before use.",
+        "item_8": "Store in a cool, dry place below 25°C. Keep the container tightly closed.",
+        "item_9": "For best results, use as part of a complete daily oral care routine including brushing and flossing."
+      }
+    },
+    "oralbiome-video-explainer": {
+      "type": "oralbiome-video-explainer",
+      "disabled": true,
+      "settings": {
+        "video": "shopify://files/videos/Watch How OralBiome Pro Works.mp4",
+        "cover_image": "shopify://shop_images/Watch_How_OralBiome_Pro_Works.png",
+        "play_label": "Play video",
+        "placeholder_text": "Watch: How OralBiome Pro Works",
+        "eyebrow": "THE SCIENCE",
+        "heading": "Your mouth contains 700+ bacterial species. Most oral care treats them like the enemy.",
+        "body": "But your mouth is not meant to be sterilised. It is a living microbiome, and balance is what keeps it feeling fresh, clean, and healthy.\n\nOralBiome Pro supports that balance with clinically studied probiotic strains selected for the oral microbiome. These beneficial bacteria help create a better environment inside your mouth, giving unwanted bacteria less room to take over.\n\nUse it after brushing and flossing as the final step in your routine.\n<br>\n<b>Clean your teeth. Then support the microbiome that keeps your mouth feeling fresh.</b>",
+        "cta_text": "Read the research",
+        "cta_url": "shopify://blogs/the-science-journal/the-science-of-your-oral-microbiome-why-most-oral-care-gets-it-wrong"
+      }
+    },
     "before_and_after_ANpPfc": {
       "type": "before-and-after",
       "blocks": {
@@ -753,6 +754,7 @@
         "heading_EitKTY",
         "text_yxgcPj"
       ],
+      "disabled": true,
       "name": "t:sections.before_and_after.name",
       "settings": {
         "title": "",
@@ -767,19 +769,18 @@
         "enable_badges": true,
         "before_badge": "Before",
         "after_badge": "After 30 days",
-        "section-color-body-text": "transparent",
-        "section-color-overlay": "transparent",
+        "section-color-body-text": "rgba(0,0,0,0)",
+        "section-color-overlay": "rgba(0,0,0,0)",
         "section-color-overlay-opacity": 100,
-        "color-body-text": "transparent",
-        "color-overlay": "transparent",
+        "color-body-text": "rgba(0,0,0,0)",
+        "color-overlay": "rgba(0,0,0,0)",
         "color-overlay-opacity": 100,
         "desktop_text_vertical_position": "center",
         "desktop_text_horizontal_position": "center",
         "mobile_text_horizontal_position": "center",
         "margin-top": 20,
         "margin-bottom": 20
-      },
-      "disabled": true
+      }
     },
     "oralbiome-video-reviews": {
       "type": "oralbiome-video-reviews",
