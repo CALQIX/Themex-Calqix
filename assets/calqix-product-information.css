@@ -533,6 +533,21 @@ body.template-product-oralbiome .ob-benefits__card:nth-child(n+5) {
   display: none !important;
 }
 
+body.template-product-oralbiome .ob-benefits__card,
+body.template-product-oralbiome .ob-howto__step,
+body.template-product-oralbiome .ob-dt__row,
+body.template-product-oralbiome .ob-dt__verdict,
+body.template-product-oralbiome .ob-cm__card,
+body.template-product-oralbiome .ob-reviews__card,
+body.template-product-oralbiome .faq-item[data-animate] {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+body.template-product-oralbiome .ob-benefits__card::before {
+  opacity: 1;
+}
+
 @media (min-width: 1024px) {
   body.template-product-oralbiome #root > [id$="__oralbiome-reviews"] .ob-reviews {
     padding-top: clamp(112px, 8vw, 148px) !important;
@@ -551,6 +566,16 @@ body.template-product-oralbiome .ob-benefits__card:nth-child(n+5) {
 @media (min-width: 1024px) {
   body.template-product-oralbiome .ob-benefits__grid {
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  body.template-product-oralbiome .ob-howto__steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 24px !important;
+  }
+
+  body.template-product-oralbiome .ob-howto__step-image {
+    width: 240px !important;
+    height: 240px !important;
   }
 }
 
