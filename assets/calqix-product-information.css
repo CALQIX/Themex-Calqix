@@ -1681,6 +1681,66 @@ body.template-product-oralbiome .wt-product__info .calqix-stock-status {
   margin-bottom: 10px;
 }
 
+/* OralBiome hero USPs: icons + copy only, no card lines */
+body.template-product-oralbiome .wt-product__info .calqix-inline-usps {
+  margin: 14px 0 18px !important;
+}
+
+body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__list {
+  gap: 14px 24px !important;
+}
+
+body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__item {
+  min-height: 48px !important;
+  grid-template-columns: 48px minmax(0, 1fr) !important;
+  gap: 12px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__item::before,
+body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__item::after {
+  content: none !important;
+}
+
+body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__item:hover {
+  transform: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__icon {
+  flex-shrink: 0 !important;
+}
+
+body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__body {
+  min-width: 0 !important;
+}
+
+body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__title {
+  max-width: 18ch !important;
+}
+
+@media (max-width: 520px) {
+  body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__list {
+    gap: 10px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__item {
+    min-height: 42px !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__title {
+    max-width: none !important;
+  }
+}
+
 /* Product payment icons: compact image buttons directly under ATC */
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge {
   --cq-payment-strip-width: 100%;
