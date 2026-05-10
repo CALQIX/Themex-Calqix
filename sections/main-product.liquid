@@ -22,6 +22,8 @@
   {% assign cq_is_oralbiome = true %}
 {% elsif product != blank and product.handle contains 'oralbiome' %}
   {% assign cq_is_oralbiome = true %}
+{% elsif product != blank and product.title contains 'OralBiome' %}
+  {% assign cq_is_oralbiome = true %}
 {% elsif template contains 'oralbiome' %}
   {% assign cq_is_oralbiome = true %}
 {% elsif request.path contains 'oralbiome' %}
