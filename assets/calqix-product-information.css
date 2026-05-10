@@ -459,12 +459,85 @@ body[class^="template-product"] .wt-product__info .wt-collapse__target--text str
 }
 
 @media (max-width: 600px) {
-  body[class^="template-product"] .wt-product__info .calqix-trust-badges-block .ctb-grid > .ctb-badge:last-child:nth-child(odd) {
+body[class^="template-product"] .wt-product__info .calqix-trust-badges-block .ctb-grid > .ctb-badge:last-child:nth-child(odd) {
     grid-column: 1 / -1;
     width: 100%;
     max-width: 220px;
     margin-left: auto;
     margin-right: auto;
+  }
+}
+
+/* OralBiome CRO landing-page tightening */
+body.template-product-oralbiome .calqix-benefits,
+body.template-product-oralbiome .wt-apps,
+body.template-product-oralbiome .calqix-email-signup {
+  display: none !important;
+}
+
+body.template-product-oralbiome .wt-product__info .calqix-product-subtitle {
+  color: #23435f;
+  font-size: 15px;
+  line-height: 1.45;
+  max-width: 42rem;
+}
+
+body.template-product-oralbiome .wt-product__info .calqix-product-badge {
+  margin-bottom: 10px;
+}
+
+body.template-product-oralbiome .wt-product__info .calqix-usps-inline,
+body.template-product-oralbiome .wt-product__info [class*="calqix-usps"] {
+  margin-top: 10px;
+}
+
+@media (max-width: 899px) {
+  body.template-product-oralbiome .product-section,
+  body.template-product-oralbiome .product-section .wt-product__wrapper {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  body.template-product-oralbiome .wt-product__gallery {
+    margin-bottom: 10px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide,
+  body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide img,
+  body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide .wt-product__slide-media {
+    max-height: 430px;
+    object-fit: contain;
+  }
+
+  body.template-product-oralbiome .wt-product__gallery [data-thumbs-mobile] .wt-slider__slide {
+    height: 58px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info {
+    padding-top: 0;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-product-badge {
+    font-size: 10px;
+    padding: 5px 10px;
+    margin-bottom: 8px;
+  }
+
+  body.template-product-oralbiome .wt-product__info .wt-product__name {
+    font-size: clamp(25px, 7vw, 31px);
+    white-space: normal;
+    line-height: 1.05;
+    margin-bottom: 8px;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-product-subtitle {
+    text-align: center;
+    font-size: 14px;
+    margin: 0 auto 12px;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block {
+    margin-bottom: 8px !important;
   }
 }
 
@@ -688,6 +761,7 @@ body[class^="template-product"] .wt-product__info .calqix-stock-status--sold-out
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge {
   /* 0px gap above (snug under the Add-to-cart button), 20px clearance
      below the payment-icon row to the next block. */
+  --cq-payment-strip-width: 452px;
   margin: 0 0 20px;
   padding: 0;
   background: transparent;
@@ -712,7 +786,7 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge:fo
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__content {
   font-family: 'Playfair Display', 'DM Serif Display', Georgia, serif;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
@@ -745,28 +819,42 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__c
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons {
-  margin-top: 2px;
+  width: 100%;
+  max-width: min(100%, var(--cq-payment-strip-width));
+  margin: 4px auto 0;
+  position: relative;
+  overflow: hidden;
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__list {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
-  gap: 6px;
+  gap: 3px;
   padding: 0;
   margin: 0;
   list-style: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__list::-webkit-scrollbar {
+  display: none;
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
   background: #fff;
   border: 1px solid var(--calqix-gray-light);
   border-radius: 4px;
-  padding: 5px 8px;
-  height: 32px;
+  padding: 1px 5px;
+  height: 23px;
+  min-width: 30px;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -776,8 +864,30 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__i
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item .icon {
-  height: 20px;
+  height: 14px;
   width: auto;
+  max-width: 34px;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__method-label {
+  color: var(--calqix-navy);
+  font-family: "DM Sans", sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__cards {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+
+body[class^="template-product"] .wt-product__info .wt-product__payments-badge__cards .icon {
+  height: 11px;
+  max-width: 22px;
 }
 
 /* Shimmer sweep across the payment icon row */
@@ -836,17 +946,32 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__i
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__content {
-    font-size: 12.5px;
+    font-size: 12px;
     margin-bottom: 0;
   }
 
+  body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__list {
+    justify-content: flex-start;
+  }
+
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item {
-    height: 28px;
-    padding: 4px 6px;
+    height: 21px;
+    min-width: 28px;
+    padding: 1px 4px;
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item .icon {
-    height: 17px;
+    height: 13px;
+    max-width: 32px;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__payments-badge__method-label {
+    font-size: 7.5px;
+  }
+
+  body[class^="template-product"] .wt-product__info .wt-product__payments-badge__cards .icon {
+    height: 10px;
+    max-width: 20px;
   }
 }
 

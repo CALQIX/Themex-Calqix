@@ -45,9 +45,8 @@
         },
         "calqix_subtitle_ob01": {
           "type": "calqix_subtitle",
-          "disabled": true,
           "settings": {
-            "subtitle": "<p>Nano-hydroxyapatite tablets that rebuild enamel from within.</p>"
+            "subtitle": "<p>Daily oral probiotic lozenges for fresher breath, gum comfort and a balanced oral microbiome.</p>"
           }
         },
         "price": {
@@ -92,24 +91,23 @@
         },
         "calqix_usps_inline_ob01": {
           "type": "calqix_usps_inline",
-          "disabled": true,
           "settings": {
             "mobile_columns": "2",
             "animate": true,
             "show_badge": false,
             "badge_text": "STEP 3 OF THE CALQIX ROUTINE",
             "usp_1_icon": "microbiome",
-            "usp_1_title": "Rebalances your oral microbiome",
-            "usp_1_subtitle": "Live probiotic strains overnight",
+            "usp_1_title": "4 studied oral strains",
+            "usp_1_subtitle": "3 billion CFU per lozenge",
             "usp_2_icon": "breath-target",
-            "usp_2_title": "Targets bad breath at the source",
-            "usp_2_subtitle": "Where brushing cannot reach",
+            "usp_2_title": "Fresh breath support",
+            "usp_2_subtitle": "Works after brushing",
             "usp_3_icon": "lozenge-moon",
-            "usp_3_title": "One lozenge before bed",
-            "usp_3_subtitle": "Dissolves slowly, no sugar",
+            "usp_3_title": "One lozenge daily",
+            "usp_3_subtitle": "Best before bed",
             "usp_4_icon": "calendar-30",
             "usp_4_title": "30-day supply per jar",
-            "usp_4_subtitle": "Vegan, gluten-free, EU compliant"
+            "usp_4_subtitle": "Sugar-free, shelf-stable"
           }
         },
         "calqix_colour_switcher_LDTXY9": {
@@ -188,19 +186,19 @@
             "show_iso22000": true,
             "show_gmp": false,
             "show_haccp": false,
-            "show_cpnp": true,
+            "show_cpnp": false,
             "show_vegan": false,
             "show_made_in_nl": true,
             "badge_size": 82,
             "badge_size_mobile": 68,
             "badge_gap": 8,
             "show_labels": true,
-            "show_heading": true,
+            "show_heading": false,
             "heading": "Tested and certified",
-            "margin_top": 12,
-            "margin_bottom": 12,
+            "margin_top": 8,
+            "margin_bottom": 8,
             "show_dividers": false,
-            "padding_vertical": 12,
+            "padding_vertical": 8,
             "divider_color": "#dce6f5",
             "section_bg": "#f2f7ff",
             "badge_fill": "#002549",
@@ -322,11 +320,11 @@
         "video_custom_mute_controls": false,
         "enable-preselected-variant": true,
         "enable-image-zoom": true,
-        "mobile-image": "normal",
+        "mobile-image": "small",
         "show-thumbnails-mobile": false,
         "text_color": "#1a3b5c",
         "background_color": "#ffffff",
-        "margin-top": 40,
+        "margin-top": 20,
         "margin-bottom": 0
       }
     },
@@ -352,25 +350,26 @@
         "body": "But your mouth is not meant to be sterilised. It is a living microbiome, and balance is what keeps it feeling fresh, clean, and healthy.\n\nOralBiome Pro supports that balance with clinically studied probiotic strains selected for the oral microbiome. These beneficial bacteria help create a better environment inside your mouth, giving unwanted bacteria less room to take over.\n\nUse it after brushing and flossing as the final step in your routine.\n<br>\n<b>Clean your teeth. Then support the microbiome that keeps your mouth feeling fresh.</b>",
         "cta_text": "Read the research",
         "cta_url": "shopify://blogs/the-science-journal/the-science-of-your-oral-microbiome-why-most-oral-care-gets-it-wrong"
-      }
+      },
+      "disabled": true
     },
     "oralbiome-health-benefits": {
       "type": "oralbiome-health-benefits",
       "settings": {
         "eyebrow": "WHY ORALBIOME PRO",
-        "heading": "Clinically studied benefits for your oral health",
-        "card_1_title": "Healthier Gums",
-        "card_1_desc": "L. reuteri DSM 17938 has been studied in 70+ clinical trials for its role in supporting gum health and oral comfort.",
-        "card_2_title": "Fresh Breath at the Source",
-        "card_2_desc": "BLIS K12 helps crowd out sulphur-producing bacteria associated with halitosis — targeting the source, not masking it.",
-        "card_3_title": "Plaque Support",
-        "card_3_desc": "BLIS M18 produces enzymes that help break down plaque biofilm and support a balanced oral pH.",
-        "card_4_title": "Natural Defences",
-        "card_4_desc": "Your oral microbiome is a first line of defence against harmful bacteria. Keep it balanced, daily.",
-        "card_5_title": "Dental Health Support",
-        "card_5_desc": "Xylitol supports dental health by helping maintain a balanced oral pH environment.",
-        "card_6_title": "Whole-Body Connection",
-        "card_6_desc": "Emerging research explores the connection between oral microbiome balance and overall well-being."
+        "heading": "Daily support for the oral microbiome",
+        "card_1_title": "Gum Comfort",
+        "card_1_desc": "L. reuteri DSM 17938 has been studied for its role in supporting gum comfort and oral tissue balance.",
+        "card_2_title": "Fresh Breath Support",
+        "card_2_desc": "BLIS K12 helps support a balanced mouth environment associated with fresher breath.",
+        "card_3_title": "Plaque Balance",
+        "card_3_desc": "BLIS M18 is selected for oral biofilm and pH support as part of daily oral care.",
+        "card_4_title": "Daily Microbiome Care",
+        "card_4_desc": "A simple final step after brushing and flossing to support the living ecosystem in your mouth.",
+        "card_5_title": "",
+        "card_5_desc": "",
+        "card_6_title": "",
+        "card_6_desc": ""
       }
     },
     "oralbiome-how-to-use": {
@@ -392,19 +391,11 @@
             "description": "Place one OralBiome Pro lozenge on your tongue. Let it dissolve slowly, do not chew."
           }
         },
-        "step_dissolve_brush": {
-          "type": "step",
-          "settings": {
-            "image": "",
-            "title": "Step 03: Let It Dissolve or Brush",
-            "description": "Let the lozenge dissolve on your teeth, or gently brush it across your teeth with a toothbrush."
-          }
-        },
         "step_aWQBJD": {
           "type": "step",
           "settings": {
             "image": "shopify://shop_images/Woman_going_to_sleep.png",
-            "title": "Step 04: Let Probiotics Colonise",
+            "title": "Step 03: Let Probiotics Colonise",
             "description": "Avoid eating or drinking for 30 minutes. The beneficial bacteria need time to settle in."
           }
         }
@@ -412,12 +403,11 @@
       "block_order": [
         "step_PVaEmk",
         "step_k7e9wX",
-        "step_dissolve_brush",
         "step_aWQBJD"
       ],
       "settings": {
         "eyebrow": "YOUR DAILY RITUAL",
-        "heading": "4 steps. 60 seconds. Done.",
+        "heading": "3 steps. 60 seconds. Done.",
         "note": "For best results, use daily before bed. Each jar contains a 30-day supply."
       }
     },
@@ -523,7 +513,7 @@
         "row_1_kills": {
           "type": "row",
           "settings": {
-            "feature": "Kills harmful bacteria",
+            "feature": "Cleans unwanted bacteria",
             "mouthwash": "yes",
             "mouthwash_note": "Partially",
             "toothpaste": "yes",
@@ -535,7 +525,7 @@
         "row_2_preserves": {
           "type": "row",
           "settings": {
-            "feature": "Preserves beneficial bacteria",
+            "feature": "Supports beneficial bacteria",
             "mouthwash": "no",
             "mouthwash_note": "Partially",
             "toothpaste": "no",
@@ -571,7 +561,7 @@
         "row_5_rebuild": {
           "type": "row",
           "settings": {
-            "feature": "Rebuilds oral microbiome",
+            "feature": "Supports oral microbiome balance",
             "mouthwash": "no",
             "mouthwash_note": "Partially",
             "toothpaste": "no",
@@ -583,7 +573,7 @@
         "row_6_safe": {
           "type": "row",
           "settings": {
-            "feature": "Safe for daily use without side effects",
+            "feature": "Made for daily use",
             "mouthwash": "no",
             "mouthwash_note": "Partially",
             "toothpaste": "yes",
@@ -617,7 +607,7 @@
       "settings": {
         "eyebrow": "COMPARISON",
         "heading": "Not all oral care is created equal.",
-        "note": "Unlike traditional mouthwash and antibacterial toothpaste, OralBiome Pro restores your oral microbiome instead of destroying it.",
+        "note": "Unlike traditional mouthwash and broad antibacterial care, OralBiome Pro is designed to support oral microbiome balance after cleaning.",
         "col_feature": "Feature",
         "col_mouthwash": "Mouthwash",
         "col_toothpaste": "Antibacterial Toothpaste",
@@ -630,7 +620,7 @@
         "mrow_1": {
           "type": "row",
           "settings": {
-            "feature": "Kills harmful bacteria",
+            "feature": "Cleans unwanted bacteria",
             "mouthwash": "yes",
             "mouthwash_note": "",
             "toothpaste": "yes",
@@ -642,7 +632,7 @@
         "mrow_2": {
           "type": "row",
           "settings": {
-            "feature": "Preserves beneficial bacteria",
+            "feature": "Supports beneficial bacteria",
             "mouthwash": "no",
             "mouthwash_note": "",
             "toothpaste": "no",
@@ -678,7 +668,7 @@
         "mrow_5": {
           "type": "row",
           "settings": {
-            "feature": "Rebuilds oral microbiome",
+            "feature": "Supports oral microbiome balance",
             "mouthwash": "no",
             "mouthwash_note": "",
             "toothpaste": "no",
@@ -690,7 +680,7 @@
         "mrow_6": {
           "type": "row",
           "settings": {
-            "feature": "Safe for daily use without side effects",
+            "feature": "Made for daily use",
             "mouthwash": "no",
             "mouthwash_note": "",
             "toothpaste": "yes",
@@ -724,7 +714,7 @@
       "settings": {
         "eyebrow": "COMPARISON",
         "heading": "Not all oral care is created equal.",
-        "note": "Unlike traditional mouthwash and antibacterial toothpaste, OralBiome Pro restores your oral microbiome instead of destroying it.",
+        "note": "Unlike traditional mouthwash and broad antibacterial care, OralBiome Pro is designed to support oral microbiome balance after cleaning.",
         "label_mouthwash": "Mouthwash",
         "label_toothpaste": "Toothpaste",
         "label_oralbiome": "OralBiome"
@@ -780,7 +770,8 @@
         "mobile_text_horizontal_position": "center",
         "margin-top": 20,
         "margin-bottom": 20
-      }
+      },
+      "disabled": true
     },
     "oralbiome-video-reviews": {
       "type": "oralbiome-video-reviews",
@@ -840,8 +831,8 @@
       "settings": {
         "eyebrow": "REAL RESULTS",
         "heading": "What our customers are saying",
-        "avg_rating": "4.8",
-        "based_on_text": "Based on 120 reviews",
+        "avg_rating": "5.0",
+        "based_on_text": "Based on 132 verified reviews",
         "use_judgeme": false,
         "show_filters": true,
         "filter_all": "All",
@@ -970,13 +961,12 @@
     },
     "oralbiome-subscription-cta": {
       "type": "oralbiome-subscription-cta",
-      "disabled": true,
       "settings": {
-        "heading": "Your mouth deserves daily balance.",
-        "subheading": "€0.53 per day for a clinically supported oral microbiome.",
-        "pill_1": "Free Shipping",
+        "heading": "Start your 30-day oral microbiome routine.",
+        "subheading": "One Fresh Mint lozenge after brushing and flossing. Simple enough to stay consistent.",
+        "pill_1": "Save 20%",
         "pill_2": "Skip Anytime",
-        "pill_3": "30-Day Guarantee",
+        "pill_3": "30-Day Supply",
         "pill_4": "Cancel in 1 Click",
         "button_text": "Subscribe & Save 20%"
       }
@@ -986,16 +976,16 @@
     "breadcrumbs",
     "main",
     "oralbiome-social-proof-bar",
-    "oralbiome-video-explainer",
     "oralbiome-health-benefits",
+    "oralbiome-reviews",
     "oralbiome-how-to-use",
-    "oralbiome-safety-usage",
     "oralbiome-ingredients",
     "oralbiome-comparison",
     "oralbiome-comparison-mobile",
+    "oralbiome-safety-usage",
+    "oralbiome-video-explainer",
     "before_and_after_ANpPfc",
     "oralbiome-video-reviews",
-    "oralbiome-reviews",
     "oralbiome_faq_KxQ7m3",
     "oralbiome-subscription-cta"
   ]
