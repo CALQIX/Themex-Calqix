@@ -1,16 +1,19 @@
 <style>
   .ob-howto {
-    background: #FFFFFF;
-    padding: 48px 0;
+    background:
+      radial-gradient(circle at 18% 0%, rgba(201, 168, 76, 0.08), transparent 28%),
+      linear-gradient(180deg, #ffffff 0%, #f6f9fc 100%);
+    padding: 58px 0;
+    overflow: hidden;
   }
   .ob-howto__container {
-    max-width: 1200px;
+    max-width: 1240px;
     margin: 0 auto;
     padding: 0 20px;
   }
   .ob-howto__header {
     text-align: center;
-    margin-bottom: 48px;
+    margin-bottom: 36px;
   }
   .ob-howto__eyebrow {
     font-family: 'DM Sans', sans-serif;
@@ -23,10 +26,10 @@
   }
   .ob-howto__heading {
     font-family: 'DM Serif Display', serif;
-    font-size: 28px;
-    color: #1A3B5C;
+    font-size: clamp(30px, 3vw, 44px);
+    color: #002549;
     margin: 0;
-    line-height: 1.3;
+    line-height: 1.08;
   }
   .ob-howto__steps {
     display: flex;
@@ -35,53 +38,84 @@
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding-bottom: 8px;
+    padding: 4px 0 10px;
   }
   .ob-howto__steps::-webkit-scrollbar { display: none; }
   .ob-howto__step {
-    flex: 0 0 80%;
-    min-width: 260px;
+    flex: 0 0 82%;
+    min-width: 278px;
     scroll-snap-align: center;
     text-align: center;
     position: relative;
     opacity: 1;
     transform: none;
+    padding: 18px 18px 20px;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(246, 250, 254, 0.9)) padding-box,
+      linear-gradient(145deg, rgba(0, 37, 73, 0.14), rgba(201, 168, 76, 0.34)) border-box;
+    border: 1px solid transparent;
+    border-radius: 18px;
+    box-shadow: 0 18px 42px -34px rgba(0, 37, 73, 0.48);
     transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    overflow: hidden;
+  }
+  .ob-howto__step::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(201, 168, 76, 0.1), transparent 38%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
   }
   .ob-howto__step.is-visible {
     opacity: 1;
     transform: translateY(0);
   }
+  .ob-howto__step-kicker {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto 14px;
+    padding: 7px 12px;
+    border: 1px solid rgba(201, 168, 76, 0.42);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    color: #9f7d27;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .ob-howto__step-kicker strong {
+    color: #002549;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
   .ob-howto__step-visual {
     position: relative;
     display: inline-block;
-    margin-bottom: 20px;
-  }
-  .ob-howto__step-number {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: 'DM Serif Display', serif;
-    font-size: 80px;
-    color: #C9A84C;
-    opacity: 0.12;
-    line-height: 1;
-    z-index: 0;
-    pointer-events: none;
+    margin-bottom: 18px;
   }
   .ob-howto__step-image {
     position: relative;
     z-index: 1;
-    width: 200px;
-    height: 200px;
+    width: min(62vw, 214px);
+    height: min(62vw, 214px);
     border-radius: 50%;
-    border: 2px solid #C9A84C;
+    border: 1px solid rgba(201, 168, 76, 0.74);
     overflow: hidden;
-    background: #F4F5F7;
+    background: #F4F8FC;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow:
+      inset 0 0 0 7px rgba(255, 255, 255, 0.35),
+      0 16px 34px -24px rgba(0, 37, 73, 0.5);
   }
   .ob-howto__step-image img {
     width: 100%;
@@ -94,18 +128,19 @@
   }
   .ob-howto__step-title {
     font-family: 'DM Sans', sans-serif;
-    font-size: 18px;
+    font-size: clamp(17px, 1.35vw, 20px);
     font-weight: 700;
-    color: #1A3B5C;
+    color: #002549;
     margin: 0 0 8px;
+    line-height: 1.25;
   }
   .ob-howto__step-desc {
     font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: #6B7280;
-    line-height: 1.6;
+    font-size: 13.5px;
+    color: #5f6f7f;
+    line-height: 1.48;
     margin: 0;
-    max-width: 280px;
+    max-width: 260px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -116,35 +151,77 @@
     padding: 12px 0 0;
   }
   .ob-howto__dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #D1D5DB; border: none; padding: 0;
-    cursor: pointer; transition: background 0.2s ease;
+    width: 18px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(0, 37, 73, 0.16);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: width 0.22s ease, background 0.22s ease;
   }
-  .ob-howto__dot.is-active { background: #C9A84C; }
+  .ob-howto__dot.is-active { width: 38px; background: #C9A84C; }
   .ob-howto__note {
     text-align: center;
-    margin-top: 24px;
+    margin: 24px auto 0;
     font-family: 'DM Sans', sans-serif;
     font-size: 14px;
     font-style: italic;
     color: #6B7280;
+    max-width: 620px;
   }
 
   @media (min-width: 768px) {
     .ob-howto__steps {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 32px;
+      gap: 18px;
       overflow: visible;
+      padding: 0;
     }
     .ob-howto__step { flex: none; min-width: 0; }
     .ob-howto__dots { display: none; }
   }
   @media (min-width: 1024px) {
-    .ob-howto { padding: 80px 0; }
-    .ob-howto__heading { font-size: 36px; }
-    .ob-howto__step-image { width: 280px; height: 280px; }
-    .ob-howto__step-number { font-size: 120px; }
+    .ob-howto { padding: 92px 0 86px; }
+    .ob-howto__header { margin-bottom: 44px; }
+    .ob-howto__step {
+      padding: 22px 18px 24px;
+      border-radius: 20px;
+    }
+    .ob-howto__step:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 24px 54px -38px rgba(0, 37, 73, 0.56);
+    }
+    .ob-howto__step:hover::before { opacity: 1; }
+    .ob-howto__step-image { width: 208px; height: 208px; }
+  }
+
+  @media (max-width: 767px) {
+    .ob-howto {
+      padding: 54px 0 50px;
+    }
+    .ob-howto__container {
+      padding: 0 0 0 18px;
+    }
+    .ob-howto__header,
+    .ob-howto__note {
+      padding-right: 18px;
+    }
+    .ob-howto__steps {
+      padding-right: 18px;
+    }
+    .ob-howto__step-title {
+      max-width: 240px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .ob-howto__step-desc {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
   }
 
   body.template-product-oralbiome .ob-benefits__card,
@@ -172,8 +249,8 @@
     }
 
     body.template-product-oralbiome .ob-howto__step-image {
-      width: 240px !important;
-      height: 240px !important;
+      width: 208px !important;
+      height: 208px !important;
     }
   }
 </style>
@@ -218,9 +295,31 @@
             {%- when 4 -%}{%- assign _ob_step_asset = 'ob-step-03-colonise.webp' -%}
           {%- endcase -%}
         {%- endif -%}
+        {%- if _ob_lang != 'en' -%}
+          {%- capture _ob_step_title_key -%}calqix_oralbiome.steps.step{{ forloop.index }}_title{%- endcapture -%}
+          {%- capture _ob_step_text_key -%}calqix_oralbiome.steps.step{{ forloop.index }}_text{%- endcapture -%}
+          {%- assign _ob_step_title = _ob_step_title_key | t -%}
+          {%- assign _ob_step_text = _ob_step_text_key | t -%}
+          {%- if _ob_step_title contains 'translation missing' -%}
+            {%- assign _ob_step_title = block.settings.title -%}
+          {%- endif -%}
+          {%- if _ob_step_text contains 'translation missing' -%}
+            {%- assign _ob_step_text = block.settings.description -%}
+          {%- endif -%}
+        {%- else -%}
+          {%- assign _ob_step_title = block.settings.title -%}
+          {%- assign _ob_step_text = block.settings.description -%}
+        {%- endif -%}
+        {%- assign _ob_step_title_display = _ob_step_title -%}
+        {%- if _ob_step_title contains ':' -%}
+          {%- assign _ob_step_title_display = _ob_step_title | split: ':' | last | strip -%}
+        {%- endif -%}
         <div class="ob-howto__step" {{ block.shopify_attributes }} style="transition-delay: {{ forloop.index0 | times: 150 }}ms">
+          <div class="ob-howto__step-kicker">
+            <span>Step</span>
+            <strong>{{ forloop.index | prepend: '0' | slice: -2, 2 }}</strong>
+          </div>
           <div class="ob-howto__step-visual">
-            <span class="ob-howto__step-number">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
             <div class="ob-howto__step-image">
               {%- if block.settings.image != blank -%}
                 <img
@@ -245,22 +344,7 @@
               {%- endif -%}
             </div>
           </div>
-          {%- if _ob_lang != 'en' -%}
-            {%- capture _ob_step_title_key -%}calqix_oralbiome.steps.step{{ forloop.index }}_title{%- endcapture -%}
-            {%- capture _ob_step_text_key -%}calqix_oralbiome.steps.step{{ forloop.index }}_text{%- endcapture -%}
-            {%- assign _ob_step_title = _ob_step_title_key | t -%}
-            {%- assign _ob_step_text = _ob_step_text_key | t -%}
-            {%- if _ob_step_title contains 'translation missing' -%}
-              {%- assign _ob_step_title = block.settings.title -%}
-            {%- endif -%}
-            {%- if _ob_step_text contains 'translation missing' -%}
-              {%- assign _ob_step_text = block.settings.description -%}
-            {%- endif -%}
-          {%- else -%}
-            {%- assign _ob_step_title = block.settings.title -%}
-            {%- assign _ob_step_text = block.settings.description -%}
-          {%- endif -%}
-          <h3 class="ob-howto__step-title">{{ _ob_step_title }}</h3>
+          <h3 class="ob-howto__step-title">{{ _ob_step_title_display }}</h3>
           <p class="ob-howto__step-desc">{{ _ob_step_text }}</p>
         </div>
       {%- endfor -%}
@@ -295,10 +379,14 @@
     if (stepsTrack) observer.observe(stepsTrack);
 
     if (stepsTrack && dots.length > 0) {
+      var autoTimer = null;
+      var autoIndex = 0;
+      var isMobile = window.matchMedia('(max-width: 767px)');
       var io = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
           if (entry.isIntersecting) {
             var idx = Array.prototype.indexOf.call(steps, entry.target);
+            autoIndex = idx;
             dots.forEach(function(d, i) { d.classList.toggle('is-active', i === idx); });
           }
         });
@@ -310,6 +398,40 @@
           if (steps[idx]) steps[idx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
         });
       });
+
+      function startAutoScroll() {
+        if (!isMobile.matches || autoTimer || steps.length < 2) return;
+        autoTimer = window.setInterval(function() {
+          autoIndex = (autoIndex + 1) % steps.length;
+          if (steps[autoIndex]) {
+            steps[autoIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          }
+        }, 3800);
+      }
+
+      function stopAutoScroll() {
+        if (!autoTimer) return;
+        window.clearInterval(autoTimer);
+        autoTimer = null;
+      }
+
+      ['pointerdown', 'touchstart', 'focusin'].forEach(function(evt) {
+        stepsTrack.addEventListener(evt, stopAutoScroll, { passive: true });
+      });
+
+      var sectionVisibility = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) startAutoScroll();
+          else stopAutoScroll();
+        });
+      }, { threshold: 0.35 });
+      sectionVisibility.observe(section);
+      if (isMobile.addEventListener) {
+        isMobile.addEventListener('change', function() {
+          stopAutoScroll();
+          startAutoScroll();
+        });
+      }
     }
   })();
 </script>
