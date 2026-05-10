@@ -40,7 +40,16 @@
   if product != blank and product.handle contains 'oralbiome'
     assign cq_usp_is_oralbiome = true
   endif
+  if product != blank and product.title contains 'OralBiome'
+    assign cq_usp_is_oralbiome = true
+  endif
   if product == blank and template contains 'oralbiome'
+    assign cq_usp_is_oralbiome = true
+  endif
+  if template contains 'oralbiome'
+    assign cq_usp_is_oralbiome = true
+  endif
+  if request.path contains 'oralbiome'
     assign cq_usp_is_oralbiome = true
   endif
 -%}
