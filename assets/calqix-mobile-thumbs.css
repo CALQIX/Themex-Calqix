@@ -241,6 +241,7 @@
     min-width: 64px !important;
     max-width: 64px !important;
     aspect-ratio: 1.155 / 1 !important;
+    position: relative !important;
     margin: 0 !important;
     padding: 0 !important;
     background: transparent !important;
@@ -264,6 +265,7 @@
     -webkit-clip-path: inherit;
             clip-path: inherit;
     pointer-events: none;
+    z-index: 0;
   }
 
   body.template-product-oralbiome gallery-section[data-product-page] [data-thumbs] .thumbs-list-item.swiper-slide-thumb-active,
@@ -283,6 +285,7 @@
   body.template-product-oralbiome gallery-section[data-product-page] [data-thumbs] .thumbs-list-item > div,
   body.template-product-oralbiome gallery-section[data-product-page] [data-thumbs] .thumbs-list-item img {
     position: absolute !important;
+    z-index: 1 !important;
     inset: 4px !important;
     width: calc(100% - 8px) !important;
     height: calc(100% - 8px) !important;
