@@ -12,6 +12,21 @@
     text-align: center;
     margin-bottom: 40px;
   }
+  .ob-benefits__visual {
+    max-width: 980px;
+    margin: -12px auto 36px;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(26,59,92,0.08);
+    box-shadow: 0 24px 60px -34px rgba(26,59,92,0.42);
+    background: #fff;
+  }
+  .ob-benefits__visual img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    object-fit: cover;
+  }
   .ob-benefits__eyebrow {
     font-family: 'DM Sans', sans-serif;
     font-size: 12px;
@@ -186,6 +201,16 @@
     .ob-benefits__heading { font-size: 36px; }
     .ob-benefits__grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
   }
+  @media (max-width: 767px) {
+    .ob-benefits__visual {
+      margin: -14px auto 24px;
+      border-radius: 14px;
+    }
+    .ob-benefits__visual img {
+      aspect-ratio: 1.08 / 1;
+      object-position: 63% center;
+    }
+  }
 </style>
 
 {%- assign _ob_lang = request.locale.iso_code | downcase | slice: 0, 2 -%}
@@ -242,6 +267,9 @@
     <div class="ob-benefits__header">
       <p class="ob-benefits__eyebrow">{{ _ob_ben_eyebrow }}</p>
       <h2 class="ob-benefits__heading">{{ _ob_ben_heading }}</h2>
+    </div>
+    <div class="ob-benefits__visual" aria-hidden="true">
+      <img src="{{ 'obp-microbiome-balance-1600x1000.png' | asset_url }}" alt="" loading="lazy" width="1600" height="1000">
     </div>
     <div class="ob-benefits__grid">
 

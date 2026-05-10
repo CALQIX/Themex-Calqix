@@ -12,6 +12,21 @@
     text-align: center;
     margin-bottom: 48px;
   }
+  .ob-howto__visual {
+    max-width: 980px;
+    margin: -18px auto 40px;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(26,59,92,0.1);
+    box-shadow: 0 24px 60px -34px rgba(15,34,51,0.5);
+    background: #0F2233;
+  }
+  .ob-howto__visual img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    object-fit: cover;
+  }
   .ob-howto__eyebrow {
     font-family: 'DM Sans', sans-serif;
     font-size: 12px;
@@ -133,7 +148,7 @@
   @media (min-width: 768px) {
     .ob-howto__steps {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 32px;
       overflow: visible;
     }
@@ -145,6 +160,16 @@
     .ob-howto__heading { font-size: 36px; }
     .ob-howto__step-image { width: 280px; height: 280px; }
     .ob-howto__step-number { font-size: 120px; }
+  }
+  @media (max-width: 767px) {
+    .ob-howto__visual {
+      margin: -22px auto 30px;
+      border-radius: 14px;
+    }
+    .ob-howto__visual img {
+      aspect-ratio: 1.05 / 1;
+      object-position: 54% center;
+    }
   }
 </style>
 
@@ -165,26 +190,26 @@
       <p class="ob-howto__eyebrow">{{ _ob_howto_eyebrow }}</p>
       <h2 class="ob-howto__heading">{{ _ob_howto_heading }}</h2>
     </div>
+    <div class="ob-howto__visual" aria-hidden="true">
+      <img src="{{ 'obp-evening-routine-lozenge-1600x1000.png' | asset_url }}" alt="" loading="lazy" width="1600" height="1000">
+    </div>
     <div class="ob-howto__steps">
       {%- for block in section.blocks -%}
         {%- comment -%} Resolve fallback theme asset by title keywords, falling back to forloop position. {%- endcomment -%}
         {%- assign _ob_step_title_lc = block.settings.title | downcase -%}
         {%- assign _ob_step_asset = '' -%}
-        {%- if section.blocks.size > 3 and forloop.index == 3 -%}
-          {%- assign _ob_step_asset = 'ob-step-03-dissolve-brush.png' -%}
-        {%- elsif _ob_step_title_lc contains 'colon' or _ob_step_title_lc contains 'probiot' or _ob_step_title_lc contains 'wait' or _ob_step_title_lc contains 'wacht' or _ob_step_title_lc contains 'wart' -%}
-          {%- assign _ob_step_asset = 'ob-step-03-colonise.webp' -%}
+        {%- if _ob_step_title_lc contains 'brush' or _ob_step_title_lc contains 'floss' or _ob_step_title_lc contains 'poets' or _ob_step_title_lc contains 'putz' or _ob_step_title_lc contains 'brosse' -%}
+          {%- assign _ob_step_asset = 'ob-step-01-brush-floss.webp' -%}
         {%- elsif _ob_step_title_lc contains 'dissolve' or _ob_step_title_lc contains 'lozenge' or _ob_step_title_lc contains 'tongue' or _ob_step_title_lc contains 'tong' or _ob_step_title_lc contains 'zunge' or _ob_step_title_lc contains 'langue' or _ob_step_title_lc contains 'smelt' or _ob_step_title_lc contains 'tablet' -%}
           {%- assign _ob_step_asset = 'ob-step-02-dissolve-lozenge.webp' -%}
-        {%- elsif _ob_step_title_lc contains 'brush' or _ob_step_title_lc contains 'floss' or _ob_step_title_lc contains 'poets' or _ob_step_title_lc contains 'putz' or _ob_step_title_lc contains 'brosse' -%}
-          {%- assign _ob_step_asset = 'ob-step-01-brush-floss.webp' -%}
+        {%- elsif _ob_step_title_lc contains 'colon' or _ob_step_title_lc contains 'probiot' or _ob_step_title_lc contains 'wait' or _ob_step_title_lc contains 'wacht' or _ob_step_title_lc contains 'wart' -%}
+          {%- assign _ob_step_asset = 'ob-step-03-colonise.webp' -%}
         {%- endif -%}
         {%- if _ob_step_asset == '' -%}
           {%- case forloop.index -%}
             {%- when 1 -%}{%- assign _ob_step_asset = 'ob-step-01-brush-floss.webp' -%}
             {%- when 2 -%}{%- assign _ob_step_asset = 'ob-step-02-dissolve-lozenge.webp' -%}
-            {%- when 3 -%}{%- assign _ob_step_asset = 'ob-step-03-dissolve-brush.png' -%}
-            {%- when 4 -%}{%- assign _ob_step_asset = 'ob-step-03-colonise.webp' -%}
+            {%- when 3 -%}{%- assign _ob_step_asset = 'ob-step-03-colonise.webp' -%}
           {%- endcase -%}
         {%- endif -%}
         <div class="ob-howto__step" {{ block.shopify_attributes }} style="transition-delay: {{ forloop.index0 | times: 150 }}ms">
@@ -283,7 +308,7 @@
   "tag": "section",
   "settings": [
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "YOUR DAILY RITUAL" },
-    { "type": "text", "id": "heading", "label": "Heading", "default": "4 steps. 60 seconds. Done." },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "3 steps. 60 seconds. Done." },
     { "type": "text", "id": "note", "label": "Note below steps", "default": "For best results, use daily before bed. Each jar contains a 30-day supply." }
   ],
   "blocks": [
@@ -303,7 +328,6 @@
       "blocks": [
         { "type": "step", "settings": { "title": "Brush & Floss", "description": "Complete your regular oral hygiene routine as normal." } },
         { "type": "step", "settings": { "title": "Dissolve One Lozenge", "description": "Place one OralBiome Pro lozenge on your tongue. Let it dissolve slowly \u2014 do not chew." } },
-        { "type": "step", "settings": { "title": "Let It Dissolve or Brush", "description": "Let the lozenge dissolve on your teeth, or gently brush it across your teeth with a toothbrush." } },
         { "type": "step", "settings": { "title": "Let Probiotics Colonize", "description": "Avoid eating or drinking for 30 minutes. The beneficial bacteria need time to colonize your oral cavity." } }
       ]
     }

@@ -31,6 +31,16 @@
 
 {% if cq_is_oralbiome %}
   <style>
+    body.template-product-oralbiome .wt-product__gallery { position: relative; }
+    body.template-product-oralbiome .wt-product__gallery::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+      background: url({{ 'obp-hero-freshmint-clinical-routine-1600x1200.png' | asset_url }}) center / cover no-repeat;
+    }
+    body.template-product-oralbiome .wt-product__gallery > * { opacity: 0; }
     @media (max-width: 899px) {
       body.template-product-oralbiome .wt-product__gallery { max-height: 330px; overflow: hidden; }
       body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-slider__slide,
