@@ -158,6 +158,7 @@
   {%- assign _ob_howto_heading = section.settings.heading -%}
   {%- assign _ob_howto_note = section.settings.note -%}
 {%- endif -%}
+{%- assign _ob_howto_heading = section.settings.heading -%}
 
 <section class="ob-howto" data-section-id="{{ section.id }}">
   <div class="ob-howto__container">
@@ -216,6 +217,12 @@
             {%- capture _ob_step_text_key -%}calqix_oralbiome.steps.step{{ forloop.index }}_text{%- endcapture -%}
             {%- assign _ob_step_title = _ob_step_title_key | t -%}
             {%- assign _ob_step_text = _ob_step_text_key | t -%}
+            {%- if _ob_step_title contains 'translation missing' -%}
+              {%- assign _ob_step_title = block.settings.title -%}
+            {%- endif -%}
+            {%- if _ob_step_text contains 'translation missing' -%}
+              {%- assign _ob_step_text = block.settings.description -%}
+            {%- endif -%}
           {%- else -%}
             {%- assign _ob_step_title = block.settings.title -%}
             {%- assign _ob_step_text = block.settings.description -%}
