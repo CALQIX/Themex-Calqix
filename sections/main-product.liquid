@@ -1181,18 +1181,72 @@
               {%- endif -%}
             {%- when 'calqix_subtitle' -%}
               {%- assign cq_calqix_subtitle = block.settings.subtitle -%}
+              {%- assign cq_obp_intro_key = '' -%}
+              {%- assign cq_obp_intro_note = '' -%}
+              {%- assign cq_obp_intro_heading = '' -%}
+              {%- assign cq_obp_intro_body = '' -%}
               {%- if cq_is_translated_flowcore -%}
                 {%- assign cq_calqix_subtitle = 'calqix_flowcore.main.subtitle_html' | t -%}
               {%- elsif cq_is_translated_oralbiome -%}
                 {%- assign cq_calqix_subtitle = 'calqix_oralbiome.main.subtitle_html' | t -%}
               {%- endif -%}
+              {%- if cq_is_oralbiome -%}
+                {%- case product.handle -%}
+                  {%- when 'oralbiome-pro-grape' -%}
+                    {%- assign cq_obp_intro_key = 'grape' -%}
+                    {%- assign cq_obp_intro_note = 'Soft grape finish' -%}
+                    {%- assign cq_obp_intro_heading = 'A mellow grape lozenge with clinical purpose.' -%}
+                    {%- assign cq_obp_intro_body = 'Let the rounded grape taste dissolve slowly after brushing and flossing. Each lozenge delivers 3 billion CFU from four studied oral strains to support fresh breath, gum comfort and a balanced oral microbiome.' -%}
+                  {%- when 'oralbiome-pro-peach' -%}
+                    {%- assign cq_obp_intro_key = 'peach' -%}
+                    {%- assign cq_obp_intro_note = 'Velvet peach ritual' -%}
+                    {%- assign cq_obp_intro_heading = 'A soft peach moment before your mouth rests overnight.' -%}
+                    {%- assign cq_obp_intro_body = 'A gentle peach lozenge designed for the final step of your evening routine. It melts in the mouth and supports the oral microbiome with four studied strains and 3 billion CFU per lozenge.' -%}
+                  {%- when 'oralbiome-pro-citrus-orange' -%}
+                    {%- assign cq_obp_intro_key = 'citrus' -%}
+                    {%- assign cq_obp_intro_note = 'Bright citrus zest' -%}
+                    {%- assign cq_obp_intro_heading = 'A clean citrus finish that turns oral care into a fresher ritual.' -%}
+                    {%- assign cq_obp_intro_body = 'The crisp orange note keeps the routine light, while the lozenge dissolves slowly to support fresh breath, gum comfort and daily microbiome balance after brushing and flossing.' -%}
+                  {%- when 'oralbiome-pro-cool-mint' -%}
+                    {%- assign cq_obp_intro_key = 'cool-mint' -%}
+                    {%- assign cq_obp_intro_note = 'Icy mint clarity' -%}
+                    {%- assign cq_obp_intro_heading = 'A cooler mint experience for a calm, clean night routine.' -%}
+                    {%- assign cq_obp_intro_body = 'Cool Mint gives the ritual a crisp, polished finish. Dissolve one lozenge after cleaning to support the living oral microbiome with clinically studied probiotic strains.' -%}
+                  {%- else -%}
+                    {%- assign cq_obp_intro_key = 'fresh-mint' -%}
+                    {%- assign cq_obp_intro_note = 'Fresh mint leaf' -%}
+                    {%- assign cq_obp_intro_heading = 'A clean mint finish for the final step after brushing.' -%}
+                    {%- assign cq_obp_intro_body = 'Fresh Mint dissolves gently before bed, leaving a cool botanical feel while four studied oral strains support fresh breath, gum comfort and daily microbiome balance.' -%}
+                {%- endcase -%}
+              {%- endif -%}
               {%- if cq_calqix_subtitle != blank -%}
                 <div
-                  class="calqix-product-subtitle rte"
+                  class="calqix-product-subtitle rte{% if cq_obp_intro_key != '' %} calqix-obp-intro-tile{% endif %}"
+                  {% if cq_obp_intro_key != '' %}data-flavor="{{ cq_obp_intro_key }}"{% endif %}
                   data-block-id="{{ block.id }}"
                   {{ block.shopify_attributes }}
                 >
-                  {{ cq_calqix_subtitle }}
+                  {%- if cq_obp_intro_key != '' -%}
+                    <span class="calqix-obp-intro-tile__icon" aria-hidden="true">
+                      {%- case cq_obp_intro_key -%}
+                        {%- when 'grape' -%}
+                          <svg viewBox="0 0 64 64" focusable="false"><path d="M38 10c8 2 13 7 16 15-8-2-14-6-17-14z" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="24" cy="25" r="7"/><circle cx="36" cy="25" r="7"/><circle cx="18" cy="37" r="7"/><circle cx="30" cy="37" r="7"/><circle cx="42" cy="37" r="7"/><circle cx="24" cy="49" r="7"/><circle cx="36" cy="49" r="7"/></svg>
+                        {%- when 'peach' -%}
+                          <svg viewBox="0 0 64 64" focusable="false"><path d="M31 15c-9-7-22 2-22 17 0 13 10 24 23 24s23-11 23-24c0-15-13-24-22-17" fill="none" stroke="currentColor" stroke-width="3"/><path d="M34 12c3-6 9-8 17-7-2 8-8 13-17 14zM32 15v14" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+                        {%- when 'citrus' -%}
+                          <svg viewBox="0 0 64 64" focusable="false"><circle cx="32" cy="34" r="22" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="32" cy="34" r="7" fill="none" stroke="currentColor" stroke-width="3"/><path d="M32 12v15M32 41v15M10 34h15M39 34h15M17 19l10 10M37 39l10 10M47 19 37 29M27 39 17 49" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+                        {%- else -%}
+                          <svg viewBox="0 0 64 64" focusable="false"><path d="M31 50c-13-1-22-10-23-24 14 1 23 9 23 24zM34 47c-2-16 6-29 21-35 3 15-5 29-21 35zM32 51c1-15 0-25-4-36" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+                      {%- endcase -%}
+                    </span>
+                    <span class="calqix-obp-intro-tile__content">
+                      <span class="calqix-obp-intro-tile__note">{{ cq_obp_intro_note }}</span>
+                      <span class="calqix-obp-intro-tile__heading">{{ cq_obp_intro_heading }}</span>
+                      <span class="calqix-obp-intro-tile__body">{{ cq_obp_intro_body }}</span>
+                    </span>
+                  {%- else -%}
+                    {{ cq_calqix_subtitle }}
+                  {%- endif -%}
                 </div>
               {%- endif -%}
             {%- when 'calqix_review_row' -%}
