@@ -74,9 +74,16 @@ if (!customElements.get("product-form")) {
         const openedInstantly =
           this.cartType === "drawer" &&
           this.cart &&
-          window.matchMedia("(max-width: 768px)").matches &&
           typeof this.cart.openInstantCart === "function" &&
           this.cart.openInstantCart();
+
+        if (
+          this.cartType === "drawer" &&
+          this.cart &&
+          typeof this.cart.showPendingAdd === "function"
+        ) {
+          this.cart.showPendingAdd(this.form);
+        }
 
         fetch(`${routes.cart_add_url}`, config)
           .then((response) => response.json())
@@ -90,6 +97,7 @@ if (!customElements.get("product-form")) {
               });
               this.handleErrorMessage(response.description);
               this.error = true;
+              if (typeof this.cart?.clearPendingAdd === "function") this.cart.clearPendingAdd();
 
               const soldOutMessage =
                 this.submitButton.querySelector(".sold-out-message");
@@ -140,6 +148,7 @@ if (!customElements.get("product-form")) {
           })
           .catch((e) => {
             console.error(e);
+            if (typeof this.cart?.clearPendingAdd === "function") this.cart.clearPendingAdd();
             if (e instanceof TypeError && e.message.includes("'cart-drawer'")) {
               location.reload();
             }

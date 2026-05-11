@@ -129,6 +129,64 @@ class CartDrawerSection extends HTMLElement {
     return true;
   }
 
+  showPendingAdd(form) {
+    if (this.cartType === "page" || this.isCartPage) return;
+
+    const content = this.querySelector("#CartDrawer-CartItems");
+    if (!content) return;
+
+    this.classList.add("wt-cart--pending-add");
+    this.drawer?.classList.add("wt-cart__drawer--pending-add");
+    content.classList.add("wt-cart__drawer__content--pending-add");
+
+    const existing = content.querySelector("[data-cart-pending-line]");
+    if (existing) existing.remove();
+
+    let list = content.querySelector(".wt-cart__list");
+    if (!list) {
+      list = document.createElement("ul");
+      list.className = "wt-cart__list wt-cart__list--pending";
+      content.prepend(list);
+    }
+
+    const title =
+      form?.querySelector("[data-product-title]")?.textContent?.trim() ||
+      form?.closest("[data-product-title]")?.dataset.productTitle ||
+      document.querySelector("h1")?.textContent?.trim() ||
+      "Your selection";
+
+    const line = document.createElement("li");
+    line.className = "wt-cart__item cart-item wt-cart-pending-line";
+    line.setAttribute("data-cart-pending-line", "");
+    line.setAttribute("aria-live", "polite");
+    line.innerHTML = `
+      <div class="wt-cart-pending-line__thumb" aria-hidden="true"></div>
+      <div class="wt-cart-pending-line__body">
+        <div class="wt-cart-pending-line__eyebrow">Adding to cart</div>
+        <div class="wt-cart-pending-line__title">${this.escapeHTML(title)}</div>
+        <div class="wt-cart-pending-line__bar wt-cart-pending-line__bar--wide" aria-hidden="true"></div>
+        <div class="wt-cart-pending-line__bar wt-cart-pending-line__bar--short" aria-hidden="true"></div>
+      </div>
+    `;
+    list.append(line);
+
+    const liveRegion = this.querySelector("#CartDrawer-LiveRegionText");
+    if (liveRegion) liveRegion.textContent = "Adding product to cart";
+  }
+
+  clearPendingAdd() {
+    this.classList.remove("wt-cart--pending-add");
+    this.drawer?.classList.remove("wt-cart__drawer--pending-add");
+    this.querySelector("#CartDrawer-CartItems")?.classList.remove("wt-cart__drawer__content--pending-add");
+    this.querySelector("[data-cart-pending-line]")?.remove();
+  }
+
+  escapeHTML(value) {
+    const div = document.createElement("div");
+    div.textContent = value || "";
+    return div.innerHTML;
+  }
+
   init() {
     this.addEventListener("keydown", (e) => {
       const isTabPressed =
@@ -185,6 +243,7 @@ class CartDrawerSection extends HTMLElement {
   }
 
   renderContents(parsedState, isClosedCart = true) {
+    this.clearPendingAdd();
     const previousCount = this.querySelectorAll(".cart-item").length;
     const previousHeaderCount = this.getHeaderCounterValue();
     const previousSubtotal = this.getSubtotalCents();
