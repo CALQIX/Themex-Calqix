@@ -69,6 +69,7 @@
           e.preventDefault();
           e.stopPropagation();
           slideToMedia(section, swiper, bubbles[idx].getAttribute('data-media-id'), idx);
+          setActive(idx);
         }
         bubbles[idx].addEventListener('click', activate, true);
         bubbles[idx].addEventListener('pointerup', activate, true);
