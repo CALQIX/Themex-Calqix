@@ -107,7 +107,6 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
     perspective: 900px;
-    animation: cqbp-card-rise 0.46s ease-out both;
   }
   .cqbp__card {
     position: relative;
@@ -146,7 +145,6 @@
   }
   .cqbp__card:hover:not(.is-active) {
     border-color: rgba(0, 37, 73, 0.28);
-    transform: translateY(-2px);
     box-shadow: 0 24px 52px -36px rgba(0, 37, 73, 0.58);
   }
   .cqbp__card.is-active {
@@ -155,7 +153,6 @@
       radial-gradient(circle at 50% -12%, rgba(201, 168, 76, 0.16), transparent 46%),
       linear-gradient(145deg, #ffffff, #f7fbff);
     box-shadow: 0 0 0 1px rgba(0, 37, 73, 0.95), 0 20px 44px -34px rgba(0, 37, 73, 0.62);
-    transform: translateY(-1px);
   }
   .cqbp__card.is-active[data-popular="true"] {
     border-color: var(--cqbp-gold);
