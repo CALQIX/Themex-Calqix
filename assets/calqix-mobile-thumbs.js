@@ -215,26 +215,30 @@
   function bindGalleryThumbs() {
     if (!isOralBiomePage()) return;
     var gallery = document.querySelector('gallery-section[data-product-page]');
-    if (!gallery || gallery.dataset.cqThumbsBound === '1') return;
+    if (!gallery) return;
 
-    var thumbs = gallery.querySelectorAll('[data-thumbs] [data-slide-media-id]');
-    if (!thumbs.length) return;
-    gallery.dataset.cqThumbsBound = '1';
+    if (gallery.dataset.cqThumbsDelegated === '1') return;
+    gallery.dataset.cqThumbsDelegated = '1';
 
-    thumbs.forEach(function (thumb) {
-      function activate(event) {
-        var mediaId = thumb.getAttribute('data-slide-media-id');
-        if (!mediaId) return;
-        event.preventDefault();
-        event.stopPropagation();
+    function activate(event) {
+      var thumb = event.target.closest && event.target.closest('[data-thumbs] [data-slide-media-id]');
+      if (!thumb || !gallery.contains(thumb)) return;
 
-        waitForSwiper(gallery, function (swiper) {
-          slideToMedia(gallery, swiper, mediaId, Array.prototype.indexOf.call(thumbs, thumb));
-        });
-      }
-      thumb.addEventListener('click', activate, true);
-      thumb.addEventListener('pointerup', activate, true);
-    });
+      var mediaId = thumb.getAttribute('data-slide-media-id');
+      if (!mediaId) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+
+      waitForSwiper(gallery, function (swiper) {
+        var liveThumbs = Array.prototype.slice.call(gallery.querySelectorAll('[data-thumbs] [data-slide-media-id]'));
+        slideToMedia(gallery, swiper, mediaId, liveThumbs.indexOf(thumb));
+      });
+    }
+
+    gallery.addEventListener('click', activate, true);
+    gallery.addEventListener('pointerup', activate, true);
   }
 
   function ensureUsps() {

@@ -189,9 +189,9 @@
   }
 
   body.template-product-oralbiome gallery-section[data-product-page] .cqmt__bubble {
-    flex: 0 0 57px;
-    min-width: 57px;
-    max-width: 57px;
+    flex: 0 0 62px;
+    min-width: 62px;
+    max-width: 62px;
     opacity: 0.68;
     filter: drop-shadow(0 8px 14px rgba(0, 37, 73, 0.13));
     animation: none;
@@ -254,11 +254,11 @@
   }
 
   body.template-product-oralbiome gallery-section[data-product-page] [data-thumbs] .thumbs-list-item {
-    flex: 0 0 69px !important;
-    width: 69px !important;
-    height: 60px !important;
-    min-width: 69px !important;
-    max-width: 69px !important;
+    flex: 0 0 74px !important;
+    width: 74px !important;
+    height: 65px !important;
+    min-width: 74px !important;
+    max-width: 74px !important;
     aspect-ratio: 1.155 / 1 !important;
     position: relative !important;
     margin: 0 !important;
@@ -281,7 +281,7 @@
     position: absolute;
     inset: 0;
     background: rgba(255, 255, 255, 0.94);
-    border: 0.5px solid rgba(0, 37, 73, 0.12);
+    border: 0.5px solid rgba(0, 37, 73, 0.1);
     -webkit-clip-path: inherit;
             clip-path: inherit;
     pointer-events: none;
@@ -290,12 +290,16 @@
 
   body.template-product-oralbiome gallery-section[data-product-page] [data-thumbs] .thumbs-list-item.swiper-slide-thumb-active,
   body.template-product-oralbiome gallery-section[data-product-page] [data-thumbs] .thumbs-list-item.swiper-slide-active,
+  body.template-product-oralbiome gallery-section[data-product-page] [data-thumbs] .thumbs-list-item:active,
   body.template-product-oralbiome gallery-section[data-product-page] [data-thumbs] .thumbs-list-item:hover {
     opacity: 1;
     transform: translateY(-2px) scale(1.06);
     filter: drop-shadow(0 0 12px rgba(201, 168, 76, 0.56)) drop-shadow(0 12px 18px rgba(0, 37, 73, 0.16));
+    background: transparent !important;
   }
 
+  body.template-product-oralbiome gallery-section[data-product-page] [data-thumbs] .thumbs-list-item:hover::before,
+  body.template-product-oralbiome gallery-section[data-product-page] [data-thumbs] .thumbs-list-item:active::before,
   body.template-product-oralbiome gallery-section[data-product-page] [data-thumbs] .thumbs-list-item.swiper-slide-thumb-active::before,
   body.template-product-oralbiome gallery-section[data-product-page] [data-thumbs] .thumbs-list-item.swiper-slide-active::before {
     background: rgba(255, 255, 255, 0.98);
