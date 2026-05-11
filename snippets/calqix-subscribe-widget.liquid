@@ -39,6 +39,7 @@
 {%- endif -%}
 
 {%- assign cq_pct_int = cq_pct | round: 0 -%}
+{%- assign cqsw_subscription_enabled = false -%}
 
 {%- assign cq_sw_title = 'calqix_oralbiome.widget.save_with_refills' | t | replace: '{pct}', cq_pct_int -%}
 {%- assign cq_sw_hint = 'calqix_oralbiome.widget.refill_hint' | t -%}
@@ -69,6 +70,12 @@
   }
 
   /* ── Widget container ── */
+  /* Subscription UI is temporarily disabled for the current CRO pass.
+     To restore later, set cqsw_subscription_enabled to true above. */
+  .cqsw {
+    display: none !important;
+  }
+
   .cqsw {
     margin: 0 0 16px;
     font-family: 'DM Sans', sans-serif;
@@ -183,6 +190,7 @@
   }
 </style>
 
+{%- if cqsw_subscription_enabled -%}
 <div class="cqsw"
      data-selling-plan-id="{{ cq_sp_id }}"
      data-price-onetime="{{ cq_ot | money }}"
@@ -279,3 +287,21 @@
   );
 })();
 </script>
+{%- else -%}
+<script>
+(function(){
+  function disableCalqixSubscription() {
+    document.querySelectorAll('input[name="selling_plan"][data-cqsw="1"]').forEach(function(input) {
+      input.remove();
+    });
+    try {
+      document.dispatchEvent(new CustomEvent('cqsw:change', {
+        detail: { subscribe: false, planId: '', pct: '{{ cq_pct_int }}' }
+      }));
+    } catch (e) {}
+  }
+  disableCalqixSubscription();
+  document.addEventListener('DOMContentLoaded', disableCalqixSubscription);
+})();
+</script>
+{%- endif -%}
