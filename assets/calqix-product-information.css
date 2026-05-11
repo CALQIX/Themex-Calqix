@@ -1883,17 +1883,39 @@ body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__titl
 
 @media (max-width: 520px) {
   body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__list {
-    gap: 10px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px 12px !important;
   }
 
   body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__item {
-    min-height: 42px !important;
-    grid-template-columns: 42px minmax(0, 1fr) !important;
-    gap: 10px !important;
+    min-height: 38px !important;
+    grid-template-columns: 31px minmax(0, 1fr) !important;
+    gap: 6px !important;
+    align-items: center !important;
   }
 
+  body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__icon {
+    width: 31px !important;
+    height: 31px !important;
+    color: #002549 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__icon svg {
+    width: 29px !important;
+    height: 29px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__text,
   body.template-product-oralbiome .wt-product__info .calqix-obp-usp-fallback__title {
     max-width: none !important;
+    font-size: 12px !important;
+    line-height: 1.12 !important;
+    letter-spacing: 0 !important;
+    text-wrap: balance;
   }
 }
 
