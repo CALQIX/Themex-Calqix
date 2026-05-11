@@ -1026,12 +1026,18 @@ body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-product_
   body.template-product-oralbiome .wt-product__info .calqix-cert-inline {
     margin-top: 10px !important;
     margin-bottom: 0 !important;
+    width: 100% !important;
+    text-align: center !important;
   }
 
   body.template-product-oralbiome .wt-product__info .calqix-cert-inline__row {
     flex-wrap: nowrap !important;
-    justify-content: flex-start !important;
+    justify-content: center !important;
     gap: 6px !important;
+    width: fit-content;
+    max-width: 100%;
+    margin-left: auto !important;
+    margin-right: auto !important;
     overflow-x: auto;
     padding-bottom: 4px;
     scrollbar-width: none;
