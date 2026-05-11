@@ -266,6 +266,29 @@
     white-space: nowrap;
   }
   .cqbp__deal--free { background: linear-gradient(135deg, var(--cqbp-gold), var(--cqbp-gold-deep)); }
+  .cqbp__note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 8px auto 0;
+    color: var(--cqbp-ink-soft);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.35;
+    text-align: center;
+    letter-spacing: 0.01em;
+    opacity: 0.88;
+  }
+  .cqbp__note::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    flex: 0 0 6px;
+    border-radius: 50%;
+    background: var(--cqbp-gold);
+    box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.12);
+  }
 
   @keyframes cqbp-card-rise {
     from { opacity: 0; transform: translateY(10px) scale(0.98); }
@@ -303,6 +326,11 @@
     .cqbp__each { font-size: 7.5px; }
     .cqbp__popular { font-size: 6.5px; padding: 2px 6px; top: -7px; }
     .cqbp__deal { font-size: 6.8px; padding: 2px 5px; }
+    .cqbp__note {
+      margin-top: 7px;
+      padding: 0 6px;
+      font-size: 10.5px;
+    }
   }
 </style>
 
@@ -357,6 +385,7 @@
       <span class="cqbp__deal cqbp__deal--free">{{ cqbp_t_free }}</span>
     </div>
   </div>
+  <p class="cqbp__note">Tastes can be changed easily in your cart.</p>
 </div>
 
 <script>
