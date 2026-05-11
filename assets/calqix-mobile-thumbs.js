@@ -65,10 +65,13 @@
 
     for (var i = 0; i < bubbles.length; i++) {
       (function (idx) {
-        bubbles[idx].addEventListener('click', function (e) {
+        function activate(e) {
           e.preventDefault();
+          e.stopPropagation();
           slideToMedia(section, swiper, bubbles[idx].getAttribute('data-media-id'), idx);
-        });
+        }
+        bubbles[idx].addEventListener('click', activate, true);
+        bubbles[idx].addEventListener('pointerup', activate, true);
       })(i);
     }
 
@@ -219,7 +222,7 @@
     gallery.dataset.cqThumbsBound = '1';
 
     thumbs.forEach(function (thumb) {
-      thumb.addEventListener('click', function (event) {
+      function activate(event) {
         var mediaId = thumb.getAttribute('data-slide-media-id');
         if (!mediaId) return;
         event.preventDefault();
@@ -228,7 +231,9 @@
         waitForSwiper(gallery, function (swiper) {
           slideToMedia(gallery, swiper, mediaId, Array.prototype.indexOf.call(thumbs, thumb));
         });
-      }, true);
+      }
+      thumb.addEventListener('click', activate, true);
+      thumb.addEventListener('pointerup', activate, true);
     });
   }
 
