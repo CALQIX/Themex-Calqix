@@ -3059,6 +3059,16 @@
                   display: flex;
                   gap: {{ b.swatch_gap }}px;
                   flex-wrap: wrap;
+                  align-items: flex-start;
+                }
+                #ccs-block-{{ block.id }} .ccs-swatch-item {
+                  display: inline-flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: flex-start;
+                  gap: 6px;
+                  max-width: calc({{ b.swatch_size }}px + 16px);
+                  text-align: center;
                 }
                 #ccs-block-{{ block.id }} .ccs-helper {
                   margin: 8px 0 0;
@@ -3068,8 +3078,8 @@
                 }
                 #ccs-block-{{ block.id }} .ccs-swatch {
                   display: block;
-                  width: {{ b.swatch_size }}px;
-                  height: {{ b.swatch_size }}px;
+                  width: calc({{ b.swatch_size }}px + 5px);
+                  height: calc({{ b.swatch_size }}px + 5px);
                   border-radius: {% if b.swatch_shape == 'round' %}50%{% elsif b.swatch_shape == 'rounded' %}6px{% else %}0{% endif %};
                   border: 2.5px solid transparent;
                   text-decoration: none;
@@ -3093,6 +3103,33 @@
                 #ccs-block-{{ block.id }} .ccs-swatch--bordered {
                   border-width: 2px !important;
                   border-style: solid !important;
+                }
+                #ccs-block-{{ block.id }} .ccs-swatch-name {
+                  display: block;
+                  width: 100%;
+                  color: {{ b.label_color }};
+                  font-family: 'DM Sans', sans-serif;
+                  font-size: 10.5px;
+                  font-weight: 650;
+                  line-height: 1.15;
+                  letter-spacing: 0.01em;
+                  text-align: center;
+                  overflow-wrap: anywhere;
+                }
+                #ccs-block-{{ block.id }} .ccs-swatch-item:not(.ccs-swatch-item--active) .ccs-swatch-name {
+                  color: {{ b.name_color }};
+                  opacity: 0.84;
+                  font-weight: 550;
+                }
+                @media (max-width: 767px) {
+                  #ccs-block-{{ block.id }} .ccs-swatch-item {
+                    gap: 5px;
+                    max-width: 58px;
+                  }
+                  #ccs-block-{{ block.id }} .ccs-swatch-name {
+                    font-size: 9.5px;
+                    line-height: 1.1;
+                  }
                 }
                 #ccs-block-{{ block.id }} .ccs-tooltip {
                   position: absolute;
@@ -3194,24 +3231,27 @@
                       {%- assign ccs_is_active = false -%}
                       {%- if ccs_resolved_handle == product.handle -%}{%- assign ccs_is_active = true -%}{%- endif -%}
                       {%- assign safe_root = routes.root_url | append: '/' | replace: '//', '/' -%}
-                      <a href="{{ safe_root }}products/{{ ccs_resolved_handle }}"
-                         class="ccs-swatch {% if ccs_is_active %}ccs-active{% endif %} {% if b[ccs_bk] %}ccs-swatch--bordered{% endif %}"
-                         style="{% if b[ccs_bk] %}border-color: {{ b[ccs_bcl] }} !important;{% endif %}"
-                         aria-label="{{ ccs_display_name }}" title="{{ ccs_display_name }}">
-                        {%- if ccs_product != blank and ccs_product.featured_image != blank -%}
-                          {{
-                            ccs_product.featured_image
-                            | image_url: width: 96
-                            | image_tag:
-                              class: 'ccs-swatch__img',
-                              loading: 'lazy',
-                              widths: '48, 96',
-                              sizes: '48px',
-                              alt: ccs_display_name
-                          }}
-                        {%- endif -%}
-                        <span class="ccs-tooltip">{{ ccs_display_name }}</span>
-                      </a>
+                      <span class="ccs-swatch-item{% if ccs_is_active %} ccs-swatch-item--active{% endif %}">
+                        <a href="{{ safe_root }}products/{{ ccs_resolved_handle }}"
+                           class="ccs-swatch {% if ccs_is_active %}ccs-active{% endif %} {% if b[ccs_bk] %}ccs-swatch--bordered{% endif %}"
+                           style="{% if b[ccs_bk] %}border-color: {{ b[ccs_bcl] }} !important;{% endif %}"
+                           aria-label="{{ ccs_display_name }}" title="{{ ccs_display_name }}">
+                          {%- if ccs_product != blank and ccs_product.featured_image != blank -%}
+                            {{
+                              ccs_product.featured_image
+                              | image_url: width: 128
+                              | image_tag:
+                                class: 'ccs-swatch__img',
+                                loading: 'lazy',
+                                widths: '48, 64, 96, 128',
+                                sizes: '56px',
+                                alt: ccs_display_name
+                            }}
+                          {%- endif -%}
+                          <span class="ccs-tooltip">{{ ccs_display_name }}</span>
+                        </a>
+                        <span class="ccs-swatch-name" aria-hidden="true">{{ ccs_display_name }}</span>
+                      </span>
                     {%- endif -%}
                   {%- endfor -%}
                 </div>

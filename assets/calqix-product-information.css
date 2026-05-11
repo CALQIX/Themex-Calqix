@@ -984,7 +984,7 @@ body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-product_
 
   body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-swatches {
     justify-content: center !important;
-    gap: 6px;
+    gap: 8px;
     overflow-x: auto;
     padding-bottom: 2px;
     scrollbar-width: none;
@@ -995,9 +995,19 @@ body.template-product-oralbiome .wt-product__gallery [data-gallery] .wt-product_
   }
 
   body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-swatch {
-    width: 47px !important;
-    height: 47px !important;
-    min-width: 47px !important;
+    width: 50px !important;
+    height: 50px !important;
+    min-width: 50px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-swatch-item {
+    max-width: 62px !important;
+  }
+
+  body.template-product-oralbiome .wt-product__info .calqix-colour-switcher-block .ccs-swatch-name {
+    font-size: 9.5px !important;
+    line-height: 1.1 !important;
+    color: #002549 !important;
   }
 
   body.template-product-oralbiome .wt-product__info .cqbp {
