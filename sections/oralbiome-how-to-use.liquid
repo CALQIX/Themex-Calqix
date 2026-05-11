@@ -161,6 +161,33 @@
     transition: width 0.22s ease, background 0.22s ease;
   }
   .ob-howto__dot.is-active { width: 38px; background: #C9A84C; }
+  .ob-howto__swipe-hint {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px 0 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #002549;
+    letter-spacing: 0.04em;
+    animation: obHowtoHintPulse 2s ease-in-out infinite;
+    transition: opacity 0.35s ease;
+  }
+  .ob-howto__swipe-hint svg {
+    width: 14px;
+    height: 14px;
+    animation: obHowtoHintSlide 1.5s ease-in-out infinite;
+  }
+  @keyframes obHowtoHintPulse {
+    0%, 100% { opacity: 0.48; }
+    50% { opacity: 0.95; }
+  }
+  @keyframes obHowtoHintSlide {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(5px); }
+  }
   .ob-howto__note {
     text-align: center;
     margin: 24px auto 0;
@@ -222,6 +249,9 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+    .ob-howto__swipe-hint {
+      display: flex;
+    }
   }
 
   body.template-product-oralbiome .ob-benefits__card,
@@ -266,6 +296,7 @@
   {%- assign _ob_howto_note = section.settings.note -%}
 {%- endif -%}
 {%- assign _ob_howto_heading = section.settings.heading -%}
+{%- assign _ob_howto_swipe = 'Swipe' -%}
 
 <section class="ob-howto" data-section-id="{{ section.id }}">
   <div class="ob-howto__container">
@@ -353,6 +384,10 @@
       {%- for block in section.blocks -%}
         <button type="button" class="ob-howto__dot{% if forloop.first %} is-active{% endif %}" data-step="{{ forloop.index0 }}" aria-label="Step {{ forloop.index }}"></button>
       {%- endfor -%}
+    </div>
+    <div class="ob-howto__swipe-hint" aria-hidden="true">
+      <span>{{ _ob_howto_swipe }}</span>
+      <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     {%- if section.settings.note != blank -%}
       <p class="ob-howto__note">{{ _ob_howto_note }}</p>
