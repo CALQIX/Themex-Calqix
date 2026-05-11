@@ -2270,9 +2270,10 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__i
   flex-wrap: nowrap !important;
   justify-content: center !important;
   align-items: center !important;
-  gap: 5px !important;
-  overflow: hidden !important;
+  gap: clamp(3px, 0.42vw, 5px) !important;
+  overflow: visible !important;
   padding: 0 !important;
+  white-space: nowrap !important;
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item {
@@ -2280,8 +2281,8 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__i
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  min-width: 38px !important;
-  height: 28px !important;
+  min-width: 40px !important;
+  height: 30px !important;
   padding: 3px 6px !important;
   background: rgba(255, 255, 255, 0.97) !important;
   border: 1px solid rgba(0, 37, 73, 0.12) !important;
@@ -2297,8 +2298,8 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__i
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item .icon {
   display: block !important;
   width: auto !important;
-  height: 16px !important;
-  max-width: 36px !important;
+  height: 18px !important;
+  max-width: 38px !important;
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__logo-set {
@@ -2310,22 +2311,22 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__l
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__logo-set .icon {
-  height: 14px !important;
-  max-width: 28px !important;
+  height: 16px !important;
+  max-width: 30px !important;
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__custom-logo {
   display: block !important;
   width: auto !important;
-  height: 14px !important;
-  max-width: 32px !important;
+  height: 16px !important;
+  max-width: 34px !important;
 }
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__mini-logo {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  height: 14px !important;
+  height: 16px !important;
   padding: 0 3px !important;
   border-radius: 2px !important;
   font-family: Arial, sans-serif !important;
@@ -2342,7 +2343,7 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__m
 
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item--ideal-wero,
 body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item--credit-card {
-  min-width: 62px !important;
+  min-width: 64px !important;
 }
 
 @media (max-width: 960px) {
@@ -2355,34 +2356,34 @@ body[class^="template-product"] .wt-product__info .wt-product__payments-badge__i
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__list {
-    gap: 2px !important;
+    gap: clamp(1px, 0.45vw, 2px) !important;
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item {
-    min-width: 24px !important;
-    height: 22px !important;
+    min-width: 25px !important;
+    height: 23px !important;
     padding: 2px 3px !important;
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item .icon {
-    height: 12px !important;
-    max-width: 24px !important;
+    height: 13px !important;
+    max-width: 25px !important;
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__logo-set .icon,
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__custom-logo {
-    height: 10px !important;
-    max-width: 18px !important;
+    height: 11px !important;
+    max-width: 19px !important;
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__mini-logo {
-    height: 11px !important;
+    height: 12px !important;
     font-size: 6px !important;
   }
 
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item--ideal-wero,
   body[class^="template-product"] .wt-product__info .wt-product__payments-badge__icons__item--credit-card {
-    min-width: 42px !important;
+    min-width: 43px !important;
   }
 }
 
