@@ -295,8 +295,8 @@
   {%- assign _ob_howto_heading = section.settings.heading -%}
   {%- assign _ob_howto_note = section.settings.note -%}
 {%- endif -%}
-{%- assign _ob_howto_heading = section.settings.heading -%}
-{%- assign _ob_howto_swipe = 'Swipe' -%}
+{%- assign _ob_howto_step_label = 'calqix_oralbiome.steps.step_label' | t -%}
+{%- assign _ob_howto_swipe = 'calqix_oralbiome.steps.swipe_hint' | t -%}
 
 <section class="ob-howto" data-section-id="{{ section.id }}">
   <div class="ob-howto__container">
@@ -347,7 +347,7 @@
         {%- endif -%}
         <div class="ob-howto__step" {{ block.shopify_attributes }} style="transition-delay: {{ forloop.index0 | times: 150 }}ms">
           <div class="ob-howto__step-kicker">
-            <span>Step</span>
+            <span>{{ _ob_howto_step_label }}</span>
             <strong>{{ forloop.index | prepend: '0' | slice: -2, 2 }}</strong>
           </div>
           <div class="ob-howto__step-visual">
@@ -382,7 +382,7 @@
     </div>
     <div class="ob-howto__dots">
       {%- for block in section.blocks -%}
-        <button type="button" class="ob-howto__dot{% if forloop.first %} is-active{% endif %}" data-step="{{ forloop.index0 }}" aria-label="Step {{ forloop.index }}"></button>
+        <button type="button" class="ob-howto__dot{% if forloop.first %} is-active{% endif %}" data-step="{{ forloop.index0 }}" aria-label="{{ _ob_howto_step_label }} {{ forloop.index }}"></button>
       {%- endfor -%}
     </div>
     <div class="ob-howto__swipe-hint" aria-hidden="true">
@@ -496,7 +496,7 @@
       "name": "OB How To Use",
       "blocks": [
         { "type": "step", "settings": { "title": "Brush & Floss", "description": "Complete your regular oral hygiene routine as normal." } },
-        { "type": "step", "settings": { "title": "Dissolve One Lozenge", "description": "Place one OralBiome Pro lozenge on your tongue. Let it dissolve slowly \u2014 do not chew." } },
+        { "type": "step", "settings": { "title": "Dissolve One Lozenge", "description": "Place one OralBiome Pro lozenge on your tongue. Let it dissolve slowly, do not chew." } },
         { "type": "step", "settings": { "title": "Let It Dissolve or Brush", "description": "Let the lozenge dissolve on your teeth, or gently brush it across your teeth with a toothbrush." } },
         { "type": "step", "settings": { "title": "Let Probiotics Colonize", "description": "Avoid eating or drinking for 30 minutes. The beneficial bacteria need time to colonize your oral cavity." } }
       ]

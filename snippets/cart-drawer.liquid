@@ -94,6 +94,9 @@
   class="wt-cart {% if cart == empty %}wt-cart--empty{% endif %}"
   data-toggle-tabindex=".wt-cart__drawer__close--button,.button--continue-shopping,.giftnote__drawercart__addnote,.wt-cart__item__remove, .js-counter-button, .js-counter-quantity, .wt-cart__cta, .wt-cart__item__link, .wt-cart__login__text a, .policy-link, .wt-cart__show-cart"
   data-cart-type="{{ settings.cart_type }}"
+  data-pending-eyebrow="{{ 'calqix_cart.pending_eyebrow' | t | escape }}"
+  data-pending-status="{{ 'calqix_cart.pending_status' | t | escape }}"
+  data-pending-title="{{ 'calqix_cart.pending_title' | t | escape }}"
 >
   <div class="page-overlay-cart"></div>
   <div

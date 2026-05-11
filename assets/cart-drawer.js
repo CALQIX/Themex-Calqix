@@ -153,7 +153,10 @@ class CartDrawerSection extends HTMLElement {
       form?.querySelector("[data-product-title]")?.textContent?.trim() ||
       form?.closest("[data-product-title]")?.dataset.productTitle ||
       document.querySelector("h1")?.textContent?.trim() ||
-      "Your selection";
+      this.dataset.pendingTitle ||
+      "";
+    const pendingEyebrow = this.dataset.pendingEyebrow || "";
+    const pendingStatus = this.dataset.pendingStatus || pendingEyebrow;
 
     const line = document.createElement("li");
     line.className = "wt-cart__item cart-item wt-cart-pending-line";
@@ -162,7 +165,7 @@ class CartDrawerSection extends HTMLElement {
     line.innerHTML = `
       <div class="wt-cart-pending-line__thumb" aria-hidden="true"></div>
       <div class="wt-cart-pending-line__body">
-        <div class="wt-cart-pending-line__eyebrow">Adding to cart</div>
+        <div class="wt-cart-pending-line__eyebrow">${this.escapeHTML(pendingEyebrow)}</div>
         <div class="wt-cart-pending-line__title">${this.escapeHTML(title)}</div>
         <div class="wt-cart-pending-line__bar wt-cart-pending-line__bar--wide" aria-hidden="true"></div>
         <div class="wt-cart-pending-line__bar wt-cart-pending-line__bar--short" aria-hidden="true"></div>
@@ -171,7 +174,7 @@ class CartDrawerSection extends HTMLElement {
     list.append(line);
 
     const liveRegion = this.querySelector("#CartDrawer-LiveRegionText");
-    if (liveRegion) liveRegion.textContent = "Adding product to cart";
+    if (liveRegion) liveRegion.textContent = pendingStatus;
   }
 
   clearPendingAdd() {
