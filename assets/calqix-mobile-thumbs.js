@@ -90,16 +90,16 @@
     var idx = indexGallerySlideByMediaId(section, mediaId);
     if (idx < 0) idx = fallbackIdx;
 
-    if (mediaId && typeof section.setActiveMedia === 'function') {
-      section.setActiveMedia(mediaId, true);
-      return;
-    }
-
     if (swiper.params && swiper.params.loop && typeof swiper.slideToLoop === 'function') {
       swiper.slideToLoop(idx);
     } else {
       swiper.slideTo(idx);
     }
+
+    if (section.thumbsSwiper && typeof section.thumbsSwiper.slideTo === 'function') {
+      section.thumbsSwiper.slideTo(idx);
+    }
+    setNativeThumbActive(section, mediaId);
   }
 
   function getActiveMediaId(section, swiper) {
@@ -125,6 +125,21 @@
       if (slides[i].getAttribute('data-media-id') === mediaId) return i;
     }
     return -1;
+  }
+
+  function setNativeThumbActive(section, mediaId) {
+    if (!mediaId) return;
+    var thumbs = section.querySelectorAll('[data-thumbs] [data-slide-media-id]');
+    for (var i = 0; i < thumbs.length; i++) {
+      var active = thumbs[i].getAttribute('data-slide-media-id') === mediaId;
+      thumbs[i].classList.toggle('swiper-slide-thumb-active', active);
+      thumbs[i].classList.toggle('swiper-slide-active', active);
+      if (active) {
+        thumbs[i].setAttribute('aria-current', 'true');
+      } else {
+        thumbs[i].removeAttribute('aria-current');
+      }
+    }
   }
 
   function centerBubble(container, bubble) {
@@ -209,11 +224,6 @@
         if (!mediaId) return;
         event.preventDefault();
         event.stopPropagation();
-
-        if (typeof gallery.setActiveMedia === 'function') {
-          gallery.setActiveMedia(mediaId, true);
-          return;
-        }
 
         waitForSwiper(gallery, function (swiper) {
           slideToMedia(gallery, swiper, mediaId, Array.prototype.indexOf.call(thumbs, thumb));
