@@ -212,6 +212,62 @@
     });
   }
 
+  function waitForGallerySwiper(section, cb) {
+    var attempts = 0;
+    var maxAttempts = 80;
+
+    function check() {
+      if (section.gallerySwiper && typeof section.gallerySwiper.slideTo === 'function') {
+        cb(section.gallerySwiper);
+        return;
+      }
+      if (++attempts >= maxAttempts) return;
+      setTimeout(check, 100);
+    }
+    check();
+  }
+
+  function slideGalleryToMedia(section, swiper, mediaId, fallbackIdx) {
+    var idx = indexGalleryMedia(section, mediaId);
+    if (idx < 0) idx = fallbackIdx;
+    if (idx < 0) return;
+
+    if (swiper.params && swiper.params.loop && typeof swiper.slideToLoop === 'function') {
+      swiper.slideToLoop(idx, 0, false);
+    } else {
+      swiper.slideTo(idx, 0, false);
+    }
+
+    if (section.thumbsSwiper && typeof section.thumbsSwiper.slideTo === 'function') {
+      section.thumbsSwiper.slideTo(idx, 0, false);
+    }
+    setGalleryThumbActive(section, mediaId);
+  }
+
+  function indexGalleryMedia(section, mediaId) {
+    if (!mediaId) return -1;
+    var slides = section.querySelectorAll('[data-gallery] [data-swiper-slide][data-media-id], [data-gallery] .swiper-slide[data-media-id]');
+    for (var i = 0; i < slides.length; i++) {
+      if (slides[i].getAttribute('data-media-id') === mediaId) return i;
+    }
+    return -1;
+  }
+
+  function setGalleryThumbActive(section, mediaId) {
+    if (!mediaId) return;
+    var thumbs = section.querySelectorAll('[data-thumbs] [data-slide-media-id]');
+    for (var i = 0; i < thumbs.length; i++) {
+      var active = thumbs[i].getAttribute('data-slide-media-id') === mediaId;
+      thumbs[i].classList.toggle('swiper-slide-thumb-active', active);
+      thumbs[i].classList.toggle('swiper-slide-active', active);
+      if (active) {
+        thumbs[i].setAttribute('aria-current', 'true');
+      } else {
+        thumbs[i].removeAttribute('aria-current');
+      }
+    }
+  }
+
   function bindGalleryThumbs() {
     if (!isOralBiomePage()) return;
     var gallery = document.querySelector('gallery-section[data-product-page]');
@@ -231,9 +287,9 @@
       event.stopPropagation();
       if (event.stopImmediatePropagation) event.stopImmediatePropagation();
 
-      waitForSwiper(gallery, function (swiper) {
+      waitForGallerySwiper(gallery, function (swiper) {
         var liveThumbs = Array.prototype.slice.call(gallery.querySelectorAll('[data-thumbs] [data-slide-media-id]'));
-        slideToMedia(gallery, swiper, mediaId, liveThumbs.indexOf(thumb));
+        slideGalleryToMedia(gallery, swiper, mediaId, liveThumbs.indexOf(thumb));
       });
     }
 

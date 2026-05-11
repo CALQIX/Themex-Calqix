@@ -192,6 +192,7 @@
     flex: 0 0 62px;
     min-width: 62px;
     max-width: 62px;
+    background: transparent !important;
     opacity: 0.68;
     filter: drop-shadow(0 8px 14px rgba(0, 37, 73, 0.13));
     animation: none;
@@ -206,6 +207,7 @@
   body.template-product-oralbiome gallery-section[data-product-page] .cqmt__bubble:hover,
   body.template-product-oralbiome gallery-section[data-product-page] .cqmt__bubble:focus,
   body.template-product-oralbiome gallery-section[data-product-page] .cqmt__bubble:active {
+    background: transparent !important;
     opacity: 0.96;
     filter: drop-shadow(0 0 10px rgba(201, 168, 76, 0.42)) drop-shadow(0 10px 16px rgba(0, 37, 73, 0.14));
   }
@@ -218,6 +220,7 @@
   }
 
   body.template-product-oralbiome gallery-section[data-product-page] .cqmt__bubble.is-active {
+    background: transparent !important;
     opacity: 1;
     transform: translateY(-1px) scale(1.05);
     filter: drop-shadow(0 0 12px rgba(201, 168, 76, 0.56)) drop-shadow(0 12px 18px rgba(0, 37, 73, 0.16));
