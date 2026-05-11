@@ -245,6 +245,22 @@ body.calqix-atc-flying cart-drawer .drawer__inner {
   transition-delay: 600ms !important;
 }
 
+@media (max-width: 768px) {
+  body.calqix-atc-flying cart-drawer,
+  body.calqix-atc-flying cart-drawer .wt-cart__drawer,
+  body.calqix-atc-flying cart-drawer .drawer__inner {
+    transition-delay: 0s !important;
+  }
+
+  cart-drawer.calqix-drawer-shiny .wt-cart__drawer,
+  cart-drawer.calqix-drawer-shiny .wt-cart__drawer::before,
+  cart-drawer.calqix-drawer-shiny .wt-cart__drawer::after,
+  cart-drawer.calqix-drawer-shiny .drawer__inner::before,
+  cart-drawer.calqix-drawer-shiny .drawer__inner::after {
+    animation-duration: 700ms !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   #cart-icon-bubble.calqix-cart-glow,
   #cart-icon-bubble.calqix-cart-glow::before,

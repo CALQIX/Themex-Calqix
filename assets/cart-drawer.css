@@ -2192,6 +2192,36 @@
   }
 }
 
+@media (max-width: 768px) {
+  .wt-cart__drawer,
+  .drawers-animated .wt-cart__drawer {
+    transition:
+      transform 0.2s cubic-bezier(0.16, 0.84, 0.24, 1),
+      opacity 0.14s ease-out,
+      visibility 0s linear 0.2s;
+  }
+
+  .wt-cart__drawer--open,
+  .wt-cart[open] .wt-cart__drawer,
+  .drawers-animated .wt-cart__drawer--open,
+  .drawers-animated .wt-cart[open] .wt-cart__drawer {
+    transition:
+      transform 0.2s cubic-bezier(0.16, 0.84, 0.24, 1),
+      opacity 0.16s ease-out,
+      visibility 0s linear 0s,
+      box-shadow 0.2s cubic-bezier(0.16, 0.84, 0.24, 1);
+  }
+
+  .wt-cart__drawer .wt-cart__item.wt-cart-item--stagger-in {
+    animation-duration: 0.14s;
+    animation-delay: calc(var(--wt-cart-item-index, 0) * 10ms);
+  }
+
+  .wt-cart__drawer .wt-cart__drawer__inner::before {
+    animation-duration: 5s;
+  }
+}
+
 .wt-cart-counter--bounce {
   animation: wtCartCounterBounce 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
 }

@@ -105,6 +105,30 @@ class CartDrawerSection extends HTMLElement {
     );
   }
 
+  openInstantCart() {
+    if (this.isOpen || this.cartType === "page" || this.isCartPage) return false;
+    this.setAttribute("open", "");
+    this.isOpen = true;
+    this.drawer.classList.add(this.classDrawerActive);
+    this.body.classList.add(this.activeOverlayBodyClass);
+    this.classList.add("wt-cart--instant-opening");
+    this.temporaryHideFocusVisible();
+    setTabindex(this.toggleEelements(), "0");
+    this.applyItemStagger();
+    requestAnimationFrame(() => {
+      if (this.isOpen) this.closeButton()?.focus({ preventScroll: true });
+      window.setTimeout(() => {
+        this.classList.remove("wt-cart--instant-opening");
+      }, 520);
+    });
+    document.dispatchEvent(
+      new CustomEvent(PUB_SUB_EVENTS.cartDrawerOpen, {
+        bubbles: true,
+      }),
+    );
+    return true;
+  }
+
   init() {
     this.addEventListener("keydown", (e) => {
       const isTabPressed =

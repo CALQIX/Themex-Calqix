@@ -71,6 +71,13 @@ if (!customElements.get("product-form")) {
         formData.append("sections_url", window.location.pathname);
         config.body = formData;
 
+        const openedInstantly =
+          this.cartType === "drawer" &&
+          this.cart &&
+          window.matchMedia("(max-width: 768px)").matches &&
+          typeof this.cart.openInstantCart === "function" &&
+          this.cart.openInstantCart();
+
         fetch(`${routes.cart_add_url}`, config)
           .then((response) => response.json())
           .then((response) => {
@@ -125,9 +132,9 @@ if (!customElements.get("product-form")) {
               );
               if (this.cartType === "drawer") quickAddModal.hide(true);
             } else {
-              const isClosedCart = !document.body.classList.contains(
-                "page-overlay-cart-on",
-              );
+              const isClosedCart =
+                !openedInstantly &&
+                !document.body.classList.contains("page-overlay-cart-on");
               this.redirectAfterSubmit(response, isClosedCart);
             }
           })

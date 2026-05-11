@@ -25,6 +25,10 @@
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
   if (prefersReducedMotion && prefersReducedMotion.matches) return;
 
+  function isMobileFastCart() {
+    return window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+  }
+
   // Wait for Wonder globals. They load with defer before us but we guard anyway.
   function ready() {
     if (typeof subscribe !== 'function' || typeof PUB_SUB_EVENTS !== 'object') {
@@ -137,6 +141,8 @@
   var SHINY_CLASS = 'calqix-drawer-shiny';
 
   function fly(source) {
+    if (isMobileFastCart()) return;
+
     var cartTarget = document.getElementById('cart-icon-bubble');
     if (!cartTarget || !source) return;
 
@@ -267,7 +273,7 @@
         drawer.classList.add(SHINY_CLASS);
         window.setTimeout(function () {
           drawer.classList.remove(SHINY_CLASS);
-        }, SHINY_MS);
+        }, isMobileFastCart() ? 700 : SHINY_MS);
       });
     }
   }

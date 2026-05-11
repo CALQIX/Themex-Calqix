@@ -145,6 +145,20 @@
     return drawer;
   }
 
+  function shouldOpenInstantCart() {
+    return (
+      window.matchMedia &&
+      window.matchMedia("(max-width: 768px)").matches &&
+      !document.body.classList.contains("page-overlay-cart-on")
+    );
+  }
+
+  function openDrawerInstantly(drawer) {
+    if (!drawer || !shouldOpenInstantCart()) return false;
+    if (typeof drawer.openInstantCart !== "function") return false;
+    return drawer.openInstantCart();
+  }
+
   function publishCartUpdate(response) {
     if (typeof window.publish === "function" && window.PUB_SUB_EVENTS) {
       try {
@@ -156,10 +170,12 @@
     }
   }
 
-  function renderDrawer(drawer, response) {
+  function renderDrawer(drawer, response, openedInstantly) {
     // Match product-form.js behaviour: open the drawer only if it wasn't
     // already open. renderContents(_, true) triggers toggleDrawerClasses().
-    var isClosedCart = !document.body.classList.contains("page-overlay-cart-on");
+    var isClosedCart =
+      !openedInstantly &&
+      !document.body.classList.contains("page-overlay-cart-on");
     try {
       drawer.renderContents(response, isClosedCart);
     } catch (e) {
@@ -223,6 +239,7 @@
       setButtonLoading(form, true);
 
       var drawer = getCartDrawer();
+      var openedInstantly = openDrawerInstantly(drawer);
       var payload = { items: items };
       if (drawer) {
         payload.sections = drawer
@@ -251,7 +268,7 @@
         })
         .then(function (response) {
           if (drawer && response && response.sections) {
-            renderDrawer(drawer, response);
+            renderDrawer(drawer, response, openedInstantly);
           } else {
             fallbackRefresh();
           }
