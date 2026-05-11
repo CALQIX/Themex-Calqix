@@ -30,7 +30,7 @@
     container.dataset.cqmtBound = '1';
 
     waitForSwiper(section, function (swiper) {
-      bindBubbles(container, bubbles, swiper);
+      bindBubbles(section, container, bubbles, swiper);
     });
   }
 
@@ -49,7 +49,7 @@
     check();
   }
 
-  function bindBubbles(container, bubbles, swiper) {
+  function bindBubbles(section, container, bubbles, swiper) {
     function setActive(idx) {
       for (var i = 0; i < bubbles.length; i++) {
         if (i === idx) {
