@@ -539,7 +539,6 @@ body.template-product-oralbiome .ob-howto__step,
 body.template-product-oralbiome .ob-dt__row,
 body.template-product-oralbiome .ob-dt__verdict,
 body.template-product-oralbiome .ob-cm__card,
-body.template-product-oralbiome .ob-reviews__card,
 body.template-product-oralbiome .faq-item[data-animate] {
   opacity: 1 !important;
   transform: none !important;
@@ -556,7 +555,8 @@ body.template-product-oralbiome .ob-benefits__card::before {
   }
 
   body.template-product-oralbiome #root > [id$="__oralbiome-reviews"] .ob-reviews__container {
-    max-width: 1040px;
+    width: min(100% - 40px, 1180px);
+    max-width: 1180px;
   }
 
   body.template-product-oralbiome #root > [id$="__oralbiome-reviews"] .ob-reviews__header {
