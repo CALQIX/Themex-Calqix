@@ -73,6 +73,7 @@
         }
         bubbles[idx].addEventListener('click', activate, true);
         bubbles[idx].addEventListener('pointerup', activate, true);
+        bubbles[idx].addEventListener('touchend', activate, { capture: true, passive: false });
       })(i);
     }
 
@@ -296,6 +297,7 @@
 
     gallery.addEventListener('click', activate, true);
     gallery.addEventListener('pointerup', activate, true);
+    gallery.addEventListener('touchend', activate, { capture: true, passive: false });
   }
 
   function ensureUsps() {
