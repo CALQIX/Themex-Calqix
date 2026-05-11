@@ -67,24 +67,64 @@
       (function (idx) {
         bubbles[idx].addEventListener('click', function (e) {
           e.preventDefault();
-          // Use slideTo when not in loop mode; slideToLoop when loop is on.
-          if (swiper.params && swiper.params.loop && typeof swiper.slideToLoop === 'function') {
-            swiper.slideToLoop(idx);
-          } else {
-            swiper.slideTo(idx);
-          }
+          slideToMedia(section, swiper, bubbles[idx].getAttribute('data-media-id'), idx);
         });
       })(i);
     }
 
     swiper.on('slideChange', function () {
-      var idx = typeof swiper.realIndex === 'number' ? swiper.realIndex : swiper.activeIndex;
+      var mediaId = getActiveMediaId(section, swiper);
+      var idx = indexBubbleByMediaId(bubbles, mediaId);
+      if (idx < 0) idx = typeof swiper.realIndex === 'number' ? swiper.realIndex : swiper.activeIndex;
       setActive(idx);
     });
 
     // Initial sync (variant or deep-link may have advanced the swiper before we bound).
-    var initialIdx = typeof swiper.realIndex === 'number' ? swiper.realIndex : swiper.activeIndex;
+    var initialMediaId = getActiveMediaId(section, swiper);
+    var initialIdx = indexBubbleByMediaId(bubbles, initialMediaId);
+    if (initialIdx < 0) initialIdx = typeof swiper.realIndex === 'number' ? swiper.realIndex : swiper.activeIndex;
     setActive(initialIdx || 0);
+  }
+
+  function slideToMedia(section, swiper, mediaId, fallbackIdx) {
+    var idx = indexGallerySlideByMediaId(section, mediaId);
+    if (idx < 0) idx = fallbackIdx;
+
+    if (mediaId && typeof section.setActiveMedia === 'function') {
+      section.setActiveMedia(mediaId, true);
+      return;
+    }
+
+    if (swiper.params && swiper.params.loop && typeof swiper.slideToLoop === 'function') {
+      swiper.slideToLoop(idx);
+    } else {
+      swiper.slideTo(idx);
+    }
+  }
+
+  function getActiveMediaId(section, swiper) {
+    var activeSlide = section.querySelector('[data-gallery] .swiper-slide-active[data-media-id]');
+    if (activeSlide) return activeSlide.getAttribute('data-media-id');
+    var idx = typeof swiper.realIndex === 'number' ? swiper.realIndex : swiper.activeIndex;
+    var slides = section.querySelectorAll('[data-gallery] [data-swiper-slide][data-media-id], [data-gallery] .swiper-slide[data-media-id]');
+    return slides[idx] ? slides[idx].getAttribute('data-media-id') : '';
+  }
+
+  function indexBubbleByMediaId(bubbles, mediaId) {
+    if (!mediaId) return -1;
+    for (var i = 0; i < bubbles.length; i++) {
+      if (bubbles[i].getAttribute('data-media-id') === mediaId) return i;
+    }
+    return -1;
+  }
+
+  function indexGallerySlideByMediaId(section, mediaId) {
+    if (!mediaId) return -1;
+    var slides = section.querySelectorAll('[data-gallery] [data-swiper-slide][data-media-id], [data-gallery] .swiper-slide[data-media-id]');
+    for (var i = 0; i < slides.length; i++) {
+      if (slides[i].getAttribute('data-media-id') === mediaId) return i;
+    }
+    return -1;
   }
 
   function centerBubble(container, bubble) {
@@ -154,6 +194,34 @@
     });
   }
 
+  function bindGalleryThumbs() {
+    if (!isOralBiomePage()) return;
+    var gallery = document.querySelector('gallery-section[data-product-page]');
+    if (!gallery || gallery.dataset.cqThumbsBound === '1') return;
+
+    var thumbs = gallery.querySelectorAll('[data-thumbs] [data-slide-media-id]');
+    if (!thumbs.length) return;
+    gallery.dataset.cqThumbsBound = '1';
+
+    thumbs.forEach(function (thumb) {
+      thumb.addEventListener('click', function (event) {
+        var mediaId = thumb.getAttribute('data-slide-media-id');
+        if (!mediaId) return;
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (typeof gallery.setActiveMedia === 'function') {
+          gallery.setActiveMedia(mediaId, true);
+          return;
+        }
+
+        waitForSwiper(gallery, function (swiper) {
+          slideToMedia(gallery, swiper, mediaId, Array.prototype.indexOf.call(thumbs, thumb));
+        });
+      }, true);
+    });
+  }
+
   function ensureUsps() {
     if (!isOralBiomePage()) return;
     if (document.querySelector('.calqix-obp-usp-fallback')) return;
@@ -178,6 +246,7 @@
 
   function initOralBiomeGuard() {
     bindGalleryZoom();
+    bindGalleryThumbs();
     ensureUsps();
   }
 
