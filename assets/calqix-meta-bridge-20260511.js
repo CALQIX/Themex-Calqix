@@ -15,7 +15,7 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-05-11-meta-identity-map-a';
+  var BRIDGE_VERSION = '2026-05-12-meta-event-id-prefix-a';
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
 
@@ -400,7 +400,7 @@
     var productData = window.ShopifyAnalytics && window.ShopifyAnalytics.meta && window.ShopifyAnalytics.meta.product;
     if (!productData) return;
 
-    var eventId = generateEventId('viewcontent', String(productData.id || ''));
+    var eventId = generateEventId('vc', String(productData.id || ''));
     var firstVariant = (productData.variants && productData.variants[0]) || null;
     var price = firstVariant && firstVariant.price ? (parseFloat(firstVariant.price) / 100) : undefined;
     var variantId = firstVariant && firstVariant.id ? String(firstVariant.id) : undefined;
@@ -516,7 +516,7 @@
     _atcRecent[dedupKey] = now;
 
     var contentType = hasVariantSignal ? 'product' : 'product_group';
-    var eventId = generateEventId('addtocart', contentIds[0]);
+    var eventId = generateEventId('atc', contentIds[0]);
     var currency = window.Shopify && window.Shopify.currency && window.Shopify.currency.active || 'EUR';
     var userPayload = buildUserPayload();
 
