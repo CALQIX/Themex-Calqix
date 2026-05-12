@@ -47,6 +47,11 @@ Set these in Vercel Dashboard → Project Settings → Environment Variables:
 | `CAPI_ENABLED` | Optional | — | Set to `false` to disable Meta sends |
 | `META_TEST_EVENT_CODE` | Optional | Meta Events Manager | Test event code for validation |
 | `BILLING_THRESHOLD` | Optional | — | Default: `74` (EUR) |
+| `TRACKING_HUB_AUTO_DEPLOY_ENABLED` | Optional | — | Set `true` to allow emergency deploy-hook triggers for P0/P1 deterministic tracking failures |
+| `VERCEL_TRACKING_FIX_DEPLOY_HOOK_URL` | Optional | Vercel Deploy Hooks | Deploy hook used by the Tracking Hub safety net when P0/P1 thresholds break |
+| `TRACKING_HUB_AUTO_DEPLOY_COOLDOWN_MIN` | Optional | — | Default: `60`; minimum 15 minutes between emergency deploy-hook triggers |
+| `TRACKING_HUB_AUTO_SYNC_ENABLED` | Optional | — | Default enabled; set `false` to disable Tracking Hub customer-data backfill/resubmit orchestration |
+| `TRACKING_HUB_INTERNAL_BASE_URL` | Optional | — | Internal base URL for calling identity/recovery cron endpoints; defaults to `QSTASH_VERIFY_URL` or production URL |
 
 ## Setup Order
 
@@ -119,10 +124,31 @@ Set these in Vercel Dashboard → Project Settings → Environment Variables:
 | `optimizer:run:{date}:{slot}` | 48h | Idempotency — prevents duplicate optimizer runs per slot |
 | `notify:{runId}` | 48h | Notification delivery status |
 | `artifact:{runId}` | 7d | Run artifact metadata |
+| `tracking_hub:latest` | no explicit TTL | Latest 15-minute Tracking Hub analysis for dashboard rendering |
+| `tracking_hub:run:{iso_timestamp}` | 14d | Historical Tracking Hub analysis result |
+| `tracking_hub:queued:{date}:{type}:{entity}:{budget}` | 24h | Idempotency guard for Telegram approval proposals |
+| `tracking_hub:telegram:{signature}` | 14min | Prevents duplicate compact Tracking Hub Telegram reports inside the same quarter-hour window |
+| `tracking_hub:auto_deploy:cooldown` | 15min+ | Safety cooldown after a P0/P1 deterministic tracking threshold opens an emergency deploy-hook attempt |
+| `tracking_hub:auto_deploy:last` | 30d | Last emergency deploy-hook result, without secrets or PII |
+| `tracking_hub:auto_sync:cooldown` | 10min | Safety cooldown for Tracking Hub-triggered identity backfill/resubmit/recovery orchestration |
+| `tracking_hub:auto_sync:last` | 7d | Last customer-data auto-sync result, without raw PII |
+| `cron:lock:tracking-hub` | 10min | Distributed lock for the 15-minute Tracking Hub cron |
 
 ## Operations
 
 The system runs automatically on three schedules:
+
+### Tracking Hub (every 15 minutes)
+1. QStash triggers `POST /api/cron/tracking-hub`
+2. The cron acquires `cron:lock:tracking-hub` and reads EMQ diagnostics, bridge health, catalog health, identity backfill/resubmit status, event lifecycle state, and Meta ad performance snapshots
+3. The run also performs Meta backfill audit, platform-sales audit, dashboard reconciliation, and EMQ/fbp/fbc/capture checks
+4. OpenAI reviews the critical tracking and sales signals, with deterministic fallback if the model call is unavailable
+5. Tracking recommendations focus on identifier coverage, EMQ completeness, Shopify-vs-Meta gaps, CAPI/browser dedup health, catalog parity, and recovery quality
+6. Deterministic fix/deploy guidance is gated: deploy is only allowed when a P0/P1 threshold is broken and the fix directly addresses that threshold
+7. Relevant customer-data fixes run automatically through identity backfill/resubmit for P0/P1 identity issues and P2 contact/external_id gaps; this only enriches existing events with the same `event_id`
+8. If `TRACKING_HUB_AUTO_DEPLOY_ENABLED=true` and `VERCEL_TRACKING_FIX_DEPLOY_HOOK_URL` is set, the safety net can trigger a deploy hook once per cooldown window for deployable code-level tracking breaks; identity-only issues use auto-sync first
+9. Ad recommendations classify spend-starved ads/adsets, creative refresh needs, CBO/adset structure opportunities, and scale candidates
+10. Budget moves are queued in the approval queue and only execute after Telegram approval; no synthetic Meta events are generated
 
 ### Twice-daily optimizer (07:00 + 19:00 Amsterdam)
 1. QStash triggers `POST /api/ads/monitor`
