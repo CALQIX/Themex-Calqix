@@ -15,7 +15,7 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-05-12-meta-event-id-prefix-a';
+  var BRIDGE_VERSION = '2026-05-12-advanced-match-a';
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
 
@@ -99,7 +99,7 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /*  Customer data extraction (email from Shopify globals)              */
+  /*  Customer data extraction and first-party identity cache             */
   /* ------------------------------------------------------------------ */
 
   /**
@@ -129,13 +129,8 @@
       }
     } catch (e) { /* silent */ }
 
-    // Fallback: previously-captured email from newsletter / lead form.
-    try {
-      var fromLs = localStorage.getItem(KNOWN_EMAIL_KEY);
-      if (fromLs && fromLs.indexOf('@') !== -1) return fromLs;
-    } catch (e) { /* silent */ }
-    var fromCookie = getCookie(KNOWN_EMAIL_KEY);
-    if (fromCookie && fromCookie.indexOf('@') !== -1) return fromCookie;
+    var remembered = readKnownIdentity('email');
+    if (remembered && remembered.indexOf('@') !== -1) return remembered;
 
     return null;
   }
@@ -145,10 +140,7 @@
    * can return it on every future page load. Idempotent.
    */
   function rememberEmail(email) {
-    var norm = (email || '').trim().toLowerCase();
-    if (!norm || norm.indexOf('@') === -1) return;
-    try { localStorage.setItem(KNOWN_EMAIL_KEY, norm); } catch (e) { /* silent */ }
-    setCookie(KNOWN_EMAIL_KEY, norm, KNOWN_EMAIL_COOKIE_DAYS);
+    rememberIdentityField('email', email);
   }
 
   function getCustomerId() {
@@ -171,7 +163,7 @@
         return window.__st.ph;
       }
     } catch (e) { /* silent */ }
-    return null;
+    return readKnownIdentity('phone');
   }
 
   function getCountryCode() {
@@ -234,7 +226,67 @@
   // Fix #4 — cached email from newsletter / lead form, used to enrich
   // anonymous events. Same TTL as anon_id so they expire together.
   var KNOWN_EMAIL_KEY = '_cq_known_email';
-  var KNOWN_EMAIL_COOKIE_DAYS = 365;
+  var KNOWN_IDENTITY_COOKIE_DAYS = 365;
+  var KNOWN_EMAIL_COOKIE_DAYS = KNOWN_IDENTITY_COOKIE_DAYS;
+  var KNOWN_IDENTITY_KEYS = {
+    email: KNOWN_EMAIL_KEY,
+    phone: '_cq_known_phone',
+    first_name: '_cq_known_fn',
+    last_name: '_cq_known_ln',
+    city: '_cq_known_ct',
+    state: '_cq_known_st',
+    zip: '_cq_known_zp',
+    country_code: '_cq_known_country',
+    date_of_birth: '_cq_known_db'
+  };
+
+  function normalizeIdentityField(field, value) {
+    var v = value === undefined || value === null ? '' : String(value).trim();
+    if (!v) return '';
+    if (field === 'email') {
+      v = v.toLowerCase();
+      return v.indexOf('@') !== -1 ? v : '';
+    }
+    if (field === 'phone') {
+      v = v.replace(/[^\d]/g, '');
+      return v.length >= 7 ? v : '';
+    }
+    if (field === 'date_of_birth') {
+      v = v.replace(/[^\d]/g, '');
+      return v.length === 8 ? v : '';
+    }
+    v = v.toLowerCase();
+    if (field === 'city' || field === 'zip') v = v.replace(/\s+/g, '');
+    return v;
+  }
+
+  function readKnownIdentity(field) {
+    var key = KNOWN_IDENTITY_KEYS[field];
+    if (!key) return null;
+    return readStorage(key) || getCookie(key) || null;
+  }
+
+  function rememberIdentityField(field, value) {
+    var key = KNOWN_IDENTITY_KEYS[field];
+    if (!key) return;
+    var normalized = normalizeIdentityField(field, value);
+    if (!normalized) return;
+    writeStorage(key, normalized);
+    setCookie(key, normalized, KNOWN_IDENTITY_COOKIE_DAYS);
+  }
+
+  function rememberIdentityPayload(payload) {
+    if (!payload) return;
+    rememberIdentityField('email', payload.email || payload.em);
+    rememberIdentityField('phone', payload.phone || payload.ph);
+    rememberIdentityField('first_name', payload.first_name || payload.fn);
+    rememberIdentityField('last_name', payload.last_name || payload.ln);
+    rememberIdentityField('city', payload.city || payload.ct);
+    rememberIdentityField('state', payload.state || payload.province || payload.province_code || payload.st);
+    rememberIdentityField('zip', payload.zip || payload.postal_code || payload.zp);
+    rememberIdentityField('country_code', payload.country_code || payload.country || payload.countryCode);
+    rememberIdentityField('date_of_birth', payload.date_of_birth || payload.db);
+  }
 
   function getOrCreateAnonId() {
     var existing = null;
@@ -372,6 +424,13 @@
         break;
       }
     }
+    if (!data.first_name) data.first_name = readKnownIdentity('first_name');
+    if (!data.last_name) data.last_name = readKnownIdentity('last_name');
+    if (!data.city) data.city = readKnownIdentity('city');
+    if (!data.state) data.state = readKnownIdentity('state');
+    if (!data.date_of_birth) data.date_of_birth = readKnownIdentity('date_of_birth');
+    if (!data.zip) data.zip = readKnownIdentity('zip');
+    if (!data.country_code) data.country_code = readKnownIdentity('country_code');
     return data;
   }
 
@@ -862,6 +921,7 @@
         if (fields[keys[i]]) payload[keys[i]] = fields[keys[i]];
       }
     }
+    rememberIdentityPayload(payload);
 
     // Get cart token from Shopify
     try {
@@ -905,6 +965,92 @@
     } catch (e) { /* silent */ }
   }
 
+  function firstFieldValue(scope, selectors) {
+    for (var i = 0; i < selectors.length; i++) {
+      try {
+        var input = scope.querySelector(selectors[i]);
+        if (input && input.value) return input.value;
+      } catch (e) { /* silent */ }
+    }
+    return null;
+  }
+
+  function collectIdentityFields(scope) {
+    var root = scope && scope.querySelector ? scope : document;
+    var fields = {};
+    fields.email = firstFieldValue(root, [
+      'input[type="email"]',
+      'input[name*="email" i]',
+      'input[id*="email" i]',
+      'input[autocomplete="email"]'
+    ]);
+    fields.phone = firstFieldValue(root, [
+      'input[type="tel"]',
+      'input[name*="phone" i]',
+      'input[id*="phone" i]',
+      'input[autocomplete="tel"]'
+    ]);
+    fields.first_name = firstFieldValue(root, [
+      'input[name*="first_name" i]',
+      'input[name*="firstname" i]',
+      'input[name*="first-name" i]',
+      'input[autocomplete="given-name"]'
+    ]);
+    fields.last_name = firstFieldValue(root, [
+      'input[name*="last_name" i]',
+      'input[name*="lastname" i]',
+      'input[name*="last-name" i]',
+      'input[autocomplete="family-name"]'
+    ]);
+    fields.city = firstFieldValue(root, [
+      'input[name*="city" i]',
+      'input[id*="city" i]',
+      'input[autocomplete="address-level2"]'
+    ]);
+    fields.state = firstFieldValue(root, [
+      'input[name*="province" i]',
+      'input[name*="state" i]',
+      'input[autocomplete="address-level1"]'
+    ]);
+    fields.zip = firstFieldValue(root, [
+      'input[name*="zip" i]',
+      'input[name*="postal" i]',
+      'input[autocomplete="postal-code"]'
+    ]);
+    fields.country_code = firstFieldValue(root, [
+      'select[name*="country" i]',
+      'input[name*="country" i]',
+      'select[autocomplete="country"]',
+      'input[autocomplete="country"]'
+    ]);
+
+    Object.keys(fields).forEach(function (key) {
+      if (!fields[key]) delete fields[key];
+    });
+    return fields;
+  }
+
+  var _identityCaptureTimer = null;
+  function scheduleIdentityCapture(scope) {
+    clearTimeout(_identityCaptureTimer);
+    _identityCaptureTimer = setTimeout(function () {
+      var fields = collectIdentityFields(scope);
+      rememberIdentityPayload(fields);
+      if (fields.email || fields.phone) captureIdentity(fields);
+      pushUserDataToDataLayer();
+    }, 250);
+  }
+
+  function interceptIdentityInputs() {
+    var handler = function (evt) {
+      var target = evt.target;
+      if (!target || !target.matches || !target.matches('input, select, textarea')) return;
+      scheduleIdentityCapture(target.form || document);
+    };
+    document.addEventListener('change', handler, true);
+    document.addEventListener('blur', handler, true);
+  }
+
   /* ------------------------------------------------------------------ */
   /*  Expose public API                                                  */
   /* ------------------------------------------------------------------ */
@@ -925,6 +1071,7 @@
     fireLead: fireLead,
     buildUserPayload: buildUserPayload,
     captureIdentity: captureIdentity,
+    rememberIdentityPayload: rememberIdentityPayload,
     primeTrackingForCartMutation: primeTrackingForCartMutation,
     getGclid: getGclid,
     getGaClientId: getGaClientId,
@@ -974,6 +1121,7 @@
     interceptCartUpdateEvents();
     interceptCheckoutClicks();
     interceptLeadForms();
+    interceptIdentityInputs();
     autoIdentityCapture();
 
     // Retry fbp sync after Meta Pixel loads (it may set _fbp after bridge init)
