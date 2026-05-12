@@ -205,6 +205,18 @@
     }
   }
 
+  function readFirstPartyStorage(key) {
+    try {
+      var ls = localStorage.getItem(key);
+      if (ls) return ls;
+    } catch (e) { /* silent */ }
+    try {
+      var ss = sessionStorage.getItem(key);
+      if (ss) return ss;
+    } catch (e) { /* silent */ }
+    return null;
+  }
+
   function writeFirstPartyCookie(name, value, days) {
     try {
       var expires = '';
@@ -215,6 +227,44 @@
       }
       document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax';
     } catch (e) { /* silent */ }
+  }
+
+  function readKnownIdentity(key) {
+    return readFirstPartyStorage(key) || readFirstPartyCookie(key);
+  }
+
+  function normalizeAdvancedMatchValue(key, value) {
+    var v = value === undefined || value === null ? '' : String(value).trim();
+    if (!v) return '';
+    if (key === 'em') return v.toLowerCase();
+    if (key === 'ph') return v.replace(/[^\d]/g, '');
+    if (key === 'fn' || key === 'ln' || key === 'ct' || key === 'st' || key === 'zp' || key === 'country' || key === 'ge') {
+      v = v.toLowerCase();
+      if (key === 'ct' || key === 'zp') v = v.replace(/\s+/g, '');
+    }
+    if (key === 'db') {
+      v = v.replace(/[^\d]/g, '');
+      if (v.length !== 8) return '';
+    }
+    return v;
+  }
+
+  function mergeAdvancedMatch(key, value) {
+    if (am[key]) return;
+    var normalized = normalizeAdvancedMatchValue(key, value);
+    if (normalized) am[key] = normalized;
+  }
+
+  function mergeCachedAdvancedMatching() {
+    mergeAdvancedMatch('em', readKnownIdentity('_cq_known_email'));
+    mergeAdvancedMatch('ph', readKnownIdentity('_cq_known_phone'));
+    mergeAdvancedMatch('fn', readKnownIdentity('_cq_known_fn'));
+    mergeAdvancedMatch('ln', readKnownIdentity('_cq_known_ln'));
+    mergeAdvancedMatch('ct', readKnownIdentity('_cq_known_ct'));
+    mergeAdvancedMatch('st', readKnownIdentity('_cq_known_st'));
+    mergeAdvancedMatch('zp', readKnownIdentity('_cq_known_zp'));
+    mergeAdvancedMatch('country', readKnownIdentity('_cq_known_country'));
+    mergeAdvancedMatch('db', readKnownIdentity('_cq_known_db'));
   }
 
   function getOrCreateAnonId() {
@@ -229,6 +279,8 @@
     writeFirstPartyCookie(key, id, 365);
     return id;
   }
+
+  mergeCachedAdvancedMatching();
 
   /* Anonymous fallback: create the bridge-compatible id before fbq('init'). */
   if (!am.external_id) {
