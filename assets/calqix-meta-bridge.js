@@ -15,7 +15,7 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-05-10-db-st-matchkeys-a';
+  var BRIDGE_VERSION = '2026-05-12-meta-event-id-prefix-a';
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
 
@@ -365,10 +365,10 @@
         if (cu.fn) data.first_name = cu.fn;
         if (cu.ln) data.last_name = cu.ln;
         if (cu.ct) data.city = cu.ct;
-        if (cu.st) data.state = cu.st;
-        if (cu.db) data.date_of_birth = cu.db;
-        if (cu.zp) data.zip = cu.zp;
-        if (!data.country_code && cu.country) data.country_code = cu.country;
+        if (cu.st || cu.province || cu.province_code) data.state = cu.st || cu.province || cu.province_code;
+        if (cu.db || cu.date_of_birth) data.date_of_birth = cu.db || cu.date_of_birth;
+        if (cu.zp || cu.zip || cu.postal_code) data.zip = cu.zp || cu.zip || cu.postal_code;
+        if (!data.country_code && (cu.country || cu.country_code)) data.country_code = cu.country || cu.country_code;
         break;
       }
     }
@@ -400,7 +400,7 @@
     var productData = window.ShopifyAnalytics && window.ShopifyAnalytics.meta && window.ShopifyAnalytics.meta.product;
     if (!productData) return;
 
-    var eventId = generateEventId('viewcontent', String(productData.id || ''));
+    var eventId = generateEventId('vc', String(productData.id || ''));
     var firstVariant = (productData.variants && productData.variants[0]) || null;
     var price = firstVariant && firstVariant.price ? (parseFloat(firstVariant.price) / 100) : undefined;
     var variantId = firstVariant && firstVariant.id ? String(firstVariant.id) : undefined;
@@ -437,7 +437,8 @@
       zip: userPayload.zip || undefined,
       external_id: userPayload.external_id || undefined,
       country_code: userPayload.country_code || undefined,
-      ga_client_id: userPayload.ga_client_id || undefined
+      ga_client_id: userPayload.ga_client_id || undefined,
+      source_url: window.location.href
     };
 
     postKeepAlive(CAPI_BASE + '/view-content', payload);
@@ -515,7 +516,7 @@
     _atcRecent[dedupKey] = now;
 
     var contentType = hasVariantSignal ? 'product' : 'product_group';
-    var eventId = generateEventId('addtocart', contentIds[0]);
+    var eventId = generateEventId('atc', contentIds[0]);
     var currency = window.Shopify && window.Shopify.currency && window.Shopify.currency.active || 'EUR';
     var userPayload = buildUserPayload();
 
