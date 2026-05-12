@@ -52,6 +52,7 @@ Set these in Vercel Dashboard → Project Settings → Environment Variables:
 | `TRACKING_HUB_AUTO_DEPLOY_COOLDOWN_MIN` | Optional | — | Default: `60`; minimum 15 minutes between emergency deploy-hook triggers |
 | `TRACKING_HUB_AUTO_SYNC_ENABLED` | Optional | — | Default enabled; set `false` to disable Tracking Hub customer-data backfill/resubmit orchestration |
 | `TRACKING_HUB_INTERNAL_BASE_URL` | Optional | — | Internal base URL for calling identity/recovery cron endpoints; defaults to `QSTASH_VERIFY_URL` or production URL |
+| `TRACKING_HUB_OPENAI_TIMEOUT_MS` | Optional | — | Default `25000`; fail-fast timeout for OpenAI analysis so deterministic checks still finish inside the cron window |
 
 ## Setup Order
 

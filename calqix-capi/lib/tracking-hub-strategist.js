@@ -16,6 +16,7 @@ var { sendTelegram } = require('./telegram');
 var OPENAI_URL = 'https://api.openai.com/v1/responses';
 var DEFAULT_MODEL = process.env.OPENAI_TRACKING_MODEL || 'gpt-5.5';
 var FALLBACK_MODEL = process.env.OPENAI_TRACKING_FALLBACK_MODEL || 'gpt-5.2';
+var OPENAI_TIMEOUT_MS = parseInt(process.env.TRACKING_HUB_OPENAI_TIMEOUT_MS || '25000', 10);
 var RESULT_TTL = 14 * 86400;
 
 function isEnabled() {
@@ -486,9 +487,9 @@ async function runOpenAIAnalysis(context) {
         model: model,
         instructions: instructions,
         input: input,
-        max_output_tokens: 1800
+        max_output_tokens: 1200
       }),
-      timeout: 60000
+      timeout: Math.max(8000, Math.min(OPENAI_TIMEOUT_MS, 45000))
     });
     var data = await response.json();
     if (!response.ok) {
