@@ -232,6 +232,17 @@ function buildDeterministicPlan(context) {
     });
   });
 
+  var scheduleChecks = ops.schedule_checks || {};
+  if (scheduleChecks.available !== false &&
+      (scheduleChecks.tracking_hub_15m === false || scheduleChecks.recovery_1m === false)) {
+    tracking.push({
+      priority: 'P1',
+      title: 'Continuous checks schedule niet volledig',
+      action: 'Herstel QStash schedules voor tracking-hub kwartiercheck en recovery 1-minuut retry worker.',
+      metric: 'tracking ' + Boolean(scheduleChecks.tracking_hub_15m) + ', recovery ' + Boolean(scheduleChecks.recovery_1m)
+    });
+  }
+
   var adSuggestions = [];
   (ad.spend_starved || []).forEach(function (item) {
     adSuggestions.push({
@@ -366,6 +377,7 @@ function compactSummary(context, tracking, ads) {
   var sales = ops.sales_risk || {};
   var quality = ops.meta_capi_quality || {};
   var autoSync = ops.auto_sync_customer_data || {};
+  var schedules = ops.schedule_checks || {};
   var auto = fixes.auto_deploy || {};
   var status = fixes.threshold_broken ? 'actie nodig' : 'stabiel';
   return 'Kwartiercheck ' + status + ': backfill pending ' + (meta.pending || 0) +
@@ -373,10 +385,20 @@ function compactSummary(context, tracking, ads) {
     ', Meta CAPI norm ' + (quality.score !== undefined ? quality.score + '/100' : 'n/a') +
     ', dashboard gaps ' + ((recon.gaps || []).length) +
     ', capture issues ' + ((capture.weak || []).length) +
+    ', schedules ' + scheduleStatus(schedules) +
     ', sales risk ' + (sales.status || 'ok') +
     ', auto-sync ' + (autoSync.attempted ? 'gedraaid' : (autoSync.reason || 'standby')) +
     ', auto-deploy ' + (auto.triggered ? 'gestart' : (auto.reason || 'uit')) +
     ', ad punten ' + (ads || []).length + '.';
+}
+
+function scheduleStatus(schedules) {
+  if (!schedules || schedules.available === false) return 'unknown';
+  if (schedules.tracking_hub_15m && schedules.recovery_1m &&
+      schedules.identity_backfill_15m && schedules.identity_resubmit_15m) {
+    return 'ok';
+  }
+  return 'warn';
 }
 
 function autoDeployMetric(autoDeploy) {
@@ -421,6 +443,9 @@ async function runOpenAIAnalysis(context) {
   var instructions = [
     'You are the CALQIX Tracking Hub agent. Output strict JSON only.',
     'Analyze Shopify to Meta tracking quality, EMQ identifiers, CAPI/Web Pixel/server webhook differences, and Meta ad performance.',
+    'Use Meta CAPI standards: website action_source, event_source_url, stable event_id for dedup, fbp/fbc, IP/UA, hashed customer information parameters, and event-specific custom_data.',
+    'Audit every funnel event: ViewContent, AddToCart, InitiateCheckout, AddPaymentInfo, Purchase.',
+    'Separate data gaps from real zero-sales signals; do not invent Purchase events when Shopify has no order.',
     'Never recommend fake/redundant Meta events. Only retry events already in retry_pending/pending enrichment flows.',
     'Never log or expose raw PII. Talk only about identifier presence percentages.',
     'Never recommend ad budget above EUR 200 campaign daily budget or EUR 50 adset daily budget.',
@@ -677,6 +702,15 @@ function explainHighPriority(item) {
   }
   if (title.indexOf('dedup') !== -1 || title.indexOf('event_id') !== -1) {
     return 'Browser Pixel en CAPI moeten dezelfde event_id delen. Anders ontstaan dubbele of ontbrekende conversies.';
+  }
+  if (title.indexOf('custom_data') !== -1 || title.indexOf('source_url') !== -1) {
+    return 'Meta gebruikt deze velden voor website context, catalog matching, value optimization en diagnostiek. Zonder dit wordt optimalisatie minder scherp.';
+  }
+  if (title.indexOf('schedule') !== -1 || title.indexOf('continuous') !== -1) {
+    return 'De kwartiercheck en recovery worker zijn het veiligheidsnet. Als die niet lopen, blijven trackingbreuken of pending retries te lang openstaan.';
+  }
+  if (title.indexOf('server') !== -1 || title.indexOf('browser') !== -1) {
+    return 'Meta CAPI hoort browser, webhook en server signalen met gedeelde event_id te combineren. Mist een bron, dan zakt dedup of attributie.';
   }
   if (title.indexOf('delivery') !== -1 || title.indexOf('faalt') !== -1 || title.indexOf('recovery') !== -1) {
     return 'Events bereiken Meta niet betrouwbaar. Recovery moet echte pending events verwerken zonder duplicates.';

@@ -132,6 +132,7 @@ Set these in Vercel Dashboard → Project Settings → Environment Variables:
 | `tracking_hub:auto_deploy:last` | 30d | Last emergency deploy-hook result, without secrets or PII |
 | `tracking_hub:auto_sync:cooldown` | 10min | Safety cooldown for Tracking Hub-triggered identity backfill/resubmit/recovery orchestration |
 | `tracking_hub:auto_sync:last` | 7d | Last customer-data auto-sync result, without raw PII |
+| `tracking_hub:schedule_audit:last` | 10min | Cached QStash schedule audit for continuous check health |
 | `cron:lock:tracking-hub` | 10min | Distributed lock for the 15-minute Tracking Hub cron |
 
 ## Operations
@@ -141,14 +142,33 @@ The system runs automatically on three schedules:
 ### Tracking Hub (every 15 minutes)
 1. QStash triggers `POST /api/cron/tracking-hub`
 2. The cron acquires `cron:lock:tracking-hub` and reads EMQ diagnostics, bridge health, catalog health, identity backfill/resubmit status, event lifecycle state, and Meta ad performance snapshots
-3. The run also performs Meta backfill audit, platform-sales audit, dashboard reconciliation, and EMQ/fbp/fbc/capture checks
+3. The run also performs Meta backfill audit, platform-sales audit, dashboard reconciliation, EMQ/fbp/fbc/capture checks, server-payload checks, source coverage checks, and QStash schedule checks
 4. OpenAI reviews the critical tracking and sales signals, with deterministic fallback if the model call is unavailable
-5. Tracking recommendations focus on identifier coverage, EMQ completeness, Shopify-vs-Meta gaps, CAPI/browser dedup health, catalog parity, and recovery quality
+5. Tracking recommendations focus on Meta CAPI standards: `action_source=website`, `event_source_url`, stable dedup `event_id`, `fbp/fbc`, IP/UA, hashed customer information parameters, event-specific `custom_data`, Shopify-vs-Meta gaps, catalog parity, and recovery quality
 6. Deterministic fix/deploy guidance is gated: deploy is only allowed when a P0/P1 threshold is broken and the fix directly addresses that threshold
 7. Relevant customer-data fixes run automatically through identity backfill/resubmit for P0/P1 identity issues and P2 contact/external_id gaps; this only enriches existing events with the same `event_id`
 8. If `TRACKING_HUB_AUTO_DEPLOY_ENABLED=true` and `VERCEL_TRACKING_FIX_DEPLOY_HOOK_URL` is set, the safety net can trigger a deploy hook once per cooldown window for deployable code-level tracking breaks; identity-only issues use auto-sync first
 9. Ad recommendations classify spend-starved ads/adsets, creative refresh needs, CBO/adset structure opportunities, and scale candidates
 10. Budget moves are queued in the approval queue and only execute after Telegram approval; no synthetic Meta events are generated
+
+### Meta CAPI continuous audit baseline
+
+Every Tracking Hub run evaluates the complete funnel:
+
+| Event | Critical checks |
+|-------|-----------------|
+| `ViewContent` | Browser bridge source present, `_fbp`, paid click `_fbc` when available, `content_ids`, `content_type`, shared `vc_` event ID |
+| `AddToCart` | Browser bridge source present, `_fbp/_fbc`, IP/UA, `content_ids`, `content_type`, `contents`, value/currency when available, shared `atc_` event ID |
+| `InitiateCheckout` | Browser + webhook/server continuity, `ic_{checkout_token}` event ID, checkout value/currency, product contents, contact enrichment |
+| `AddPaymentInfo` | `add_payment_info_{checkout_token}` event ID, checkout-token enrichment, value/currency, product contents |
+| `Purchase` | Webhook/server source present, `purchase_{checkout_token}` event ID, order value/currency, `order_id`, product contents, external_id/contact identifiers |
+
+Severity rules:
+- `P0`: Meta delivery failure or broken dedup key pattern.
+- `P1`: checkout/purchase source missing, fbp/IP/UA below critical threshold, schedule safety net missing, or active upper funnel with no measured purchase path.
+- `P2`: enrichment gaps that should be improved but should not trigger deploy by themselves.
+
+Auto-sync is preferred for identity/customer-data gaps. Auto-deploy is only allowed for code-level tracking breaks such as missing capture, missing source coverage, dedup format failures, or dashboard reconciliation gaps.
 
 ### Twice-daily optimizer (07:00 + 19:00 Amsterdam)
 1. QStash triggers `POST /api/ads/monitor`

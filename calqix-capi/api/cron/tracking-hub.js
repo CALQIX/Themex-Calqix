@@ -108,6 +108,13 @@ function buildSmokeContext() {
       platform_sales: { status: 'ok', latest_match_rate: 99, mismatch_count: 0 },
       dashboard_reconciliation: { status: 'warn', gaps: [{ event: 'Purchase', source: 12, emq: 9, delta: 3 }] },
       capture_checks: { status: 'warn', weak: [{ event: 'AddToCart', field: 'fbc', pct: 21 }] },
+      schedule_checks: {
+        available: true,
+        tracking_hub_15m: true,
+        recovery_1m: true,
+        identity_backfill_15m: true,
+        identity_resubmit_15m: true
+      },
       sales_risk: { status: 'warn', upstream_events: 42, purchases: 0 },
       meta_capi_quality: {
         status: 'warn',
@@ -162,6 +169,7 @@ async function buildOperationalAudits(coverageRaw, resubmit, events) {
   var stats = await getTodayStats();
   var pending = await countKeys('backfill:pending:*', 5000);
   var latestReconciliation = await latestByScan('reconciliation:*');
+  var scheduleAudit = await buildScheduleAudit();
   var dashboard = buildDashboardReconciliation(coverageRaw, stats);
   var salesRisk = buildSalesRisk(coverageRaw, stats);
   var capture = buildCaptureChecks(coverageRaw, salesRisk);
@@ -169,7 +177,8 @@ async function buildOperationalAudits(coverageRaw, resubmit, events) {
     coverageRaw: coverageRaw,
     events: events,
     resubmit: resubmit,
-    salesRisk: salesRisk
+    salesRisk: salesRisk,
+    scheduleAudit: scheduleAudit
   });
   var autoSync = await maybeRunCustomerDataSync(quality, events);
   var deterministic = buildDeterministicFixGate(dashboard, capture, events, resubmit, quality);
@@ -193,6 +202,7 @@ async function buildOperationalAudits(coverageRaw, resubmit, events) {
     },
     dashboard_reconciliation: dashboard,
     capture_checks: capture,
+    schedule_checks: scheduleAudit,
     sales_risk: salesRisk,
     meta_capi_quality: quality,
     auto_sync_customer_data: autoSync,
@@ -221,6 +231,76 @@ async function countKeys(pattern, max) {
     count += (out[1] || []).length;
   } while (cursor !== '0' && count < limit);
   return count;
+}
+
+async function buildScheduleAudit() {
+  var cacheKey = 'tracking_hub:schedule_audit:last';
+  var cached = await store.get(cacheKey);
+  if (cached) {
+    try { return JSON.parse(cached); } catch (e) { /* refresh */ }
+  }
+
+  var token = process.env.QSTASH_TOKEN;
+  if (!token) {
+    return { available: false, reason: 'QSTASH_TOKEN missing in runtime' };
+  }
+
+  try {
+    var response = await fetch('https://qstash.upstash.io/v2/schedules', {
+      method: 'GET',
+      headers: { Authorization: 'Bearer ' + token },
+      timeout: 15000
+    });
+    var schedules = await response.json().catch(function () { return []; });
+    if (!response.ok || !Array.isArray(schedules)) {
+      return { available: false, reason: 'qstash_schedule_list_failed_' + response.status };
+    }
+
+    function findSchedule(id) {
+      return schedules.find(function (schedule) {
+        return schedule.scheduleId === id || schedule.id === id;
+      }) || null;
+    }
+
+    var tracking = findSchedule('calqix-tracking-hub');
+    var recovery = findSchedule('calqix-recovery');
+    var identityBackfill = findSchedule('calqix-identity-backfill');
+    var identityResubmit = findSchedule('calqix-identity-resubmit');
+    var audit = {
+      available: true,
+      checked_at: new Date().toISOString(),
+      total_schedules: schedules.length,
+      tracking_hub_15m: hasCron(tracking, '*/15'),
+      recovery_1m: hasCron(recovery, '* * * * *'),
+      identity_backfill_15m: hasCron(identityBackfill, '*/15'),
+      identity_resubmit_15m: hasCron(identityResubmit, '7,22,37,52'),
+      schedules: {
+        tracking_hub: scheduleSummary(tracking),
+        recovery: scheduleSummary(recovery),
+        identity_backfill: scheduleSummary(identityBackfill),
+        identity_resubmit: scheduleSummary(identityResubmit)
+      }
+    };
+    await store.set(cacheKey, JSON.stringify(audit), 10 * 60);
+    return audit;
+  } catch (err) {
+    return { available: false, reason: err.message };
+  }
+}
+
+function hasCron(schedule, needle) {
+  if (!schedule) return false;
+  var cron = String(schedule.cron || schedule.schedule || '');
+  return cron.indexOf(needle) !== -1;
+}
+
+function scheduleSummary(schedule) {
+  if (!schedule) return null;
+  return {
+    id: schedule.scheduleId || schedule.id || null,
+    cron: schedule.cron || schedule.schedule || null,
+    destination: schedule.destination || schedule.url || null
+  };
 }
 
 function buildDashboardReconciliation(coverageRaw, stats) {
@@ -365,7 +445,15 @@ function isDeployableQualityIssue(code) {
     code === 'meta_fbc_coverage' ||
     code === 'meta_ip_coverage' ||
     code === 'meta_ua_coverage' ||
-    code === 'meta_dedup_event_id';
+    code === 'meta_dedup_event_id' ||
+    code === 'meta_server_source_missing' ||
+    code === 'meta_browser_source_missing' ||
+    code === 'meta_event_source_url' ||
+    code === 'meta_funnel_gap_initiate_checkout' ||
+    code === 'meta_funnel_gap_add_payment_info' ||
+    code === 'meta_sales_gap_purchase' ||
+    /^meta_custom_data_/.test(String(code || '')) ||
+    /^meta_preferred_custom_data_/.test(String(code || ''));
 }
 
 async function maybeRunCustomerDataSync(quality, events) {
@@ -602,6 +690,8 @@ async function aggregateEvents() {
     confirmed: 0,
     recovered: 0,
     by_event_name: {},
+    source_counts: {},
+    payload_quality: {},
     event_id_quality: { total: 0, missing: 0, invalid: 0 }
   };
   var scanned = 0;
@@ -620,13 +710,83 @@ async function aggregateEvents() {
         counts.total++;
         if (!counts.by_event_name[ev.event_name]) counts.by_event_name[ev.event_name] = 0;
         counts.by_event_name[ev.event_name]++;
+        updateSourceCounts(counts.source_counts, ev);
         updateEventIdQuality(counts.event_id_quality, ev);
+        var payloadRaw = ev.event_id ? await store.get('meta:payload:' + ev.event_id) : null;
+        updatePayloadQuality(counts.payload_quality, ev, payloadRaw);
         if (counts[ev.state] !== undefined) counts[ev.state]++;
       } catch (e) { /* skip */ }
     }
   } while (cursor !== '0' && scanned < 1000);
   counts.scanned = scanned;
   return counts;
+}
+
+function updateSourceCounts(sourceCounts, ev) {
+  var eventName = ev && ev.event_name || 'unknown';
+  if (!sourceCounts[eventName]) {
+    sourceCounts[eventName] = {
+      total: 0,
+      browser: 0,
+      server: 0,
+      recovery: 0,
+      webhook: 0,
+      custom_pixel: 0,
+      browser_bridge: 0,
+      shopify_web_pixel: 0,
+      other: 0
+    };
+  }
+  var row = sourceCounts[eventName];
+  var source = String(ev.source || 'other');
+  row.total++;
+  if (row[source] !== undefined) row[source]++;
+  else row.other++;
+  if (source === 'browser_bridge' || source === 'custom_pixel' || source === 'shopify_web_pixel') row.browser++;
+  else if (source === 'webhook' || source === 'recovery') row.server++;
+  if (source === 'recovery') row.recovery++;
+}
+
+function updatePayloadQuality(payloadQuality, ev, payloadRaw) {
+  var eventName = ev && ev.event_name || 'unknown';
+  if (!payloadQuality[eventName]) {
+    payloadQuality[eventName] = {
+      total: 0,
+      payload_missing: 0,
+      source_url_missing: 0,
+      content_ids: 0,
+      content_type: 0,
+      contents: 0,
+      value: 0,
+      currency: 0,
+      num_items: 0,
+      order_id: 0
+    };
+  }
+  var row = payloadQuality[eventName];
+  row.total++;
+  if (!payloadRaw) {
+    row.payload_missing++;
+    return;
+  }
+  var payload;
+  try { payload = typeof payloadRaw === 'string' ? JSON.parse(payloadRaw) : payloadRaw; }
+  catch (e) {
+    row.payload_missing++;
+    return;
+  }
+  if (!payload.source_url) row.source_url_missing++;
+  var customData = payload.custom_data || {};
+  ['content_ids', 'content_type', 'contents', 'value', 'currency', 'num_items', 'order_id'].forEach(function (field) {
+    if (hasCustomField(customData, field)) row[field]++;
+  });
+}
+
+function hasCustomField(customData, field) {
+  var value = customData && customData[field];
+  if (Array.isArray(value)) return value.length > 0;
+  if (value && typeof value === 'object') return Object.keys(value).length > 0;
+  return value !== undefined && value !== null && value !== '';
 }
 
 function updateEventIdQuality(quality, ev) {
