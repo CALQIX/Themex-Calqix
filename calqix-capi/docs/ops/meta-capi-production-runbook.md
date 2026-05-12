@@ -143,13 +143,15 @@ The system runs automatically on three schedules:
 1. QStash triggers `POST /api/cron/tracking-hub`
 2. The cron acquires `cron:lock:tracking-hub` and reads EMQ diagnostics, bridge health, catalog health, identity backfill/resubmit status, event lifecycle state, and Meta ad performance snapshots
 3. The run also performs Meta backfill audit, platform-sales audit, dashboard reconciliation, EMQ/fbp/fbc/capture checks, server-payload checks, source coverage checks, and QStash schedule checks
-4. OpenAI reviews the critical tracking and sales signals, with deterministic fallback if the model call is unavailable
-5. Tracking recommendations focus on Meta CAPI standards: `action_source=website`, `event_source_url`, stable dedup `event_id`, `fbp/fbc`, IP/UA, hashed customer information parameters, event-specific `custom_data`, Shopify-vs-Meta gaps, catalog parity, and recovery quality
-6. Deterministic fix/deploy guidance is gated: deploy is only allowed when a P0/P1 threshold is broken and the fix directly addresses that threshold
-7. Relevant customer-data fixes run automatically through identity backfill/resubmit for P0/P1 identity issues and P2 contact/external_id gaps; this only enriches existing events with the same `event_id`
-8. If `TRACKING_HUB_AUTO_DEPLOY_ENABLED=true` and `VERCEL_TRACKING_FIX_DEPLOY_HOOK_URL` is set, the safety net can trigger a deploy hook once per cooldown window for deployable code-level tracking breaks; identity-only issues use auto-sync first
-9. Ad recommendations classify spend-starved ads/adsets, creative refresh needs, CBO/adset structure opportunities, and scale candidates
-10. Budget moves are queued in the approval queue and only execute after Telegram approval; no synthetic Meta events are generated
+4. The run compares the current Meta CAPI score with the previous run and the recent run window, then stores whether quality is improving, stable, or worsening
+5. OpenAI reviews the critical tracking and sales signals, with deterministic fallback if the model call is unavailable; each run includes the internal Meta CAPI requirements prompt used for that audit
+6. Tracking recommendations focus on Meta CAPI standards: `action_source=website`, `event_source_url`, stable dedup `event_id`, `fbp/fbc`, IP/UA, hashed customer information parameters, event-specific `custom_data`, Shopify-vs-Meta gaps, catalog parity, and recovery quality
+7. Deterministic fix/deploy guidance is gated: deploy is only allowed when a P0/P1 threshold is broken and the fix directly addresses that threshold
+8. Relevant customer-data fixes run automatically through identity backfill/resubmit for P0/P1 identity issues and P2 contact/external_id gaps; this only enriches existing events with the same `event_id`
+9. Telegram feedback states the trend, whether the run matches the current Meta CAPI checklist, which optimization actions were executed, or that no critical fixes were needed
+10. If `TRACKING_HUB_AUTO_DEPLOY_ENABLED=true` and `VERCEL_TRACKING_FIX_DEPLOY_HOOK_URL` is set, the safety net can trigger a deploy hook once per cooldown window for deployable code-level tracking breaks; identity-only issues use auto-sync first
+11. Ad recommendations classify spend-starved ads/adsets, creative refresh needs, CBO/adset structure opportunities, and scale candidates
+12. Budget moves are queued in the approval queue and only execute after Telegram approval; no synthetic Meta events are generated
 
 ### Meta CAPI continuous audit baseline
 

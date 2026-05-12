@@ -378,18 +378,31 @@ function compactSummary(context, tracking, ads) {
   var quality = ops.meta_capi_quality || {};
   var autoSync = ops.auto_sync_customer_data || {};
   var schedules = ops.schedule_checks || {};
+  var trend = ops.quality_trend || {};
+  var standard = ops.meta_standard_check || {};
+  var optimizations = ops.optimization_actions || [];
   var auto = fixes.auto_deploy || {};
   var status = fixes.threshold_broken ? 'actie nodig' : 'stabiel';
   return 'Kwartiercheck ' + status + ': backfill pending ' + (meta.pending || 0) +
     ', retry ' + (meta.retry_pending || 0) +
     ', Meta CAPI norm ' + (quality.score !== undefined ? quality.score + '/100' : 'n/a') +
+    ', trend ' + (trend.direction || 'unknown') + '/' + (trend.rolling_direction || 'rolling unknown') +
     ', dashboard gaps ' + ((recon.gaps || []).length) +
     ', capture issues ' + ((capture.weak || []).length) +
     ', schedules ' + scheduleStatus(schedules) +
+    ', normcheck ' + (standard.matches_current_run ? 'match' : (standard.highest_priority || 'warn')) +
+    ', gedaan ' + optimizationStatus(optimizations) +
     ', sales risk ' + (sales.status || 'ok') +
     ', auto-sync ' + (autoSync.attempted ? 'gedraaid' : (autoSync.reason || 'standby')) +
     ', auto-deploy ' + (auto.triggered ? 'gestart' : (auto.reason || 'uit')) +
     ', ad punten ' + (ads || []).length + '.';
+}
+
+function optimizationStatus(actions) {
+  if (!actions || !actions.length) return 'geen automatische actie';
+  return actions.slice(0, 2).map(function (item) {
+    return item.message || item.type || 'actie';
+  }).join(' | ');
 }
 
 function scheduleStatus(schedules) {
@@ -444,6 +457,9 @@ async function runOpenAIAnalysis(context) {
     'You are the CALQIX Tracking Hub agent. Output strict JSON only.',
     'Analyze Shopify to Meta tracking quality, EMQ identifiers, CAPI/Web Pixel/server webhook differences, and Meta ad performance.',
     'Use Meta CAPI standards: website action_source, event_source_url, stable event_id for dedup, fbp/fbc, IP/UA, hashed customer information parameters, and event-specific custom_data.',
+    'Use telemetry.operational_audits.meta_standard_check.prompt as the internal requirements checklist for this run and state whether telemetry matches it.',
+    'Compare telemetry.operational_audits.quality_trend and say if quality is improving, stable, or worsening.',
+    'Report what automated optimization was executed from telemetry.operational_audits.optimization_actions; if none were needed, say no critical fixes were needed.',
     'Audit every funnel event: ViewContent, AddToCart, InitiateCheckout, AddPaymentInfo, Purchase.',
     'Separate data gaps from real zero-sales signals; do not invent Purchase events when Shopify has no order.',
     'Never recommend fake/redundant Meta events. Only retry events already in retry_pending/pending enrichment flows.',
@@ -554,7 +570,9 @@ async function notify(plan, queued, dryRun) {
 
   var tracking = dedupeRecommendations(plan.tracking_recommendations || []);
   var ads = dedupeRecommendations(plan.ad_recommendations || []);
-  if (plan.no_action_needed && !ads.length) return { sent: false, reason: 'no_action_needed' };
+  if (plan.no_action_needed && !ads.length && process.env.TRACKING_HUB_NOTIFY_OK === 'false') {
+    return { sent: false, reason: 'no_action_needed' };
+  }
 
   var signature = buildTelegramSignature(plan, tracking, ads, queued);
   var dedupKey = 'tracking_hub:telegram:' + signature;
@@ -615,14 +633,25 @@ function buildCompactTelegramLines(plan, tracking, ads, queued) {
   var top = topTracking || topAd;
   var severity = (top && top.priority) || 'OK';
   var high = isHighPriority(severity);
+  var ops = plan.operational_audits || {};
+  var trend = ops.quality_trend || {};
+  var standard = ops.meta_standard_check || {};
+  var optimizations = ops.optimization_actions || [];
   var lines = [
     '<b>CALQIX kwartiercheck</b> ' + dates.formatDateTimeAmsterdam(),
     compactText(compactTelegramSummary(plan.summary_nl || 'Tracking en ads gecontroleerd.', tracking, ads), high ? 220 : 150)
   ];
 
+  lines.push('Trend: ' + compactText((trend.message || trend.direction || 'unknown') + '; 8-run ' + (trend.rolling_direction || 'unknown'), 125));
+  lines.push('Norm: Meta CAPI ' + (standard.version || 'actueel') + ' -> ' +
+    (standard.matches_current_run ? 'match' : ((standard.highest_priority || 'warn') + ', score ' + (standard.score !== undefined ? standard.score + '/100' : 'n/a'))));
+  lines.push('Gedaan: ' + compactText(optimizationStatus(optimizations), high ? 180 : 120));
+
   if (top) {
     lines.push((high ? '<b>Top punt</b> ' : 'Top: ') + (top.priority || 'P2') + ' ' +
       compactLine(top.title || top.type || 'Punt', top.metric || top.recommendation || top.reason || top.action || 'controleer', high ? 180 : 110));
+  } else {
+    lines.push('Top: OK Aanpassingen waren niet nodig; geen kritische fixes nodig geweest.');
   }
 
   if (high && top) {
@@ -762,6 +791,7 @@ async function analyzeAndNotify(context, opts) {
   plan.ad_recommendations = dedupeRecommendations(
     (deterministic.ad_recommendations || []).concat(plan.ad_recommendations || [])
   ).slice(0, 8);
+  plan.operational_audits = context.operational_audits || null;
   if (!ai.ok) {
     plan.ai_error = ai.error;
   }

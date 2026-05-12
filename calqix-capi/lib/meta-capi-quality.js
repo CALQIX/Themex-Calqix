@@ -14,6 +14,7 @@ var DOCS = [
 ];
 
 var FUNNEL = ['ViewContent', 'AddToCart', 'InitiateCheckout', 'AddPaymentInfo', 'Purchase'];
+var META_STANDARD_VERSION = '2026-05-12';
 
 var EVENT_PROFILES = {
   ViewContent: {
@@ -239,7 +240,8 @@ function summarize(recommendations, coverage, payloadAudit, sourceAudit, schedul
     status: highest === 'OK' ? 'ok' : 'warn',
     score: score,
     highest_priority: highest,
-    meta_standard_version: '2026-05-12',
+    meta_standard_version: META_STANDARD_VERSION,
+    standard_prompt: buildStandardPrompt(),
     coverage_targets: buildCoverageTargets(),
     funnel_events_seen: FUNNEL.filter(function (eventName) {
       return Number(coverage[eventName] && coverage[eventName].total) > 0;
@@ -250,6 +252,18 @@ function summarize(recommendations, coverage, payloadAudit, sourceAudit, schedul
     recommendations: dedupe(recommendations).slice(0, 10),
     meta_docs: DOCS
   };
+}
+
+function buildStandardPrompt() {
+  return [
+    'Meta CAPI norm ' + META_STANDARD_VERSION + ': website events gebruiken action_source=website en een echte event_source_url.',
+    'Browser Pixel/Web Pixel en CAPI delen per event_name exact dezelfde event_id voor deduplication.',
+    'Stuur fbp en fbc mee waar beschikbaar; fbc komt uit fbclid en is cruciaal voor paid-click attributie.',
+    'Stuur client_ip_address en client_user_agent vanuit de requestcontext, maar log raw PII nooit.',
+    'Hash customer information parameters zoals email, phone, external_id, naam, plaats, postcode, land en geboortedatum volgens Meta-normalisatie.',
+    'Gebruik event-specifieke custom_data: content_ids, content_type, contents, value, currency, num_items en bij Purchase order_id.',
+    'Retry alleen echte retry_pending events of enrich dezelfde event_id binnen de veilige update-window; maak nooit synthetische of dubbele events.'
+  ].join(' ');
 }
 
 function countIdentitySignals(row) {
@@ -458,5 +472,7 @@ function dedupe(items) {
 
 module.exports = {
   evaluate: evaluate,
-  docs: DOCS
+  docs: DOCS,
+  buildStandardPrompt: buildStandardPrompt,
+  standardVersion: META_STANDARD_VERSION
 };

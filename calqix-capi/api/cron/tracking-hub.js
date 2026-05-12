@@ -180,9 +180,11 @@ async function buildOperationalAudits(coverageRaw, resubmit, events) {
     salesRisk: salesRisk,
     scheduleAudit: scheduleAudit
   });
+  var qualityTrend = await buildQualityTrend(quality);
   var autoSync = await maybeRunCustomerDataSync(quality, events);
   var deterministic = buildDeterministicFixGate(dashboard, capture, events, resubmit, quality);
   deterministic.auto_deploy = await maybeTriggerAutoDeploy(deterministic);
+  var optimizationActions = buildOptimizationActions(autoSync, deterministic, events, resubmit, quality);
 
   return {
     meta_backfill: {
@@ -203,9 +205,18 @@ async function buildOperationalAudits(coverageRaw, resubmit, events) {
     dashboard_reconciliation: dashboard,
     capture_checks: capture,
     schedule_checks: scheduleAudit,
+    quality_trend: qualityTrend,
+    meta_standard_check: {
+      version: metaQuality.standardVersion,
+      prompt: metaQuality.buildStandardPrompt(),
+      matches_current_run: quality.highest_priority === 'OK',
+      highest_priority: quality.highest_priority,
+      score: quality.score
+    },
     sales_risk: salesRisk,
     meta_capi_quality: quality,
     auto_sync_customer_data: autoSync,
+    optimization_actions: optimizationActions,
     deterministic_fixes: deterministic
   };
 }
@@ -344,6 +355,172 @@ function buildSalesRisk(coverageRaw, stats) {
     upstream_events: upstream,
     purchases: purchases
   };
+}
+
+async function buildQualityTrend(currentQuality) {
+  var history = await loadQualityHistory(8);
+  var latestRaw = await store.get('tracking_hub:latest');
+  if (!latestRaw) {
+    return {
+      direction: 'unknown',
+      rolling_direction: rollingDirection(history),
+      history: history,
+      score_delta: null,
+      previous_score: null,
+      current_score: currentQuality && currentQuality.score,
+      previous_priority: null,
+      current_priority: currentQuality && currentQuality.highest_priority,
+      message: 'Nog geen vorige Tracking Hub run om tegen te vergelijken.'
+    };
+  }
+
+  var latest;
+  try { latest = typeof latestRaw === 'string' ? JSON.parse(latestRaw) : latestRaw; }
+  catch (e) { latest = null; }
+
+  var prevQuality = latest && latest.operational_audits && latest.operational_audits.meta_capi_quality || {};
+  var prevScore = Number(prevQuality.score);
+  var currentScore = Number(currentQuality && currentQuality.score);
+  if (!Number.isFinite(prevScore) || !Number.isFinite(currentScore)) {
+    return {
+      direction: 'unknown',
+      rolling_direction: rollingDirection(history),
+      history: history,
+      score_delta: null,
+      previous_score: Number.isFinite(prevScore) ? prevScore : null,
+      current_score: Number.isFinite(currentScore) ? currentScore : null,
+      previous_priority: prevQuality.highest_priority || null,
+      current_priority: currentQuality && currentQuality.highest_priority,
+      message: 'Trend niet betrouwbaar genoeg om te beoordelen.'
+    };
+  }
+
+  var delta = currentScore - prevScore;
+  var prevRank = priorityRank(prevQuality.highest_priority);
+  var currentRank = priorityRank(currentQuality && currentQuality.highest_priority);
+  var direction = 'stable';
+  if (delta >= 5 || currentRank < prevRank) direction = 'improving';
+  if (delta <= -5 || currentRank > prevRank) direction = 'worsening';
+
+  return {
+    direction: direction,
+    rolling_direction: rollingDirection(history.concat([{
+      timestamp: new Date().toISOString(),
+      score: currentScore,
+      priority: currentQuality && currentQuality.highest_priority
+    }])),
+    history: history,
+    score_delta: delta,
+    previous_score: prevScore,
+    current_score: currentScore,
+    previous_priority: prevQuality.highest_priority || null,
+    current_priority: currentQuality && currentQuality.highest_priority,
+    message: formatTrendMessage(direction, delta, prevQuality.highest_priority, currentQuality && currentQuality.highest_priority)
+  };
+}
+
+async function loadQualityHistory(limit) {
+  var redis = store._getRedis();
+  if (!redis) return [];
+  var cursor = '0';
+  var keys = [];
+  do {
+    var out = await redis.scan(cursor, { match: 'tracking_hub:run:*', count: 100 });
+    cursor = String(out[0]);
+    keys = keys.concat(out[1] || []);
+  } while (cursor !== '0' && keys.length < 250);
+  keys.sort();
+  var selected = keys.slice(-(limit || 8));
+  var history = [];
+  for (var i = 0; i < selected.length; i++) {
+    var raw = await store.get(selected[i]);
+    if (!raw) continue;
+    try {
+      var run = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      var quality = run.operational_audits && run.operational_audits.meta_capi_quality || {};
+      if (quality.score !== undefined) {
+        history.push({
+          timestamp: run.timestamp || null,
+          score: quality.score,
+          priority: quality.highest_priority || null
+        });
+      }
+    } catch (e) { /* skip */ }
+  }
+  return history;
+}
+
+function rollingDirection(history) {
+  if (!history || history.length < 3) return 'unknown';
+  var first = Number(history[0].score);
+  var last = Number(history[history.length - 1].score);
+  if (!Number.isFinite(first) || !Number.isFinite(last)) return 'unknown';
+  var delta = last - first;
+  if (delta >= 5) return 'improving';
+  if (delta <= -5) return 'worsening';
+  return 'stable';
+}
+
+function formatTrendMessage(direction, delta, previousPriority, currentPriority) {
+  var sign = delta > 0 ? '+' : '';
+  if (direction === 'improving') {
+    return 'Kwaliteit verbetert (' + sign + delta + ' punten, ' + previousPriority + ' -> ' + currentPriority + ').';
+  }
+  if (direction === 'worsening') {
+    return 'Kwaliteit verslechtert (' + sign + delta + ' punten, ' + previousPriority + ' -> ' + currentPriority + ').';
+  }
+  return 'Kwaliteit stabiel (' + sign + delta + ' punten, ' + currentPriority + ').';
+}
+
+function buildOptimizationActions(autoSync, deterministic, events, resubmit, quality) {
+  var actions = [];
+  if (autoSync && autoSync.attempted) {
+    actions.push({
+      type: 'auto_sync',
+      status: isActionOk(autoSync.backfill) && isActionOk(autoSync.resubmit) && (!autoSync.recovery || isActionOk(autoSync.recovery)) ? 'ok' : 'warn',
+      message: 'Klantdata auto-sync uitgevoerd: ' + formatAutoSyncAction(autoSync)
+    });
+  }
+  if (deterministic && deterministic.auto_deploy && deterministic.auto_deploy.triggered) {
+    actions.push({
+      type: 'auto_deploy',
+      status: 'ok',
+      message: 'Deploy hook gestart voor ' + (deterministic.severity || 'P1') + ' trackingfix.'
+    });
+  }
+  if ((events && events.retry_pending || 0) > 0 || (resubmit && resubmit.meta_failures || 0) > 0) {
+    actions.push({
+      type: 'recovery_watch',
+      status: 'warn',
+      message: 'Recovery/backfill bewaakt: retry_pending ' + (events.retry_pending || 0) + ', resubmit failures ' + (resubmit.meta_failures || 0) + '.'
+    });
+  }
+  if (!actions.length) {
+    actions.push({
+      type: 'none_needed',
+      status: (quality && quality.highest_priority) === 'OK' ? 'ok' : 'standby',
+      message: (quality && quality.highest_priority) === 'OK'
+        ? 'Aanpassingen waren niet nodig; geen kritische fixes nodig geweest.'
+        : 'Geen automatische optimalisatie uitgevoerd; monitoren of deploy-cooldown actief.'
+    });
+  }
+  return actions;
+}
+
+function isActionOk(action) {
+  if (!action) return true;
+  return action.ok !== false;
+}
+
+function formatAutoSyncAction(autoSync) {
+  var backfill = autoSync.backfill || {};
+  var resubmit = autoSync.resubmit || {};
+  var recovery = autoSync.recovery || {};
+  var parts = [];
+  parts.push('backfill ' + (backfill.enriched !== undefined ? backfill.enriched : (backfill.reason || 'ok')));
+  parts.push('resubmit ' + (resubmit.resubmitted !== undefined ? resubmit.resubmitted : (resubmit.reason || 'ok')));
+  if (autoSync.recovery) parts.push('recovery ' + (recovery.retried !== undefined ? recovery.retried : (recovery.reason || 'ok')));
+  return parts.join(', ');
 }
 
 function buildCaptureChecks(coverageRaw, salesRisk) {
