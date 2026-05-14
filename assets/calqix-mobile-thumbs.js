@@ -309,7 +309,7 @@
     var items = [
       ['4 studied oral strains', '<path d="M8 30h24M20 30V10M10 10h20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="20" r="5" stroke="currentColor" stroke-width="1.8"/><circle cx="28" cy="20" r="5" stroke="currentColor" stroke-width="1.8"/><path d="M16 20h8" stroke="#9f7d27" stroke-width="1.6" stroke-linecap="round"/>'],
       ['Fresh breath support', '<ellipse cx="20" cy="22" rx="11" ry="6" stroke="currentColor" stroke-width="1.8"/><circle cx="20" cy="20" r="8" stroke="#9f7d27" stroke-width="1.6"/><path d="M20 8v6M20 26v6M8 20h6M26 20h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'],
-      ['One lozenge daily', '<path d="M26 8a12 12 0 1 0 0 24 9 9 0 0 1 0-24Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><ellipse cx="14" cy="28" rx="5.5" ry="3.2" stroke="#9f7d27" stroke-width="1.8"/><circle cx="30" cy="14" r="1" fill="currentColor"/>'],
+      ['Teeth whitening support', '<path d="M26 8a12 12 0 1 0 0 24 9 9 0 0 1 0-24Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><ellipse cx="14" cy="28" rx="5.5" ry="3.2" stroke="#9f7d27" stroke-width="1.8"/><circle cx="30" cy="14" r="1" fill="currentColor"/>'],
       ['30-day supply per jar', '<circle cx="20" cy="20" r="13" stroke="currentColor" stroke-width="1.8"/><circle cx="20" cy="20" r="13" stroke="#9f7d27" stroke-width="1.8" stroke-dasharray="2 4"/><text x="20" y="24" text-anchor="middle" font-family="DM Serif Display, Georgia, serif" font-size="11" fill="currentColor">30</text>']
     ];
 
