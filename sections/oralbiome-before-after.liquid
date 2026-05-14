@@ -132,13 +132,13 @@
     }
 
     #ob-before-after-{{ section.id }} .ob-ba__heading {
-      max-width: 560px;
+      max-width: 500px;
       margin: 12px 0 16px;
       color: var(--ob-ba-ink);
       font-family: "DM Serif Display", Georgia, serif;
-      font-size: clamp(42px, 4.8vw, 74px);
+      font-size: clamp(36px, 3.8vw, 58px);
       font-weight: 400;
-      line-height: 0.98;
+      line-height: 1.02;
       letter-spacing: 0;
     }
 
@@ -374,9 +374,9 @@
       }
 
       #ob-before-after-{{ section.id }} .ob-ba__heading {
-        max-width: 360px;
+        max-width: 340px;
         margin-top: 10px;
-        font-size: clamp(38px, 11vw, 52px);
+        font-size: clamp(31px, 8.7vw, 40px);
       }
 
       #ob-before-after-{{ section.id }} .ob-ba__lead {
@@ -511,7 +511,7 @@
           <h2 class="ob-ba__heading">{{ ob_ba_heading }}</h2>
         {%- endif -%}
         {%- if ob_ba_lead != blank -%}
-          <div class="ob-ba__lead">{{ ob_ba_lead }}</div>
+          <div class="ob-ba__lead">{{ ob_ba_lead | replace: '<p>', '' | replace: '</p>', '' | replace: '&lt;p&gt;', '' | replace: '&lt;/p&gt;', '' }}</div>
         {%- endif -%}
 
         <ul class="ob-ba__stats" role="list">
@@ -596,9 +596,6 @@
 
         {%- if ob_ba_swipe != blank -%}
           <div class="ob-ba__swipe" aria-hidden="true">{{ ob_ba_swipe }}</div>
-        {%- endif -%}
-        {%- if ob_ba_note != blank -%}
-          <p class="ob-ba__note">{{ ob_ba_note }}</p>
         {%- endif -%}
       </div>
     </div>
@@ -694,8 +691,7 @@
     {
       "type": "text",
       "id": "note",
-      "label": "Note",
-      "default": "Visuals are illustrative. OralBiome Pro supports oral microbiome balance and does not bleach enamel."
+      "label": "Note"
     },
     {
       "type": "text",
