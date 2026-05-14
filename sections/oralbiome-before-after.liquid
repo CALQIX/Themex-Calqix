@@ -87,6 +87,10 @@
 
 <section id="ob-before-after-{{ section.id }}" class="ob-ba">
   <style>
+    body.template-product-oralbiome #root > #shopify-section-{{ section.id }} {
+      order: 55;
+    }
+
     #ob-before-after-{{ section.id }} {
       --ob-ba-ink: {{ section.settings.heading_color }};
       --ob-ba-text: {{ section.settings.text_color }};
