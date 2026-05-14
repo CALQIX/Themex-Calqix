@@ -1,0 +1,749 @@
+{%- liquid
+  assign ob_ba_lang = request.locale.iso_code | downcase | slice: 0, 2
+  assign ob_ba_supported = 'nl,de,fr,sv,nb,da,fi' | split: ','
+  assign ob_ba_use_locale = false
+  if ob_ba_supported contains ob_ba_lang
+    assign ob_ba_use_locale = true
+  endif
+
+  assign ob_ba_eyebrow = section.settings.eyebrow
+  assign ob_ba_heading = section.settings.heading
+  assign ob_ba_lead = section.settings.lead
+  assign ob_ba_before_label = section.settings.before_label
+  assign ob_ba_after_label = section.settings.after_label
+  assign ob_ba_before_title = section.settings.before_title
+  assign ob_ba_before_text = section.settings.before_text
+  assign ob_ba_after_title = section.settings.after_title
+  assign ob_ba_after_text = section.settings.after_text
+  assign ob_ba_stat_1 = section.settings.stat_1
+  assign ob_ba_stat_2 = section.settings.stat_2
+  assign ob_ba_stat_3 = section.settings.stat_3
+  assign ob_ba_note = section.settings.note
+  assign ob_ba_swipe = section.settings.swipe_hint
+
+  if ob_ba_use_locale
+    assign ob_ba_eyebrow_t = 'calqix_oralbiome.before_after.eyebrow' | t
+    assign ob_ba_heading_t = 'calqix_oralbiome.before_after.heading' | t
+    assign ob_ba_lead_t = 'calqix_oralbiome.before_after.lead' | t
+    assign ob_ba_before_label_t = 'calqix_oralbiome.before_after.before_badge' | t
+    assign ob_ba_after_label_t = 'calqix_oralbiome.before_after.after_badge' | t
+    assign ob_ba_before_title_t = 'calqix_oralbiome.before_after.before_title' | t
+    assign ob_ba_before_text_t = 'calqix_oralbiome.before_after.before_text' | t
+    assign ob_ba_after_title_t = 'calqix_oralbiome.before_after.after_title' | t
+    assign ob_ba_after_text_t = 'calqix_oralbiome.before_after.after_text' | t
+    assign ob_ba_stat_1_t = 'calqix_oralbiome.before_after.stat_1' | t
+    assign ob_ba_stat_2_t = 'calqix_oralbiome.before_after.stat_2' | t
+    assign ob_ba_stat_3_t = 'calqix_oralbiome.before_after.stat_3' | t
+    assign ob_ba_note_t = 'calqix_oralbiome.before_after.note' | t
+    assign ob_ba_swipe_t = 'calqix_oralbiome.before_after.swipe_hint' | t
+
+    unless ob_ba_eyebrow_t contains 'translation missing'
+      assign ob_ba_eyebrow = ob_ba_eyebrow_t
+    endunless
+    unless ob_ba_heading_t contains 'translation missing'
+      assign ob_ba_heading = ob_ba_heading_t
+    endunless
+    unless ob_ba_lead_t contains 'translation missing'
+      assign ob_ba_lead = ob_ba_lead_t
+    endunless
+    unless ob_ba_before_label_t contains 'translation missing'
+      assign ob_ba_before_label = ob_ba_before_label_t
+    endunless
+    unless ob_ba_after_label_t contains 'translation missing'
+      assign ob_ba_after_label = ob_ba_after_label_t
+    endunless
+    unless ob_ba_before_title_t contains 'translation missing'
+      assign ob_ba_before_title = ob_ba_before_title_t
+    endunless
+    unless ob_ba_before_text_t contains 'translation missing'
+      assign ob_ba_before_text = ob_ba_before_text_t
+    endunless
+    unless ob_ba_after_title_t contains 'translation missing'
+      assign ob_ba_after_title = ob_ba_after_title_t
+    endunless
+    unless ob_ba_after_text_t contains 'translation missing'
+      assign ob_ba_after_text = ob_ba_after_text_t
+    endunless
+    unless ob_ba_stat_1_t contains 'translation missing'
+      assign ob_ba_stat_1 = ob_ba_stat_1_t
+    endunless
+    unless ob_ba_stat_2_t contains 'translation missing'
+      assign ob_ba_stat_2 = ob_ba_stat_2_t
+    endunless
+    unless ob_ba_stat_3_t contains 'translation missing'
+      assign ob_ba_stat_3 = ob_ba_stat_3_t
+    endunless
+    unless ob_ba_note_t contains 'translation missing'
+      assign ob_ba_note = ob_ba_note_t
+    endunless
+    unless ob_ba_swipe_t contains 'translation missing'
+      assign ob_ba_swipe = ob_ba_swipe_t
+    endunless
+  endif
+
+  assign ob_ba_before_asset = 'obp-before-balance-4x5.png' | asset_url
+  assign ob_ba_after_asset = 'obp-after-balance-4x5.png' | asset_url
+-%}
+
+<section id="ob-before-after-{{ section.id }}" class="ob-ba">
+  <style>
+    #ob-before-after-{{ section.id }} {
+      --ob-ba-ink: {{ section.settings.heading_color }};
+      --ob-ba-text: {{ section.settings.text_color }};
+      --ob-ba-muted: {{ section.settings.muted_color }};
+      --ob-ba-blue: {{ section.settings.accent_blue }};
+      --ob-ba-gold: {{ section.settings.accent_gold }};
+      --ob-ba-bg: {{ section.settings.background_color }};
+      --ob-ba-panel: rgba(255, 255, 255, 0.78);
+      --ob-ba-border: rgba(0, 37, 73, 0.16);
+      background:
+        linear-gradient(180deg, rgba(240, 247, 255, 0.78), rgba(255, 255, 255, 0.94)),
+        var(--ob-ba-bg);
+      color: var(--ob-ba-ink);
+      overflow: hidden;
+      padding: clamp(64px, 7vw, 104px) 0;
+    }
+
+    #ob-before-after-{{ section.id }} * {
+      box-sizing: border-box;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__inner {
+      width: min(100% - 40px, 1240px);
+      margin: 0 auto;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.88fr) minmax(520px, 1.12fr);
+      gap: clamp(36px, 5vw, 78px);
+      align-items: center;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__eyebrow,
+    #ob-before-after-{{ section.id }} .ob-ba__kicker {
+      margin: 0;
+      color: var(--ob-ba-gold);
+      font-family: "DM Sans", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__heading {
+      max-width: 560px;
+      margin: 12px 0 16px;
+      color: var(--ob-ba-ink);
+      font-family: "DM Serif Display", Georgia, serif;
+      font-size: clamp(42px, 4.8vw, 74px);
+      font-weight: 400;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__lead {
+      max-width: 510px;
+      margin: 0;
+      color: var(--ob-ba-text);
+      font-family: "DM Sans", sans-serif;
+      font-size: clamp(15px, 1.25vw, 18px);
+      line-height: 1.7;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__stats {
+      display: grid;
+      gap: 10px;
+      margin: 28px 0 0;
+      padding: 0;
+      list-style: none;
+      max-width: 500px;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__stat {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-height: 44px;
+      padding: 11px 14px;
+      border: 1px solid rgba(0, 37, 73, 0.12);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.68);
+      color: var(--ob-ba-ink);
+      box-shadow: 0 16px 38px rgba(0, 37, 73, 0.06);
+      font-family: "DM Sans", sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__stat::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--ob-ba-gold);
+      box-shadow: 0 0 0 6px rgba(194, 159, 61, 0.12);
+      flex: 0 0 auto;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__stage {
+      position: relative;
+      min-width: 0;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__cards {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      padding: 14px;
+      border: 1px solid rgba(0, 37, 73, 0.13);
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(194, 159, 61, 0.16), transparent 34%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 247, 255, 0.68));
+      box-shadow: 0 28px 80px rgba(0, 37, 73, 0.13);
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__card {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--ob-ba-border);
+      border-radius: 20px;
+      background: var(--ob-ba-panel);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
+      transform: translateY(0);
+      transition: transform 420ms ease, box-shadow 420ms ease, border-color 420ms ease;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(194, 159, 61, 0.45);
+      box-shadow: 0 28px 64px rgba(0, 37, 73, 0.14);
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__media {
+      position: relative;
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      background: linear-gradient(145deg, #edf6ff, #ffffff);
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__media img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.005);
+      transition: transform 700ms ease;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__card:hover .ob-ba__media img {
+      transform: scale(1.04);
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__placeholder {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      text-align: center;
+      color: rgba(0, 37, 73, 0.68);
+      font-family: "DM Sans", sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.96), rgba(225, 241, 255, 0.74) 44%, rgba(255, 255, 255, 0.84) 70%),
+        linear-gradient(135deg, rgba(0, 37, 73, 0.06), rgba(194, 159, 61, 0.08));
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__placeholder svg {
+      width: 96px;
+      height: 96px;
+      margin-bottom: 12px;
+      color: var(--ob-ba-blue);
+      filter: drop-shadow(0 18px 24px rgba(0, 37, 73, 0.12));
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__label {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 13px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(0, 37, 73, 0.14);
+      color: var(--ob-ba-blue);
+      box-shadow: 0 14px 34px rgba(0, 37, 73, 0.12);
+      font-family: "DM Sans", sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      backdrop-filter: blur(12px);
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__label--after {
+      color: #6f5418;
+      border-color: rgba(194, 159, 61, 0.35);
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__copy {
+      min-height: 172px;
+      padding: 22px 22px 24px;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__title {
+      margin: 0 0 8px;
+      color: var(--ob-ba-ink);
+      font-family: "DM Serif Display", Georgia, serif;
+      font-size: clamp(24px, 2.1vw, 34px);
+      font-weight: 400;
+      line-height: 1.06;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__text {
+      margin: 0;
+      color: var(--ob-ba-text);
+      font-family: "DM Sans", sans-serif;
+      font-size: 14px;
+      line-height: 1.58;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__divider {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 4;
+      width: 74px;
+      height: 74px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      border: 1px solid rgba(194, 159, 61, 0.46);
+      background: linear-gradient(145deg, #ffffff, #f1f7ff);
+      color: var(--ob-ba-blue);
+      box-shadow: 0 22px 50px rgba(0, 37, 73, 0.18);
+      transform: translate(-50%, -50%);
+      font-family: "DM Sans", sans-serif;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__divider span {
+      display: block;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__note {
+      max-width: 610px;
+      margin: 18px auto 0;
+      color: var(--ob-ba-muted);
+      text-align: center;
+      font-family: "DM Sans", sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    #ob-before-after-{{ section.id }} .ob-ba__swipe {
+      display: none;
+    }
+
+    @media (max-width: 899px) {
+      #ob-before-after-{{ section.id }} {
+        padding: 54px 0 60px;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__inner {
+        width: min(100% - 28px, 680px);
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__grid {
+        display: block;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__heading {
+        max-width: 360px;
+        margin-top: 10px;
+        font-size: clamp(38px, 11vw, 52px);
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__lead {
+        max-width: 360px;
+        font-size: 14px;
+        line-height: 1.62;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__stats {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-top: 22px;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__stat {
+        min-height: 38px;
+        padding: 9px 12px;
+        font-size: 11px;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__stage {
+        margin-top: 30px;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__cards {
+        display: flex;
+        gap: 14px;
+        margin-inline: -14px;
+        padding: 4px 14px 16px;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__cards::-webkit-scrollbar {
+        height: 4px;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__cards::-webkit-scrollbar-track {
+        background: rgba(0, 37, 73, 0.08);
+        border-radius: 999px;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__cards::-webkit-scrollbar-thumb {
+        background: rgba(0, 37, 73, 0.42);
+        border-radius: 999px;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__card {
+        flex: 0 0 min(86vw, 340px);
+        scroll-snap-align: center;
+        border-radius: 18px;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__media {
+        aspect-ratio: 1 / 1.05;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__copy {
+        min-height: 150px;
+        padding: 18px 18px 20px;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__title {
+        font-size: 27px;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__text {
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__divider {
+        display: none;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__swipe {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin: 8px 0 0;
+        color: var(--ob-ba-blue);
+        font-family: "DM Sans", sans-serif;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.8;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__swipe::after {
+        content: "";
+        width: 34px;
+        height: 1px;
+        background: currentColor;
+        animation: obBaSwipeLine 1.8s ease-in-out infinite;
+      }
+
+      #ob-before-after-{{ section.id }} .ob-ba__note {
+        margin-top: 14px;
+        font-size: 11px;
+      }
+    }
+
+    @keyframes obBaSwipeLine {
+      0%, 100% { transform: translateX(-5px); opacity: 0.35; }
+      50% { transform: translateX(5px); opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #ob-before-after-{{ section.id }} *,
+      #ob-before-after-{{ section.id }} *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+
+  <div class="ob-ba__inner">
+    <div class="ob-ba__grid">
+      <div class="ob-ba__content">
+        {%- if ob_ba_eyebrow != blank -%}
+          <p class="ob-ba__eyebrow">{{ ob_ba_eyebrow }}</p>
+        {%- endif -%}
+        {%- if ob_ba_heading != blank -%}
+          <h2 class="ob-ba__heading">{{ ob_ba_heading }}</h2>
+        {%- endif -%}
+        {%- if ob_ba_lead != blank -%}
+          <div class="ob-ba__lead">{{ ob_ba_lead }}</div>
+        {%- endif -%}
+
+        <ul class="ob-ba__stats" role="list">
+          {%- if ob_ba_stat_1 != blank -%}<li class="ob-ba__stat">{{ ob_ba_stat_1 }}</li>{%- endif -%}
+          {%- if ob_ba_stat_2 != blank -%}<li class="ob-ba__stat">{{ ob_ba_stat_2 }}</li>{%- endif -%}
+          {%- if ob_ba_stat_3 != blank -%}<li class="ob-ba__stat">{{ ob_ba_stat_3 }}</li>{%- endif -%}
+        </ul>
+      </div>
+
+      <div class="ob-ba__stage">
+        <div class="ob-ba__cards" aria-label="{{ ob_ba_heading | escape }}">
+          <article class="ob-ba__card">
+            <div class="ob-ba__media">
+              <span class="ob-ba__label">{{ ob_ba_before_label }}</span>
+              {%- if section.settings.before_image != blank -%}
+                <img
+                  src="{{ section.settings.before_image | image_url: width: 760 }}"
+                  srcset="{{ section.settings.before_image | image_url: width: 420 }} 420w, {{ section.settings.before_image | image_url: width: 620 }} 620w, {{ section.settings.before_image | image_url: width: 760 }} 760w"
+                  sizes="(min-width: 900px) 360px, 86vw"
+                  alt="{{ ob_ba_before_title | escape }}"
+                  loading="lazy"
+                  decoding="async"
+                  width="760"
+                  height="950"
+                >
+              {%- else -%}
+                <img
+                  src="{{ ob_ba_before_asset }}"
+                  sizes="(min-width: 900px) 360px, 86vw"
+                  alt="{{ ob_ba_before_title | escape }}"
+                  loading="lazy"
+                  decoding="async"
+                  width="1122"
+                  height="1402"
+                >
+              {%- endif -%}
+            </div>
+            <div class="ob-ba__copy">
+              <p class="ob-ba__kicker">{{ ob_ba_before_label }}</p>
+              <h3 class="ob-ba__title">{{ ob_ba_before_title }}</h3>
+              <p class="ob-ba__text">{{ ob_ba_before_text }}</p>
+            </div>
+          </article>
+
+          <article class="ob-ba__card">
+            <div class="ob-ba__media">
+              <span class="ob-ba__label ob-ba__label--after">{{ ob_ba_after_label }}</span>
+              {%- if section.settings.after_image != blank -%}
+                <img
+                  src="{{ section.settings.after_image | image_url: width: 760 }}"
+                  srcset="{{ section.settings.after_image | image_url: width: 420 }} 420w, {{ section.settings.after_image | image_url: width: 620 }} 620w, {{ section.settings.after_image | image_url: width: 760 }} 760w"
+                  sizes="(min-width: 900px) 360px, 86vw"
+                  alt="{{ ob_ba_after_title | escape }}"
+                  loading="lazy"
+                  decoding="async"
+                  width="760"
+                  height="950"
+                >
+              {%- else -%}
+                <img
+                  src="{{ ob_ba_after_asset }}"
+                  sizes="(min-width: 900px) 360px, 86vw"
+                  alt="{{ ob_ba_after_title | escape }}"
+                  loading="lazy"
+                  decoding="async"
+                  width="1122"
+                  height="1402"
+                >
+              {%- endif -%}
+            </div>
+            <div class="ob-ba__copy">
+              <p class="ob-ba__kicker">{{ ob_ba_after_label }}</p>
+              <h3 class="ob-ba__title">{{ ob_ba_after_title }}</h3>
+              <p class="ob-ba__text">{{ ob_ba_after_text }}</p>
+            </div>
+          </article>
+
+          <div class="ob-ba__divider" aria-hidden="true">
+            <span>30</span>
+          </div>
+        </div>
+
+        {%- if ob_ba_swipe != blank -%}
+          <div class="ob-ba__swipe" aria-hidden="true">{{ ob_ba_swipe }}</div>
+        {%- endif -%}
+        {%- if ob_ba_note != blank -%}
+          <p class="ob-ba__note">{{ ob_ba_note }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "OB Before After",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "VISIBLE BALANCE"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "A brighter-looking smile starts with balance."
+    },
+    {
+      "type": "richtext",
+      "id": "lead",
+      "label": "Lead",
+      "default": "<p>OralBiome Pro is not a bleaching shortcut. It supports the oral microbiome after brushing, so your mouth feels cleaner and your natural smile looks fresher over time.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "before_image",
+      "label": "Before image"
+    },
+    {
+      "type": "image_picker",
+      "id": "after_image",
+      "label": "After image"
+    },
+    {
+      "type": "text",
+      "id": "before_label",
+      "label": "Before label",
+      "default": "Before"
+    },
+    {
+      "type": "text",
+      "id": "after_label",
+      "label": "After label",
+      "default": "After 30 days"
+    },
+    {
+      "type": "text",
+      "id": "before_title",
+      "label": "Before title",
+      "default": "Clean teeth, unstable balance"
+    },
+    {
+      "type": "textarea",
+      "id": "before_text",
+      "label": "Before text",
+      "default": "Brushing helps remove buildup, but the mouth can still feel coated when the oral microbiome is out of balance."
+    },
+    {
+      "type": "text",
+      "id": "after_title",
+      "label": "After title",
+      "default": "Fresher, brighter-looking finish"
+    },
+    {
+      "type": "textarea",
+      "id": "after_text",
+      "label": "After text",
+      "default": "Daily probiotic support helps maintain a cleaner mouth environment, supporting fresh breath, gum comfort and a naturally polished look."
+    },
+    {
+      "type": "text",
+      "id": "stat_1",
+      "label": "Stat 1",
+      "default": "Supports natural teeth whitening by helping keep the mouth environment balanced"
+    },
+    {
+      "type": "text",
+      "id": "stat_2",
+      "label": "Stat 2",
+      "default": "3 billion CFU from 4 clinically studied oral strains"
+    },
+    {
+      "type": "text",
+      "id": "stat_3",
+      "label": "Stat 3",
+      "default": "Designed as the final step after brushing and flossing"
+    },
+    {
+      "type": "text",
+      "id": "note",
+      "label": "Note",
+      "default": "Visuals are illustrative. OralBiome Pro supports oral microbiome balance and does not bleach enamel."
+    },
+    {
+      "type": "text",
+      "id": "swipe_hint",
+      "label": "Mobile swipe hint",
+      "default": "Swipe"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#f4f9ff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#002549"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#1a3b5c"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Muted text color",
+      "default": "#60758a"
+    },
+    {
+      "type": "color",
+      "id": "accent_blue",
+      "label": "Accent blue",
+      "default": "#002549"
+    },
+    {
+      "type": "color",
+      "id": "accent_gold",
+      "label": "Accent gold",
+      "default": "#c29f3d"
+    }
+  ],
+  "presets": [
+    {
+      "name": "OB Before After"
+    }
+  ]
+}
+{% endschema %}
