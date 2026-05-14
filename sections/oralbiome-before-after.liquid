@@ -511,7 +511,7 @@
           <h2 class="ob-ba__heading">{{ ob_ba_heading }}</h2>
         {%- endif -%}
         {%- if ob_ba_lead != blank -%}
-          <div class="ob-ba__lead">{{ ob_ba_lead }}</div>
+          <div class="ob-ba__lead">{{ ob_ba_lead | replace: '<p>', '' | replace: '</p>', '' | replace: '&lt;p&gt;', '' | replace: '&lt;/p&gt;', '' }}</div>
         {%- endif -%}
 
         <ul class="ob-ba__stats" role="list">
