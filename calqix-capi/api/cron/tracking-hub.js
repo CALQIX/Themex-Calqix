@@ -211,7 +211,8 @@ async function buildOperationalAudits(coverageRaw, resubmit, events) {
       prompt: metaQuality.buildStandardPrompt(),
       matches_current_run: quality.highest_priority === 'OK',
       highest_priority: quality.highest_priority,
-      score: quality.score
+      score: quality.score,
+      score_label: quality.score_label || 'Meta CAPI normscore (geen Meta EMQ)'
     },
     sales_risk: salesRisk,
     meta_capi_quality: quality,
@@ -576,8 +577,8 @@ function buildDeterministicFixGate(dashboard, capture, events, resubmit, quality
     if (priorityRank(gap.priority) >= priorityRank('P1')) thresholdBroken = true;
     actionItems.push({
       priority: gap.priority || 'P2',
-      deployable: true,
-      action: gap.event + ': dashboard reconciliation gap ' + gap.delta + ' oplossen.'
+      deployable: false,
+      action: gap.event + ': dashboard reconciliation gap ' + gap.delta + ' analyseren; geen deploy hook zonder capture/code failure.'
     });
   });
   (capture.weak || []).forEach(function (weak) {
@@ -610,8 +611,8 @@ function buildDeterministicFixGate(dashboard, capture, events, resubmit, quality
     severity: severity,
     deploy_allowed: deployAllowed,
     deploy_policy: deployAllowed
-      ? 'Auto-deploy mag alleen via deploy hook bij P0/P1 en alleen voor deterministische trackingfixes.'
-      : 'Niet deployen; monitor-only.',
+      ? 'Auto-deploy mag alleen via deploy hook bij P0/P1 code-level capture, dedup of source failures.'
+      : 'Niet deployen; dashboard reconciliation gaps zijn monitor/sync tenzij capture of code-level thresholds breken.',
     action_items: actionItems.slice(0, 8),
     actions: uniqueStrings(actionItems.map(function (item) { return item.action; })).slice(0, 8)
   };
@@ -931,6 +932,7 @@ function updatePayloadQuality(payloadQuality, ev, payloadRaw) {
       total: 0,
       payload_missing: 0,
       source_url_missing: 0,
+      event_time: 0,
       content_ids: 0,
       content_type: 0,
       contents: 0,
@@ -953,6 +955,7 @@ function updatePayloadQuality(payloadQuality, ev, payloadRaw) {
     return;
   }
   if (!payload.source_url) row.source_url_missing++;
+  if (payload.event_time) row.event_time++;
   var customData = payload.custom_data || {};
   ['content_ids', 'content_type', 'contents', 'value', 'currency', 'num_items', 'order_id'].forEach(function (field) {
     if (hasCustomField(customData, field)) row[field]++;
@@ -978,7 +981,7 @@ function updateEventIdQuality(quality, ev) {
   var expected = {
     ViewContent: /^vc_/,
     AddToCart: /^atc_/,
-    InitiateCheckout: /^ic_/,
+    InitiateCheckout: /^ic_(?!cart_)/,
     AddPaymentInfo: /^add_payment_info_/,
     Purchase: /^purchase_/,
     Lead: /^lead_/
