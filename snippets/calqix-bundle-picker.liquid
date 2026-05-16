@@ -10,6 +10,32 @@
 {%- assign cqbp_t3_free = tier_3_free_jar -%}
 {%- assign cqbp_pop = popular_tier | default: '3' -%}
 {%- assign cqbp_jar_image = cqbp_v.featured_media.preview_image | default: product.featured_media.preview_image | default: product.featured_image -%}
+{%- assign cqbp_jar_asset = '' -%}
+{%- assign cqbp_jar_key = product.handle | append: ' ' | append: product.title | downcase -%}
+{%- if cqbp_jar_image != blank -%}
+  {%- assign cqbp_jar_image_key = cqbp_jar_image | image_url: width: 64 | downcase -%}
+  {%- assign cqbp_jar_key = cqbp_jar_key | append: ' ' | append: cqbp_jar_image_key -%}
+{%- endif -%}
+{%- if cqbp_jar_key contains 'freshmintfront' or cqbp_jar_key contains 'freshmint' or cqbp_jar_key contains 'fresh mint' -%}
+  {%- assign cqbp_jar_asset = 'oralbiome-front-freshmint-transparent.png' -%}
+{%- elsif cqbp_jar_key contains 'grapesfront' or cqbp_jar_key contains 'grape' or cqbp_jar_key contains 'druif' -%}
+  {%- assign cqbp_jar_asset = 'oralbiome-front-grape-transparent.png' -%}
+{%- elsif cqbp_jar_key contains 'peachfront' or cqbp_jar_key contains 'peach' or cqbp_jar_key contains 'perzik' -%}
+  {%- assign cqbp_jar_asset = 'oralbiome-front-peach-transparent.png' -%}
+{%- elsif cqbp_jar_key contains 'orangefront' or cqbp_jar_key contains 'orange' or cqbp_jar_key contains 'citrus' or cqbp_jar_key contains 'sinaasappel' -%}
+  {%- assign cqbp_jar_asset = 'oralbiome-front-citrus-orange-transparent.png' -%}
+{%- elsif cqbp_jar_key contains 'coolmintfront' or cqbp_jar_key contains 'cool mint' or cqbp_jar_key contains 'koele munt' -%}
+  {%- assign cqbp_jar_asset = 'oralbiome-front-cool-mint-transparent.png' -%}
+{%- endif -%}
+{%- assign cqbp_jar_src = '' -%}
+{%- assign cqbp_jar_srcset = '' -%}
+{%- if cqbp_jar_asset != blank -%}
+  {%- assign cqbp_jar_src = cqbp_jar_asset | asset_img_url: '140x' -%}
+  {%- capture cqbp_jar_srcset -%}{{ cqbp_jar_asset | asset_img_url: '90x' }} 90w, {{ cqbp_jar_asset | asset_img_url: '140x' }} 140w, {{ cqbp_jar_asset | asset_img_url: '180x' }} 180w{%- endcapture -%}
+{%- elsif cqbp_jar_image != blank -%}
+  {%- assign cqbp_jar_src = cqbp_jar_image | image_url: width: 140 -%}
+  {%- capture cqbp_jar_srcset -%}{{ cqbp_jar_image | image_url: width: 90 }} 90w, {{ cqbp_jar_image | image_url: width: 140 }} 140w, {{ cqbp_jar_image | image_url: width: 180 }} 180w{%- endcapture -%}
+{%- endif -%}
 
 {%- comment -%} Tier 2: percentage discount {%- endcomment -%}
 {%- assign cqbp_t2_disc_unit = cqbp_base | times: cqbp_t2_pct | divided_by: 100 -%}
@@ -234,7 +260,6 @@
     object-fit: contain;
     object-position: center bottom;
     background: transparent;
-    mix-blend-mode: multiply;
     filter: drop-shadow(0 9px 11px rgba(0, 37, 73, 0.16)) saturate(1.04);
     transition: filter 0.25s ease, transform 0.25s ease;
   }
@@ -431,9 +456,9 @@
     <div class="cqbp__card is-active" data-tier="1" data-qty="1" role="radio" aria-checked="true" tabindex="0">
       <span class="cqbp__supply">{{ cqbp_t_supply_30 }}</span>
       <span class="cqbp__label cqbp__label--visual">
-        {%- if cqbp_jar_image != blank -%}
+        {%- if cqbp_jar_src != blank -%}
           <span class="cqbp__jar-stack cqbp__jar-stack--1" aria-hidden="true">
-            <img class="cqbp__jar-img" src="{{ cqbp_jar_image | image_url: width: 120 }}" alt="" loading="lazy" decoding="async">
+            <img class="cqbp__jar-img" src="{{ cqbp_jar_src }}" srcset="{{ cqbp_jar_srcset | strip }}" sizes="(max-width: 480px) 92px, 110px" alt="" loading="lazy" decoding="async">
           </span>
           <span class="cqbp__sr">1 {{ cqbp_t_jar }}</span>
         {%- else -%}
@@ -452,10 +477,10 @@
       {% if cqbp_pop == '2' %}<span class="cqbp__popular">{{ cqbp_t_popular }}</span>{% endif %}
       <span class="cqbp__supply">{{ cqbp_t_supply_60 }}</span>
       <span class="cqbp__label cqbp__label--visual">
-        {%- if cqbp_jar_image != blank -%}
+        {%- if cqbp_jar_src != blank -%}
           <span class="cqbp__jar-stack cqbp__jar-stack--2" aria-hidden="true">
-            <img class="cqbp__jar-img" src="{{ cqbp_jar_image | image_url: width: 120 }}" alt="" loading="lazy" decoding="async">
-            <img class="cqbp__jar-img" src="{{ cqbp_jar_image | image_url: width: 120 }}" alt="" loading="lazy" decoding="async">
+            <img class="cqbp__jar-img" src="{{ cqbp_jar_src }}" srcset="{{ cqbp_jar_srcset | strip }}" sizes="(max-width: 480px) 92px, 110px" alt="" loading="lazy" decoding="async">
+            <img class="cqbp__jar-img" src="{{ cqbp_jar_src }}" srcset="{{ cqbp_jar_srcset | strip }}" sizes="(max-width: 480px) 92px, 110px" alt="" loading="lazy" decoding="async">
           </span>
           <span class="cqbp__sr">2 {{ cqbp_t_jars }}</span>
         {%- else -%}
@@ -475,11 +500,11 @@
       {% if cqbp_pop == '3' %}<span class="cqbp__popular">{{ cqbp_t_best_deal }}</span>{% endif %}
       <span class="cqbp__supply">{{ cqbp_t_supply_90 }}</span>
       <span class="cqbp__label cqbp__label--visual">
-        {%- if cqbp_jar_image != blank -%}
+        {%- if cqbp_jar_src != blank -%}
           <span class="cqbp__jar-stack cqbp__jar-stack--3" aria-hidden="true">
-            <img class="cqbp__jar-img" src="{{ cqbp_jar_image | image_url: width: 120 }}" alt="" loading="lazy" decoding="async">
-            <img class="cqbp__jar-img" src="{{ cqbp_jar_image | image_url: width: 120 }}" alt="" loading="lazy" decoding="async">
-            <img class="cqbp__jar-img" src="{{ cqbp_jar_image | image_url: width: 120 }}" alt="" loading="lazy" decoding="async">
+            <img class="cqbp__jar-img" src="{{ cqbp_jar_src }}" srcset="{{ cqbp_jar_srcset | strip }}" sizes="(max-width: 480px) 92px, 110px" alt="" loading="lazy" decoding="async">
+            <img class="cqbp__jar-img" src="{{ cqbp_jar_src }}" srcset="{{ cqbp_jar_srcset | strip }}" sizes="(max-width: 480px) 92px, 110px" alt="" loading="lazy" decoding="async">
+            <img class="cqbp__jar-img" src="{{ cqbp_jar_src }}" srcset="{{ cqbp_jar_srcset | strip }}" sizes="(max-width: 480px) 92px, 110px" alt="" loading="lazy" decoding="async">
           </span>
           <span class="cqbp__sr">3 {{ cqbp_t_jars }}</span>
         {%- else -%}
