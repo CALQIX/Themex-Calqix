@@ -2,57 +2,233 @@
 
 {%- liquid
   assign locale_code = request.locale.iso_code | downcase
-  assign is_nl = false
-  if locale_code contains 'nl'
-    assign is_nl = true
-  endif
 
   assign heading = blog.title | escape
   assign article_count = blog.articles_count | default: blog.articles.size
   assign latest_article = blog.articles.first
 
-  if is_nl
-    assign eyebrow = 'CALQIX RESEARCH DESK'
-    assign hero_kicker = 'Wetenschap die je mondroutine begrijpelijk maakt.'
-    assign hero_copy = 'Lees heldere onderzoeken, productupdates en dagelijkse protocollen over glazuur, microbiome balans, frisse adem en de CALQIX routine.'
-    assign latest_label = 'Nieuwste field note'
-    assign article_label = 'onderzoeken'
-    assign method_label = 'Lees als een labnotitie'
-    assign method_copy = 'Begin met de hypothese, scan het bewijs en eindig met wat dit betekent voor je dagelijkse routine.'
-    assign index_label = 'Research index'
-    assign index_copy = 'Elk artikel is geschreven om een vraag kleiner te maken en een routine duidelijker.'
-    assign read_label = 'Lees onderzoek'
-    assign featured_label = 'Uitgelicht onderzoek'
-    assign theme_one = 'Microbiome balans'
-    assign theme_two = 'Glazuur wetenschap'
-    assign theme_three = 'Dagelijks protocol'
-    assign theme_four = 'Product updates'
-    assign theme_label = 'themas'
-    assign minutes_label = 'min lezen'
-    assign evidence_label = 'bewijsgericht'
-    assign featured_copy = 'De nieuwste update uit het CALQIX lab.'
-    assign method_eyebrow = 'CALQIX METHODE'
-  else
-    assign eyebrow = 'CALQIX RESEARCH DESK'
-    assign hero_kicker = 'Science that makes your oral routine easier to understand.'
-    assign hero_copy = 'Read clear research, product updates and daily protocols on enamel, microbiome balance, fresh breath and the CALQIX routine.'
-    assign latest_label = 'Latest field note'
-    assign article_label = 'studies'
-    assign method_label = 'Read like a lab note'
-    assign method_copy = 'Start with the hypothesis, scan the evidence and finish with what it means for your daily routine.'
-    assign index_label = 'Research index'
-    assign index_copy = 'Every article is written to make one question smaller and one routine clearer.'
-    assign read_label = 'Read study'
-    assign featured_label = 'Featured research'
-    assign theme_one = 'Microbiome balance'
-    assign theme_two = 'Enamel science'
-    assign theme_three = 'Daily protocol'
-    assign theme_four = 'Product updates'
-    assign theme_label = 'themes'
-    assign minutes_label = 'min read'
-    assign evidence_label = 'evidence-led'
-    assign featured_copy = 'The newest update from the CALQIX lab.'
-    assign method_eyebrow = 'CALQIX METHOD'
+  assign eyebrow = "CALQIX RESEARCH DESK"
+  assign hero_kicker = "Science for a smarter oral routine."
+  assign hero_copy = "Clear research, product updates and daily protocols on enamel, microbiome balance, fresh breath and the CALQIX routine."
+  assign latest_label = "Latest field note"
+  assign article_label = "studies"
+  assign method_label = "Read like a lab note"
+  assign method_copy = "Start with the hypothesis, scan the evidence and finish with what it means for your daily routine."
+  assign index_label = "Research index"
+  assign index_copy = "Every article is written to make one question smaller and one routine clearer."
+  assign read_label = "Read study"
+  assign featured_label = "Featured research"
+  assign theme_one = "Microbiome balance"
+  assign theme_two = "Enamel science"
+  assign theme_three = "Daily protocol"
+  assign theme_four = "Product updates"
+  assign theme_label = "themes"
+  assign minutes_label = "min read"
+  assign evidence_label = "evidence-led"
+  assign featured_copy = "The newest update from the CALQIX lab."
+  assign method_eyebrow = "CALQIX METHOD"
+  assign overclaims_label = "overclaims"
+
+  case locale_code
+    when "nl"
+      assign heading = "Het Wetenschapsjournaal"
+      assign eyebrow = "CALQIX ONDERZOEKSDESK"
+      assign hero_kicker = "Wetenschap voor een slimmere mondroutine."
+      assign hero_copy = "Heldere onderzoeken, productupdates en dagelijkse protocollen over glazuur, mondmicrobioom, frisse adem en de CALQIX routine."
+      assign latest_label = "Nieuwste labnotitie"
+      assign article_label = "artikelen"
+      assign method_label = "Lees als een labnotitie"
+      assign method_copy = "Begin met de vraag, scan het bewijs en eindig met wat dit betekent voor je dagelijkse routine."
+      assign index_label = "Onderzoeksindex"
+      assign index_copy = "Elk artikel maakt een vraag kleiner en een routine duidelijker."
+      assign read_label = "Lees artikel"
+      assign featured_label = "Uitgelicht onderzoek"
+      assign theme_one = "Microbioom balans"
+      assign theme_two = "Glazuurwetenschap"
+      assign theme_three = "Dagelijks protocol"
+      assign theme_four = "Productupdates"
+      assign theme_label = "thema's"
+      assign minutes_label = "min lezen"
+      assign evidence_label = "bewijsgericht"
+      assign featured_copy = "De nieuwste update uit het CALQIX lab."
+      assign method_eyebrow = "CALQIX METHODE"
+      assign overclaims_label = "loze claims"
+    when "de"
+      assign heading = "Das Science Journal"
+      assign eyebrow = "CALQIX FORSCHUNGSDESK"
+      assign hero_kicker = "Wissenschaft für eine klarere Mundroutine."
+      assign hero_copy = "Verständliche Forschung, Produktupdates und tägliche Protokolle zu Zahnschmelz, oralem Mikrobiom, frischem Atem und der CALQIX Routine."
+      assign latest_label = "Neueste Labornotiz"
+      assign article_label = "Artikel"
+      assign method_label = "Lesen wie eine Labornotiz"
+      assign method_copy = "Beginne mit der Frage, prüfe die Evidenz und nimm mit, was es für deine tägliche Routine bedeutet."
+      assign index_label = "Forschungsindex"
+      assign index_copy = "Jeder Artikel macht eine Frage kleiner und eine Routine klarer."
+      assign read_label = "Artikel lesen"
+      assign featured_label = "Ausgewählte Forschung"
+      assign theme_one = "Mikrobiom-Balance"
+      assign theme_two = "Zahnschmelz-Wissen"
+      assign theme_three = "Tägliches Protokoll"
+      assign theme_four = "Produktupdates"
+      assign theme_label = "Themen"
+      assign minutes_label = "Min. Lesezeit"
+      assign evidence_label = "evidenzbasiert"
+      assign featured_copy = "Das neueste Update aus dem CALQIX Labor."
+      assign method_eyebrow = "CALQIX METHODE"
+      assign overclaims_label = "leere Versprechen"
+    when "fr"
+      assign heading = "Le journal scientifique"
+      assign eyebrow = "BUREAU DE RECHERCHE CALQIX"
+      assign hero_kicker = "La science pour une routine bucco-dentaire plus claire."
+      assign hero_copy = "Des recherches lisibles, des nouveautés produit et des protocoles quotidiens sur l’émail, le microbiome oral, l’haleine fraîche et la routine CALQIX."
+      assign latest_label = "Dernière note de laboratoire"
+      assign article_label = "articles"
+      assign method_label = "Lire comme une note de laboratoire"
+      assign method_copy = "Commencez par la question, parcourez les preuves et retenez ce que cela change dans votre routine."
+      assign index_label = "Index de recherche"
+      assign index_copy = "Chaque article rend une question plus simple et une routine plus claire."
+      assign read_label = "Lire l’article"
+      assign featured_label = "Recherche à la une"
+      assign theme_one = "Équilibre du microbiome"
+      assign theme_two = "Science de l’émail"
+      assign theme_three = "Protocole quotidien"
+      assign theme_four = "Nouveautés produit"
+      assign theme_label = "thèmes"
+      assign minutes_label = "min de lecture"
+      assign evidence_label = "fondé sur les preuves"
+      assign featured_copy = "La dernière mise à jour du laboratoire CALQIX."
+      assign method_eyebrow = "MÉTHODE CALQIX"
+      assign overclaims_label = "promesses excessives"
+    when "da"
+      assign heading = "Videnskabsjournalen"
+      assign eyebrow = "CALQIX FORSKNINGSDESK"
+      assign hero_kicker = "Viden, der gør din mundrutine lettere at forstå."
+      assign hero_copy = "Klar forskning, produktnyt og daglige protokoller om emalje, mundens mikrobiom, frisk ånde og CALQIX rutinen."
+      assign latest_label = "Seneste labnotat"
+      assign article_label = "artikler"
+      assign method_label = "Læs som et labnotat"
+      assign method_copy = "Start med spørgsmålet, scan beviserne og slut med, hvad det betyder for din daglige rutine."
+      assign index_label = "Forskningsindeks"
+      assign index_copy = "Hver artikel gør et spørgsmål mindre og en rutine tydeligere."
+      assign read_label = "Læs artikel"
+      assign featured_label = "Udvalgt forskning"
+      assign theme_one = "Mikrobiom-balance"
+      assign theme_two = "Emaljeviden"
+      assign theme_three = "Daglig protokol"
+      assign theme_four = "Produktnyt"
+      assign theme_label = "temaer"
+      assign minutes_label = "min. læsning"
+      assign evidence_label = "evidensbaseret"
+      assign featured_copy = "Den nyeste opdatering fra CALQIX lab."
+      assign method_eyebrow = "CALQIX METODE"
+      assign overclaims_label = "overdrevne løfter"
+    when "fi"
+      assign heading = "Tiedejournal"
+      assign eyebrow = "CALQIX TUTKIMUS"
+      assign hero_kicker = "Tutkittua tietoa selkeämpään suunhoitorutiiniin."
+      assign hero_copy = "Selkeää tutkimusta, tuoteuutisia ja päivittäisiä protokollia kiilteestä, suun mikrobiomista, raikkaasta hengityksestä ja CALQIX-rutiinista."
+      assign latest_label = "Uusin labramuistiinpano"
+      assign article_label = "artikkelia"
+      assign method_label = "Lue kuin labramuistiinpanoa"
+      assign method_copy = "Aloita kysymyksestä, käy näyttö läpi ja päätä siihen, mitä se tarkoittaa arjessa."
+      assign index_label = "Tutkimusindeksi"
+      assign index_copy = "Jokainen artikkeli tekee yhdestä kysymyksestä pienemmän ja rutiinista selkeämmän."
+      assign read_label = "Lue artikkeli"
+      assign featured_label = "Nostettu tutkimus"
+      assign theme_one = "Mikrobiomin tasapaino"
+      assign theme_two = "Kiilletiede"
+      assign theme_three = "Päivittäinen protokolla"
+      assign theme_four = "Tuoteuutiset"
+      assign theme_label = "teemaa"
+      assign minutes_label = "min lukuaika"
+      assign evidence_label = "näyttöön perustuva"
+      assign featured_copy = "Uusin päivitys CALQIX-laboratoriosta."
+      assign method_eyebrow = "CALQIX-METODI"
+      assign overclaims_label = "ylilupauksia"
+    when "nb"
+      assign heading = "Vitenskapsjournalen"
+      assign eyebrow = "CALQIX FORSKNINGSDESK"
+      assign hero_kicker = "Vitenskap som gjør munnrutinen enklere å forstå."
+      assign hero_copy = "Tydelig forskning, produktnyheter og daglige protokoller om emalje, munnens mikrobiom, frisk pust og CALQIX-rutinen."
+      assign latest_label = "Nyeste labnotat"
+      assign article_label = "artikler"
+      assign method_label = "Les som et labnotat"
+      assign method_copy = "Start med spørsmålet, se på dokumentasjonen og avslutt med hva det betyr for din daglige rutine."
+      assign index_label = "Forskningsindeks"
+      assign index_copy = "Hver artikkel gjør ett spørsmål mindre og én rutine tydeligere."
+      assign read_label = "Les artikkel"
+      assign featured_label = "Utvalgt forskning"
+      assign theme_one = "Mikrobiom-balanse"
+      assign theme_two = "Emaljevitenskap"
+      assign theme_three = "Daglig protokoll"
+      assign theme_four = "Produktnyheter"
+      assign theme_label = "temaer"
+      assign minutes_label = "min lesing"
+      assign evidence_label = "dokumentert"
+      assign featured_copy = "Den nyeste oppdateringen fra CALQIX-laben."
+      assign method_eyebrow = "CALQIX METODE"
+      assign overclaims_label = "overdrevne løfter"
+    when "sv"
+      assign heading = "Vetenskapsjournalen"
+      assign eyebrow = "CALQIX FORSKNINGSDESK"
+      assign hero_kicker = "Vetenskap som gör din munvårdsrutin lättare att förstå."
+      assign hero_copy = "Tydlig forskning, produktnyheter och dagliga protokoll om emalj, munnens mikrobiom, fräsch andedräkt och CALQIX-rutinen."
+      assign latest_label = "Senaste labbnotisen"
+      assign article_label = "artiklar"
+      assign method_label = "Läs som en labbnotis"
+      assign method_copy = "Börja med frågan, gå igenom bevisen och ta med dig vad det betyder för din dagliga rutin."
+      assign index_label = "Forskningsindex"
+      assign index_copy = "Varje artikel gör en fråga mindre och en rutin tydligare."
+      assign read_label = "Läs artikel"
+      assign featured_label = "Utvald forskning"
+      assign theme_one = "Mikrobiombalans"
+      assign theme_two = "Emaljvetenskap"
+      assign theme_three = "Dagligt protokoll"
+      assign theme_four = "Produktnyheter"
+      assign theme_label = "teman"
+      assign minutes_label = "min läsning"
+      assign evidence_label = "evidensbaserat"
+      assign featured_copy = "Den senaste uppdateringen från CALQIX-labbet."
+      assign method_eyebrow = "CALQIX METOD"
+      assign overclaims_label = "överdrivna löften"
+  endcase
+
+  if latest_article
+    assign latest_title = latest_article.title
+    if latest_article.excerpt.size > 0
+      assign latest_excerpt = latest_article.excerpt | strip_html | truncatewords: 24
+    else
+      assign latest_excerpt = latest_article.content | strip_html | truncatewords: 24
+    endif
+
+    if latest_article.handle == "oralbiome-pro-60-count-aluminium-blister"
+      case locale_code
+        when "nl"
+          assign latest_title = "60 avonden, helder geteld: de nieuwe OralBiome Pro verpakking komt eraan"
+          assign latest_excerpt = "OralBiome Pro krijgt een aluminium doordrukverpakking met 60 tabletten en een teller op de achterkant. Een rustigere manier om je routine vol te houden."
+        when "de"
+          assign latest_title = "60 Abende, klar gezählt: die neue OralBiome Pro Packung kommt"
+          assign latest_excerpt = "OralBiome Pro bekommt eine Aluminium-Durchdrückpackung mit 60 Lutschtabletten und einem Zähler auf der Rückseite. So wird die tägliche Routine sichtbarer."
+        when "fr"
+          assign latest_title = "60 soirs, clairement comptés : le nouveau pack OralBiome Pro arrive"
+          assign latest_excerpt = "OralBiome Pro passe à un format aluminium de 60 pastilles avec un compteur au dos. Une façon plus simple de suivre votre routine."
+        when "da"
+          assign latest_title = "60 aftener, tydeligt talt: den nye OralBiome Pro pakke er på vej"
+          assign latest_excerpt = "OralBiome Pro får en aluminiumspakke med 60 sugetabletter og en tæller på bagsiden. Det gør den daglige rutine lettere at følge."
+        when "fi"
+          assign latest_title = "60 iltaa, selkeästi laskettuna: uusi OralBiome Pro pakkaus on tulossa"
+          assign latest_excerpt = "OralBiome Pro saa 60 imeskelytabletin alumiinipakkauksen, jonka takana on edistymislaskuri. Päivittäinen rutiini on helpompi nähdä ja ylläpitää."
+        when "nb"
+          assign latest_title = "60 kvelder, tydelig telt: den nye OralBiome Pro pakken kommer"
+          assign latest_excerpt = "OralBiome Pro får en aluminiumspakke med 60 sugetabletter og en teller på baksiden. Det gjør den daglige rutinen enklere å følge."
+        when "sv"
+          assign latest_title = "60 kvällar, tydligt räknade: den nya OralBiome Pro förpackningen är på väg"
+          assign latest_excerpt = "OralBiome Pro får en aluminiumförpackning med 60 sugtabletter och en räknare på baksidan. Det gör den dagliga rutinen lättare att följa."
+        else
+          assign latest_title = "60 Evenings, Clearly Counted: A New OralBiome Pro Pack Is Coming"
+          assign latest_excerpt = "OralBiome Pro is moving to a 60-count aluminium push-through format with a clear progress counter, designed to make the daily ritual easier to follow."
+      endcase
+    endif
   endif
 -%}
 
@@ -608,7 +784,7 @@
             </div>
             <div class="cx-journal__stat">
               <strong>0</strong>
-              <span>overclaims</span>
+              <span>{{ overclaims_label }}</span>
             </div>
           </div>
         </div>
@@ -617,14 +793,10 @@
           <aside class="cx-journal__labnote" aria-label="{{ latest_label }}">
             <p class="cx-journal__eyebrow">{{ latest_label }}</p>
             <h2 class="cx-journal__labnote-title">
-              <a class="cx-journal__labnote-link" href="{{ latest_article.url }}">{{ latest_article.title | escape }}</a>
+              <a class="cx-journal__labnote-link" href="{{ latest_article.url }}">{{ latest_title | escape }}</a>
             </h2>
             <p class="cx-journal__labnote-copy">
-              {%- if latest_article.excerpt.size > 0 -%}
-                {{ latest_article.excerpt | strip_html | truncatewords: 24 }}
-              {%- else -%}
-                {{ latest_article.content | strip_html | truncatewords: 24 }}
-              {%- endif -%}
+              {{ latest_excerpt }}
             </p>
             <span class="cx-journal__signal">{{ evidence_label }}</span>
           </aside>
@@ -648,19 +820,190 @@
                 assign read_minutes = 1
               endif
               assign article_tag = article.tags.first
+              assign display_title = article.title
+              if article.excerpt.size > 0
+                assign display_excerpt = article.excerpt | strip_html | truncatewords: 34
+              else
+                assign display_excerpt = article.content | strip_html | truncatewords: 34
+              endif
               assign loading_mode = 'lazy'
               if forloop.first
                 assign loading_mode = 'eager'
               endif
+
+              case article.handle
+                when "oralbiome-pro-60-count-aluminium-blister"
+                  case locale_code
+                    when "nl"
+                      assign display_title = "60 avonden, helder geteld: de nieuwe OralBiome Pro verpakking komt eraan"
+                      assign display_excerpt = "OralBiome Pro krijgt een aluminium doordrukverpakking met 60 tabletten en een teller op de achterkant. Zo wordt je dagelijkse routine zichtbaarder en makkelijker vol te houden."
+                    when "de"
+                      assign display_title = "60 Abende, klar gezählt: die neue OralBiome Pro Packung kommt"
+                      assign display_excerpt = "OralBiome Pro bekommt eine Aluminium-Durchdrückpackung mit 60 Lutschtabletten und einem Zähler auf der Rückseite. So lässt sich die tägliche Routine leichter verfolgen."
+                    when "fr"
+                      assign display_title = "60 soirs, clairement comptés : le nouveau pack OralBiome Pro arrive"
+                      assign display_excerpt = "OralBiome Pro passe à un format aluminium de 60 pastilles avec un compteur au dos. La routine devient plus visible, plus simple et plus facile à tenir."
+                    when "da"
+                      assign display_title = "60 aftener, tydeligt talt: den nye OralBiome Pro pakke er på vej"
+                      assign display_excerpt = "OralBiome Pro får en aluminiumspakke med 60 sugetabletter og en tæller på bagsiden. Det gør den daglige rutine mere synlig og lettere at holde fast i."
+                    when "fi"
+                      assign display_title = "60 iltaa, selkeästi laskettuna: uusi OralBiome Pro pakkaus on tulossa"
+                      assign display_excerpt = "OralBiome Pro saa 60 imeskelytabletin alumiinipakkauksen, jonka takana on edistymislaskuri. Rutiini on helpompi nähdä, muistaa ja pitää mukana arjessa."
+                    when "nb"
+                      assign display_title = "60 kvelder, tydelig telt: den nye OralBiome Pro pakken kommer"
+                      assign display_excerpt = "OralBiome Pro får en aluminiumspakke med 60 sugetabletter og en teller på baksiden. Slik blir den daglige rutinen mer synlig og enklere å holde."
+                    when "sv"
+                      assign display_title = "60 kvällar, tydligt räknade: den nya OralBiome Pro förpackningen är på väg"
+                      assign display_excerpt = "OralBiome Pro får en aluminiumförpackning med 60 sugtabletter och en räknare på baksidan. Rutinen blir tydligare, synligare och lättare att hålla."
+                    else
+                      assign display_title = "60 Evenings, Clearly Counted: A New OralBiome Pro Pack Is Coming"
+                      assign display_excerpt = "OralBiome Pro is moving to a 60-count aluminium push-through format with a clear progress counter, designed to make the daily ritual easier to follow."
+                  endcase
+                when "nano-hydroxyapatite-the-fluoride-alternative"
+                  case locale_code
+                    when "nl"
+                      assign display_title = "Nano-hydroxyapatiet: het fluoride-alternatief met 40 jaar onderzoek"
+                      assign display_excerpt = "Elke dag verliezen tanden mineralen. Nano-hydroxyapatiet lijkt op het mineraal in glazuur en laat zien waarom opbouwen anders voelt dan alleen beschermen."
+                    when "de"
+                      assign display_title = "Nano-Hydroxylapatit: die Fluorid-Alternative mit 40 Jahren Forschung"
+                      assign display_excerpt = "Zähne verlieren täglich Mineralien. Nano-Hydroxylapatit ähnelt dem Mineral im Zahnschmelz und erklärt, warum Aufbau anders wirkt als reine Schutzpflege."
+                    when "fr"
+                      assign display_title = "Nano-hydroxyapatite : l’alternative au fluor soutenue par 40 ans de recherche"
+                      assign display_excerpt = "Chaque jour, les dents perdent des minéraux. La nano-hydroxyapatite imite le minéral de l’émail et aide à comprendre une approche plus réparatrice."
+                    when "da"
+                      assign display_title = "Nano-hydroxyapatit: alternativet til fluorid med 40 års forskning"
+                      assign display_excerpt = "Tænder mister mineraler hver dag. Nano-hydroxyapatit ligner mineralet i emaljen og forklarer, hvorfor genopbygning føles anderledes end ren beskyttelse."
+                    when "fi"
+                      assign display_title = "Nano-hydroksiapatiitti: fluorin vaihtoehto, jota tukee 40 vuoden tutkimus"
+                      assign display_excerpt = "Hampaat menettävät mineraaleja joka päivä. Nano-hydroksiapatiitti muistuttaa kiilteen omaa mineraalia ja auttaa ymmärtämään, miksi uudelleenrakentava hoito tuntuu erilaiselta."
+                    when "nb"
+                      assign display_title = "Nano-hydroksyapatitt: fluoridalternativet med 40 års forskning"
+                      assign display_excerpt = "Tennene mister mineraler hver dag. Nano-hydroksyapatitt ligner mineralet i emaljen og forklarer hvorfor oppbyggende pleie føles annerledes enn bare beskyttelse."
+                    when "sv"
+                      assign display_title = "Nano-hydroxiapatit: fluoridalternativet med 40 års forskning"
+                      assign display_excerpt = "Tänder förlorar mineraler varje dag. Nano-hydroxiapatit liknar mineralet i emaljen och visar varför uppbyggande vård känns annorlunda än enbart skydd."
+                    else
+                      assign display_title = "Nano-Hydroxyapatite: The Fluoride Alternative Backed by 40 Years of Research"
+                      assign display_excerpt = "Every day your teeth lose minerals. Nano-hydroxyapatite mirrors the mineral in enamel and helps explain why rebuilding can feel different from fluoride-only care."
+                  endcase
+                when "the-science-of-your-oral-microbiome-why-most-oral-care-gets-it-wrong"
+                  case locale_code
+                    when "nl"
+                      assign display_title = "De wetenschap achter je mondmicrobioom: waarom veel mondverzorging de balans mist"
+                      assign display_excerpt = "Je mond is een ecosysteem, geen oppervlak dat je moet steriliseren. Ontdek hoe balans, biofilm en dagelijkse gewoontes frisse adem en rustiger tandvlees ondersteunen."
+                    when "de"
+                      assign display_title = "Die Wissenschaft deines oralen Mikrobioms: warum viele Mundpflegeroutinen die Balance verfehlen"
+                      assign display_excerpt = "Dein Mund ist ein Ökosystem, keine Fläche zum Sterilisieren. Erfahre, wie Balance, Biofilm und Gewohnheiten frischen Atem und ruhigeres Zahnfleisch unterstützen."
+                    when "fr"
+                      assign display_title = "La science du microbiome oral : pourquoi tant de soins bucco-dentaires se trompent"
+                      assign display_excerpt = "Votre bouche est un écosystème, pas une surface à stériliser. Comprenez comment l’équilibre, le biofilm et les habitudes quotidiennes soutiennent une bouche plus nette."
+                    when "da"
+                      assign display_title = "Videnskaben bag dit orale mikrobiom: hvorfor meget mundpleje rammer ved siden af"
+                      assign display_excerpt = "Munden er et økosystem, ikke en overflade der skal steriliseres. Se hvordan balance, biofilm og daglige vaner støtter friskere ånde og roligere tandkød."
+                    when "fi"
+                      assign display_title = "Suun mikrobiomin tiede: miksi moni suunhoitorutiini ohittaa tasapainon"
+                      assign display_excerpt = "Suu on ekosysteemi, ei pinta jota pitää steriloida. Lue, miten tasapaino, biofilmi ja päivittäiset tavat tukevat raikkaampaa hengitystä ja rauhallisempia ikeniä."
+                    when "nb"
+                      assign display_title = "Vitenskapen bak munnens mikrobiom: hvorfor mye munnpleie bommer på balansen"
+                      assign display_excerpt = "Munnen er et økosystem, ikke en overflate som skal steriliseres. Se hvordan balanse, biofilm og daglige vaner støtter friskere pust og roligere tannkjøtt."
+                    when "sv"
+                      assign display_title = "Vetenskapen bakom munmikrobiomet: varför mycket munvård missar balansen"
+                      assign display_excerpt = "Munnen är ett ekosystem, inte en yta som ska steriliseras. Se hur balans, biofilm och dagliga vanor stödjer fräschare andedräkt och lugnare tandkött."
+                    else
+                      assign display_title = "The Science of Your Oral Microbiome: Why Most Oral Care Gets It Wrong"
+                      assign display_excerpt = "Your mouth is an ecosystem, not a surface to sterilise. Learn how balance, biofilm and daily habits shape fresher breath and calmer gums."
+                  endcase
+                when "bleeding-gums-properly-explained"
+                  case locale_code
+                    when "nl"
+                      assign display_title = "Bloedend tandvlees, helder uitgelegd"
+                      assign display_excerpt = "Bloedend tandvlees is een signaal, geen mysterie. Deze gids legt uit wat irritatie vaak betekent en hoe een schonere routine gezonder weefsel ondersteunt."
+                    when "de"
+                      assign display_title = "Zahnfleischbluten, verständlich erklärt"
+                      assign display_excerpt = "Zahnfleischbluten ist ein Signal, kein Rätsel. Dieser Guide erklärt, was Reizung oft bedeutet und wie eine saubere Routine gesundes Gewebe unterstützt."
+                    when "fr"
+                      assign display_title = "Gencives qui saignent, expliqué simplement"
+                      assign display_excerpt = "Le saignement des gencives est un signal, pas un mystère. Ce guide explique ce que l’irritation indique souvent et comment une routine plus propre aide."
+                    when "da"
+                      assign display_title = "Blødende tandkød, klart forklaret"
+                      assign display_excerpt = "Blødende tandkød er et signal, ikke et mysterium. Guiden forklarer, hvad irritation ofte betyder, og hvordan en renere rutine støtter sundere væv."
+                    when "fi"
+                      assign display_title = "Vuotavat ikenet, selkeästi selitettynä"
+                      assign display_excerpt = "Ikenien vuoto on merkki, ei arvoitus. Opas kertoo, mitä ärsytys usein tarkoittaa ja miten puhtaampi rutiini tukee terveempää kudosta."
+                    when "nb"
+                      assign display_title = "Blødende tannkjøtt, enkelt forklart"
+                      assign display_excerpt = "Blødende tannkjøtt er et signal, ikke et mysterium. Guiden forklarer hva irritasjon ofte betyr og hvordan en renere rutine støtter sunnere vev."
+                    when "sv"
+                      assign display_title = "Blödande tandkött, tydligt förklarat"
+                      assign display_excerpt = "Blödande tandkött är en signal, inte ett mysterium. Guiden förklarar vad irritation ofta betyder och hur en renare rutin stödjer friskare vävnad."
+                    else
+                      assign display_title = "Bleeding Gums, Properly Explained"
+                      assign display_excerpt = "Bleeding gums are a signal, not a mystery. This guide explains what irritation usually means and how a cleaner routine supports healthier tissue."
+                  endcase
+                when "teeth-sensitivity"
+                  case locale_code
+                    when "nl"
+                      assign display_title = "Gevoelige tanden"
+                      assign display_excerpt = "Gevoeligheid begint vaak aan het oppervlak. Lees hoe glazuurslijtage, blootliggend dentine en dagelijkse zuren kou, zoet of poetsen scherp kunnen laten voelen."
+                    when "de"
+                      assign display_title = "Empfindliche Zähne"
+                      assign display_excerpt = "Empfindlichkeit beginnt oft an der Oberfläche. Lies, wie Zahnschmelzabrieb, freiliegendes Dentin und tägliche Säuren Kälte, Süßes oder Putzen scharf wirken lassen."
+                    when "fr"
+                      assign display_title = "Dents sensibles"
+                      assign display_excerpt = "La sensibilité commence souvent en surface. Découvrez comment l’usure de l’émail, la dentine exposée et les acides quotidiens rendent le froid ou le brossage plus vifs."
+                    when "da"
+                      assign display_title = "Følsomme tænder"
+                      assign display_excerpt = "Følsomhed starter ofte i overfladen. Læs hvordan emaljeslid, blotlagt dentin og daglige syrer kan få kulde, sødt eller børstning til at føles skarpt."
+                    when "fi"
+                      assign display_title = "Vihlonta ja herkät hampaat"
+                      assign display_excerpt = "Herkkyys alkaa usein pinnasta. Lue, miten kiilteen kuluminen, paljastunut dentiini ja arjen hapot voivat tehdä kylmästä, makeasta tai harjauksesta terävän tuntuisen."
+                    when "nb"
+                      assign display_title = "Sensitive tenner"
+                      assign display_excerpt = "Sensitivitet starter ofte i overflaten. Les hvordan emaljeslitasje, eksponert dentin og daglige syrer kan få kulde, søtt eller børsting til å kjennes skarpt."
+                    when "sv"
+                      assign display_title = "Känsliga tänder"
+                      assign display_excerpt = "Känslighet börjar ofta i ytan. Läs hur emaljslitage, blottat dentin och dagliga syror kan göra kyla, sött eller borstning skarpt."
+                    else
+                      assign display_title = "Teeth sensitivity"
+                      assign display_excerpt = "Sensitivity often starts at the surface. Learn how enamel wear, exposed dentin and daily acids can make cold, sweet or brushing feel sharp."
+                  endcase
+                when "transform-your-smile"
+                  case locale_code
+                    when "nl"
+                      assign display_title = "Je glimlach vernieuwen: ondersteun je tandherstel op de juiste manier?"
+                      assign display_excerpt = "Herstel begint met de juiste omstandigheden. Ontdek hoe mineralen, speeksel en een consequente routine kunnen bijdragen aan een sterker ogende glimlach."
+                    when "de"
+                      assign display_title = "Dein Lächeln erneuern: unterstützt du die Regeneration deiner Zähne richtig?"
+                      assign display_excerpt = "Regeneration beginnt mit den richtigen Bedingungen. Erfahre, wie Mineralien, Speichel und eine konsequente Routine ein stärker wirkendes Lächeln unterstützen."
+                    when "fr"
+                      assign display_title = "Transformer votre sourire : soutenez-vous vraiment la régénération dentaire ?"
+                      assign display_excerpt = "La régénération commence avec les bonnes conditions. Découvrez comment les minéraux, la salive et une routine régulière soutiennent un sourire plus fort."
+                    when "da"
+                      assign display_title = "Forvandl dit smil: støtter du tandens genopbygning rigtigt?"
+                      assign display_excerpt = "Genopbygning starter med de rette betingelser. Se hvordan mineraler, spyt og en konsekvent rutine kan støtte et stærkere smil."
+                    when "fi"
+                      assign display_title = "Uudista hymysi: tuetko hampaiden palautumista oikein?"
+                      assign display_excerpt = "Palautuminen alkaa oikeista olosuhteista. Tutustu siihen, miten mineraalit, sylki ja säännöllinen rutiini voivat tukea vahvemman näköistä hymyä."
+                    when "nb"
+                      assign display_title = "Forvandle smilet ditt: støtter du tannfornyelsen riktig?"
+                      assign display_excerpt = "Fornyelse starter med riktige forhold. Se hvordan mineraler, spytt og en jevn rutine kan støtte et sterkere smil."
+                    when "sv"
+                      assign display_title = "Förnya ditt leende: stöttar du tandens återhämtning på rätt sätt?"
+                      assign display_excerpt = "Återhämtning börjar med rätt förutsättningar. Se hur mineraler, saliv och en konsekvent rutin kan stödja ett starkare leende."
+                    else
+                      assign display_title = "Transform Your Smile: Are You Aiding Tooth Regeneration?"
+                      assign display_excerpt = "Regeneration starts with the right conditions. Explore how minerals, saliva and a consistent routine can support a stronger-looking smile."
+                  endcase
+              endcase
             -%}
 
             <article class="cx-journal-card{% if forloop.first %} cx-journal-card--featured{% endif %}">
               {% if section.settings.show_image and article.image %}
-                <a class="cx-journal-card__media" href="{{ article.url }}" aria-label="{{ article.title | escape }}">
+                <a class="cx-journal-card__media" href="{{ article.url }}" aria-label="{{ display_title | escape }}">
                   {{ article.image | image_url: width: 1400 | image_tag: loading: loading_mode, class: 'cx-journal-card__image', widths: '420, 640, 900, 1200, 1400', sizes: '(min-width: 990px) 50vw, 100vw' }}
                 </a>
               {% elsif section.settings.show_image %}
-                <a class="cx-journal-card__media" href="{{ article.url }}" aria-label="{{ article.title | escape }}">
+                <a class="cx-journal-card__media" href="{{ article.url }}" aria-label="{{ display_title | escape }}">
                   <span class="cx-journal-card__media-placeholder">{{ eyebrow }}</span>
                 </a>
               {% endif %}
@@ -679,18 +1022,14 @@
                 </div>
 
                 <h2 class="cx-journal-card__title">
-                  <a href="{{ article.url }}">{{ article.title | escape }}</a>
+                  <a href="{{ article.url }}">{{ display_title | escape }}</a>
                 </h2>
 
                 <p class="cx-journal-card__excerpt">
                   {%- if forloop.first -%}
                     {{ featured_copy }}
                   {%- endif -%}
-                  {%- if article.excerpt.size > 0 -%}
-                    {{ article.excerpt | strip_html | truncatewords: 34 }}
-                  {%- else -%}
-                    {{ article.content | strip_html | truncatewords: 34 }}
-                  {%- endif -%}
+                  {{ display_excerpt }}
                 </p>
 
                 <div class="cx-journal-card__footer">
