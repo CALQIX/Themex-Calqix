@@ -17,8 +17,17 @@ const ROOT = path.resolve(__dirname, '..');
 loadEnv(path.join(ROOT, '.env.local'));
 
 const STORE = process.env.SHOPIFY_STORE_DOMAIN || process.env.SHOPIFY_STORE || 'calqix.myshopify.com';
-const API_VERSION = process.env.SHOPIFY_API_VERSION || '2025-01';
-const TOKEN = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+const shopify = require(path.join(ROOT, 'calqix-capi', 'lib', 'shopify-admin'));
+
+const originalConsoleLog = console.log.bind(console);
+console.log = (...args) => {
+  const message = args.join(' ');
+  if (message.includes('[ShopifyAdmin] Token refreshed')) {
+    originalConsoleLog('[ShopifyAdmin] Token refreshed');
+    return;
+  }
+  originalConsoleLog(...args);
+};
 
 const BLOG_HANDLE = 'the-science-journal';
 const SOURCE_HTML = path.join(ROOT, 'blog-content', 'oralbiome-pro-60-count-aluminium-blister.html');
@@ -83,8 +92,11 @@ function loadEnv(file) {
 }
 
 function assertConfig() {
-  if (!TOKEN) {
-    throw new Error('Missing SHOPIFY_ADMIN_ACCESS_TOKEN in environment or .env.local');
+  if (!STORE) {
+    throw new Error('Missing SHOPIFY_STORE_DOMAIN in environment or .env.local');
+  }
+  if (!process.env.SHOPIFY_ADMIN_ACCESS_TOKEN && (!process.env.SHOPIFY_API_KEY || !process.env.SHOPIFY_API_SECRET)) {
+    throw new Error('Missing Shopify Admin token or OAuth app credentials in environment or .env.local');
   }
   if (!fs.existsSync(SOURCE_HTML)) {
     throw new Error(`Missing source HTML: ${SOURCE_HTML}`);
@@ -92,44 +104,15 @@ function assertConfig() {
 }
 
 async function rest(method, endpoint, body) {
-  const url = `https://${STORE}/admin/api/${API_VERSION}/${endpoint}`;
-  const res = await fetch(url, {
-    method,
-    headers: {
-      'X-Shopify-Access-Token': TOKEN,
-      'Content-Type': 'application/json'
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  const text = await res.text();
-  let data = {};
-  if (text) {
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = { raw: text };
-    }
-  }
-  if (!res.ok) {
-    throw new Error(`Shopify ${method} ${endpoint} failed: ${res.status} ${JSON.stringify(data).slice(0, 500)}`);
+  const data = await shopify.rest(endpoint, method, body);
+  if (data && data.errors) {
+    throw new Error(`Shopify ${method} ${endpoint} failed: ${JSON.stringify(data).slice(0, 500)}`);
   }
   return data;
 }
 
 async function graphql(query, variables) {
-  const res = await fetch(`https://${STORE}/admin/api/${API_VERSION}/graphql.json`, {
-    method: 'POST',
-    headers: {
-      'X-Shopify-Access-Token': TOKEN,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ query, variables })
-  });
-  const data = await res.json();
-  if (!res.ok || data.errors) {
-    throw new Error(`Shopify GraphQL failed: ${JSON.stringify(data).slice(0, 700)}`);
-  }
-  return data;
+  return shopify.graphql(query, variables || {});
 }
 
 async function findBlog() {
@@ -158,7 +141,7 @@ async function stagedUpload(filename, fileSize, mimeType) {
     }]
   };
   const data = await graphql(query, variables);
-  const result = data.data.stagedUploadsCreate;
+  const result = data.stagedUploadsCreate;
   if (result.userErrors.length) {
     throw new Error(`Staged upload error: ${JSON.stringify(result.userErrors)}`);
   }
@@ -195,7 +178,7 @@ async function createFile(resourceUrl, filename, alt) {
     }]
   };
   const data = await graphql(query, variables);
-  const result = data.data.fileCreate;
+  const result = data.fileCreate;
   if (result.userErrors.length) {
     throw new Error(`File create error: ${JSON.stringify(result.userErrors)}`);
   }
@@ -211,7 +194,7 @@ async function waitForFile(fileId) {
   const start = Date.now();
   while (Date.now() - start < 45000) {
     const data = await graphql(query, { id: fileId });
-    const node = data.data.node;
+    const node = data.node;
     if (node && node.fileStatus === 'READY' && node.image && node.image.url) return node.image.url;
     if (node && node.fileStatus === 'FAILED') throw new Error(`File processing failed: ${fileId}`);
     await new Promise((resolve) => setTimeout(resolve, 2000));
