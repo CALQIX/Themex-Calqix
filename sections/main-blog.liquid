@@ -194,6 +194,7 @@
   endcase
 
   if latest_article
+    assign latest_handle = latest_article.url | split: "/" | last
     assign latest_title = latest_article.title
     if latest_article.excerpt.size > 0
       assign latest_excerpt = latest_article.excerpt | strip_html | truncatewords: 24
@@ -201,7 +202,7 @@
       assign latest_excerpt = latest_article.content | strip_html | truncatewords: 24
     endif
 
-    if latest_article.handle == "oralbiome-pro-60-count-aluminium-blister"
+    if latest_handle == "oralbiome-pro-60-count-aluminium-blister"
       case locale_code
         when "nl"
           assign latest_title = "60 avonden, helder geteld: de nieuwe OralBiome Pro verpakking komt eraan"
@@ -820,6 +821,7 @@
                 assign read_minutes = 1
               endif
               assign article_tag = article.tags.first
+              assign article_handle = article.url | split: "/" | last
               assign display_title = article.title
               if article.excerpt.size > 0
                 assign display_excerpt = article.excerpt | strip_html | truncatewords: 34
@@ -831,7 +833,7 @@
                 assign loading_mode = 'eager'
               endif
 
-              case article.handle
+              case article_handle
                 when "oralbiome-pro-60-count-aluminium-blister"
                   case locale_code
                     when "nl"
