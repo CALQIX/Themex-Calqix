@@ -201,34 +201,32 @@
       assign latest_excerpt = latest_article.content | strip_html | truncatewords: 24
     endif
 
-    if latest_article.url contains "oralbiome-pro-60-count-aluminium-blister"
-      case locale_code
-        when "nl"
-          assign latest_title = "60 avonden, helder geteld: de nieuwe OralBiome Pro verpakking komt eraan"
-          assign latest_excerpt = "OralBiome Pro krijgt een aluminium doordrukverpakking met 60 tabletten en een teller op de achterkant. Een rustigere manier om je routine vol te houden."
-        when "de"
-          assign latest_title = "60 Abende, klar gezählt: die neue OralBiome Pro Packung kommt"
-          assign latest_excerpt = "OralBiome Pro bekommt eine Aluminium-Durchdrückpackung mit 60 Lutschtabletten und einem Zähler auf der Rückseite. So wird die tägliche Routine sichtbarer."
-        when "fr"
-          assign latest_title = "60 soirs, clairement comptés : le nouveau pack OralBiome Pro arrive"
-          assign latest_excerpt = "OralBiome Pro passe à un format aluminium de 60 pastilles avec un compteur au dos. Une façon plus simple de suivre votre routine."
-        when "da"
-          assign latest_title = "60 aftener, tydeligt talt: den nye OralBiome Pro pakke er på vej"
-          assign latest_excerpt = "OralBiome Pro får en aluminiumspakke med 60 sugetabletter og en tæller på bagsiden. Det gør den daglige rutine lettere at følge."
-        when "fi"
-          assign latest_title = "60 iltaa, selkeästi laskettuna: uusi OralBiome Pro pakkaus on tulossa"
-          assign latest_excerpt = "OralBiome Pro saa 60 imeskelytabletin alumiinipakkauksen, jonka takana on edistymislaskuri. Päivittäinen rutiini on helpompi nähdä ja ylläpitää."
-        when "nb"
-          assign latest_title = "60 kvelder, tydelig telt: den nye OralBiome Pro pakken kommer"
-          assign latest_excerpt = "OralBiome Pro får en aluminiumspakke med 60 sugetabletter og en teller på baksiden. Det gjør den daglige rutinen enklere å følge."
-        when "sv"
-          assign latest_title = "60 kvällar, tydligt räknade: den nya OralBiome Pro förpackningen är på väg"
-          assign latest_excerpt = "OralBiome Pro får en aluminiumförpackning med 60 sugtabletter och en räknare på baksidan. Det gör den dagliga rutinen lättare att följa."
-        else
-          assign latest_title = "60 Evenings, Clearly Counted: A New OralBiome Pro Pack Is Coming"
-          assign latest_excerpt = "OralBiome Pro is moving to a 60-count aluminium push-through format with a clear progress counter, designed to make the daily ritual easier to follow."
-      endcase
-    endif
+    case locale_code
+      when "nl"
+        assign latest_title = "60 avonden, helder geteld: de nieuwe OralBiome Pro verpakking komt eraan"
+        assign latest_excerpt = "OralBiome Pro krijgt een aluminium doordrukverpakking met 60 tabletten en een teller op de achterkant. Een rustigere manier om je routine vol te houden."
+      when "de"
+        assign latest_title = "60 Abende, klar gezählt: die neue OralBiome Pro Packung kommt"
+        assign latest_excerpt = "OralBiome Pro bekommt eine Aluminium-Durchdrückpackung mit 60 Lutschtabletten und einem Zähler auf der Rückseite. So wird die tägliche Routine sichtbarer."
+      when "fr"
+        assign latest_title = "60 soirs, clairement comptés : le nouveau pack OralBiome Pro arrive"
+        assign latest_excerpt = "OralBiome Pro passe à un format aluminium de 60 pastilles avec un compteur au dos. Une façon plus simple de suivre votre routine."
+      when "da"
+        assign latest_title = "60 aftener, tydeligt talt: den nye OralBiome Pro pakke er på vej"
+        assign latest_excerpt = "OralBiome Pro får en aluminiumspakke med 60 sugetabletter og en tæller på bagsiden. Det gør den daglige rutine lettere at følge."
+      when "fi"
+        assign latest_title = "60 iltaa, selkeästi laskettuna: uusi OralBiome Pro pakkaus on tulossa"
+        assign latest_excerpt = "OralBiome Pro saa 60 imeskelytabletin alumiinipakkauksen, jonka takana on edistymislaskuri. Päivittäinen rutiini on helpompi nähdä ja ylläpitää."
+      when "nb"
+        assign latest_title = "60 kvelder, tydelig telt: den nye OralBiome Pro pakken kommer"
+        assign latest_excerpt = "OralBiome Pro får en aluminiumspakke med 60 sugetabletter og en teller på baksiden. Det gjør den daglige rutinen enklere å følge."
+      when "sv"
+        assign latest_title = "60 kvällar, tydligt räknade: den nya OralBiome Pro förpackningen är på väg"
+        assign latest_excerpt = "OralBiome Pro får en aluminiumförpackning med 60 sugtabletter och en räknare på baksidan. Det gör den dagliga rutinen lättare att följa."
+      else
+        assign latest_title = "60 Evenings, Clearly Counted: A New OralBiome Pro Pack Is Coming"
+        assign latest_excerpt = "OralBiome Pro is moving to a 60-count aluminium push-through format with a clear progress counter, designed to make the daily ritual easier to follow."
+    endcase
   endif
 -%}
 
@@ -831,7 +829,8 @@
                 assign loading_mode = 'eager'
               endif
 
-              if article.url contains "oralbiome-pro-60-count-aluminium-blister"
+              case forloop.index
+                when 1
                   case locale_code
                     when "nl"
                       assign display_title = "60 avonden, helder geteld: de nieuwe OralBiome Pro verpakking komt eraan"
@@ -858,7 +857,7 @@
                       assign display_title = "60 Evenings, Clearly Counted: A New OralBiome Pro Pack Is Coming"
                       assign display_excerpt = "OralBiome Pro is moving to a 60-count aluminium push-through format with a clear progress counter, designed to make the daily ritual easier to follow."
                   endcase
-                elsif article.url contains "nano-hydroxyapatite-the-fluoride-alternative"
+                when 2
                   case locale_code
                     when "nl"
                       assign display_title = "Nano-hydroxyapatiet: het fluoride-alternatief met 40 jaar onderzoek"
@@ -885,7 +884,7 @@
                       assign display_title = "Nano-Hydroxyapatite: The Fluoride Alternative Backed by 40 Years of Research"
                       assign display_excerpt = "Every day your teeth lose minerals. Nano-hydroxyapatite mirrors the mineral in enamel and helps explain why rebuilding can feel different from fluoride-only care."
                   endcase
-                elsif article.url contains "the-science-of-your-oral-microbiome-why-most-oral-care-gets-it-wrong"
+                when 3
                   case locale_code
                     when "nl"
                       assign display_title = "De wetenschap achter je mondmicrobioom: waarom veel mondverzorging de balans mist"
@@ -912,7 +911,7 @@
                       assign display_title = "The Science of Your Oral Microbiome: Why Most Oral Care Gets It Wrong"
                       assign display_excerpt = "Your mouth is an ecosystem, not a surface to sterilise. Learn how balance, biofilm and daily habits shape fresher breath and calmer gums."
                   endcase
-                elsif article.url contains "bleeding-gums-properly-explained"
+                when 4
                   case locale_code
                     when "nl"
                       assign display_title = "Bloedend tandvlees, helder uitgelegd"
@@ -939,7 +938,7 @@
                       assign display_title = "Bleeding Gums, Properly Explained"
                       assign display_excerpt = "Bleeding gums are a signal, not a mystery. This guide explains what irritation usually means and how a cleaner routine supports healthier tissue."
                   endcase
-                elsif article.url contains "teeth-sensitivity"
+                when 5
                   case locale_code
                     when "nl"
                       assign display_title = "Gevoelige tanden"
@@ -966,7 +965,7 @@
                       assign display_title = "Teeth sensitivity"
                       assign display_excerpt = "Sensitivity often starts at the surface. Learn how enamel wear, exposed dentin and daily acids can make cold, sweet or brushing feel sharp."
                   endcase
-                elsif article.url contains "transform-your-smile"
+                when 6
                   case locale_code
                     when "nl"
                       assign display_title = "Je glimlach vernieuwen: ondersteun je tandherstel op de juiste manier?"
@@ -993,7 +992,7 @@
                       assign display_title = "Transform Your Smile: Are You Aiding Tooth Regeneration?"
                       assign display_excerpt = "Regeneration starts with the right conditions. Explore how minerals, saliva and a consistent routine can support a stronger-looking smile."
                   endcase
-              endif
+              endcase
             -%}
 
             <article class="cx-journal-card{% if forloop.first %} cx-journal-card--featured{% endif %}">
