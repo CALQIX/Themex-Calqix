@@ -1,70 +1,730 @@
-{{ 'component-card.css' | asset_url | stylesheet_tag }}
 {{ 'section-main-blog.css' | asset_url | stylesheet_tag }}
 
+{%- liquid
+  assign locale_code = request.locale.iso_code | downcase
+  assign is_nl = false
+  if locale_code contains 'nl'
+    assign is_nl = true
+  endif
+
+  assign heading = blog.title | escape
+  assign article_count = blog.articles_count | default: blog.articles.size
+  assign latest_article = blog.articles.first
+
+  if is_nl
+    assign eyebrow = 'CALQIX RESEARCH DESK'
+    assign hero_kicker = 'Wetenschap die je mondroutine begrijpelijk maakt.'
+    assign hero_copy = 'Lees heldere onderzoeken, productupdates en dagelijkse protocollen over glazuur, microbiome balans, frisse adem en de CALQIX routine.'
+    assign latest_label = 'Nieuwste field note'
+    assign article_label = 'onderzoeken'
+    assign method_label = 'Lees als een labnotitie'
+    assign method_copy = 'Begin met de hypothese, scan het bewijs en eindig met wat dit betekent voor je dagelijkse routine.'
+    assign index_label = 'Research index'
+    assign index_copy = 'Elk artikel is geschreven om een vraag kleiner te maken en een routine duidelijker.'
+    assign read_label = 'Lees onderzoek'
+    assign featured_label = 'Uitgelicht onderzoek'
+    assign theme_one = 'Microbiome balans'
+    assign theme_two = 'Glazuur wetenschap'
+    assign theme_three = 'Dagelijks protocol'
+    assign theme_four = 'Product updates'
+    assign theme_label = 'themas'
+    assign minutes_label = 'min lezen'
+    assign evidence_label = 'bewijsgericht'
+    assign featured_copy = 'De nieuwste update uit het CALQIX lab.'
+    assign method_eyebrow = 'CALQIX METHODE'
+  else
+    assign eyebrow = 'CALQIX RESEARCH DESK'
+    assign hero_kicker = 'Science that makes your oral routine easier to understand.'
+    assign hero_copy = 'Read clear research, product updates and daily protocols on enamel, microbiome balance, fresh breath and the CALQIX routine.'
+    assign latest_label = 'Latest field note'
+    assign article_label = 'studies'
+    assign method_label = 'Read like a lab note'
+    assign method_copy = 'Start with the hypothesis, scan the evidence and finish with what it means for your daily routine.'
+    assign index_label = 'Research index'
+    assign index_copy = 'Every article is written to make one question smaller and one routine clearer.'
+    assign read_label = 'Read study'
+    assign featured_label = 'Featured research'
+    assign theme_one = 'Microbiome balance'
+    assign theme_two = 'Enamel science'
+    assign theme_three = 'Daily protocol'
+    assign theme_four = 'Product updates'
+    assign theme_label = 'themes'
+    assign minutes_label = 'min read'
+    assign evidence_label = 'evidence-led'
+    assign featured_copy = 'The newest update from the CALQIX lab.'
+    assign method_eyebrow = 'CALQIX METHOD'
+  endif
+-%}
+
 <style>
-  [data-section-id="{{ section.id }}"]{
+  [data-section-id="{{ section.id }}"] {
+    {% if section.settings.margin-top %}
+      --section-gap-top: {{ section.settings.margin-top }}px;
+    {% endif %}
 
-  {% if section.settings.margin-top %}
-  --section-gap-top: {{ section.settings.margin-top }}px;
-  {% endif %}
+    {% if section.settings.margin-bottom %}
+      --section-gap-bottom: {{ section.settings.margin-bottom }}px;
+    {% endif %}
 
-  {% if section.settings.margin-bottom %}
-  --section-gap-bottom: {{ section.settings.margin-bottom }}px;
-  {% endif %}
-
-  --cols: {{ section.settings.columns_desktop }};
+    --cols: {{ section.settings.columns_desktop }};
+    --journal-navy: #002549;
+    --journal-ink: #123554;
+    --journal-muted: #5f7284;
+    --journal-line: rgba(0, 37, 73, 0.14);
+    --journal-blue: #eaf4fc;
+    --journal-gold: #c9a84c;
+    --journal-soft: #f7fbff;
+    --journal-white: #ffffff;
   }
 
   [data-section-id="{{ section.id }}"] .main-blog__grid__item {
     --font-headline-scale-desk: {{ section.settings.size_heading | divided_by: 100.0 }};
-
     --font-headline-scale: {{ section.settings.size_heading_mobile | divided_by: 100.0 }};
+  }
+
+  [data-section-id="{{ section.id }}"].cx-journal {
+    position: relative;
+    overflow: hidden;
+    margin-top: var(--section-gap-top, 20px);
+    margin-bottom: var(--section-gap-bottom, 20px);
+    color: var(--journal-ink);
+    background:
+      linear-gradient(rgba(0, 37, 73, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 37, 73, 0.045) 1px, transparent 1px),
+      linear-gradient(180deg, #f6fbff 0%, #ffffff 36%, #f8fbff 100%);
+    background-size: 40px 40px, 40px 40px, auto;
+  }
+
+  .cx-journal__inner {
+    width: min(1320px, calc(100vw - 48px));
+    margin: 0 auto;
+    padding: clamp(42px, 5vw, 76px) 0 clamp(56px, 7vw, 96px);
+  }
+
+  .cx-journal__hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(330px, 0.8fr);
+    gap: clamp(28px, 5vw, 72px);
+    align-items: end;
+    padding-bottom: clamp(28px, 4vw, 54px);
+    border-bottom: 1px solid var(--journal-line);
+  }
+
+  .cx-journal__eyebrow,
+  .cx-journal-card__eyebrow,
+  .cx-journal-rail__label {
+    margin: 0 0 14px;
+    color: var(--journal-gold);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .cx-journal__title {
+    max-width: 820px;
+    margin: 0;
+    color: var(--journal-navy);
+    font-family: var(--font-heading-family);
+    font-size: clamp(42px, 6vw, 76px);
+    line-height: 0.98;
+    letter-spacing: 0;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
+  }
+
+  .cx-journal__lead {
+    max-width: 700px;
+    margin: 24px 0 0;
+    color: var(--journal-ink);
+    font-size: clamp(16px, 1.45vw, 20px);
+    line-height: 1.75;
+  }
+
+  .cx-journal__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 30px;
+  }
+
+  .cx-journal__stat {
+    min-width: 150px;
+    padding: 13px 16px;
+    border: 1px solid var(--journal-line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 18px 44px rgba(0, 37, 73, 0.06);
+    backdrop-filter: blur(10px);
+  }
+
+  .cx-journal__stat strong {
+    display: block;
+    color: var(--journal-navy);
+    font-family: var(--font-heading-family);
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .cx-journal__stat span {
+    display: block;
+    margin-top: 7px;
+    color: var(--journal-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .cx-journal__labnote {
+    position: relative;
+    border: 1px solid rgba(0, 37, 73, 0.16);
+    border-radius: 8px;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(238, 247, 255, 0.9)),
+      var(--journal-white);
+    box-shadow: 0 24px 70px rgba(0, 37, 73, 0.12);
+    padding: clamp(22px, 3vw, 34px);
+  }
+
+  .cx-journal__labnote:before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    border-radius: 8px 0 0 8px;
+    background: linear-gradient(180deg, var(--journal-gold), rgba(0, 37, 73, 0.92));
+  }
+
+  .cx-journal__labnote-title {
+    margin: 0 0 12px;
+    color: var(--journal-navy);
+    font-family: var(--font-heading-family);
+    font-size: clamp(24px, 2.3vw, 34px);
+    line-height: 1.08;
+  }
+
+  .cx-journal__labnote-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .cx-journal__labnote-copy {
+    margin: 0 0 20px;
+    color: var(--journal-muted);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .cx-journal__signal {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--journal-navy);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .cx-journal__signal:before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: var(--journal-gold);
+    box-shadow: 0 0 0 6px rgba(201, 168, 76, 0.14);
+  }
+
+  .cx-journal__topics {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 24px 0 30px;
+    scrollbar-width: thin;
+  }
+
+  .cx-journal__topic {
+    flex: 0 0 auto;
+    border: 1px solid var(--journal-line);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    color: var(--journal-navy);
+    padding: 11px 18px;
+    font-size: 13px;
+    font-weight: 750;
+    box-shadow: 0 12px 30px rgba(0, 37, 73, 0.05);
+  }
+
+  .cx-journal__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: clamp(28px, 4vw, 56px);
+    align-items: start;
+  }
+
+  .cx-journal__feed {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .cx-journal-card {
+    position: relative;
+    min-width: 0;
+    border: 1px solid var(--journal-line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 18px 48px rgba(0, 37, 73, 0.07);
+    overflow: hidden;
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  }
+
+  .cx-journal-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(201, 168, 76, 0.55);
+    box-shadow: 0 28px 72px rgba(0, 37, 73, 0.14);
+  }
+
+  .cx-journal-card--featured {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+    min-height: 420px;
+    background:
+      linear-gradient(135deg, #ffffff 0%, #f1f8ff 100%);
+  }
+
+  .cx-journal-card__media {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    background: var(--journal-blue);
+    aspect-ratio: 16 / 11;
+  }
+
+  .cx-journal-card--featured .cx-journal-card__media {
+    height: 100%;
+    min-height: 420px;
+    aspect-ratio: auto;
+  }
+
+  .cx-journal-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 480ms ease;
+  }
+
+  .cx-journal-card:hover .cx-journal-card__media img {
+    transform: scale(1.035);
+  }
+
+  .cx-journal-card__media-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 260px;
+    display: grid;
+    place-items: center;
+    color: var(--journal-navy);
+    background:
+      linear-gradient(rgba(0, 37, 73, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 37, 73, 0.08) 1px, transparent 1px),
+      #edf6ff;
+    background-size: 24px 24px;
+  }
+
+  .cx-journal-card__content {
+    padding: clamp(22px, 3vw, 34px);
+  }
+
+  .cx-journal-card--featured .cx-journal-card__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .cx-journal-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin: 0 0 15px;
+    color: var(--journal-muted);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .cx-journal-card__tag {
+    color: var(--journal-gold);
+  }
+
+  .cx-journal-card__title {
+    margin: 0;
+    color: var(--journal-navy);
+    font-family: var(--font-heading-family);
+    font-size: clamp(26px, 2.5vw, 42px);
+    line-height: 1.02;
+    letter-spacing: 0;
+  }
+
+  .cx-journal-card:not(.cx-journal-card--featured) .cx-journal-card__title {
+    font-size: clamp(22px, 1.65vw, 30px);
+    line-height: 1.08;
+  }
+
+  .cx-journal-card__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .cx-journal-card__excerpt {
+    margin: 18px 0 0;
+    color: var(--journal-ink);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .cx-journal-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--journal-line);
+  }
+
+  .cx-journal-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--journal-navy);
+    font-size: 13px;
+    font-weight: 850;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+  }
+
+  .cx-journal-card__cta:after {
+    content: "";
+    width: 26px;
+    height: 1px;
+    background: var(--journal-gold);
+    transition: width 220ms ease;
+  }
+
+  .cx-journal-card:hover .cx-journal-card__cta:after {
+    width: 40px;
+  }
+
+  .cx-journal-card__readtime {
+    color: var(--journal-muted);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .cx-journal__rail {
+    position: sticky;
+    top: 112px;
+    display: grid;
+    gap: 16px;
+  }
+
+  .cx-journal-rail__panel {
+    border: 1px solid var(--journal-line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 18px 48px rgba(0, 37, 73, 0.07);
+    padding: 22px;
+  }
+
+  .cx-journal-rail__title {
+    margin: 0 0 10px;
+    color: var(--journal-navy);
+    font-family: var(--font-heading-family);
+    font-size: 25px;
+    line-height: 1.08;
+  }
+
+  .cx-journal-rail__copy {
+    margin: 0;
+    color: var(--journal-muted);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .cx-journal-rail__list {
+    display: grid;
+    gap: 11px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cx-journal-rail__item {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 10px;
+    align-items: start;
+    color: var(--journal-ink);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .cx-journal-rail__item:before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    margin-top: 6px;
+    border-radius: 999px;
+    background: var(--journal-gold);
+    box-shadow: 0 0 0 5px rgba(201, 168, 76, 0.12);
+  }
+
+  .cx-journal .pagination-wrapper {
+    grid-column: 1 / -1;
+    margin-top: 32px;
+  }
+
+  @media screen and (max-width: 989px) {
+    .cx-journal__hero,
+    .cx-journal__body,
+    .cx-journal-card--featured {
+      grid-template-columns: 1fr;
+    }
+
+    .cx-journal__rail {
+      position: static;
+      order: -1;
+    }
+
+    .cx-journal-card--featured .cx-journal-card__media {
+      min-height: 320px;
+      aspect-ratio: 16 / 11;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .cx-journal__inner {
+      width: min(100vw - 32px, 520px);
+      padding-top: 32px;
+      padding-bottom: 74px;
+    }
+
+    .cx-journal__hero-copy {
+      text-align: center;
+    }
+
+    .cx-journal__title {
+      max-width: 100%;
+      font-size: clamp(34px, 9vw, 38px);
+      line-height: 1.05;
+    }
+
+    .cx-journal__lead {
+      margin-top: 18px;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .cx-journal__stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 22px;
+    }
+
+    .cx-journal__stat {
+      min-width: 0;
+      padding: 12px;
+    }
+
+    .cx-journal__stat strong {
+      font-size: 22px;
+    }
+
+    .cx-journal__stat span {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+    }
+
+    .cx-journal__topics {
+      margin-left: -16px;
+      margin-right: -16px;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .cx-journal__feed {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .cx-journal-card__content {
+      padding: 22px;
+    }
+
+    .cx-journal-card__title,
+    .cx-journal-card:not(.cx-journal-card--featured) .cx-journal-card__title {
+      font-size: 25px;
+      line-height: 1.08;
+    }
+
+    .cx-journal-card__excerpt {
+      font-size: 14px;
+    }
+
+    .cx-journal-card__footer {
+      align-items: flex-start;
+      flex-direction: column;
+    }
   }
 </style>
 
-{% if section.settings.image_ratio == 'portrait' %}
-  {% assign customclass = 'hero hero--out hero--out-pic-portrait' %}
-{% elsif section.settings.image_ratio == 'square' %}
-  {% assign customclass = 'hero hero--out hero--out-pic-square' %}
-{% else %}
-  {% assign customclass = 'hero hero--out' %}
-{% endif %}
-
 {%- paginate blog.articles by 6 -%}
-  <div class="main-article" data-section-id="{{ section.id }}">
-    {% if section.settings.show_blog_title %}
-    <h1 class="headline__title {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}">
-      {{ blog.title | escape }}
-    </h1>
-  {% endif %}
-    <ul class="main-blog__grid">
-      {%- for article in blog.articles -%}
-        <div
-          class="main-blog__grid__item main-blog__grid__item--{{ section.settings.column_alignment }} {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}"
-          {% if settings.animations %}
-            data-cascade
-            style="--animation-order: {{ forloop.index }};"
+  <div class="main-article cx-journal" data-section-id="{{ section.id }}">
+    <div class="cx-journal__inner">
+      <div class="cx-journal__hero">
+        <div class="cx-journal__hero-copy">
+          <p class="cx-journal__eyebrow">{{ eyebrow }}</p>
+          {% if section.settings.show_blog_title %}
+            <h1 class="cx-journal__title">{{ heading }}</h1>
           {% endif %}
-        >
-          {% render 'article-card',
-            blog: blog,
-            article: article,
-            show_image: section.settings.show_image,
-            classname: customclass,
-            make_full_width: section.settings['full-width-enabled'],
-            show_author: section.settings.show_author,
-            show_date: section.settings.show_date,
-            button_type: section.settings.button_select,
-            hide_badge: true,
-            media_aspect_ratio: section.settings.image_ratio
-          %}
-        </div>
-      {%- endfor -%}
-    </ul>
+          <p class="cx-journal__lead"><strong>{{ hero_kicker }}</strong> {{ hero_copy }}</p>
 
-    {%- if paginate.pages > 1 -%}
-      {%- render 'pagination', paginate: paginate -%}
-    {%- endif -%}
+          <div class="cx-journal__stats" aria-label="{{ index_label }}">
+            <div class="cx-journal__stat">
+              <strong>{{ article_count }}</strong>
+              <span>{{ article_label }}</span>
+            </div>
+            <div class="cx-journal__stat">
+              <strong>4</strong>
+              <span>{{ theme_label }}</span>
+            </div>
+            <div class="cx-journal__stat">
+              <strong>0</strong>
+              <span>overclaims</span>
+            </div>
+          </div>
+        </div>
+
+        {% if latest_article %}
+          <aside class="cx-journal__labnote" aria-label="{{ latest_label }}">
+            <p class="cx-journal__eyebrow">{{ latest_label }}</p>
+            <h2 class="cx-journal__labnote-title">
+              <a class="cx-journal__labnote-link" href="{{ latest_article.url }}">{{ latest_article.title | escape }}</a>
+            </h2>
+            <p class="cx-journal__labnote-copy">
+              {%- if latest_article.excerpt.size > 0 -%}
+                {{ latest_article.excerpt | strip_html | truncatewords: 24 }}
+              {%- else -%}
+                {{ latest_article.content | strip_html | truncatewords: 24 }}
+              {%- endif -%}
+            </p>
+            <span class="cx-journal__signal">{{ evidence_label }}</span>
+          </aside>
+        {% endif %}
+      </div>
+
+      <div class="cx-journal__topics" aria-label="{{ index_label }}">
+        <span class="cx-journal__topic">{{ theme_one }}</span>
+        <span class="cx-journal__topic">{{ theme_two }}</span>
+        <span class="cx-journal__topic">{{ theme_three }}</span>
+        <span class="cx-journal__topic">{{ theme_four }}</span>
+      </div>
+
+      <div class="cx-journal__body">
+        <div class="cx-journal__feed">
+          {%- for article in blog.articles -%}
+            {%- liquid
+              assign article_words = article.content | strip_html | split: ' ' | size
+              assign read_minutes = article_words | divided_by: 180
+              if read_minutes < 1
+                assign read_minutes = 1
+              endif
+              assign article_tag = article.tags.first
+              assign loading_mode = 'lazy'
+              if forloop.first
+                assign loading_mode = 'eager'
+              endif
+            -%}
+
+            <article class="cx-journal-card{% if forloop.first %} cx-journal-card--featured{% endif %}">
+              {% if section.settings.show_image and article.image %}
+                <a class="cx-journal-card__media" href="{{ article.url }}" aria-label="{{ article.title | escape }}">
+                  {{ article.image | image_url: width: 1400 | image_tag: loading: loading_mode, class: 'cx-journal-card__image', widths: '420, 640, 900, 1200, 1400', sizes: '(min-width: 990px) 50vw, 100vw' }}
+                </a>
+              {% elsif section.settings.show_image %}
+                <a class="cx-journal-card__media" href="{{ article.url }}" aria-label="{{ article.title | escape }}">
+                  <span class="cx-journal-card__media-placeholder">{{ eyebrow }}</span>
+                </a>
+              {% endif %}
+
+              <div class="cx-journal-card__content">
+                {% if forloop.first %}
+                  <p class="cx-journal-card__eyebrow">{{ featured_label }}</p>
+                {% endif %}
+                <div class="cx-journal-card__meta">
+                  {% if article_tag != blank %}
+                    <span class="cx-journal-card__tag">{{ article_tag | escape }}</span>
+                  {% endif %}
+                  {% if section.settings.show_date %}
+                    <span>{{ article.published_at | time_tag: format: 'date' }}</span>
+                  {% endif %}
+                </div>
+
+                <h2 class="cx-journal-card__title">
+                  <a href="{{ article.url }}">{{ article.title | escape }}</a>
+                </h2>
+
+                <p class="cx-journal-card__excerpt">
+                  {%- if forloop.first -%}
+                    {{ featured_copy }}
+                  {%- endif -%}
+                  {%- if article.excerpt.size > 0 -%}
+                    {{ article.excerpt | strip_html | truncatewords: 34 }}
+                  {%- else -%}
+                    {{ article.content | strip_html | truncatewords: 34 }}
+                  {%- endif -%}
+                </p>
+
+                <div class="cx-journal-card__footer">
+                  <a class="cx-journal-card__cta" href="{{ article.url }}">{{ read_label }}</a>
+                  <span class="cx-journal-card__readtime">{{ read_minutes }} {{ minutes_label }}</span>
+                </div>
+              </div>
+            </article>
+          {%- endfor -%}
+
+          {%- if paginate.pages > 1 -%}
+            {%- render 'pagination', paginate: paginate -%}
+          {%- endif -%}
+        </div>
+
+        <aside class="cx-journal__rail" aria-label="{{ index_label }}">
+          <div class="cx-journal-rail__panel">
+            <p class="cx-journal-rail__label">{{ index_label }}</p>
+            <h2 class="cx-journal-rail__title">{{ method_label }}</h2>
+            <p class="cx-journal-rail__copy">{{ method_copy }}</p>
+          </div>
+          <div class="cx-journal-rail__panel">
+            <p class="cx-journal-rail__label">{{ method_eyebrow }}</p>
+            <h2 class="cx-journal-rail__title">{{ index_copy }}</h2>
+            <ul class="cx-journal-rail__list">
+              <li class="cx-journal-rail__item">{{ theme_one }}</li>
+              <li class="cx-journal-rail__item">{{ theme_two }}</li>
+              <li class="cx-journal-rail__item">{{ theme_three }}</li>
+              <li class="cx-journal-rail__item">{{ theme_four }}</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
   </div>
 {%- endpaginate -%}
 
