@@ -194,7 +194,6 @@
   endcase
 
   if latest_article
-    assign latest_handle = latest_article.url | split: "/" | last
     assign latest_title = latest_article.title
     if latest_article.excerpt.size > 0
       assign latest_excerpt = latest_article.excerpt | strip_html | truncatewords: 24
@@ -202,7 +201,7 @@
       assign latest_excerpt = latest_article.content | strip_html | truncatewords: 24
     endif
 
-    if latest_handle == "oralbiome-pro-60-count-aluminium-blister"
+    if latest_article.url contains "oralbiome-pro-60-count-aluminium-blister"
       case locale_code
         when "nl"
           assign latest_title = "60 avonden, helder geteld: de nieuwe OralBiome Pro verpakking komt eraan"
@@ -821,7 +820,6 @@
                 assign read_minutes = 1
               endif
               assign article_tag = article.tags.first
-              assign article_handle = article.url | split: "/" | last
               assign display_title = article.title
               if article.excerpt.size > 0
                 assign display_excerpt = article.excerpt | strip_html | truncatewords: 34
@@ -833,8 +831,7 @@
                 assign loading_mode = 'eager'
               endif
 
-              case article_handle
-                when "oralbiome-pro-60-count-aluminium-blister"
+              if article.url contains "oralbiome-pro-60-count-aluminium-blister"
                   case locale_code
                     when "nl"
                       assign display_title = "60 avonden, helder geteld: de nieuwe OralBiome Pro verpakking komt eraan"
@@ -861,7 +858,7 @@
                       assign display_title = "60 Evenings, Clearly Counted: A New OralBiome Pro Pack Is Coming"
                       assign display_excerpt = "OralBiome Pro is moving to a 60-count aluminium push-through format with a clear progress counter, designed to make the daily ritual easier to follow."
                   endcase
-                when "nano-hydroxyapatite-the-fluoride-alternative"
+                elsif article.url contains "nano-hydroxyapatite-the-fluoride-alternative"
                   case locale_code
                     when "nl"
                       assign display_title = "Nano-hydroxyapatiet: het fluoride-alternatief met 40 jaar onderzoek"
@@ -888,7 +885,7 @@
                       assign display_title = "Nano-Hydroxyapatite: The Fluoride Alternative Backed by 40 Years of Research"
                       assign display_excerpt = "Every day your teeth lose minerals. Nano-hydroxyapatite mirrors the mineral in enamel and helps explain why rebuilding can feel different from fluoride-only care."
                   endcase
-                when "the-science-of-your-oral-microbiome-why-most-oral-care-gets-it-wrong"
+                elsif article.url contains "the-science-of-your-oral-microbiome-why-most-oral-care-gets-it-wrong"
                   case locale_code
                     when "nl"
                       assign display_title = "De wetenschap achter je mondmicrobioom: waarom veel mondverzorging de balans mist"
@@ -915,7 +912,7 @@
                       assign display_title = "The Science of Your Oral Microbiome: Why Most Oral Care Gets It Wrong"
                       assign display_excerpt = "Your mouth is an ecosystem, not a surface to sterilise. Learn how balance, biofilm and daily habits shape fresher breath and calmer gums."
                   endcase
-                when "bleeding-gums-properly-explained"
+                elsif article.url contains "bleeding-gums-properly-explained"
                   case locale_code
                     when "nl"
                       assign display_title = "Bloedend tandvlees, helder uitgelegd"
@@ -942,7 +939,7 @@
                       assign display_title = "Bleeding Gums, Properly Explained"
                       assign display_excerpt = "Bleeding gums are a signal, not a mystery. This guide explains what irritation usually means and how a cleaner routine supports healthier tissue."
                   endcase
-                when "teeth-sensitivity"
+                elsif article.url contains "teeth-sensitivity"
                   case locale_code
                     when "nl"
                       assign display_title = "Gevoelige tanden"
@@ -969,7 +966,7 @@
                       assign display_title = "Teeth sensitivity"
                       assign display_excerpt = "Sensitivity often starts at the surface. Learn how enamel wear, exposed dentin and daily acids can make cold, sweet or brushing feel sharp."
                   endcase
-                when "transform-your-smile"
+                elsif article.url contains "transform-your-smile"
                   case locale_code
                     when "nl"
                       assign display_title = "Je glimlach vernieuwen: ondersteun je tandherstel op de juiste manier?"
@@ -996,7 +993,7 @@
                       assign display_title = "Transform Your Smile: Are You Aiding Tooth Regeneration?"
                       assign display_excerpt = "Regeneration starts with the right conditions. Explore how minerals, saliva and a consistent routine can support a stronger-looking smile."
                   endcase
-              endcase
+              endif
             -%}
 
             <article class="cx-journal-card{% if forloop.first %} cx-journal-card--featured{% endif %}">
