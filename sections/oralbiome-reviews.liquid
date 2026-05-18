@@ -1,6 +1,6 @@
 <style>
-  .ob-reviews { background: #F4F5F7; padding: 48px 16px; }
-  .ob-reviews__container { max-width: 1000px; margin: 0 auto; padding: 0; }
+  .ob-reviews { background: linear-gradient(180deg, #F8FAFB 0%, #F1F4F6 100%); padding: 48px 16px; }
+  .ob-reviews__container { max-width: 1120px; margin: 0 auto; padding: 0; }
   .ob-reviews__header { text-align: center; margin-bottom: 32px; }
   .ob-reviews__eyebrow { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; color: #C9A84C; margin: 0 0 12px; }
   .ob-reviews__heading { font-family: 'DM Serif Display', serif; font-size: 28px; color: #1A3B5C; margin: 0 0 32px; line-height: 1.3; }
@@ -15,14 +15,38 @@
   .ob-reviews__bar-track { flex: 1; height: 8px; background: #E5E7EB; border-radius: 4px; overflow: hidden; }
   .ob-reviews__bar-fill { height: 8px; background: #C9A84C; border-radius: 4px; transition: width 0.6s ease; }
   .ob-reviews__bar-count { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #6B7280; width: 24px; text-align: right; flex-shrink: 0; }
-  .ob-reviews__filters { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-wrap: nowrap; padding: 0 0 4px; }
+  .ob-reviews__filters { display: flex; justify-content: center; gap: 8px; margin-bottom: 28px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-wrap: nowrap; padding: 0 0 4px; }
   .ob-reviews__filters::-webkit-scrollbar { display: none; }
   .ob-reviews__filter-btn { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 8px 20px; border: 1px solid #E5E7EB; border-radius: 50px; background: #fff; color: #6B7280; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; flex-shrink: 0; }
   .ob-reviews__filter-btn:hover { border-color: #1A3B5C; background: #1A3B5C; color: #fff; }
-  .ob-reviews__filter-btn.is-active { background: #1A3B5C; color: #fff; border-color: #1A3B5C; }
-  .ob-reviews__grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  .ob-reviews__card { background: #fff; border: 1px solid #E5E7EB; border-radius: 8px; padding: 20px; opacity: 0; transform: translateY(12px); transition: opacity 0.4s ease, transform 0.4s ease; }
+  .ob-reviews__filter-btn.is-active { background: #1A3B5C; color: #fff; border-color: #1A3B5C; box-shadow: 0 12px 30px rgba(26,59,92,0.16); }
+  .ob-reviews__photo-gallery { display: none; position: relative; margin: -4px 0 30px; padding: 18px 18px 20px; border: 1px solid rgba(26,59,92,0.11); border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(248,251,252,0.78)); box-shadow: 0 18px 46px rgba(26,59,92,0.08); overflow: hidden; }
+  .ob-reviews__photo-gallery.is-visible { display: block; }
+  .ob-reviews__photo-gallery::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(26,59,92,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(26,59,92,0.035) 1px, transparent 1px); background-size: 32px 32px; mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent); }
+  .ob-reviews__photo-gallery-head { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+  .ob-reviews__photo-title { margin: 0; font-family: 'DM Serif Display', serif; font-size: 22px; line-height: 1.1; color: #1A3B5C; }
+  .ob-reviews__photo-count { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 10px; border: 1px solid rgba(201,168,76,0.42); border-radius: 999px; background: rgba(201,168,76,0.1); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; color: #8F7330; white-space: nowrap; }
+  .ob-reviews__photo-controls { display: inline-flex; gap: 8px; }
+  .ob-reviews__photo-control { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(26,59,92,0.18); border-radius: 999px; background: rgba(255,255,255,0.88); color: #1A3B5C; cursor: pointer; transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease; }
+  .ob-reviews__photo-control:hover { transform: translateY(-1px); border-color: #1A3B5C; background: #fff; }
+  .ob-reviews__photo-shell { position: relative; z-index: 1; }
+  .ob-reviews__photo-shell::before, .ob-reviews__photo-shell::after { content: ""; position: absolute; top: 0; bottom: 8px; z-index: 2; width: 44px; pointer-events: none; }
+  .ob-reviews__photo-shell::before { left: 0; background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,255,255,0)); }
+  .ob-reviews__photo-shell::after { right: 0; background: linear-gradient(270deg, rgba(255,255,255,0.95), rgba(255,255,255,0)); }
+  .ob-reviews__photo-rail { display: flex; gap: 12px; padding: 2px 4px 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .ob-reviews__photo-rail::-webkit-scrollbar { display: none; }
+  .ob-reviews__photo-thumb { position: relative; flex: 0 0 108px; width: 108px; aspect-ratio: 4 / 5; scroll-snap-align: start; padding: 0; border: 1px solid rgba(26,59,92,0.12); border-radius: 10px; overflow: hidden; background: #fff; cursor: pointer; box-shadow: 0 10px 24px rgba(26,59,92,0.11); transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; }
+  .ob-reviews__photo-thumb::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 52%, rgba(6,24,39,0.28)); opacity: 0; transition: opacity 0.22s ease; }
+  .ob-reviews__photo-thumb:hover { transform: translateY(-3px); border-color: rgba(201,168,76,0.54); box-shadow: 0 18px 36px rgba(26,59,92,0.18); }
+  .ob-reviews__photo-thumb:hover::after { opacity: 1; }
+  .ob-reviews__photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ob-reviews__grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .ob-reviews__card { position: relative; background: rgba(255,255,255,0.96); border: 1px solid rgba(26,59,92,0.1); border-radius: 10px; padding: 20px; opacity: 0; transform: translateY(12px); box-shadow: 0 16px 34px rgba(26,59,92,0.07); transition: opacity 0.4s ease, transform 0.4s ease, box-shadow 0.24s ease, border-color 0.24s ease; overflow: hidden; }
+  .ob-reviews__card:hover { border-color: rgba(201,168,76,0.36); box-shadow: 0 22px 48px rgba(26,59,92,0.12); }
   .ob-reviews__card.is-visible { opacity: 1; transform: translateY(0); }
+  .ob-reviews__card-photo { width: 100%; aspect-ratio: 4 / 3; margin-bottom: 14px; padding: 0; border: 1px solid rgba(26,59,92,0.1); border-radius: 8px; overflow: hidden; background: #F8FAFB; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.45); }
+  .ob-reviews__card-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease; }
+  .ob-reviews__card-photo:hover img { transform: scale(1.035); }
   .ob-reviews__card-stars { display: flex; gap: 1px; }
   .ob-reviews__card-stars svg { width: 14px; height: 14px; }
   .ob-reviews__card-title { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; color: #1A3B5C; margin: 12px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -42,6 +66,11 @@
   .ob-reviews__show-more:hover { background: #1A3B5C; color: #fff; }
   .ob-reviews__write { display: block; margin: 16px auto 0; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; padding: 12px 32px; border: 1px solid #C9A84C; border-radius: 4px; background: transparent; color: #C9A84C; cursor: pointer; transition: background 0.2s ease, color 0.2s ease; text-decoration: none; text-align: center; }
   .ob-reviews__write:hover { background: #C9A84C; color: #1A3B5C; }
+  .ob-photo-modal { position: fixed; inset: 0; z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(6, 24, 39, 0.74); backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.2s ease; }
+  .ob-photo-modal.is-open { display: flex; opacity: 1; }
+  .ob-photo-modal__box { position: relative; width: min(620px, 94vw); max-height: 88vh; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 24px 70px rgba(6,24,39,0.35); }
+  .ob-photo-modal__image { width: 100%; max-height: 88vh; object-fit: contain; display: block; background: #F4F5F7; }
+  .ob-photo-modal__close { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border: none; border-radius: 50%; background: rgba(255,255,255,0.92); color: #1A3B5C; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(6,24,39,0.18); }
 
   /* ── Review Modal ── */
   .ob-review-modal { position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); opacity: 0; transition: opacity 0.25s ease; }
@@ -71,6 +100,16 @@
   .ob-reviews__judgeme { margin-top: 32px; }
   @media (max-width: 767px) {
     .ob-reviews__filters { justify-content: flex-start; padding: 0 16px 4px; }
+    .ob-reviews__photo-gallery { margin-inline: -8px; padding: 14px 12px 16px; border-radius: 10px; }
+    .ob-reviews__photo-gallery-head { align-items: flex-start; }
+    .ob-reviews__photo-title { font-size: 20px; }
+    .ob-reviews__photo-controls { display: none; }
+    .ob-reviews__photo-shell::before,
+    .ob-reviews__photo-shell::after { width: 24px; }
+    .ob-reviews__photo-thumb { flex-basis: 118px; width: 118px; }
+    .ob-reviews__card-photo { aspect-ratio: 5 / 3.4; }
+    .ob-photo-modal { padding: 12px; }
+    .ob-photo-modal__box { width: 100%; border-radius: 10px; }
   }
   @media (min-width: 768px) {
     .ob-reviews { padding: 48px 0; }
@@ -83,7 +122,8 @@
   @media (min-width: 1024px) {
     .ob-reviews { padding: 80px 0; }
     .ob-reviews__heading { font-size: 36px; }
-    .ob-reviews__grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .ob-reviews__grid { grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .ob-reviews__photo-thumb { flex-basis: 124px; width: 124px; }
   }
 </style>
 
@@ -129,6 +169,23 @@
         <div id="judgeme_product_reviews" data-id="{{ product.id }}">{{ product.metafields.judgeme.widget }}</div>
       </div>
     {%- else -%}
+      <div class="ob-reviews__photo-gallery" data-ob-photo-gallery aria-label="Customer review photos">
+        <div class="ob-reviews__photo-gallery-head">
+          <p class="ob-reviews__photo-title">{{ section.settings.photo_gallery_title }}</p>
+          <div class="ob-reviews__photo-controls">
+            <button type="button" class="ob-reviews__photo-control" data-ob-photo-prev aria-label="Previous review photos">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button type="button" class="ob-reviews__photo-control" data-ob-photo-next aria-label="Next review photos">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+          <span class="ob-reviews__photo-count" data-ob-photo-count></span>
+        </div>
+        <div class="ob-reviews__photo-shell">
+          <div class="ob-reviews__photo-rail" data-ob-photo-rail></div>
+        </div>
+      </div>
       <div class="ob-reviews__grid" data-ob-grid></div>
       <button type="button" class="ob-reviews__show-more" data-ob-show-more>{{ section.settings.show_more_label }}</button>
       <button type="button" class="ob-reviews__write" data-ob-open-review>{{ _ob_rev_write }}</button>
@@ -183,6 +240,15 @@
       <h3 class="ob-review-modal__success-heading">{{ 'calqix_oralbiome.reviews.thank_you_title' | t | default: 'Thank you!' }}</h3>
       <p class="ob-review-modal__success-text">{{ 'calqix_oralbiome.reviews.thank_you_text' | t | default: 'Your review has been submitted and will be reviewed by our team.' }}</p>
     </div>
+  </div>
+</div>
+
+<div class="ob-photo-modal" data-ob-photo-modal aria-hidden="true" role="dialog" aria-label="Review photo">
+  <div class="ob-photo-modal__box">
+    <button class="ob-photo-modal__close" type="button" aria-label="Close review photo" data-ob-photo-close>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <img class="ob-photo-modal__image" data-ob-photo-modal-img alt="">
   </div>
 </div>
 
@@ -358,6 +424,24 @@
     {%- endif -%}
   } catch (e) { /* silently ignore */ }
 
+  var currentProductHandle = {{ product.handle | json }};
+  var reviewPhotoBaseUrl = {{ section.settings.review_image_base_url | default: 'https://calqix-reviews-manager.vercel.app' | json }};
+  reviewPhotoBaseUrl = String(reviewPhotoBaseUrl || '').replace(/\/+$/, '');
+  var photoFlavorByHandle = {
+    'oralbiome-pro-citrus-orange': 'orange',
+    'oralbiome-pro-cool-mint': 'cool-mint',
+    'oralbiome-pro-freshmint': 'fresh-mint',
+    'oralbiome-pro-grape': 'grapes',
+    'oralbiome-pro-peach': 'peach'
+  };
+  var photoIdsByHandle = {
+    'oralbiome-pro-citrus-orange': [2,7,12,20,28,39,47,54,59,71,86,91,107],
+    'oralbiome-pro-cool-mint': [3,8,13,22,30,40,48,55,64,72,87,93],
+    'oralbiome-pro-freshmint': [4,9,15,25,34,41,49,56,66,74,81,88,98],
+    'oralbiome-pro-grape': [5,10,18,26,35,45,51,57,69,76,83,89,103],
+    'oralbiome-pro-peach': [1,6,11,19,27,38,46,53,58,70,78,85,90,105]
+  };
+
   /* Reviews Manager sync
      When the CALQIX Reviews Manager writes product metafields, use that
      reviewed data as the source of truth. Existing hardcoded reviews are
@@ -395,7 +479,12 @@
             t: review.t || fallback.t || '',
             b: review.b || fallback.b || '',
             tg: Array.isArray(fallback.tg) ? fallback.tg : (Array.isArray(review.tg) ? review.tg : ['general']),
-            d: review.d || fallback.d || new Date().toISOString().slice(0, 10)
+            d: review.d || fallback.d || new Date().toISOString().slice(0, 10),
+            p: photosForReview({
+              id: review.id || fallback.id || ('crm-' + index),
+              n: review.n || fallback.n || 'CALQIX customer',
+              t: review.t || fallback.t || ''
+            }, review.p || review.photos || fallback.p || fallback.photos)
           };
         }).filter(function(review){
           return review && review.r && review.t && review.b;
@@ -404,6 +493,11 @@
     {%- endif -%}
   } catch (e) { /* silently ignore synced review payload */ }
 
+  reviews = reviews.map(function(review) {
+    review.p = photosForReview(review, review.p || review.photos);
+    return review;
+  });
+
   var PER_PAGE = 6;
   var currentFilter = 'all';
   var visibleCount = PER_PAGE;
@@ -411,6 +505,14 @@
   var showMoreBtn = section.querySelector('[data-ob-show-more]');
   var filtersWrap = section.querySelector('[data-ob-filters]');
   var breakdownEl = section.querySelector('[data-ob-breakdown]');
+  var photoGallery = section.querySelector('[data-ob-photo-gallery]');
+  var photoRail = section.querySelector('[data-ob-photo-rail]');
+  var photoCountEl = section.querySelector('[data-ob-photo-count]');
+  var photoPrevBtn = section.querySelector('[data-ob-photo-prev]');
+  var photoNextBtn = section.querySelector('[data-ob-photo-next]');
+  var photoModal = document.querySelector('[data-ob-photo-modal]');
+  var photoModalImg = photoModal ? photoModal.querySelector('[data-ob-photo-modal-img]') : null;
+  var photoModalClose = photoModal ? photoModal.querySelector('[data-ob-photo-close]') : null;
   var FLAGS = {NL:'\u{1F1F3}\u{1F1F1}',DE:'\u{1F1E9}\u{1F1EA}',BE:'\u{1F1E7}\u{1F1EA}',AT:'\u{1F1E6}\u{1F1F9}',FR:'\u{1F1EB}\u{1F1F7}',SE:'\u{1F1F8}\u{1F1EA}',DK:'\u{1F1E9}\u{1F1F0}',NO:'\u{1F1F3}\u{1F1F4}',FI:'\u{1F1EB}\u{1F1EE}',IT:'\u{1F1EE}\u{1F1F9}',ES:'\u{1F1EA}\u{1F1F8}',PT:'\u{1F1F5}\u{1F1F9}',IE:'\u{1F1EE}\u{1F1EA}',GB:'\u{1F1EC}\u{1F1E7}',CH:'\u{1F1E8}\u{1F1ED}'};
   var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var STAR_GOLD = '<svg width="14" height="14" viewBox="0 0 24 24" fill="#C9A84C"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
@@ -474,17 +576,20 @@
   }
 
   /* Tag counts for filter buttons */
-  var tagCounts = {all: total, gum_health: 0, fresh_breath: 0, subscription: 0};
+  var tagCounts = {all: total, with_photos: 0, gum_health: 0, fresh_breath: 0, subscription: 0};
+  reviews.forEach(function(r){ if (photosForReview(r, r.p).length > 0) tagCounts.with_photos++; });
   reviews.forEach(function(r){ r.tg.forEach(function(t){ if (tagCounts[t] !== undefined) tagCounts[t]++; }); });
 
   /* Render filter tabs */
   if (filtersWrap) {
     var filterAll = {{ section.settings.filter_all | json }};
+    var filterPhotos = {{ section.settings.filter_photos | json }};
     var filterGum = {{ section.settings.filter_gum | json }};
     var filterBreath = {{ section.settings.filter_breath | json }};
     var filterSub = {{ section.settings.filter_sub | json }};
     filtersWrap.innerHTML =
       '<button class="ob-reviews__filter-btn is-active" data-filter="all" role="tab" aria-selected="true">' + filterAll + ' (' + tagCounts.all + ')</button>' +
+      '<button class="ob-reviews__filter-btn" data-filter="with_photos" role="tab" aria-selected="false">' + filterPhotos + ' (' + tagCounts.with_photos + ')</button>' +
       '<button class="ob-reviews__filter-btn" data-filter="gum_health" role="tab" aria-selected="false">' + filterGum + ' (' + tagCounts.gum_health + ')</button>' +
       '<button class="ob-reviews__filter-btn" data-filter="fresh_breath" role="tab" aria-selected="false">' + filterBreath + ' (' + tagCounts.fresh_breath + ')</button>' +
       '<button class="ob-reviews__filter-btn" data-filter="subscription" role="tab" aria-selected="false">' + filterSub + ' (' + tagCounts.subscription + ')</button>';
@@ -503,12 +608,131 @@
 
   function getFiltered() {
     if (currentFilter === 'all') return reviews;
+    if (currentFilter === 'with_photos') {
+      return reviews.filter(function(r){ return photosForReview(r, r.p).length > 0; });
+    }
     return reviews.filter(function(r){ return r.tg.indexOf(currentFilter) !== -1; });
   }
 
   function fmtDate(ds) {
     var d = new Date(ds);
     return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  function esc(value) {
+    return String(value || '').replace(/[&<>"']/g, function(ch) {
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch];
+    });
+  }
+
+  function normalizePhotos(value) {
+    if (!Array.isArray(value)) return [];
+    return value.map(function(photo, index) {
+      if (typeof photo === 'string') {
+        return { id: 'photo-' + index, url: photo, alt: '' };
+      }
+      if (!photo || !photo.url) return null;
+      return {
+        id: photo.id || photo.photoId || ('photo-' + index),
+        url: photo.url,
+        alt: photo.alt || photo.altText || ''
+      };
+    }).filter(function(photo){ return photo && photo.url; });
+  }
+
+  function padReviewPhotoId(id) {
+    var value = String(parseInt(id, 10) || 0);
+    while (value.length < 4) value = '0' + value;
+    return value;
+  }
+
+  function fallbackPhotosForReview(review) {
+    var reviewId = parseInt(review && review.id, 10);
+    var flavor = photoFlavorByHandle[currentProductHandle];
+    var allowedIds = photoIdsByHandle[currentProductHandle] || [];
+    if (!reviewId || !flavor || allowedIds.indexOf(reviewId) === -1 || !reviewPhotoBaseUrl) return [];
+
+    var paddedId = padReviewPhotoId(reviewId);
+    var photoId = 'cqx-rv-' + paddedId;
+    return [{
+      id: photoId,
+      url: reviewPhotoBaseUrl + '/review-images/' + photoId + '-' + flavor + '.jpg',
+      alt: ((review && review.n) || 'Customer') + ' review' + ((review && review.t) ? ': ' + review.t : '')
+    }];
+  }
+
+  function photosForReview(review, explicitPhotos) {
+    var photos = normalizePhotos(explicitPhotos);
+    return photos.length ? photos : fallbackPhotosForReview(review);
+  }
+
+  function firstPhoto(review) {
+    var photos = photosForReview(review, review && review.p);
+    return photos.length > 0 ? photos[0] : null;
+  }
+
+  function photoButton(photo, className, label) {
+    if (!photo) return '';
+    var alt = photo.alt || label || 'Review photo';
+    return '<button type="button" class="' + className + '" data-ob-photo-open data-photo-url="' + esc(photo.url) + '" data-photo-alt="' + esc(alt) + '">' +
+      '<img src="' + esc(photo.url) + '" alt="' + esc(alt) + '" loading="lazy"></button>';
+  }
+
+  function removeBrokenPhotos(scope) {
+    if (!scope) return;
+    scope.querySelectorAll('[data-ob-photo-open] img').forEach(function(img) {
+      img.addEventListener('error', function() {
+        var button = img.closest('[data-ob-photo-open]');
+        if (button) button.remove();
+      }, { once: true });
+    });
+  }
+
+  function renderPhotoRail() {
+    if (!photoRail || !photoGallery) return;
+    var photos = [];
+    reviews.forEach(function(review) {
+      photosForReview(review, review.p).forEach(function(photo) {
+        photos.push({ photo: photo, label: review.n || 'Customer review' });
+      });
+    });
+
+    if (!photos.length) {
+      photoGallery.classList.remove('is-visible');
+      photoRail.innerHTML = '';
+      if (photoCountEl) photoCountEl.textContent = '';
+      return;
+    }
+
+    photoGallery.classList.add('is-visible');
+    if (photoCountEl) photoCountEl.textContent = String(photos.length);
+    photoRail.innerHTML = photos.slice(0, 24).map(function(item) {
+      return photoButton(item.photo, 'ob-reviews__photo-thumb', item.label);
+    }).join('');
+    removeBrokenPhotos(photoRail);
+  }
+
+  function scrollPhotoRail(direction) {
+    if (!photoRail) return;
+    var amount = Math.max(240, Math.floor(photoRail.clientWidth * 0.72));
+    photoRail.scrollBy({ left: amount * direction, behavior: 'smooth' });
+  }
+
+  function openPhotoModal(url, alt) {
+    if (!photoModal || !photoModalImg || !url) return;
+    photoModalImg.src = url;
+    photoModalImg.alt = alt || 'Review photo';
+    photoModal.classList.add('is-open');
+    photoModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePhotoModal() {
+    if (!photoModal || !photoModalImg) return;
+    photoModal.classList.remove('is-open');
+    photoModal.setAttribute('aria-hidden', 'true');
+    photoModalImg.removeAttribute('src');
+    document.body.style.overflow = '';
   }
 
   function renderReviews() {
@@ -519,13 +743,16 @@
       var stars = '';
       for (var i = 0; i < 5; i++) stars += (i < r.r ? STAR_GOLD : STAR_GREY);
       var flag = FLAGS[r.cc] || '';
-      return '<div class="ob-reviews__card"><div class="ob-reviews__card-stars">' + stars + '</div>' +
-        '<h4 class="ob-reviews__card-title">' + r.t + '</h4>' +
-        '<p class="ob-reviews__card-body" data-ob-body>' + r.b + '</p>' +
+      var photo = firstPhoto(r);
+      var photoHtml = photoButton(photo, 'ob-reviews__card-photo', r.n || r.t || 'Review photo');
+      return '<div class="ob-reviews__card">' + photoHtml + '<div class="ob-reviews__card-stars">' + stars + '</div>' +
+        '<h4 class="ob-reviews__card-title">' + esc(r.t) + '</h4>' +
+        '<p class="ob-reviews__card-body" data-ob-body>' + esc(r.b) + '</p>' +
         '<button type="button" class="ob-reviews__read-more" data-ob-read-more>' + readMoreLabel + '</button>' +
-        '<div class="ob-reviews__card-footer"><div class="ob-reviews__card-reviewer"><span class="ob-reviews__card-name">' + r.n + '</span><span class="ob-reviews__card-country">' + flag + ' ' + r.co + '</span></div>' +
+        '<div class="ob-reviews__card-footer"><div class="ob-reviews__card-reviewer"><span class="ob-reviews__card-name">' + esc(r.n) + '</span><span class="ob-reviews__card-country">' + flag + ' ' + esc(r.co) + '</span></div>' +
         '<div class="ob-reviews__card-meta"><span class="ob-reviews__card-verified">' + CHECK_SVG + ' ' + verifiedText + '</span><span class="ob-reviews__card-date">' + fmtDate(r.d) + '</span></div></div></div>';
     }).join('');
+    removeBrokenPhotos(grid);
 
     /* "Read more" detection */
     grid.querySelectorAll('.ob-reviews__card-body').forEach(function(body) {
@@ -579,6 +806,22 @@
     });
   }
 
+  if (photoPrevBtn) photoPrevBtn.addEventListener('click', function(){ scrollPhotoRail(-1); });
+  if (photoNextBtn) photoNextBtn.addEventListener('click', function(){ scrollPhotoRail(1); });
+
+  section.addEventListener('click', function(event) {
+    var trigger = event.target.closest ? event.target.closest('[data-ob-photo-open]') : null;
+    if (!trigger || !section.contains(trigger)) return;
+    openPhotoModal(trigger.getAttribute('data-photo-url'), trigger.getAttribute('data-photo-alt'));
+  });
+  if (photoModalClose) photoModalClose.addEventListener('click', closePhotoModal);
+  if (photoModal) {
+    photoModal.addEventListener('click', function(event) {
+      if (event.target === photoModal) closePhotoModal();
+    });
+  }
+
+  renderPhotoRail();
   renderReviews();
 
   /* ── Review Modal ── */
@@ -672,6 +915,7 @@
     { "type": "checkbox", "id": "use_judgeme", "label": "Use Judge.me widget", "default": false },
     { "type": "checkbox", "id": "show_filters", "label": "Show filter tabs", "default": true },
     { "type": "text", "id": "filter_all", "label": "Filter: All", "default": "All" },
+    { "type": "text", "id": "filter_photos", "label": "Filter: Photos", "default": "Photos" },
     { "type": "text", "id": "filter_gum", "label": "Filter: Gum Health", "default": "Gum Health" },
     { "type": "text", "id": "filter_breath", "label": "Filter: Fresh Breath", "default": "Fresh Breath" },
     { "type": "text", "id": "filter_sub", "label": "Filter: Subscription", "default": "Subscription" },
@@ -680,6 +924,8 @@
     { "type": "text", "id": "read_more_label", "label": "Read more label", "default": "Read more" },
     { "type": "text", "id": "read_less_label", "label": "Read less label", "default": "Read less" },
     { "type": "text", "id": "write_review_text", "label": "Write review button", "default": "Write a Review" },
+    { "type": "text", "id": "photo_gallery_title", "label": "Photo gallery title", "default": "Customer photos" },
+    { "type": "text", "id": "review_image_base_url", "label": "Review image base URL", "default": "https://calqix-reviews-manager.vercel.app" },
     { "type": "url", "id": "write_review_url", "label": "Write review URL" }
   ],
   "blocks": [
