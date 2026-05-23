@@ -36,6 +36,25 @@
       {% assign cq_is_translated_oralbiome = true %}
   {% endcase %}
 {% endif %}
+{% assign cq_is_glow_pro = false %}
+{% if product != blank and product.handle == 'glow-pro' %}
+  {% assign cq_is_glow_pro = true %}
+{% elsif product != blank and product.handle == 'glow-pro-refill' %}
+  {% assign cq_is_glow_pro = true %}
+{% elsif product != blank and product.template_suffix contains 'glow-pro' %}
+  {% assign cq_is_glow_pro = true %}
+{% elsif template contains 'glow-pro' %}
+  {% assign cq_is_glow_pro = true %}
+{% elsif request.path contains 'glow-pro' %}
+  {% assign cq_is_glow_pro = true %}
+{% endif %}
+{% assign cq_is_translated_glow_pro = false %}
+{% if cq_is_glow_pro %}
+  {% case cq_lang %}
+    {% when 'nl', 'de', 'fr', 'sv', 'nb', 'da', 'fi' %}
+      {% assign cq_is_translated_glow_pro = true %}
+  {% endcase %}
+{% endif %}
 
 <style>
   [id="shopify-section-{{ section.id }}"] {
@@ -1169,6 +1188,8 @@
                 {%- assign cq_calqix_badge_text = 'calqix_flowcore.main.badge' | t -%}
               {%- elsif cq_is_translated_oralbiome -%}
                 {%- assign cq_calqix_badge_text = 'calqix_oralbiome.main.badge' | t -%}
+              {%- elsif cq_is_translated_glow_pro -%}
+                {%- assign cq_calqix_badge_text = 'calqix_glow_pro.main.badge' | t -%}
               {%- endif -%}
               {%- if cq_calqix_badge_text != blank -%}
                 <div
@@ -1189,6 +1210,12 @@
                 {%- assign cq_calqix_subtitle = 'calqix_flowcore.main.subtitle_html' | t -%}
               {%- elsif cq_is_translated_oralbiome -%}
                 {%- assign cq_calqix_subtitle = 'calqix_oralbiome.main.subtitle_html' | t -%}
+              {%- elsif cq_is_translated_glow_pro -%}
+                {%- if product.handle == 'glow-pro-refill' -%}
+                  {%- assign cq_calqix_subtitle = 'calqix_glow_pro.main.refill_subtitle_html' | t -%}
+                {%- else -%}
+                  {%- assign cq_calqix_subtitle = 'calqix_glow_pro.main.kit_subtitle_html' | t -%}
+                {%- endif -%}
               {%- endif -%}
               {%- if cq_is_oralbiome -%}
                 {%- case product.handle -%}

@@ -1,0 +1,265 @@
+{{ 'glow-pro.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'glow-pro.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign is_refill = false
+  if section.settings.page_variant == 'refill' or product.handle contains 'refill'
+    assign is_refill = true
+  endif
+  assign asset_prefix = 'glow-pro-'
+-%}
+
+<section class="gp" data-glow-pro-section data-page-variant="{{ section.settings.page_variant }}">
+  <div class="gp-trust" aria-label="{{ 'calqix_glow_pro.trust.label' | t }}">
+    <span>{{ 'calqix_glow_pro.trust.item_1' | t }}</span>
+    <span>{{ 'calqix_glow_pro.trust.item_2' | t }}</span>
+    <span>{{ 'calqix_glow_pro.trust.item_3' | t }}</span>
+    <span>{{ 'calqix_glow_pro.trust.item_4' | t }}</span>
+  </div>
+
+  <div class="gp-section gp-problem">
+    <div class="gp-header">
+      <p class="gp-eyebrow">{{ 'calqix_glow_pro.problem.eyebrow' | t }}</p>
+      <h2>{{ 'calqix_glow_pro.problem.heading' | t }}</h2>
+      <p>{{ 'calqix_glow_pro.problem.lead' | t }}</p>
+    </div>
+    <div class="gp-card-grid gp-card-grid--3">
+      <article class="gp-card">
+        <img src="{{ 'glow-pro-icon-enamel-damage.webp' | asset_url }}" alt="{{ 'calqix_glow_pro.problem.card_1_alt' | t }}" loading="lazy" width="72" height="72">
+        <h3>{{ 'calqix_glow_pro.problem.card_1_title' | t }}</h3>
+        <p>{{ 'calqix_glow_pro.problem.card_1_body' | t }}</p>
+      </article>
+      <article class="gp-card">
+        <img src="{{ 'glow-pro-icon-eu-regulation.webp' | asset_url }}" alt="{{ 'calqix_glow_pro.problem.card_2_alt' | t }}" loading="lazy" width="72" height="72">
+        <h3>{{ 'calqix_glow_pro.problem.card_2_title' | t }}</h3>
+        <p>{{ 'calqix_glow_pro.problem.card_2_body' | t }}</p>
+      </article>
+      <article class="gp-card">
+        <img src="{{ 'glow-pro-icon-incomplete-care.webp' | asset_url }}" alt="{{ 'calqix_glow_pro.problem.card_3_alt' | t }}" loading="lazy" width="72" height="72">
+        <h3>{{ 'calqix_glow_pro.problem.card_3_title' | t }}</h3>
+        <p>{{ 'calqix_glow_pro.problem.card_3_body' | t }}</p>
+      </article>
+    </div>
+  </div>
+
+  <div class="gp-section gp-approach">
+    <div class="gp-split">
+      <div class="gp-copy">
+        <p class="gp-eyebrow">{{ 'calqix_glow_pro.approach.eyebrow' | t }}</p>
+        <h2>{{ 'calqix_glow_pro.approach.heading' | t }}</h2>
+        <p>{{ 'calqix_glow_pro.approach.lead' | t }}</p>
+        <div class="gp-stack">
+          <article>
+            <span>01</span>
+            <h3>{{ 'calqix_glow_pro.approach.item_1_title' | t }}</h3>
+            <p>{{ 'calqix_glow_pro.approach.item_1_body' | t }}</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>{{ 'calqix_glow_pro.approach.item_2_title' | t }}</h3>
+            <p>{{ 'calqix_glow_pro.approach.item_2_body' | t }}</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>{{ 'calqix_glow_pro.approach.item_3_title' | t }}</h3>
+            <p>{{ 'calqix_glow_pro.approach.item_3_body' | t }}</p>
+          </article>
+        </div>
+      </div>
+      <figure class="gp-visual">
+        <img src="{{ 'glow-pro-how-it-works-cross-section.webp' | asset_url }}" alt="{{ 'calqix_glow_pro.approach.image_alt' | t }}" loading="lazy" width="960" height="540">
+      </figure>
+    </div>
+  </div>
+
+  <div class="gp-section gp-protocol">
+    <div class="gp-header">
+      <p class="gp-eyebrow">{{ 'calqix_glow_pro.protocol.eyebrow' | t }}</p>
+      <h2>{{ 'calqix_glow_pro.protocol.heading' | t }}</h2>
+    </div>
+    <div class="gp-timeline" data-gp-scroll>
+      {%- for index in (1..4) -%}
+        <article class="gp-step">
+          <img src="{{ asset_prefix | append: 'protocol-step-' | append: index | append: '.webp' | asset_url }}" alt="{{ 'calqix_glow_pro.protocol.step_alt' | t: number: index }}" loading="lazy" width="180" height="180">
+          <span>{{ 'calqix_glow_pro.protocol.step_label' | t: number: index }}</span>
+          <h3>{{ 'calqix_glow_pro.protocol.step_' | append: index | append: '_title' | t }}</h3>
+          <p>{{ 'calqix_glow_pro.protocol.step_' | append: index | append: '_body' | t }}</p>
+        </article>
+      {%- endfor -%}
+    </div>
+    <div class="gp-scroll-hint" aria-hidden="true">{{ 'calqix_glow_pro.common.swipe' | t }} <span></span></div>
+  </div>
+
+  {%- unless is_refill -%}
+    <div class="gp-section gp-box">
+      <div class="gp-header">
+        <p class="gp-eyebrow">{{ 'calqix_glow_pro.box.eyebrow' | t }}</p>
+        <h2>{{ 'calqix_glow_pro.box.heading' | t }}</h2>
+      </div>
+      <div class="gp-card-grid gp-card-grid--6">
+        {%- for index in (1..6) -%}
+          <article class="gp-box-card">
+            <img src="{{ asset_prefix | append: 'box-item-' | append: index | append: '.webp' | asset_url }}" alt="{{ 'calqix_glow_pro.box.item_' | append: index | append: '_alt' | t }}" loading="lazy" width="220" height="220">
+            <h3>{{ 'calqix_glow_pro.box.item_' | append: index | append: '_title' | t }}</h3>
+            <p>{{ 'calqix_glow_pro.box.item_' | append: index | append: '_spec' | t }}</p>
+          </article>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <div class="gp-section gp-compare">
+      <div class="gp-header">
+        <p class="gp-eyebrow">{{ 'calqix_glow_pro.compare.eyebrow' | t }}</p>
+        <h2>{{ 'calqix_glow_pro.compare.heading' | t }}</h2>
+      </div>
+      <div class="gp-table-wrap">
+        <table class="gp-table">
+          <thead>
+            <tr>
+              <th>{{ 'calqix_glow_pro.compare.feature' | t }}</th>
+              <th>{{ 'calqix_glow_pro.compare.col_1' | t }}</th>
+              <th>{{ 'calqix_glow_pro.compare.col_2' | t }}</th>
+              <th>{{ 'calqix_glow_pro.compare.col_3' | t }}</th>
+              <th>{{ 'calqix_glow_pro.compare.col_4' | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%- for index in (1..7) -%}
+              <tr>
+                <th>{{ 'calqix_glow_pro.compare.row_' | append: index | append: '_feature' | t }}</th>
+                <td>{{ 'calqix_glow_pro.compare.row_' | append: index | append: '_calqix' | t }}</td>
+                <td>{{ 'calqix_glow_pro.compare.row_' | append: index | append: '_dentist' | t }}</td>
+                <td>{{ 'calqix_glow_pro.compare.row_' | append: index | append: '_strips' | t }}</td>
+                <td>{{ 'calqix_glow_pro.compare.row_' | append: index | append: '_led' | t }}</td>
+              </tr>
+            {%- endfor -%}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {%- endunless -%}
+
+  <div class="gp-section gp-evidence">
+    <div class="gp-header">
+      <p class="gp-eyebrow">{{ 'calqix_glow_pro.evidence.eyebrow' | t }}</p>
+      <h2>{{ 'calqix_glow_pro.evidence.heading' | t }}</h2>
+    </div>
+    <div class="gp-card-grid gp-card-grid--3">
+      {%- for index in (1..3) -%}
+        <article class="gp-citation">
+          <span>{{ 'calqix_glow_pro.evidence.card_' | append: index | append: '_meta' | t }}</span>
+          <h3>{{ 'calqix_glow_pro.evidence.card_' | append: index | append: '_title' | t }}</h3>
+          <p>{{ 'calqix_glow_pro.evidence.card_' | append: index | append: '_body' | t }}</p>
+        </article>
+      {%- endfor -%}
+    </div>
+  </div>
+
+  {%- unless is_refill -%}
+    <div class="gp-section gp-results">
+      <div class="gp-header">
+        <p class="gp-eyebrow">{{ 'calqix_glow_pro.results.eyebrow' | t }}</p>
+        <h2>{{ 'calqix_glow_pro.results.heading' | t }}</h2>
+      </div>
+      <div class="gp-results-grid">
+        {%- for index in (1..3) -%}
+          <figure class="gp-result">
+            <img src="{{ asset_prefix | append: 'before-after-' | append: index | append: '.webp' | asset_url }}" alt="{{ 'calqix_glow_pro.results.image_' | append: index | append: '_alt' | t }}" loading="lazy" width="520" height="520">
+          </figure>
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endunless -%}
+
+  <div class="gp-section gp-routine">
+    <div class="gp-header">
+      <p class="gp-eyebrow">{{ 'calqix_glow_pro.routine.eyebrow' | t }}</p>
+      <h2>{{ 'calqix_glow_pro.routine.heading' | t }}</h2>
+    </div>
+    <div class="gp-routine-strip">
+      <a href="/products/nhap-toothpaste-tablets" class="gp-routine-card"><span>01</span>{{ 'calqix_glow_pro.routine.step_1' | t }}</a>
+      <a href="/products/flowcore-white" class="gp-routine-card"><span>02</span>{{ 'calqix_glow_pro.routine.step_2' | t }}</a>
+      <a href="/products/oralbiome-pro-freshmint" class="gp-routine-card"><span>03</span>{{ 'calqix_glow_pro.routine.step_3' | t }}</a>
+      <a href="/products/glow-pro" class="gp-routine-card is-current"><span>04</span>{{ 'calqix_glow_pro.routine.step_4' | t }}</a>
+    </div>
+  </div>
+
+  <div class="gp-section gp-crosslink">
+    <div class="gp-crosslink-card">
+      <div>
+        <p class="gp-eyebrow">
+          {%- if is_refill -%}
+            {{ 'calqix_glow_pro.cross.refill_eyebrow' | t }}
+          {%- else -%}
+            {{ 'calqix_glow_pro.cross.kit_eyebrow' | t }}
+          {%- endif -%}
+        </p>
+        <h2>
+          {%- if is_refill -%}
+            {{ 'calqix_glow_pro.cross.refill_heading' | t }}
+          {%- else -%}
+            {{ 'calqix_glow_pro.cross.kit_heading' | t }}
+          {%- endif -%}
+        </h2>
+        <p>
+          {%- if is_refill -%}
+            {{ 'calqix_glow_pro.cross.refill_body' | t }}
+          {%- else -%}
+            {{ 'calqix_glow_pro.cross.kit_body' | t }}
+          {%- endif -%}
+        </p>
+      </div>
+      <a class="gp-button" href="{% if is_refill %}/products/glow-pro{% else %}/products/glow-pro-refill{% endif %}">
+        {%- if is_refill -%}
+          {{ 'calqix_glow_pro.cross.refill_cta' | t }}
+        {%- else -%}
+          {{ 'calqix_glow_pro.cross.kit_cta' | t }}
+        {%- endif -%}
+      </a>
+    </div>
+  </div>
+
+  <div class="gp-section gp-faq">
+    <div class="gp-header">
+      <p class="gp-eyebrow">{{ 'calqix_glow_pro.faq.eyebrow' | t }}</p>
+      <h2>{{ 'calqix_glow_pro.faq.heading' | t }}</h2>
+    </div>
+    <div class="gp-faq-list">
+      {%- for index in (1..8) -%}
+        <details class="gp-faq-item">
+          <summary>{{ 'calqix_glow_pro.faq.q_' | append: index | t }}</summary>
+          <div>{{ 'calqix_glow_pro.faq.a_' | append: index | t }}</div>
+        </details>
+      {%- endfor -%}
+    </div>
+  </div>
+
+  <div class="gp-guarantee">
+    <span>{{ 'calqix_glow_pro.guarantee.item_1' | t }}</span>
+    <span>{{ 'calqix_glow_pro.guarantee.item_2' | t }}</span>
+    <span>{{ 'calqix_glow_pro.guarantee.item_3' | t }}</span>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Glow Pro Content",
+  "settings": [
+    {
+      "type": "select",
+      "id": "page_variant",
+      "label": "Page variant",
+      "default": "kit",
+      "options": [
+        { "value": "kit", "label": "Kit" },
+        { "value": "refill", "label": "Refill" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Glow Pro Content"
+    }
+  ]
+}
+{% endschema %}
