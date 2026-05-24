@@ -15,9 +15,10 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-05-12-advanced-match-a';
+  var BRIDGE_VERSION = '2026-05-25-quality-ledger-a';
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
+  var BROWSER_LEDGER_URL = CAPI_BASE + '/meta-browser-event';
 
   /* ------------------------------------------------------------------ */
   /*  Cookie helpers                                                     */
@@ -448,6 +449,39 @@
     return eventId;
   }
 
+  function auditBrowserEvent(eventName, eventId, customData, userPayload) {
+    postKeepAlive(BROWSER_LEDGER_URL, {
+      event_name: eventName,
+      event_id: eventId,
+      event_time: Math.floor(Date.now() / 1000),
+      pixel_id: '934134615770602',
+      source: 'theme_bridge_fbq',
+      source_url: window.location.href,
+      identity_flags: {
+        em: Boolean(userPayload && userPayload.email),
+        ph: Boolean(userPayload && userPayload.phone),
+        fn: Boolean(userPayload && userPayload.first_name),
+        ln: Boolean(userPayload && userPayload.last_name),
+        ct: Boolean(userPayload && userPayload.city),
+        st: Boolean(userPayload && userPayload.state),
+        zp: Boolean(userPayload && userPayload.zip),
+        country: Boolean(userPayload && userPayload.country_code),
+        db: Boolean(userPayload && userPayload.date_of_birth),
+        external_id: Boolean(userPayload && userPayload.external_id),
+        fbp: Boolean(userPayload && userPayload.fbp),
+        fbc: Boolean(userPayload && userPayload.fbc),
+        client_user_agent: Boolean(navigator && navigator.userAgent)
+      },
+      custom_data_flags: {
+        value: Boolean(customData && customData.value !== undefined && customData.value !== null),
+        currency: Boolean(customData && customData.currency),
+        content_ids: Boolean(customData && Array.isArray(customData.content_ids) && customData.content_ids.length),
+        contents: Boolean(customData && Array.isArray(customData.contents) && customData.contents.length),
+        order_id: Boolean(customData && customData.order_id)
+      }
+    });
+  }
+
   /* ------------------------------------------------------------------ */
   /*  ViewContent – auto-fire on product pages                           */
   /* ------------------------------------------------------------------ */
@@ -521,6 +555,7 @@
         currency: payload.currency
       };
       fbq('track', 'ViewContent', viewContentData, { eventID: eventId });
+      auditBrowserEvent('ViewContent', eventId, viewContentData, userPayload);
     }
   }
 
@@ -617,6 +652,7 @@
         currency: currency
       };
       fbq('track', 'AddToCart', addToCartData, { eventID: eventId });
+      auditBrowserEvent('AddToCart', eventId, addToCartData, userPayload);
     }
 
     syncCartAttributes();
@@ -744,6 +780,7 @@
         content_category: formContext || 'newsletter'
       };
       fbq('track', 'Lead', leadData, { eventID: eventId });
+      auditBrowserEvent('Lead', eventId, leadData, userPayload);
     }
   }
 
