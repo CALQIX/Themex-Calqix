@@ -39,8 +39,8 @@
           "settings": {
             "brand": "CALQIX",
             "enable_vendor_link": false,
-            "size_text": 140,
-            "size_text_mobile": 100
+            "size_text": 110,
+            "size_text_mobile": 80
           }
         },
         "calqix_subtitle_ob01": {
@@ -108,8 +108,7 @@
             "usp_4_icon": "calendar-30",
             "usp_4_title": "14-day routine",
             "usp_4_subtitle": "Step-by-step"
-          },
-          "disabled": true
+          }
         },
         "calqix_colour_switcher_LDTXY9": {
           "type": "calqix_colour_switcher",
@@ -232,6 +231,10 @@
             "background_color": "rgba(0,0,0,0)"
           }
         },
+        "calqix_glow_refill_addon_ob01": {
+          "type": "calqix_glow_refill_addon",
+          "settings": {}
+        },
         "calqix_compliance_note_ob01": {
           "type": "calqix_compliance_note",
           "settings": {
@@ -244,15 +247,15 @@
         "calqix_trust_badges_ob01": {
           "type": "calqix_trust_badges",
           "settings": {
-            "badge_1_icon": "✅",
+            "badge_1_icon": "",
             "badge_1_image": "shopify://shop_images/Clinically_Tested_e6f93aa3-3fb2-49bb-ae23-b286ccda18c6.png",
-            "badge_1_text": "Clinically Tested",
+            "badge_1_text": "Clear routine",
             "badge_1_url": "",
-            "badge_2_icon": "💚",
+            "badge_2_icon": "",
             "badge_2_image": "shopify://shop_images/Secure_Checkout_94620511-78d4-4f4b-b4f8-5c915c133406.png",
             "badge_2_text": "Secure Checkout",
             "badge_2_url": "",
-            "badge_3_icon": "↩️",
+            "badge_3_icon": "",
             "badge_3_image": "shopify://shop_images/30-Day_Returns_e62a2cad-0bc4-47a4-815f-635c41e5c096.png",
             "badge_3_text": "30-Day Returns",
             "badge_3_url": "",
@@ -280,7 +283,7 @@
             "padding_vertical": 14,
             "margin_vertical": 0,
             "show_shipping": true,
-            "shipping_icon": "📦",
+            "shipping_icon": "",
             "shipping_text": "Free shipping over EUR 50. Stocked in the EU for fast delivery.",
             "shipping_background": "#f7f5f2",
             "shipping_text_color": "#1a3b5c",
@@ -305,6 +308,7 @@
         "calqix_cert_badges_ob01",
         "buy_buttons",
         "payments_badge_ob01",
+        "calqix_glow_refill_addon_ob01",
         "calqix_compliance_note_ob01",
         "calqix_trust_badges_ob01"
       ],
