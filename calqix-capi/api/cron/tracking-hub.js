@@ -7,11 +7,13 @@
 var { authenticate, getRawBody } = require('../../lib/qstash-verify');
 var store = require('../../lib/store');
 var dates = require('../../lib/dates');
+var capiDiag = require('../../lib/capi-diagnostics');
 var insightsFetcher = require('../../lib/meta-insights-fetcher');
 var strategist = require('../../lib/tracking-hub-strategist');
 var eventStats = require('../../lib/event-stats');
 var fetch = require('node-fetch');
 var metaQuality = require('../../lib/meta-capi-quality');
+var qualityLedger = require('../../lib/meta-quality-ledger');
 
 var ENDPOINT_PATH = '/api/cron/tracking-hub';
 var LOCK_KEY = 'cron:lock:tracking-hub';
@@ -169,7 +171,9 @@ async function buildOperationalAudits(coverageRaw, resubmit, events) {
   var stats = await getTodayStats();
   var pending = await countKeys('backfill:pending:*', 5000);
   var latestReconciliation = await latestByScan('reconciliation:*');
+  var standardsLastRun = store.parseJsonValue(await store.get('tracking_standard:last_run'), null);
   var scheduleAudit = await buildScheduleAudit();
+  var ledgerCoverage = await qualityLedger.getDailyCoverage(dates.toISODateAmsterdam());
   var dashboard = buildDashboardReconciliation(coverageRaw, stats);
   var salesRisk = buildSalesRisk(coverageRaw, stats);
   var capture = buildCaptureChecks(coverageRaw, salesRisk);
@@ -182,7 +186,7 @@ async function buildOperationalAudits(coverageRaw, resubmit, events) {
   });
   var qualityTrend = await buildQualityTrend(quality);
   var autoSync = await maybeRunCustomerDataSync(quality, events);
-  var deterministic = buildDeterministicFixGate(dashboard, capture, events, resubmit, quality);
+  var deterministic = buildDeterministicFixGate(dashboard, capture, events, resubmit, quality, ledgerCoverage);
   deterministic.auto_deploy = await maybeTriggerAutoDeploy(deterministic);
   var optimizationActions = buildOptimizationActions(autoSync, deterministic, events, resubmit, quality);
 
@@ -204,6 +208,7 @@ async function buildOperationalAudits(coverageRaw, resubmit, events) {
     },
     dashboard_reconciliation: dashboard,
     capture_checks: capture,
+    meta_coverage_ledger: ledgerCoverage,
     schedule_checks: scheduleAudit,
     quality_trend: qualityTrend,
     meta_standard_check: {
@@ -212,7 +217,13 @@ async function buildOperationalAudits(coverageRaw, resubmit, events) {
       matches_current_run: quality.highest_priority === 'OK',
       highest_priority: quality.highest_priority,
       score: quality.score,
-      score_label: quality.score_label || 'Meta CAPI normscore (geen Meta EMQ)'
+      score_label: quality.score_label || 'Meta CAPI normscore (geen Meta EMQ)',
+      standards_watch: standardsLastRun ? {
+        fetched_at: standardsLastRun.fetched_at,
+        docs_checked: standardsLastRun.docs_checked,
+        review_required: Boolean(standardsLastRun.review_required),
+        diffs: (standardsLastRun.tracking_standard_diff || []).length
+      } : { available: false }
     },
     sales_risk: salesRisk,
     meta_capi_quality: quality,
@@ -561,7 +572,7 @@ function captureIssue(eventName, field, pct, total, salesRisk) {
   };
 }
 
-function buildDeterministicFixGate(dashboard, capture, events, resubmit, quality) {
+function buildDeterministicFixGate(dashboard, capture, events, resubmit, quality, ledgerCoverage) {
   var actionItems = [];
   var thresholdBroken = false;
 
@@ -599,6 +610,24 @@ function buildDeterministicFixGate(dashboard, capture, events, resubmit, quality
       priority: rec.priority || 'P2',
       deployable: isDeployableQualityIssue(rec.code),
       action: rec.title + ': ' + rec.action
+    });
+  });
+  ((ledgerCoverage && ledgerCoverage.rows) || []).forEach(function (row) {
+    if (!row || row.severity === 'OK') return;
+    if (priorityRank(row.severity) >= priorityRank('P1')) {
+      thresholdBroken = true;
+    }
+    var coverageText = row.browser_seen
+      ? row.paired_browser_server + '/' + row.browser_seen + ' = ' + row.coverage_pct + '%'
+      : '0 browser events';
+    actionItems.push({
+      priority: row.severity,
+      deployable: row.bad_event_id > 0 || (
+        priorityRank(row.severity) >= priorityRank('P1') &&
+        (row.event === 'InitiateCheckout' || row.event === 'AddPaymentInfo' || row.event === 'Purchase') &&
+        row.browser_seen > 0
+      ),
+      action: row.event + ': pair ledger coverage ' + coverageText + '; delivery ' + (row.delivery_pct === null ? 'n/a' : row.delivery_pct + '%') + '.'
     });
   });
 
@@ -800,9 +829,7 @@ function summarizeCoverage(summary) {
 }
 
 async function latestDailyCoverage() {
-  var raw = await store.get('diag:summary:' + new Date().toISOString().split('T')[0]);
-  if (!raw) return {};
-  try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch (e) { return {}; }
+  return await capiDiag.getDailySummary(dates.toISODateAmsterdam()) || {};
 }
 
 async function latestByScan(pattern) {
@@ -820,12 +847,8 @@ async function latestByScan(pattern) {
   var key = keys[keys.length - 1];
   var raw = await store.get(key);
   if (!raw) return { available: false, key: key };
-  try {
-    var data = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    return Object.assign({ available: true, key: key }, data);
-  } catch (e) {
-    return { available: false, key: key, reason: 'parse_error' };
-  }
+  var data = store.parseJsonValue(raw, null);
+  return data ? Object.assign({ available: true, key: key }, data) : { available: false, key: key, reason: 'parse_error' };
 }
 
 async function aggregateResubmitRuns() {

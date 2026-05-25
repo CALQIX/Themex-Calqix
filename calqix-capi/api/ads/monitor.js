@@ -1,8 +1,8 @@
 /**
- * CALQIX Ads Monitor — Daily Job Endpoint
+ * CALQIX Ads Monitor - Fixed-slot Job Endpoint
  *
  * Scheduling: Upstash QStash (primary) or Vercel Cron (legacy fallback)
- * QStash cron: "CRON_TZ=Europe/Amsterdam 0 7 * * *" = 07:00 Amsterdam time
+ * QStash cron: 07:00, 12:00 and 19:00 Europe/Amsterdam
  *
  * Auth priority:
  *   1. QStash signature (Upstash-Signature header) — production
@@ -26,6 +26,7 @@ var { authenticate, getRawBody } = require('../../lib/qstash-verify');
 var eventState = require('../../lib/event-state');
 var dates = require('../../lib/dates');
 var crypto = require('crypto');
+var aboBudgetRegulator = require('../../lib/abo-budget-regulator');
 
 var adCopyAuditor = require('../../lib/ad-copy-auditor');
 
@@ -43,35 +44,62 @@ var BILLING_ALERT_PCT = 90;
 var ENDPOINT_PATH = '/api/ads/monitor';
 
 /**
- * Determine the optimizer slot based on current Amsterdam hour.
- * Returns hourly slot like 'h07', 'h09', 'h11', etc.
- * This supports the 9x/day schedule (every 2h from 07-23).
+ * Determine the optimizer slot based on Amsterdam hour + 15-minute bucket.
+ * Returns slots like h07m00, h07m15, h07m30, h07m45.
  */
 function getSlot(now) {
-  var amsterdamHour;
-  try {
-    var fmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'Europe/Amsterdam' });
-    amsterdamHour = parseInt(fmt.format(now), 10);
-  } catch (e) {
-    amsterdamHour = (now.getUTCHours() + 2) % 24;
-  }
-  return 'h' + (amsterdamHour < 10 ? '0' : '') + amsterdamHour;
+  var parts = getAmsterdamParts(now);
+  var minuteBucket = Math.floor(parts.minute / 15) * 15;
+  return 'h' + pad2(parts.hour) + 'm' + pad2(minuteBucket);
 }
 
 /**
  * Get human-readable slot label for Telegram.
  */
 function getSlotLabel(now) {
-  var amsterdamHour;
-  try {
-    var fmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'Europe/Amsterdam' });
-    amsterdamHour = parseInt(fmt.format(now), 10);
-  } catch (e) {
-    amsterdamHour = (now.getUTCHours() + 2) % 24;
-  }
+  var amsterdamHour = getAmsterdamParts(now).hour;
   if (amsterdamHour < 10) return 'morning';
   if (amsterdamHour < 16) return 'afternoon';
   return 'evening';
+}
+
+function getAmsterdamParts(now) {
+  try {
+    var fmt = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/Amsterdam',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    var parts = fmt.formatToParts(now);
+    var out = { hour: 0, minute: 0 };
+    parts.forEach(function (p) {
+      if (p.type === 'hour') out.hour = parseInt(p.value, 10);
+      if (p.type === 'minute') out.minute = parseInt(p.value, 10);
+    });
+    if (out.hour === 24) out.hour = 0;
+    return out;
+  } catch (e) {
+    var fallbackHour = (now.getUTCHours() + 2) % 24;
+    return { hour: fallbackHour, minute: now.getUTCMinutes() };
+  }
+}
+
+function isDailyMorningSlot(now) {
+  var parts = getAmsterdamParts(now);
+  return parts.hour === 7 && parts.minute < 15;
+}
+
+function isPulseSlot(now) {
+  if ((process.env.ADS_MONITOR_PULSE_EVERY_RUN || '').trim() === 'true') return true;
+  var interval = parseInt(process.env.ADS_MONITOR_PULSE_INTERVAL_MINUTES || '60', 10);
+  if (!Number.isFinite(interval) || interval <= 0) interval = 60;
+  var parts = getAmsterdamParts(now);
+  return parts.minute % interval === 0;
+}
+
+function pad2(n) {
+  return n < 10 ? '0' + n : String(n);
 }
 
 function todayKey() {
@@ -474,11 +502,11 @@ async function runMonitor(now) {
   var warningTriggers = triggers.filter(function (t) { return t.severity === 'WARNING'; });
   var infoTriggers = triggers.filter(function (t) { return t.severity === 'INFO'; });
 
-  // --- Fetch EMQ match_keys + country data (morning only to save API calls) ---
+  // --- Fetch EMQ match_keys + country data (daily morning slot only) ---
   var emqData = null;
   var countryData = null;
-  var slotLabel = getSlotLabel(now);
-  if (slotLabel === 'morning') {
+  var dailyMorningSlot = isDailyMorningSlot(now);
+  if (dailyMorningSlot) {
     try {
       var emqCountryResults = await Promise.all([
         insights.fetchMatchKeysStats(now),
@@ -491,27 +519,73 @@ async function runMonitor(now) {
     }
   }
 
-  // --- Send compact Ad Pulse message (every run) ---
-  var pulseMsg = await formatPulseMessage(now, snap);
-  var pulseResult = await sendTelegram(pulseMsg);
-
-  // --- Send full monitor report only on morning slot ---
-  var telegramResult = pulseResult;
-  if (slotLabel === 'morning' && (urgentTriggers.length > 0 || warningTriggers.length > 0 || infoTriggers.length > 0)) {
-    var msg = formatMessage(now, urgentTriggers, warningTriggers, infoTriggers, apiErrors, snap, topAds, autoActions);
-    telegramResult = await sendTelegram(msg);
+  // --- Optional ABO/CBO budget decision engine ---
+  var budgetDecision = null;
+  if (AUTO_BUDGET_ADJUST) {
+    try {
+      budgetDecision = await aboBudgetRegulator.run(snap, now);
+      if (budgetDecision && budgetDecision.executed && budgetDecision.executed.length > 0) {
+        budgetDecision.executed.forEach(function (a) {
+          autoActions.push({
+            action: a.type,
+            target: a.adsetName,
+            target_id: a.adsetId,
+            success: Boolean(a.result && a.result.ok),
+            dryRun: Boolean(a.result && a.result.dryRun),
+            new_budget_eur: a.newBudgetEur
+          });
+        });
+      }
+    } catch (budgetErr) {
+      console.warn('[Monitor] ABO budget regulator error:', budgetErr.message);
+      triggers.push({
+        severity: 'WARNING',
+        rule: 'ABO_BUDGET_REGULATOR_ERROR',
+        target: 'Budget regulator',
+        target_id: null,
+        message: 'ABO budget regulator error: ' + budgetErr.message
+      });
+      warningTriggers.push(triggers[triggers.length - 1]);
+    }
   }
 
-  // --- Send EMQ + Country report (morning only, separate message) ---
-  if (slotLabel === 'morning' && (emqData || countryData)) {
+  var notificationSent = false;
+  var telegramResult = null;
+
+  // --- Send compact Ad Pulse on hourly slots unless explicitly configured for every run ---
+  if (isPulseSlot(now)) {
+    var pulseMsg = await formatPulseMessage(now, snap);
+    var pulseResult = await sendTelegram(pulseMsg);
+    telegramResult = pulseResult;
+    notificationSent = notificationSent || Boolean(pulseResult && pulseResult.sent);
+  }
+
+  // --- Send budget decision whenever an action/suggestion needs operator visibility ---
+  if (budgetDecision && budgetDecision.shouldNotify && budgetDecision.message) {
+    var budgetTelegramResult = await sendTelegram(budgetDecision.message);
+    telegramResult = budgetTelegramResult;
+    notificationSent = notificationSent || Boolean(budgetTelegramResult && budgetTelegramResult.sent);
+  }
+
+  // --- Send full monitor report only on daily morning slot or urgent intraday issues ---
+  if ((dailyMorningSlot || urgentTriggers.length > 0) && (urgentTriggers.length > 0 || warningTriggers.length > 0 || infoTriggers.length > 0)) {
+    var msg = formatMessage(now, urgentTriggers, warningTriggers, infoTriggers, apiErrors, snap, topAds, autoActions);
+    var reportResult = await sendTelegram(msg);
+    telegramResult = reportResult;
+    notificationSent = notificationSent || Boolean(reportResult && reportResult.sent);
+  }
+
+  // --- Send EMQ + Country report (daily morning only, separate message) ---
+  if (dailyMorningSlot && (emqData || countryData)) {
     var emqMsg = formatEmqCountryMessage(now, emqData, countryData);
     if (emqMsg) {
-      await sendTelegram(emqMsg);
+      var emqResult = await sendTelegram(emqMsg);
+      notificationSent = notificationSent || Boolean(emqResult && emqResult.sent);
     }
   }
 
   // --- Ad copy audit (morning slot only, 1x/day) ---
-  if (slotLabel === 'morning') {
+  if (dailyMorningSlot) {
     try {
       var auditResult = await adCopyAuditor.runAudit();
       console.log('[Monitor] Ad copy audit:', auditResult.skipped ? 'skipped (' + auditResult.reason + ')' : auditResult.ads_analyzed + ' ads analyzed');
@@ -553,9 +627,16 @@ async function runMonitor(now) {
     info: infoTriggers.length,
     api_errors: apiErrors.length,
     auto_actions: autoActions.length,
-    notification_sent: true,
+    notification_sent: notificationSent,
     telegram_response: telegramResult,
     windsurf_task: taskGenerated,
+    budget_regulator: budgetDecision ? {
+      campaign_type: budgetDecision.campaignType || null,
+      executed: budgetDecision.executed ? budgetDecision.executed.length : 0,
+      suggestions: budgetDecision.suggestions ? budgetDecision.suggestions.length : 0,
+      skipped: Boolean(budgetDecision.skipped),
+      reason: budgetDecision.reason || null
+    } : null,
     triggers: triggers
   };
 }

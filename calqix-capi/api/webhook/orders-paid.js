@@ -9,12 +9,15 @@ const store = require('../../lib/store');
 const eventState = require('../../lib/event-state');
 const multiPlatform = require('../../lib/multi-platform-send');
 const eventStats = require('../../lib/event-stats');
+const capiDiag = require('../../lib/capi-diagnostics');
+const qualityLedger = require('../../lib/meta-quality-ledger');
 const {
   buildContents,
   countItems,
   extractContentIds,
   extractExternalId,
   extractMetaBrowserIds,
+  extractMetaUserAttributes,
   mergeCustomerData,
   parseAndVerifyWebhook,
   respondOk,
@@ -108,6 +111,7 @@ function buildOrderUserData(order, fallbackIp, fallbackUserAgent, enrichment) {
             order.customer.default_address.country_code))
     },
     extractMetaBrowserIds(order),
+    extractMetaUserAttributes(order),
     {
       external_id: extractExternalId(order)
     },
@@ -117,6 +121,13 @@ function buildOrderUserData(order, fallbackIp, fallbackUserAgent, enrichment) {
       fbp: enrich.fbp || undefined,
       email: enrich.email || undefined,
       phone: enrich.phone || undefined,
+      first_name: enrich.first_name || undefined,
+      last_name: enrich.last_name || undefined,
+      city: enrich.city || undefined,
+      state: enrich.state || enrich.province_code || undefined,
+      date_of_birth: enrich.date_of_birth || enrich.db || undefined,
+      zip: enrich.zip || undefined,
+      country_code: enrich.country_code || enrich.country || undefined,
       external_id: enrich.external_id || undefined
     }
   );
@@ -169,6 +180,7 @@ async function handler(req, res) {
 
     // Shared event_id format: purchase_{checkout_token} — matches Custom Pixel
     const eventId = checkoutToken ? `purchase_${checkoutToken}` : `purchase_${order.id}`;
+    const eventTime = order.processed_at || order.created_at || order.updated_at || order.closed_at;
 
     // Merge enrichment from Custom Pixel's contact_info_submitted if available
     const enrichment = checkoutToken ? (await store.getEnrichment(String(checkoutToken)) || {}) : {};
@@ -187,6 +199,15 @@ async function handler(req, res) {
           identityFallback = {
             fbc: id.fbc || undefined,
             fbp: id.fbp || undefined,
+            email: id.email || undefined,
+            phone: id.phone || undefined,
+            first_name: id.fn || undefined,
+            last_name: id.ln || undefined,
+            city: id.ct || undefined,
+            date_of_birth: id.db || undefined,
+            zip: id.zp || undefined,
+            state: id.st || undefined,
+            country_code: id.country || undefined,
             client_ip: id.client_ip || undefined,
             client_user_agent: id.client_user_agent || undefined
           };
@@ -203,7 +224,16 @@ async function handler(req, res) {
         // Only fill fbc/fbp from identity if the order itself did not carry them
         // (extractMetaBrowserIds would have returned them otherwise).
         fbc: enrichment.fbc || identityFallback.fbc,
-        fbp: enrichment.fbp || identityFallback.fbp
+        fbp: enrichment.fbp || identityFallback.fbp,
+        email: enrichment.email || identityFallback.email,
+        phone: enrichment.phone || identityFallback.phone,
+        first_name: identityFallback.first_name,
+        last_name: identityFallback.last_name,
+        city: identityFallback.city,
+        date_of_birth: identityFallback.date_of_birth,
+        zip: identityFallback.zip,
+        state: identityFallback.state,
+        country_code: identityFallback.country_code
       })
     );
     const customData = {
@@ -244,12 +274,27 @@ async function handler(req, res) {
       source: 'webhook'
     });
 
-    await eventState.recordReceived(eventId, 'Purchase', 'webhook', dedupKey);
+    await eventState.recordReceived(eventId, 'Purchase', 'webhook', dedupKey, eventTime);
     await eventStats.incrementEventStat('Purchase', 'server');
-    await eventState.storeEventPayload(eventId, userData, customData, SOURCE_URL);
-    var metaResult = await sendEvent('Purchase', eventId, SOURCE_URL, userData, customData);
+    await eventState.storeEventPayload(eventId, userData, customData, SOURCE_URL, eventTime);
+    var metaResult = await sendEvent('Purchase', eventId, SOURCE_URL, userData, customData, { eventTime: eventTime });
     await eventState.recordSent(eventId, metaResult);
     await markProcessed('Purchase', dedupKey);
+    await capiDiag.recordCoverage('Purchase', eventId, 'webhook', userData, {
+      content_ids: customData.content_ids.length,
+      source: 'webhook',
+      order_type: customData.order_type
+    });
+    await qualityLedger.recordServerEvent({
+      event_name: 'Purchase',
+      event_id: eventId,
+      event_time: eventTime,
+      source: 'webhook',
+      user_data: userData,
+      custom_data: customData,
+      source_url: SOURCE_URL,
+      meta_result: metaResult
+    });
 
     // Multi-platform: GA4 + Google Ads (non-blocking)
     var googleResults = { ga4: null, googleAds: null };

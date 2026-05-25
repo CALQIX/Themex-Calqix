@@ -51,12 +51,18 @@ module.exports = async function handler(req, res) {
       source_url: body.source_url || null,
       pixel_id: body.pixel_id || null,
       web_pixel_version: body.web_pixel_version || null,
+      has_event_time: Boolean(body.event_time || body.eventTime || body.timestamp || body.event_timestamp),
+      has_user_agent: Boolean(body.browser_user_agent || body.client_user_agent),
       has_fbp: Boolean(body.fbp),
       has_fbc: Boolean(body.fbc),
       has_external_id: Boolean(body.external_id),
       has_checkout_token: Boolean(body.checkout_token),
       has_email: Boolean(body.email),
-      has_phone: Boolean(body.phone)
+      has_phone: Boolean(body.phone),
+      has_name: Boolean(body.first_name || body.last_name),
+      has_address: Boolean(body.city || body.zip || body.country_code),
+      has_province: Boolean(body.state || body.province_code),
+      has_date_of_birth: Boolean(body.date_of_birth || body.birthday || body.birthdate || body.db)
     };
 
     await store.set('shopify:web_pixel:last', JSON.stringify(last), TTL);

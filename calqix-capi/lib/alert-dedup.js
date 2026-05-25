@@ -31,10 +31,11 @@ var DIGEST_QUEUE_MAX = 200;
 
 function digestModeEnabled() {
   // Central toggle that lets the daily-digest cron batch all non-P0 alerts.
-  // Default: off (preserves legacy behavior). Flip on when you want a single
-  // morning Telegram rollup instead of per-cron pings.
+  // Default: on, because tracking jobs run frequently and should not spam
+  // Telegram. Set ALERT_DIGEST_MODE=false only for live incident debugging.
   // .trim() tolereert CRLF dat Vercel CLI op Windows aan env vars plakt.
-  return (process.env.ALERT_DIGEST_MODE || '').trim() === 'true';
+  var raw = (process.env.ALERT_DIGEST_MODE || 'true').trim().toLowerCase();
+  return raw !== 'false' && raw !== '0';
 }
 
 async function pushDigestEntry(entry) {

@@ -1,7 +1,7 @@
 /**
  * AI Ad Advisor — Claude-powered traffic light optimization strategies.
  *
- * Three times per day (morning 09:00, midday 15:00, evening 21:00),
+ * Three times per day (morning 07:00, midday 12:00, evening 19:00),
  * analyzes ad performance and generates 3 strategies:
  *   - Safe (green): preserve what works, minimal risk
  *   - Balanced (yellow): moderate changes, calculated growth
@@ -17,6 +17,25 @@ var { sendTelegram } = require('./telegram');
 var telegramReview = require('./telegram-content-review');
 
 var ADVISORY_TTL = 86400; // 24 hours
+var DEFAULT_MONITORED_CAMPAIGN_ID = '120250886895070715';
+var DEFAULT_MONITORED_CAMPAIGN_NAME = 'ABO - FlowCore | 80 Static Ads LIVE | Purchase | 2026-05-18 V3';
+
+function getMonitoredCampaignContext() {
+  return {
+    id: process.env.ADS_MONITOR_CAMPAIGN_ID || DEFAULT_MONITORED_CAMPAIGN_ID,
+    name: process.env.ADS_MONITOR_CAMPAIGN_NAME || DEFAULT_MONITORED_CAMPAIGN_NAME,
+    dailyBudgetEur: parseFloat(process.env.ADS_MONITOR_DAILY_BUDGET_EUR || '40'),
+    intendedActiveAds: parseInt(process.env.ADS_MONITOR_INTENDED_ACTIVE_ADS || '80', 10),
+    intendedActiveAdsets: parseInt(process.env.ADS_MONITOR_INTENDED_ACTIVE_ADSETS || '8', 10)
+  };
+}
+
+function rowsForCampaign(rows, campaignId) {
+  if (!campaignId) return rows || [];
+  return (rows || []).filter(function (row) {
+    return row && String(row.campaign_id || '') === String(campaignId);
+  });
+}
 
 /**
  * Generate advisory from Claude based on current ad performance.
@@ -28,8 +47,10 @@ async function generateAdvisory(performanceData, currentState, timeSlot) {
     return null;
   }
 
-  // Check if any ads are running
-  var hasAds = performanceData && performanceData.adRows && performanceData.adRows.length > 0;
+  var campaignContext = (currentState && currentState.campaignContext) || getMonitoredCampaignContext();
+  var scopedRows = rowsForCampaign(performanceData && performanceData.adRows, campaignContext.id);
+  // Check if the monitored campaign has any measured ad rows.
+  var hasAds = scopedRows.length > 0;
   if (!hasAds) {
     return { noAds: true };
   }
@@ -89,33 +110,62 @@ function buildAdvisorPrompt(perfData, state, timeSlot, limits) {
     evening: 'Dag is voorbij. Wat moet er morgen anders op basis van de data van vandaag?'
   };
 
-  // Build ad data summary
-  var adSummary = (perfData.adRows || []).slice(0, 15).map(function (ad) {
+  var campaignContext = state.campaignContext || getMonitoredCampaignContext();
+  var adRows = rowsForCampaign(perfData.adRows || [], campaignContext.id);
+  var adsetRows = rowsForCampaign(perfData.adsetRows || [], campaignContext.id);
+  var campaignRows = rowsForCampaign(perfData.campaignRows || [], campaignContext.id);
+  var adsetConfigs = rowsForCampaign(perfData.adsetConfigs || [], campaignContext.id);
+  var adsetConfigById = {};
+  adsetConfigs.forEach(function (cfg) {
+    if (cfg && cfg.id) adsetConfigById[cfg.id] = cfg;
+  });
+
+  // Build ad data summary for the monitored live campaign only.
+  var adSummary = adRows.slice(0, 20).map(function (ad) {
     return {
       ad_id: ad.ad_id,
       ad_name: ad.ad_name || 'unnamed',
+      adset_id: ad.adset_id,
+      adset_name: ad.adset_name || '',
       spend: (ad.spend || 0).toFixed(2),
       ctr: (ad.ctr || 0).toFixed(2),
       cpc: (ad.cpc || 0).toFixed(2),
+      atc: ad.atc || 0,
+      initiate_checkouts: ad.ic || 0,
       purchases: ad.purchases || 0,
+      cpa: ad.cost_per_purchase ? ad.cost_per_purchase.toFixed(2) : 'n/a',
       roas: (ad.roas || 0).toFixed(2)
     };
   });
 
-  var adsetSummary = (perfData.adsetRows || []).slice(0, 10).map(function (adset) {
+  var adsetSummary = adsetRows.slice(0, 12).map(function (adset) {
+    var cfg = adsetConfigById[adset.adset_id] || {};
+    var dailyBudget = cfg.daily_budget ? parseInt(cfg.daily_budget, 10) / 100 : null;
     return {
       adset_id: adset.adset_id,
       adset_name: adset.adset_name || 'unnamed',
       spend: (adset.spend || 0).toFixed(2),
-      daily_budget: adset.daily_budget || 'unknown',
+      daily_budget_eur: dailyBudget,
       roas: (adset.roas || 0).toFixed(2),
-      cpa: (adset.cpa || 0).toFixed(2),
+      cpa: adset.cost_per_purchase ? adset.cost_per_purchase.toFixed(2) : 'n/a',
       purchases: adset.purchases || 0
     };
   });
 
-  var totalSpend = (perfData.adRows || []).reduce(function (s, a) { return s + (a.spend || 0); }, 0);
-  var totalPurchases = (perfData.adRows || []).reduce(function (s, a) { return s + (a.purchases || 0); }, 0);
+  var campaignSummary = campaignRows.slice(0, 3).map(function (c) {
+    return {
+      campaign_id: c.campaign_id,
+      campaign_name: c.campaign_name || campaignContext.name,
+      spend: (c.spend || 0).toFixed(2),
+      purchases: c.purchases || 0,
+      revenue: (c.revenue || 0).toFixed(2),
+      roas: (c.roas || 0).toFixed(2)
+    };
+  });
+
+  var totalSpend = adRows.reduce(function (s, a) { return s + (a.spend || 0); }, 0);
+  var totalPurchases = adRows.reduce(function (s, a) { return s + (a.purchases || 0); }, 0);
+  var totalRevenue = adRows.reduce(function (s, a) { return s + (a.revenue || 0); }, 0);
 
   var mode = state.mode || process.env.ADS_OPTIMIZATION_MODE || 'MONITOR_ONLY';
   var enableWrites = process.env.ENABLE_AD_WRITES === 'true';
@@ -126,10 +176,21 @@ function buildAdvisorPrompt(perfData, state, timeSlot, limits) {
     'TIMING: This is the ' + timeSlot + ' advisory.',
     slotDescriptions[timeSlot] || '',
     '',
-    'CURRENT AD DATA (last 7 days):',
+    'MONITORED LIVE CAMPAIGN:',
+    '- Campaign ID: ' + campaignContext.id,
+    '- Name: ' + campaignContext.name,
+    '- Budget: EUR ' + campaignContext.dailyBudgetEur + '/day ABO',
+    '- Structure: standard single-image ads, no dynamic creative, no asset_feed_spec',
+    '- Intended live structure: ' + campaignContext.intendedActiveAdsets + ' active adsets and ' + campaignContext.intendedActiveAds + ' active statics',
+    '',
+    'CURRENT AD DATA (monitored campaign, lookback window from system):',
     'Total spend: EUR ' + totalSpend.toFixed(2),
     'Total purchases: ' + totalPurchases,
-    'Overall ROAS: ' + (totalSpend > 0 ? (totalPurchases * 30 / totalSpend).toFixed(2) : '0') + 'x',
+    'Total revenue: EUR ' + totalRevenue.toFixed(2),
+    'Overall ROAS: ' + (totalSpend > 0 ? (totalRevenue / totalSpend).toFixed(2) : '0') + 'x',
+    '',
+    'CAMPAIGN SUMMARY:',
+    JSON.stringify(campaignSummary, null, 1),
     '',
     'ACTIVE ADS (' + adSummary.length + '):',
     JSON.stringify(adSummary, null, 1),
@@ -138,7 +199,7 @@ function buildAdvisorPrompt(perfData, state, timeSlot, limits) {
     JSON.stringify(adsetSummary, null, 1),
     '',
     'CURRENT STATE:',
-    '- ADS_OPTIMIZATION_MODE: ' + mode + (mode === 'EXECUTE' ? ' (LIVE - acties worden echt uitgevoerd!)' : ''),
+    '- ADS_OPTIMIZATION_MODE: ' + mode,
     '- ENABLE_AD_WRITES: ' + enableWrites,
     '',
     'CURRENT LIMITS (from Redis, operator can change these):',
@@ -146,18 +207,25 @@ function buildAdvisorPrompt(perfData, state, timeSlot, limits) {
     '- Max daily spend: EUR ' + limits.max_daily_spend,
     '- Max campaign budget: EUR ' + limits.max_campaign_budget,
     '',
-    'IMPORTANT: The system is in LIVE execution mode. When the operator taps a strategy,',
-    'the actions WILL be executed via Meta API (after approval tap). Your suggestions must',
-    'be precise, realistic, and safe. Every action you propose can and will happen.',
+    'IMPORTANT SAFETY:',
+    '- This automation must NOT create campaigns, adsets, ads, creatives, or new delivery.',
+    '- This automation must NOT recommend dynamic creative, asset_feed_spec, or bulk copy options for the 80-live-static setup.',
+    '- Adcopy generation is out of scope. Only mention new copy/statics as a manual follow-up when the operator supplies new images.',
+    '- Any pause or budget change is approval-first. It is only a proposal until the operator explicitly approves execution.',
+    '- Never recommend changing campaign budget for this ABO campaign. Budget advice is adset-level only.',
+    '- Never exceed the safety limits below.',
     '',
     'RULES:',
     '- Never exceed safety limits in any suggestion',
     '- Be specific: use exact adset/ad names and IDs from the data above',
     '- Include expected impact AND risk for each option',
-    '- For each strategy, include concrete "actions" with type (pause_ad/scale_adset) and target IDs',
-    '- Safe should genuinely be low risk (e.g. pause clear losers, keep winners unchanged)',
-    '- Balanced should optimize spend allocation (pause underperformers, scale proven winners 15-20%)',
-    '- Aggressive should maximize growth (scale top performers to limit, pause all below-average ads)',
+    '- For each strategy, include concrete "actions" only with type no_action, pause_ad, scale_adset, or adjust_adset_budget',
+    '- scale_adset means raise an adset budget and MUST include new_budget_eur',
+    '- adjust_adset_budget means lower an adset budget and MUST include new_budget_eur',
+    '- Do not propose pause_ad unless spend and funnel data justify it',
+    '- Safe should genuinely be low risk: mostly keep winners running and monitor weak data',
+    '- Balanced may reallocate budget between adsets if purchase/CPA/ROAS data supports it',
+    '- Aggressive still cannot create/duplicate/replace delivery; it can only propose approval-gated pause or adset-budget changes',
     '- If everything is performing well, Safe can be "change nothing"',
     '- Be honest when data is insufficient for confident recommendations',
     '- If a strategy would exceed a limit, add "limit_exceeded": true',
@@ -170,6 +238,12 @@ function buildAdvisorPrompt(perfData, state, timeSlot, limits) {
     'Respond ONLY in JSON:',
     '{',
     '  "analysis": "2-3 sentence plain language summary of current performance",',
+    '  "recommendations": {',
+    '    "keep_running": [{"entity_type":"campaign|adset|ad","entity_id":"id","entity_name":"name","reason":"why keep running","metrics":{"spend":0,"purchases":0,"cpa":0,"roas":0,"ctr":0}}],',
+    '    "less_budget": [{"entity_type":"adset","entity_id":"id","entity_name":"name","reason":"why less budget","metrics":{"spend":0,"purchases":0,"cpa":0,"roas":0},"recommended_action":"monitor|adjust_adset_budget"}],',
+    '    "more_budget": [{"entity_type":"adset","entity_id":"id","entity_name":"name","reason":"why more budget","metrics":{"spend":0,"purchases":0,"cpa":0,"roas":0},"recommended_action":"scale_adset","new_budget_eur":0}],',
+    '    "possible_off": [{"entity_type":"ad","entity_id":"id","entity_name":"name","reason":"why possibly pause","metrics":{"spend":0,"purchases":0,"atc":0,"ic":0,"ctr":0},"recommended_action":"pause_ad|monitor"}]',
+    '  },',
     '  "strategies": [',
     '    {',
     '      "level": "safe",',
@@ -177,11 +251,11 @@ function buildAdvisorPrompt(perfData, state, timeSlot, limits) {
     '      "summary": "1-2 sentences what this does",',
     '      "actions": [',
     '        {',
-    '          "type": "pause_ad|scale_budget|duplicate_ad|change_optimization|adjust_targeting|create_adset|no_action",',
+    '          "type": "no_action|pause_ad|scale_adset|adjust_adset_budget",',
     '          "target_id": "Meta object ID or null",',
     '          "target_name": "Human readable name",',
     '          "detail": "Specific description",',
-    '          "value": "New value if applicable"',
+    '          "new_budget_eur": "Required for scale_adset or adjust_adset_budget"',
     '        }',
     '      ],',
     '      "expected_impact": "What should happen",',
@@ -223,6 +297,7 @@ async function sendAdvisoryToTelegram(advisory, timeSlot) {
     time: timeStr,
     slot: timeSlot,
     analysis: advisory.analysis,
+    recommendations: advisory.recommendations || null,
     strategies: advisory.strategies,
     chosen: null,
     followup_answer: null,
@@ -239,6 +314,13 @@ async function sendAdvisoryToTelegram(advisory, timeSlot) {
     advisory.analysis || 'Geen analyse beschikbaar.',
     ''
   ];
+
+  if (advisory.recommendations) {
+    formatRecommendationSection(lines, 'Laten lopen', advisory.recommendations.keep_running);
+    formatRecommendationSection(lines, 'Minder budget', advisory.recommendations.less_budget);
+    formatRecommendationSection(lines, 'Meer budget', advisory.recommendations.more_budget);
+    formatRecommendationSection(lines, 'Mogelijk uit', advisory.recommendations.possible_off);
+  }
 
   var emojis = { safe: '\ud83d\udfe2', balanced: '\ud83d\udfe1', aggressive: '\ud83d\udd34' };
   var labels = { safe: 'VEILIG', balanced: 'GEBALANCEERD', aggressive: 'AGRESSIEF' };
@@ -287,6 +369,51 @@ async function sendAdvisoryToTelegram(advisory, timeSlot) {
   return sendTelegram(text, inlineKeyboard);
 }
 
+function escapeHtml(value) {
+  return String(value === undefined || value === null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function truncate(value, len) {
+  var s = String(value || '');
+  return s.length > len ? s.substring(0, len - 3) + '...' : s;
+}
+
+function formatMetricValue(value) {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value.toFixed(value % 1 === 0 ? 0 : 2) : null;
+  }
+  return String(value);
+}
+
+function formatMetrics(metrics) {
+  if (!metrics || typeof metrics !== 'object') return '';
+  var keys = ['spend', 'purchases', 'cpa', 'roas', 'ctr', 'atc', 'ic'];
+  var parts = [];
+  keys.forEach(function (key) {
+    var val = formatMetricValue(metrics[key]);
+    if (val !== null) parts.push(key.toUpperCase() + ' ' + val);
+  });
+  return parts.length ? ' | ' + parts.join(', ') : '';
+}
+
+function formatRecommendationSection(lines, title, rows) {
+  rows = Array.isArray(rows) ? rows : [];
+  if (rows.length === 0) return;
+  lines.push('<b>' + escapeHtml(title) + ':</b>');
+  rows.slice(0, 4).forEach(function (row) {
+    lines.push(
+      '- ' + escapeHtml(truncate(row.entity_name || row.entity_id || 'unknown', 45)) +
+      formatMetrics(row.metrics) +
+      ' | ' + escapeHtml(truncate(row.reason || '', 90))
+    );
+  });
+  lines.push('');
+}
+
 /**
  * Collect performance data for advisory from cached snapshot.
  */
@@ -307,7 +434,7 @@ async function getPerformanceDataForAdvisory() {
 async function getCurrentState() {
   var mode = process.env.ADS_OPTIMIZATION_MODE || 'MONITOR_ONLY';
   var enableWrites = process.env.ENABLE_AD_WRITES === 'true';
-  return { mode: mode, enableWrites: enableWrites };
+  return { mode: mode, enableWrites: enableWrites, campaignContext: getMonitoredCampaignContext() };
 }
 
 /**

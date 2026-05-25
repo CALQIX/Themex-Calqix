@@ -109,6 +109,8 @@ module.exports = async function handler(req, res) {
         mode: mode,
         evaluated: evaluation.evaluated,
         proposals: evaluation.proposals.length,
+        rulePlan: evaluation.rulePlan || [],
+        rulePlanItems: evaluation.rulePlan ? evaluation.rulePlan.length : 0,
         executed: execResults.executed.length,
         queued: execResults.queued.length,
         skipped: execResults.skipped.length,
@@ -120,6 +122,7 @@ module.exports = async function handler(req, res) {
         ok: true,
         evaluated: evaluation.evaluated,
         proposals: evaluation.proposals.length,
+        rulePlanItems: evaluation.rulePlan ? evaluation.rulePlan.length : 0,
         executed: execResults.executed.length,
         queued: execResults.queued.length,
         skipped: execResults.skipped.length

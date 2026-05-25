@@ -28,10 +28,31 @@ function removeUndefined(value) {
   return value === undefined ? undefined : value;
 }
 
-function buildEvent(eventName, eventId, sourceUrl, userData = {}, customData = {}) {
+function normalizeEventTime(value) {
+  if (value === undefined || value === null || value === '') {
+    return Math.floor(Date.now() / 1000);
+  }
+
+  if (value instanceof Date) {
+    return Math.floor(value.getTime() / 1000);
+  }
+
+  if (typeof value === 'number' || /^[0-9]+$/.test(String(value))) {
+    const n = Number(value);
+    if (!Number.isFinite(n) || n <= 0) return Math.floor(Date.now() / 1000);
+    return n > 100000000000 ? Math.floor(n / 1000) : Math.floor(n);
+  }
+
+  const parsed = Date.parse(String(value));
+  if (Number.isFinite(parsed)) return Math.floor(parsed / 1000);
+  return Math.floor(Date.now() / 1000);
+}
+
+function buildEvent(eventName, eventId, sourceUrl, userData = {}, customData = {}, options = {}) {
+  const eventTime = normalizeEventTime(options.eventTime || options.event_time);
   return removeUndefined({
     event_name: eventName,
-    event_time: Math.floor(Date.now() / 1000),
+    event_time: eventTime,
     event_id: eventId,
     event_source_url: sourceUrl || DEFAULT_SOURCE_URL,
     action_source: 'website',
@@ -44,11 +65,12 @@ function isCapiEnabled() {
   return process.env.CAPI_ENABLED !== 'false';
 }
 
-async function sendEvent(eventName, eventId, sourceUrl, userData = {}, customData = {}) {
+async function sendEvent(eventName, eventId, sourceUrl, userData = {}, customData = {}, options = {}) {
+  const eventTime = normalizeEventTime(options.eventTime || options.event_time);
   if (!isCapiEnabled()) {
     console.log(`[META CAPI] ${eventName} logged (CAPI_ENABLED=false)`, {
       eventId,
-      event_time: Math.floor(Date.now() / 1000)
+      event_time: eventTime
     });
     return { ok: true, skipped: true, reason: 'CAPI_ENABLED=false' };
   }
@@ -62,7 +84,7 @@ async function sendEvent(eventName, eventId, sourceUrl, userData = {}, customDat
   }
 
   const payload = {
-    data: [buildEvent(eventName, eventId, sourceUrl, userData, customData)],
+    data: [buildEvent(eventName, eventId, sourceUrl, userData, customData, { eventTime })],
     access_token: accessToken
   };
 
@@ -84,17 +106,32 @@ async function sendEvent(eventName, eventId, sourceUrl, userData = {}, customDat
     if (!response.ok || result.error) {
       console.error(`[META CAPI] ${eventName} failed`, {
         status: response.status,
-        message: result.error ? result.error.message : 'Unknown Meta API error',
+        errorType: result.error ? result.error.type : null,
+        errorCode: result.error ? result.error.code : null,
+        errorSubcode: result.error ? result.error.error_subcode : null,
+        traceId: result.fbtrace_id || null,
         eventId
       });
       return { ok: false, status: response.status, result };
+    }
+
+    const eventsReceived = Number(result.events_received);
+    if (!Number.isFinite(eventsReceived) || eventsReceived <= 0) {
+      console.error(`[META CAPI] ${eventName} not accepted`, {
+        eventId,
+        status: response.status,
+        traceId: result.fbtrace_id || null,
+        eventsReceived: Number.isFinite(eventsReceived) ? eventsReceived : null
+      });
+      return { ok: false, status: response.status, result, reason: 'events_received_not_positive' };
     }
 
     console.log(`[META CAPI] ${eventName} sent`, {
       eventId,
       status: response.status,
       traceId: result.fbtrace_id || null,
-      eventsReceived: result.events_received || null
+      eventsReceived: eventsReceived,
+      event_time: eventTime
     });
 
     return { ok: true, status: response.status, result };
@@ -110,6 +147,7 @@ async function sendEvent(eventName, eventId, sourceUrl, userData = {}, customDat
 module.exports = {
   buildEvent,
   isCapiEnabled,
+  normalizeEventTime,
   sendEvent,
   META_API_VERSION
 };

@@ -9,6 +9,7 @@
  *   diag:summary:{YYYY-MM-DD}           → JSON  TTL 7d  (daily aggregated summary)
  */
 var store = require('./store');
+var dates = require('./dates');
 
 var TTL_ENTRY = 24 * 3600;      // 24 hours per diagnostic entry
 var TTL_SUMMARY = 7 * 24 * 3600; // 7 days for daily summary
@@ -64,26 +65,37 @@ async function recordCoverage(eventName, eventId, source, userData, extra) {
  * Increment daily summary counters for parameter coverage.
  */
 async function incrementDailySummary(eventName, coverage) {
-  var today = new Date().toISOString().split('T')[0];
+  var today = dates.toISODateAmsterdam();
   var key = 'diag:summary:' + today;
 
   var raw = await store.get(key);
-  var summary;
-  try { summary = raw ? JSON.parse(raw) : {}; } catch (e) { summary = {}; }
+  var summary = store.parseJsonValue(raw, {});
 
   if (!summary[eventName]) {
-    summary[eventName] = { total: 0, em: 0, ph: 0, fbp: 0, fbc: 0, external_id: 0, fn: 0, ln: 0 };
+    summary[eventName] = {
+      total: 0,
+      em: 0,
+      ph: 0,
+      fn: 0,
+      ln: 0,
+      ct: 0,
+      st: 0,
+      zp: 0,
+      country: 0,
+      fbp: 0,
+      fbc: 0,
+      external_id: 0,
+      client_ip_address: 0,
+      client_user_agent: 0
+    };
   }
 
   var s = summary[eventName];
   s.total++;
-  if (coverage.em) s.em++;
-  if (coverage.ph) s.ph++;
-  if (coverage.fbp) s.fbp++;
-  if (coverage.fbc) s.fbc++;
-  if (coverage.external_id) s.external_id++;
-  if (coverage.fn) s.fn++;
-  if (coverage.ln) s.ln++;
+  Object.keys(coverage).forEach(function (field) {
+    if (coverage[field]) s[field] = (s[field] || 0) + 1;
+    else if (s[field] === undefined) s[field] = 0;
+  });
 
   await store.set(key, JSON.stringify(summary), TTL_SUMMARY);
 }
@@ -94,11 +106,20 @@ async function incrementDailySummary(eventName, coverage) {
  * @returns {Promise<object|null>}
  */
 async function getDailySummary(dateStr) {
-  var d = dateStr || new Date().toISOString().split('T')[0];
+  var d = dateStr || dates.toISODateAmsterdam();
   var key = 'diag:summary:' + d;
   var raw = await store.get(key);
-  if (!raw) return null;
-  try { return JSON.parse(raw); } catch (e) { return null; }
+  var parsed = store.parseJsonValue(raw, null);
+  if (parsed) return parsed;
+
+  // Transition fallback for summaries written before the Amsterdam-day fix.
+  var legacyUtcDay = dates.toISODate();
+  if (d === dates.toISODateAmsterdam() && legacyUtcDay !== d) {
+    var legacyRaw = await store.get('diag:summary:' + legacyUtcDay);
+    return store.parseJsonValue(legacyRaw, null);
+  }
+
+  return null;
 }
 
 module.exports = {

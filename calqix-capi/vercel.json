@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "buildCommand": "node scripts/preflight-root-guard.js",
   "crons": [
     {
       "path": "/api/cron/pixel-diag",

@@ -24,6 +24,7 @@ const { isDuplicate, markProcessed } = require('../lib/dedup-guard');
 const eventState = require('../lib/event-state');
 const bridgeVersionTracker = require('../lib/bridge-version-tracker');
 const eventStats = require('../lib/event-stats');
+const qualityLedger = require('../lib/meta-quality-ledger');
 
 const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
 const SOURCE_URL_BASE = 'https://www.calqix.com/';
@@ -67,6 +68,7 @@ async function handler(req, res) {
 
     const emailHash = emailHashShort(email);
     const eventId = body.event_id || ('lead_ns_' + emailHash);
+    const eventTime = body.event_time || body.eventTime || body.timestamp || body.event_timestamp;
     const formContext = body.form_context || 'newsletter';
     const sourceUrl = body.source_url || SOURCE_URL_BASE;
 
@@ -89,6 +91,7 @@ async function handler(req, res) {
     if (body.country_code) customerData.country_code = body.country_code;
     if (body.first_name) customerData.first_name = body.first_name;
     if (body.last_name) customerData.last_name = body.last_name;
+    if (body.date_of_birth || body.birthday || body.db) customerData.date_of_birth = body.date_of_birth || body.birthday || body.db;
 
     const clientIp = extractClientIP(req, body.client_ip);
     const clientUserAgent = (req.headers && req.headers['user-agent']) || undefined;
@@ -112,11 +115,22 @@ async function handler(req, res) {
       hasUa: Boolean(userData.client_user_agent)
     });
 
-    await eventState.recordReceived(eventId, 'Lead', 'browser_bridge', emailHash);
+    await eventState.recordReceived(eventId, 'Lead', 'browser_bridge', emailHash, eventTime);
     await eventStats.incrementEventStat('Lead', 'browser');
-    const result = await sendEvent('Lead', eventId, sourceUrl, userData, customData);
+    await eventState.storeEventPayload(eventId, userData, customData, sourceUrl, eventTime);
+    const result = await sendEvent('Lead', eventId, sourceUrl, userData, customData, { eventTime: eventTime });
     await eventState.recordSent(eventId, result);
     await markProcessed('Lead', emailHash);
+    await qualityLedger.recordServerEvent({
+      event_name: 'Lead',
+      event_id: eventId,
+      event_time: eventTime,
+      source: 'browser_bridge',
+      user_data: userData,
+      custom_data: customData,
+      source_url: sourceUrl,
+      meta_result: result
+    });
 
     return res.status(200).json({
       received: true,
@@ -128,6 +142,7 @@ async function handler(req, res) {
         fbp: Boolean(userData.fbp),
         em: Boolean(userData.em),
         ph: Boolean(userData.ph),
+        db: Boolean(userData.db),
         ip: Boolean(userData.client_ip_address),
         ua: Boolean(userData.client_user_agent)
       }

@@ -3,7 +3,7 @@
  *
  * Handles:
  *   - Pause ad (via Meta API)
- *   - Scale adset budget (via Meta API)
+ *   - Scale / adjust adset budget (via Meta API)
  *   - Dry-run mode
  *   - Approval gating
  *   - Idempotency via Redis
@@ -36,6 +36,12 @@ async function executeProposal(proposal, forceDryRun) {
   if (mode === 'MONITOR_ONLY') {
     await logger.logEvaluation(proposal, 'monitor_only_skip');
     return { executed: false, result: null, queued: false, queueId: null, reason: 'MONITOR_ONLY mode' };
+  }
+
+  // Monitor-only flags should appear in reports, not in the approval queue.
+  if (proposal.safety === rulesEngine.SAFETY_LEVELS.MONITOR_ONLY) {
+    await logger.logEvaluation(proposal, 'monitor_only_flag');
+    return { executed: false, result: null, queued: false, queueId: null, reason: 'Monitor-only flag' };
   }
 
   // TELEGRAM_APPROVAL: all proposals go to approval queue with Telegram notification
@@ -188,6 +194,43 @@ async function doExecute(proposal, forceDryRun) {
         return { ok: false, error: 'Budget €' + newBudgetEur + ' exceeds MAX_ADSET_BUDGET €' + rulesEngine.MAX_ADSET_BUDGET(), dryRun: false };
       }
       return metaApi.adjustAdsetBudget(proposal.entityId, proposal.payload.newBudgetCents, proposal.reason, forceDryRun);
+
+    case rulesEngine.ACTION_TYPES.ADJUST_ADSET_BUDGET:
+      if (!proposal.payload || !proposal.payload.newBudgetCents) {
+        return { ok: false, error: 'Missing newBudgetCents in payload', dryRun: false };
+      }
+      var adjustedBudgetEur = proposal.payload.newBudgetCents / 100;
+      if (adjustedBudgetEur > rulesEngine.MAX_ADSET_BUDGET()) {
+        return { ok: false, error: 'Budget EUR ' + adjustedBudgetEur + ' exceeds MAX_ADSET_BUDGET EUR ' + rulesEngine.MAX_ADSET_BUDGET(), dryRun: false };
+      }
+      if (adjustedBudgetEur < 1) {
+        return { ok: false, error: 'Budget EUR ' + adjustedBudgetEur + ' is below the EUR 1 safety floor', dryRun: false };
+      }
+      return metaApi.adjustAdsetBudget(proposal.entityId, proposal.payload.newBudgetCents, proposal.reason, forceDryRun);
+
+    case rulesEngine.ACTION_TYPES.SCALE_CAMPAIGN:
+      if (!proposal.payload || !proposal.payload.newBudgetCents) {
+        return { ok: false, error: 'Missing newBudgetCents in payload', dryRun: false };
+      }
+      var newCampaignBudgetEur = proposal.payload.newBudgetCents / 100;
+      if (newCampaignBudgetEur > 200) {
+        return { ok: false, error: 'Campaign budget EUR ' + newCampaignBudgetEur + ' exceeds MAX_DAILY_BUDGET EUR 200', dryRun: false };
+      }
+      return metaApi.adjustCampaignBudget(proposal.entityId, proposal.payload.newBudgetCents, proposal.reason, forceDryRun);
+
+    case rulesEngine.ACTION_TYPES.FLAG_REVIEW:
+    case rulesEngine.ACTION_TYPES.FLAG_FATIGUE:
+    case rulesEngine.ACTION_TYPES.FLAG_SPEND_STARVED:
+      return {
+        ok: true,
+        dryRun: true,
+        result: {
+          action: proposal.action,
+          acknowledged: true,
+          reason: proposal.reason,
+          note: 'Review-only action acknowledged. No Meta write performed.'
+        }
+      };
 
     default:
       return { ok: false, error: 'Unknown action type: ' + proposal.action, dryRun: false };

@@ -23,6 +23,7 @@
  */
 
 var CAPI_URL = "https://calqix-capi.vercel.app/api/checkout-event";
+var BROWSER_LEDGER_URL = "https://calqix-capi.vercel.app/api/meta-browser-event";
 var FALLBACK_URL = "https://calqix.com/checkout";
 var META_PIXEL_ID = "934134615770602";
 
@@ -145,6 +146,10 @@ function customerId(checkout) {
   return null;
 }
 
+async function browserExternalId(checkout) {
+  return customerId(checkout) || await getCookie("_cq_anon_id");
+}
+
 function shippingAddress(checkout) {
   return (checkout && (checkout.shippingAddress || checkout.shipping_address || checkout.billingAddress || checkout.billing_address)) || null;
 }
@@ -162,9 +167,93 @@ function checkoutPhone(checkout, addr) {
     null;
 }
 
-function send(payload) {
+function normalizeDateOfBirth(value) {
+  if (!value) return null;
+  var s = String(value).trim().toLowerCase();
+  var compact = s.match(/^(\d{4})(\d{2})(\d{2})$/);
+  if (compact) return compact[1] + compact[2] + compact[3];
+  var iso = s.match(/^(\d{4})[-/](\d{2})[-/](\d{2})$/);
+  if (iso) return iso[1] + iso[2] + iso[3];
+  return null;
+}
+
+function dialCodeForCountry(countryCode) {
+  if (!countryCode) return null;
+  var code = String(countryCode).trim().toUpperCase().slice(0, 2);
+  var map = {
+    NL: "31",
+    BE: "32",
+    DE: "49",
+    FR: "33",
+    ES: "34",
+    GB: "44",
+    UK: "44",
+    US: "1",
+    CA: "1",
+    AT: "43",
+    CH: "41",
+    LI: "423",
+    SE: "46",
+    NO: "47",
+    DK: "45",
+    FI: "358",
+    IS: "354",
+    LU: "352"
+  };
+  return map[code] || null;
+}
+
+function normalizePhoneForMeta(value, countryCode) {
+  if (!value) return null;
+  var raw = String(value).trim();
+  var digits = raw.replace(/\D/g, "");
+  if (!digits) return null;
+  if (raw.indexOf("+") === 0) return digits;
+  if (digits.indexOf("00") === 0) return digits.substring(2) || null;
+
+  var dial = dialCodeForCountry(countryCode);
+  if (digits.indexOf("0") === 0) {
+    return dial ? dial + digits.replace(/^0+/, "") : null;
+  }
+  if (dial && digits.length <= 10 && digits.indexOf(dial) !== 0) {
+    return dial + digits;
+  }
+  return digits;
+}
+
+function customerBirthday(checkout) {
   try {
-    fetch(CAPI_URL, {
+    var customer = checkout && (
+      checkout.customer ||
+      (checkout.buyerIdentity && checkout.buyerIdentity.customer) ||
+      (checkout.order && checkout.order.customer)
+    );
+    var value = customer && (
+      customer.birthday ||
+      customer.birthdate ||
+      customer.dateOfBirth ||
+      customer.date_of_birth
+    );
+    if (value && value.value) value = value.value;
+    return normalizeDateOfBirth(value);
+  } catch (e) { /* silent */ }
+  return null;
+}
+
+function eventUnixTime(event) {
+  var ts = event && event.timestamp;
+  var parsed = ts ? Date.parse(ts) : NaN;
+  return Number.isFinite(parsed) ? Math.floor(parsed / 1000) : Math.floor(Date.now() / 1000);
+}
+
+function postJson(url, payload, includeBrowserUserAgent) {
+  try {
+    var base = { event_time: Math.floor(Date.now() / 1000) };
+    if (includeBrowserUserAgent) {
+      base.browser_user_agent = navigator.userAgent || null;
+    }
+    payload = Object.assign(base, payload || {});
+    fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -173,13 +262,72 @@ function send(payload) {
   } catch (e) { /* fire and forget */ }
 }
 
-function normalizeForHash(field, value) {
+function send(payload) {
+  postJson(CAPI_URL, payload, true);
+}
+
+function auditBrowserEvent(eventName, eventId, eventTime, customData, userData, fbp, fbc, sourceUrl) {
+  postJson(BROWSER_LEDGER_URL, {
+    event_name: eventName,
+    event_id: eventId,
+    event_time: eventTime,
+    pixel_id: META_PIXEL_ID,
+    source: "shopify_custom_pixel_direct_tr",
+    source_url: sourceUrl,
+    identity_flags: {
+      em: Boolean(userData && userData.email),
+      ph: Boolean(userData && userData.phone),
+      fn: Boolean(userData && userData.first_name),
+      ln: Boolean(userData && userData.last_name),
+      ct: Boolean(userData && userData.city),
+      st: Boolean(userData && userData.state),
+      zp: Boolean(userData && userData.zip),
+      country: Boolean(userData && userData.country_code),
+      db: Boolean(userData && userData.date_of_birth),
+      external_id: Boolean(userData && userData.external_id),
+      fbp: Boolean(fbp),
+      fbc: Boolean(fbc),
+      client_user_agent: Boolean(typeof navigator !== "undefined" && navigator.userAgent)
+    },
+    custom_data_flags: {
+      value: Boolean(customData && customData.value !== undefined && customData.value !== null),
+      currency: Boolean(customData && customData.currency),
+      content_ids: Boolean(customData && Array.isArray(customData.content_ids) && customData.content_ids.length),
+      contents: Boolean(customData && Array.isArray(customData.contents) && customData.contents.length),
+      order_id: Boolean(customData && customData.order_id)
+    }
+  }, false);
+}
+
+function normalizeForHash(field, value, userData) {
   if (!value) return null;
   var v = String(value).trim().toLowerCase();
   if (!v) return null;
-  if (field === "ph") v = v.replace(/\D/g, "");
+  if (v.normalize) v = v.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (field === "ph") v = normalizePhoneForMeta(v, userData && userData.country_code);
   if (field === "zp") v = v.replace(/\s+/g, "");
-  if (field === "country") v = v.substring(0, 2);
+  if (field === "country") {
+    var countryMap = {
+      nederland: "nl",
+      netherlands: "nl",
+      holland: "nl",
+      belgie: "be",
+      belgium: "be",
+      germany: "de",
+      deutschland: "de",
+      france: "fr",
+      spain: "es",
+      espana: "es",
+      unitedkingdom: "gb",
+      uk: "gb",
+      unitedstates: "us",
+      unitedstatesofamerica: "us",
+      usa: "us"
+    };
+    var compactCountry = v.replace(/[^a-z0-9]/g, "");
+    v = countryMap[compactCountry] || compactCountry.substring(0, 2);
+  }
+  if (field === "db") v = normalizeDateOfBirth(v);
   if (field === "st") v = v.replace(/[^a-z0-9]/g, "");
   return v || null;
 }
@@ -290,11 +438,12 @@ async function fireBrowserPixelEvent(eventName, eventId, customData, userData, f
         { key: "st", value: userData.state },
         { key: "zp", value: userData.zip },
         { key: "country", value: userData.country_code },
+        { key: "db", value: userData.date_of_birth },
         { key: "external_id", value: userData.external_id }
       ];
       for (var i = 0; i < fields.length; i++) {
         var field = fields[i];
-        var normalized = normalizeForHash(field.key, field.value);
+        var normalized = normalizeForHash(field.key, field.value, userData);
         if (normalized) {
           var hashed = await sha256Hash(normalized);
           if (hashed) qs.push("ud[" + field.key + "]=" + encodeURIComponent(hashed));
@@ -391,6 +540,8 @@ analytics.subscribe("checkout_started", async function (event) {
   var fbc = await getCookie("_fbc");
   var fbp = await getCookie("_fbp");
   var gaClientId = await getGaClientId();
+  var externalId = await browserExternalId(checkout);
+  var eventTime = eventUnixTime(event);
 
   enrichment[token] = { fbc: fbc, fbp: fbp, ga_client_id: gaClientId };
 
@@ -402,34 +553,7 @@ analytics.subscribe("checkout_started", async function (event) {
   var userData = {
     email: checkout.email || null,
     phone: checkoutPhone(checkout, addr),
-    external_id: customerId(checkout),
-    ga_client_id: gaClientId,
-    first_name: addr && (addr.firstName || addr.first_name) || null,
-    last_name: addr && (addr.lastName || addr.last_name) || null,
-    city: addr && addr.city || null,
-    state: addr && (addr.provinceCode || addr.province || addr.region) || null,
-    zip: addr && addr.zip || null,
-    country_code: addr && (addr.countryCode || addr.country_code) || null
-  };
-
-  // Browser-side InitiateCheckout — matches server event_id for dedup.
-  await fireBrowserPixelEvent("InitiateCheckout", "ic_" + token, {
-    value: value,
-    currency: curr,
-    content_ids: contentIdsFromItems(lineItems),
-    contents: contentsFromItems(lineItems),
-    content_type: contentTypeFromItems(lineItems),
-    num_items: sumQuantities(lineItems)
-  }, userData, fbp, fbc, sourceUrl);
-
-  send({
-    event_type: "checkout_started",
-    checkout_token: token,
-    fbc: fbc,
-    fbp: fbp,
-    email: checkout.email || null,
-    phone: checkoutPhone(checkout, addr),
-    external_id: customerId(checkout),
+    external_id: externalId,
     ga_client_id: gaClientId,
     first_name: addr && (addr.firstName || addr.first_name) || null,
     last_name: addr && (addr.lastName || addr.last_name) || null,
@@ -437,6 +561,39 @@ analytics.subscribe("checkout_started", async function (event) {
     state: addr && (addr.provinceCode || addr.province || addr.region) || null,
     zip: addr && addr.zip || null,
     country_code: addr && (addr.countryCode || addr.country_code) || null,
+    date_of_birth: customerBirthday(checkout)
+  };
+  enrichment[token] = Object.assign({}, enrichment[token], userData);
+
+  // Browser-side InitiateCheckout — matches server event_id for dedup.
+  var icCustomData = {
+    value: value,
+    currency: curr,
+    content_ids: contentIdsFromItems(lineItems),
+    contents: contentsFromItems(lineItems),
+    content_type: contentTypeFromItems(lineItems),
+    num_items: sumQuantities(lineItems)
+  };
+  await fireBrowserPixelEvent("InitiateCheckout", "ic_" + token, icCustomData, userData, fbp, fbc, sourceUrl);
+  auditBrowserEvent("InitiateCheckout", "ic_" + token, eventTime, icCustomData, userData, fbp, fbc, sourceUrl);
+
+  send({
+    event_type: "checkout_started",
+    event_time: eventTime,
+    checkout_token: token,
+    fbc: fbc,
+    fbp: fbp,
+    email: checkout.email || null,
+    phone: checkoutPhone(checkout, addr),
+    external_id: externalId,
+    ga_client_id: gaClientId,
+    first_name: addr && (addr.firstName || addr.first_name) || null,
+    last_name: addr && (addr.lastName || addr.last_name) || null,
+    city: addr && addr.city || null,
+    state: addr && (addr.provinceCode || addr.province || addr.region) || null,
+    zip: addr && addr.zip || null,
+    country_code: addr && (addr.countryCode || addr.country_code) || null,
+    date_of_birth: userData.date_of_birth || null,
     line_items: lineItems,
     value: value,
     currency: curr,
@@ -454,23 +611,54 @@ analytics.subscribe("checkout_contact_info_submitted", async function (event) {
   var fbc = await getCookie("_fbc");
   var fbp = await getCookie("_fbp");
   var gaClientId = await getGaClientId();
+  var externalId = await browserExternalId(checkout);
+  var addr = shippingAddress(checkout);
 
   var cached = enrichment[token] || {};
+  var userData = {
+    email: checkout.email || cached.email || null,
+    phone: checkoutPhone(checkout, addr) || cached.phone || null,
+    external_id: externalId || cached.external_id || null,
+    ga_client_id: gaClientId || cached.ga_client_id || null,
+    first_name: addr && (addr.firstName || addr.first_name) || cached.first_name || null,
+    last_name: addr && (addr.lastName || addr.last_name) || cached.last_name || null,
+    city: addr && addr.city || cached.city || null,
+    state: addr && (addr.provinceCode || addr.province || addr.region) || cached.state || null,
+    zip: addr && addr.zip || cached.zip || null,
+    country_code: addr && (addr.countryCode || addr.country_code) || cached.country_code || null,
+    date_of_birth: customerBirthday(checkout) || cached.date_of_birth || null
+  };
   enrichment[token] = {
     fbc: fbc || cached.fbc || null,
     fbp: fbp || cached.fbp || null,
     ga_client_id: gaClientId || cached.ga_client_id || null,
-    email: checkout.email || cached.email || null,
-    phone: checkoutPhone(checkout, shippingAddress(checkout)) || cached.phone || null
+    email: userData.email,
+    phone: userData.phone,
+    external_id: userData.external_id,
+    first_name: userData.first_name,
+    last_name: userData.last_name,
+    city: userData.city,
+    state: userData.state,
+    zip: userData.zip,
+    country_code: userData.country_code,
+    date_of_birth: userData.date_of_birth
   };
 
   send({
     event_type: "contact_info_submitted",
+    event_time: eventUnixTime(event),
     checkout_token: token,
-    email: checkout.email || null,
-    phone: checkout.phone || null,
-    external_id: customerId(checkout),
-    ga_client_id: gaClientId,
+    email: userData.email,
+    phone: userData.phone,
+    external_id: userData.external_id,
+    ga_client_id: userData.ga_client_id,
+    first_name: userData.first_name,
+    last_name: userData.last_name,
+    city: userData.city,
+    state: userData.state,
+    zip: userData.zip,
+    country_code: userData.country_code,
+    date_of_birth: userData.date_of_birth,
     fbc: fbc,
     fbp: fbp
   });
@@ -486,6 +674,8 @@ analytics.subscribe("payment_info_submitted", async function (event) {
   var fbc = await getCookie("_fbc");
   var fbp = await getCookie("_fbp");
   var gaClientId = await getGaClientId();
+  var externalId = await browserExternalId(checkout);
+  var eventTime = eventUnixTime(event);
   var cached = enrichment[token] || {};
   var effectiveFbp = fbp || cached.fbp || null;
   var effectiveFbc = fbc || cached.fbc || null;
@@ -499,40 +689,45 @@ analytics.subscribe("payment_info_submitted", async function (event) {
   var userData = {
     email: checkout.email || cached.email || null,
     phone: checkoutPhone(checkout, addr) || cached.phone || null,
-    first_name: addr && (addr.firstName || addr.first_name) || null,
-    last_name: addr && (addr.lastName || addr.last_name) || null,
-    city: addr && addr.city || null,
-    state: addr && (addr.provinceCode || addr.province || addr.region) || null,
-    zip: addr && addr.zip || null,
-    country_code: addr && (addr.countryCode || addr.country_code) || null,
-    external_id: customerId(checkout)
+    first_name: addr && (addr.firstName || addr.first_name) || cached.first_name || null,
+    last_name: addr && (addr.lastName || addr.last_name) || cached.last_name || null,
+    city: addr && addr.city || cached.city || null,
+    state: addr && (addr.provinceCode || addr.province || addr.region) || cached.state || null,
+    zip: addr && addr.zip || cached.zip || null,
+    country_code: addr && (addr.countryCode || addr.country_code) || cached.country_code || null,
+    date_of_birth: customerBirthday(checkout) || cached.date_of_birth || null,
+    external_id: externalId || cached.external_id || null
   };
 
   // Browser-side AddPaymentInfo — matches server event_id for dedup.
-  await fireBrowserPixelEvent("AddPaymentInfo", "add_payment_info_" + token, {
+  var apiCustomData = {
     value: value,
     currency: curr,
     content_ids: contentIdsFromItems(lineItems),
     contents: contentsFromItems(lineItems),
     content_type: contentTypeFromItems(lineItems),
     num_items: sumQuantities(lineItems)
-  }, userData, effectiveFbp, effectiveFbc, sourceUrl);
+  };
+  await fireBrowserPixelEvent("AddPaymentInfo", "add_payment_info_" + token, apiCustomData, userData, effectiveFbp, effectiveFbc, sourceUrl);
+  auditBrowserEvent("AddPaymentInfo", "add_payment_info_" + token, eventTime, apiCustomData, userData, effectiveFbp, effectiveFbc, sourceUrl);
 
   send({
     event_type: "payment_info_submitted",
+    event_time: eventTime,
     checkout_token: token,
-    external_id: customerId(checkout),
+    external_id: userData.external_id,
     ga_client_id: effectiveGaClientId,
     fbc: effectiveFbc,
     fbp: effectiveFbp,
-    email: checkout.email || cached.email || null,
-    phone: checkoutPhone(checkout, addr) || cached.phone || null,
-    first_name: addr && (addr.firstName || addr.first_name) || null,
-    last_name: addr && (addr.lastName || addr.last_name) || null,
-    city: addr && addr.city || null,
-    state: addr && (addr.provinceCode || addr.province || addr.region) || null,
-    zip: addr && addr.zip || null,
-    country_code: addr && (addr.countryCode || addr.country_code) || null,
+    email: userData.email,
+    phone: userData.phone,
+    first_name: userData.first_name,
+    last_name: userData.last_name,
+    city: userData.city,
+    state: userData.state,
+    zip: userData.zip,
+    country_code: userData.country_code,
+    date_of_birth: userData.date_of_birth,
     line_items: lineItems,
     value: value,
     currency: curr,
@@ -550,6 +745,8 @@ analytics.subscribe("checkout_completed", async function (event) {
   var fbc = await getCookie("_fbc");
   var fbp = await getCookie("_fbp");
   var gaClientId = await getGaClientId();
+  var externalId = await browserExternalId(checkout);
+  var eventTime = eventUnixTime(event);
   var cached = enrichment[token] || {};
   var effectiveFbp = fbp || cached.fbp || null;
   var effectiveFbc = fbc || cached.fbc || null;
@@ -564,18 +761,19 @@ analytics.subscribe("checkout_completed", async function (event) {
   var userData = {
     email: checkout.email || cached.email || null,
     phone: checkoutPhone(checkout, addr) || cached.phone || null,
-    first_name: addr && (addr.firstName || addr.first_name) || null,
-    last_name: addr && (addr.lastName || addr.last_name) || null,
-    city: addr && addr.city || null,
-    state: addr && (addr.provinceCode || addr.province || addr.region) || null,
-    zip: addr && addr.zip || null,
-    country_code: addr && (addr.countryCode || addr.country_code) || null,
-    external_id: customerId(checkout)
+    first_name: addr && (addr.firstName || addr.first_name) || cached.first_name || null,
+    last_name: addr && (addr.lastName || addr.last_name) || cached.last_name || null,
+    city: addr && addr.city || cached.city || null,
+    state: addr && (addr.provinceCode || addr.province || addr.region) || cached.state || null,
+    zip: addr && addr.zip || cached.zip || null,
+    country_code: addr && (addr.countryCode || addr.country_code) || cached.country_code || null,
+    date_of_birth: customerBirthday(checkout) || cached.date_of_birth || null,
+    external_id: externalId || cached.external_id || null
   };
 
   // Browser-side Purchase — matches server event_id for dedup. This is THE
   // high-EMQ event; server-side alone gives lower match quality tier.
-  await fireBrowserPixelEvent("Purchase", "purchase_" + token, {
+  var purchaseCustomData = {
     value: value,
     currency: curr,
     content_ids: contentIdsFromItems(lineItems),
@@ -583,24 +781,28 @@ analytics.subscribe("checkout_completed", async function (event) {
     content_type: contentTypeFromItems(lineItems),
     num_items: sumQuantities(lineItems),
     order_id: oid
-  }, userData, effectiveFbp, effectiveFbc, sourceUrl);
+  };
+  await fireBrowserPixelEvent("Purchase", "purchase_" + token, purchaseCustomData, userData, effectiveFbp, effectiveFbc, sourceUrl);
+  auditBrowserEvent("Purchase", "purchase_" + token, eventTime, purchaseCustomData, userData, effectiveFbp, effectiveFbc, sourceUrl);
 
   send({
     event_type: "checkout_completed",
+    event_time: eventTime,
     checkout_token: token,
     order_id: oid,
-    external_id: customerId(checkout),
+    external_id: userData.external_id,
     ga_client_id: effectiveGaClientId,
     fbc: effectiveFbc,
     fbp: effectiveFbp,
-    email: checkout.email || cached.email || null,
-    phone: checkoutPhone(checkout, addr) || cached.phone || null,
-    first_name: addr && (addr.firstName || addr.first_name) || null,
-    last_name: addr && (addr.lastName || addr.last_name) || null,
-    city: addr && addr.city || null,
-    state: addr && (addr.provinceCode || addr.province || addr.region) || null,
-    zip: addr && addr.zip || null,
-    country_code: addr && (addr.countryCode || addr.country_code) || null,
+    email: userData.email,
+    phone: userData.phone,
+    first_name: userData.first_name,
+    last_name: userData.last_name,
+    city: userData.city,
+    state: userData.state,
+    zip: userData.zip,
+    country_code: userData.country_code,
+    date_of_birth: userData.date_of_birth,
     line_items: lineItems,
     value: value,
     currency: curr,

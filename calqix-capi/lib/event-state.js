@@ -41,6 +41,18 @@ function payloadKey(eventId) { return 'meta:payload:' + eventId; }
 var RECOVERY_QUEUE_KEY = 'recovery:queue';
 var RECOVERY_DELAYED_KEY = 'recovery:delayed';
 
+function toUnixSeconds(value) {
+  if (value === undefined || value === null || value === '') return Math.floor(Date.now() / 1000);
+  if (typeof value === 'number' || /^[0-9]+$/.test(String(value))) {
+    var n = Number(value);
+    if (!Number.isFinite(n) || n <= 0) return Math.floor(Date.now() / 1000);
+    return n > 100000000000 ? Math.floor(n / 1000) : Math.floor(n);
+  }
+  var parsed = Date.parse(String(value));
+  if (Number.isFinite(parsed)) return Math.floor(parsed / 1000);
+  return Math.floor(Date.now() / 1000);
+}
+
 function stableJitterMs(eventId, delayMs) {
   var source = String(eventId || '');
   var hash = 0;
@@ -65,11 +77,12 @@ function calculateRetryDelayMs(attempts, eventId) {
  * @param {string} shopifyId — Shopify resource identifier
  * @returns {Promise<object>} the event state object
  */
-async function recordReceived(eventId, eventName, source, shopifyId) {
+async function recordReceived(eventId, eventName, source, shopifyId, eventTime) {
   var now = new Date().toISOString();
   var state = {
     event_id: eventId,
     event_name: eventName,
+    event_time: toUnixSeconds(eventTime),
     state: STATES.RECEIVED,
     source: source,
     shopify_id: shopifyId || null,
@@ -240,12 +253,13 @@ async function popFromRecoveryQueue() {
  * @param {string} sourceUrl
  * @returns {Promise<void>}
  */
-async function storeEventPayload(eventId, userData, customData, sourceUrl) {
+async function storeEventPayload(eventId, userData, customData, sourceUrl, eventTime) {
   try {
     var payload = {
       user_data: userData || {},
       custom_data: customData || {},
-      source_url: sourceUrl || 'https://www.calqix.com'
+      source_url: sourceUrl || 'https://www.calqix.com',
+      event_time: toUnixSeconds(eventTime)
     };
     await store.set(payloadKey(eventId), JSON.stringify(payload), TTL_EVENT);
   } catch (err) {

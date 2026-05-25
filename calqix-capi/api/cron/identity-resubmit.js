@@ -13,7 +13,7 @@
  *   1. Load meta:payload:{event_id}                      (hashed user_data + custom_data + source_url)
  *   2. Merge the newly-captured identity (unhashed) into user_data via hash.formatUserData
  *      - Existing fields are preserved (fbp / fbc / client_ip / client_ua stay intact)
- *      - Missing fields get the new hashed values (em / ph / fn / ln / ct / st / zp / country)
+ *      - Missing fields get the new hashed values (em / ph / fn / ln / db / ct / st / zp / country)
  *   3. Call meta-capi.sendEvent with the SAME event_id
  *      - Meta dedups on event_id within its 48h window and merges match keys
  *        from the richer submission, raising EMQ retroactively without double-
@@ -39,6 +39,7 @@ var metaCapi = require('../../lib/meta-capi');
 var hash = require('../../lib/hash');
 var { sendTelegram } = require('../../lib/telegram');
 var alertDedup = require('../../lib/alert-dedup');
+var qualityLedger = require('../../lib/meta-quality-ledger');
 
 var LOCK_KEY = 'cron:lock:identity-resubmit';
 var LOCK_TTL = 10 * 60;
@@ -139,8 +140,7 @@ module.exports = async function (req, res) {
           var identity = pending.identity || {};
           var externalIdRaw =
             identity.external_id ||
-            (evState.shopify_id ? String(evState.shopify_id) : undefined) ||
-            identity.email;
+            (evState.shopify_id ? String(evState.shopify_id) : undefined);
 
           var freshHashed = hash.formatUserData({
             email: identity.email,
@@ -148,6 +148,7 @@ module.exports = async function (req, res) {
             first_name: identity.fn,
             last_name: identity.ln,
             city: identity.ct,
+            date_of_birth: identity.db,
             zip: identity.zp,
             country_code: identity.country,
             province_code: identity.st,
@@ -158,7 +159,7 @@ module.exports = async function (req, res) {
 
           // Original wins for fbp / fbc / IP / UA / external_id — those were
           // captured at the real event time and are more accurate than whatever
-          // we learn later. Fresh wins for em/ph/fn/ln/ct/st/zp/country.
+          // we learn later. Fresh wins for em/ph/fn/ln/db/ct/st/zp/country.
           var originalUD = originalPayload.user_data || {};
           var mergedUD = Object.assign({}, freshHashed);
           var PRESERVE = ['fbp', 'fbc', 'client_ip_address', 'client_user_agent'];
@@ -174,7 +175,7 @@ module.exports = async function (req, res) {
 
           // Count new fields for telemetry.
           var newFields = 0;
-          var keysToCheck = ['em', 'ph', 'fn', 'ln', 'ct', 'st', 'zp', 'country'];
+          var keysToCheck = ['em', 'ph', 'fn', 'ln', 'db', 'ct', 'st', 'zp', 'country'];
           for (var k = 0; k < keysToCheck.length; k++) {
             if (mergedUD[keysToCheck[k]] && !originalUD[keysToCheck[k]]) newFields++;
           }
@@ -193,13 +194,24 @@ module.exports = async function (req, res) {
             eventId,
             originalPayload.source_url || 'https://calqix.com',
             mergedUD,
-            originalPayload.custom_data || {}
+            originalPayload.custom_data || {},
+            { eventTime: originalPayload.event_time || evState.event_time }
           );
 
           if (!sendResult || !sendResult.ok) {
             stats.meta_failures++;
             continue; // leave pending for retry next run
           }
+          await qualityLedger.recordServerEvent({
+            event_name: evState.event_name,
+            event_id: eventId,
+            event_time: originalPayload.event_time || evState.event_time,
+            source: 'identity_resubmit',
+            user_data: mergedUD,
+            custom_data: originalPayload.custom_data || {},
+            source_url: originalPayload.source_url || 'https://calqix.com',
+            meta_result: sendResult
+          });
 
           stats.resubmitted++;
           if (stats.samples.length < 5) {
@@ -215,7 +227,8 @@ module.exports = async function (req, res) {
             eventId,
             mergedUD,
             originalPayload.custom_data || {},
-            originalPayload.source_url || 'https://calqix.com'
+            originalPayload.source_url || 'https://calqix.com',
+            originalPayload.event_time || evState.event_time
           );
 
           await store.set('backfill:resubmit:' + eventId, JSON.stringify({

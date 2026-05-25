@@ -10,11 +10,12 @@
  *   {
  *     email, phone,
  *     first_name, last_name,
- *     city, province_code, zip, country_code,
+ *     city, province_code, zip, country_code, birthday,
  *     external_id          // Shopify customer numeric id as string
  *   }
  */
 var shopify = require('./shopify-admin');
+var nlProvince = require('./nl-postcode-province');
 
 var DEFAULT_LOOKBACK_DAYS = 180;
 var DEFAULT_MAX_CUSTOMERS = 10000;        // matches Meta's single-batch cap
@@ -49,7 +50,7 @@ async function fetchPurchaseUsers(options) {
     '        email\n' +
     '        phone\n' +
     '        createdAt\n' +
-    '        customer { id firstName lastName email phone }\n' +
+    '        customer { id firstName lastName email phone birthday: metafield(namespace: "calqix", key: "birthday") { value } }\n' +
     '        billingAddress { firstName lastName city provinceCode zip countryCodeV2 phone }\n' +
     '        shippingAddress { firstName lastName city provinceCode zip countryCodeV2 phone }\n' +
     '      }\n' +
@@ -129,9 +130,13 @@ function normalizeOrderToUser(order) {
   var lastName = customer.lastName || ship.lastName || bill.lastName || null;
 
   var city = ship.city || bill.city || null;
-  var provinceCode = ship.provinceCode || bill.provinceCode || null;
   var zip = ship.zip || bill.zip || null;
   var countryCode = ship.countryCodeV2 || bill.countryCodeV2 || null;
+  var provinceCode = ship.provinceCode || bill.provinceCode || null;
+  if (!provinceCode && countryCode === 'NL' && zip) {
+    provinceCode = nlProvince.lookup(zip);
+  }
+  var birthday = customer.birthday && customer.birthday.value ? customer.birthday.value : null;
 
   // Extract numeric id from GID (gid://shopify/Customer/1234567890 → 1234567890).
   var externalId = null;
@@ -151,6 +156,7 @@ function normalizeOrderToUser(order) {
     province_code: provinceCode,
     zip: zip,
     country_code: countryCode,
+    birthday: birthday,
     external_id: externalId
   };
 }

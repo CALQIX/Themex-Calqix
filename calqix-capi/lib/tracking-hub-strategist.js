@@ -212,17 +212,21 @@ function buildDeterministicPlan(context) {
     }
   });
 
-  if (!tracking.length) {
+  var ops = context.operational_audits || {};
+  var ledger = ops.meta_coverage_ledger || {};
+  (ledger.rows || []).forEach(function (row) {
+    if (!row || row.severity === 'OK') return;
     tracking.push({
-      priority: 'OK',
-      title: 'Trackingkwaliteit stabiel',
-      action: 'Blijf EMQ, dedup en identity-resubmit elk kwartier monitoren.',
-      metric: 'Geen P0/P1 patroon in huidige snapshot'
+      priority: row.severity || 'P2',
+      title: row.event + ' Pixel/CAPI coverage',
+      action: row.recommendation || 'Controleer shared event_id, browser beacon en CAPI confirm voor deze funnelstap.',
+      metric: row.browser_seen
+        ? 'coverage ' + row.paired_browser_server + '/' + row.browser_seen + ' = ' + row.coverage_pct + '%, Wilson95 ' + row.coverage_wilson95_lower_pct + '%'
+        : 'server events ' + row.server_received + ', browser pair 0'
     });
-  }
+  });
 
   var ad = context.ad_performance || {};
-  var ops = context.operational_audits || {};
   var metaQuality = ops.meta_capi_quality || {};
   (metaQuality.recommendations || []).slice(0, 6).forEach(function (rec) {
     tracking.push({
@@ -241,6 +245,15 @@ function buildDeterministicPlan(context) {
       title: 'Continuous checks schedule niet volledig',
       action: 'Herstel QStash schedules voor tracking-hub kwartiercheck en recovery 1-minuut retry worker.',
       metric: 'tracking ' + Boolean(scheduleChecks.tracking_hub_15m) + ', recovery ' + Boolean(scheduleChecks.recovery_1m)
+    });
+  }
+
+  if (!tracking.length) {
+    tracking.push({
+      priority: 'OK',
+      title: 'Trackingkwaliteit stabiel',
+      action: 'Aanpassingen waren niet nodig; geen kritische fixes nodig geweest.',
+      metric: 'Geen P0/P1 patroon in huidige snapshot'
     });
   }
 
@@ -386,7 +399,7 @@ function compactSummary(context, tracking, ads) {
   var status = fixes.threshold_broken ? 'actie nodig' : 'stabiel';
   return 'Kwartiercheck ' + status + ': backfill pending ' + (meta.pending || 0) +
     ', retry ' + (meta.retry_pending || 0) +
-    ', Meta CAPI norm ' + (quality.score !== undefined ? quality.score + '/100' : 'n/a') +
+    ', Meta normscore ' + (quality.score !== undefined ? quality.score + '/100' : 'n/a') + ' (geen EMQ)' +
     ', trend ' + (trend.direction || 'unknown') + '/' + (trend.rolling_direction || 'rolling unknown') +
     ', dashboard gaps ' + ((recon.gaps || []).length) +
     ', capture issues ' + ((capture.weak || []).length) +
@@ -645,7 +658,10 @@ function buildCompactTelegramLines(plan, tracking, ads, queued) {
 
   lines.push('Trend: ' + compactText((trend.message || trend.direction || 'unknown') + '; 8-run ' + (trend.rolling_direction || 'unknown'), 125));
   lines.push('Norm: Meta CAPI ' + (standard.version || 'actueel') + ' -> ' +
-    (standard.matches_current_run ? 'match' : ((standard.highest_priority || 'warn') + ', score ' + (standard.score !== undefined ? standard.score + '/100' : 'n/a'))));
+    (standard.matches_current_run ? 'match' : ((standard.highest_priority || 'warn') + ', normscore ' + (standard.score !== undefined ? standard.score + '/100' : 'n/a') + ' (geen EMQ)')));
+  if (standard.standards_watch && standard.standards_watch.review_required) {
+    lines.push('Docs: review_required (' + (standard.standards_watch.diffs || 0) + ' wijziging(en)); geen auto-deploy zonder tests + P0/P1.');
+  }
   lines.push('Gedaan: ' + compactText(optimizationStatus(optimizations), high ? 180 : 120));
 
   if (top) {
@@ -689,7 +705,7 @@ function compactTelegramSummary(summary, tracking, ads) {
   var p1 = countPriority(tracking, ads, 'P1');
   var suffix = ' P0 ' + p0 + ', P1 ' + p1 + ', tracking ' + (tracking || []).length + ', ads ' + (ads || []).length + '.';
   var text = String(summary || '').replace(/\s+/g, ' ').trim();
-  var scoreMatch = text.match(/Meta CAPI norm [^,.;]+/i);
+  var scoreMatch = text.match(/Meta (?:CAPI )?norm(?:score)? [^,.;]+/i);
   if (scoreMatch) return scoreMatch[0] + '.' + suffix;
   return text + suffix;
 }

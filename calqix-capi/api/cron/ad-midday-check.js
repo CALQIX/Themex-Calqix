@@ -58,7 +58,7 @@ module.exports = async function handler(req, res) {
     var executedApprovals = [];
     for (var i = 0; i < approvedItems.length; i++) {
       var item = approvedItems[i];
-      if (item.type === 'pause_ad' || item.type === 'scale_adset') {
+      if (item.type === 'pause_ad' || item.type === 'scale_adset' || item.type === 'adjust_adset_budget') {
         var result = await actionExecutor.executeApproved(item.id);
         executedApprovals.push({ id: item.id, type: item.type, entity: item.entityName, ok: result.ok });
         if (result.ok) {

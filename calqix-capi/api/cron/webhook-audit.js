@@ -12,6 +12,15 @@ var dates = require('../../lib/dates');
 var { sendTelegram } = require('../../lib/telegram');
 var alertDedup = require('../../lib/alert-dedup');
 
+function bucketCount(value) {
+  var n = Math.max(0, Math.round(Number(value) || 0));
+  if (n >= 100) return '100plus';
+  if (n >= 50) return '50plus';
+  if (n >= 20) return '20plus';
+  if (n >= 10) return '10plus';
+  return '5plus';
+}
+
 module.exports = async function (req, res) {
   try {
     var secret = process.env.CRON_SECRET;
@@ -43,8 +52,8 @@ module.exports = async function (req, res) {
         var raw = await redis.get(keys[i]);
         if (!raw) continue;
 
-        var event;
-        try { event = JSON.parse(raw); } catch (e) { continue; }
+        var event = store.parseJsonValue(raw, null);
+        if (!event) continue;
 
         if (states[event.state] !== undefined) {
           states[event.state]++;
@@ -88,7 +97,7 @@ module.exports = async function (req, res) {
     if (states.failed_terminal > 5) {
       var priority = states.failed_terminal > 20 ? 'P1' : 'P2';
       var alertResult = await alertDedup.shouldAlert(
-        'webhook-audit', 'system', '*', 'failed_terminal_' + states.failed_terminal, priority
+        'webhook-audit', 'system', '*', 'failed_terminal_' + bucketCount(states.failed_terminal) + '_' + priority.toLowerCase(), priority
       );
       if (alertResult.send) {
         var msg = alertDedup.formatAlertPrefix(priority, alertResult.suppressed) +

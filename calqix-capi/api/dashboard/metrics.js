@@ -30,6 +30,8 @@
  */
 var store = require('../../lib/store');
 var dates = require('../../lib/dates');
+var capiDiag = require('../../lib/capi-diagnostics');
+var qualityLedger = require('../../lib/meta-quality-ledger');
 
 var redis = null;
 function getRedis() {
@@ -71,6 +73,7 @@ module.exports = async function (req, res) {
 
     // --- 3. Daily coverage summary per event type ---
     metrics.coverage = await latestDailySummary();
+    metrics.meta_coverage_ledger = await qualityLedger.getDailyCoverage(dates.toISODateAmsterdam());
 
     // --- 4. Catalog sync snapshot (latest catalog:sync:* key) ---
     metrics.catalog = await latestCatalogSync(r);
@@ -117,8 +120,8 @@ async function aggregateEvents(r) {
       scanned++;
       var raw = await r.get(keys[i]);
       if (!raw) continue;
-      var ev = typeof raw === 'object' ? raw : null;
-      if (!ev) { try { ev = JSON.parse(raw); } catch (e) { continue; } }
+      var ev = store.parseJsonValue(raw, null);
+      if (!ev) continue;
       var name = ev.event_name || 'Unknown';
       var st = ev.state || 'unknown';
       if (states[st] !== undefined) states[st]++;
@@ -158,39 +161,30 @@ async function latestEmq(r) {
   var newest = keys[keys.length - 1];
   var raw = await store.get(newest);
   if (!raw) return { available: false };
-  try {
-    var data = JSON.parse(raw);
-    return Object.assign({ available: true, key: newest }, data);
-  } catch (e) {
-    return { available: false, reason: 'parse_error' };
-  }
+  var data = store.parseJsonValue(raw, null);
+  return data ? Object.assign({ available: true, key: newest }, data) : { available: false, reason: 'parse_error' };
 }
 
 async function latestDailySummary() {
-  var today = new Date().toISOString().split('T')[0];
-  var raw = await store.get('diag:summary:' + today);
-  if (!raw) return { available: false, date: today };
-  try {
-    var summary = JSON.parse(raw);
-    var computed = {};
-    Object.keys(summary).forEach(function (eventName) {
-      var s = summary[eventName];
-      var total = s.total || 0;
-      computed[eventName] = {
-        total: total,
-        em_pct: total ? Math.round((s.em / total) * 100) : 0,
-        ph_pct: total ? Math.round((s.ph / total) * 100) : 0,
-        fbp_pct: total ? Math.round((s.fbp / total) * 100) : 0,
-        fbc_pct: total ? Math.round((s.fbc / total) * 100) : 0,
-        external_id_pct: total ? Math.round((s.external_id / total) * 100) : 0,
-        fn_pct: total ? Math.round((s.fn / total) * 100) : 0,
-        ln_pct: total ? Math.round((s.ln / total) * 100) : 0
-      };
-    });
-    return { available: true, date: today, by_event: computed };
-  } catch (e) {
-    return { available: false, reason: 'parse_error' };
-  }
+  var today = dates.toISODateAmsterdam();
+  var summary = await capiDiag.getDailySummary(today);
+  if (!summary) return { available: false, date: today };
+  var computed = {};
+  Object.keys(summary).forEach(function (eventName) {
+    var s = summary[eventName];
+    var total = s.total || 0;
+    computed[eventName] = {
+      total: total,
+      em_pct: total ? Math.round((s.em / total) * 100) : 0,
+      ph_pct: total ? Math.round((s.ph / total) * 100) : 0,
+      fbp_pct: total ? Math.round((s.fbp / total) * 100) : 0,
+      fbc_pct: total ? Math.round((s.fbc / total) * 100) : 0,
+      external_id_pct: total ? Math.round((s.external_id / total) * 100) : 0,
+      fn_pct: total ? Math.round((s.fn / total) * 100) : 0,
+      ln_pct: total ? Math.round((s.ln / total) * 100) : 0
+    };
+  });
+  return { available: true, date: today, by_event: computed };
 }
 
 async function latestCatalogSync(r) {
@@ -206,12 +200,8 @@ async function latestCatalogSync(r) {
   var newest = keys[keys.length - 1];
   var raw = await store.get(newest);
   if (!raw) return { available: false };
-  try {
-    var data = JSON.parse(raw);
-    return Object.assign({ available: true, key: newest }, data);
-  } catch (e) {
-    return { available: false, reason: 'parse_error' };
-  }
+  var data = store.parseJsonValue(raw, null);
+  return data ? Object.assign({ available: true, key: newest }, data) : { available: false, reason: 'parse_error' };
 }
 
 async function latestBridgeHealth(r) {
@@ -227,11 +217,8 @@ async function latestBridgeHealth(r) {
   var newest = keys[keys.length - 1];
   var raw = await store.get(newest);
   if (!raw) return { available: false };
-  try {
-    return Object.assign({ available: true, key: newest }, JSON.parse(raw));
-  } catch (e) {
-    return { available: false, reason: 'parse_error' };
-  }
+  var data = store.parseJsonValue(raw, null);
+  return data ? Object.assign({ available: true, key: newest }, data) : { available: false, reason: 'parse_error' };
 }
 
 async function resubmitStats(r) {
@@ -252,7 +239,8 @@ async function resubmitStats(r) {
     var raw = await store.get(keys[i]);
     if (!raw) continue;
     try {
-      var run = JSON.parse(raw);
+      var run = store.parseJsonValue(raw, null);
+      if (!run) continue;
       var ts = new Date((run.timestamp || '').toString().replace(' ', 'T')).getTime() || 0;
       if (ts && ts < cutoff) continue;
       totals.runs_24h++;
@@ -266,21 +254,22 @@ async function resubmitStats(r) {
 
 async function contentStats(r) {
   // Provider-agnostic: surface only counts + last activity, not provider-specific fields.
-  var today = new Date().toISOString().split('T')[0];
+  var today = dates.toISODateAmsterdam();
   var raw = await store.get('predis:daily:' + today);
   if (!raw) {
     return { available: true, today: 0, submitted: 0, completed: 0, failed: 0, draft_only: 0 };
   }
   var jobIds = [];
-  try { jobIds = JSON.parse(raw); if (!Array.isArray(jobIds)) jobIds = []; }
-  catch (e) { jobIds = []; }
+  jobIds = store.parseJsonValue(raw, []);
+  if (!Array.isArray(jobIds)) jobIds = [];
   var counts = { submitted: 0, completed: 0, failed: 0, draft_only: 0 };
   var lastActivity = null;
   for (var i = 0; i < jobIds.length; i++) {
     var jobRaw = await store.get('predis:job:' + jobIds[i]);
     if (!jobRaw) continue;
     try {
-      var job = JSON.parse(jobRaw);
+      var job = store.parseJsonValue(jobRaw, null);
+      if (!job) continue;
       var st = job.status || 'unknown';
       if (st === 'submitted') counts.submitted++;
       else if (st === 'completed') counts.completed++;
@@ -294,12 +283,12 @@ async function contentStats(r) {
 }
 
 async function alertFeed(r) {
-  var today = new Date().toISOString().split('T')[0];
+  var today = dates.toISODateAmsterdam();
   var key = 'alert:history:' + today;
   var raw = await store.get(key);
   if (!raw) return { available: true, date: today, total: 0, by_priority: { P0: 0, P1: 0, P2: 0 }, recent: [] };
   try {
-    var history = JSON.parse(raw);
+    var history = store.parseJsonValue(raw, []);
     if (!Array.isArray(history)) history = [];
     var byPriority = { P0: 0, P1: 0, P2: 0 };
     for (var i = 0; i < history.length; i++) {
@@ -326,8 +315,8 @@ async function lastPurchase(r) {
       scanned++;
       var raw = await r.get(keys[i]);
       if (!raw) continue;
-      var ev = typeof raw === 'object' ? raw : null;
-      if (!ev) { try { ev = JSON.parse(raw); } catch (e) { continue; } }
+      var ev = store.parseJsonValue(raw, null);
+      if (!ev) continue;
       var t = new Date(ev.created_at || 0).getTime();
       if (t > bestTime) { bestTime = t; best = ev; }
     }

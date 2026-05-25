@@ -51,6 +51,7 @@ module.exports = async function (req, res) {
     var zip = body.zip || body.postal_code || null;
     var country = body.country_code || body.country || null;
     var province = body.province || body.province_code || null;
+    var dateOfBirth = hash.normalizeDateOfBirth(body.db || body.birthday || body.birthdate || body.date_of_birth);
     var cartToken = body.cart_token || null;
     var anonId = body.anon_id || body.cq_anon_id || null;
     var orderId = body.order_id || null;
@@ -79,6 +80,7 @@ module.exports = async function (req, res) {
     if (zip) identity.zp = zip;
     if (country) identity.country = country;
     if (province) identity.st = province;
+    if (dateOfBirth) identity.db = dateOfBirth;
     if (fbc) identity.fbc = fbc;
     if (fbp) identity.fbp = fbp;
     if (externalId) identity.external_id = externalId;
@@ -139,6 +141,7 @@ module.exports = async function (req, res) {
       hasName: Boolean(firstName || lastName),
       hasAddress: Boolean(city || zip),
       hasProvince: Boolean(province),
+      hasDateOfBirth: Boolean(dateOfBirth),
       hasClickIds: Boolean(gclid || ttclid)
     });
 

@@ -1,92 +1,102 @@
 {
-  "overall_score": 87,
+  "overall_score": 84,
   "emq_grade": "B",
   "scores": {
     "user_data_coverage": {
-      "score": 9,
-      "detail": "Excellent coverage of all Meta EMQ parameters (em, ph, fn, ln, ct, st, zp, country, external_id, fbc, fbp). Smart fallback chain from multiple sources (customer, billing, shipping). Anonymous ID generation for unauthenticated users. Only missing client_user_agent in view-content.js."
+      "score": 8,
+      "detail": "Strong identifier collection across browser bridge + webhooks: fbc/fbp, email/phone, name + address fields, external_id hooks, and IP/UA forwarding. Coverage is gated by (a) browser endpoints requiring event_id and (b) webhook enrichment availability; some early-funnel events may still miss em/ph when users are anonymous. Also, fbc/fbp persistence relies on bridge + cart attributes/enrichment; if blocked, webhooks fall back to browser_ip/user_agent which is weaker than fbc/fbp."
     },
     "event_id_dedup": {
-      "score": 10,
-      "detail": "Perfect deterministic event_id strategy. Shared formats between Custom Pixel and webhooks: ic_{checkout_token} for InitiateCheckout, purchase_{checkout_token} for Purchase. Proper dedup guards with Redis storage and 48h TTL."
+      "score": 7,
+      "detail": "Checkout/Purchase strategy is deterministic for custom pixel + webhooks (ic_{checkout_token}, purchase_{checkout_token}) and aligns for dedup. ViewContent/AddToCart depend on client-provided event_id; good for dedup within the browser-bridge path but not inherently shared with any other server source (no corresponding webhook event for those). Dedup guard uses (eventName, identifier) inconsistently across endpoints (sometimes event_id, sometimes checkoutToken), which is fine but increases risk of duplicate sends if identifier formats diverge."
     },
     "hashing": {
       "score": 9,
-      "detail": "Correct SHA256 implementation with proper normalization. Phone numbers normalized to E.164 format with country code handling. Text fields properly sanitized (lowercase, diacritics removed). Minor: could add more robust international phone validation."
+      "detail": "SHA-256 hashing is present and normalization is largely Meta-aligned: lowercase + trim for base, diacritic stripping for names/locations, and digit-only phone with country dial code logic approximating E.164. Country normalization maps common names. Primary remaining risk is edge-case phone normalization when country is missing/ambiguous; those records will drop ph rather than sending malformed values (good for compliance, slightly reduces match coverage)."
     },
     "custom_data": {
-      "score": 8,
-      "detail": "Good custom_data structure with content_ids, content_type, value, currency, num_items. Contents array with quantities and prices. Minor inconsistencies in content_type selection (product vs product_group) and some optional fields could be more consistently populated."
+      "score": 7,
+      "detail": "ViewContent/AddToCart build contents/content_ids and handle item_price/value/currency. There is evidence of thoughtful catalog ID handling (variant_id + SKU). However, across the provided excerpts it's not fully verifiable that every event always includes the most EMQ-helpful commerce fields for each event type (e.g., num_items for AddToCart/InitiateCheckout/Purchase, consistent content_type rules). Some helpers exist (buildContents, countItems) but full usage is in truncated sections."
     },
     "action_source": {
       "score": 10,
-      "detail": "Always correctly set to 'website' in buildEvent function across all event types."
+      "detail": "action_source is hard-coded to \"website\" in buildEvent(), consistently applied for all sends."
     },
     "event_time": {
       "score": 10,
-      "detail": "Correctly using Math.floor(Date.now() / 1000) for Unix timestamp in seconds, not milliseconds."
+      "detail": "event_time uses Math.floor(Date.now()/1000) (seconds)."
     },
     "recovery": {
       "score": 9,
-      "detail": "Sophisticated retry system with QStash scheduling, proper state machine, exponential backoff logic, and max retry limits. Recovery queue prevents duplicate retries. Only minor issue: could add jitter to prevent thundering herd."
+      "detail": "Recovery queue + state machine retries only non-confirmed events and stops at a terminal state with max attempts. It does not appear to blindly resend confirmed events. The main EMQ risk is not retry logic itself but that retries use stored payload (implementation truncated) and must preserve the original event_time and event_id; if retries rebuild events with a new event_time (current code buildEvent() always uses now), late retries can reduce attribution quality."
     },
     "pii_safety": {
-      "score": 8,
-      "detail": "Good PII protection - only logs boolean flags for data presence, not raw values. Event IDs truncated in logs. Minor: some customer identifiers could be further obfuscated in diagnostics."
+      "score": 7,
+      "detail": "Most logs shown use presence flags (hasEmail/hasPhone/etc.) and truncated tokens/ids, which is good. However, meta-capi.js logs eventId and API error messages; if event_id embeds any customer-derived data (it currently appears to use checkout tokens and opaque ids, which is good), it's safe. The larger risk is elsewhere: some endpoints build customerData from request body; if any debug logs print the raw body/customerData in truncated sections, that would be a PII leak. Current shown code in checkout-event logs only truncated checkoutToken and presence flags."
     },
     "test_event_code": {
-      "score": 10,
-      "detail": "Properly implemented in meta-capi.js - adds test_event_code to payload when META_TEST_EVENT_CODE env var is present."
+      "score": 9,
+      "detail": "test_event_code is conditionally attached when META_TEST_EVENT_CODE is set. This is correct. Minor operational risk: ensure it's not set in production; code does not guard by NODE_ENV."
     },
     "error_handling": {
-      "score": 9,
-      "detail": "Webhooks correctly return 200 status even on internal errors to prevent Shopify retries. Good error logging without exposing sensitive data. Minor: some endpoints could benefit from more granular error categorization."
+      "score": 8,
+      "detail": "Webhook verification failures return 200 via respondOk() (as shown in checkouts-create). Recovery endpoint returns 200 even on critical failure. checkout-event returns 200 on internal errors (explicit). Not fully verifiable for orders-paid and all other webhook handlers due to truncation, but the pattern suggests compliance with Shopify webhook retry expectations."
     }
   },
   "critical_issues": [
     {
-      "file": "api/view-content.js",
-      "line_hint": "Missing client_user_agent extraction",
-      "issue": "ViewContent endpoint doesn't extract client_user_agent from request headers, reducing match quality compared to other endpoints",
-      "fix": "Add clientUserAgent extraction similar to other endpoints: const clientUserAgent = req.headers && req.headers['user-agent'];",
+      "file": "lib/meta-capi.js",
+      "line_hint": "buildEvent(): event_time is always now",
+      "issue": "Retries (recovery) and delayed webhook deliveries may send events with a fresh event_time rather than the original occurrence time, reducing attribution quality and potentially harming EMQ/optimization signals.",
+      "fix": "Allow buildEvent/sendEvent to accept an explicit event_time (original Unix seconds) and persist that timestamp in event-state payload storage so recovery resends preserve the original event_time.",
       "auto_fixable": true
     },
     {
-      "file": "lib/hash.js",
-      "line_hint": "normalizePhone function",
-      "issue": "Phone normalization assumes NL (31) as default country code, which may not be appropriate for all markets",
-      "fix": "Make default country code configurable via environment variable or detect from order/customer data",
+      "file": "api/view-content.js, api/add-to-cart.js",
+      "line_hint": "requires body.event_id and returns 422 if missing",
+      "issue": "Browser-bridge events are dropped when event_id is missing, which reduces event volume and user_data coverage for those sessions; this can indirectly depress match quality metrics because fewer events carry strong identifiers.",
+      "fix": "Generate a deterministic event_id server-side when missing using a stable, non-PII source (e.g., a first-party event UUID stored client-side and sent consistently) and only reject when no safe deterministic key exists. Ensure the same event_id is used for any parallel browser/pixel send for dedup.",
       "auto_fixable": false
+    },
+    {
+      "file": "lib/hash.js",
+      "line_hint": "setHashedField(): target[key] = [hash(value)]",
+      "issue": "User data fields are set as arrays. Meta accepts arrays for some fields, but inconsistent typing can reduce downstream tooling expectations and diagnostics accuracy (and some integrations assume strings).",
+      "fix": "Prefer sending hashed strings for single-value identifiers (em, ph, fn, ln, ct, st, zp, country, external_id) unless you truly have multiple candidates; if multiple, keep as array. Update diagnostics to reflect both string/array presence.",
+      "auto_fixable": true
     }
   ],
   "warnings": [
     {
-      "file": "api/checkout-event.js",
-      "issue": "CORS set to '*' for Custom Pixel compatibility",
-      "recommendation": "Consider restricting to specific Shopify domains once Custom Pixel origin patterns are confirmed"
-    },
-    {
       "file": "assets/calqix-meta-bridge.js",
-      "issue": "Browser script truncated in audit - unable to verify complete implementation",
-      "recommendation": "Ensure browser bridge properly handles all edge cases for fbclid persistence and cart attribute sync"
+      "issue": "Bridge generates _fbp if missing and persists identifiers in localStorage/sessionStorage; coverage is good but users with strict storage/cookie restrictions will lose fbc/fbp propagation to webhooks.",
+      "recommendation": "Keep the fallback, but prioritize first-party propagation to checkout/order via Shopify attributes/enrichment and ensure webhook extraction uses those fields whenever present (already indicated). Monitor diag summaries for fbp/fbc drop-off by browser."
     },
     {
-      "file": "lib/webhook-utils.js",
-      "issue": "Complex body reconstruction logic for webhook verification",
-      "recommendation": "Monitor for edge cases in Vercel's request handling that might break HMAC verification"
+      "file": "lib/dedup-guard.js + endpoints",
+      "issue": "Dedup identifiers vary by event (sometimes event_id, sometimes checkoutToken). If formats drift between sources, duplicates can occur even with correct Meta event_id dedup.",
+      "recommendation": "Standardize dedup key inputs so the guard always uses the same logical identifier that is also used as Meta event_id (e.g., always pass the exact event_id string)."
+    },
+    {
+      "file": "lib/capi-diagnostics.js",
+      "issue": "Diagnostics check Boolean(ud.em) etc.; if fields are arrays (current hashing helper), presence is true but does not validate non-empty or valid hash length.",
+      "recommendation": "Enhance diagnostics to validate shape (string vs array) and basic hash format (64-hex) without storing any raw values."
+    },
+    {
+      "file": "lib/meta-capi.js",
+      "issue": "Meta API error logging includes error.message which can occasionally echo back parameter names/values in some failure modes (rare but possible).",
+      "recommendation": "Sanitize logged error payloads to avoid echoing any request fragments; log only status, error type/code/subcode, and fbtrace_id when available."
     }
   ],
   "strengths": [
-    "Comprehensive user data collection from multiple fallback sources",
-    "Sophisticated event state management with proper retry logic",
-    "Deterministic event_id strategy enabling perfect deduplication",
-    "Proper Meta CAPI parameter formatting and hashing",
-    "PII-safe logging and diagnostics system",
-    "Robust webhook verification and error handling"
+    "Deterministic event_id strategy for InitiateCheckout/Purchase aligns custom pixel and webhook sources for dedup.",
+    "Good normalization/hashing approach aligned with Meta requirements; phone normalization avoids sending malformed values when country is unknown.",
+    "Robust lifecycle + recovery design with terminal states and jittered backoff; avoids blind resends of confirmed events.",
+    "Diagnostics system tracks identifier coverage without storing raw values (presence-only)."
   ],
   "top_3_improvements": [
-    "Add client_user_agent to ViewContent endpoint to match other events",
-    "Make default country code configurable instead of hardcoding NL",
-    "Add more comprehensive phone number validation for international formats"
+    "Preserve original event_time across webhooks and recovery retries by persisting and reusing the first-seen timestamp instead of rebuilding with 'now'.",
+    "Standardize dedup to always use the exact Meta event_id string as the dedup-guard identifier to minimize accidental duplicates across sources.",
+    "Normalize user_data field types to Meta-preferred single hashed strings (only use arrays when truly multi-valued) and update diagnostics to validate hash shape/format."
   ]
 }

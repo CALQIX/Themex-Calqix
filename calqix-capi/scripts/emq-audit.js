@@ -2,17 +2,23 @@
  * CALQIX Meta CAPI EMQ Audit
  *
  * 1. Collects all CAPI-related code files
- * 2. Sends to Claude for comprehensive EMQ analysis
+ * 2. Sends to OpenAI for comprehensive EMQ analysis
  * 3. Parses results and applies critical fixes automatically
  * 4. Sends readable audit summary to Telegram
  *
  * Run: node scripts/emq-audit.js
  */
-require('dotenv').config();
-var fs = require('fs');
 var path = require('path');
+require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '..', '.env.local'), override: true });
+var fs = require('fs');
 var fetch = require('node-fetch');
 var { sendTelegram } = require('../lib/telegram');
+
+var OPENAI_URL = 'https://api.openai.com/v1/responses';
+var OPENAI_MODEL = process.env.OPENAI_EMQ_AUDIT_MODEL || process.env.OPENAI_TRACKING_MODEL || 'gpt-5.5';
+var OPENAI_FALLBACK_MODEL = process.env.OPENAI_EMQ_AUDIT_FALLBACK_MODEL || process.env.OPENAI_TRACKING_FALLBACK_MODEL || 'gpt-5.2';
+var OPENAI_TIMEOUT_MS = parseInt(process.env.OPENAI_EMQ_AUDIT_TIMEOUT_MS || '120000', 10);
 
 function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
@@ -46,7 +52,7 @@ function collectCapiCode() {
     var filePath = path.join(baseDir, CAPI_FILES[i]);
     try {
       var content = fs.readFileSync(filePath, 'utf8');
-      // Truncate very large files to keep under Claude token limits
+      // Truncate very large files to keep the model request bounded.
       if (content.length > 5000) {
         content = content.substring(0, 5000) + '\n// ... truncated (' + content.length + ' total chars)';
       }
@@ -71,19 +77,25 @@ function collectCapiCode() {
 }
 
 /**
- * Send code to Claude for EMQ audit.
+ * Send code to OpenAI for EMQ audit.
  */
-async function auditWithClaude(codeDigest) {
-  var apiKey = process.env.ANTHROPIC_API_KEY;
+async function auditWithOpenAI(codeDigest) {
+  var apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    console.error('ANTHROPIC_API_KEY not set');
+    console.error('OPENAI_API_KEY not set');
     return null;
   }
 
   var pixelId = process.env.META_PIXEL_ID || '[NOT SET]';
 
-  var prompt = 'You are a Meta Conversions API (CAPI) expert performing an Event Match Quality (EMQ) audit.\n\n'
-    + 'CONTEXT:\n'
+  var instructions = [
+    'You are a Meta Conversions API (CAPI) expert performing an Event Match Quality (EMQ) audit.',
+    'Output strict JSON only. Do not include markdown.',
+    'Do not expose raw PII. Discuss identifier presence, hashing, and coverage only.',
+    'Never recommend fake or redundant Meta events. Only recommend retrying truly failed events.'
+  ].join('\n');
+
+  var prompt = 'CONTEXT:\n'
     + '- Brand: CALQIX (premium oral care, Shopify store)\n'
     + '- Pixel ID: ' + pixelId + '\n'
     + '- Server: Vercel serverless functions\n'
@@ -130,42 +142,90 @@ async function auditWithClaude(codeDigest) {
     + '  "top_3_improvements": ["..."]\n'
     + '}';
 
-  console.log('Sending ' + Math.round(codeDigest.length / 1024) + 'KB code to Claude for EMQ audit...');
+  console.log('Sending ' + Math.round(codeDigest.length / 1024) + 'KB code to OpenAI for EMQ audit...');
 
-  try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
+  async function call(model) {
+    var res;
+    try {
+      res = await fetch(OPENAI_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + apiKey
+        },
+        body: JSON.stringify({
+          model: model,
+          instructions: instructions,
+          input: prompt,
+          text: {
+            format: {
+              type: 'json_object'
+            }
+          },
+          max_output_tokens: 4096
+        }),
+        timeout: Math.max(10000, OPENAI_TIMEOUT_MS)
+      });
+    } catch (err) {
+      return { ok: false, error: err.message || 'OpenAI request failed', model: model };
+    }
 
     var data = await res.json();
     if (!res.ok) {
-      console.error('Claude API error:', data.error ? data.error.message : res.statusText);
-      return null;
+      return { ok: false, error: data.error ? data.error.message : res.statusText, model: model };
     }
 
-    var content = data.content && data.content[0] ? data.content[0].text : '';
+    var content = data.output_text || extractOutputText(data);
     var jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.error('Could not parse Claude audit JSON');
-      console.log('Raw response:', content.substring(0, 500));
-      return null;
+      return { ok: false, error: 'Could not parse OpenAI audit JSON', model: model, raw: content.substring(0, 500) };
     }
 
-    return JSON.parse(jsonMatch[0]);
+    try {
+      return { ok: true, audit: JSON.parse(jsonMatch[0]), model: model };
+    } catch (err) {
+      return { ok: false, error: 'Could not parse OpenAI audit JSON: ' + err.message, model: model, raw: content.substring(0, 500) };
+    }
+  }
+
+  try {
+    var first = await call(OPENAI_MODEL);
+    if (first.ok) {
+      console.log('OpenAI audit model: ' + first.model);
+      return first.audit;
+    }
+    if (OPENAI_MODEL !== OPENAI_FALLBACK_MODEL && /model|not found|does not exist|unsupported|timeout|network|parse/i.test(first.error || '')) {
+      var second = await call(OPENAI_FALLBACK_MODEL);
+      if (second.ok) {
+        console.log('OpenAI audit fallback model: ' + second.model);
+        return second.audit;
+      }
+      console.error('OpenAI API error:', second.error);
+      if (second.raw) console.log('Raw response:', second.raw);
+      return null;
+    }
+    console.error('OpenAI API error:', first.error);
+    if (first.raw) console.log('Raw response:', first.raw);
+    return null;
   } catch (err) {
-    console.error('Claude audit exception:', err.message);
+    console.error('OpenAI audit exception:', err.message);
     return null;
   }
+}
+
+function extractOutputText(data) {
+  var out = [];
+  var output = data && data.output;
+  if (!Array.isArray(output)) return '';
+  output.forEach(function (item) {
+    var content = item && item.content;
+    if (!Array.isArray(content)) return;
+    content.forEach(function (part) {
+      if (part && typeof part.text === 'string') out.push(part.text);
+      if (part && typeof part.output_text === 'string') out.push(part.output_text);
+    });
+  });
+  return out.join('\n');
 }
 
 /**
@@ -216,7 +276,7 @@ async function applyAutoFixes(audit) {
  */
 async function sendAuditReport(audit, fixes) {
   if (!audit) {
-    await sendTelegram('CALQIX Meta CAPI EMQ Audit\n\nAudit mislukt - Claude analyse niet beschikbaar.');
+    await sendTelegram('CALQIX Meta CAPI EMQ Audit\n\nAudit mislukt - OpenAI analyse niet beschikbaar.');
     return;
   }
 
@@ -338,9 +398,9 @@ async function main() {
   var codeDigest = collectCapiCode();
   console.log('Code verzameld: ' + Math.round(codeDigest.length / 1024) + 'KB\n');
 
-  // Step 2: Claude audit
-  console.log('Stap 2: Claude EMQ analyse...');
-  var audit = await auditWithClaude(codeDigest);
+  // Step 2: OpenAI audit
+  console.log('Stap 2: OpenAI EMQ analyse...');
+  var audit = await auditWithOpenAI(codeDigest);
 
   if (audit) {
     console.log('\nEMQ Score: ' + audit.overall_score + '/100 (Grade ' + audit.emq_grade + ')');
@@ -358,7 +418,7 @@ async function main() {
     await sendAuditReport(audit, fixes);
   } else {
     console.error('Audit mislukt');
-    await sendTelegram('CALQIX Meta CAPI EMQ Audit\n\nAudit mislukt - Claude analyse niet beschikbaar.');
+    await sendTelegram('CALQIX Meta CAPI EMQ Audit\n\nAudit mislukt - OpenAI analyse niet beschikbaar.');
   }
 
   // Save audit result to file

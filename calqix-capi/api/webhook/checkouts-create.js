@@ -8,12 +8,15 @@ const store = require('../../lib/store');
 const eventState = require('../../lib/event-state');
 const multiPlatform = require('../../lib/multi-platform-send');
 const eventStats = require('../../lib/event-stats');
+const capiDiag = require('../../lib/capi-diagnostics');
+const qualityLedger = require('../../lib/meta-quality-ledger');
 const {
   buildContents,
   countItems,
   extractContentIds,
   extractExternalId,
   extractMetaBrowserIds,
+  extractMetaUserAttributes,
   mergeCustomerData,
   parseAndVerifyWebhook,
   respondOk,
@@ -72,6 +75,7 @@ function buildCheckoutUserData(checkout, fallbackIp, fallbackUserAgent, enrichme
           (checkout.shipping_address && checkout.shipping_address.country_code))
     },
     extractMetaBrowserIds(checkout),
+    extractMetaUserAttributes(checkout),
     {
       external_id: extractExternalId(checkout)
     },
@@ -81,6 +85,13 @@ function buildCheckoutUserData(checkout, fallbackIp, fallbackUserAgent, enrichme
       fbp: enrich.fbp || undefined,
       email: enrich.email || undefined,
       phone: enrich.phone || undefined,
+      first_name: enrich.first_name || undefined,
+      last_name: enrich.last_name || undefined,
+      city: enrich.city || undefined,
+      state: enrich.state || enrich.province_code || undefined,
+      date_of_birth: enrich.date_of_birth || enrich.db || undefined,
+      zip: enrich.zip || undefined,
+      country_code: enrich.country_code || enrich.country || undefined,
       external_id: enrich.external_id || undefined
     }
   );
@@ -120,6 +131,7 @@ async function handler(req, res) {
     const lineItems = Array.isArray(checkout.line_items) ? checkout.line_items : [];
     // Shared event_id format: ic_{checkout_token} — matches Custom Pixel
     const eventId = `ic_${checkoutKey}`;
+    const eventTime = checkout.created_at || checkout.updated_at || checkout.completed_at;
 
     // Merge enrichment from Custom Pixel's contact_info_submitted if available
     const enrichment = await store.getEnrichment(String(checkoutKey)) || {};
@@ -146,12 +158,26 @@ async function handler(req, res) {
       source: 'webhook'
     });
 
-    await eventState.recordReceived(eventId, 'InitiateCheckout', 'webhook', String(checkoutKey));
+    await eventState.recordReceived(eventId, 'InitiateCheckout', 'webhook', String(checkoutKey), eventTime);
     await eventStats.incrementEventStat('InitiateCheckout', 'server');
-    await eventState.storeEventPayload(eventId, userData, customData, SOURCE_URL);
-    var metaResult = await sendEvent('InitiateCheckout', eventId, SOURCE_URL, userData, customData);
+    await eventState.storeEventPayload(eventId, userData, customData, SOURCE_URL, eventTime);
+    var metaResult = await sendEvent('InitiateCheckout', eventId, SOURCE_URL, userData, customData, { eventTime: eventTime });
     await eventState.recordSent(eventId, metaResult);
     await markProcessed('InitiateCheckout', String(checkoutKey));
+    await capiDiag.recordCoverage('InitiateCheckout', eventId, 'webhook', userData, {
+      content_ids: customData.content_ids.length,
+      source: 'webhook'
+    });
+    await qualityLedger.recordServerEvent({
+      event_name: 'InitiateCheckout',
+      event_id: eventId,
+      event_time: eventTime,
+      source: 'webhook',
+      user_data: userData,
+      custom_data: customData,
+      source_url: SOURCE_URL,
+      meta_result: metaResult
+    });
 
     // Multi-platform: Klaviyo + GA4 (non-blocking)
     try {

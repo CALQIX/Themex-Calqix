@@ -18,6 +18,7 @@ var store = require('../../lib/store');
 var { authenticate, getRawBody } = require('../../lib/qstash-verify');
 var eventState = require('../../lib/event-state');
 var { sendEvent } = require('../../lib/meta-capi');
+var qualityLedger = require('../../lib/meta-quality-ledger');
 
 var BATCH_SIZE = 10;
 var ENDPOINT_PATH = '/api/recovery/run';
@@ -192,6 +193,7 @@ async function processRetry(eventId) {
   var recoveryUserData = storedPayload ? storedPayload.user_data : {};
   var recoveryCustomData = storedPayload ? storedPayload.custom_data : {};
   var recoverySourceUrl = storedPayload ? storedPayload.source_url : 'https://calqix.com/checkout';
+  var recoveryEventTime = storedPayload && storedPayload.event_time ? storedPayload.event_time : state.event_time;
 
   console.log('[Recovery] Replay payload', {
     eventId: eventId.substring(0, 20),
@@ -208,10 +210,21 @@ async function processRetry(eventId) {
     state.event_id,
     recoverySourceUrl,
     recoveryUserData,
-    recoveryCustomData
+    recoveryCustomData,
+    { eventTime: recoveryEventTime }
   );
 
   var updatedState = await eventState.recordSent(eventId, metaResult);
+  await qualityLedger.recordServerEvent({
+    event_name: state.event_name,
+    event_id: state.event_id,
+    event_time: recoveryEventTime,
+    source: 'recovery',
+    user_data: recoveryUserData,
+    custom_data: recoveryCustomData,
+    source_url: recoverySourceUrl,
+    meta_result: metaResult
+  });
 
   if (updatedState && updatedState.state === eventState.STATES.CONFIRMED) {
     await eventState.recordRecovered(eventId);

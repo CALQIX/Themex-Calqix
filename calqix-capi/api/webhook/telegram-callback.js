@@ -103,6 +103,58 @@ async function handleContentAction(callbackId, chatId, action, postId) {
   }
 }
 
+// --- Approval queue generic actions (ads/tracking hub) ---
+async function handleApprovalQueueAction(callbackId, chatId, action, itemId) {
+  if (!itemId || itemId.indexOf('aq_') !== 0) {
+    await answerCallback(callbackId, 'Ongeldige queue ID.');
+    return;
+  }
+
+  var item = await approvalQueue.getItem(itemId);
+  if (!item) {
+    await answerCallback(callbackId, 'Queue item niet gevonden.');
+    return;
+  }
+
+  if (action === 'reject') {
+    await approvalQueue.rejectItem(itemId, 'telegram', 'rejected from Telegram');
+    await answerCallback(callbackId, 'Afgewezen.');
+    await sendMessage(chatId, 'Afgewezen: <code>' + itemId + '</code> - ' + (item.entityName || item.type));
+    return;
+  }
+
+  if (action === 'snooze') {
+    await approvalQueue.snoozeItem(itemId, 7, 'telegram');
+    await answerCallback(callbackId, '7 dagen gesnoozed.');
+    await sendMessage(chatId, 'Gesnoozed: <code>' + itemId + '</code> - ' + (item.entityName || item.type));
+    return;
+  }
+
+  if (action === 'approve' || action === 'execute') {
+    var approved = await approvalQueue.approveItem(itemId, 'telegram');
+    if (!approved || approved.state !== approvalQueue.STATES.APPROVED) {
+      await answerCallback(callbackId, 'Niet in pending state.');
+      await sendMessage(chatId, 'Queue item <code>' + itemId + '</code> staat op status: ' + ((approved && approved.state) || 'unknown'));
+      return;
+    }
+
+    if (action === 'approve') {
+      await answerCallback(callbackId, 'Goedgekeurd.');
+      await sendMessage(chatId, 'Goedgekeurd: <code>' + itemId + '</code>. Gebruik uitvoeren wanneer je de Meta wijziging wilt starten.');
+      return;
+    }
+
+    var actionExecutor = require('../../lib/ad-action-executor');
+    var execResult = await actionExecutor.executeApproved(itemId);
+    await answerCallback(callbackId, execResult.ok ? 'Uitgevoerd.' : 'Uitvoering mislukt.');
+    await sendMessage(chatId,
+      (execResult.ok ? 'Uitgevoerd' : 'Mislukt') + ': <code>' + itemId + '</code>\n' +
+      'Target: ' + (item.entityName || item.entityId || '-') + '\n' +
+      (execResult.error ? 'Fout: ' + execResult.error : 'Resultaat opgeslagen in approval queue.')
+    );
+  }
+}
+
 // --- Brief approve/reject/revise (content review inline buttons) ---
 async function handleBriefAction(callbackId, chatId, messageId, action, briefId, fromUser) {
   console.log('[TGCallback] Brief action:', action, 'briefId:', briefId, 'from:', fromUser ? fromUser.id : 'unknown');
@@ -194,6 +246,11 @@ async function handleAdvisoryChoice(callbackId, chatId, advisoryId, action) {
   }
   var advisory = typeof raw === 'string' ? JSON.parse(raw) : raw;
 
+  if (advisory.status === 'confirmed') {
+    await answerCallback(callbackId, 'Advies staat al in de wachtrij.');
+    return;
+  }
+
   if (action === 'skip') {
     advisory.status = 'skipped';
     await store.set('advisory:' + advisoryId, JSON.stringify(advisory), 86400);
@@ -237,11 +294,11 @@ async function handleAdvisoryChoice(callbackId, chatId, advisoryId, action) {
     await answerCallback(callbackId, 'Gekozen: ' + action);
   } else {
     // No followup needed, queue actions directly
-    await queueStrategyActions(advisoryId, advisory, strategy);
+    var queueResult = await queueStrategyActions(advisoryId, advisory, strategy);
     advisory.status = 'confirmed';
     await store.set('advisory:' + advisoryId, JSON.stringify(advisory), 86400);
 
-    await sendConfirmation(chatId, strategy);
+    await sendConfirmation(chatId, strategy, null, queueResult);
     await answerCallback(callbackId, 'Acties in wachtrij!');
   }
 }
@@ -283,8 +340,8 @@ async function handleAdvisoryFollowup(callbackId, chatId, advisoryId, optionInde
   advisory.status = 'confirmed';
   await store.set('advisory:' + advisoryId, JSON.stringify(advisory), 86400);
 
-  await queueStrategyActions(advisoryId, advisory, strategy);
-  await sendConfirmation(chatId, strategy, chosenOption);
+  var queueResult = await queueStrategyActions(advisoryId, advisory, strategy);
+  await sendConfirmation(chatId, strategy, chosenOption, queueResult);
   await answerCallback(callbackId, 'Bevestigd! Acties in wachtrij.');
 }
 
@@ -497,28 +554,122 @@ function buildLimitsKeyboard(limits) {
   };
 }
 
+function parseBudgetCents(value) {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value === 'number' && isFinite(value)) {
+    return Math.round(value * 100);
+  }
+
+  var text = String(value).replace(',', '.');
+  var match = text.match(/(\d+(?:\.\d+)?)/);
+  if (!match) return null;
+  var eur = parseFloat(match[1]);
+  if (!isFinite(eur)) return null;
+  return Math.round(eur * 100);
+}
+
+function normalizeAdvisoryAction(action, advisoryId, index) {
+  if (!action || action.type === 'no_action') return null;
+
+  var rawType = String(action.type || '').trim();
+  var type = rawType;
+  if (type === 'scale_budget') type = 'scale_adset';
+  if (type === 'reduce_budget') type = 'adjust_adset_budget';
+
+  if (type !== 'pause_ad' && type !== 'scale_adset' && type !== 'adjust_adset_budget') {
+    return {
+      skipped: true,
+      reason: 'unsupported_action_type',
+      action: rawType
+    };
+  }
+
+  if (!action.target_id) {
+    return {
+      skipped: true,
+      reason: 'missing_target_id',
+      action: rawType
+    };
+  }
+
+  var payload = {
+    action: action,
+    advisory_id: advisoryId,
+    original_type: rawType
+  };
+
+  if (type === 'scale_adset' || type === 'adjust_adset_budget') {
+    var budgetCents = parseBudgetCents(
+      action.new_budget_eur ||
+      action.new_daily_budget_eur ||
+      action.budget_eur ||
+      action.value
+    );
+    if (!budgetCents) {
+      return {
+        skipped: true,
+        reason: 'missing_new_budget_eur',
+        action: rawType
+      };
+    }
+    payload.newBudgetCents = budgetCents;
+  }
+
+  return {
+    skipped: false,
+    type: type,
+    entityName: action.target_name || 'unknown',
+    entityId: action.target_id || advisoryId + ':' + index,
+    reason: action.detail || action.reason || '',
+    payload: payload
+  };
+}
+
 async function queueStrategyActions(advisoryId, advisory, strategy) {
   var actions = strategy.actions || [];
   var mode = process.env.ADS_OPTIMIZATION_MODE || 'MONITOR_ONLY';
   var enableWrites = process.env.ENABLE_AD_WRITES === 'true';
+  var result = { queued: 0, skipped: 0, skippedReasons: [] };
+
+  var dedupeKey = 'advisory:queued:' + advisoryId + ':' + (strategy.level || 'unknown');
+  var alreadyQueued = await store.get(dedupeKey);
+  if (alreadyQueued) {
+    result.skipped = actions.length;
+    result.skippedReasons.push('already_queued');
+    return result;
+  }
 
   for (var i = 0; i < actions.length; i++) {
     var action = actions[i];
-    if (action.type === 'no_action') continue;
+    var normalized = normalizeAdvisoryAction(action, advisoryId, i);
+    if (!normalized) continue;
+    if (normalized.skipped) {
+      result.skipped++;
+      result.skippedReasons.push(normalized.reason + ':' + normalized.action);
+      continue;
+    }
+
+    normalized.payload.mode = mode;
+    normalized.payload.enable_writes = enableWrites;
 
     await approvalQueue.createItem({
-      type: action.type,
-      entityName: action.target_name || 'unknown',
-      entityId: action.target_id || advisoryId + ':' + i,
-      reason: action.detail || strategy.summary,
+      type: normalized.type,
+      entityName: normalized.entityName,
+      entityId: normalized.entityId,
+      reason: normalized.reason || strategy.summary,
       metrics: { advisory_level: strategy.level, advisory_id: advisoryId },
       expectedEffect: strategy.expected_impact,
-      payload: { action: action, advisory_id: advisoryId, mode: mode, enable_writes: enableWrites }
+      sourceRule: 'AI_ADVISOR_' + String(strategy.level || 'strategy').toUpperCase(),
+      payload: normalized.payload
     });
+    result.queued++;
   }
+
+  await store.set(dedupeKey, JSON.stringify(result), 86400);
+  return result;
 }
 
-async function sendConfirmation(chatId, strategy, followupChoice) {
+async function sendConfirmation(chatId, strategy, followupChoice, queueResult) {
   var lines = ['Strategie in wachtrij: ' + levelEmoji(strategy.level) + ' ' + strategy.title + '\n'];
 
   var actions = strategy.actions || [];
@@ -531,6 +682,13 @@ async function sendConfirmation(chatId, strategy, followupChoice) {
 
   if (followupChoice) {
     lines.push('\nKeuze: ' + followupChoice);
+  }
+
+  if (queueResult) {
+    lines.push('\nWachtrij: ' + queueResult.queued + ' actie(s), ' + queueResult.skipped + ' overgeslagen.');
+    if (queueResult.skippedReasons && queueResult.skippedReasons.length > 0) {
+      lines.push('Overgeslagen: ' + queueResult.skippedReasons.slice(0, 3).join(', '));
+    }
   }
 
   var mode = process.env.ADS_OPTIMIZATION_MODE || 'MONITOR_ONLY';
@@ -1049,6 +1207,13 @@ module.exports = async function handler(req, res) {
       if (data.indexOf('content_approve:') === 0 || data.indexOf('content_reject:') === 0) {
         var parts = data.split(':');
         await handleContentAction(callbackId, chatId, parts[0], parts[1]);
+        return res.status(200).json({ ok: true });
+      }
+
+      // Generic approval queue actions (used by Tracking Hub / ad optimization)
+      if (data.indexOf('approve:') === 0 || data.indexOf('reject:') === 0 || data.indexOf('execute:') === 0 || data.indexOf('snooze:') === 0) {
+        var aqParts = data.split(':');
+        await handleApprovalQueueAction(callbackId, chatId, aqParts[0], aqParts[1]);
         return res.status(200).json({ ok: true });
       }
 

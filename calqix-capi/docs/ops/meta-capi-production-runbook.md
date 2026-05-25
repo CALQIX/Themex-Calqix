@@ -19,7 +19,7 @@ Shopify Webhooks (server-to-server)
   ├── orders/paid       → /api/webhook/orders-paid       → Meta CAPI (Purchase fallback, shared event_id)
   └── customers/create  → /api/webhook/customers-create  → Meta CAPI (Lead)
 
-QStash Schedule (daily 07:00 Amsterdam)
+QStash Schedule (07:00, 12:00, 19:00 Amsterdam)
   └── POST /api/ads/monitor → Redis lock+idem → Meta Ads API → Telegram → GitHub task
       ├── callback:         POST /api/ads/monitor-callback?type=success
       └── failureCallback:  POST /api/ads/monitor-callback?type=failure
@@ -47,6 +47,11 @@ Set these in Vercel Dashboard → Project Settings → Environment Variables:
 | `CAPI_ENABLED` | Optional | — | Set to `false` to disable Meta sends |
 | `META_TEST_EVENT_CODE` | Optional | Meta Events Manager | Test event code for validation |
 | `BILLING_THRESHOLD` | Optional | — | Default: `74` (EUR) |
+| `META_OPTIMIZER_AUTO_BUDGET_ADJUST` | Optional | — | Default disabled; set `true` only to allow backend ABO adset-budget redistribution |
+| `ADS_AUTO_ABO_MAX_TOTAL_BUDGET_EUR` | Optional | — | Tighter total cap for optional ABO regulator; defaults to monitored campaign budget |
+| `ADS_AUTO_ABO_BUDGET_COOLDOWN_MINUTES` | Optional | — | Default `240`; per-adset budget write cooldown |
+| `ADS_AUTO_ABO_MAX_CHANGES_PER_RUN` | Optional | — | Default `2`; max adset budget writes per run |
+| `ADS_AUTO_ABO_ALLOW_TOTAL_INCREASE` | Optional | — | Default `false`; reallocates inside current campaign budget unless enabled |
 | `TRACKING_HUB_AUTO_DEPLOY_ENABLED` | Optional | — | Set `true` to allow emergency deploy-hook triggers for P0/P1 deterministic tracking failures |
 | `VERCEL_TRACKING_FIX_DEPLOY_HOOK_URL` | Optional | Vercel Deploy Hooks | Deploy hook used by the Tracking Hub safety net when P0/P1 thresholds break |
 | `TRACKING_HUB_AUTO_DEPLOY_COOLDOWN_MIN` | Optional | — | Default: `60`; minimum 15 minutes between emergency deploy-hook triggers |
@@ -121,10 +126,13 @@ Set these in Vercel Dashboard → Project Settings → Environment Variables:
 | `recovery:queue` | — | Redis list of event_ids to retry |
 | `recovery:cursor:{topic}` | 30d | Shopify API polling cursor |
 | `lock:recovery` | 2min | Distributed lock for recovery job |
-| `lock:optimizer:{slot}` | 5min | Distributed lock for optimizer (morning/evening) |
+| `lock:optimizer:{slot}` | 5min | Distributed lock for optimizer slot |
 | `optimizer:run:{date}:{slot}` | 48h | Idempotency — prevents duplicate optimizer runs per slot |
 | `notify:{runId}` | 48h | Notification delivery status |
 | `artifact:{runId}` | 7d | Run artifact metadata |
+| `lock:abo_budget_regulator:{campaign_id}` | 10min | Distributed lock for ABO budget regulator |
+| `ads:auto_budget:last_change:{adset_id}` | cooldown TTL | Per-adset auto-budget cooldown |
+| `ads:auto_budget:idem:{date}:{adset_id}:{budget}` | 24h | Prevents repeated same-day budget attempts |
 | `tracking_hub:latest` | no explicit TTL | Latest 15-minute Tracking Hub analysis for dashboard rendering |
 | `tracking_hub:run:{iso_timestamp}` | 14d | Historical Tracking Hub analysis result |
 | `tracking_hub:queued:{date}:{type}:{entity}:{budget}` | 24h | Idempotency guard for Telegram approval proposals |
@@ -135,6 +143,9 @@ Set these in Vercel Dashboard → Project Settings → Environment Variables:
 | `tracking_hub:auto_sync:last` | 7d | Last customer-data auto-sync result, without raw PII |
 | `tracking_hub:schedule_audit:last` | 10min | Cached QStash schedule audit for continuous check health |
 | `cron:lock:tracking-hub` | 10min | Distributed lock for the 15-minute Tracking Hub cron |
+| `diag:summary:{YYYY-MM-DD}` | 7d | Daily CAPI match-key coverage. Date is the Amsterdam business day, not UTC |
+| `shopify:web_pixel:count:{YYYY-MM-DD}:{event_type}` | 14d | Shopify Customer Events Web Pixel source counters. Date is the Amsterdam business day |
+| `reconciliation:{DD-MM-YYYY}` | 30d | Daily Shopify-vs-platform reconciliation for the Amsterdam business day |
 
 ## Operations
 
@@ -153,6 +164,8 @@ The system runs automatically on three schedules:
 10. If `TRACKING_HUB_AUTO_DEPLOY_ENABLED=true` and `VERCEL_TRACKING_FIX_DEPLOY_HOOK_URL` is set, the safety net can trigger a deploy hook once per cooldown window for deployable code-level tracking breaks; identity-only issues use auto-sync first
 11. Ad recommendations classify spend-starved ads/adsets, creative refresh needs, CBO/adset structure opportunities, and scale candidates
 12. Budget moves are queued in the approval queue and only execute after Telegram approval; no synthetic Meta events are generated
+
+Dashboard and continuous-audit dates use the Amsterdam business day. `Purchase` reconciliation uses Shopify Admin paid, non-test, non-cancelled orders as the commerce source of truth. Non-purchase funnel steps use Shopify Customer Events Web Pixel counters as the Shopify-side source signal and display CAPI browser/server ingress separately as the delivery signal. Redis reads must use the shared parser in `lib/store.js` because Upstash can return either JSON strings or already-deserialized objects.
 
 ### Meta CAPI continuous audit baseline
 
@@ -173,12 +186,12 @@ Severity rules:
 
 Auto-sync is preferred for identity/customer-data gaps. Auto-deploy is only allowed for code-level tracking breaks such as missing capture, missing source coverage, dedup format failures, or dashboard reconciliation gaps.
 
-### Twice-daily optimizer (07:00 + 19:00 Amsterdam)
+### Fixed-slot ad optimizer
 1. QStash triggers `POST /api/ads/monitor`
-2. Monitor determines slot (morning/evening), acquires slot lock, checks slot idempotency
-3. Fetches Meta Ads API data, evaluates 11 trigger rules
-4. Sends Telegram notification (always)
-5. Creates GitHub task file if actions needed
+2. Monitor determines the slot, acquires a Redis lock, and checks slot idempotency
+3. Fetches Meta Ads API data and evaluates trigger rules
+4. Sends Telegram pulse/trigger reports
+5. Creates a GitHub task file if action triggers need follow-up
 6. Persists run metadata to Redis
 
 ### Recovery job (every minute)
@@ -188,9 +201,10 @@ Auto-sync is preferred for identity/customer-data gaps. Auto-deploy is only allo
 4. Retries failed Meta CAPI sends (max 5 attempts per event)
 5. Updates event lifecycle state in Redis
 
-**You receive Telegram messages twice daily:**
-- If triggers fired: message includes action items + task file location
-- If all clear: message shows funnel summary
+**Telegram behavior:**
+- The backend compact ad pulse follows the fixed QStash slots.
+- The Codex desktop automation `CALQIX Meta 15m Monitor` handles the every-15-minute operator loop in this Codex thread.
+- The heavier ad advisor still runs on the 07:00, 12:00 and 19:00 ad-optimization slots.
 
 ## Verification Commands
 

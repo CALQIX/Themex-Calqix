@@ -1,3 +1,5 @@
+var AMSTERDAM_TZ = 'Europe/Amsterdam';
+
 /**
  * Date formatting utilities — DD-MM-YYYY format everywhere.
  *
@@ -45,7 +47,7 @@ function formatDateAmsterdam(date) {
 function formatDateTimeAmsterdam(date) {
   var d = date || new Date();
   try {
-    var opts = { timeZone: 'Europe/Amsterdam', hour12: false };
+    var opts = { timeZone: AMSTERDAM_TZ, hour12: false };
     var parts = {};
     var fmt = new Intl.DateTimeFormat('en-GB', Object.assign({ day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }, opts));
     var formatted = fmt.format(d);
@@ -66,7 +68,7 @@ function formatDateTimeAmsterdam(date) {
 function getAmsterdamHour(date) {
   var d = date || new Date();
   try {
-    var fmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'Europe/Amsterdam' });
+    var fmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: AMSTERDAM_TZ });
     return parseInt(fmt.format(d), 10);
   } catch (e) {
     return (d.getUTCHours() + 2) % 24;
@@ -81,12 +83,58 @@ function getAmsterdamHour(date) {
 function todayKey(date) {
   var d = date || new Date();
   try {
-    var fmt = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Amsterdam' });
+    var fmt = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: AMSTERDAM_TZ });
     var formatted = fmt.format(d);
     var match = formatted.match(/(\d{2})\/(\d{2})\/(\d{4})/);
     if (match) return match[1] + '-' + match[2] + '-' + match[3];
   } catch (e) { /* fallback */ }
   return formatDate(d);
+}
+
+/**
+ * Get YYYY-MM-DD for the Amsterdam business day.
+ * Use this for dashboard labels and Redis day keys where "today" should
+ * match the Shopify/Meta operator view instead of UTC.
+ * @param {Date} [date]
+ * @returns {string}
+ */
+function toISODateAmsterdam(date) {
+  var d = date || new Date();
+  try {
+    var parts = {};
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: AMSTERDAM_TZ,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(d).forEach(function (part) {
+      if (part.type !== 'literal') parts[part.type] = part.value;
+    });
+    if (parts.year && parts.month && parts.day) {
+      return parts.year + '-' + parts.month + '-' + parts.day;
+    }
+  } catch (e) {
+    return toISODate(d);
+  }
+  return toISODate(d);
+}
+
+/**
+ * Add whole Amsterdam calendar days to an ISO date.
+ * Noon UTC avoids date-boundary drift around DST changes.
+ * @param {string} isoDate - YYYY-MM-DD
+ * @param {number} days
+ * @returns {string}
+ */
+function addDaysISODateAmsterdam(isoDate, days) {
+  var base;
+  if (isoDate && /^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
+    base = new Date(isoDate + 'T12:00:00Z');
+  } else {
+    base = new Date();
+  }
+  var shifted = new Date(base.getTime() + (Number(days) || 0) * 86400000);
+  return toISODateAmsterdam(shifted);
 }
 
 /**
@@ -121,5 +169,7 @@ module.exports = {
   getAmsterdamHour: getAmsterdamHour,
   todayKey: todayKey,
   isoToDisplay: isoToDisplay,
-  toISODate: toISODate
+  toISODate: toISODate,
+  toISODateAmsterdam: toISODateAmsterdam,
+  addDaysISODateAmsterdam: addDaysISODateAmsterdam
 };

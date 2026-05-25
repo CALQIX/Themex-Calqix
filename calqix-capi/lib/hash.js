@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const nlProvince = require('./nl-postcode-province');
 
 const COUNTRY_DIAL_CODES = {
   NL: '31',
@@ -19,6 +20,45 @@ const COUNTRY_DIAL_CODES = {
   FI: '358',
   IS: '354',
   LU: '352'
+};
+
+const COUNTRY_NAME_TO_CODE = {
+  nederland: 'nl',
+  netherlands: 'nl',
+  holland: 'nl',
+  belgie: 'be',
+  belgium: 'be',
+  belgique: 'be',
+  deutschland: 'de',
+  germany: 'de',
+  allemagne: 'de',
+  france: 'fr',
+  frankrijk: 'fr',
+  espana: 'es',
+  spain: 'es',
+  austria: 'at',
+  osterreich: 'at',
+  switzerland: 'ch',
+  schweiz: 'ch',
+  suisse: 'ch',
+  unitedkingdom: 'gb',
+  uk: 'gb',
+  greatbritain: 'gb',
+  england: 'gb',
+  unitedstates: 'us',
+  unitedstatesofamerica: 'us',
+  usa: 'us',
+  canada: 'ca',
+  sweden: 'se',
+  sverige: 'se',
+  norway: 'no',
+  norge: 'no',
+  denmark: 'dk',
+  danmark: 'dk',
+  finland: 'fi',
+  iceland: 'is',
+  luxembourg: 'lu',
+  luxemburg: 'lu'
 };
 
 function normalizeBase(value) {
@@ -49,7 +89,10 @@ function normalizeCountry(country) {
   const normalized = normalizeBase(country);
   if (!normalized) return null;
 
-  return normalized.slice(0, 2);
+  const compact = normalizeText(normalized);
+  if (!compact) return null;
+  if (compact.length === 2) return compact;
+  return COUNTRY_NAME_TO_CODE[compact] || null;
 }
 
 function normalizeZip(zip) {
@@ -57,6 +100,36 @@ function normalizeZip(zip) {
   if (!normalized) return null;
 
   return normalized.replace(/\s+/g, '');
+}
+
+function normalizeDateOfBirth(value) {
+  const normalized = normalizeBase(value);
+  if (!normalized) return null;
+
+  const compactMatch = normalized.match(/^(\d{4})(\d{2})(\d{2})$/);
+  if (compactMatch) {
+    const compact = compactMatch[1] + compactMatch[2] + compactMatch[3];
+    return isValidYYYYMMDD(compact) ? compact : null;
+  }
+
+  const isoMatch = normalized.match(/^(\d{4})[-/](\d{2})[-/](\d{2})$/);
+  if (isoMatch) {
+    const iso = isoMatch[1] + isoMatch[2] + isoMatch[3];
+    return isValidYYYYMMDD(iso) ? iso : null;
+  }
+
+  return null;
+}
+
+function isValidYYYYMMDD(value) {
+  if (!/^\d{8}$/.test(value)) return false;
+  const year = Number(value.slice(0, 4));
+  const month = Number(value.slice(4, 6));
+  const day = Number(value.slice(6, 8));
+  if (year < 1900 || year > new Date().getUTCFullYear()) return false;
+  if (month < 1 || month > 12) return false;
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  return day >= 1 && day <= lastDay;
 }
 
 function getDialCode(countryCode) {
@@ -122,13 +195,39 @@ function formatUserData(customer = {}, ip, userAgent) {
   const userData = {};
 
   const email = normalizeEmail(customer.email);
-  const phone = normalizePhone(customer.phone, customer.country_code || customer.countryCode);
-  const firstName = normalizeText(customer.first_name || customer.firstName);
-  const lastName = normalizeText(customer.last_name || customer.lastName);
-  const city = normalizeText(customer.city, { keepSpaces: true });
-  const state = normalizeText(customer.state || customer.province_code || customer.provinceCode);
-  const zip = normalizeZip(customer.zip || customer.postal_code || customer.postalCode);
-  const country = normalizeCountry(customer.country_code || customer.countryCode);
+  const country = normalizeCountry(
+    customer.country_code ||
+    customer.countryCode ||
+    customer.country ||
+    customer.country_name ||
+    customer.countryName
+  );
+  const phone = normalizePhone(
+    customer.phone || customer.phone_number || customer.phoneNumber,
+    country || customer.country_code || customer.countryCode
+  );
+  const firstName = normalizeText(customer.first_name || customer.firstName || customer.fn);
+  const lastName = normalizeText(customer.last_name || customer.lastName || customer.ln);
+  const city = normalizeText(customer.city || customer.town || customer.ct, { keepSpaces: true });
+  const zip = normalizeZip(customer.zip || customer.postal_code || customer.postalCode || customer.zp);
+  const stateRaw =
+    customer.state ||
+    customer.st ||
+    customer.province_code ||
+    customer.provinceCode ||
+    customer.province ||
+    customer.province_name ||
+    customer.provinceName ||
+    customer.region_code ||
+    (country === 'nl' && zip ? nlProvince.lookup(zip) : null);
+  const state = normalizeText(stateRaw);
+  const dateOfBirth = normalizeDateOfBirth(
+    customer.db ||
+    customer.date_of_birth ||
+    customer.dateOfBirth ||
+    customer.birthdate ||
+    customer.birthday
+  );
 
   setHashedField(userData, 'em', email);
   if (phone) userData.ph = [hash(phone)];
@@ -138,16 +237,16 @@ function formatUserData(customer = {}, ip, userAgent) {
   setHashedField(userData, 'st', state);
   setHashedField(userData, 'zp', zip);
   setHashedField(userData, 'country', country);
+  setHashedField(userData, 'db', dateOfBirth);
 
   if (ip) userData.client_ip_address = ip;
   if (userAgent) userData.client_user_agent = userAgent;
   if (customer.fbc) userData.fbc = customer.fbc;
   if (customer.fbp) userData.fbp = customer.fbp;
 
-  // external_id: prefer explicit Shopify customer_id, fall back to email.
-  // Meta weights external_id heavily; providing it on every event raises EMQ by ~0.5-1.0.
-  // Using email-as-external-id is safe because Meta hashes and matches against its graph.
-  const externalIdRaw = customer.external_id || email;
+  // external_id must be a stable first-party identifier. Do not inflate it
+  // with email fallback; email already has its own hashed `em` field.
+  const externalIdRaw = customer.external_id;
   if (externalIdRaw) {
     userData.external_id = [hash(String(externalIdRaw))];
   }
@@ -174,6 +273,7 @@ module.exports = {
   normalizeBase,
   normalizeCountry,
   normalizeEmail,
+  normalizeDateOfBirth,
   normalizePhone,
   normalizeText,
   normalizeZip

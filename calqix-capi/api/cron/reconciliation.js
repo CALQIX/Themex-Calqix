@@ -22,23 +22,33 @@ var DRIFT_ALERT_PCT = 25;
  * Fetch yesterday's paid, non-test orders from Shopify Admin API.
  * Returns count and total value (after refunds/cancellations are excluded
  * by `financial_status:paid AND NOT status:cancelled`).
- * @param {string} sinceIso - ISO date-time start (yesterday 00:00 UTC)
- * @param {string} untilIso - ISO date-time end   (yesterday 23:59 UTC)
+ * @param {string} dayIso - Amsterdam business day, YYYY-MM-DD
+ * @param {string} nextDayIso - next Amsterdam business day, YYYY-MM-DD
  * @returns {Promise<{ok: boolean, orderCount: number, totalValue: number, currency: string, error: string|null}>}
  */
-async function fetchShopifyOrdersForDay(sinceIso, untilIso) {
+async function fetchShopifyOrdersForDay(dayIso, nextDayIso) {
   try {
-    // Use the orders GraphQL connection with aggregate-friendly query.
-    // search syntax: financial_status + created_at range + exclude test/cancelled.
-    var query = '{\n' +
-      '  orders(first: 250, query: "financial_status:paid AND created_at:>=' + sinceIso + ' AND created_at:<=' + untilIso + ' AND test:false AND -status:cancelled") {\n' +
+    var search = 'financial_status:paid AND created_at:>=' + dayIso +
+      ' AND created_at:<' + nextDayIso +
+      ' AND test:false AND -status:cancelled';
+    var query = 'query OrdersForReconciliation($query: String!, $cursor: String) {\n' +
+      '  orders(first: 250, after: $cursor, query: $query) {\n' +
       '    edges { node { id totalPriceSet { shopMoney { amount currencyCode } } } }\n' +
       '    pageInfo { hasNextPage endCursor }\n' +
       '  }\n' +
       '}';
 
-    var data = await shopify.graphql(query);
-    var edges = (data && data.orders && data.orders.edges) || [];
+    var edges = [];
+    var cursor = null;
+    var page = 0;
+    var hasNext = false;
+    do {
+      page++;
+      var data = await shopify.graphql(query, { query: search, cursor: cursor });
+      edges = edges.concat((data && data.orders && data.orders.edges) || []);
+      hasNext = Boolean(data && data.orders && data.orders.pageInfo && data.orders.pageInfo.hasNextPage);
+      cursor = data && data.orders && data.orders.pageInfo && data.orders.pageInfo.endCursor;
+    } while (hasNext && cursor && page < 8);
     var total = 0;
     var currency = 'EUR';
     edges.forEach(function (e) {
@@ -49,9 +59,7 @@ async function fetchShopifyOrdersForDay(sinceIso, untilIso) {
       }
     });
 
-    // If more than one page, warn — reconciliation is intentionally capped.
-    var hasNext = data && data.orders && data.orders.pageInfo && data.orders.pageInfo.hasNextPage;
-
+    // Reconciliation is capped to eight Shopify pages for safety.
     return {
       ok: true,
       orderCount: edges.length,
@@ -75,13 +83,11 @@ async function fetchShopifyOrdersForDay(sinceIso, untilIso) {
 /**
  * Fetch yesterday's Meta-attributed purchase count + revenue via Insights API.
  * Uses the pinned attribution windows from meta-insights-source for UI parity.
- * @param {Date} yesterday - any Date falling on yesterday
+ * @param {string} dayIso - Amsterdam business day, YYYY-MM-DD
  * @returns {Promise<{ok: boolean, purchases: number, revenue: number, error: string|null}>}
  */
-async function fetchMetaPurchasesForDay(yesterday) {
-  var y = new Date(yesterday);
-  var dayStr = y.toISOString().split('T')[0];
-  var result = await insights.fetchAccountInsights(dayStr, dayStr, 'reconciliation_yesterday');
+async function fetchMetaPurchasesForDay(dayIso) {
+  var result = await insights.fetchAccountInsights(dayIso, dayIso, 'reconciliation_yesterday');
   if (!result.ok) {
     return { ok: false, purchases: 0, revenue: 0, error: (result.errors || []).join('; ') || 'unknown' };
   }
@@ -104,6 +110,14 @@ function driftPct(value, baseline) {
   return Math.round((value - baseline) / baseline * 1000) / 10;
 }
 
+function eventBelongsToAmsterdamDay(event, dayIso) {
+  var stamp = event && (event.created_at || event.updated_at || event.last_attempt);
+  if (!stamp) return false;
+  var parsed = new Date(stamp);
+  if (isNaN(parsed.getTime())) return false;
+  return dates.toISODateAmsterdam(parsed) === dayIso;
+}
+
 module.exports = async function (req, res) {
   try {
     var secret = process.env.CRON_SECRET;
@@ -113,7 +127,7 @@ module.exports = async function (req, res) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    var locked = await store.set(LOCK_KEY, '1', LOCK_TTL, true);
+    var locked = await store.setnx(LOCK_KEY, '1', LOCK_TTL);
     if (!locked) {
       return res.status(200).json({ ok: true, skipped: true, reason: 'Lock actief' });
     }
@@ -124,7 +138,12 @@ module.exports = async function (req, res) {
       return res.status(200).json({ ok: true, skipped: true, reason: 'Redis niet beschikbaar' });
     }
 
-    // Scan all purchase events from last 24h
+    var todayIso = dates.toISODateAmsterdam();
+    var dateIso = dates.addDaysISODateAmsterdam(todayIso, -1);
+    var nextDateIso = dates.addDaysISODateAmsterdam(dateIso, 1);
+    var dateKey = dates.isoToDisplay(dateIso);
+
+    // Scan purchase events from the Amsterdam business day under audit.
     var platformCounts = {
       meta: { sent: 0, confirmed: 0, failed: 0, totalValue: 0 },
       ga: { sent: 0, confirmed: 0, failed: 0, totalValue: 0 },
@@ -146,12 +165,11 @@ module.exports = async function (req, res) {
         var raw = await redis.get(keys[i]);
         if (!raw) continue;
 
-        var event;
-        try {
-          event = typeof raw === 'string' ? JSON.parse(raw) : raw;
-        } catch (e) { continue; }
+        var event = store.parseJsonValue(raw, null);
+        if (!event) continue;
 
         if (event.event_name !== 'Purchase') continue;
+        if (!eventBelongsToAmsterdamDay(event, dateIso)) continue;
 
         var eventId = event.event_id;
         if (event.shopify_id) orderIds.add(event.shopify_id);
@@ -188,10 +206,7 @@ module.exports = async function (req, res) {
       }
     } while (cursor !== '0' && scanned < 1000);
 
-    var totalOrders = orderIds.size;
-    var matchRate = totalOrders > 0
-      ? Math.round(platformCounts.meta.confirmed / totalOrders * 100)
-      : 100;
+    var internalPurchaseEvents = orderIds.size;
 
     // --- Shopify ↔ Meta drift check (yesterday) ---
     // Compares what Shopify says was truly sold (source of truth) vs what Meta
@@ -199,15 +214,13 @@ module.exports = async function (req, res) {
     //   - Pixel/CAPI dedup failures (Meta > Shopify)
     //   - Missing CAPI events (Meta < Shopify)
     //   - Revenue attribution drift
-    var yesterday = new Date(Date.now() - 86400000);
-    var yyyy = yesterday.getUTCFullYear();
-    var mm = String(yesterday.getUTCMonth() + 1).padStart(2, '0');
-    var dd = String(yesterday.getUTCDate()).padStart(2, '0');
-    var sinceIso = yyyy + '-' + mm + '-' + dd + 'T00:00:00Z';
-    var untilIso = yyyy + '-' + mm + '-' + dd + 'T23:59:59Z';
+    var shopifyRes = await fetchShopifyOrdersForDay(dateIso, nextDateIso);
+    var metaRes = await fetchMetaPurchasesForDay(dateIso);
 
-    var shopifyRes = await fetchShopifyOrdersForDay(sinceIso, untilIso);
-    var metaRes = await fetchMetaPurchasesForDay(yesterday);
+    var totalOrders = shopifyRes.ok ? shopifyRes.orderCount : internalPurchaseEvents;
+    var matchRate = totalOrders > 0
+      ? Math.round(platformCounts.meta.confirmed / totalOrders * 100)
+      : 100;
 
     var shopifyMetaDrift = null;
     if (shopifyRes.ok && metaRes.ok) {
@@ -225,8 +238,10 @@ module.exports = async function (req, res) {
 
     var result = {
       timestamp: dates.formatDateTimeAmsterdam(),
-      date: dates.todayKey(new Date(Date.now() - 86400000)),
+      date: dateKey,
+      date_iso: dateIso,
       totalOrders: totalOrders,
+      internalPurchaseEvents: internalPurchaseEvents,
       scanned: scanned,
       platforms: platformCounts,
       matchRate: matchRate,
@@ -238,12 +253,11 @@ module.exports = async function (req, res) {
     };
 
     // Persist
-    var dateKey = dates.todayKey(new Date(Date.now() - 86400000));
     await store.set('reconciliation:' + dateKey, JSON.stringify(result), 30 * 86400);
 
     // Telegram summary
     var msg = '\uD83D\uDCCA Dagelijkse Reconciliation — ' + dateKey + '\n\n' +
-      'Orders (internal state): ' + totalOrders + '\n' +
+      'Shopify orders: ' + totalOrders + ' | internal purchase events: ' + internalPurchaseEvents + '\n' +
       'Meta: ' + platformCounts.meta.confirmed + '/' + platformCounts.meta.sent + ' bevestigd';
 
     if (process.env.GA4_ENABLED === 'true') {

@@ -190,6 +190,26 @@ function getStoreType() {
   return storeType;
 }
 
+/**
+ * Parse values read directly from Upstash Redis.
+ * The REST client may return either a JSON string or an already-deserialized
+ * object, depending on how the value was stored and fetched.
+ * @param {*} value
+ * @param {*} [fallback]
+ * @returns {*}
+ */
+function parseJsonValue(value, fallback) {
+  var fb = arguments.length > 1 ? fallback : null;
+  if (value === null || value === undefined || value === '') return fb;
+  if (typeof value === 'object') return value;
+  if (typeof value !== 'string') return fb;
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return fb;
+  }
+}
+
 // --- Namespaced helpers ---
 
 var TTL_DEDUP = 48 * 3600;      // 48 hours
@@ -261,10 +281,10 @@ var TTL_CUST_IDENTITY = 90 * 24 * 3600; // 90 days
  * EMQ stays high and Meta can attribute the renewal LTV to the original ad.
  *
  * Key: identity:cust:{customerKey}
- * Value: JSON { fbc, fbp, client_ip, client_user_agent, last_seen }
+ * Value: JSON { fbc, fbp, client_ip, client_user_agent, db, st, zp, country, last_seen }
  *
  * @param {string} customerKey - Shopify customer.id (numeric string), email is NOT used to avoid PII in keys
- * @param {object} data        - { fbc?, fbp?, client_ip?, client_user_agent? }
+ * @param {object} data        - { fbc?, fbp?, client_ip?, client_user_agent?, date_of_birth?, state?, zip?, country_code? }
  */
 async function setCustomerIdentity(customerKey, data) {
   if (!customerKey || !data) return;
@@ -277,6 +297,15 @@ async function setCustomerIdentity(customerKey, data) {
     fbp: data.fbp || existing.fbp,
     client_ip: data.client_ip || existing.client_ip,
     client_user_agent: data.client_user_agent || existing.client_user_agent,
+    email: data.email || existing.email,
+    phone: data.phone || existing.phone,
+    fn: data.first_name || data.fn || existing.fn,
+    ln: data.last_name || data.ln || existing.ln,
+    ct: data.city || data.ct || existing.ct,
+    db: data.date_of_birth || data.db || existing.db,
+    st: data.state || data.province_code || data.st || existing.st,
+    zp: data.zip || data.postal_code || data.zp || existing.zp,
+    country: data.country_code || data.country || existing.country,
     last_seen: new Date().toISOString()
   };
   await set(key, JSON.stringify(merged), TTL_CUST_IDENTITY);
@@ -385,6 +414,7 @@ module.exports = {
   del: del,
   setnx: setnx,
   getStoreType: getStoreType,
+  parseJsonValue: parseJsonValue,
   isRedisActive: isRedisActive,
   isDuplicate: isDuplicate,
   markProcessed: markProcessed,

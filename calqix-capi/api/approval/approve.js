@@ -42,7 +42,7 @@ module.exports = async function handler(req, res) {
     if (execute) {
       if (item.type === 'content_publish') {
         execResult = await publisher.publishApproved(id);
-      } else if (item.type === 'pause_ad' || item.type === 'scale_adset') {
+      } else if (item.type === 'pause_ad' || item.type === 'scale_adset' || item.type === 'adjust_adset_budget' || item.type === 'scale_campaign') {
         execResult = await actionExecutor.executeApproved(id);
         if (execResult.ok) {
           await telegramReview.sendActionConfirmation(item, execResult);

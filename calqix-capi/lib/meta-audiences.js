@@ -30,7 +30,7 @@ var MAX_USERS_PER_BATCH = 10000;
 
 // Schema column order used for every upload. Keep in sync with buildRow().
 // Meta-recognized keys: https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences/#hash
-var SCHEMA = ['EMAIL', 'PHONE', 'FN', 'LN', 'CT', 'ST', 'ZIP', 'COUNTRY', 'EXTERN_ID'];
+var SCHEMA = ['EMAIL', 'PHONE', 'FN', 'LN', 'DOB', 'CT', 'ST', 'ZIP', 'COUNTRY', 'EXTERN_ID'];
 
 /**
  * Build a single schema-ordered row of hashed values from a raw user object.
@@ -43,6 +43,7 @@ function buildRow(user) {
   var phone = hash.normalizePhone(user.phone, user.country_code || user.countryCode);
   var fn = hash.normalizeText(user.first_name || user.firstName);
   var ln = hash.normalizeText(user.last_name || user.lastName);
+  var dob = hash.normalizeDateOfBirth(user.birthday || user.birthdate || user.date_of_birth || user.dateOfBirth || user.db);
   var ct = hash.normalizeText(user.city, { keepSpaces: false });
   var st = hash.normalizeText(user.province_code || user.provinceCode);
   var zp = hash.normalizeZip(user.zip || user.postal_code || user.postalCode);
@@ -57,6 +58,7 @@ function buildRow(user) {
     phone ? hash.hash(phone) : '',
     fn ? hash.hash(fn) : '',
     ln ? hash.hash(ln) : '',
+    dob ? hash.hash(dob) : '',
     ct ? hash.hash(ct) : '',
     st ? hash.hash(st) : '',
     zp ? hash.hash(zp) : '',

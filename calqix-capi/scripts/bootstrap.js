@@ -7,6 +7,7 @@
  *   node scripts/bootstrap.js verify-redis   — check Redis connectivity
  *   node scripts/bootstrap.js verify-qstash  — check QStash connectivity
  *   node scripts/bootstrap.js create-schedule — create/update QStash schedule
+ *   node scripts/bootstrap.js create-tracking-hub-schedule — create/update Tracking Hub schedule
  *   node scripts/bootstrap.js list-schedules  — list existing QStash schedules
  *   node scripts/bootstrap.js delete-schedule — delete the monitor schedule
  *   node scripts/bootstrap.js smoke-test      — test monitor endpoint
@@ -18,15 +19,15 @@ require('dotenv').config();
 
 var MONITOR_URL = process.env.CAPI_BASE_URL || 'https://calqix-capi.vercel.app';
 // Consolidated schedule IDs (10 total, fits QStash free tier)
-var SCHEDULE_ID_OPTIMIZER = 'calqix-optimizer';           // 1. Ad Pulse every 2h (07-23)
+var SCHEDULE_ID_OPTIMIZER = 'calqix-optimizer';           // 1. Ad monitor 07:00, 12:00, 19:00
 var SCHEDULE_ID_RECOVERY = 'calqix-recovery';              // 2. Recovery every minute
 var SCHEDULE_ID_CONTENT_MORNING = 'calqix-content-morning'; // 3. Insights→Plan→Generate chain 05:45
 var SCHEDULE_ID_CONTENT_PUBLISH_AM = 'calqix-content-publish-am'; // 4. Publish post1 08:30
 var SCHEDULE_ID_CONTENT_PUBLISH_PM = 'calqix-content-publish-pm'; // 5. Publish post2 18:30
 var SCHEDULE_ID_CONTENT_REFLECT = 'calqix-content-reflect'; // 6. Reflect 21:30
-var SCHEDULE_ID_AD_MORNING = 'calqix-ad-morning';          // 8. Sync→Engine→Report chain 09:00
-var SCHEDULE_ID_AD_MIDDAY = 'calqix-ad-midday';            // 9. Midday check 15:00
-var SCHEDULE_ID_AD_CLOSE = 'calqix-ad-daily-close';        // 10. Daily close 21:00
+var SCHEDULE_ID_AD_MORNING = 'calqix-ad-morning';          // 8. Sync/Engine/Report chain 07:00
+var SCHEDULE_ID_AD_MIDDAY = 'calqix-ad-midday';            // 9. Midday check 12:00
+var SCHEDULE_ID_AD_CLOSE = 'calqix-ad-daily-close';        // 10. Evening close 19:00
 // Observability crons (9 new)
 var SCHEDULE_ID_IDENTITY_BACKFILL = 'calqix-identity-backfill'; // 11. Every 15 min
 var SCHEDULE_ID_BRIDGE_HEALTH = 'calqix-bridge-health';         // 12. Every 10 min
@@ -53,6 +54,8 @@ var SCHEDULE_ID_FATIGUE_PREDICTOR = 'calqix-fatigue-predictor';  // 25. Daily 09
 var SCHEDULE_ID_BRIDGE_VERSION_CHECK = 'calqix-bridge-version-check'; // 26. Every 30 min
 // Daily digest — consolidated Telegram rollup (replaces per-cron P1 pings in digest mode)
 var SCHEDULE_ID_DAILY_DIGEST = 'calqix-daily-digest';            // 27. Daily 08:00 — one-message rollup
+var SCHEDULE_ID_TRACKING_HUB = 'calqix-tracking-hub';            // 28. Every 15 min - OpenAI tracking + ads quality hub
+var SCHEDULE_ID_STANDARDS_WATCH = 'calqix-standards-watch';      // 29. Daily 06:20 - official tracking docs hash watch
 // Legacy IDs for deletion cleanup (deprecated schedules + removed Telegram reporting crons)
 var LEGACY_IDS = [
   'calqix-daily-monitor', 'calqix-optimizer-morning', 'calqix-optimizer-afternoon',
@@ -83,6 +86,10 @@ async function main() {
       return await createContentSchedules();
     case 'create-ad-opt-schedules':
       return await createAdOptSchedules();
+    case 'create-tracking-hub-schedule':
+      return await createTrackingHubSchedule();
+    case 'create-standards-watch-schedule':
+      return await createStandardsWatchSchedule();
     case 'cleanup-legacy':
       return await cleanupLegacySchedules();
     case 'list-schedules':
@@ -183,7 +190,7 @@ async function verifyQStash() {
 // --- Schedule Management ---
 
 async function createOptimizerSchedule() {
-  console.log('[QStash] Creating optimizer schedule (every 2h, 07:00-23:00)...');
+  console.log('[QStash] Creating optimizer schedule (07:00, 12:00, 19:00 Amsterdam)...');
   var qstashToken = process.env.QSTASH_TOKEN;
   if (!qstashToken) {
     console.error('[QStash] FAIL: QSTASH_TOKEN not set');
@@ -202,13 +209,13 @@ async function createOptimizerSchedule() {
     var result = await client.schedules.create({
       scheduleId: SCHEDULE_ID_OPTIMIZER,
       destination: destination,
-      cron: 'CRON_TZ=Europe/Amsterdam 0 7,9,11,13,15,17,19,21,23 * * *',
+      cron: 'CRON_TZ=Europe/Amsterdam 0 7,12,19 * * *',
       retries: 3,
       headers: authHeader,
       callback: callbackUrl,
       failureCallback: failureCallbackUrl
     });
-    console.log('[QStash] Optimizer schedule created (9x daily, every 2h 07-23)');
+    console.log('[QStash] Optimizer schedule created (3x daily: 07, 12, 19)');
 
     console.log('[QStash] Optimizer schedule PASS');
     return true;
@@ -309,9 +316,9 @@ async function createAdOptSchedules() {
     var authHeader = { 'Authorization': 'Bearer ' + (process.env.CRON_SECRET || '') };
 
     var adSchedules = [
-      { id: SCHEDULE_ID_AD_MORNING, path: '/api/cron/ad-morning', cron: '0 9 * * *', label: 'Ad Morning Chain 09:00 (sync→engine→report)' },
-      { id: SCHEDULE_ID_AD_MIDDAY, path: '/api/cron/ad-midday-check', cron: '0 15 * * *', label: 'Ad Midday 15:00' },
-      { id: SCHEDULE_ID_AD_CLOSE, path: '/api/cron/ad-daily-close', cron: '0 21 * * *', label: 'Ad Daily Close 21:00' }
+      { id: SCHEDULE_ID_AD_MORNING, path: '/api/cron/ad-morning', cron: '0 7 * * *', label: 'Ad Morning Chain 07:00 (sync/engine/report)' },
+      { id: SCHEDULE_ID_AD_MIDDAY, path: '/api/cron/ad-midday-check', cron: '0 12 * * *', label: 'Ad Midday 12:00' },
+      { id: SCHEDULE_ID_AD_CLOSE, path: '/api/cron/ad-daily-close', cron: '0 19 * * *', label: 'Ad Evening Close 19:00' }
     ];
 
     for (var i = 0; i < adSchedules.length; i++) {
@@ -335,7 +342,7 @@ async function createAdOptSchedules() {
 }
 
 async function createAllSchedules() {
-  console.log('[QStash] Creating all consolidated schedules (19 total)...');
+  console.log('[QStash] Creating all consolidated schedules (includes tracking hub + standards watch)...');
   var ok1 = await createOptimizerSchedule();
   var ok2 = await createRecoverySchedule();
   var ok3 = await createContentSchedules();
@@ -344,7 +351,7 @@ async function createAllSchedules() {
   var ok6 = await createGadsUploadSchedule();
   // Legacy / deprecated Telegram-reporting schedules are removed via cleanupLegacySchedules().
   await cleanupLegacySchedules();
-  console.log('[QStash] Total: 1 optimizer + 1 recovery + 4 content + 3 ad-opt + 9 observability + 1 gads-upload = 19 schedules');
+  console.log('[QStash] Total includes optimizer, recovery, content, ad-opt, observability, tracking hub, standards watch and gads upload schedules');
   return ok1 && ok2 && ok3 && ok4 && ok5 && ok6;
 }
 
@@ -377,7 +384,7 @@ async function cleanupLegacySchedules() {
 }
 
 async function createObservabilitySchedules() {
-  console.log('[QStash] Creating observability schedules (9 crons)...');
+  console.log('[QStash] Creating observability schedules...');
   var qstashToken = process.env.QSTASH_TOKEN;
   if (!qstashToken) {
     console.error('[QStash] FAIL: QSTASH_TOKEN not set');
@@ -405,7 +412,9 @@ async function createObservabilitySchedules() {
       { id: SCHEDULE_ID_LOOKALIKE_FEEDER, endpoint: '/api/cron/lookalike-feeder', cron: 'CRON_TZ=Europe/Amsterdam 30 4 * * *' },
       { id: SCHEDULE_ID_FATIGUE_PREDICTOR, endpoint: '/api/cron/fatigue-predictor', cron: 'CRON_TZ=Europe/Amsterdam 15 9 * * *' },
       { id: SCHEDULE_ID_BRIDGE_VERSION_CHECK, endpoint: '/api/cron/bridge-version-check', cron: 'CRON_TZ=Europe/Amsterdam */30 * * * *' },
-      { id: SCHEDULE_ID_DAILY_DIGEST, endpoint: '/api/cron/daily-digest', cron: 'CRON_TZ=Europe/Amsterdam 0 8 * * *' }
+      { id: SCHEDULE_ID_DAILY_DIGEST, endpoint: '/api/cron/daily-digest', cron: 'CRON_TZ=Europe/Amsterdam 0 8 * * *' },
+      { id: SCHEDULE_ID_TRACKING_HUB, endpoint: '/api/cron/tracking-hub', cron: 'CRON_TZ=Europe/Amsterdam */15 * * * *' },
+      { id: SCHEDULE_ID_STANDARDS_WATCH, endpoint: '/api/cron/standards-watch', cron: 'CRON_TZ=Europe/Amsterdam 20 6 * * *' }
     ];
 
     for (var i = 0; i < schedules.length; i++) {
@@ -420,10 +429,69 @@ async function createObservabilitySchedules() {
       console.log('[QStash] Created:', s.id, '(' + s.cron.replace('CRON_TZ=Europe/Amsterdam ', '') + ')');
     }
 
-    console.log('[QStash] Observability schedules PASS (9 created)');
+    console.log('[QStash] Observability schedules PASS (10 created)');
     return true;
   } catch (err) {
     console.error('[QStash] Observability schedules FAIL:', err.message);
+    return false;
+  }
+}
+
+async function createTrackingHubSchedule() {
+  console.log('[QStash] Creating Tracking Hub schedule (every 15 min)...');
+  var qstashToken = process.env.QSTASH_TOKEN;
+  if (!qstashToken) {
+    console.error('[QStash] FAIL: QSTASH_TOKEN not set');
+    return false;
+  }
+
+  try {
+    var { Client } = require('@upstash/qstash');
+    var client = new Client({ token: qstashToken });
+    var cronSecret = process.env.CRON_SECRET;
+
+    await client.schedules.create({
+      scheduleId: SCHEDULE_ID_TRACKING_HUB,
+      destination: MONITOR_URL + '/api/cron/tracking-hub',
+      cron: 'CRON_TZ=Europe/Amsterdam */15 * * * *',
+      retries: 2,
+      headers: cronSecret ? { 'Authorization': 'Bearer ' + cronSecret } : {}
+    });
+
+    console.log('[QStash] Created: calqix-tracking-hub (*/15 * * * *)');
+    console.log('[QStash] Tracking Hub schedule PASS');
+    return true;
+  } catch (err) {
+    console.error('[QStash] Tracking Hub schedule FAIL:', err.message);
+    return false;
+  }
+}
+
+async function createStandardsWatchSchedule() {
+  console.log('[QStash] Creating Standards Watch schedule (06:20 Amsterdam)...');
+  var qstashToken = process.env.QSTASH_TOKEN;
+  var cronSecret = process.env.CRON_SECRET;
+  if (!qstashToken) {
+    console.error('[QStash] FAIL: QSTASH_TOKEN not set');
+    return false;
+  }
+
+  try {
+    var { Client } = require('@upstash/qstash');
+    var client = new Client({ token: qstashToken });
+
+    await client.schedules.create({
+      scheduleId: SCHEDULE_ID_STANDARDS_WATCH,
+      destination: MONITOR_URL + '/api/cron/standards-watch',
+      cron: 'CRON_TZ=Europe/Amsterdam 20 6 * * *',
+      retries: 2,
+      headers: cronSecret ? { 'Authorization': 'Bearer ' + cronSecret } : {}
+    });
+    console.log('[QStash] Created: calqix-standards-watch (20 6 * * *)');
+    console.log('[QStash] Standards Watch schedule PASS');
+    return true;
+  } catch (err) {
+    console.error('[QStash] Standards Watch schedule FAIL:', err.message);
     return false;
   }
 }
@@ -510,7 +578,7 @@ async function deleteAllSchedules() {
       SCHEDULE_ID_GADS_UPLOAD,
       SCHEDULE_ID_OB_REVIEWS_ADD, SCHEDULE_ID_CATALOG_SYNC, SCHEDULE_ID_IDENTITY_RESUBMIT,
       SCHEDULE_ID_LOOKALIKE_FEEDER, SCHEDULE_ID_FATIGUE_PREDICTOR,
-      SCHEDULE_ID_BRIDGE_VERSION_CHECK, SCHEDULE_ID_DAILY_DIGEST
+      SCHEDULE_ID_BRIDGE_VERSION_CHECK, SCHEDULE_ID_DAILY_DIGEST, SCHEDULE_ID_TRACKING_HUB
     ].concat(LEGACY_IDS);
     for (var i = 0; i < ids.length; i++) {
       try {
@@ -649,6 +717,7 @@ async function verifyAll() {
     '/api/cron/ad-morning',
     '/api/cron/ad-midday-check',
     '/api/cron/ad-daily-close',
+    '/api/cron/tracking-hub',
     '/api/approval/status'
   ];
   var endpointOk = true;

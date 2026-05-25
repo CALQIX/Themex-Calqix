@@ -12,7 +12,7 @@ var dates = require('../../lib/dates');
 var { sendTelegram } = require('../../lib/telegram');
 var alertDedup = require('../../lib/alert-dedup');
 
-var EMQ_FIELDS = ['em', 'ph', 'fn', 'ln', 'ct', 'st', 'zp', 'country', 'fbc', 'fbp', 'external_id'];
+var EMQ_FIELDS = ['em', 'ph', 'fn', 'ln', 'db', 'ct', 'st', 'zp', 'country', 'fbc', 'fbp', 'external_id', 'client_ip_address', 'client_user_agent'];
 
 // Thresholds for alerting. Tuned to CALQIX current baseline (April 2026):
 //  * estimatedEMQ: typical 7.0-8.0, below 6.0 means a structural tracking drop.
@@ -62,9 +62,8 @@ module.exports = async function (req, res) {
         var raw = await redis.get(keys[i]);
         if (!raw) continue;
 
-        var payload;
-        try { payload = JSON.parse(raw); } catch (e) { continue; }
-        if (!payload.user_data) continue;
+        var payload = store.parseJsonValue(raw, null);
+        if (!payload || !payload.user_data) continue;
 
         totalEvents++;
         var ud = payload.user_data;
@@ -91,7 +90,7 @@ module.exports = async function (req, res) {
     missingRank.sort(function (a, b) { return b.missing - a.missing; });
 
     // Calculate weighted EMQ estimate (simplified)
-    var highValueFields = ['em', 'ph', 'fn', 'ln', 'external_id', 'fbc', 'fbp'];
+    var highValueFields = ['em', 'ph', 'fn', 'ln', 'external_id', 'fbc', 'fbp', 'client_ip_address', 'client_user_agent'];
     var totalWeighted = 0;
     var weightSum = 0;
     for (var w = 0; w < highValueFields.length; w++) {

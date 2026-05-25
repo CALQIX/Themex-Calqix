@@ -9,6 +9,8 @@ var googleOAuth = require('../lib/google-oauth');
 var capiDiag = require('../lib/capi-diagnostics');
 var eventStats = require('../lib/event-stats');
 var shopifyAdmin = require('../lib/shopify-admin');
+var dates = require('../lib/dates');
+var qualityLedger = require('../lib/meta-quality-ledger');
 
 var DASHBOARD_LAYOUT_VERSION = 'tracking-intelligence-2026-05-15';
 
@@ -25,15 +27,16 @@ module.exports = async function (req, res) {
     var google = getGoogleEnabledStatus();
 
     // --- EMQ diagnostics ---
-    var today = new Date().toISOString().split('T')[0];
-    var yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    var today = dates.toISODateAmsterdam();
+    var yesterday = dates.addDaysISODateAmsterdam(today, -1);
     var emqToday = await capiDiag.getDailySummary(today);
     var emqYesterday = await capiDiag.getDailySummary(yesterday);
 
     // --- Event counts from Redis ---
     var eventCounts = await getEventCounts();
     var trackingHub = await getTrackingHubStatus();
-    var comparison = await getShopifyMetaComparison(today, emqToday);
+    var ledger = await qualityLedger.getDailyCoverage(today);
+    var comparison = await getShopifyMetaComparison(today, emqToday, ledger);
 
     var data = {
       meta: meta,
@@ -44,6 +47,7 @@ module.exports = async function (req, res) {
       emq: { today: emqToday, yesterday: emqYesterday, todayDate: today, yesterdayDate: yesterday },
       events: eventCounts,
       trackingHub: trackingHub,
+      ledger: ledger,
       comparison: comparison,
       dashboardLayoutVersion: DASHBOARD_LAYOUT_VERSION,
       timestamp: new Date().toISOString()
@@ -152,22 +156,26 @@ async function getTrackingHubStatus() {
   }
 }
 
-async function getShopifyMetaComparison(today, emqToday) {
+async function getShopifyMetaComparison(today, emqToday, ledger) {
   var cacheKey = 'dashboard:shopify_meta_comparison:' + today;
   try {
     var cached = await store.get(cacheKey);
     if (cached) {
-      var parsed = typeof cached === 'string' ? JSON.parse(cached) : cached;
+      var parsed = store.parseJsonValue(cached, null);
+      if (!parsed) throw new Error('cache_parse_error');
       parsed.cached = true;
-      return parsed;
+      return decorateComparisonWithLedger(parsed, ledger);
     }
   } catch (e) { /* cache miss */ }
 
   var events = ['ViewContent', 'AddToCart', 'InitiateCheckout', 'AddPaymentInfo', 'Purchase'];
   var statsToday = {};
   var lifecycle = {};
+  var shopifyPixelCounts = {};
   var shopifyOrders = null;
   var shopifyError = null;
+  var shopifyPixelError = null;
+  var ledgerMap = ledgerRowsByEvent(ledger);
 
   try {
     var stats = await eventStats.getEventStats(1);
@@ -183,6 +191,13 @@ async function getShopifyMetaComparison(today, emqToday) {
   }
 
   try {
+    shopifyPixelCounts = await getShopifyWebPixelCounts(today);
+  } catch (e) {
+    shopifyPixelError = e.message;
+    shopifyPixelCounts = {};
+  }
+
+  try {
     shopifyOrders = await withTimeout(getShopifyOrdersCount(today), 1800, null);
   } catch (e) {
     shopifyError = e.message;
@@ -191,31 +206,52 @@ async function getShopifyMetaComparison(today, emqToday) {
   var rows = events.map(function (eventName) {
     var stat = statsToday[eventName] || {};
     var sourceCount = Math.max(Number(stat.browser) || 0, Number(stat.server) || 0);
+    var shopifyPixelCount = Number(shopifyPixelCounts[eventName]) || 0;
     var meta = lifecycle[eventName] || {};
+    var ledgerRow = ledgerMap[eventName] || {};
     var emqCount = emqToday && emqToday[eventName] ? Number(emqToday[eventName].total) || 0 : 0;
     var metaConfirmed = Math.max(Number(meta.confirmed) || 0, emqCount);
-    var shopifyCount = eventName === 'Purchase' && typeof shopifyOrders === 'number'
-      ? shopifyOrders
-      : sourceCount;
+    var shopifyCount = shopifyPixelCount;
+    var shopifySource = 'Shopify Customer Events Web Pixel';
+
+    if (eventName === 'Purchase') {
+      shopifyCount = typeof shopifyOrders === 'number' ? shopifyOrders : Math.max(shopifyPixelCount, sourceCount);
+      shopifySource = typeof shopifyOrders === 'number'
+        ? 'Shopify Admin paid orders'
+        : 'Shopify Customer Events / CAPI fallback';
+    } else if (shopifyPixelCount === 0 && sourceCount > 0) {
+      shopifyCount = sourceCount;
+      shopifySource = 'CAPI ingress fallback (Shopify Web Pixel teller mist)';
+    }
+
     var delta = shopifyCount - metaConfirmed;
     var metaForAdvice = Object.assign({}, meta, { confirmed: metaConfirmed, emq: emqCount });
     return {
       event: eventName,
       shopify: shopifyCount,
-      shopify_source: eventName === 'Purchase' && typeof shopifyOrders === 'number'
-        ? 'Shopify Admin orders'
-        : 'Shopify pixel/webhook ingang',
+      shopify_source: shopifySource,
+      shopify_customer_events: shopifyPixelCount,
+      capi_ingress: sourceCount,
       capi_browser: Number(stat.browser) || 0,
       capi_server: Number(stat.server) || 0,
       meta_confirmed: metaConfirmed,
       meta_emq: emqCount,
       meta_lifecycle_confirmed: Number(meta.confirmed) || 0,
       meta_received: Number(meta.received) || 0,
+      pair_browser_seen: Number(ledgerRow.browser_seen) || 0,
+      pair_server_received: Number(ledgerRow.server_received) || 0,
+      pair_confirmed: Number(ledgerRow.paired_browser_server) || 0,
+      pair_coverage_pct: ledgerRow.coverage_pct,
+      pair_wilson95_lower_pct: ledgerRow.coverage_wilson95_lower_pct,
+      pair_delivery_pct: ledgerRow.delivery_pct,
+      pair_sample_reliable: Boolean(ledgerRow.sample_reliable),
+      pair_bad_event_ids: Number(ledgerRow.bad_event_id) || 0,
+      pair_severity: ledgerRow.severity || 'OK',
       retry_pending: Number(meta.retry_pending) || 0,
       failed_terminal: Number(meta.failed_terminal) || 0,
       difference: delta,
       status: delta === 0 ? 'match' : delta > 0 ? 'shopify_hoger' : 'meta_hoger',
-      advice: comparisonAdvice(eventName, delta, metaForAdvice, stat)
+      advice: comparisonAdvice(eventName, delta, metaForAdvice, stat, ledgerRow)
     };
   });
 
@@ -223,10 +259,54 @@ async function getShopifyMetaComparison(today, emqToday) {
     date: today,
     rows: rows,
     shopify_order_count: shopifyOrders,
-    shopify_error: shopifyError
+    shopify_web_pixel_counts: shopifyPixelCounts,
+    shopify_error: shopifyError,
+    shopify_pixel_error: shopifyPixelError
   };
   try { await store.set(cacheKey, JSON.stringify(result), 15); } catch (e) { /* non-fatal */ }
   return result;
+}
+
+function ledgerRowsByEvent(ledger) {
+  var map = {};
+  var rows = ledger && Array.isArray(ledger.rows) ? ledger.rows : [];
+  rows.forEach(function (row) {
+    if (row && row.event) map[row.event] = row;
+  });
+  return map;
+}
+
+function decorateComparisonWithLedger(comparison, ledger) {
+  var ledgerMap = ledgerRowsByEvent(ledger);
+  var rows = (comparison.rows || []).map(function (row) {
+    var ledgerRow = ledgerMap[row.event] || {};
+    var decorated = Object.assign({}, row, {
+      pair_browser_seen: Number(ledgerRow.browser_seen) || 0,
+      pair_server_received: Number(ledgerRow.server_received) || 0,
+      pair_confirmed: Number(ledgerRow.paired_browser_server) || 0,
+      pair_coverage_pct: ledgerRow.coverage_pct,
+      pair_wilson95_lower_pct: ledgerRow.coverage_wilson95_lower_pct,
+      pair_delivery_pct: ledgerRow.delivery_pct,
+      pair_sample_reliable: Boolean(ledgerRow.sample_reliable),
+      pair_bad_event_ids: Number(ledgerRow.bad_event_id) || 0,
+      pair_severity: ledgerRow.severity || 'OK'
+    });
+    decorated.advice = comparisonAdvice(
+      row.event,
+      row.difference,
+      {
+        confirmed: row.meta_confirmed,
+        received: row.meta_received,
+        retry_pending: row.retry_pending,
+        failed_terminal: row.failed_terminal,
+        emq: row.meta_emq
+      },
+      { browser: row.capi_browser, server: row.capi_server },
+      ledgerRow
+    );
+    return decorated;
+  });
+  return Object.assign({}, comparison, { rows: rows, ledger: ledger || null });
 }
 
 function withTimeout(promise, ms, fallback) {
@@ -251,9 +331,30 @@ function withTimeout(promise, ms, fallback) {
   });
 }
 
+async function getShopifyWebPixelCounts(day) {
+  var map = {
+    ViewContent: 'product_viewed',
+    AddToCart: 'product_added_to_cart',
+    InitiateCheckout: 'checkout_started',
+    AddPaymentInfo: 'payment_info_submitted',
+    Purchase: 'checkout_completed'
+  };
+  var out = {};
+  var names = Object.keys(map);
+  for (var i = 0; i < names.length; i++) {
+    var eventName = names[i];
+    var value = await store.get('shopify:web_pixel:count:' + day + ':' + map[eventName]);
+    out[eventName] = parseInt(value, 10) || 0;
+  }
+  return out;
+}
+
 async function getShopifyOrdersCount(today) {
   if (!process.env.SHOPIFY_STORE_DOMAIN) return null;
-  var query = 'created_at:>=' + today;
+  var tomorrow = dates.addDaysISODateAmsterdam(today, 1);
+  var query = 'financial_status:paid AND created_at:>=' + today +
+    ' AND created_at:<' + tomorrow +
+    ' AND test:false AND -status:cancelled';
   var gql = 'query OrdersCount($query: String!) { ordersCount(query: $query) { count } }';
   var data = await shopifyAdmin.graphql(gql, { query: query });
   if (!data || !data.ordersCount) return null;
@@ -274,11 +375,10 @@ async function getMetaLifecycleCounts(today) {
     for (var i = 0; i < keys.length; i++) {
       scanned++;
       var raw = await redis.get(keys[i]);
-      var item;
-      try { item = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch (e) { item = null; }
+      var item = store.parseJsonValue(raw, null);
       if (!item || !item.event_name) continue;
       var stamp = item.created_at || item.updated_at || '';
-      if (stamp && stamp.indexOf(today) !== 0) continue;
+      if (stamp && dates.toISODateAmsterdam(new Date(stamp)) !== today) continue;
       if (!counts[item.event_name]) {
         counts[item.event_name] = { received: 0, confirmed: 0, retry_pending: 0, failed_terminal: 0 };
       }
@@ -291,7 +391,19 @@ async function getMetaLifecycleCounts(today) {
   return counts;
 }
 
-function comparisonAdvice(eventName, delta, meta, stat) {
+function comparisonAdvice(eventName, delta, meta, stat, ledgerRow) {
+  if (ledgerRow && Number(ledgerRow.bad_event_id) > 0) {
+    return 'Event_id prefix breekt Meta dedup: ' + ledgerRow.bad_event_id + ' event(s) hebben een ongeldig event_id patroon.';
+  }
+  if (ledgerRow && Number(ledgerRow.browser_seen) > 0 && Number(ledgerRow.paired_browser_server) === 0) {
+    return 'Browser pixel vuurt, maar server pair ontbreekt: coverage = 0/' + ledgerRow.browser_seen + '. Controleer CAPI endpoint delivery en shared event_id.';
+  }
+  if (ledgerRow && Number(ledgerRow.browser_seen) >= 30 && Number(ledgerRow.coverage_pct) < 75) {
+    return 'Browser/server overlap is te laag: coverage = ' + ledgerRow.paired_browser_server + '/' + ledgerRow.browser_seen + ' = ' + ledgerRow.coverage_pct + '%.';
+  }
+  if (ledgerRow && Number(ledgerRow.server_received) > 0 && Number(ledgerRow.delivery_pct) < 99.5) {
+    return 'CAPI delivery onder norm: confirmed/server_received = ' + ledgerRow.capi_confirmed + '/' + ledgerRow.server_received + ' = ' + ledgerRow.delivery_pct + '%.';
+  }
   if (delta === 0) return 'Shopify ingang en Meta CAPI bevestigd zijn gelijk voor deze event.';
   if (delta > 0) {
     if (meta && meta.retry_pending) return 'Meta loopt achter door retry_pending events; recovery job moet deze oppakken.';
@@ -474,6 +586,28 @@ function renderDashboard(data, querySecret, fragmentsOnly) {
       };
     });
 
+    var ledgerRows = data.ledger && Array.isArray(data.ledger.rows) ? data.ledger.rows : [];
+    ledgerRows.filter(function (row) {
+      return row && row.severity && row.severity !== 'OK';
+    }).reverse().forEach(function (row) {
+      var level = row.severity === 'P0' ? 'P0' : row.severity === 'P1' ? 'P1' : 'P2';
+      var text = row.browser_seen
+        ? 'Browser/server coverage = ' + row.paired_browser_server + '/' + row.browser_seen + ' = ' + row.coverage_pct + '%. Wilson95 ondergrens ' + row.coverage_wilson95_lower_pct + '%.'
+        : 'Nog geen browser events in de pair ledger; sample is onvoldoende voor harde coverage zekerheid.';
+      if (row.server_received && row.delivery_pct < 99.5) {
+        text += ' Delivery = ' + row.capi_confirmed + '/' + row.server_received + ' = ' + row.delivery_pct + '%.';
+      }
+      if (row.bad_event_id) {
+        text += ' Ongeldige event_id prefixes: ' + row.bad_event_id + '.';
+      }
+      items.unshift({
+        level: level,
+        title: row.event + ' browser/server pair ledger',
+        text: text,
+        action: row.recommendation || 'Controleer gedeelde event_id tussen browser Pixel en CAPI server send.'
+      });
+    });
+
     if (!m.connected || !m.enabled) {
       items.unshift({
         level: 'P0',
@@ -595,10 +729,17 @@ function renderDashboard(data, querySecret, fragmentsOnly) {
       return '<article class="diff-panel"><h3>Nog geen vergelijkingsdata</h3><p>De Shopify-vs-Meta vergelijking wordt gevuld zodra Redis lifecycle data of Shopify orderdata beschikbaar is.</p></article>';
     }
     var body = rows.map(function (row) {
+      var pairLabel = row.pair_browser_seen
+        ? esc(row.pair_confirmed) + '/' + esc(row.pair_browser_seen) + ' (' + esc(row.pair_coverage_pct) + '%)'
+        : '0/0';
+      var pairSub = row.pair_wilson95_lower_pct !== null && row.pair_wilson95_lower_pct !== undefined
+        ? 'Wilson95 ' + esc(row.pair_wilson95_lower_pct) + '% / ' + esc(row.pair_severity)
+        : 'geen browser sample / ' + esc(row.pair_severity);
       return '<tr class="cmp-' + esc(row.status) + '">' +
         '<td><strong>' + esc(row.event) + '</strong><span>' + esc(row.shopify_source) + '</span></td>' +
-        '<td>' + esc(row.shopify) + '</td>' +
-        '<td>' + esc(row.capi_browser) + ' / ' + esc(row.capi_server) + '</td>' +
+        '<td>' + esc(row.shopify) + '<span>Customer events ' + esc(row.shopify_customer_events || 0) + '</span></td>' +
+        '<td>' + esc(row.capi_browser) + ' / ' + esc(row.capi_server) + '<span>Ingress ' + esc(row.capi_ingress || 0) + '</span></td>' +
+        '<td>' + pairLabel + '<span>' + pairSub + '</span></td>' +
         '<td>' + esc(row.meta_confirmed) + '<span>EMQ ' + esc(row.meta_emq) + ' / lifecycle ' + esc(row.meta_lifecycle_confirmed) + '</span></td>' +
         '<td>' + esc(row.difference > 0 ? '+' + row.difference : row.difference) + '</td>' +
         '<td>' + esc(row.retry_pending) + '</td>' +
@@ -607,11 +748,11 @@ function renderDashboard(data, querySecret, fragmentsOnly) {
     }).join('');
     var note = cmp.shopify_error
       ? '<p class="cmp-note">Shopify Admin ordercount niet beschikbaar: ' + esc(cmp.shopify_error) + '</p>'
-      : '<p class="cmp-note">Purchase gebruikt Shopify Admin orders als commerciele bron. Andere funnelstappen gebruiken Shopify pixel/webhook ingangssignalen tegenover Meta CAPI lifecycle.</p>';
+      : '<p class="cmp-note">Purchase gebruikt Shopify Admin paid orders als commerciele bron. Andere funnelstappen gebruiken Shopify Customer Events Web Pixel; CAPI ingress staat apart als delivery-check.</p>';
     if (cmp.cached) note += '<p class="cmp-note">Vergelijking komt uit korte dashboardcache zodat de 1-seconde refresh snel blijft.</p>';
     return '<article class="comparison-panel">' +
       '<div class="comparison-head"><div><h3>Shopify vs Meta Dataverschil</h3><p>Per event: wat Shopify/CAPI binnen ziet versus wat Meta CAPI bevestigd heeft.</p></div><span>' + esc(cmp.date || data.emq.todayDate) + '</span></div>' +
-      '<div class="comparison-scroll"><table class="comparison-table"><thead><tr><th>Event</th><th>Shopify bron</th><th>CAPI browser/server</th><th>Meta gemeten</th><th>Verschil</th><th>Retry</th><th>Diagnose</th></tr></thead><tbody>' + body + '</tbody></table></div>' +
+      '<div class="comparison-scroll"><table class="comparison-table"><thead><tr><th>Event</th><th>Shopify bron</th><th>CAPI browser/server</th><th>Pair ledger</th><th>Meta gemeten</th><th>Verschil</th><th>Retry</th><th>Diagnose</th></tr></thead><tbody>' + body + '</tbody></table></div>' +
       note +
       '</article>';
   }
@@ -620,6 +761,7 @@ function renderDashboard(data, querySecret, fragmentsOnly) {
     return {
       timestamp: data.timestamp,
       layoutVersion: data.dashboardLayoutVersion || DASHBOARD_LAYOUT_VERSION,
+      ledger: data.ledger || null,
       critical: criticalCards(),
       comparison: comparisonMarkup(),
       trackingHub: trackingHubMarkup(),

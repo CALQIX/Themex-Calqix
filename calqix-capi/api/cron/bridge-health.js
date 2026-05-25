@@ -12,6 +12,12 @@ var dates = require('../../lib/dates');
 var { sendTelegram } = require('../../lib/telegram');
 var alertDedup = require('../../lib/alert-dedup');
 
+function bucketPercent(value, step) {
+  var n = Math.max(0, Math.round(Number(value) || 0));
+  var size = step || 10;
+  return Math.floor(n / size) * size;
+}
+
 module.exports = async function (req, res) {
   try {
     var secret = process.env.CRON_SECRET;
@@ -68,7 +74,8 @@ module.exports = async function (req, res) {
 
     // Alert if needed
     if (priority) {
-      var alertResult = await alertDedup.shouldAlert('bridge-health', 'system', 'capture', 'drop_' + Math.round(dropPct) + 'pct', priority);
+      var issueBucket = 'drop_' + bucketPercent(dropPct, 10) + 'pct_' + priority.toLowerCase();
+      var alertResult = await alertDedup.shouldAlert('bridge-health', 'system', 'capture', issueBucket, priority);
       if (alertResult.send) {
         var msg = alertDedup.formatAlertPrefix(priority, alertResult.suppressed) +
           ' Bridge Health\n\n' +

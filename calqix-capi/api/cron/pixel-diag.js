@@ -13,6 +13,13 @@ var rlFetch = require('../../lib/rate-limited-fetch');
 var { sendTelegram } = require('../../lib/telegram');
 var alertDedup = require('../../lib/alert-dedup');
 
+function sanitizeMetaStats(data) {
+  if (!data || typeof data !== 'object') return data;
+  return {
+    data: Array.isArray(data.data) ? data.data : []
+  };
+}
+
 module.exports = async function (req, res) {
   try {
     var secret = process.env.CRON_SECRET;
@@ -43,7 +50,7 @@ module.exports = async function (req, res) {
         results.meta = {
           ok: metaResult.ok,
           status: metaResult.status,
-          data: metaResult.data
+          data: sanitizeMetaStats(metaResult.data)
         };
       } catch (e) {
         results.meta = { ok: false, error: e.message };

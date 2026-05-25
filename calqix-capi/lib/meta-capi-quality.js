@@ -34,7 +34,7 @@ var EVENT_PROFILES = {
     identityFloor: 2
   },
   InitiateCheckout: {
-    prefix: /^ic_/,
+    prefix: /^ic_(?!cart_)/,
     minFbp: 80,
     minFbc: 20,
     requiredCustom: ['content_ids', 'content_type', 'value', 'currency'],
@@ -227,18 +227,22 @@ function evaluate(context) {
 }
 
 function summarize(recommendations, coverage, payloadAudit, sourceAudit, scheduleAudit) {
+  var uniqueRecommendations = dedupe(recommendations);
   var score = 100;
-  recommendations.forEach(function (rec) {
+  uniqueRecommendations.forEach(function (rec) {
     if (rec.priority === 'P0') score -= 35;
     else if (rec.priority === 'P1') score -= 18;
     else if (rec.priority === 'P2') score -= 7;
   });
   score = Math.max(0, score);
-  var highest = highestPriority(recommendations);
+  var highest = highestPriority(uniqueRecommendations);
+  if (highest !== 'P0') score = Math.max(score, 35);
 
   return {
     status: highest === 'OK' ? 'ok' : 'warn',
     score: score,
+    score_label: 'Meta CAPI normscore (geen Meta EMQ)',
+    score_reason: 'Interne conformiteitscheck op Meta CAPI signalen; echte EMQ blijft per event in Meta Events Manager.',
     highest_priority: highest,
     meta_standard_version: META_STANDARD_VERSION,
     standard_prompt: buildStandardPrompt(),
@@ -249,7 +253,7 @@ function summarize(recommendations, coverage, payloadAudit, sourceAudit, schedul
     source_counts: sourceAudit || {},
     payload_quality: payloadAudit || {},
     schedule_health: scheduleAudit || {},
-    recommendations: dedupe(recommendations).slice(0, 10),
+    recommendations: uniqueRecommendations.slice(0, 10),
     meta_docs: DOCS
   };
 }
@@ -287,6 +291,7 @@ function buildCoverageTargets() {
       required_custom_data: profile.requiredCustom || [],
       preferred_custom_data: profile.preferredCustom || [],
       event_id_prefix: String(profile.prefix || ''),
+      required_server_fields: ['event_name', 'event_time', 'event_id', 'event_source_url', 'action_source'],
       min_identifier_groups: profile.identityFloor || 1
     };
   });
@@ -337,6 +342,17 @@ function addPayloadRecommendations(recommendations, payloadAudit) {
         eventName + ' mist event_source_url in payload audit',
         'Voor website action_source altijd de echte pagina/checkout URL meesturen.',
         row.source_url_missing + '/' + total + ' payloads zonder source_url',
+        DOCS[0]
+      ));
+    }
+
+    if (Number(row.event_time) < total) {
+      recommendations.push(issue(
+        'P1',
+        'meta_event_time_missing',
+        eventName + ' mist originele event_time',
+        'Bewaar het originele klantactie-moment en hergebruik dat bij recovery/backfill; niet opnieuw Date.now() op retries.',
+        'event_time ' + pctValue(Number(row.event_time) || 0, total) + '% over ' + total + ' payloads',
         DOCS[0]
       ));
     }

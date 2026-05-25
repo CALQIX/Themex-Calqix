@@ -12,6 +12,16 @@ var dates = require('../../lib/dates');
 var { sendTelegram } = require('../../lib/telegram');
 var alertDedup = require('../../lib/alert-dedup');
 
+function bucketPercent(value, step) {
+  var n = Math.max(0, Math.round(Number(value) || 0));
+  var size = step || 10;
+  return Math.floor(n / size) * size;
+}
+
+function isEnabled(value) {
+  return String(value || '').trim().toLowerCase() === 'true';
+}
+
 module.exports = async function (req, res) {
   try {
     var secret = process.env.CRON_SECRET;
@@ -27,22 +37,21 @@ module.exports = async function (req, res) {
     }
 
     // Count dedup hits and total sends per platform in last 30 min
-    var platforms = ['meta', 'ga', 'tt'];
+    var platforms = ['meta'];
+    if (isEnabled(process.env.GA4_ENABLED) || isEnabled(process.env.GOOGLE_ENABLED)) {
+      platforms.push('ga');
+    }
+    if (isEnabled(process.env.TIKTOK_ENABLED)) {
+      platforms.push('tt');
+    }
     var platformLabels = { meta: 'Meta', ga: 'Google', tt: 'TikTok' };
     var stats = {};
 
     for (var p = 0; p < platforms.length; p++) {
       var platform = platforms[p];
-      var prefix = 'processed:' + platform + ':';
-
-      // Count keys (approximate via scan)
-      var count = 0;
-      var cursor = '0';
-      do {
-        var scanResult = await redis.scan(cursor, { match: prefix + '*', count: 100 });
-        cursor = scanResult[0];
-        count += (scanResult[1] || []).length;
-      } while (cursor !== '0' && count < 10000);
+      var count = platform === 'meta'
+        ? await countConfirmedMetaEvents(redis)
+        : await countProcessedKeys(redis, 'processed:' + platform + ':');
 
       stats[platform] = {
         dedupKeys: count,
@@ -82,7 +91,8 @@ module.exports = async function (req, res) {
 
     if (maxDelta > 10 && metaCount > 10) {
       var priority = maxDelta > 20 ? 'P1' : 'P2';
-      var alertResult = await alertDedup.shouldAlert('dedup-audit', worstPlatform, '*', 'delta_' + maxDelta + 'pct', priority);
+      var issueBucket = 'delta_' + bucketPercent(maxDelta, 10) + 'pct_' + priority.toLowerCase();
+      var alertResult = await alertDedup.shouldAlert('dedup-audit', worstPlatform, '*', issueBucket, priority);
 
       if (alertResult.send) {
         var msg = alertDedup.formatAlertPrefix(priority, alertResult.suppressed) +
@@ -108,3 +118,34 @@ module.exports = async function (req, res) {
     return res.status(200).json({ ok: false, error: err.message });
   }
 };
+
+async function countProcessedKeys(redis, prefix) {
+  var count = 0;
+  var cursor = '0';
+  do {
+    var scanResult = await redis.scan(cursor, { match: prefix + '*', count: 100 });
+    cursor = scanResult[0];
+    count += (scanResult[1] || []).length;
+  } while (cursor !== '0' && count < 10000);
+  return count;
+}
+
+async function countConfirmedMetaEvents(redis) {
+  var count = 0;
+  var cursor = '0';
+  var scanned = 0;
+  do {
+    var scanResult = await redis.scan(cursor, { match: 'meta:event:*', count: 100 });
+    cursor = scanResult[0];
+    var keys = scanResult[1] || [];
+    for (var i = 0; i < keys.length && scanned < 10000; i++) {
+      scanned++;
+      var raw = await redis.get(keys[i]);
+      if (!raw) continue;
+      var event;
+      try { event = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch (e) { continue; }
+      if (event.state === 'confirmed' || event.state === 'recovered') count++;
+    }
+  } while (cursor !== '0' && scanned < 10000);
+  return count;
+}

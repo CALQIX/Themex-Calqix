@@ -357,8 +357,28 @@ function extractMetaBrowserIds(payload) {
   return result;
 }
 
+function extractMetaUserAttributes(payload) {
+  if (!payload || typeof payload !== 'object') return {};
+
+  const noteAttributes =
+    payload.note_attributes || payload.attributes || [];
+
+  const result = {};
+  const db = getNoteAttribute(noteAttributes, '_meta_db');
+  const st = getNoteAttribute(noteAttributes, '_meta_st');
+
+  if (db) result.date_of_birth = db;
+  if (st) result.state = st;
+  return result;
+}
+
 function extractExternalId(payload) {
   if (!payload || typeof payload !== 'object') return undefined;
+
+  const noteAttributes =
+    payload.note_attributes || payload.attributes || [];
+  const metaExternalId = getNoteAttribute(noteAttributes, '_meta_external_id');
+  if (metaExternalId) return String(metaExternalId);
 
   const customerId =
     (payload.customer && payload.customer.id) || payload.customer_id;
@@ -373,6 +393,7 @@ module.exports = {
   extractContentIds,
   extractExternalId,
   extractMetaBrowserIds,
+  extractMetaUserAttributes,
   getClientIp,
   getUserAgent,
   mergeCustomerData,

@@ -9,6 +9,7 @@ const multiPlatform = require('../lib/multi-platform-send');
 const capiDiag = require('../lib/capi-diagnostics');
 const bridgeVersionTracker = require('../lib/bridge-version-tracker');
 const eventStats = require('../lib/event-stats');
+const qualityLedger = require('../lib/meta-quality-ledger');
 
 const SOURCE_URL_BASE = 'https://www.calqix.com/products/';
 const ALLOWED_ORIGINS = ['https://calqix.com', 'https://www.calqix.com'];
@@ -72,10 +73,19 @@ async function handler(req, res) {
       return res.status(400).json({ error: 'product_id or variant_id required' });
     }
 
-    const eventId = body.event_id || ('vc_' + (productId || variantId) + '_' + Date.now());
-    const sourceUrl = productHandle
+    if (!body.event_id) {
+      return res.status(422).json({
+        received: true,
+        processed: false,
+        error: 'event_id required for browser_bridge dedup'
+      });
+    }
+
+    const eventId = body.event_id;
+    const eventTime = body.event_time || body.eventTime || body.timestamp || body.event_timestamp;
+    const sourceUrl = body.source_url || body.url || body.page_url || (productHandle
       ? SOURCE_URL_BASE + productHandle
-      : SOURCE_URL_BASE;
+      : SOURCE_URL_BASE);
 
     // Dedup check using event_id
     if (await isDuplicate('ViewContent', eventId)) {
@@ -89,14 +99,17 @@ async function handler(req, res) {
     if (body.phone) customerData.phone = body.phone;
     if (body.first_name) customerData.first_name = body.first_name;
     if (body.last_name) customerData.last_name = body.last_name;
-    if (body.city) customerData.city = body.city;
-    if (body.state) customerData.state = body.state;
-    if (body.zip) customerData.zip = body.zip;
+    if (body.city || body.ct || body.town) customerData.city = body.city || body.ct || body.town;
+    if (body.state || body.st || body.province || body.province_code) customerData.state = body.state || body.st || body.province || body.province_code;
+    if (body.date_of_birth || body.birthday || body.db) customerData.date_of_birth = body.date_of_birth || body.birthday || body.db;
+    if (body.zip || body.zp || body.postal_code) customerData.zip = body.zip || body.zp || body.postal_code;
     if (body.external_id) customerData.external_id = body.external_id;
-    if (body.country_code) customerData.country_code = body.country_code;
+    if (body.country_code || body.country) customerData.country_code = body.country_code || body.country;
 
-    const clientIp = extractClientIP(req, body.client_ip);
+    const clientIp = extractClientIP(req, body.client_ipv6 || body.client_ip || body.ip);
     const clientUserAgent =
+      body.browser_user_agent ||
+      body.client_user_agent ||
       (req.headers && req.headers['user-agent']) ||
       undefined;
 
@@ -149,6 +162,7 @@ async function handler(req, res) {
       ph: Boolean(userData.ph),
       fn: Boolean(userData.fn),
       ln: Boolean(userData.ln),
+      db: Boolean(userData.db),
       ct: Boolean(userData.ct),
       st: Boolean(userData.st),
       zp: Boolean(userData.zp),
@@ -157,9 +171,9 @@ async function handler(req, res) {
       external_id: Boolean(userData.external_id)
     };
 
-    await eventState.recordReceived(eventId, 'ViewContent', 'browser_bridge', eventId);
-    await eventState.storeEventPayload(eventId, userData, customData, sourceUrl);
-    const result = await sendEvent('ViewContent', eventId, sourceUrl, userData, customData);
+    await eventState.recordReceived(eventId, 'ViewContent', 'browser_bridge', eventId, eventTime);
+    await eventState.storeEventPayload(eventId, userData, customData, sourceUrl, eventTime);
+    const result = await sendEvent('ViewContent', eventId, sourceUrl, userData, customData, { eventTime: eventTime });
     await eventState.recordSent(eventId, result);
     await markProcessed('ViewContent', eventId);
 
@@ -180,8 +194,39 @@ async function handler(req, res) {
       });
     } catch (e) { /* diagnostics are non-critical */ }
 
+    try {
+      await qualityLedger.recordServerEvent({
+        event_name: 'ViewContent',
+        event_id: eventId,
+        event_time: eventTime,
+        source: 'browser_bridge',
+        user_data: userData,
+        custom_data: customData,
+        source_url: sourceUrl,
+        meta_result: result
+      });
+    } catch (e) { /* ledger is non-critical for event delivery */ }
+
     // Multi-platform: Klaviyo + GA4 (non-blocking)
     try {
+      if (body.external_id && (body.fbc || body.fbp)) {
+        await store.setCustomerIdentity(String(body.external_id), {
+          fbc: body.fbc,
+          fbp: body.fbp,
+          client_ip: clientIp,
+          client_user_agent: clientUserAgent,
+          email: body.email,
+          phone: body.phone,
+          first_name: body.first_name,
+          last_name: body.last_name,
+          city: body.city,
+          state: body.state || body.st || body.province || body.province_code,
+          date_of_birth: body.date_of_birth || body.birthday || body.db,
+          zip: body.zip || body.zp || body.postal_code,
+          country_code: body.country_code || body.country
+        });
+      }
+
       await multiPlatform.sendViewContent({
         eventId: eventId,
         customData: customData,
@@ -191,11 +236,12 @@ async function handler(req, res) {
           phone: body.phone || undefined,
           first_name: body.first_name || undefined,
           last_name: body.last_name || undefined,
-          city: body.city || undefined,
-          state: body.state || undefined,
-          zip: body.zip || undefined,
+          city: body.city || body.ct || body.town || undefined,
+          state: body.state || body.st || body.province || body.province_code || undefined,
+          date_of_birth: body.date_of_birth || body.birthday || body.db || undefined,
+          zip: body.zip || body.zp || body.postal_code || undefined,
           external_id: body.external_id || undefined,
-          country_code: body.country_code || undefined
+          country_code: body.country_code || body.country || undefined
         },
         userId: body.external_id || undefined,
         clientId: body.ga_client_id || body.client_id || undefined

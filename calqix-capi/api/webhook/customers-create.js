@@ -8,6 +8,7 @@ const { sendEvent } = require('../../lib/meta-capi');
 const eventState = require('../../lib/event-state');
 const multiPlatform = require('../../lib/multi-platform-send');
 const eventStats = require('../../lib/event-stats');
+const qualityLedger = require('../../lib/meta-quality-ledger');
 const {
   extractExternalId,
   extractMetaBrowserIds,
@@ -32,34 +33,40 @@ const SOURCE_URL = 'https://www.calqix.com/account/register';
 const CQ_PROFILE_PATTERN = /CQ_PROFILE:([^\n]*)/;
 const ALLOWED_GENDERS = ['male', 'female', 'other', 'prefer_not_to_say'];
 
+function parseProfilePayloadFromNote(note) {
+  if (!note) return {};
+  const match = String(note).match(CQ_PROFILE_PATTERN);
+  if (!match) return {};
+
+  const parts = String(match[1] || '')
+    .split(';')
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  const payload = {};
+  for (const part of parts) {
+    const eq = part.indexOf('=');
+    if (eq === -1) continue;
+    const key = part.slice(0, eq).trim().toLowerCase();
+    const value = part.slice(eq + 1).trim();
+    if (!key || !value) continue;
+
+    if (key === 'birthday') {
+      const iso = /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : null;
+      if (iso) payload.birthday = iso;
+    } else if (key === 'gender') {
+      const g = value.toLowerCase();
+      if (ALLOWED_GENDERS.includes(g)) payload.gender = g;
+    }
+  }
+  return payload;
+}
+
 async function persistProfileMetafieldsFromNote(customer) {
   try {
     if (!customer || !customer.id || !customer.note) return;
 
-    const match = customer.note.match(CQ_PROFILE_PATTERN);
-    if (!match) return;
-
-    const parts = String(match[1] || '')
-      .split(';')
-      .map((p) => p.trim())
-      .filter(Boolean);
-
-    const payload = {};
-    for (const part of parts) {
-      const eq = part.indexOf('=');
-      if (eq === -1) continue;
-      const key = part.slice(0, eq).trim().toLowerCase();
-      const value = part.slice(eq + 1).trim();
-      if (!key || !value) continue;
-
-      if (key === 'birthday') {
-        const iso = /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : null;
-        if (iso) payload.birthday = iso;
-      } else if (key === 'gender') {
-        const g = value.toLowerCase();
-        if (ALLOWED_GENDERS.includes(g)) payload.gender = g;
-      }
-    }
+    const payload = parseProfilePayloadFromNote(customer.note);
 
     if (Object.keys(payload).length === 0) return;
 
@@ -133,6 +140,7 @@ async function persistProfileMetafieldsFromNote(customer) {
 }
 
 function buildCustomerUserData(customer, fallbackIp, fallbackUserAgent) {
+  const profile = parseProfilePayloadFromNote(customer && customer.note);
   const mergedCustomer = mergeCustomerData(
     customer,
     customer && customer.default_address,
@@ -156,6 +164,9 @@ function buildCustomerUserData(customer, fallbackIp, fallbackUserAgent) {
       zip: customer && customer.default_address && customer.default_address.zip,
       country_code:
         customer && customer.default_address && customer.default_address.country_code
+    },
+    {
+      birthday: profile.birthday
     },
     extractMetaBrowserIds(customer),
     {
@@ -192,16 +203,28 @@ async function handler(req, res) {
     }
 
     const eventId = `lead_${customer.id}`;
+    const eventTime = customer.created_at || customer.updated_at;
     const userData = buildCustomerUserData(customer, verification.clientIp, verification.userAgent);
     const customData = {
       content_name: 'Customer Registration'
     };
 
-    await eventState.recordReceived(eventId, 'Lead', 'webhook', String(customer.id));
+    await eventState.recordReceived(eventId, 'Lead', 'webhook', String(customer.id), eventTime);
     await eventStats.incrementEventStat('Lead', 'server');
-    var metaResult = await sendEvent('Lead', eventId, SOURCE_URL, userData, customData);
+    await eventState.storeEventPayload(eventId, userData, customData, SOURCE_URL, eventTime);
+    var metaResult = await sendEvent('Lead', eventId, SOURCE_URL, userData, customData, { eventTime: eventTime });
     await eventState.recordSent(eventId, metaResult);
     await markProcessed('Lead', String(customer.id));
+    await qualityLedger.recordServerEvent({
+      event_name: 'Lead',
+      event_id: eventId,
+      event_time: eventTime,
+      source: 'webhook',
+      user_data: userData,
+      custom_data: customData,
+      source_url: SOURCE_URL,
+      meta_result: metaResult
+    });
 
     // Persist optional profile fields (birthday + gender) captured via storefront note marker.
     // Intentionally not awaited — fire-and-forget so Lead response is not blocked on metafield writes.

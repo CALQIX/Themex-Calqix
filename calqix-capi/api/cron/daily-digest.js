@@ -48,8 +48,11 @@ function titleCase(s) {
 
 // --- Section builders --------------------------------------------------
 
-async function buildAlertSection() {
-  var buffered = await alertDedup.flushDigestQueue();
+async function buildAlertSection(options) {
+  var opts = options || {};
+  var buffered = opts.flush === false
+    ? await alertDedup.peekDigestQueue()
+    : await alertDedup.flushDigestQueue();
   var yesterday = yesterdayKey();
   var historyKey = 'alert:history:' + yesterday;
   var p2History = [];
@@ -315,7 +318,8 @@ module.exports = async function (req, res) {
     await store.set(LOCK_KEY, '1', LOCK_TTL);
 
     try {
-      var alertSection = await buildAlertSection();
+      var dryRun = !!(req.query && req.query.dry_run);
+      var alertSection = await buildAlertSection({ flush: !dryRun });
       var systemSection = await buildSystemHealthSection();
       var eventsSection = await buildEventsSection();
       var adsSection = await buildAdsRadarSection();
@@ -335,7 +339,6 @@ module.exports = async function (req, res) {
       }
 
       // Honour dry_run for probes.
-      var dryRun = !!(req.query && req.query.dry_run);
       var tg = { sent: false, reason: dryRun ? 'dry_run' : null };
       if (!dryRun) {
         tg = await sendTelegram(body);
