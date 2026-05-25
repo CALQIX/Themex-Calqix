@@ -231,10 +231,24 @@
     </div>
     <div class="gp-faq-list">
       {%- for index in (1..8) -%}
-        <details class="gp-faq-item">
-          <summary>{{ 'calqix_glow_pro.faq.q_' | append: index | t }}</summary>
-          <div>{{ 'calqix_glow_pro.faq.a_' | append: index | t }}</div>
-        </details>
+        <div class="gp-faq-item" data-gp-faq-item data-animate style="transition-delay: {{ forloop.index0 | times: 0.06 }}s">
+          <button
+            class="gp-faq-trigger"
+            type="button"
+            aria-expanded="false"
+            aria-controls="gp-faq-answer-{{ section.id }}-{{ index }}"
+          >
+            <span class="gp-faq-number">{{ index | prepend: '00' | slice: -2, 2 }}</span>
+            <span class="gp-faq-question">{{ 'calqix_glow_pro.faq.q_' | append: index | t }}</span>
+            <span class="gp-faq-icon" aria-hidden="true">
+              <svg class="gp-faq-icon__line-h" width="20" height="20" viewBox="0 0 20 20"><line x1="4" y1="10" x2="16" y2="10" stroke="#C9A84C" stroke-width="2" stroke-linecap="round"/></svg>
+              <svg class="gp-faq-icon__line-v" width="20" height="20" viewBox="0 0 20 20"><line x1="10" y1="4" x2="10" y2="16" stroke="#C9A84C" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+          </button>
+          <div class="gp-faq-answer" id="gp-faq-answer-{{ section.id }}-{{ index }}">
+            <div class="gp-faq-answer__inner">{{ 'calqix_glow_pro.faq.a_' | append: index | t }}</div>
+          </div>
+        </div>
       {%- endfor -%}
     </div>
   </div>
