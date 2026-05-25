@@ -4,7 +4,7 @@
  * 1. Persists fbclid from URL into _fbc cookie (Meta format)
  * 2. Reads _fbc and _fbp cookies set by the Meta pixel
  * 3. Stores them as Shopify cart attributes so checkout/order webhooks can forward them
- * 4. Fires server-side ViewContent and AddToCart events with fbc/fbp/email for high match quality
+ * 4. Fires server-side ViewContent and keeps cart identity attributes warm
  * 5. Provides event_id generation for browser pixel → server deduplication
  */
 (function () {
@@ -15,7 +15,8 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-05-25-quality-ledger-a';
+  var BRIDGE_VERSION = '2026-05-25-addtocart-parity-a';
+  var ENABLE_THEME_ADD_TO_CART_META_FALLBACK = false;
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
   var BROWSER_LEDGER_URL = CAPI_BASE + '/meta-browser-event';
@@ -641,18 +642,21 @@
       event_time: Math.floor(Date.now() / 1000)
     };
 
-    postKeepAlive(CAPI_BASE + '/add-to-cart', payload);
+    if (ENABLE_THEME_ADD_TO_CART_META_FALLBACK) {
+      payload.source = 'theme_bridge_fallback';
+      postKeepAlive(CAPI_BASE + '/add-to-cart', payload);
 
-    if (typeof fbq === 'function') {
-      var addToCartData = {
-        content_ids: contentIds,
-        content_type: contentType,
-        contents: contents,
-        value: payload.value,
-        currency: currency
-      };
-      fbq('track', 'AddToCart', addToCartData, { eventID: eventId });
-      auditBrowserEvent('AddToCart', eventId, addToCartData, userPayload);
+      if (typeof fbq === 'function') {
+        var addToCartData = {
+          content_ids: contentIds,
+          content_type: contentType,
+          contents: contents,
+          value: payload.value,
+          currency: currency
+        };
+        fbq('track', 'AddToCart', addToCartData, { eventID: eventId });
+        auditBrowserEvent('AddToCart', eventId, addToCartData, userPayload);
+      }
     }
 
     syncCartAttributes();
@@ -1087,6 +1091,7 @@
   /*  Expose public API                                                  */
   /* ------------------------------------------------------------------ */
 
+  window.CALQIX_META_BRIDGE_VERSION = BRIDGE_VERSION;
   window.calqixMeta = {
     BRIDGE_VERSION: BRIDGE_VERSION,
     getCookie: getCookie,
