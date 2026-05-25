@@ -46,7 +46,7 @@
         "calqix_subtitle_ob01": {
           "type": "calqix_subtitle",
           "settings": {
-            "subtitle": "<p>Keep your whitening protocol stocked with the same PAP+ gel and nHAp recovery serum. Same formula, no extra hardware needed.</p>"
+            "subtitle": "<p>Keep your Glow Pro routine stocked with replacement whitening gel. Use it only with the Glow Pro LED device and tray you already own.</p>"
           }
         },
         "price": {
@@ -98,17 +98,17 @@
             "show_badge": false,
             "badge_text": "STEP 3 OF THE CALQIX ROUTINE",
             "usp_1_icon": "microbiome",
-            "usp_1_title": "Clinically backed",
-            "usp_1_subtitle": "PAP+ and nHAp",
+            "usp_1_title": "LED-assisted routine",
+            "usp_1_subtitle": "Blue light device",
             "usp_2_icon": "breath-target",
-            "usp_2_title": "Peroxide-free",
-            "usp_2_subtitle": "EU home-use compliant",
+            "usp_2_title": "Whitening gel",
+            "usp_2_subtitle": "Final INCI pending",
             "usp_3_icon": "breath-target",
-            "usp_3_title": "Enamel-safe support",
-            "usp_3_subtitle": "With nHAp recovery",
+            "usp_3_title": "Shade tracking",
+            "usp_3_subtitle": "Guide included",
             "usp_4_icon": "calendar-30",
             "usp_4_title": "Refill-ready",
-            "usp_4_subtitle": "No extra hardware"
+            "usp_4_subtitle": "Gel only"
           }
         },
         "calqix_colour_switcher_LDTXY9": {
@@ -183,13 +183,14 @@
         },
         "calqix_cert_badges_ob01": {
           "type": "calqix_cert_badges",
+          "disabled": true,
           "settings": {
             "show_toxicology": false,
             "show_iso22000": false,
             "show_gmp": false,
             "show_haccp": false,
-            "show_cpnp": true,
-            "show_vegan": true,
+            "show_cpnp": false,
+            "show_vegan": false,
             "show_made_in_nl": false,
             "badge_size": 82,
             "badge_size_mobile": 68,
@@ -233,7 +234,7 @@
         "calqix_compliance_note_ob01": {
           "type": "calqix_compliance_note",
           "settings": {
-            "text": "Cosmetic whitening product for adults. Contains PAP+ and nano-hydroxyapatite. Not for use under 18. Full INCI follows on pack and product details.",
+            "text": "Adult cosmetic whitening routine. Final INCI, supplier documents and approved usage directions must be confirmed before publication.",
             "background_color": "#f7f5f2",
             "text_color": "#5a6a7a",
             "font_size": 12
