@@ -7,9 +7,16 @@
   --gp-gold: #C9A961;
   --gp-line: rgba(0, 37, 73, 0.14);
   --gp-panel: rgba(255, 255, 255, 0.82);
+  --gp-h2: clamp(32px, 3.4vw, 52px);
+  --gp-h2-compact: clamp(28px, 2.6vw, 40px);
+  --gp-h3: clamp(20px, 2vw, 26px);
   color: var(--gp-ink);
   background:
-    linear-gradient(180deg, #ffffff 0%, #f7fbff 44%, #ffffff 100%);
+    linear-gradient(rgba(0, 37, 73, .045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 37, 73, .045) 1px, transparent 1px),
+    radial-gradient(circle at 18% 8%, rgba(217, 236, 255, .62), transparent 30%),
+    linear-gradient(180deg, #f6fbff 0%, #ffffff 38%, #edf6ff 100%);
+  background-size: 42px 42px, 42px 42px, auto, auto;
   overflow: hidden;
 }
 
@@ -71,18 +78,18 @@
   margin: 0;
   color: var(--gp-blue);
   font-family: "DM Serif Display", Georgia, serif;
-  font-size: clamp(34px, 5vw, 66px);
+  font-size: var(--gp-h2);
   font-weight: 400;
-  line-height: .95;
+  line-height: 1.04;
 }
 
 .gp h3 {
   margin: 0;
   color: var(--gp-blue);
   font-family: "DM Serif Display", Georgia, serif;
-  font-size: 25px;
+  font-size: var(--gp-h3);
   font-weight: 400;
-  line-height: 1.05;
+  line-height: 1.1;
 }
 
 .gp p {
@@ -115,8 +122,8 @@
 .gp-crosslink-card {
   border: 1px solid var(--gp-line);
   background: linear-gradient(145deg, rgba(255,255,255,.92), rgba(245,248,252,.72));
-  box-shadow: 0 22px 56px rgba(0, 37, 73, .08);
-  backdrop-filter: blur(8px);
+  box-shadow: 0 18px 44px rgba(0, 37, 73, .07);
+  backdrop-filter: blur(6px);
 }
 
 .gp-card {
@@ -156,11 +163,30 @@
 }
 
 .gp-approach {
+  position: relative;
   width: 100%;
   max-width: none;
   padding-inline: max(20px, calc((100vw - 1220px) / 2));
   background: var(--gp-navy);
   color: #fff;
+}
+
+.gp-approach::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px),
+    radial-gradient(circle at 72% 18%, rgba(201,169,97,.18), transparent 30%);
+  background-size: 42px 42px, 42px 42px, auto;
+  opacity: .8;
+}
+
+.gp-approach > * {
+  position: relative;
+  z-index: 1;
 }
 
 .gp-approach .gp-eyebrow,
@@ -456,6 +482,82 @@
   background: #123f68;
 }
 
+.cq-glow-refill-addon {
+  width: 100%;
+  margin: 8px auto 4px;
+}
+
+.cq-glow-refill-addon__label,
+.cq-glow-refill-addon__fallback {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 72px;
+  padding: 14px 16px;
+  border: 1px solid rgba(0, 37, 73, .16);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.96), rgba(246,250,255,.82));
+  box-shadow: 0 14px 38px rgba(0, 37, 73, .08);
+  color: #002549;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+}
+
+.cq-glow-refill-addon__label:hover,
+.cq-glow-refill-addon__fallback:hover {
+  transform: translateY(-1px);
+  border-color: rgba(201, 169, 97, .62);
+  box-shadow: 0 18px 44px rgba(0, 37, 73, .1);
+}
+
+.cq-glow-refill-addon__input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cq-glow-refill-addon__control {
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(0, 37, 73, .28);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: inset 0 0 0 5px #fff;
+  transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+
+.cq-glow-refill-addon__input:checked + .cq-glow-refill-addon__control {
+  border-color: #C9A961;
+  background: #C9A961;
+  box-shadow: inset 0 0 0 5px #fff, 0 0 0 5px rgba(201, 169, 97, .16);
+}
+
+.cq-glow-refill-addon__copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cq-glow-refill-addon__copy strong {
+  color: #002549;
+  font: 800 14px/1.22 "DM Sans", system-ui, sans-serif;
+}
+
+.cq-glow-refill-addon__copy small {
+  color: #64748b;
+  font: 600 12px/1.45 "DM Sans", system-ui, sans-serif;
+}
+
+.cq-glow-refill-addon__price {
+  color: #002549;
+  font: 400 20px/1 "DM Serif Display", Georgia, serif;
+  white-space: nowrap;
+}
+
 .gp-faq {
   width: 100%;
   max-width: none;
@@ -477,8 +579,8 @@
 
 .gp-faq .gp-header h2 {
   color: #1A3B5C;
-  font-size: 36px;
-  line-height: 1.3;
+  font-size: clamp(40px, 4.1vw, 54px);
+  line-height: 1.02;
 }
 
 .gp-faq-list {
@@ -698,11 +800,12 @@
   }
 
   .gp h2 {
-    font-size: clamp(34px, 10vw, 46px);
+    font-size: clamp(30px, 8vw, 40px);
+    line-height: 1.06;
   }
 
   .gp h3 {
-    font-size: 22px;
+    font-size: 21px;
   }
 
   .gp p {
@@ -718,8 +821,8 @@
   }
 
   .gp-faq .gp-header h2 {
-    font-size: 28px;
-    line-height: 1.3;
+    font-size: 38px;
+    line-height: 1.04;
   }
 
   .gp-faq-trigger {
@@ -760,6 +863,24 @@
   .gp-citation {
     min-height: auto;
     padding: 24px;
+  }
+
+  .cq-glow-refill-addon {
+    margin-top: 6px;
+  }
+
+  .cq-glow-refill-addon__label,
+  .cq-glow-refill-addon__fallback {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    min-height: 68px;
+    padding: 12px 14px;
+    border-radius: 16px;
+  }
+
+  .cq-glow-refill-addon__price {
+    grid-column: 2;
+    font-size: 18px;
   }
 
   .gp-timeline {

@@ -59,17 +59,69 @@ if (!customElements.get("product-form")) {
         delete config.headers["Content-Type"];
 
         const formData = new FormData(this.form);
+        const productVariantId = formData.get("id");
+        const productInfoContainer = this.closest(".product__info-container");
+        const addOnInputs = Array.from(
+          productInfoContainer?.querySelectorAll("[data-cq-addon-variant-id]:checked") || [],
+        ).filter((input) => input.dataset.cqAddonVariantId);
+        const sectionsToRender =
+          this.cart && typeof this.cart.getSectionsToRender === "function"
+            ? this.cart.getSectionsToRender().map((section) => section.id)
+            : [];
+
         if (this.cart && typeof this.cart.getSectionsToRender === "function") {
-          formData.append(
-            "sections",
-            this.cart.getSectionsToRender().map((section) => section.id),
-          );
+          formData.append("sections", sectionsToRender);
         } else {
           formData.append("sections", []);
         }
 
         formData.append("sections_url", window.location.pathname);
-        config.body = formData;
+
+        if (addOnInputs.length) {
+          const quantity = Number(formData.get("quantity") || 1);
+          const productProperties = {};
+
+          formData.forEach((value, key) => {
+            const match = key.match(/^properties\[(.+)]$/);
+            if (!match || value === "") return;
+            productProperties[match[1]] = value;
+          });
+
+          const productItem = {
+            id: Number(productVariantId),
+            quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
+          };
+          const sellingPlan = formData.get("selling_plan");
+          if (sellingPlan) productItem.selling_plan = Number(sellingPlan);
+          if (Object.keys(productProperties).length) productItem.properties = productProperties;
+
+          const items = [productItem];
+          addOnInputs.forEach((input) => {
+            const addOnVariantId = Number(input.dataset.cqAddonVariantId);
+            if (!Number.isFinite(addOnVariantId) || addOnVariantId <= 0) return;
+
+            const addOnQuantity = Number(input.dataset.cqAddonQuantity || 1);
+            const addOnItem = {
+              id: addOnVariantId,
+              quantity: Number.isFinite(addOnQuantity) && addOnQuantity > 0 ? addOnQuantity : 1,
+            };
+            if (input.dataset.cqAddonPropertyName && input.dataset.cqAddonPropertyValue) {
+              addOnItem.properties = {
+                [input.dataset.cqAddonPropertyName]: input.dataset.cqAddonPropertyValue,
+              };
+            }
+            items.push(addOnItem);
+          });
+
+          config.headers["Content-Type"] = "application/json";
+          config.body = JSON.stringify({
+            items,
+            sections: sectionsToRender,
+            sections_url: window.location.pathname,
+          });
+        } else {
+          config.body = formData;
+        }
 
         const openedInstantly =
           this.cartType === "drawer" &&
@@ -91,7 +143,7 @@ if (!customElements.get("product-form")) {
             if (response.status) {
               publish(PUB_SUB_EVENTS.cartError, {
                 source: "product-form",
-                productVariantId: formData.get("id"),
+                productVariantId,
                 errors: response.errors || response.description,
                 message: response.message,
               });
@@ -123,7 +175,7 @@ if (!customElements.get("product-form")) {
             if (!this.error)
               publish(PUB_SUB_EVENTS.cartUpdate, {
                 source: "product-form",
-                productVariantId: formData.get("id"),
+                productVariantId,
                 cartData: response,
               });
             this.error = false;
