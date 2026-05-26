@@ -3691,68 +3691,70 @@
                 </div>
               </div>
             {% when 'calqix_glow_refill_addon' %}
-              {%- if cq_is_glow_pro and product.handle == 'glow-pro' -%}
-                {%- assign cq_glow_refill = all_products['glow-pro-refill'] -%}
-                {%- assign cq_glow_refill_variant = cq_glow_refill.selected_or_first_available_variant -%}
-                {%- if cq_glow_refill != blank -%}
-                  <div
-                    class="cq-glow-refill-addon {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}"
-                    data-block-id="{{ block.id }}"
-                    data-cq-glow-refill-addon
-                  >
-                    {%- if cq_glow_refill_variant != blank and cq_glow_refill_variant.available -%}
-                      <div class="cq-glow-refill-addon__card">
-                        <label class="cq-glow-refill-addon__label" for="cq-glow-refill-{{ block.id }}">
-                          <input
-                            id="cq-glow-refill-{{ block.id }}"
-                            class="cq-glow-refill-addon__input"
-                            type="checkbox"
-                            data-cq-addon-variant-id="{{ cq_glow_refill_variant.id }}"
-                            data-cq-addon-quantity="1"
-                            data-cq-addon-property-name="_calqix_addon"
-                            data-cq-addon-property-value="Glow Pro refill"
-                          >
-                          <span class="cq-glow-refill-addon__control" aria-hidden="true"></span>
-                          <span class="cq-glow-refill-addon__copy">
-                            <strong>{{ 'calqix_glow_pro.refill_addon.title' | t }}</strong>
-                            <small>{{ 'calqix_glow_pro.refill_addon.body' | t }}</small>
-                          </span>
-                          <span class="cq-glow-refill-addon__price">{{ cq_glow_refill_variant.price | money }}</span>
-                        </label>
-                        <div class="cq-glow-refill-addon__actions">
-                          <div class="cq-glow-refill-addon__qty" data-cq-addon-quantity-stepper>
-                            <button type="button" data-cq-addon-qty-decrease aria-label="{{ 'calqix_glow_pro.refill_addon.decrease' | t }}" disabled>
-                              <span aria-hidden="true">-</span>
-                            </button>
-                            <input
-                              type="number"
-                              min="1"
-                              max="6"
-                              value="1"
-                              inputmode="numeric"
-                              aria-label="{{ 'calqix_glow_pro.refill_addon.quantity' | t }}"
-                              data-cq-addon-quantity-input
-                              disabled
-                            >
-                            <button type="button" data-cq-addon-qty-increase aria-label="{{ 'calqix_glow_pro.refill_addon.increase' | t }}" disabled>
-                              <span aria-hidden="true">+</span>
-                            </button>
-                          </div>
-                          <a class="cq-glow-refill-addon__link" href="{{ cq_glow_refill.url }}">
-                            {{ 'calqix_glow_pro.refill_addon.link' | t }}
-                          </a>
-                        </div>
-                      </div>
-                    {%- else -%}
-                      <a class="cq-glow-refill-addon__fallback" href="{{ cq_glow_refill.url }}">
-                        <span class="cq-glow-refill-addon__copy">
-                          <strong>{{ 'calqix_glow_pro.refill_addon.unavailable_title' | t }}</strong>
-                          <small>{{ 'calqix_glow_pro.refill_addon.unavailable_body' | t }}</small>
-                        </span>
-                      </a>
-                    {%- endif -%}
-                  </div>
+                {%- if cq_is_glow_pro and product.handle == 'glow-pro' -%}
+                  {%- assign cq_glow_refill = all_products['glow-pro-refill'] -%}
+                  {%- assign cq_glow_refill_variant = cq_glow_refill.selected_or_first_available_variant -%}
+                {%- assign cq_glow_refill_url = cq_glow_refill.url -%}
+                {%- if cq_glow_refill_url == blank -%}
+                  {%- assign cq_glow_refill_url = routes.root_url | append: 'products/glow-pro-refill' -%}
                 {%- endif -%}
+                <div
+                  class="cq-glow-refill-addon {% if settings.animations %} scroll-trigger animate--slide-in {% endif %} {% if settings.disabled_animations_on_mobile %} disabled-on-mobile {% endif %}"
+                  data-block-id="{{ block.id }}"
+                  data-cq-glow-refill-addon
+                >
+                  {%- if cq_glow_refill_variant != blank and cq_glow_refill_variant.available -%}
+                    <div class="cq-glow-refill-addon__card">
+                      <label class="cq-glow-refill-addon__label" for="cq-glow-refill-{{ block.id }}">
+                        <input
+                          id="cq-glow-refill-{{ block.id }}"
+                          class="cq-glow-refill-addon__input"
+                          type="checkbox"
+                          data-cq-addon-variant-id="{{ cq_glow_refill_variant.id }}"
+                          data-cq-addon-quantity="1"
+                          data-cq-addon-property-name="_calqix_addon"
+                          data-cq-addon-property-value="Glow Pro refill"
+                        >
+                        <span class="cq-glow-refill-addon__control" aria-hidden="true"></span>
+                        <span class="cq-glow-refill-addon__copy">
+                          <strong>{{ 'calqix_glow_pro.refill_addon.title' | t }}</strong>
+                          <small>{{ 'calqix_glow_pro.refill_addon.body' | t }}</small>
+                        </span>
+                        <span class="cq-glow-refill-addon__price">{{ cq_glow_refill_variant.price | money }}</span>
+                      </label>
+                      <div class="cq-glow-refill-addon__actions">
+                        <div class="cq-glow-refill-addon__qty" data-cq-addon-quantity-stepper>
+                          <button type="button" data-cq-addon-qty-decrease aria-label="{{ 'calqix_glow_pro.refill_addon.decrease' | t }}" disabled>
+                            <span aria-hidden="true">-</span>
+                          </button>
+                          <input
+                            type="number"
+                            min="1"
+                            max="6"
+                            value="1"
+                            inputmode="numeric"
+                            aria-label="{{ 'calqix_glow_pro.refill_addon.quantity' | t }}"
+                            data-cq-addon-quantity-input
+                            disabled
+                          >
+                          <button type="button" data-cq-addon-qty-increase aria-label="{{ 'calqix_glow_pro.refill_addon.increase' | t }}" disabled>
+                            <span aria-hidden="true">+</span>
+                          </button>
+                        </div>
+                        <a class="cq-glow-refill-addon__link" href="{{ cq_glow_refill_url }}">
+                          {{ 'calqix_glow_pro.refill_addon.link' | t }}
+                        </a>
+                      </div>
+                    </div>
+                  {%- else -%}
+                    <a class="cq-glow-refill-addon__fallback" href="{{ cq_glow_refill_url }}">
+                      <span class="cq-glow-refill-addon__copy">
+                        <strong>{{ 'calqix_glow_pro.refill_addon.unavailable_title' | t }}</strong>
+                        <small>{{ 'calqix_glow_pro.refill_addon.unavailable_body' | t }}</small>
+                      </span>
+                    </a>
+                  {%- endif -%}
+                </div>
               {%- endif -%}
             {% when 'specification' %}
               <collapsible-section
