@@ -3707,7 +3707,10 @@
               </div>
             {% when 'calqix_glow_refill_addon' %}
                 {%- if cq_is_glow_pro and product.handle == 'glow-pro' -%}
-                  {%- assign cq_glow_refill = all_products['glow-pro-refill'] -%}
+                  {%- assign cq_glow_refill = block.settings.refill_product -%}
+                  {%- if cq_glow_refill == blank -%}
+                    {%- assign cq_glow_refill = all_products['glow-pro-refill'] -%}
+                  {%- endif -%}
                   {%- assign cq_glow_refill_variant = cq_glow_refill.selected_or_first_available_variant -%}
                 {%- assign cq_glow_refill_url = cq_glow_refill.url -%}
                 {%- if cq_glow_refill_url == blank -%}
@@ -5564,7 +5567,13 @@
     {
       "type": "calqix_glow_refill_addon",
       "name": "CALQIX Glow refill add-on",
-      "settings": []
+      "settings": [
+        {
+          "type": "product",
+          "id": "refill_product",
+          "label": "Refill product"
+        }
+      ]
     },
     {
       "type": "specification",

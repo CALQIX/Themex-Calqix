@@ -46,7 +46,7 @@
         "calqix_subtitle_ob01": {
           "type": "calqix_subtitle",
           "settings": {
-            "subtitle": "<p>A 14-day at-home whitening routine with a blue LED device, whitening gel syringes, transparent trays, shade card and guide. Built around clear steps, visible shade tracking and claim-safe product information.</p>"
+            "subtitle": "<p>A 14-day at-home whitening routine with a blue LED device, whitening gel syringes, transparent mouth trays, shade card and guide. Built around clear steps, visible shade tracking and documented product information.</p>"
           }
         },
         "price": {
@@ -101,7 +101,7 @@
             "usp_1_subtitle": "Blue light device",
             "usp_2_icon": "breath-target",
             "usp_2_title": "Whitening gel",
-            "usp_2_subtitle": "Final INCI pending",
+            "usp_2_subtitle": "Documented gel",
             "usp_3_icon": "breath-target",
             "usp_3_title": "Shade tracking",
             "usp_3_subtitle": "Guide included",
@@ -112,6 +112,7 @@
         },
         "calqix_colour_switcher_LDTXY9": {
           "type": "calqix_colour_switcher",
+          "disabled": true,
           "settings": {
             "swatch_1_name": "Mint",
             "swatch_1_product": "oralbiome-pro-freshmint",
@@ -160,19 +161,18 @@
             "border_color": "#e4e4e0",
             "custom_css": "",
             "custom_js": ""
-          },
-          "disabled": true
+          }
         },
         "calqix_bundle_ob01": {
           "type": "calqix_bundle",
+          "disabled": true,
           "settings": {
             "tier_2_discount": 10,
             "tier_3_free_jar": true,
             "tier_3_discount": 33,
             "popular_tier": "3",
             "show_flavor_picker": false
-          },
-          "disabled": true
+          }
         },
         "seal_subscriptions_subscription_widget_PeJpN4": {
           "type": "shopify://apps/seal-subscriptions/blocks/subscription-widget/13b25004-a140-4ab7-b5fe-29918f759699",
@@ -183,6 +183,7 @@
         },
         "calqix_cert_badges_ob01": {
           "type": "calqix_cert_badges",
+          "disabled": true,
           "settings": {
             "show_toxicology": false,
             "show_iso22000": false,
@@ -206,8 +207,7 @@
             "badge_fill": "#002549",
             "badge_accent": "#f2f7ff",
             "label_color": "#002549"
-          },
-          "disabled": true
+          }
         },
         "buy_buttons": {
           "type": "buy_buttons",
@@ -238,7 +238,7 @@
         "calqix_compliance_note_ob01": {
           "type": "calqix_compliance_note",
           "settings": {
-            "text": "Adult cosmetic whitening routine. Final INCI, supplier documents and approved usage directions must be confirmed before publication.",
+            "text": "Adult cosmetic whitening routine. Product documentation, required licences and approved usage directions are checked for this kit.",
             "background_color": "#f7f5f2",
             "text_color": "#5a6a7a",
             "font_size": 12
@@ -304,11 +304,11 @@
         "calqix_usps_inline_ob01",
         "calqix_colour_switcher_LDTXY9",
         "calqix_bundle_ob01",
+        "calqix_glow_refill_addon_ob01",
         "seal_subscriptions_subscription_widget_PeJpN4",
         "calqix_cert_badges_ob01",
         "buy_buttons",
         "payments_badge_ob01",
-        "calqix_glow_refill_addon_ob01",
         "calqix_compliance_note_ob01",
         "calqix_trust_badges_ob01"
       ],
