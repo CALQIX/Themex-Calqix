@@ -1,4 +1,51 @@
 (function () {
+  var refillAddons = document.querySelectorAll('[data-cq-glow-refill-addon]');
+  refillAddons.forEach(function (addon) {
+    var checkbox = addon.querySelector('[data-cq-addon-variant-id]');
+    var quantityInput = addon.querySelector('[data-cq-addon-quantity-input]');
+    var decrease = addon.querySelector('[data-cq-addon-qty-decrease]');
+    var increase = addon.querySelector('[data-cq-addon-qty-increase]');
+    if (!checkbox || !quantityInput || !decrease || !increase) return;
+
+    var min = Number(quantityInput.getAttribute('min') || 1);
+    var max = Number(quantityInput.getAttribute('max') || 6);
+
+    function clamp(value) {
+      var next = Number(value);
+      if (!Number.isFinite(next)) next = min;
+      return Math.min(max, Math.max(min, Math.round(next)));
+    }
+
+    function setQuantity(value) {
+      var next = clamp(value);
+      quantityInput.value = next;
+      checkbox.dataset.cqAddonQuantity = String(next);
+      decrease.disabled = !checkbox.checked || next <= min;
+      increase.disabled = !checkbox.checked || next >= max;
+    }
+
+    function syncState() {
+      addon.classList.toggle('is-selected', checkbox.checked);
+      quantityInput.disabled = !checkbox.checked;
+      decrease.disabled = !checkbox.checked || clamp(quantityInput.value) <= min;
+      increase.disabled = !checkbox.checked || clamp(quantityInput.value) >= max;
+      setQuantity(quantityInput.value);
+    }
+
+    checkbox.addEventListener('change', syncState);
+    decrease.addEventListener('click', function () {
+      setQuantity(clamp(quantityInput.value) - 1);
+    });
+    increase.addEventListener('click', function () {
+      setQuantity(clamp(quantityInput.value) + 1);
+    });
+    quantityInput.addEventListener('change', function () {
+      setQuantity(quantityInput.value);
+    });
+
+    syncState();
+  });
+
   var roots = document.querySelectorAll('[data-glow-pro-section]');
   if (!roots.length) return;
 

@@ -116,6 +116,29 @@
               --aspect-ratio: var(--aspect-ratio-portait);
           {% endcase %}
         }
+
+        {% if cq_is_glow_pro %}
+          .wt-product__name {
+            font-size: clamp(42px, 5.2vw, 72px);
+            line-height: .96;
+            overflow-wrap: anywhere;
+          }
+
+          .wt-product__gallery .wt-product__img,
+          .wt-product__gallery .wt-product__slide-media,
+          .wt-product__gallery .wt-product__thumbnail-video,
+          .wt-product__gallery .wt-product__thumbnail-video img {
+            border-radius: 10px;
+            overflow: hidden;
+          }
+
+          @media (max-width: 640px) {
+            .wt-product__name {
+              font-size: clamp(34px, 10.5vw, 48px);
+              line-height: 1;
+            }
+          }
+        {% endif %}
   }
 
     {%- for block in section.blocks -%}
@@ -3678,22 +3701,48 @@
                     data-cq-glow-refill-addon
                   >
                     {%- if cq_glow_refill_variant != blank and cq_glow_refill_variant.available -%}
-                      <label class="cq-glow-refill-addon__label">
-                        <input
-                          class="cq-glow-refill-addon__input"
-                          type="checkbox"
-                          data-cq-addon-variant-id="{{ cq_glow_refill_variant.id }}"
-                          data-cq-addon-quantity="1"
-                          data-cq-addon-property-name="_calqix_addon"
-                          data-cq-addon-property-value="Glow Pro refill"
-                        >
-                        <span class="cq-glow-refill-addon__control" aria-hidden="true"></span>
-                        <span class="cq-glow-refill-addon__copy">
-                          <strong>{{ 'calqix_glow_pro.refill_addon.title' | t }}</strong>
-                          <small>{{ 'calqix_glow_pro.refill_addon.body' | t }}</small>
-                        </span>
-                        <span class="cq-glow-refill-addon__price">{{ cq_glow_refill_variant.price | money }}</span>
-                      </label>
+                      <div class="cq-glow-refill-addon__card">
+                        <label class="cq-glow-refill-addon__label" for="cq-glow-refill-{{ block.id }}">
+                          <input
+                            id="cq-glow-refill-{{ block.id }}"
+                            class="cq-glow-refill-addon__input"
+                            type="checkbox"
+                            data-cq-addon-variant-id="{{ cq_glow_refill_variant.id }}"
+                            data-cq-addon-quantity="1"
+                            data-cq-addon-property-name="_calqix_addon"
+                            data-cq-addon-property-value="Glow Pro refill"
+                          >
+                          <span class="cq-glow-refill-addon__control" aria-hidden="true"></span>
+                          <span class="cq-glow-refill-addon__copy">
+                            <strong>{{ 'calqix_glow_pro.refill_addon.title' | t }}</strong>
+                            <small>{{ 'calqix_glow_pro.refill_addon.body' | t }}</small>
+                          </span>
+                          <span class="cq-glow-refill-addon__price">{{ cq_glow_refill_variant.price | money }}</span>
+                        </label>
+                        <div class="cq-glow-refill-addon__actions">
+                          <div class="cq-glow-refill-addon__qty" data-cq-addon-quantity-stepper>
+                            <button type="button" data-cq-addon-qty-decrease aria-label="{{ 'calqix_glow_pro.refill_addon.decrease' | t }}" disabled>
+                              <span aria-hidden="true">-</span>
+                            </button>
+                            <input
+                              type="number"
+                              min="1"
+                              max="6"
+                              value="1"
+                              inputmode="numeric"
+                              aria-label="{{ 'calqix_glow_pro.refill_addon.quantity' | t }}"
+                              data-cq-addon-quantity-input
+                              disabled
+                            >
+                            <button type="button" data-cq-addon-qty-increase aria-label="{{ 'calqix_glow_pro.refill_addon.increase' | t }}" disabled>
+                              <span aria-hidden="true">+</span>
+                            </button>
+                          </div>
+                          <a class="cq-glow-refill-addon__link" href="{{ cq_glow_refill.url }}">
+                            {{ 'calqix_glow_pro.refill_addon.link' | t }}
+                          </a>
+                        </div>
+                      </div>
                     {%- else -%}
                       <a class="cq-glow-refill-addon__fallback" href="{{ cq_glow_refill.url }}">
                         <span class="cq-glow-refill-addon__copy">
