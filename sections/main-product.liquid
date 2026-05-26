@@ -119,9 +119,12 @@
 
         {% if cq_is_glow_pro %}
           .wt-product__name {
-            font-size: clamp(42px, 5.2vw, 72px);
-            line-height: .96;
-            overflow-wrap: anywhere;
+            font-size: clamp(34px, 4.2vw, 56px);
+            line-height: 1.02;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            white-space: normal;
+            word-break: normal;
           }
 
           .wt-product__gallery .wt-product__img,
@@ -134,8 +137,8 @@
 
           @media (max-width: 640px) {
             .wt-product__name {
-              font-size: clamp(34px, 10.5vw, 48px);
-              line-height: 1;
+              font-size: clamp(32px, 9.2vw, 44px);
+              line-height: 1.02;
             }
           }
         {% endif %}
