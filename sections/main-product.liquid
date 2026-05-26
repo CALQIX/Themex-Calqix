@@ -122,9 +122,11 @@
             font-size: clamp(34px, 4.2vw, 56px);
             line-height: 1.02;
             max-width: 100%;
+            overflow: visible !important;
             overflow-wrap: break-word;
-            white-space: normal;
-            word-break: normal;
+            text-overflow: unset !important;
+            white-space: normal !important;
+            word-break: normal !important;
           }
 
           .wt-product__gallery .wt-product__img,
@@ -139,6 +141,16 @@
             .wt-product__name {
               font-size: clamp(32px, 9.2vw, 44px);
               line-height: 1.02;
+            }
+          }
+
+          @media (max-width: 960px) {
+            .wt-product__info .wt-product__name {
+              font-size: clamp(30px, 5.8vw, 46px) !important;
+              overflow: visible !important;
+              text-align: left !important;
+              text-overflow: unset !important;
+              white-space: normal !important;
             }
           }
         {% endif %}
