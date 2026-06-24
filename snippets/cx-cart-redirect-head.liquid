@@ -1,45 +1,68 @@
 {%- comment -%}
-  CALQIX /cart -> localized homepage redirect + sidecart auto-open.
+  CALQIX /cart -> last-viewed product (sidecart) or homepage.
 
-  Behavior:
-    Any GET to the locale-aware cart route (for example `/cart`, `/fr/cart`,
-    `/de/cart`, `/pt-br/cart`) immediately redirects to the locale-aware
-    homepage with `?open_cart=1` appended. A companion script
-    (`assets/cx-cart-redirect.js`) then opens the sidecart drawer on arrival
-    and strips the query flag from the URL.
+  Behavior (per merchant request):
+    A GET to the locale-aware cart route (`/cart`, `/fr/cart`, `/de/cart`, ...):
+      - If the cart has items AND the customer viewed a product this session,
+        redirect to that product page with `?open_cart=1` so the sidecart opens.
+      - Otherwise (nothing ever added, or no product viewed this session),
+        redirect to the localized homepage.
+    The remembered product is written by assets/cx-cart-redirect.js, which also
+    opens the sidecart when `?open_cart=1` is present on arrival.
 
   Placement:
     MUST render as the FIRST thing inside <head> so `location.replace` fires
-    before any other scripts, stylesheets or page paint. Firing after GTM
-    would cause a bogus /cart pageview in analytics.
+    before any other scripts, stylesheets or page paint. Firing after GTM would
+    cause a bogus /cart pageview in analytics.
 
   Fallbacks:
     - Shopify theme editor preview (designMode) -> skip redirect so merchants
-      can still view the cart template in editor
+      can still view the cart template in editor.
     - Cart subpaths like /cart/change, /cart/update, /cart/clear are NOT
-      redirected (only exact /cart or /cart/)
+      redirected (only exact /cart or /cart/).
     - AJAX fetches to /cart/change.js etc. are unaffected (this only runs on
-      HTML page loads)
+      HTML page loads).
 {%- endcomment -%}
 <script>
 (function () {
   try {
     if (window.Shopify && window.Shopify.designMode) return;
 
-    var path = location.pathname;
     var normalize = function (value) {
       return String(value || '/').replace(/\/+$/, '') || '/';
     };
-    var currentPath = normalize(path);
     var cartPath = normalize({{ routes.cart_url | json }});
-    if (currentPath !== cartPath) return;
+    if (normalize(location.pathname) !== cartPath) return;
 
-    // Per merchant request: /cart in any locale always returns to the
-    // localized homepage. Shopify owns root_url, so market prefixes stay
-    // correct even for mixed-case or regional locale codes.
+    // Shopify owns root_url, so market prefixes stay correct even for
+    // mixed-case or regional locale codes.
     var home = {{ routes.root_url | json }};
     if (home.slice(-1) !== '/') home += '/';
-    location.replace(home + (home.indexOf('?') === -1 ? '?' : '&') + 'open_cart=1');
-  } catch (e) { /* fall through to normal /cart page on any failure */ }
+    var withFlag = function (url) {
+      return url + (url.indexOf('?') === -1 ? '?' : '&') + 'open_cart=1';
+    };
+
+    {%- if cart.item_count > 0 -%}
+      // Cart has items: return to the last product viewed this session and open
+      // the sidecart there. Guard against open-redirects: only follow a local
+      // product path read from sessionStorage (starts with a single "/" and
+      // contains "/products/").
+      var last = null;
+      try { last = sessionStorage.getItem('cx:lastProduct'); } catch (e) {}
+      var safe = last
+        && last.charAt(0) === '/'
+        && last.charAt(1) !== '/'
+        && last.indexOf('/products/') !== -1;
+      if (safe) {
+        location.replace(withFlag(last));
+      } else {
+        // Items but no product remembered this session -> homepage.
+        location.replace(home);
+      }
+    {%- else -%}
+      // Nothing in the cart (nothing ever added) -> back to the homepage.
+      location.replace(home);
+    {%- endif -%}
+  } catch (e) { /* fall through to the normal /cart page on any failure */ }
 })();
 </script>
