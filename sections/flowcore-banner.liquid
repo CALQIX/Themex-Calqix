@@ -557,7 +557,7 @@
             <button type="button"
               class="color-btn{% if forloop.first %} active{% endif %}"
               data-index="{{ idx }}"
-              style="{% if cq_btn_style == 'photo' %}background-image:url('{{ v_img | img_url: '160x' }}');{% else %}background:{{ v_color }};{% endif %}"
+              style="{% if cq_btn_style == 'photo' %}background-image:url('{{ v_img | image_url: width: 160 }}');{% else %}background:{{ v_color }};{% endif %}"
               title="{{ v_label }}"
               aria-label="{{ cx_banner_select }} {{ v_label }}"></button>
           {%- endif -%}
@@ -601,9 +601,12 @@
             <img
               class="mobile-product cq-mobile-variant"
               data-index="{{ idx }}"
-              src="{{ v_img | img_url: '600x' }}"
+              src="{{ v_img | image_url: width: 600 }}"
               alt="{{ v_label }}"
+              width="{{ v_img.width }}"
+              height="{{ v_img.height }}"
               loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+              {% if forloop.first %}fetchpriority="high"{% endif %}
               {% unless forloop.first %}style="display:none;"{% endunless %}
             >
           {%- endif -%}
@@ -652,7 +655,9 @@
 
       {%- if section.settings.img_pkg != blank -%}
         <img class="pkg-img"
-          src="{{ section.settings.img_pkg | img_url: '800x' }}"
+          src="{{ section.settings.img_pkg | image_url: width: 800 }}"
+          width="{{ section.settings.img_pkg.width }}"
+          height="{{ section.settings.img_pkg.height }}"
           alt="FlowCore packaging" loading="lazy">
       {%- endif -%}
 
@@ -665,8 +670,11 @@
         {%- if v_img != blank -%}
           {%- assign idx = forloop.index0 -%}
           <img class="device-img cq-variant{% if forloop.first %} active{% endif %}" data-index="{{ idx }}"
-            src="{{ v_img | img_url: '1080x' }}"
+            src="{{ v_img | image_url: width: 1080 }}"
+            width="{{ v_img.width }}"
+            height="{{ v_img.height }}"
             alt="{{ v_label }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+            {% if forloop.first %}fetchpriority="high"{% endif %}
             {% unless forloop.first %}style="opacity:0;pointer-events:none;"{% endunless %}>
         {%- endif -%}
       {%- endfor -%}
@@ -714,11 +722,11 @@
   ];
   /* Optional GPT-generated PNG sprites (image_picker). When set, sprite is drawn instead of procedural shape. */
   const PARTICLE_SPRITES = [
-    {%- if section.settings.particle_img_v1 != blank -%}'{{ section.settings.particle_img_v1 | img_url: "96x" }}'{%- else -%}''{%- endif -%},
-    {%- if section.settings.particle_img_v2 != blank -%}'{{ section.settings.particle_img_v2 | img_url: "96x" }}'{%- else -%}''{%- endif -%},
-    {%- if section.settings.particle_img_v3 != blank -%}'{{ section.settings.particle_img_v3 | img_url: "96x" }}'{%- else -%}''{%- endif -%},
-    {%- if section.settings.particle_img_v4 != blank -%}'{{ section.settings.particle_img_v4 | img_url: "96x" }}'{%- else -%}''{%- endif -%},
-    {%- if section.settings.particle_img_v5 != blank -%}'{{ section.settings.particle_img_v5 | img_url: "96x" }}'{%- else -%}''{%- endif -%}
+    {%- if section.settings.particle_img_v1 != blank -%}'{{ section.settings.particle_img_v1 | image_url: width: 96 }}'{%- else -%}''{%- endif -%},
+    {%- if section.settings.particle_img_v2 != blank -%}'{{ section.settings.particle_img_v2 | image_url: width: 96 }}'{%- else -%}''{%- endif -%},
+    {%- if section.settings.particle_img_v3 != blank -%}'{{ section.settings.particle_img_v3 | image_url: width: 96 }}'{%- else -%}''{%- endif -%},
+    {%- if section.settings.particle_img_v4 != blank -%}'{{ section.settings.particle_img_v4 | image_url: width: 96 }}'{%- else -%}''{%- endif -%},
+    {%- if section.settings.particle_img_v5 != blank -%}'{{ section.settings.particle_img_v5 | image_url: width: 96 }}'{%- else -%}''{%- endif -%}
   ];
 
   const glowEl          = document.getElementById('cq-glow-' + SID);
