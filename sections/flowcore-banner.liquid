@@ -821,6 +821,18 @@
   const ro = new ResizeObserver(resize);
   ro.observe(banner);
 
+  /* CALQIX perf: pause the background canvas animation when the user prefers
+     reduced motion, or when the banner is scrolled out of view (saves rAF CPU). */
+  var cqPrefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cqInView = true, cqRunning = false;
+  if ('IntersectionObserver' in window) {
+    var cqIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { cqInView = en.isIntersecting; });
+      if (cqInView) cqStart();
+    }, { threshold: 0 });
+    cqIO.observe(banner);
+  }
+
   banner.addEventListener('mousemove', function (e) {
     const r = banner.getBoundingClientRect();
     mouse.x = e.clientX - r.left;
@@ -840,6 +852,7 @@
   const ripples = [];
 
   setInterval(function () {
+    if (cqPrefersReduced || !cqInView) return;
     ripples.push({
       x: W * .5 + (Math.random() - .5) * W * .6,
       y: H * .7 + (Math.random() - .5) * H * .3,
@@ -1016,8 +1029,7 @@
 
   let t = 0;
 
-  (function draw() {
-    requestAnimationFrame(draw);
+  function cqDraw() {
     t += .01;
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#0d1c2b';
@@ -1074,7 +1086,12 @@
 
       drawParticle(ctx, p);
     });
-  })();
+
+    if (cqPrefersReduced || !cqInView) { cqRunning = false; return; }
+    requestAnimationFrame(cqDraw);
+  }
+  function cqStart() { if (!cqRunning && !cqPrefersReduced) { cqRunning = true; requestAnimationFrame(cqDraw); } }
+  if (cqPrefersReduced) { cqDraw(); } else { cqStart(); }
 
 })();
 </script>
