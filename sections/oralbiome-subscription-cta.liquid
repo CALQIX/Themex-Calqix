@@ -222,7 +222,7 @@
         document.body.classList.add('overflow-hidden', 'drawer-open');
       }
     } else {
-      var icon = document.querySelector('a[href="/cart"]')
+      var icon = document.querySelector('a[href$="/cart"]')
         || document.querySelector('.header__icon--cart')
         || document.querySelector('[data-cart-toggle]')
         || document.querySelector('.cart-icon-bubble');

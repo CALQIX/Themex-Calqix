@@ -1264,9 +1264,9 @@
         <p class="blog-cta__text">3 billion CFU. 4 clinically studied strains. One lozenge a day for a healthier oral microbiome.</p>
         {%- assign ob_product = all_products['oralbiome-pro'] -%}
         {%- if ob_product -%}
-          <a class="blog-cta__button" href="/collections/teeth-withening">Try OralBiome Pro</a>
+          <a class="blog-cta__button" href="{% render 'cq-url', path: 'collections/teeth-withening' %}">Try OralBiome Pro</a>
         {%- else -%}
-          <a class="blog-cta__button" href="/collections/teeth-withening">Shop Now</a>
+          <a class="blog-cta__button" href="{% render 'cq-url', path: 'collections/teeth-withening' %}">Shop Now</a>
         {%- endif -%}
       </div>
     </div>

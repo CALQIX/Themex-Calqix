@@ -1,0 +1,21 @@
+{%- comment -%}
+  cq-url: build a locale/market-aware internal URL that preserves the visitor's
+  chosen language prefix (e.g. /de) for otherwise-hardcoded internal links, so a
+  German visitor clicking the link stays on the German pages.
+
+  Usage:
+    <a href="{% render 'cq-url', path: 'collections/water-flosser' %}">…</a>
+
+  Pass `path` WITHOUT a market prefix (a leading slash is optional). Output is a
+  root-relative URL: `/collections/x` on the primary market, `/de/collections/x`
+  on the German market, etc. Shopify owns routes.root_url so all market/locale
+  prefixes (incl. regional codes like de-CH) stay correct.
+{%- endcomment -%}
+{%- liquid
+  assign cq_p = path | default: '' | remove_first: '/'
+  assign cq_root = routes.root_url
+  if cq_root == '/'
+    assign cq_root = ''
+  endif
+  echo cq_root | append: '/' | append: cq_p | replace: '//', '/'
+-%}
