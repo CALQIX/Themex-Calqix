@@ -1,23 +1,33 @@
 /*
- * CALQIX /cart -> localized homepage + sidecart (deferred half)
+ * CALQIX /cart -> last-viewed product + sidecart (deferred half)
  *
  * Responsibilities:
- *   1. When a page loads with `?open_cart=1` in the URL (arrival state after
- *      the redirect), programmatically click the existing sidecart trigger
- *      so the drawer opens, then strip the query flag from the URL so it
- *      does not pollute subsequent links or analytics.
+ *   1. On every page, remember the last product page the customer viewed this
+ *      session in sessionStorage (`cx:lastProduct`) so the /cart route can
+ *      return them to it. Locale-prefixed paths (/fr/products/...) are kept.
+ *   2. When a page loads with `?open_cart=1` (arrival state after the redirect),
+ *      programmatically click the existing sidecart trigger so the drawer
+ *      opens, then strip the flag from the URL so it does not leak into
+ *      analytics, share links or history.
  *
  * Compatibility:
- *   - The inline head snippet uses Shopify's locale-aware routes.root_url.
- *   - Skipped inside Shopify theme editor (`Shopify.designMode`) so merchants
- *     can browse the cart template without it vanishing.
+ *   - The inline head snippet (cx-cart-redirect-head.liquid) owns the /cart
+ *     redirect decision using Shopify's locale-aware routes + cart.item_count.
+ *   - Skipped inside the Shopify theme editor (`Shopify.designMode`).
  *   - Relies on the sidecart trigger having class `.wt-cart__trigger`
  *     (see sections/page-header.liquid and cx-header.liquid).
  */
 (function () {
   if (window.Shopify && window.Shopify.designMode) return;
 
-  // Auto-open drawer if arrived with the flag.
+  // 1. Remember the last product page viewed this session.
+  try {
+    if (location.pathname.indexOf('/products/') !== -1) {
+      sessionStorage.setItem('cx:lastProduct', location.pathname);
+    }
+  } catch (e) {}
+
+  // 2. Auto-open the drawer if we arrived with the flag.
   var params;
   try { params = new URLSearchParams(location.search); } catch (e) { return; }
   if (params.get('open_cart') !== '1') return;
