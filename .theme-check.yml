@@ -1,0 +1,17 @@
+# CALQIX storefront — theme-check configuration.
+# Scope linting to the actual Shopify theme; ignore the serverless app
+# (calqix-capi), scrapers, tooling, generated output, and local backups
+# so theme-check no longer reports issues from non-theme files.
+ignore:
+  - "_backup-live-*/"
+  - "_incoming/"
+  - ".codex-temp/"
+  - "calqix-capi/"
+  - "calqix_adlib_reference_scraper/"
+  - "node_modules/"
+  - "e2e/"
+  - "scripts/"
+  - "tools/"
+  - "reports/"
+  - "test-results/"
+  - "blog-content/"
