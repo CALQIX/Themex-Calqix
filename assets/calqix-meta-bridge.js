@@ -15,8 +15,8 @@
   // cache (see api/cron/bridge-version-check.js) — if an older version keeps
   // reporting in after a new one has gone live, Shopify's CDN or browser
   // caches are serving stale JS.
-  var BRIDGE_VERSION = '2026-05-25-addtocart-parity-a';
-  var ENABLE_THEME_ADD_TO_CART_META_FALLBACK = false;
+  var BRIDGE_VERSION = '2026-06-25-addtocart-on-a';
+  var ENABLE_THEME_ADD_TO_CART_META_FALLBACK = true;
 
   var CAPI_BASE = 'https://calqix-capi.vercel.app/api';
   var BROWSER_LEDGER_URL = CAPI_BASE + '/meta-browser-event';
