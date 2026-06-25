@@ -175,7 +175,7 @@
     <script src="{{ 'base.js' | asset_url }}" defer="defer"></script>
 
     {%- comment -%} CALQIX flying-tooth cart animation (Phase A) {%- endcomment -%}
-    {{ 'calqix-cart-animation.css' | asset_url | stylesheet_tag }}
+    <link rel="preload" href="{{ 'calqix-cart-animation.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="{{ 'calqix-cart-animation.css' | asset_url }}"></noscript>
     <script src="{{ 'calqix-cart-animation.js' | asset_url }}" defer="defer"></script>
 
     <script src="{{ 'color-swatch.js' | asset_url }}" defer="defer"></script>
