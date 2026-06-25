@@ -1,8 +1,8 @@
-{{ 'cart-drawer.css' | asset_url | stylesheet_tag }}
-{{ 'cart-flavor-picker.css' | asset_url | stylesheet_tag }}
-{{ 'calqix-rebuild-kit-bundle.css' | asset_url | stylesheet_tag }}
-{{ 'cart-discount.css' | asset_url | stylesheet_tag }}
-{{ 'cart-oralbiome-bar.css' | asset_url | stylesheet_tag }}
+<link rel="preload" href="{{ 'cart-drawer.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="{{ 'cart-drawer.css' | asset_url }}"></noscript>
+<link rel="preload" href="{{ 'cart-flavor-picker.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="{{ 'cart-flavor-picker.css' | asset_url }}"></noscript>
+<link rel="preload" href="{{ 'calqix-rebuild-kit-bundle.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="{{ 'calqix-rebuild-kit-bundle.css' | asset_url }}"></noscript>
+<link rel="preload" href="{{ 'cart-discount.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="{{ 'cart-discount.css' | asset_url }}"></noscript>
+<link rel="preload" href="{{ 'cart-oralbiome-bar.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="{{ 'cart-oralbiome-bar.css' | asset_url }}"></noscript>
 <script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'cart-drawer-note.js' | asset_url }}" defer="defer"></script>

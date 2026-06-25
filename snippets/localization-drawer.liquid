@@ -1,4 +1,4 @@
-{{ 'localization-drawer.css' | asset_url | stylesheet_tag }}
+<link rel="preload" href="{{ 'localization-drawer.css' | asset_url }}" as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="{{ 'localization-drawer.css' | asset_url }}"></noscript>
 <script src="{{ 'localization-drawer.js' | asset_url }}" defer="defer"></script>
 
 {% liquid
