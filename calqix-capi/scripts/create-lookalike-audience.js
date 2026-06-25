@@ -17,7 +17,7 @@
 require('dotenv').config();
 var fetch = require('node-fetch');
 
-var META_API_VERSION = process.env.META_API_VERSION || 'v21.0';
+var META_API_VERSION = process.env.META_API_VERSION || 'v22.0';
 
 function parseArgs(argv) {
   var args = { name: 'CALQIX Purchasers 180d', description: 'Paying customers, rolling 180-day window. Fed daily by lookalike-feeder cron.' };

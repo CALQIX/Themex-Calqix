@@ -34,7 +34,7 @@ module.exports = async function (req, res) {
     // Meta Pixel diagnostics
     var pixelId = process.env.META_PIXEL_ID;
     var accessToken = process.env.META_ACCESS_TOKEN;
-    var apiVersion = process.env.META_API_VERSION || 'v21.0';
+    var apiVersion = process.env.META_API_VERSION || 'v22.0';
 
     if (pixelId && accessToken) {
       try {

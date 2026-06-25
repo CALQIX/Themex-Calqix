@@ -1,7 +1,7 @@
 /**
  * Social Publisher - publish content directly to Facebook Page and Instagram Business.
  *
- * Uses Meta Graph API v21.0.
+ * Uses Meta Graph API v22.0.
  * Requires env vars:
  *   FACEBOOK_PAGE_ID         - The CALQIX Facebook Page ID
  *   INSTAGRAM_ACCOUNT_ID     - The IG Business account ID linked to the Page
@@ -13,7 +13,7 @@ var fetch = require('node-fetch');
 var store = require('./store');
 var dates = require('./dates');
 
-var API_VERSION = process.env.META_GRAPH_API_VERSION || 'v21.0';
+var API_VERSION = process.env.META_GRAPH_API_VERSION || 'v22.0';
 var BASE = 'https://graph.facebook.com/' + API_VERSION;
 
 function getPageId() { return process.env.FACEBOOK_PAGE_ID || ''; }

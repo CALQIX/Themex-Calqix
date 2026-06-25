@@ -30,7 +30,7 @@ var alertDedup = require('../../lib/alert-dedup');
 
 var LOCK_KEY = 'cron:lock:catalog-sync';
 var LOCK_TTL = 30 * 60;
-var META_API_VERSION = process.env.META_API_VERSION || 'v21.0';
+var META_API_VERSION = process.env.META_API_VERSION || 'v22.0';
 var MAX_CATALOG_PAGES = 10;       // safety cap: 10 * 500 = 5k retailer_ids
 var MAX_SHOPIFY_PRODUCTS = 250;   // CALQIX has <50 SKUs today, 250 is plenty
 var ALERT_P1_MISMATCH_PCT = 10;   // >10% variants missing → P1 alert

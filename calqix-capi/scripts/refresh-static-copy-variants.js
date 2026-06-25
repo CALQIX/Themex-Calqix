@@ -6,7 +6,7 @@ var fetch = require('node-fetch');
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 dotenv.config({ path: path.resolve(__dirname, '..', '.env.local'), override: true });
 
-var API_VERSION = process.env.META_GRAPH_API_VERSION || 'v21.0';
+var API_VERSION = process.env.META_GRAPH_API_VERSION || 'v22.0';
 var ACCESS_TOKEN = process.env.META_ACCESS_TOKEN;
 var AD_ACCOUNT_ID = process.env.META_AD_ACCOUNT_ID || 'act_2108393566376667';
 var IG_USER_ID = process.env.META_INSTAGRAM_USER_ID || '17841444868510454';
