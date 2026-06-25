@@ -17,7 +17,7 @@ var { sendTelegram } = require('./telegram');
 
 var AD_ACCOUNT_ID = function () { return process.env.META_AD_ACCOUNT_ID || 'act_2108393566376667'; };
 var META_TOKEN = function () { return process.env.META_ACCESS_TOKEN || ''; };
-var API_VERSION = process.env.META_GRAPH_API_VERSION || 'v21.0';
+var API_VERSION = process.env.META_GRAPH_API_VERSION || 'v22.0';
 var BASE_URL = 'https://graph.facebook.com/' + API_VERSION;
 
 function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }

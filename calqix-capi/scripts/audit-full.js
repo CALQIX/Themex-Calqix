@@ -337,7 +337,7 @@ async function fase2() {
   console.log('\n--- 2.8: Meta API ---');
   try {
     var metaRes = await fetchJSON(
-      'https://graph.facebook.com/v21.0/' + PIXEL_ID + '?access_token=' + META_TOKEN + '&fields=name,id', {}
+      'https://graph.facebook.com/v22.0/' + PIXEL_ID + '?access_token=' + META_TOKEN + '&fields=name,id', {}
     );
     report.connections.meta = metaRes.status === 200 ? 'OK' : 'FOUT(' + metaRes.status + ')';
     console.log('  Meta API: ' + report.connections.meta);
@@ -363,7 +363,7 @@ async function fase3() {
   try {
     var now = Math.floor(Date.now() / 1000);
     var dayAgo = now - 86400;
-    var statsUrl = 'https://graph.facebook.com/v21.0/' + PIXEL_ID + '/stats?' +
+    var statsUrl = 'https://graph.facebook.com/v22.0/' + PIXEL_ID + '/stats?' +
       'access_token=' + META_TOKEN +
       '&aggregation=event&start=' + dayAgo + '&end=' + now;
     var statsRes = await fetchJSON(statsUrl, {});
@@ -389,7 +389,7 @@ async function fase3() {
       
       // Try alternative: test_events endpoint
       console.log('\n  Probeer alternatief: server_events check...');
-      var altUrl = 'https://graph.facebook.com/v21.0/' + PIXEL_ID + '?access_token=' + META_TOKEN + '&fields=name,id,is_unavailable';
+      var altUrl = 'https://graph.facebook.com/v22.0/' + PIXEL_ID + '?access_token=' + META_TOKEN + '&fields=name,id,is_unavailable';
       var altRes = await fetchJSON(altUrl, {});
       console.log('  Pixel info: ' + altRes.body.substring(0, 200));
     }

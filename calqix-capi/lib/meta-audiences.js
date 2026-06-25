@@ -25,7 +25,7 @@
 var rlFetch = require('./rate-limited-fetch');
 var hash = require('./hash');
 
-var META_API_VERSION = process.env.META_API_VERSION || 'v21.0';
+var META_API_VERSION = process.env.META_API_VERSION || 'v22.0';
 var MAX_USERS_PER_BATCH = 10000;
 
 // Schema column order used for every upload. Keep in sync with buildRow().

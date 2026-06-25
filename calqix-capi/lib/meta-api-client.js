@@ -9,12 +9,12 @@
  *   - Dry-run mode
  *   - Execution logging
  *
- * Uses Graph API v21.0 by default (configurable via META_GRAPH_API_VERSION).
+ * Uses Graph API v22.0 by default (configurable via META_GRAPH_API_VERSION).
  */
 var fetch = require('node-fetch');
 var store = require('./store');
 
-var API_VERSION = process.env.META_GRAPH_API_VERSION || 'v21.0';
+var API_VERSION = process.env.META_GRAPH_API_VERSION || 'v22.0';
 var BASE_URL = 'https://graph.facebook.com/' + API_VERSION;
 var ACCESS_TOKEN = function () { return process.env.META_ACCESS_TOKEN || ''; };
 var AD_ACCOUNT_ID = function () { return process.env.META_AD_ACCOUNT_ID || 'act_2108393566376667'; };
