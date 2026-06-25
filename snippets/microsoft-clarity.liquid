@@ -7,15 +7,37 @@
   Clarity is session-recording + heatmap analytics. It auto-detects user intent
   cues (rage clicks, dead clicks, quick backs) which GA4 does not surface.
 
+  Performance: Clarity is loaded lazily (on browser idle, or on the first user
+  interaction, whichever comes first) so it does not compete for the main thread
+  during the critical first paint. The session is still recorded - it just
+  starts a moment later. Conversion tracking (GTM / Meta Pixel / GA4 / Google
+  Ads) is unaffected and keeps firing on load as before.
+
   Docs: https://learn.microsoft.com/en-us/clarity/setup-and-installation/clarity-setup
 {%- endcomment -%}
 {%- if settings.microsoft_clarity_project_id != blank -%}
   {%- assign clarity_id = settings.microsoft_clarity_project_id | strip -%}
   <script>
-    (function(c,l,a,r,i,t,y){
-      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", {{ clarity_id | json }});
+    (function () {
+      var started = false;
+      function loadClarity() {
+        if (started) return;
+        started = true;
+        (function (c, l, a, r, i, t, y) {
+          c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+          t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+          y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", {{ clarity_id | json }});
+      }
+      // Load when the browser is idle, or on the first interaction - whichever first.
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadClarity, { timeout: 5000 });
+      } else {
+        setTimeout(loadClarity, 3000);
+      }
+      ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(function (ev) {
+        window.addEventListener(ev, loadClarity, { once: true, passive: true });
+      });
+    })();
   </script>
 {%- endif -%}
