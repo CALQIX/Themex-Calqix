@@ -34,6 +34,7 @@ var SCHEDULE_ID_BRIDGE_HEALTH = 'calqix-bridge-health';         // 12. Every 10 
 var SCHEDULE_ID_DEDUP_AUDIT = 'calqix-dedup-audit';             // 13. Every 30 min
 var SCHEDULE_ID_ANOMALY_WATCH = 'calqix-anomaly-watch';         // 14. Every 5 min, 09-23
 var SCHEDULE_ID_EMQ_DEEP = 'calqix-emq-deep';                   // 15. Hourly
+var SCHEDULE_ID_EMQ_QUALITY = 'calqix-emq-quality';           // 15b. Weekly Mon 08:30 - real EMQ (Dataset Quality API)
 var SCHEDULE_ID_PIXEL_DIAG = 'calqix-pixel-diag';               // 16. Hourly at :15
 var SCHEDULE_ID_WEBHOOK_AUDIT = 'calqix-webhook-audit';         // 17. Every 30 min at :05
 var SCHEDULE_ID_RECONCILIATION = 'calqix-reconciliation';       // 18. Daily 04:00
@@ -402,6 +403,7 @@ async function createObservabilitySchedules() {
       { id: SCHEDULE_ID_DEDUP_AUDIT, endpoint: '/api/cron/dedup-audit', cron: 'CRON_TZ=Europe/Amsterdam */30 * * * *' },
       { id: SCHEDULE_ID_ANOMALY_WATCH, endpoint: '/api/cron/anomaly-watch', cron: 'CRON_TZ=Europe/Amsterdam */5 9-23 * * *' },
       { id: SCHEDULE_ID_EMQ_DEEP, endpoint: '/api/cron/emq-deep', cron: 'CRON_TZ=Europe/Amsterdam 0 * * * *' },
+      { id: SCHEDULE_ID_EMQ_QUALITY, endpoint: '/api/cron/emq-quality', cron: 'CRON_TZ=Europe/Amsterdam 30 8 * * 1' },
       { id: SCHEDULE_ID_PIXEL_DIAG, endpoint: '/api/cron/pixel-diag', cron: 'CRON_TZ=Europe/Amsterdam 15 * * * *' },
       { id: SCHEDULE_ID_WEBHOOK_AUDIT, endpoint: '/api/cron/webhook-audit', cron: 'CRON_TZ=Europe/Amsterdam 5,35 * * * *' },
       { id: SCHEDULE_ID_RECONCILIATION, endpoint: '/api/cron/reconciliation', cron: 'CRON_TZ=Europe/Amsterdam 0 4 * * *' },
